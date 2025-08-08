@@ -842,9 +842,14 @@ async def _handle_file_upload(service, request_id):
                 # Enqueue the file processing task using the wrapper function
                 job = queue.enqueue(
                     process_citation_task_direct,
-                    args=[request_id, 'file', {'file_path': file_path, 'filename': filename}],
-                    job_id=request_id,
-                    job_timeout='10m'
+                    args=(request_id, 'file', {
+                        'file_path': file_path,
+                        'filename': filename,
+                        'options': options
+                    }),
+                    job_timeout=600,  # 10 minutes timeout (optimized)
+                    result_ttl=86400,  # Keep results for 24 hours
+                    failure_ttl=86400  # Keep failed jobs for 24 hours
                 )
                 
                 logger.info(f"[File Upload {request_id}] File processing task enqueued with job_id: {job.id}")
@@ -1300,10 +1305,11 @@ async def _process_text_input(service, request_id, text, source_name="form-input
             
             # Enqueue the text processing task
             job = queue.enqueue(
-                'src.rq_worker.process_citation_task_direct',
-                args=[request_id, 'text', {'text': text}],
-                job_id=request_id,
-                job_timeout='10m'
+                process_citation_task_direct,
+                args=(request_id, 'text', {'text': text}),
+                job_timeout=600,  # 10 minutes timeout (optimized)
+                result_ttl=86400,
+                failure_ttl=86400
             )
             
             logger.info(f"[Text Input {request_id}] Text processing task enqueued with job_id: {job.id}")
@@ -1542,10 +1548,11 @@ async def _process_url_input(url, request_id=None):
             
             # Enqueue the URL processing task
             job = queue.enqueue(
-                'src.rq_worker.process_citation_task_direct',
-                args=[request_id, 'url', {'url': url, 'content': content}],
-                job_id=request_id,
-                job_timeout='10m'
+                process_citation_task_direct,
+                args=(request_id, 'url', {'url': url, 'content': content}),
+                job_timeout=600,  # 10 minutes timeout (optimized)
+                result_ttl=86400,
+                failure_ttl=86400
             )
             
             logger.info(f"[URL Input {request_id}] URL processing task enqueued with job_id: {job.id}")

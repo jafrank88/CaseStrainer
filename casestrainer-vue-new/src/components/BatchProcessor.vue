@@ -11,12 +11,12 @@
         <div class="upload-content">
           <div class="upload-icon">📁</div>
           <h5>Drop files here or click to browse</h5>
-          <p>Support for PDF, DOCX, TXT, and RTF files</p>
+          <p>Support for PDF, DOCX, TXT, RTF, MD, HTML, and XML files</p>
           <input 
             ref="fileInput" 
             type="file" 
             multiple 
-            accept=".pdf,.docx,.txt,.rtf"
+            accept=".pdf,.docx,.txt,.rtf,.md,.html,.htm,.xml,.xhtml"
             @change="handleFileSelect"
             style="display: none;"
           />

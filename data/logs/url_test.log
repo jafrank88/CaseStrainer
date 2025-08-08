@@ -1,0 +1,44 @@
+2025-05-09 16:55:04,258 - url_test - INFO - Starting URL input tests...
+2025-05-09 16:55:04,258 - url_test - INFO - Testing analyze endpoint with URL input...
+2025-05-09 16:55:04,259 - url_test - INFO - Sending URL to analyze endpoint: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 16:55:04,259 - url_test - INFO - Request payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 16:55:06,299 - url_test - INFO - Response status code: 400
+2025-05-09 16:55:06,300 - url_test - ERROR - Error response: 400 - {
+  "message": "No file or text provided",
+  "status": "error"
+}
+
+2025-05-09 16:55:06,300 - url_test - INFO - Testing direct_url_analyze endpoint...
+2025-05-09 16:55:06,301 - url_test - INFO - Sending URL to direct_url_analyze endpoint: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 16:55:06,302 - url_test - INFO - Request payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 16:55:08,620 - url_test - INFO - Response status code: 200
+2025-05-09 16:55:08,621 - url_test - INFO - URL analysis successful via direct_url_analyze endpoint
+2025-05-09 16:55:08,621 - url_test - INFO - Response: {'analysis_id': '8a0afb64-4393-473f-8891-ea8f8a24bdf0', 'citations': [], 'citations_count': 0, 'status': 'success', 'url': 'https://www.law.cornell.edu/supremecourt/text/347/483'}
+2025-05-09 16:55:08,622 - url_test - INFO - 
+=== TEST RESULTS SUMMARY ===
+2025-05-09 16:55:08,622 - url_test - INFO - analyze_endpoint: FAILED
+2025-05-09 16:55:08,623 - url_test - INFO - direct_url_endpoint: PASSED
+2025-05-09 16:55:08,623 - url_test - ERROR - 
+SOME TESTS FAILED. Please check the logs for details.
+2025-05-09 16:56:03,792 - url_test - INFO - Starting URL input tests...
+2025-05-09 16:56:03,793 - url_test - INFO - Testing analyze endpoint with URL input...
+2025-05-09 16:56:03,793 - url_test - INFO - Sending URL to analyze endpoint: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 16:56:03,793 - url_test - INFO - Request payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 16:56:05,822 - url_test - INFO - Response status code: 400
+2025-05-09 16:56:05,822 - url_test - ERROR - Error response: 400 - {
+  "message": "No file or text provided",
+  "status": "error"
+}
+
+2025-05-09 16:56:05,823 - url_test - INFO - Testing direct_url_analyze endpoint...
+2025-05-09 16:56:05,823 - url_test - INFO - Sending URL to direct_url_analyze endpoint: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 16:56:05,823 - url_test - INFO - Request payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 16:56:08,161 - url_test - INFO - Response status code: 200
+2025-05-09 16:56:08,162 - url_test - INFO - URL analysis successful via direct_url_analyze endpoint
+2025-05-09 16:56:08,162 - url_test - INFO - Response: {'analysis_id': '30c5500a-9c79-449d-af1b-7f3e7995b16c', 'citations': [], 'citations_count': 0, 'status': 'success', 'url': 'https://www.law.cornell.edu/supremecourt/text/347/483'}
+2025-05-09 16:56:08,163 - url_test - INFO - 
+=== TEST RESULTS SUMMARY ===
+2025-05-09 16:56:08,163 - url_test - INFO - analyze_endpoint: FAILED
+2025-05-09 16:56:08,163 - url_test - INFO - direct_url_endpoint: PASSED
+2025-05-09 16:56:08,163 - url_test - ERROR - 
+SOME TESTS FAILED. Please check the logs for details.

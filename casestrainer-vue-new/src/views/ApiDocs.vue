@@ -98,7 +98,7 @@
         </div>
         <div class="card-body">
           <p><strong>Content-Type:</strong> <code>multipart/form-data</code></p>
-          <p><strong>Supported formats:</strong> PDF, DOC, DOCX, TXT</p>
+          <p><strong>Supported formats:</strong> PDF, DOCX, TXT, RTF, MD, HTML, XML</p>
           <p><strong>Field name:</strong> <code>file</code></p>
           
           <h5>Example Request:</h5>

@@ -1,0 +1,539 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250803010750
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 9912
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250803_010750.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Smart Production Start (RECOMMENDED)
+    - Intelligent build detection, balanced speed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+Pruning unused Docker images and volumes for a clean build...
+Building all images with --no-cache to ensure latest code...
+Starting up containers...
+
+[INFO] Full rebuild complete.
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS.
+
+Press any key to return to menu...
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"180 Wn. 2d 632, 327 P.3d 644"}' | Select-Object -ExpandProperty Content
+{"metadata":{"content_type":"application/json","endpoint":"/analyze","has_json_data":true,"input_size":39,"input_type":"json","processing_mode":"unknown","processing_time":1754209079.0378838,"processing_time_ms":6280,"request_id":"7d5ba8f2-9327-4424-80c6-0a3f13a066e5","source":"direct_api","status":"completed","success":true,"text_length":28,"timestamp":"2025-08-03T08:17:52.759622"},"request_id":"7d5ba8f2-9327-4424-80c6-0a3f13a066e5","result":{"citations":[{"canonical_date":"2014-06-19","canonical_name":"In re the Marriage of Chandola","case_history":[],"citation":"180 Wn. 2d 632, 327 P.3d 644","cluster_id":null,"cluster_members":[],"confidence":0.8,"context":"180 Wn. 2d 632, 327 P.3d 644","court":null,"docket_number":null,"docket_numbers":[],"end_index":28,"error":null,"extracted_case_name":"N/A","extracted_date":null,"is_cluster":false,"is_parallel":true,"metadata":{"cluster_id":"fallback_parallel_180 Wn. 2d 632, 327 P.3d 644_327 P.3d 644","courtlistener_source":"CourtListener-lookup-validated","is_in_cluster":true},"method":"regex","parallel_citations":["327 P.3d 644"],"pattern":"parallel_citation_cluster","pinpoint_pages":[],"publication_status":null,"source":"CourtListener-lookup-validated","start_index":0,"url":"https://www.courtlistener.com/opinion/4906942/in-re-the-marriage-of-chandola/","verified":true},{"canonical_date":"2014-06-19","canonical_name":"In re the Marriage of Chandola","case_history":[],"citation":"327 P.3d 644","cluster_id":null,"cluster_members":[],"confidence":0.8,"context":"d 632, 327 P.3d 644","court":null,"docket_number":null,"docket_numbers":[],"end_index":28,"error":null,"extracted_case_name":"N/A","extracted_date":null,"is_cluster":false,"is_parallel":false,"metadata":{"canonical_date_propagated_from":"180 Wn. 2d 632, 327 P.3d 644","canonical_name_propagated_from":"180 Wn. 2d 632, 327 P.3d 644","cluster_id":"fallback_parallel_180 Wn. 2d 632, 327 P.3d 644_327 P.3d 644","is_in_cluster":true},"method":"regex","parallel_citations":["180 Wn. 2d 632, 327 P.3d 644"],"pattern":"flexible_p3d","pinpoint_pages":[],"publication_status":null,"source":"fallback","start_index":16,"url":null,"verified":false}],"clusters":[{"canonical_date":"2014-06-19","canonical_name":"In re the Marriage of Chandola","citations":[{"canonical_date":"2014-06-19","canonical_name":"In re the Marriage of Chandola","citation":"180 Wn. 2d 632, 327 P.3d 644","confidence":0.8,"context":"180 Wn. 2d 632, 327 P.3d 644","court":null,"extracted_case_name":"N/A","extracted_date":"N/A","parallel_citations":["327 P.3d 644"],"source":"CourtListener-lookup-validated","url":"https://www.courtlistener.com/opinion/4906942/in-re-the-marriage-of-chandola/","verified":true},{"canonical_date":"2014-06-19","canonical_name":"In re the Marriage of Chandola","citation":"327 P.3d 644","confidence":0.8,"context":"d 632, 327 P.3d 644","court":null,"extracted_case_name":"N/A","extracted_date":"N/A","parallel_citations":["180 Wn. 2d 632, 327 P.3d 644"],"source":"fallback","true_by_parallel":true,"url":null,"verified":false}],"cluster_id":"fallback_parallel_180 Wn. 2d 632, 327 P.3d 644_327 P.3d 644","extracted_case_name":"N/A","extracted_date":null,"has_parallel_citations":true,"size":2,"source":"citation_clustering","url":"https://www.courtlistener.com/opinion/4906942/in-re-the-marriage-of-chandola/"}],"statistics":{}},"success":true}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250803_011807.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Smart Production Start (RECOMMENDED)
+    - Intelligent build detection, balanced speed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 3
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250803_011918.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 3...
+Pruning unused Docker images and volumes for a clean build...
+
+Building all images with --no-cache to ensure latest code...
+
+Starting up containers...
+
+
+[INFO] Full rebuild complete.
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS.
+
+Fatal Error: The term '//' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Check log file: D:\dev\casestrainer\logs\crash.log
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"180 Wn. 2d 632, 327 P.3d 644"}' | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer "
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer 
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue.
+Please try again in a few minutes, or contact us if the problem persists.
+Return to CaseStrainer
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | Select-String -Pattern "ERROR|Exception|Traceback"
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/health" -Method GET
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {123, 34, 115, 116...}
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Content-Length: 21
+                    Content-Type: application/octet-stream,application/json
+                    Date: Sun, 03 Aug 2025 08:28:21 GMT
+                    Server: nginx/1.29.0
+
+                    {"status": "healthy"}...
+Headers           : {[Connection, keep-alive], [Content-Length, 21], [Content-Type,
+                    application/octet-stream,application/json], [Date, Sun, 03 Aug 2025 08:28:21 GMT]...}
+RawContentLength  : 21
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"327 P.3d 644"}' | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer "
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer 
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue.
+Please try again in a few minutes, or contact us if the problem persists.
+Return to CaseStrainer
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], W
+   ebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 100
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-rqworker-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod curl -X POST "http://localhost:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d '{"text":"327 P.3d 644"}'
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod curl -X POST "http://localhost:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d '{"text":"327 P.3d 644"}'
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>echo '{"text":"327 P.3d 644"}' | docker exec -i casestrainer-backend-prod curl -X POST "http://localhost:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d @-
+At line:1 char:176
++ ... 0/casestrainer/api/analyze" -H "Content-Type: application/json" -d @-
++                                                                        ~
+Unrecognized token in source text.
+At line:1 char:176
++ ... 0/casestrainer/api/analyze" -H "Content-Type: application/json" -d @-
++                                                                        ~
+Unrecognized token in source text.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnrecognizedToken
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod python -m py_compile src/unified_citation_processor_v2.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker restart casestrainer-backend-prod
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"180 Wn. 2d 632, 327 P.3d 644"}' | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer "
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer 
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue.
+Please try again in a few minutes, or contact us if the problem persists.
+Return to CaseStrainer
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], W
+   ebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 3
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250803_013031.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 3...
+Pruning unused Docker images and volumes for a clean build...
+
+Building all images with --no-cache to ensure latest code...
+
+Starting up containers...
+
+
+[INFO] Full rebuild complete.
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS.
+
+Fatal Error: The term '//' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Check log file: D:\dev\casestrainer\logs\crash.log
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"180 Wn. 2d 632, 327 P.3d 644"}' | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer "
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer 
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue.
+Please try again in a few minutes, or contact us if the problem persists.
+Return to CaseStrainer
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], W
+   ebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 30
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 100 | Select-String -Pattern "ERROR|Exception|Traceback|500"
+
+2025-08-03 08:38:50 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu',
+'http://localhost:5000', 'http://localhost:8080']
+2025-08-03 08:38:51 - waitress - INFO - Serving on http://0.0.0.0:5000
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/health" -Method GET
+
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : {123, 34, 115, 116...}
+RawContent        : HTTP/1.1 200 OK
+                    Connection: keep-alive
+                    Content-Length: 21
+                    Content-Type: application/octet-stream,application/json
+                    Date: Sun, 03 Aug 2025 08:39:15 GMT
+                    Server: nginx/1.29.0
+
+                    {"status": "healthy"}...
+Headers           : {[Connection, keep-alive], [Content-Length, 21], [Content-Type,
+                    application/octet-stream,application/json], [Date, Sun, 03 Aug 2025 08:39:15 GMT]...}
+RawContentLength  : 21
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-rqworker-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text":"test"}' | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer "
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue. 
+Please try again in a few minutes, or contact us if the problem persists. 
+Return to CaseStrainer 
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : ⚠️
+500
+Server Error
+We're experiencing technical difficulties. Our team has been notified and is working to resolve the issue.
+Please try again in a few minutes, or contact us if the problem persists.
+Return to CaseStrainer
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://wolf.law.uw.edu/casestrainer/api/anal ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], W
+   ebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-nginx-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker inspect casestrainer-backend-prod | Select-String -Pattern "IPAddress"
+
+            "SecondaryIPAddresses": null,
+            "IPAddress": "",
+                    "IPAddress": "172.18.0.7",
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod netstat -tlnp
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod ps aux
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-nginx-prod curl -X POST "http://casestrainer-backend-prod:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d '{"text":"test"}'
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-nginx-prod curl -X POST "http://casestrainer-backend-prod:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d "{\"text\":\"test\"}"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | Select-String -Pattern "JSON|parse|error"
+
+2025-08-03 08:39:54 - src.vue_api_endpoints_updated - ERROR - [Request f6a8d67a-6d0e-419d-aeee-3e7a763be545]
+Error: Error in JSON input handler: 400 Bad Request: The browser (or proxy) sent a request that this server could
+not understand.
+2025-08-03 08:39:54 - src.app_final_vue - WARNING - Body (truncated):
+{"citations":[],"clusters":[],"details":"Error in JSON input handler: 400 Bad Request: The browser (or proxy)
+sent a request that this server could not understand.","error":"Error in JSON input handle...
+2025-08-03 08:39:59 - src.vue_api_endpoints_updated - INFO - [Request b34f2c63-3a57-4fff-9e2a-88ce1cfa60dd]
+Content-Type: application/json
+2025-08-03 08:39:59 - src.vue_api_endpoints_updated - DEBUG - [Request b34f2c63-3a57-4fff-9e2a-88ce1cfa60dd]
+Headers: {'Host': 'casestrainer-backend-prod:5000', 'User-Agent': 'curl/7.88.1', 'Accept': '*/*', 'Content-Type':
+'application/json', 'Content-Length': '2'}
+2025-08-03 08:39:59 - src.vue_api_endpoints_updated - INFO - [Request b34f2c63-3a57-4fff-9e2a-88ce1cfa60dd]
+Routing to JSON input handler
+2025-08-03 08:39:59 - src.vue_api_endpoints_updated - ERROR - [Request b34f2c63-3a57-4fff-9e2a-88ce1cfa60dd]
+Error in JSON input handler: 400 Bad Request: The browser (or proxy) sent a request that this server could not
+understand.
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/wrappers/request.py", line 611, in get_json
+    rv = self.json_module.loads(data)
+  File "/usr/local/lib/python3.10/site-packages/flask/json/provider.py", line 187, in loads
+    return json.loads(s, **kwargs)
+  File "/usr/local/lib/python3.10/json/__init__.py", line 346, in loads
+  File "/usr/local/lib/python3.10/json/decoder.py", line 337, in decode
+  File "/usr/local/lib/python3.10/json/decoder.py", line 353, in raw_decode
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+  File "/usr/local/lib/python3.10/site-packages/flask/wrappers.py", line 214, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/wrappers/request.py", line 645, in on_json_loading_failed
+    raise BadRequest(f"Failed to decode JSON object: {e}")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Failed to decode JSON object: Expecting property name enclosed
+in double quotes: line 1 column 2 (char 1)
+    result = await _handle_json_input(service, request_id, json_data or request.get_json())
+  File "/usr/local/lib/python3.10/site-packages/werkzeug/wrappers/request.py", line 620, in get_json
+    rv = self.on_json_loading_failed(e)
+  File "/usr/local/lib/python3.10/site-packages/flask/wrappers.py", line 219, in on_json_loading_failed
+2025-08-03 08:39:59 - src.vue_api_endpoints_updated - ERROR - [Request b34f2c63-3a57-4fff-9e2a-88ce1cfa60dd]
+Error: Error in JSON input handler: 400 Bad Request: The browser (or proxy) sent a request that this server could
+not understand.
+2025-08-03 08:39:59 - src.app_final_vue - WARNING - Body (truncated):
+{"citations":[],"clusters":[],"details":"Error in JSON input handler: 400 Bad Request: The browser (or proxy)
+sent a request that this server could not understand.","error":"Error in JSON input handle...
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>echo '{"text":"test"}' > /tmp/test.json && docker exec casestrainer-nginx-prod curl -X POST "http://casestrainer-backend-prod:5000/casestrainer/api/analyze" -H "Content-Type: application/json" -d @/tmp/test.json
+At line:1 char:41
++ echo '{"text":"test"}' > /tmp/test.json && docker exec casestrainer-n ...
++                                         ~~
+The token '&&' is not a valid statement separator in this version.
+
+At line:1 char:197
++ ... trainer/api/analyze" -H "Content-Type: application/json" -d @/tmp/tes ...
++                                                                 ~
+Unrecognized token in source text.
+At line:1 char:41
++ echo '{"text":"test"}' > /tmp/test.json && docker exec casestrainer-n ...
++                                         ~~
+The token '&&' is not a valid statement separator in this version.
+
+At line:1 char:197
++ ... trainer/api/analyze" -H "Content-Type: application/json" -d @/tmp/tes ...
++                                                                 ~
+Unrecognized token in source text.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_production_server.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>git status
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker images | Select-String "casestrainer"
+
+casestrainer-rqworker3       latest     b8a8c2d19c60   5 minutes ago   2.13GB
+casestrainer-rqworker2       latest     849ad9436824   5 minutes ago   2.13GB
+casestrainer-backend         latest     ffecdddaf76e   5 minutes ago   2.13GB
+casestrainer-rqworker        latest     e4143e9874df   5 minutes ago   2.13GB
+casestrainer-frontend-prod   latest     ae0547a4c683   7 minutes ago   80.1MB
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps --format "table {{.Names}}\t{{.Image}}\t{{.CreatedAt}}"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod grep -A 5 -B 5 "true_by_parallel.*metadata" /app/src/unified_citation_processor_v2.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker system df
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod ls -la /app/src/unified_citation_processor_v2.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 3
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250803_014302.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 3...
+Pruning unused Docker images and volumes for a clean build...
+
+Building all images with --no-cache to ensure latest code...
+
+Starting up containers...
+
+
+[INFO] Full rebuild complete.
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS.
+
+Fatal Error: The term '//' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+Check log file: D:\dev\casestrainer\logs\crash.log
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

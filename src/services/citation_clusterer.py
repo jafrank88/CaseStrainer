@@ -75,34 +75,43 @@ class CitationClusterer(ICitationClusterer):
     
     def cluster_citations(self, citations: List[CitationResult]) -> List[Dict[str, Any]]:
         """
-        Group citations into clusters based on case relationships.
+        Group citations into clusters based on case relationships and ensure proper merging.
         
         Args:
             citations: List of citations to cluster
             
         Returns:
-            List of cluster dictionaries with grouped citations
+            List of properly merged cluster dictionaries
         """
         if not citations:
             return []
         
-        # Step 1: Group by canonical name/date (verified citations only)
+        # Step 1: Detect parallel citations first
+        citations = self.detect_parallel_citations(citations, "")  # Use empty string for text parameter
+        
+        # Step 2: Create canonical clusters for verified citations
         canonical_clusters = self._create_canonical_clusters(citations)
         
-        # Step 2: Merge unverified citations with matching canonical clusters
+        # Step 3: Merge unverified citations with canonical clusters
         self._merge_unverified_with_canonical(citations, canonical_clusters)
         
-        # Step 3: Create clusters for remaining unverified citations
+        # Step 4: Create clusters for remaining unverified citations
         extracted_clusters = self._create_extracted_clusters(citations, canonical_clusters)
         
-        # Step 4: Merge all clusters
+        # Step 5: Merge all clusters into unified structure
         all_clusters = {**canonical_clusters, **extracted_clusters}
         
-        # Step 5: Propagate canonical data within clusters
+        # Step 6: Propagate canonical data and ensure consistency
         self._propagate_canonical_data(all_clusters)
         
-        # Step 6: Format clusters for output
+        # Step 7: Format properly merged clusters
         formatted_clusters = self._format_clusters(all_clusters)
+        
+        # Step 8: Ensure clustered entries are properly marked
+        for cluster in formatted_clusters:
+            if cluster['size'] > 1:
+                for citation in cluster['citations']:
+                    citation['is_cluster'] = True
         
         if self.config.debug_mode:
             logger.info(f"CitationClusterer created {len(formatted_clusters)} clusters")
@@ -320,84 +329,27 @@ class CitationClusterer(ICitationClusterer):
                         citation.canonical_date = canonical_source.canonical_date
                     
                     # Update metadata to track propagation
-                    citation.metadata = citation.metadata or {}
-                    if citation != canonical_source:
-                        citation.metadata['canonical_data_source'] = canonical_source.citation
-    
-    def _format_clusters(self, clusters: Dict[str, List[CitationResult]]) -> List[Dict[str, Any]]:
-        """Format clusters for output."""
-        formatted_clusters = []
         
-        for cluster_key, cluster_members in clusters.items():
-            if not cluster_members:
-                continue
-            
-            # Get cluster metadata from the first member with canonical data
-            canonical_name = None
-            canonical_date = None
-            extracted_case_name = None
-            extracted_date = None
-            
-            for member in cluster_members:
-                if not canonical_name and member.canonical_name:
-                    canonical_name = member.canonical_name
-                if not canonical_date and member.canonical_date:
-                    canonical_date = member.canonical_date
-                if not extracted_case_name and member.extracted_case_name:
-                    extracted_case_name = member.extracted_case_name
-                if not extracted_date and member.extracted_date:
-                    extracted_date = member.extracted_date
-            
-            # Format citations for output
-            formatted_citations = []
+        # Propagate canonical data to all members that lack it
+        if canonical_source:
             for citation in cluster_members:
-                # Check if this citation is true_by_parallel
-                is_true_by_parallel = citation.metadata and citation.metadata.get('true_by_parallel', False)
+                if not citation.canonical_name:
+                    citation.canonical_name = canonical_source.canonical_name
+                if not citation.canonical_date:
+                    citation.canonical_date = canonical_source.canonical_date
                 
-                # Determine the verification status
-                if is_true_by_parallel:
-                    verified_status = 'true_by_parallel'
-                else:
-                    verified_status = citation.verified
-                
-                citation_dict = {
-                    'citation': citation.citation,
-                    'canonical_name': citation.canonical_name or 'N/A',
-                    'canonical_date': citation.canonical_date or 'N/A',
-                    'extracted_case_name': citation.extracted_case_name or 'N/A',
-                    'extracted_date': citation.extracted_date or 'N/A',
-                    'verified': verified_status,
-                    'confidence': citation.confidence,
-                    'context': citation.context or '',
-                    'parallel_citations': citation.parallel_citations or []
-                }
-                
-                # Add true_by_parallel flag if applicable
-                if is_true_by_parallel:
-                    citation_dict['true_by_parallel'] = True
-                
-                formatted_citations.append(citation_dict)
-            
-            # Create cluster dictionary
-            cluster_dict = {
-                'cluster_id': cluster_key,
-                'canonical_name': canonical_name or 'N/A',
-                'canonical_date': canonical_date or 'N/A',
-                'extracted_case_name': extracted_case_name or 'N/A',
-                'extracted_date': extracted_date or 'N/A',
-                'citations': formatted_citations,
-                'size': len(formatted_citations),
-                'has_parallel_citations': len(formatted_citations) > 1
-            }
-            
-            formatted_clusters.append(cluster_dict)
-        
-        return formatted_clusters
+                # Update metadata to track propagation
+                citation.metadata = citation.metadata or {}
+                if citation != canonical_source:
+                    citation.metadata['canonical_data_source'] = canonical_source.citation
+
+def _format_clusters(self, clusters: Dict[str, List[CitationResult]]) -> List[Dict[str, Any]]:
+    """Format clusters for output with proper merging and canonical name extraction."""
+    formatted_clusters = []
     
-    def _normalize_case_name(self, case_name: str) -> str:
-        """Normalize case name for comparison."""
-        if not case_name:
-            return ""
+    for cluster_key, cluster_members in clusters.items():
+        if not cluster_members:
+            continue
         
         # Convert to lowercase and remove extra whitespace
         normalized = re.sub(r'\s+', ' ', case_name.strip().lower())

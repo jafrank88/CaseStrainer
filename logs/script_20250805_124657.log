@@ -1,0 +1,116 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250805124658
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 13792
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250805_124657.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 2...
+Deleting all .pyc files and __pycache__ directories to prevent stale bytecode...
+Analyzing code changes to determine rebuild strategy...
+âš ï¸  Detected recent changes - will do full rebuild for safety
+Pruning unused Docker images and volumes for a clean build...
+wtzlw1764ff97ejdjmcjaacu5
+9hc1u3ua7t0vdokr6g4olk8wp
+
+Total reclaimed space: 21.43GB
+Building all images with --no-cache to ensure latest code...
+
+Starting up containers...
+
+
+[INFO] Smart production start complete.
+[INFO] Full rebuild performed due to recent changes.
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5) to clear any cached JS/CSS.
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Fast Production Start (RECOMMENDED) - Restart with latest code
+    - Fast restart with volume mounts, no rebuild needed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+ðŸš€ FAST START: Restarting containers with latest code (volume mounts enabled)...
+Cleaning Python cache...
+Checking if front-end rebuild is needed...
+Source files newer than dist - build required
+Front-end changes detected. Building Vue frontend...
+Vue directory: D:\dev\casestrainer\casestrainer-vue-new
+Using npm at: npm
+npm dependencies are up to date
+OK node_modules up to date (skipping npm install)
+Source files newer than dist - build required
+Building Vue frontend...
+Running: npm run build
+OK Vue frontend built successfully (0.55 MB)
+Copying Vue build assets to static/assets...
+Assets copied to D:\dev\casestrainer\static\assets
+Front-end build complete!
+Restarting containers with existing images...
+
+[INFO] Fast production start complete!
+[INFO] Latest code is available via volume mounts (no rebuild needed).
+[INFO] If you are testing the frontend, please hard-refresh your browser (Ctrl+F5).
+
+Press any key to return to menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Fast Production Start (RECOMMENDED) - Restart with latest code
+    - Fast restart with volume mounts, no rebuild needed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+Exiting...
+PS>TerminatingError(): "System error."
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

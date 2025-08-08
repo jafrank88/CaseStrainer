@@ -105,8 +105,8 @@ casestrainer_database_export_*.xlsx
 database_export_*.xlsx
 
 # Log files
-logs/*.log
-*.log
+#logs/*.log
+#*.log
 !logs/.gitkeep
 
 # Test data files

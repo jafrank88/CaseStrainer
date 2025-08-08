@@ -17,7 +17,7 @@
           id="fileUpload" 
           class="file-input" 
           @change="handleFileChange"
-          accept=".pdf,.docx,.txt,.rtf,.doc,.html,.htm"
+          accept=".pdf,.docx,.txt,.rtf,.md,.html,.htm,.xml,.xhtml"
           :disabled="isAnalyzing"
         />
         
@@ -43,7 +43,7 @@
               {{ isDragOver ? 'Drop your file here' : 'Click to browse or drag & drop' }}
             </h4>
             <p class="upload-subtitle">
-              Supports: PDF, DOCX, TXT, RTF, DOC, HTML
+              Supports: PDF, DOCX, TXT, RTF, MD, HTML, XML
             </p>
             <div class="upload-limit">
               <i class="bi bi-info-circle me-1"></i>
@@ -204,7 +204,7 @@ export default {
       const fileExtension = selectedFile.name.toLowerCase().substring(selectedFile.name.lastIndexOf('.'));
       
       if (!allowedTypes.includes(selectedFile.type) && !allowedExtensions.includes(fileExtension)) {
-        fileError.value = 'Please select a valid file type (PDF, DOC, DOCX, TXT, RTF, or HTML)';
+        fileError.value = 'Please select a valid file type (PDF, DOCX, TXT, RTF, MD, HTML, or XML)';
         return;
       }
       

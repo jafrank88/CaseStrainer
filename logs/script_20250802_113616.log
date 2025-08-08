@@ -1,0 +1,939 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250802113616
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 19272
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250802_113616.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 1...
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Vue build is up to date
+OK Docker is running
+OK Sufficient disk space (55.01 GB free)
+Processing Vue frontend build...
+Using cached Vue build check result: False
+Vue build needed: False, ForceRebuild: False
+OK Vue build up to date (skipping build)
+Stopping existing Docker containers...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml down --timeout 30
+Containers stopped successfully
+Checking for any remaining 'casestrainer' containers...
+No remaining 'casestrainer' containers found.
+
+Starting Docker containers...
+Using existing images (no rebuild needed)...
+Docker compose command: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml up -d
+OK Docker containers started successfully
+Waiting for containers to initialize...
+
+Waiting for services to become healthy (timeout: 10 minutes, requires 2 consecutive healthy checks)...
+âœ… All services report healthy (1/2)...
+No status change detected, waiting...
+âœ… All services are ready and stable
+  Backend: HEALTHY, Redis: HEALTHY, Worker: HEALTHY
+âœ… API endpoint is responding: {"message":"Vue API is running","status":"ok","timestamp":"2025-08-02T18:36:51.000995"}
+
+=== Docker Production Mode Ready ===
+INFO Production Site:  https://wolf.law.uw.edu/casestrainer
+
+Local Development URLs:
+Backend API:    http://localhost:5001/casestrainer/api/
+Frontend Prod:  http://localhost:8080/
+Nginx (HTTP):   http://localhost:80/
+Nginx (HTTPS):  https://localhost:443/
+Local Frontend: https://localhost/casestrainer/
+API Health:     https://localhost/casestrainer/api/health
+
+Docker Commands:
+  View logs:    docker-compose -f docker-compose.prod.yml logs [service]
+  Stop all:     docker-compose -f docker-compose.prod.yml down
+  Restart:      docker-compose -f docker-compose.prod.yml restart [service]
+
+Running adaptive learning pipeline...
+Starting adaptive learning pipeline...
+Using enhanced adaptive learning pipeline...
+Running adaptive learning pipeline...
+âœ… Adaptive learning pipeline completed successfully
+âœ… Adaptive learning completed successfully
+
+Running post-startup validation...
+  Testing API endpoints...
+  âœ… API health check passed
+  âŒ Text processing test failed after 3 attempts
+WARNING: Post-startup validation failed - system may have issues
+Running production test suite...
+[2025-08-02 11:37:02] âŒ Some production tests failed (exit code: 4)!
+
+Last 30 lines of test output:
+
+============================ no tests ran in 0.03s ============================
+pytest.exe : D:\Python\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The
+configuration option "asyncio_default_fixture_loop_scope" is unset.
+At D:\dev\casestrainer\cslaunch.ps1:2618 char:39
++ ... estResult = & pytest test_production_server.py -v --maxfail=1 --disab ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\Python\Lib\s...cope" is unset.:String) [], RemoteExce
+   ption
+    + FullyQualifiedErrorId : NativeCommandError
+
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future
+versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope.
+Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future.
+Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.6.0 -- D:\Python\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-2022Server-10.0.20348-SP0', 'Packages': {'pytest': '8.3.5', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.9.0', 'asyncio': '1.0.0', 'cov': '6.1.1', 'html': '4.1.1', 'httpx': '0.35.0', 'metadata': '3.1.1', 'mock': '3.14.1', 'timeout': '2.4.0', 'xdist': '3.7.0'}}
+rootdir: D:\dev\casestrainer
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.0.0, cov-6.1.1, html-4.1.1, httpx-0.35.0, metadata-3.1.1, mock-3.14.1, timeout-2.4.0, xdist-3.7.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+ERROR: file or directory not found: test_production_server.py
+
+collecting ... collected 0 items
+
+============================ no tests ran in 0.03s ============================
+
+Full test log available at: D:\dev\casestrainer\logs\production_test.log
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_clustering_debug.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://localhost/casestrainer/api/health" -UseBasicParsing -SkipCertificateCheck
+>> TerminatingError(Invoke-WebRequest): "A parameter cannot be found that matches parameter name 'SkipCertificateCheck'."
+Invoke-WebRequest : A parameter cannot be found that matches parameter name 'SkipCertificateCheck'.
+At line:1 char:85
++ ... lhost/casestrainer/api/health" -UseBasicParsing -SkipCertificateCheck
++                                                     ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Invoke-WebRequest], ParameterBindingException
+    + FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : A parameter cannot be found that matches parameter name 'SkipCertificateCheck'.
+At line:1 char:85
++ ... lhost/casestrainer/api/health" -UseBasicParsing -SkipCertificateCheck
++                                                     ~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Invoke-WebRequest], ParameterBindingException
+    + FullyQualifiedErrorId : NamedParameterNotFound,Microsoft.PowerShell.Commands.InvokeWebRequestCo
+   mmand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; Invoke-WebRequest -Uri "https://localhost/casestrainer/api/health" -UseBasicParsing
+>> TerminatingError(Invoke-WebRequest): "The underlying connection was closed: An unexpected error occurred on a send."
+Invoke-WebRequest : The underlying connection was closed: An unexpected error occurred on a send.
+At line:1 char:82
++ ...  = {$true}; Invoke-WebRequest -Uri "https://localhost/casestrainer/ap ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : The underlying connection was closed: An unexpected error occurred on a send.
+At line:1 char:82
++ ...  = {$true}; Invoke-WebRequest -Uri "https://localhost/casestrainer/ap ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-We
+   bRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRe
+   questCommand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-nginx-prod curl -s -k https://localhost/casestrainer/api/health
+{"status": "healthy"}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_production_api.py
+3. Testing Parallel Citations...
+   Status: 200
+   ✅✅ Parallel citation analysis successful
+   �� Found 4 citations
+   �� Found 2 clusters
+   ✅✅ Found 4 citations with parallel citations
+     - 200 Wn. 2d 72: ['514 P.3d 643']
+     - 514 P.3d 643: ['200 Wn. 2d 72']
+     - 171 Wn. 2d 486: ['256 P.3d 321']
+     - 256 P.3d 321: ['171 Wn. 2d 486']
+
+�� All tests completed successfully!
+
+✅✅ Production server is working correctly!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>curl -s "https://www.courtlistener.com/api/rest/v4/search/?q=123+F.3d+456" | jq '.results[0] | {case_name: .case_name, date_filed: .date_filed, absolute_url: .absolute_url}'
+jq : The term 'jq' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:78
++ ... ww.courtlistener.com/api/rest/v4/search/?q=123+F.3d+456" | jq '.resul ...
++                                                                ~~
+    + CategoryInfo          : ObjectNotFound: (jq:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+jq : The term 'jq' is not recognized as the name of a cmdlet, function, script file, or operable
+program. Check the spelling of the name, or if a path was included, verify that the path is correct
+and try again.
+At line:1 char:78
++ ... ww.courtlistener.com/api/rest/v4/search/?q=123+F.3d+456" | jq '.resul ...
++                                                                ~~
+    + CategoryInfo          : ObjectNotFound: (jq:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>curl -s "https://www.courtlistener.com/api/rest/v4/search/?q=123+F.3d+456"
+>> TerminatingError(Invoke-WebRequest): "Cannot find drive. A drive with the name 'https' does not exist."
+curl : Cannot find drive. A drive with the name 'https' does not exist.
+At line:1 char:1
++ curl -s "https://www.courtlistener.com/api/rest/v4/search/?q=123+F.3d ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (https:String) [Invoke-WebRequest], DriveNotFoundException
+    + FullyQualifiedErrorId : DriveNotFound,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+curl : Cannot find drive. A drive with the name 'https' does not exist.
+At line:1 char:1
++ curl -s "https://www.courtlistener.com/api/rest/v4/search/?q=123+F.3d ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (https:String) [Invoke-WebRequest], DriveNotFoundExcept
+   ion
+    + FullyQualifiedErrorId : DriveNotFound,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "https://www.courtlistener.com/api/rest/v4/search/?q=123+F.3d+456" -UseBasicParsing | Select-Object -ExpandProperty Content
+>> TerminatingError(Invoke-WebRequest): "The underlying connection was closed: An unexpected error occurred on a send."
+Invoke-WebRequest : The underlying connection was closed: An unexpected error occurred on a send.
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://www.courtlistener.com/api/rest/v4/sea ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-WebRequest], 
+WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : The underlying connection was closed: An unexpected error occurred on a send.
+At line:1 char:1
++ Invoke-WebRequest -Uri "https://www.courtlistener.com/api/rest/v4/sea ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (System.Net.HttpWebRequest:HttpWebRequest) [Invoke-We
+   bRequest], WebException
+    + FullyQualifiedErrorId : WebCmdletWebResponseException,Microsoft.PowerShell.Commands.InvokeWebRe
+   questCommand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_citation_mismatch.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>$env:COURTLISTENER_API_KEY="***REDACTED_COURTLISTENER_KEY***"; python test_citation_mismatch.py
+
+❌❌ MISMATCH DETECTED!
+Expected: Smith v. Jones
+Got: Mary Santaella and Cary Eldridge v. Metropolitan Life Insurance Company
+This is the issue - the system is returning a completely different case!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 2
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250802_114850.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 2...
+Deleting all .pyc files and __pycache__ directories to prevent stale bytecode...
+Ensuring latest code from git...
+âš ï¸ Uncommitted changes detected - skipping git pull
+   Uncommitted files: 15
+Analyzing code changes to determine rebuild strategy...
+Found recent changes: 15 files
+   - casestrainer-vue-new/package.json
+   - casestrainer-vue-new/package-lock.json
+   - casestrainer-vue-new/vite.config.js
+   - ... and 12 more
+âš ï¸ Detected critical changes - recommending full rebuild for safety
+   - Python import changes detected
+   - Dependency file changes detected
+   - Critical Python module changes detected
+ðŸ„ Performing full rebuild due to detected changes...
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Force flag specified - Vue build required
+OK Docker is running
+OK Sufficient disk space (55 GB free)
+Processing Vue frontend build...
+Vue build needed: True, ForceRebuild: True
+Building Vue frontend (ForceRebuild: True)...
+Force rebuild mode: Clearing Vue caches...
+Removing existing dist directory...
+Removing node_modules for clean install...
+Removing package-lock.json for clean dependency resolution...
+Clearing npm cache...
+npm cache cleared
+Vue directory: D:\dev\casestrainer\casestrainer-vue-new
+Checking Node.js and npm...
+OK Node.js v22.15.0, npm 8.19.2
+Using npm at: npm
+Installing npm dependencies...
+Force rebuild: Running clean npm install...
+Running: npm install
+OK npm dependencies installed
+Building Vue frontend...
+Force rebuild: Building from clean state...
+Running: npm run build
+OK Vue frontend built successfully (0.61 MB)
+Copying Vue build assets to static/assets...
+Assets copied to D:\dev\casestrainer\static\assets
+Stopping existing Docker containers...
+Force rebuild: Removing all CaseStrainer containers...
+Removing all CaseStrainer containers...
+Found 7 CaseStrainer containers to remove
+  - casestrainer-nginx-prod
+  - casestrainer-rqworker2-prod
+  - casestrainer-backend-prod
+  - casestrainer-rqworker3-prod
+  - casestrainer-rqworker-prod
+  - casestrainer-redis-prod
+  - casestrainer-frontend-prod
+Stopping casestrainer-nginx-prod...
+Stopping casestrainer-rqworker2-prod...
+Stopping casestrainer-backend-prod...
+Stopping casestrainer-rqworker3-prod...
+Stopping casestrainer-rqworker-prod...
+Stopping casestrainer-redis-prod...
+Stopping casestrainer-frontend-prod...
+Removing casestrainer-nginx-prod...
+Removing casestrainer-rqworker2-prod...
+Removing casestrainer-backend-prod...
+Removing casestrainer-rqworker3-prod...
+Removing casestrainer-rqworker-prod...
+Removing casestrainer-redis-prod...
+Removing casestrainer-frontend-prod...
+Successfully removed 7 CaseStrainer containers
+Force rebuild: Removing volumes and orphaned containers...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml down --timeout 30 --volumes --remove-orphans
+Containers stopped successfully
+Checking for any remaining 'casestrainer' containers...
+No remaining 'casestrainer' containers found.
+
+Starting Docker containers...
+Force rebuild: Building all images from scratch with --no-cache...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml build --no-cache
+Docker compose command: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml up -d
+OK Docker containers started successfully
+Waiting for containers to initialize...
+
+Waiting for services to become healthy (timeout: 10 minutes, requires 2 consecutive healthy checks)...
+âœ… All services report healthy (1/2)...
+No status change detected, waiting...
+âœ… All services are ready and stable
+  Backend: HEALTHY, Redis: HEALTHY, Worker: HEALTHY
+âœ… API endpoint is responding: {"message":"Vue API is running","status":"ok","timestamp":"2025-08-02T18:58:21.622831"}
+
+=== Docker Production Mode Ready ===
+INFO Production Site:  https://wolf.law.uw.edu/casestrainer
+
+Local Development URLs:
+Backend API:    http://localhost:5001/casestrainer/api/
+Frontend Prod:  http://localhost:8080/
+Nginx (HTTP):   http://localhost:80/
+Nginx (HTTPS):  https://localhost:443/
+Local Frontend: https://localhost/casestrainer/
+API Health:     https://localhost/casestrainer/api/health
+
+Docker Commands:
+  View logs:    docker-compose -f docker-compose.prod.yml logs [service]
+  Stop all:     docker-compose -f docker-compose.prod.yml down
+  Restart:      docker-compose -f docker-compose.prod.yml restart [service]
+
+Running adaptive learning pipeline...
+Starting adaptive learning pipeline...
+Using enhanced adaptive learning pipeline...
+Running adaptive learning pipeline...
+âœ… Adaptive learning pipeline completed successfully
+âœ… Adaptive learning completed successfully
+
+Running post-startup validation...
+  Testing API endpoints...
+  âœ… API health check passed
+  âŒ Text processing test failed after 3 attempts
+WARNING: Post-startup validation failed - system may have issues
+Running production test suite...
+pytest.exe : D:\Python\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The
+configuration option "asyncio_default_fixture_loop_scope" is unset.
+At D:\dev\casestrainer\cslaunch.ps1:2750 char:21
++ ...             & pytest test_production_server.py -v --maxfail=1 --disab ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\Python\Lib\s...cope" is unset.:String) [], RemoteExce
+   ption
+    + FullyQualifiedErrorId : NativeCommandError
+
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future
+versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope.
+Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future.
+Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.6.0 -- D:\Python\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-2022Server-10.0.20348-SP0', 'Packages': {'pytest': '8.3.5', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.9.0', 'asyncio': '1.0.0', 'cov': '6.1.1', 'html': '4.1.1', 'httpx': '0.35.0', 'metadata': '3.1.1', 'mock': '3.14.1', 'timeout': '2.4.0', 'xdist': '3.7.0'}}
+rootdir: D:\dev\casestrainer
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.0.0, cov-6.1.1, html-4.1.1, httpx-0.35.0, metadata-3.1.1, mock-3.14.1, timeout-2.4.0, xdist-3.7.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+ERROR: file or directory not found: test_production_server.py
+
+collecting ... collected 0 items
+
+============================ no tests ran in 0.03s ============================
+[2025-08-02 11:58:32] âŒ Some production tests failed (exit code: 4)!
+
+Last 30 lines of test output:
+
+============================ no tests ran in 0.03s ============================
+pytest.exe : D:\Python\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning: The
+configuration option "asyncio_default_fixture_loop_scope" is unset.
+At D:\dev\casestrainer\cslaunch.ps1:2750 char:21
++ ...             & pytest test_production_server.py -v --maxfail=1 --disab ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\Python\Lib\s...cope" is unset.:String) [], RemoteExce
+   ption
+    + FullyQualifiedErrorId : NativeCommandError
+
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future
+versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function scope.
+Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the future.
+Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.6.0 -- D:\Python\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-2022Server-10.0.20348-SP0', 'Packages': {'pytest': '8.3.5', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.9.0', 'asyncio': '1.0.0', 'cov': '6.1.1', 'html': '4.1.1', 'httpx': '0.35.0', 'metadata': '3.1.1', 'mock': '3.14.1', 'timeout': '2.4.0', 'xdist': '3.7.0'}}
+rootdir: D:\dev\casestrainer
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.0.0, cov-6.1.1, html-4.1.1, httpx-0.35.0, metadata-3.1.1, mock-3.14.1, timeout-2.4.0, xdist-3.7.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+ERROR: file or directory not found: test_production_server.py
+
+collecting ... collected 0 items
+
+============================ no tests ran in 0.03s ============================
+
+Full test log available at: D:\dev\casestrainer\logs\production_test.log
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_fix_verification.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 2
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250802_115920.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Running menu option 2...
+Deleting all .pyc files and __pycache__ directories to prevent stale bytecode...
+Ensuring latest code from git...
+âš ï¸ Uncommitted changes detected - skipping git pull
+   Uncommitted files: 16
+Analyzing code changes to determine rebuild strategy...
+Found recent changes: 16 files
+   - casestrainer-vue-new/package.json
+   - casestrainer-vue-new/package-lock.json
+   - casestrainer-vue-new/vite.config.js
+   - ... and 13 more
+âš ï¸ Detected critical changes - recommending full rebuild for safety
+   - Python import changes detected
+   - Dependency file changes detected
+   - Critical Python module changes detected
+ðŸ„ Performing full rebuild due to detected changes...
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Force flag specified - Vue build required
+OK Docker is running
+OK Sufficient disk space (50.75 GB free)
+Processing Vue frontend build...
+Vue build needed: True, ForceRebuild: True
+Building Vue frontend (ForceRebuild: True)...
+Force rebuild mode: Clearing Vue caches...
+Removing existing dist directory...
+Removing node_modules for clean install...
+Removing package-lock.json for clean dependency resolution...
+Clearing npm cache...
+npm cache cleared
+Vue directory: D:\dev\casestrainer\casestrainer-vue-new
+Checking Node.js and npm...
+OK Node.js v22.15.0, npm 8.19.2
+Using npm at: npm
+Installing npm dependencies...
+Force rebuild: Running clean npm install...
+Running: npm install
+OK npm dependencies installed
+Building Vue frontend...
+Force rebuild: Building from clean state...
+Running: npm run build
+OK Vue frontend built successfully (0.61 MB)
+Copying Vue build assets to static/assets...
+Assets copied to D:\dev\casestrainer\static\assets
+Stopping existing Docker containers...
+Force rebuild: Removing all CaseStrainer containers...
+Removing all CaseStrainer containers...
+Found 7 CaseStrainer containers to remove
+  - casestrainer-nginx-prod
+  - casestrainer-rqworker2-prod
+  - casestrainer-rqworker-prod
+  - casestrainer-backend-prod
+  - casestrainer-rqworker3-prod
+  - casestrainer-frontend-prod
+  - casestrainer-redis-prod
+Stopping casestrainer-nginx-prod...
+Stopping casestrainer-rqworker2-prod...
+Stopping casestrainer-rqworker-prod...
+Stopping casestrainer-backend-prod...
+Stopping casestrainer-rqworker3-prod...
+Stopping casestrainer-frontend-prod...
+Stopping casestrainer-redis-prod...
+Removing casestrainer-nginx-prod...
+Removing casestrainer-rqworker2-prod...
+Removing casestrainer-rqworker-prod...
+Removing casestrainer-backend-prod...
+Removing casestrainer-rqworker3-prod...
+Removing casestrainer-frontend-prod...
+Removing casestrainer-redis-prod...
+Successfully removed 7 CaseStrainer containers
+Force rebuild: Removing volumes and orphaned containers...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml down --timeout 30 --volumes --remove-orphans
+Containers stopped successfully
+Checking for any remaining 'casestrainer' containers...
+No remaining 'casestrainer' containers found.
+
+Starting Docker containers...
+Force rebuild: Building all images from scratch with --no-cache...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml build --no-cache
+PS>TerminatingError(): "The pipeline has been stopped."
+PS>TerminatingError(): "The pipeline has been stopped."
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_fix_verification.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml up -d
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>ls "D:\dev\casestrainer\gov.uscourts.wyd.64014.141.0_1.pdf"
+
+
+    Directory: D:\dev\casestrainer
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          5/5/2025   4:10 PM         212964 gov.uscourts.wyd.64014.141.0_1.pdf
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python -c "import PyPDF2; import sys; reader = PyPDF2.PdfReader('gov.uscourts.wyd.64014.141.0_1.pdf'); print('Pages:', len(reader.pages)); print('First page text preview:'); print(reader.pages[0].extract_text()[:500])"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_real_pdf.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+(healthy)                                                                                  casestrainer-rqwo
+rker-prod
+7e8fc00c6fda   casestrainer-rqworker2       "python src/rq_worke…"   About a minute ago   Up About a minute
+(healthy)                                                                                  casestrainer-rqwo
+rker2-prod
+680442fb518d   casestrainer-rqworker3       "python src/rq_worke…"   About a minute ago   Up About a minute
+(healthy)                                                                                  casestrainer-rqwo
+rker3-prod
+d1f93d1dcbdb   redis:7-alpine               "docker-entrypoint.s…"   About a minute ago   Up About a minute
+(healthy)   0.0.0.0:6380->6379/tcp, [::]:6380->6379/tcp                                    casestrainer-redi
+s-prod
+ebbe9d8da455   casestrainer-frontend-prod   "/docker-entrypoint.…"   About a minute ago   Up About a minute
+(healthy)   0.0.0.0:8080->80/tcp, [::]:8080->80/tcp                                        casestrainer-fron
+tend-prod
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_citation_rejection.py
+   Expected: Should be processed normally
+   Status: 200
+   Found 2 citations
+   Citation 1: 200 Wn. 2d 72, 514 P.3d 643
+     Verified: False
+     Source: fallback
+     ⚠️ Real citation not verified (may be expected)
+   Citation 2: 514 P.3d 643
+     Verified: False
+     Source: fallback
+     ⚠️ Real citation not verified (may be expected)
+
+==================================================
+Test completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+2025-08-02 19:13:58 - src.vue_api_endpoints - INFO - [Request 6368941a-2d22-4598-8bab-5c4eaa9b7366] Con
+tent-Type: multipart/form-data; boundary=0f09d719b7a1d94c44107e8f5487f421
+2025-08-02 19:13:58 - src.app_final_vue - WARNING - [RESPONSE #1] POST vue_api.analyze_text -> 400 (176
+ chars)
+2025-08-02 19:13:59 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (88 char
+s)
+2025-08-02 19:14:29 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.health_check -> 200 (88 char
+s)
+2025-08-02 19:15:00 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.health_check -> 200 (88 char
+s)
+2025-08-02 19:15:30 - src.app_final_vue - INFO - [RESPONSE #5] GET vue_api.health_check -> 200 (88 char
+s)
+2025-08-02 19:16:00 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.health_check -> 200 (88 char
+s)
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 10
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 15
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 10
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python -c "import src.vue_api_endpoints; print('Import successful')"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml up -d
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_fix.py
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python quick_file_test.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 10
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 30
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>timeout 10 && docker logs casestrainer-backend-prod --tail 20
+At line:1 char:12
++ timeout 10 && docker logs casestrainer-backend-prod --tail 20
++            ~~
+The token '&&' is not a valid statement separator in this version.
+At line:1 char:12
++ timeout 10 && docker logs casestrainer-backend-prod --tail 20
++            ~~
+The token '&&' is not a valid statement separator in this version.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Sleep 5; docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Sleep 10; docker logs casestrainer-backend-prod --tail 30
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | Select-String -Pattern "Request|File|upload|analyze" -Context 2
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod 2>&1 | findstr /i "request file upload analyze"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | findstr /i "About to enter try block|Entering try block|Files in request|Form data|Checking for file uploads|File upload detected"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend --no-cache
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml up -d
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python quick_file_test.py
+�� Quick File Upload Test
+========================================
+�� Testing with: D:\dev\casestrainer\gov.uscourts.wyd.64014.141.0_1.pdf
+�� File size: 212964 bytes
+�� Sending request...
+❌❌ ERROR: HTTPSConnectionPool(host='localhost', port=443): Read timed out. (read timeout=30)
+========================================
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+2025-08-02 19:32:22 - pdfminer.psparser - DEBUG - nextobject: (8893, /b'TJ')
+2025-08-02 19:32:22 - pdfminer.pdfinterp - DEBUG - exec: TJ [[b' ']]
+2025-08-02 19:32:22 - pdfminer.psparser - DEBUG - nexttoken: (8897, /b'ET')
+2025-08-02 19:32:22 - pdfminer.psparser - DEBUG - do_keyword: pos=8897, token=/b'ET', stack=[]
+2025-08-02 19:32:22 - pdfminer.psparser - DEBUG - add_results: ((8897, /b'ET'),)
+2025-08-02 19:32:22 - pdfminer.psparser - DEBUG - nextobject: (8897, /b'ET')
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | findstr /i "Request|Starting analyze|About to enter|Entering try block|Files in request|Form data|Checking for file uploads|File upload detected"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd casestrainer-vue-new && npm run build
+At line:1 char:25
++ cd casestrainer-vue-new && npm run build
++                         ~~
+The token '&&' is not a valid statement separator in this version.
+At line:1 char:25
++ cd casestrainer-vue-new && npm run build
++                         ~~
+The token '&&' is not a valid statement separator in this version.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : InvalidEndOfLine
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd casestrainer-vue-new
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainer\x5ccasestrainer-vue-newPS D:\dev\casestrainer\casestrainer-vue-new> ]633;B
+PS>npm run build
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainer\x5ccasestrainer-vue-newPS D:\dev\casestrainer\casestrainer-vue-new> ]633;B
+PS>cd ..
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart frontend
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart frontend-prod
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python quick_file_test.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_direct_api.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 30
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 100 | findstr /i "Request|Starting analyze|About to enter|Entering try block|Files in request|Form data|Checking for file uploads|File upload detected|RESPONSE"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 10
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_direct_api.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 30 | findstr /i "Request|Starting analyze|About to enter|Entering try block|Files in request|Form data|Checking for file uploads|File upload detected|RESPONSE"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50 | findstr /i "Request|Starting analyze|About to enter|Entering try block|Files in request|Form data|Checking for file uploads|File upload detected|RESPONSE|vue_api"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_simple_api.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 5
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_quick_upload.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps | findstr rqworker
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml up -d
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_quick_upload.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-redis-prod redis-cli --version
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+ ✔ Container casestrainer-backend-prod  Started                                                   1.0s
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_quick_upload.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 30
+    self.read_response()
+  File "/usr/local/lib/python3.10/site-packages/redis/connection.py", line 644, in read_response
+    response = self._parser.read_response(disable_decoding=disable_decoding)
+  File "/usr/local/lib/python3.10/site-packages/redis/_parsers/resp2.py", line 15, in read_response
+    result = self._read_response(disable_decoding=disable_decoding)
+  File "/usr/local/lib/python3.10/site-packages/redis/_parsers/resp2.py", line 38, in _read_response
+    raise error
+redis.exceptions.AuthenticationError: Authentication required.
+2025-08-02 19:41:47 - src.vue_api_endpoints - INFO - [Request 43fe3b5a-2918-48ba-b5d5-d536ad750603] Fil
+e queued for async processing: /app/uploads/43fe3b5a-2918-48ba-b5d5-d536ad750603_test.pdf
+2025-08-02 19:41:47 - src.app_final_vue - ERROR - [RESPONSE #1] POST vue_api.analyze_text -> 500 (117 c
+hars)
+2025-08-02 19:41:47 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (88 char
+s)
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod env | findstr REDIS
+REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod printenv | grep REDIS
+grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:50
++ docker exec casestrainer-backend-prod printenv | grep REDIS
++                                                  ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable
+program. Check the spelling of the name, or if a path was included, verify that the path is correct
+and try again.
+At line:1 char:50
++ docker exec casestrainer-backend-prod printenv | grep REDIS
++                                                  ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod printenv | findstr REDIS
+REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+ ✔ backend  Built                                                                                 0.0s
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_quick_upload.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 10
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-rqworker-prod python -c "from redis import Redis; r = Redis.from_url('redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0'); print('Redis connection test:', r.ping())"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+ ✔ backend  Built                                                                                 0.0s
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+[+] Restarting 1/1
+ ✔ Container casestrainer-backend-prod  Started                                                   0.8s
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_file_upload_final.py
+========================================
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend --no-cache
+ => [internal] load build context                                                                 0.1s
+ => => transferring context: 39.77kB                                                              0.1s
+ => CACHED [ 2/16] WORKDIR /app                                                                   0.0s
+ => [ 3/16] COPY requirements.txt requirements.txt                                                0.1s
+ => [ 4/16] RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*          16.0s
+ => [ 5/16] RUN pip install --no-cache-dir -r requirements.txt                                  148.8s
+ => [ 6/16] RUN apt-get update && apt-get install -y     build-essential     gcc     curl     g  20.0s
+ => => # Selecting previously unselected package libgcc-12-dev:amd64.
+ => => # Preparing to unpack .../33-libgcc-12-dev_12.2.0-14+deb12u1_amd64.deb ...
+ => => # Unpacking libgcc-12-dev:amd64 (12.2.0-14+deb12u1) ...
+ => => # Selecting previously unselected package gcc-12.
+ => => # Preparing to unpack .../34-gcc-12_12.2.0-14+deb12u1_amd64.deb ...
+ => => # Unpacking gcc-12 (12.2.0-14+deb12u1) ...
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod cat /app/src/vue_api_endpoints.py | grep -A 10 -B 5 "Process the file using asyncio"
+grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the 
+spelling of the name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:75
++ ... trainer-backend-prod cat /app/src/vue_api_endpoints.py | grep -A 10 - ...
++                                                              ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+grep : The term 'grep' is not recognized as the name of a cmdlet, function, script file, or operable
+program. Check the spelling of the name, or if a path was included, verify that the path is correct
+and try again.
+At line:1 char:75
++ ... trainer-backend-prod cat /app/src/vue_api_endpoints.py | grep -A 10 - ...
++                                                              ~~~~
+    + CategoryInfo          : ObjectNotFound: (grep:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker exec casestrainer-backend-prod cat /app/src/vue_api_endpoints.py | findstr "Process the file using asyncio"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

@@ -60,7 +60,7 @@
                 </div>
                 <div class="method-content">
                   <h4>Upload File</h4>
-                  <p>Upload PDF, DOC, DOCX, or TXT files</p>
+                  <p>Upload PDF, DOCX, TXT, RTF, MD, HTML, or XML files</p>
                 </div>
                 <div v-if="activeTab === 'file'" class="active-indicator">
                   <i class="bi bi-check"></i>
@@ -97,7 +97,7 @@
                     v-model="textContent"
                     class="form-control input-field"
                     rows="8"
-                    placeholder="Paste your legal text here... (minimum 10 characters)"
+                    placeholder="Paste your legal text here..."
                     @input="validateInput"
                   ></textarea>
                   
@@ -143,14 +143,14 @@
                         <strong>Click to select</strong> or drag and drop your file here
                       </p>
                       <p class="file-drop-hint">
-                        Supported formats: PDF, DOC, DOCX, TXT (max 50MB)
+                        Supported formats: PDF, DOCX, TXT, RTF, MD, HTML, XML (max 50MB)
                       </p>
                     </div>
                     <input 
                       ref="fileInput"
                       type="file" 
                       class="file-input-hidden"
-                      accept=".pdf,.doc,.docx,.txt"
+                      accept=".pdf,.docx,.txt,.rtf,.md,.html,.htm,.xml,.xhtml"
                       @change="onFileChange"
                       :disabled="isOnEnhancedValidatorPage"
                       :style="{ display: isOnEnhancedValidatorPage ? 'none' : 'block' }"
@@ -482,7 +482,7 @@ const handleFile = (file) => {
 
   const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
   if (!allowedTypes.includes(file.type)) {
-    fileError.value = 'Please select a valid file type (PDF, DOC, DOCX, or TXT)';
+    fileError.value = 'Please select a valid file type (PDF, DOCX, TXT, RTF, MD, HTML, or XML)';
     return;
   }
 

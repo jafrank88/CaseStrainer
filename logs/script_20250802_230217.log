@@ -1,0 +1,254 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250802230217
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 17244
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250802_230217.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Smart Production Start (RECOMMENDED)
+    - Intelligent build detection, balanced speed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+Deleting all .pyc files and __pycache__ directories to prevent stale bytecode...
+Analyzing code changes to determine rebuild strategy...
+âš ï¸ Detected import/dependency changes - recommending full rebuild for safety
+   - Python import changes detected
+ðŸ„ Performing full rebuild due to detected changes...
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Force flag specified - Vue build required
+OK Docker is running
+OK Sufficient disk space (51.53 GB free)
+Processing Vue frontend build...
+Vue build needed: True, ForceRebuild: True
+Building Vue frontend (ForceRebuild: True)...
+Force rebuild mode: Clearing Vue caches...
+Removing existing dist directory...
+Removing node_modules for clean install...
+Removing package-lock.json for clean dependency resolution...
+Clearing npm cache...
+npm cache cleared
+Vue directory: D:\dev\casestrainer\casestrainer-vue-new
+Checking Node.js and npm...
+OK Node.js v22.15.0, npm 8.19.2
+Using npm at: npm
+Installing npm dependencies...
+Force rebuild: Running clean npm install...
+Running: npm install
+OK npm dependencies installed
+Building Vue frontend...
+Force rebuild: Building from clean state...
+Running: npm run build
+OK Vue frontend built successfully (0.61 MB)
+Copying Vue build assets to static/assets...
+Assets copied to D:\dev\casestrainer\static\assets
+Stopping existing Docker containers...
+Force rebuild: Removing all CaseStrainer containers...
+Removing all CaseStrainer containers...
+Found 7 CaseStrainer containers to remove
+  - casestrainer-frontend-prod
+  - casestrainer-nginx-prod
+  - casestrainer-rqworker3-prod
+  - casestrainer-rqworker2-prod
+  - casestrainer-backend-prod
+  - casestrainer-rqworker-prod
+  - casestrainer-redis-prod
+Stopping casestrainer-frontend-prod...
+Stopping casestrainer-nginx-prod...
+Stopping casestrainer-rqworker3-prod...
+Stopping casestrainer-rqworker2-prod...
+Stopping casestrainer-backend-prod...
+Stopping casestrainer-rqworker-prod...
+Stopping casestrainer-redis-prod...
+Removing casestrainer-frontend-prod...
+Removing casestrainer-nginx-prod...
+Removing casestrainer-rqworker3-prod...
+Removing casestrainer-rqworker2-prod...
+Removing casestrainer-backend-prod...
+Removing casestrainer-rqworker-prod...
+Removing casestrainer-redis-prod...
+Successfully removed 7 CaseStrainer containers
+Force rebuild: Removing volumes and orphaned containers...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml down --timeout 30 --volumes --remove-orphans
+Containers stopped successfully
+Checking for any remaining 'casestrainer' containers...
+No remaining 'casestrainer' containers found.
+
+Starting Docker containers...
+Force rebuild: Building all images from scratch with --no-cache...
+Running: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml build --no-cache
+Docker compose command: docker-compose -f D:\dev\casestrainer\docker-compose.prod.yml up -d
+OK Docker containers started successfully
+Waiting for containers to initialize...
+
+Waiting for services to become healthy (timeout: 10 minutes, requires 2 consecutive healthy checks)...
+âœ… All services report healthy (1/2)...
+No status change detected, waiting...
+âœ… All services are ready and stable
+  Backend: HEALTHY, Redis: HEALTHY, Worker: HEALTHY
+âœ… API endpoint is responding: {"message":"Vue API is running","status":"ok","timestamp":"2025-08-03T06:12:28.944297"}
+
+=== Docker Production Mode Ready ===
+INFO Production Site:  https://wolf.law.uw.edu/casestrainer
+
+Local Development URLs:
+Backend API:    http://localhost:5001/casestrainer/api/
+Frontend Prod:  http://localhost:8080/
+Nginx (HTTP):   http://localhost:80/
+Nginx (HTTPS):  https://localhost:443/
+Local Frontend: https://localhost/casestrainer/
+API Health:     https://localhost/casestrainer/api/health
+
+Docker Commands:
+  View logs:    docker-compose -f docker-compose.prod.yml logs [service]
+  Stop all:     docker-compose -f docker-compose.prod.yml down
+  Restart:      docker-compose -f docker-compose.prod.yml restart [service]
+
+Running adaptive learning pipeline...
+Starting adaptive learning pipeline...
+Using enhanced adaptive learning pipeline...
+Running adaptive learning pipeline...
+âœ… Adaptive learning pipeline completed successfully
+âœ… Adaptive learning completed successfully
+
+Running post-startup validation...
+  Testing API endpoints...
+  âœ… API health check passed
+  âœ… Text processing test passed
+OK Post-startup validation passed
+Running production test suite...
+[2025-08-02 23:12:31] âœ… All production tests passed!
+PS>TerminatingError(): "System error."
+pytest.exe : D:\Python\Lib\site-packages\pytest_asyncio\plugin.py:208: PytestDeprecationWarning:
+The configuration option "asyncio_default_fixture_loop_scope" is unset.
+At D:\dev\casestrainer\cslaunch.ps1:2411 char:17
++ ...             & pytest test_production_server.py -v --maxfail=1 --disab ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (D:\Python\Lib\s...cope" is unset.:String) [], Remote
+   Exception
+    + FullyQualifiedErrorId : NativeCommandError
+
+The event loop scope for asynchronous fixtures will default to the fixture caching scope. Future
+versions of pytest-asyncio will default the loop scope for asynchronous fixtures to function
+scope. Set the default fixture loop scope explicitly in order to avoid unexpected behavior in the
+future. Valid fixture loop scopes are: "function", "class", "module", "package", "session"
+
+  warnings.warn(PytestDeprecationWarning(_DEFAULT_FIXTURE_LOOP_SCOPE_UNSET))
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.3.5, pluggy-1.6.0 -- D:\Python\python.exe
+cachedir: .pytest_cache
+metadata: {'Python': '3.13.3', 'Platform': 'Windows-2022Server-10.0.20348-SP0', 'Packages': {'pytest': '8.3.5', 'pluggy': '1.6.0'}, 'Plugins': {'anyio': '4.9.0', 'asyncio': '1.0.0', 'cov': '6.1.1', 'html': '4.1.1', 'httpx': '0.35.0', 'metadata': '3.1.1', 'mock': '3.14.1', 'timeout': '2.4.0', 'xdist': '3.7.0'}}
+rootdir: D:\dev\casestrainer
+configfile: pytest.ini
+plugins: anyio-4.9.0, asyncio-1.0.0, cov-6.1.1, html-4.1.1, httpx-0.35.0, metadata-3.1.1, mock-3.14.1, timeout-2.4.0, xdist-3.7.0
+asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 6 items
+
+test_production_server.py::TestProductionServer::test_health_check PASSED [ 16%]
+test_production_server.py::TestProductionServer::test_text_analysis_sync PASSED [ 33%]
+test_production_server.py::TestProductionServer::test_url_analysis PASSED [ 50%]
+test_production_server.py::TestProductionServer::test_processing_progress_endpoint PASSED [ 66%]
+test_production_server.py::test_production_server_basic PASSED           [ 83%]
+test_production_server.py::test_production_server_connectivity PASSED    [100%]
+
+============================= 6 passed in 28.47s ==============================
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml build backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose -f docker-compose.prod.yml restart backend
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --tail 50
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-backend-prod --since 5m
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-rqworker-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker logs casestrainer-frontend-prod --tail 20
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>curl -X POST http://localhost:5001/casestrainer/api/analyze -H "Content-Type: application/json" -d "{\"text\": \"Test citation: Brown v. Board of Education, 347 U.S. 483 (1954)\", \"type\": \"text\"}"
+>> TerminatingError(Invoke-WebRequest): "Cannot bind parameter 'Headers'. Cannot convert the "Content-Type: application/json" value of type "System.String" to type "System.Collections.IDictionary"."
+Invoke-WebRequest : Cannot bind parameter 'Headers'. Cannot convert the "Content-Type: application/json" value of type 
+"System.String" to type "System.Collections.IDictionary".
+At line:1 char:64
++ ... /casestrainer/api/analyze -H "Content-Type: application/json" -d "{\" ...
++                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Invoke-WebRequest], ParameterBindingException
+    + FullyQualifiedErrorId : CannotConvertArgumentNoMessage,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : Cannot bind parameter 'Headers'. Cannot convert the "Content-Type:
+application/json" value of type "System.String" to type "System.Collections.IDictionary".
+At line:1 char:64
++ ... /casestrainer/api/analyze -H "Content-Type: application/json" -d "{\" ...
++                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidArgument: (:) [Invoke-WebRequest], ParameterBindingException
+    + FullyQualifiedErrorId : CannotConvertArgumentNoMessage,Microsoft.PowerShell.Commands.Invoke
+   WebRequestCommand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyze" -Method POST -Headers @{"Content-Type"="application/json"} -Body '{"text": "Test citation: Brown v. Board of Education, 347 U.S. 483 (1954)", "type": "text"}'
+>> TerminatingError(Invoke-WebRequest): "Unable to connect to the remote server"
+Invoke-WebRequest : Unable to connect to the remote server
+At line:1 char:1
++ Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyz ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : System.Net.WebException,Microsoft.PowerShell.Commands.InvokeWebRequestCommand
+Invoke-WebRequest : Unable to connect to the remote server
+At line:1 char:1
++ Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/analyz ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:) [Invoke-WebRequest], WebException
+    + FullyQualifiedErrorId : System.Net.WebException,Microsoft.PowerShell.Commands.InvokeWebRequ
+   estCommand
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_production_server.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

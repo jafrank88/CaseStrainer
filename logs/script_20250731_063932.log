@@ -1,0 +1,704 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250731063932
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\Windsurf\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 16628
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250731_063932.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[INFO] Docker is running in Linux containers mode
+[OK] Docker Compose is available: Docker Compose version v2.38.2-desktop.1
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Smart Production Start (RECOMMENDED)
+    - Intelligent build detection, balanced speed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File .\cslaunch.ps1
+Select an option (0-8):
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker builder prune -f
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Stop-Process -Name "Docker Desktop" -Force -ErrorAction SilentlyContinue
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Sleep -Seconds 20
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>$env:COMPOSE_DOCKER_CLI_BUILD=1; $env:DOCKER_BUILDKIT=1
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker-compose build --no-cache --progress=plain
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker system prune -a -f
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>New-Item -ItemType Directory -Path "d:\dev\casestrainer\scripts\modules" -Force
+
+
+    Directory: D:\dev\casestrainer\scripts
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         7/31/2025  10:18 AM                modules
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: WARNING: No blkio throttle.read_bps_device support"
+Docker error: WARNING: No blkio throttle.read_bps_device support
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\Docker.psm1 -Force; Start-DockerBuild -DockerComposeFile docker-compose.yml -NoCache
+Building Docker containers...
+Build error: Build failed with code 1
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\Docker.psm1 -Force; Stop-DockerContainers -DockerComposeFile docker-compose.yml
+Stopping containers...
+Stop error: Stop failed with code 1
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker info
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\DockerDiagnostics.ps1 -Force; Get-DockerStatus | Format-List
+>> TerminatingError(Export-ModuleMember): "The Export-ModuleMember cmdlet can only be called from inside a module."
+Export-ModuleMember : The Export-ModuleMember cmdlet can only be called from inside a module.
+At D:\dev\casestrainer\scripts\modules\DockerDiagnostics.ps1:143 char:1
++ Export-ModuleMember -Function * -Alias *
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : PermissionDenied: (:) [Export-ModuleMember], InvalidOperationException
+    + FullyQualifiedErrorId : 
+Modules_CanOnlyExecuteExportModuleMemberInsideAModule,Microsoft.PowerShell.Commands.ExportModuleMemberCommand
+Export-ModuleMember : The Export-ModuleMember cmdlet can only be called from inside a
+module.
+At D:\dev\casestrainer\scripts\modules\DockerDiagnostics.ps1:143 char:1
++ Export-ModuleMember -Function * -Alias *
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : PermissionDenied: (:) [Export-ModuleMember], InvalidOpera
+   tionException
+    + FullyQualifiedErrorId : Modules_CanOnlyExecuteExportModuleMemberInsideAModule,Mic
+   rosoft.PowerShell.Commands.ExportModuleMemberCommand
+
+
+
+DockerProcesses        : {@{Id=2644; StartTime=7/31/2025 10:08:33 AM; CPU=16.25;
+                         PM=134512640}, @{Id=5496; StartTime=7/31/2025 10:08:34 AM;
+                         CPU=0.234375; PM=12939264}, @{Id=14744; StartTime=7/31/2025
+                         10:08:35 AM; CPU=223.921875; PM=102707200}, @{Id=20752;
+                         StartTime=7/31/2025 10:08:34 AM; CPU=8.140625; PM=16199680}}
+DockerRunning          : True
+DockerComposeAvailable : True
+DockerInstalled        : True
+DockerDaemonAccessible : False
+DockerVersion          : Docker version 28.3.2, build 578ccf6
+WSLStatus              : {D e f a u l t   D i s t r i b u t i o n : 
+                          U b u n t u o n D ,  ,  D e f a u l t   V e r s i o n :   2 ,
+                          ...}
+DockerInfo             :
+DockerServiceStatus    : {Status, Name, StartType}
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\DockerDiagnostics.ps1 -Force; Get-DockerStatus | Format-List
+
+
+DockerProcesses        : {@{Id=2644; StartTime=7/31/2025 10:08:33 AM; CPU=16.28125;
+                         PM=134541312}, @{Id=5496; StartTime=7/31/2025 10:08:34 AM;
+                         CPU=0.234375; PM=12939264}, @{Id=14744; StartTime=7/31/2025
+                         10:08:35 AM; CPU=225.734375; PM=106160128}, @{Id=20752;
+                         StartTime=7/31/2025 10:08:34 AM; CPU=8.140625; PM=16199680}}
+DockerRunning          : True
+DockerComposeAvailable : True
+DockerInstalled        : True
+DockerDaemonAccessible : False
+DockerVersion          : Docker version 28.3.2, build 578ccf6
+WSLStatus              : {D e f a u l t   D i s t r i b u t i o n : 
+                          U b u n t u o n D ,  ,  D e f a u l t   V e r s i o n :   2 ,
+                          ...}
+DockerInfo             :
+DockerServiceStatus    : {Status, Name, StartType}
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\DockerDiagnostics.ps1 -Force; Get-DockerStatus -Detailed | ConvertTo-Json -Depth 5 | Out-File -FilePath docker_status.json -Encoding utf8; Get-Content docker_status.json
+{
+    "DockerComposeAvailable":  false,
+    "DockerServiceStatus":  {
+                                "Status":  1,
+                                "Name":  "com.docker.service",
+                                "StartType":  3
+                            },
+    "DockerProcesses":  [
+                            {
+                                "Id":  10332,
+                                "StartTime":  "\/Date(1753984298335)\/",
+                                "CPU":  22.71875,
+                                "PM":  113381376
+                            },
+                            {
+                                "Id":  19188,
+                                "StartTime":  "\/Date(1753984297119)\/",
+                                "CPU":  0.109375,
+                                "PM":  12673024
+                            },
+                            {
+                                "Id":  19216,
+                                "StartTime":  "\/Date(1753984296096)\/",
+                                "CPU":  4.6875,
+                                "PM":  148611072
+                            },
+                            {
+                                "Id":  20740,
+                                "StartTime":  "\/Date(1753984297067)\/",
+                                "CPU":  5.546875,
+                                "PM":  16494592
+                            }
+                        ],
+    "DockerSystemInfo":  null,
+    "DockerContainers":  null,
+    "DockerDaemonError":  "Docker service is not running (Status: Stopped)",
+    "DockerImages":  null,
+    "DockerInstalled":  true,
+    "DockerNetworks":  null,
+    "DockerVolumes":  null,
+    "DockerRunning":  true,
+    "DockerDaemonAccessible":  false,
+    "WSLStatus":  null,
+    "DockerVersion":  "Docker version 28.3.2, build 578ccf6",
+    "DockerInfo":  null
+}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Set-ExecutionPolicy Bypass -Scope Process -Force; .\scripts\fix_docker.ps1
+
+=== Docker Service Status ===
+Docker Version: Docker version 28.3.2, build 578ccf6
+
+Docker service is not running. Attempting to start...
+PS>TerminatingError(Start-Service): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: Service 'Docker Desktop Service (com.docker.service)' cannot be started due to the following error: Cannot open com.docker.service service on computer '.'."
+Failed to start Docker service: Service 'Docker Desktop Service (com.docker.service)' cannot be started due to the following error: Cannot open com.docker.service service on computer '.'.
+
+Attempting to reset Docker Desktop...
+Docker Desktop has been reset. Please wait for it to start...
+
+Docker daemon is still not accessible. Please try the following:
+1. Open Docker Desktop and check for any error messages
+2. Restart your computer
+3. If the issue persists, try reinstalling Docker Desktop
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\DockerDiagnostics.ps1 -Force; Get-DockerStatus | Format-List
+
+
+DockerComposeAvailable : False
+DockerServiceStatus    :
+DockerProcesses        :
+DockerSystemInfo       :
+DockerContainers       :
+DockerDaemonError      : Docker Desktop is not running
+DockerImages           :
+DockerInstalled        : True
+DockerNetworks         :
+DockerVolumes          :
+DockerRunning          : False
+DockerDaemonAccessible : False
+WSLStatus              :
+DockerVersion          : Docker version 28.3.2, build 578ccf6
+DockerInfo             :
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Process -FilePath "C:\Program Files\Docker\Docker\Docker Desktop.exe" -PassThru
+
+Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
+-------  ------    -----      -----     ------     --  -- -----------
+     39       6    10984       3284       0.03  16904   2 Docker Desktop
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Sleep -Seconds 5; Import-Module .\scripts\modules\DockerDiagnostics.ps1 -Force; Get-DockerStatus | Format-List
+
+
+DockerComposeAvailable : False
+DockerServiceStatus    :
+DockerProcesses        :
+DockerSystemInfo       :
+DockerContainers       :
+DockerDaemonError      : Docker Desktop is not running
+DockerImages           :
+DockerInstalled        : True
+DockerNetworks         :
+DockerVolumes          :
+DockerRunning          : False
+DockerDaemonAccessible : False
+WSLStatus              :
+DockerVersion          : Docker version 28.3.2, build 578ccf6
+DockerInfo             :
+
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker info
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: WARNING: No blkio throttle.read_bps_device support"
+Docker error: WARNING: No blkio throttle.read_bps_device support
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[OK] Docker Daemon is running (Version: 28.3.2, OS: Docker Desktop)
+True
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.bat status
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.bat status
+^C
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cslaunch.ps1 status
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cslaunch.ps1 status
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Test-DockerAvailability
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+[WARNING] Docker Desktop is not running. Attempting to start...
+Starting Docker Desktop...
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+PS>TerminatingError(docker.exe): "The running command stopped because the preference variable "ErrorActionPreference" or common parameter is set to Stop: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version"
+Failed to start Docker: Timed out waiting for Docker
+[ERROR] Docker daemon is not accessible: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version
+
+Troubleshooting steps:
+1. Open Docker Desktop manually and wait for it to fully start
+2. Check if Docker service is running in Windows Services (services.msc)
+3. Right-click Docker Desktop icon â†’ Troubleshoot â†’ Restart
+4. Restart your computer if the issue persists
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cslaunch.ps1 status
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\cslaunch.ps1 status
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; Get-DockerResourceUsage | Format-List"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker info
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; $result = Get-DockerResourceUsage; $result | Select-Object -ExcludeProperty Containers | Format-List; if ($result.Errors) { Write-Host 'Errors:' -ForegroundColor Red; $result.Errors | ForEach-Object { Write-Host "- $_" -ForegroundColor Red } }; if ($result.Warnings) { Write-Host 'Warnings:' -ForegroundColor Yellow; $result.Warnings | ForEach-Object { Write-Host "- $_" -ForegroundColor Yellow } }"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; $result = Get-DockerResourceUsage; $result | Select-Object -ExcludeProperty Containers | Format-List; if ($result.Errors) { Write-Host 'Errors:' -ForegroundColor Red; $result.Errors | ForEach-Object { Write-Host \"- $_\" -ForegroundColor Red } }; if ($result.Warnings) { Write-Host 'Warnings:' -ForegroundColor Yellow; $result.Warnings | ForEach-Object { Write-Host \"- $_\" -ForegroundColor Yellow } }"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; $result = Get-DockerResourceUsage; $result | Select-Object -ExcludeProperty Containers | Format-List; if ($result.Errors) { Write-Host 'Errors:' -ForegroundColor Red; $result.Errors | ForEach-Object { Write-Host (\"- $_\") -ForegroundColor Red } }; if ($result.Warnings) { Write-Host 'Warnings:' -ForegroundColor Yellow; $result.Warnings | ForEach-Object { Write-Host (\"- $_\") -ForegroundColor Yellow } }"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; $result = Get-DockerResourceUsage; $result | Format-List *"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Service *docker* | Select-Object Name, Status, DisplayName
+
+Name                Status DisplayName
+----                ------ -----------
+com.docker.service Stopped Docker Desktop Service
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability -Detailed"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability -Detailed"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; Test-DockerAvailability -Verbose"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Import-Module .\scripts\modules\Docker.psm1 -Force; Invoke-DockerHealthCheck -Detailed"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Get-Module Docker | Select-Object -ExpandProperty ExportedCommands | Select-Object -ExpandProperty Keys | Sort-Object"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Get-Content .\scripts\modules\Docker.psd1 | Select-String 'FunctionsToExport' -Context 2,5"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Remove-Module Docker -ErrorAction SilentlyContinue; Import-Module .\scripts\modules\Docker.psm1 -Force; Get-Command -Module Docker | Select-Object Name"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -Command "Remove-Module Docker -ErrorAction SilentlyContinue; Import-Module .\scripts\modules\Docker.psm1 -Force; Invoke-DockerHealthCheck -Detailed"
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\test-docker-health.ps1
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\test-docker.ps1
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\test-docker.ps1
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\test-docker.ps1
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\docker-diagnostics.ps1
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content .\docker-diagnostics-20250731-134141.json
+{
+    "DiskUsage":  "request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/system/df, check if the server supports the requested API version",
+    "Containers":  "request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/containers/json?all=1, check if the server supports the requested API version",
+    "Network":  "request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/networks, check if the server supports the requested API version",
+    "Images":  "request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/_ping, check if the server supports the requested API version",
+    "Docker":  {
+                   "Error":  "request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version",
+                   "Version":  "Docker version 28.3.2, build 578ccf6",
+                   "Installed":  true
+               },
+    "Logs":  null,
+    "System":  {
+                   "Uptime":  {
+                                  "Ticks":  8477262180940,
+                                  "Days":  9,
+                                  "Hours":  19,
+                                  "Milliseconds":  218,
+                                  "Minutes":  28,
+                                  "Seconds":  46,
+                                  "TotalDays":  9.81164604275463,
+                                  "TotalHours":  235.4795050261111,
+                                  "TotalMilliseconds":  847726218.094,
+                                  "TotalMinutes":  14128.770301566667,
+                                  "TotalSeconds":  847726.218094
+                              },
+                   "OS":  "Microsoft Windows Server 2022 Standard (Build 20348)",
+                   "MemoryGB":  32
+               },
+    "Processes":  [
+                      {
+                          "Id":  10676,
+                          "ProcessName":  "com.docker.backend",
+                          "CPU":  259.9375,
+                          "WorkingSet":  183263232,
+                          "StartTime":  "\/Date(1753988445056)\/"
+                      },
+                      {
+                          "Id":  19364,
+                          "ProcessName":  "com.docker.backend",
+                          "CPU":  13.5,
+                          "WorkingSet":  58523648,
+                          "StartTime":  "\/Date(1753988444878)\/"
+                      },
+                      {
+                          "Id":  16924,
+                          "ProcessName":  "com.docker.build",
+                          "CPU":  0.796875,
+                          "WorkingSet":  35688448,
+                          "StartTime":  "\/Date(1753988448077)\/"
+                      },
+                      {
+                          "Id":  2644,
+                          "ProcessName":  "Docker Desktop",
+                          "CPU":  0.5625,
+                          "WorkingSet":  52850688,
+                          "StartTime":  "\/Date(1753988450449)\/"
+                      },
+                      {
+                          "Id":  7100,
+                          "ProcessName":  "Docker Desktop",
+                          "CPU":  14.96875,
+                          "WorkingSet":  97525760,
+                          "StartTime":  "\/Date(1753988450392)\/"
+                      },
+                      {
+                          "Id":  12976,
+                          "ProcessName":  "Docker Desktop",
+                          "CPU":  37.515625,
+                          "WorkingSet":  147730432,
+                          "StartTime":  "\/Date(1753988449248)\/"
+                      },
+                      {
+                          "Id":  14992,
+                          "ProcessName":  "Docker Desktop",
+                          "CPU":  617.671875,
+                          "WorkingSet":  274345984,
+                          "StartTime":  "\/Date(1753988451833)\/"
+                      }
+                  ]
+}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -ExecutionPolicy Bypass -File .\scripts\reset-docker.ps1
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Import-Module .\scripts\modules\DockerHealth.psm1; Invoke-DockerHealthCheck -IncludeContainerTest
+At D:\dev\casestrainer\scripts\modules\DockerHealth.psm1:308 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\scripts\modules\DockerHealth.psm1:312 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\scripts\modules\DockerHealth.psm1:308 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\scripts\modules\DockerHealth.psm1:312 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+Import-Module : The specified module '.\scripts\modules\DockerHealth.psm1' was not loaded because no valid module file 
+was found in any module directory.
+At line:1 char:1
++ Import-Module .\scripts\modules\DockerHealth.psm1; Invoke-DockerHealt ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ResourceUnavailable: (.\scripts\modules\DockerHealth.psm1:String) [Import-Module], 
+FileNotFoundException
+    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.ImportModuleCommand
+Import-Module : The specified module '.\scripts\modules\DockerHealth.psm1' was not
+loaded because no valid module file was found in any module directory.
+At line:1 char:1
++ Import-Module .\scripts\modules\DockerHealth.psm1; Invoke-DockerHealt ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ResourceUnavailable: (.\scripts\modules\DockerHealth.psm1
+   :String) [Import-Module], FileNotFoundException
+    + FullyQualifiedErrorId : Modules_ModuleNotFound,Microsoft.PowerShell.Commands.Impo
+   rtModuleCommand
+
+Invoke-DockerHealthCheck : The term 'Invoke-DockerHealthCheck' is not recognized as the name of a cmdlet, function, 
+script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is 
+correct and try again.
+At line:1 char:52
++ ... .\scripts\modules\DockerHealth.psm1; Invoke-DockerHealthCheck -Includ ...
++                                          ~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Invoke-DockerHealthCheck:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+Invoke-DockerHealthCheck : The term 'Invoke-DockerHealthCheck' is not recognized as the
+name of a cmdlet, function, script file, or operable program. Check the spelling of the
+name, or if a path was included, verify that the path is correct and try again.
+At line:1 char:52
++ ... .\scripts\modules\DockerHealth.psm1; Invoke-DockerHealthCheck -Includ ...
++                                          ~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : ObjectNotFound: (Invoke-DockerHealthCheck:String) [], Com
+   mandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Remove-Item .\scripts\modules\DockerHealth.psm1 -Force
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module .\scripts\modules\DockerHealth.psm1 -Force; Invoke-DockerHealthCheck -Verbose"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module .\scripts\modules\DockerHealth.psm1 -Force; Invoke-DockerHealthCheck -Verbose"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module .\scripts\modules\DockerHealth.psm1 -Force; Test-DockerDaemon -Verbose"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module .\scripts\modules\DockerHealth.psm1 -Force; Test-DockerHealth -Verbose"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -NoProfile -ExecutionPolicy Bypass -Command "Import-Module .\scripts\modules\DockerHealth.psm1 -Force; Invoke-DockerHealthCheck -IncludeContainerTest -Verbose"
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>cd 'd:\dev\casestrainer'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

@@ -64,13 +64,13 @@
             type="file" 
             @change="onFileChange" 
             :disabled="isAnalyzing"
-            accept=".pdf,.doc,.docx,.txt"
+            accept=".pdf,.docx,.txt,.rtf,.md,.html,.htm,.xml,.xhtml"
             style="display: none;"
           />
           <div v-if="!file" class="drop-zone-content">
             <div class="upload-icon">📁</div>
             <h5 class="drop-zone-title">Click to browse or drag & drop</h5>
-            <p class="file-types">Supports: PDF, DOC, DOCX, TXT (max 50MB)</p>
+            <p class="file-types">Supports: PDF, DOCX, TXT, RTF, MD, HTML, XML (max 50MB)</p>
             <div class="drop-zone-hint">
               <i class="bi bi-arrow-up-circle"></i>
               <span>Drop your file here</span>
@@ -221,6 +221,12 @@ const props = defineProps({
   isAnalyzing: { type: Boolean, default: false }
 });
 
+// Debug: Log when isAnalyzing changes
+import { watch } from 'vue';
+watch(() => props.isAnalyzing, (newVal) => {
+  console.log('🔄 UnifiedInput isAnalyzing changed:', newVal);
+}, { immediate: true });
+
 const emit = defineEmits(['analyze']);
 
  const modes = ['text', 'url', 'file'];
@@ -243,9 +249,7 @@ const emit = defineEmits(['analyze']);
 // Validation constants
 const VALIDATION_RULES = {
   text: {
-    minLength: 10,
     maxLength: 50000,
-    minLengthMessage: 'Text must be at least 10 characters long',
     maxLengthMessage: 'Text is too long. Maximum 50,000 characters allowed.'
   },
   url: {
@@ -254,9 +258,9 @@ const VALIDATION_RULES = {
   },
   file: {
     maxSize: 50 * 1024 * 1024, // 50MB
-    allowedTypes: ['.pdf', '.doc', '.docx', '.txt'],
+    allowedTypes: ['.pdf', '.docx', '.txt', '.rtf', '.md', '.html', '.htm', '.xml', '.xhtml'],
     maxSizeMessage: 'File is too large. Maximum 50MB allowed.',
-    typeMessage: 'Invalid file type. Please upload PDF, DOC, DOCX, or TXT files.'
+    typeMessage: 'Invalid file type. Please upload PDF, DOCX, TXT, RTF, MD, HTML, or XML files.'
   }
 };
 
@@ -279,8 +283,6 @@ function validateText(text) {
   
   if (!text.trim()) {
     errors.push('Text is required');
-  } else if (text.length < rules.minLength) {
-    errors.push(rules.minLengthMessage);
   } else if (text.length > rules.maxLength) {
     errors.push(rules.maxLengthMessage);
   }

@@ -1,0 +1,2615 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250806130701
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\cursor\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 2840
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250806_130701.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>./cslaunch
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250806_130854.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker port nginx-prod
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps -a
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Process | Where-Object {$_.ProcessName -like "*docker*"}
+
+Handles  NPM(K)    PM(K)      WS(K)     CPU(s)     Id  SI ProcessName
+-------  ------    -----      -----     ------     --  -- -----------
+    338      19    42076      56888     199.58   1392   2 com.docker.ba...
+   3585    2373   448020     485184   2,050.22   5372   2 com.docker.ba...
+    287      16    32112      40632      11.19   2300   2 com.docker.build
+    348      19    13664      54904       0.59   1252   2 Docker Desktop
+   1031      50   143852     155900     212.27   2236   2 Docker Desktop
+    340      39    16452      97636      14.13   5004   2 Docker Desktop
+   1102      34   159116     233916   5,108.19  10288   2 Docker Desktop
+    178      13    24344      32316       0.50  15828   2 docker-compose
+    242      16    40604      54880       0.23   7108   2 docker-scout
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker system df
+
+PS>TerminatingError(): "The pipeline has been stopped."
+>> TerminatingError(): "The pipeline has been stopped."
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>tasklist | findstr docker
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Stop-Process -Name "Docker Desktop" -Force -ErrorAction SilentlyContinue
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Stop-Process -Name "com.docker.backend" -Force -ErrorAction SilentlyContinue
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe"
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Start-Sleep -Seconds 10; docker --version
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker ps -a
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker port casestrainer-nginx-prod
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker stats --no-stream
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ItemProperty -Path "HKCU:\Software\Docker Desktop" -ErrorAction SilentlyContinue
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1
+=== Docker Health Check ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+=== Health Check Complete ===
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\setup_docker_monitoring.ps1
+Setting up Docker health monitoring...
+
+TaskPath                                       TaskName
+--------                                       --------
+\                                              DockerHealthCheck
+âœ… Docker health monitoring scheduled to run every 5 minutes
+Task name: DockerHealthCheck
+Script: D:\dev\casestrainer\docker_health_check.ps1
+
+Testing the health check script...
+=== Docker Health Check ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+=== Health Check Complete ===
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 9
+At D:\dev\casestrainer\cslaunch.ps1:613 char:9
++ Testing & Debugging:
++         ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use; wrap an ampersand in double 
+quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:620 char:7
++ Cache & Maintenance:
++       ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use; wrap an ampersand in double 
+quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:625 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-7, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : AmpersandNotAllowed
+At D:\dev\casestrainer\cslaunch.ps1:613 char:9
++ Testing & Debugging:
++         ~
+The ampersand (&) character is not allowed. The & operator is reserved
+for future use; wrap an ampersand in double quotation marks ("&") to pass
+it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:620 char:7
++ Cache & Maintenance:
++       ~
+The ampersand (&) character is not allowed. The & operator is reserved
+for future use; wrap an ampersand in double quotation marks ("&") to pass
+it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:625 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-7, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB
+free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+Not all parse errors were reported.  Correct the reported errors and try
+again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : AmpersandNotAllowed
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 9
+At D:\dev\casestrainer\cslaunch.ps1:625 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-9, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                        ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1056 char:33
++                     Write-Host "Could not check disk space" -Foregrou ...
++                                 ~~~~~
+Unexpected token 'Could' in expression or statement.
+
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : RedirectionNotSupported
+At D:\dev\casestrainer\cslaunch.ps1:625 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-9, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB
+free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:95
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                        ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1056 char:33
++                     Write-Host "Could not check disk space" -Foregrou
+...
++                                 ~~~~~
+Unexpected token 'Could' in expression or statement.
+
+Not all parse errors were reported.  Correct the reported errors and try
+again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : RedirectionNotSupported
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 9
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:94
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:93
++ ... rorMsg = "npm build failed - insufficient disk space ($freeGB GB free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:101
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:101
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                        ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1057 char:33
++                     Write-Host "Could not check disk space" -Foregrou ...
++                                 ~~~~~
+Unexpected token 'Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1070 char:73
++ ...    Write-Host "OK Vue frontend built successfully ($sizeMB MB)" -Fore ...
++                                                                ~~
+Unexpected token 'MB' in expression or statement.
+
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:646 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:94
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:93
++ ... rorMsg = "npm build failed - insufficient disk space ($freeGB GB
+free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\cslaunch.ps1:580 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:574 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:101
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                        ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:568 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:1052 char:101
++ ... rMsg = "npm build failed - insufficient disk space ($freeGB GB
+free)"
++                                                                        ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1057 char:33
++                     Write-Host "Could not check disk space" -Foregrou
+...
++                                 ~~~~~
+Unexpected token 'Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:1070 char:73
++ ...    Write-Host "OK Vue frontend built successfully ($sizeMB MB)"
+-Fore ...
++                                                                ~~
+Unexpected token 'MB' in expression or statement.
+
+Not all parse errors were reported.  Correct the reported errors and try
+again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\test_docker_health.ps1
+=== Testing Docker Health Check Functions ===
+Running Docker health check...
+
+=== Docker Health Check Results ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+
+âœ… Docker is healthy!
+
+=== Test Complete ===
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -MenuOption 9
+At D:\dev\casestrainer\cslaunch.ps1:3034 char:30
++                 Write-Host "[INFO] If you are testing the frontend, p ...
++                              ~
+Array index expression is missing or not valid.
+
+At D:\dev\casestrainer\cslaunch.ps1:3356 char:57
++ $transcriptPath = Join-Path $logsDir "console_output.log"
++                                                         ~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:2808 char:32
++                         } else {
++                                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2804 char:25
++                     try {
++                         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:3364 char:16
++ Stop-Transcript
++                ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:2802 char:21
++                 "2" {
++                     ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2788 char:36
++             switch ($healthChoice) {
++                                    ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2778 char:13
++         "9" {
++             ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2607 char:25
++     switch ($selection) {
++                         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2566 char:20
++ function Show-Menu {
++                    ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : MissingArrayIndexExpression
+At D:\dev\casestrainer\cslaunch.ps1:3034 char:30
++                 Write-Host "[INFO] If you are testing the frontend, p
+...
++                              ~
+Array index expression is missing or not valid.
+
+At D:\dev\casestrainer\cslaunch.ps1:3356 char:57
++ $transcriptPath = Join-Path $logsDir "console_output.log"
++                                                         ~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:2808 char:32
++                         } else {
++                                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2804 char:25
++                     try {
++                         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:3364 char:16
++ Stop-Transcript
++                ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\cslaunch.ps1:2802 char:21
++                 "2" {
++                     ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2788 char:36
++             switch ($healthChoice) {
++                                    ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2778 char:13
++         "9" {
++             ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2607 char:25
++     switch ($selection) {
++                         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\cslaunch.ps1:2566 char:20
++ function Show-Menu {
++                    ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : MissingArrayIndexExpression
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Copy-Item cslaunch.ps1 cslaunch_backup.ps1
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_menu.ps1 -Action check
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor Yellow
++                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:275 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor
+Yellow
++
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:275 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_menu.ps1 -Action check
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor Yellow
++                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:275 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor
+Yellow
++
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:275 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_menu.ps1 -Action check
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor Yellow
++                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:276 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\docker_health_menu.ps1:269 char:66
++ ... t "Valid actions: start, stop, check, status" -ForegroundColor
+Yellow
++
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_menu.ps1:236 char:16
++         } else {
++                ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:230 char:9
++     try {
++         ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:276 char:3
++ }
++   ~
+The Try statement is missing its Catch or Finally block.
+
+At D:\dev\casestrainer\docker_health_menu.ps1:223 char:38
++ function Stop-DockerHealthMonitoring {
++                                      ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\test_docker_health.ps1
+=== Testing Docker Health Check Functions ===
+Running Docker health check...
+
+=== Docker Health Check Results ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+
+âœ… Docker is healthy!
+
+=== Test Complete ===
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\integrate_docker_health.ps1 -Action check
+=== Testing Docker Health Check Functions ===
+Running Docker health check...
+
+=== Docker Health Check Results ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+
+âœ… Docker is healthy!
+
+=== Test Complete ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\test_docker_health.ps1
+=== Testing Docker Health Check Functions ===
+Running Docker health check...
+
+=== Docker Health Check Results ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+
+âœ… Docker is healthy!
+
+=== Test Complete ===
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1
+=== Docker Health Check ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+=== Health Check Complete ===
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>docker stats --no-stream
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Process | Where-Object {$_.CPU -gt 0} | Sort-Object CPU -Descending | Select-Object -First 10 Name, CPU, WorkingSet
+
+Name                     CPU WorkingSet
+----                     --- ----------
+Cursor           3804.484375  193736704
+Cursor           1265.171875  931192832
+CrashPlanDesktop   1010.1875  126857216
+Cursor             596.71875  210685952
+OneDrive           575.21875 1813438464
+Cursor              570.4375  445440000
+CrashPlanDesktop  360.109375  111239168
+ollama app          304.4375   38227968
+explorer          235.109375  752050176
+Cursor            210.421875  116895744
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem -Path "logs" -Filter "*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 5 Name, Length, LastWriteTime
+
+Name                        Length LastWriteTime
+----                        ------ -------------
+frontend_api_results.log    386959 8/6/2025 1:30:52 PM
+production_test.log         294748 8/6/2025 1:30:24 PM
+casestrainer.log           3500397 8/6/2025 1:28:08 PM
+crash.log                    73583 8/6/2025 1:28:05 PM
+script_20250806_130854.log    5217 8/6/2025 1:22:08 PM
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content "logs/casestrainer.log" -Tail 100 | Select-String -Pattern "PDF|extract|processing|time|slow|error" -Context 2
+
+  2025-08-06 20:30:16 - src.citation_verification - DEBUG - [VERIFY]
+Trying courtlistener search for 123 U.S. 456
+  2025-08-06 20:30:20 - src.citation_verification - DEBUG - [VERIFY]
+Trying justia search for 123 U.S. 456
+> 2025-08-06 20:30:21 - src.enhanced_courtlistener_verification - ERROR -
+[Enhanced CL search] 123 U.S. 456 exception:
+HTTPSConnectionPool(host='www.courtlistener.com', port=443): Read timed
+out. (read timeout=30)
+  2025-08-06 20:30:22 - src.citation_verification - DEBUG - [VERIFY]
+Trying findlaw search for 123 U.S. 456
+  2025-08-06 20:30:24 - src.citation_verification - DEBUG - [VERIFY]
+Trying leagle search for 123 U.S. 456
+  2025-08-06 20:30:33 - src.unified_citation_processor_v2 - INFO - [DEBUG
+PRINT] Step 3: 1 still unverified citations after canonical service
+  2025-08-06 20:30:33 - src.citation_verification - INFO - [VERIFY]
+Starting legal web search verification for 1 citations
+> 2025-08-06 20:30:33 - src.citation_verification - INFO - [VERIFY]
+Processing citation: 123 U.S. 456
+  2025-08-06 20:30:33 - src.citation_verification - DEBUG - [VERIFY]
+Trying courtlistener search for 123 U.S. 456
+  2025-08-06 20:30:35 - src.citation_verification - DEBUG - [VERIFY]
+Trying google_scholar search for 123 U.S. 456
+  2025-08-06 20:30:35 - src.unified_citation_processor_v2 - INFO -
+[DEBUG] Propagating canonical data to parallel citations
+  2025-08-06 20:30:35 - src.unified_citation_processor_v2 - INFO -
+[DEBUG] After canonical propagation: 1 citations
+> 2025-08-06 20:30:35 - src.citation_clustering - DEBUG - [PROPAGATION
+DEBUG] Citation: 123 U.S. 456, extracted_case_name: Smith v. Jones,
+extracted_date: 2020
+  2025-08-06 20:30:35 - src.citation_clustering - DEBUG - [DEBUG]
+clusters_by_id keys: []
+  2025-08-06 20:30:35 - src.citation_clustering - DEBUG - [DEBUG]
+clusters_by_id full: {}
+  2025-08-06 20:30:35 - src.api.services.citation_service - DEBUG -
+[Request 8dae01b3-6950-44fa-90c0-a41b0b478643] Converting CitationResult
+objects in clusters to dictionaries
+  2025-08-06 20:30:35 - src.api.services.citation_service - DEBUG -
+[Request 1618a7b4-f5a0-4323-8938-40c255753c1c] Converted 1 clusters
+> 2025-08-06 20:30:35 - src.vue_api_endpoints_updated - INFO -
+[_handle_json_input] [Request eec1050d-5b30-492a-ab52-66fdea7303b0] Text
+processing completed successfully
+  2025-08-06 20:30:35 - src.vue_api_endpoints_updated - INFO - [Request
+eec1050d-5b30-492a-ab52-66fdea7303b0] Request completed successfully in
+79783ms
+> 2025-08-06 20:30:35 - src.vue_api_endpoints_updated - DEBUG - [Request
+eec1050d-5b30-492a-ab52-66fdea7303b0] Response data: {'result':
+{'citations': [{'citation': '123 U.S. 456', 'case_name': 'Smith v.
+Jones', 'extracted_case_name': 'Smith v. Jones', 'canonical_name': None,
+'extracted_date': '2020', 'canonical_date': None, 'verified': True,
+'court': None, 'confidence': 0.9999999999999999, 'method': 'regex',
+'pattern': 'us', 'context': 'The court in Smith v. Jones, 123 U.S. 456
+(2020)', 'start_index': 29, 'end_index': 41, 'is_parallel': False,
+'is_cluster': False, 'parallel_citations': [], 'cluster_members': [],
+'pinpoint_pages': [], 'docket_numbers': [], 'case_history': [],
+'publication_status': None, 'url': 'https://example.com/result1',
+'source': 'google_scholar', 'error': None, 'metadata': {},
+'extraction_method': None}], 'clusters': [{'cluster_id': 'singleton_123
+U.S. 456', 'canonical_name': 'Smith v. Jones', 'canonical_date': '2020',
+'extracted_case_name': 'Smith v. Jones', 'extracted_date': '2020', 'url':
+'https://example.com/result1', 'source': 'google_scholar', 'citations':
+[{'citation': '123 U.S. 456', 'extracted_case_name': 'Smith v. Jones',
+'extracted_date': '2020', 'canonical_name': 'N/A', 'canonical_date':
+None, 'confidence': 0.9999999999999999, 'source': 'google_scholar',
+'url': 'https://example.com/result1', 'court': None, 'context': 'The
+court in Smith v. Jones, 123 U.S. 456 (2020)', 'verified': True,
+'parallel_citations': []}], 'has_parallel_citations': False, 'size': 1}],
+'statistics': {}}, 'request_id': 'eec1050d-5b30-492a-ab52-66fdea7303b0',
+'success': True, 'metadata': {'source': 'api-input', 'text_length': 61,
+'processing_time': 1754512235.5744371, 'processing_mode': 'immediate',
+'request_id': 'eec1050d-5b30-492a-ab52-66fdea7303b0', 'endpoint':
+'/analyze', 'timestamp': '2025-08-06T20:29:15.792692', 'input_type':
+'json', 'input_size': 104, 'content_type': 'application/json',
+'has_json_data': True, 'processing_time_ms': 79783, 'status':
+'completed', 'success': True}}
+  2025-08-06 20:30:35 - src.app_final_vue - INFO - [RESPONSE #9] POST
+vue_api.analyze -> 200 (1764 chars)
+  2025-08-06 20:30:37 - src.citation_verification - DEBUG - [VERIFY]
+Trying justia search for 123 U.S. 456
+  2025-08-06 20:30:52 - src.unified_citation_processor_v2 - INFO -
+[DEBUG] Propagating canonical data to parallel citations
+  2025-08-06 20:30:52 - src.unified_citation_processor_v2 - INFO -
+[DEBUG] After canonical propagation: 1 citations
+> 2025-08-06 20:30:52 - src.citation_clustering - DEBUG - [PROPAGATION
+DEBUG] Citation: 123 U.S. 456, extracted_case_name: Smith v. Jones,
+extracted_date: 2020
+  2025-08-06 20:30:52 - src.citation_clustering - DEBUG - [DEBUG]
+clusters_by_id keys: []
+  2025-08-06 20:30:52 - src.citation_clustering - DEBUG - [DEBUG]
+clusters_by_id full: {}
+  2025-08-06 20:30:52 - src.api.services.citation_service - DEBUG -
+[Request cdcfaff0-7ab9-42f0-8988-c0bcba8c474a] Converting CitationResult
+objects in clusters to dictionaries
+  2025-08-06 20:30:52 - src.api.services.citation_service - DEBUG -
+[Request ee162ead-46f2-45c7-b2a0-e3cc99652580] Converted 1 clusters
+> 2025-08-06 20:30:52 - src.vue_api_endpoints_updated - INFO -
+[_handle_json_input] [Request f77b1c41-af93-4d16-8a0b-aaf8b9b42a42] Text
+processing completed successfully
+  2025-08-06 20:30:52 - src.vue_api_endpoints_updated - INFO - [Request
+f77b1c41-af93-4d16-8a0b-aaf8b9b42a42] Request completed successfully in
+61762ms
+> 2025-08-06 20:30:52 - src.vue_api_endpoints_updated - DEBUG - [Request
+f77b1c41-af93-4d16-8a0b-aaf8b9b42a42] Response data: {'result':
+{'citations': [{'citation': '123 U.S. 456', 'case_name': 'Smith v.
+Jones', 'extracted_case_name': 'Smith v. Jones', 'canonical_name': None,
+'extracted_date': '2020', 'canonical_date': None, 'verified': True,
+'court': None, 'confidence': 0.9999999999999999, 'method': 'regex',
+'pattern': 'us', 'context': 'The court in Smith v. Jones, 123 U.S. 456
+(2020)', 'start_index': 29, 'end_index': 41, 'is_parallel': False,
+'is_cluster': False, 'parallel_citations': [], 'cluster_members': [],
+'pinpoint_pages': [], 'docket_numbers': [], 'case_history': [],
+'publication_status': None, 'url': 'https://example.com/result1',
+'source': 'google_scholar', 'error': None, 'metadata': {},
+'extraction_method': None}], 'clusters': [{'cluster_id': 'singleton_123
+U.S. 456', 'canonical_name': 'Smith v. Jones', 'canonical_date': '2020',
+'extracted_case_name': 'Smith v. Jones', 'extracted_date': '2020', 'url':
+'https://example.com/result1', 'source': 'google_scholar', 'citations':
+[{'citation': '123 U.S. 456', 'extracted_case_name': 'Smith v. Jones',
+'extracted_date': '2020', 'canonical_name': 'N/A', 'canonical_date':
+None, 'confidence': 0.9999999999999999, 'source': 'google_scholar',
+'url': 'https://example.com/result1', 'court': None, 'context': 'The
+court in Smith v. Jones, 123 U.S. 456 (2020)', 'verified': True,
+'parallel_citations': []}], 'has_parallel_citations': False, 'size': 1}],
+'statistics': {}}, 'request_id': 'f77b1c41-af93-4d16-8a0b-aaf8b9b42a42',
+'success': True, 'metadata': {'source': 'api-input', 'text_length': 61,
+'processing_time': 1754512252.5747118, 'processing_mode': 'immediate',
+'request_id': 'f77b1c41-af93-4d16-8a0b-aaf8b9b42a42', 'endpoint':
+'/analyze', 'timestamp': '2025-08-06T20:29:50.814297', 'input_type':
+'json', 'input_size': 104, 'content_type': 'application/json',
+'has_json_data': True, 'processing_time_ms': 61762, 'status':
+'completed', 'success': True}}
+  2025-08-06 20:30:52 - src.app_final_vue - INFO - [RESPONSE #10] POST
+vue_api.analyze -> 200 (1764 chars)
+  2025-08-06 20:30:57 - src.app_final_vue - INFO - [RESPONSE #11] GET
+vue_api.health_check -> 200 (449 chars)
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content "logs/casestrainer.log" | Select-String -Pattern "processing_time_ms|extraction|PDF|timeout" | Select-Object -Last 20
+
+2025-08-06 20:29:15 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:29:15 - src.unified_citation_processor_v2 - DEBUG -
+[EXTRACTION CONTEXT] Citation: 123 U.S. 456, start: 29, end: 41, context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+2025-08-06 20:29:16 - src.unified_citation_processor_v2 - DEBUG - ðŸ”
+Case name extraction for '123 U.S. 456': isolated_context='The court in
+Smith v. Jones, 123 U.S. 456 (2020)...'
+2025-08-06 20:29:16 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:29:16 - src.unified_citation_processor_v2 - DEBUG - ðŸ”
+Case name extraction for '123 U.S. 456': isolated_context='The court in
+Smith v. Jones, 123 U.S. 456 (2020)...'
+2025-08-06 20:29:16 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:29:16 - src.enhanced_courtlistener_verification - ERROR -
+[Enhanced CL search] 123 U.S. 456 exception:
+HTTPSConnectionPool(host='www.courtlistener.com', port=443): Read timed
+out. (read timeout=30)
+2025-08-06 20:29:40 - src.vue_api_endpoints_updated - DEBUG - [Request
+2351b250-e6a8-42d0-a373-1a4e453e5234] Response data: {'result':
+{'citations': [{'citation': '123 U.S. 456', 'case_name': 'Smith v.
+Jones', 'extracted_case_name': 'Smith v. Jones', 'canonical_name': None,
+'extracted_date': '2020', 'canonical_date': None, 'verified': True,
+'court': None, 'confidence': 0.9999999999999999, 'method': 'regex',
+'pattern': 'us', 'context': 'The court in Smith v. Jones, 123 U.S. 456
+(2020)', 'start_index': 29, 'end_index': 41, 'is_parallel': False,
+'is_cluster': False, 'parallel_citations': [], 'cluster_members': [],
+'pinpoint_pages': [], 'docket_numbers': [], 'case_history': [],
+'publication_status': None, 'url': 'https://example.com/result1',
+'source': 'google_scholar', 'error': None, 'metadata': {},
+'extraction_method': None}], 'clusters': [{'cluster_id': 'singleton_123
+U.S. 456', 'canonical_name': 'Smith v. Jones', 'canonical_date': '2020',
+'extracted_case_name': 'Smith v. Jones', 'extracted_date': '2020', 'url':
+'https://example.com/result1', 'source': 'google_scholar', 'citations':
+[{'citation': '123 U.S. 456', 'extracted_case_name': 'Smith v. Jones',
+'extracted_date': '2020', 'canonical_name': 'N/A', 'canonical_date':
+None, 'confidence': 0.9999999999999999, 'source': 'google_scholar',
+'url': 'https://example.com/result1', 'court': None, 'context': 'The
+court in Smith v. Jones, 123 U.S. 456 (2020)', 'verified': True,
+'parallel_citations': []}], 'has_parallel_citations': False, 'size': 1}],
+'statistics': {}}, 'request_id': '2351b250-e6a8-42d0-a373-1a4e453e5234',
+'success': True, 'metadata': {'source': 'api-input', 'text_length': 61,
+'processing_time': 1754512180.0169094, 'processing_mode': 'immediate',
+'request_id': '2351b250-e6a8-42d0-a373-1a4e453e5234', 'endpoint':
+'/analyze', 'timestamp': '2025-08-06T20:28:40.833114', 'input_type':
+'json', 'input_size': 104, 'content_type': 'application/json',
+'has_json_data': True, 'processing_time_ms': 59186, 'status':
+'completed', 'success': True}}
+2025-08-06 20:29:46 - src.enhanced_courtlistener_verification - ERROR -
+[Enhanced CL search] 123 U.S. 456 exception:
+HTTPSConnectionPool(host='www.courtlistener.com', port=443): Read timed
+out. (read timeout=30)
+2025-08-06 20:29:51 - src.unified_citation_processor_v2 - DEBUG - ðŸ”
+Case name extraction for '123 U.S. 456': isolated_context='The court in
+Smith v. Jones, 123 U.S. 456 (2020)...'
+2025-08-06 20:29:51 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:29:51 - src.unified_citation_processor_v2 - DEBUG -
+[EXTRACTION CONTEXT] Citation: 123 U.S. 456, start: 29, end: 41, context:
+The court in Smith v. Jones, 123 U.S. 456 (2020)
+2025-08-06 20:29:51 - src.unified_citation_processor_v2 - DEBUG - ðŸ”
+Case name extraction for '123 U.S. 456': isolated_context='The court in
+Smith v. Jones, 123 U.S. 456 (2020)...'
+2025-08-06 20:29:51 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:29:51 - src.unified_citation_processor_v2 - DEBUG - ðŸ”
+Case name extraction for '123 U.S. 456': isolated_context='The court in
+Smith v. Jones, 123 U.S. 456 (2020)...'
+2025-08-06 20:29:51 - src.case_name_extraction_core - INFO - Extraction
+complete: Smith v. Jones, 123 U.S. 456 2020 () - v_pattern
+2025-08-06 20:30:16 - src.enhanced_courtlistener_verification - ERROR -
+[Enhanced CL lookup] 123 U.S. 456 exception:
+HTTPSConnectionPool(host='www.courtlistener.com', port=443): Read timed
+out. (read timeout=30)
+2025-08-06 20:30:21 - src.enhanced_courtlistener_verification - ERROR -
+[Enhanced CL search] 123 U.S. 456 exception:
+HTTPSConnectionPool(host='www.courtlistener.com', port=443): Read timed
+out. (read timeout=30)
+2025-08-06 20:30:35 - src.vue_api_endpoints_updated - DEBUG - [Request
+eec1050d-5b30-492a-ab52-66fdea7303b0] Response data: {'result':
+{'citations': [{'citation': '123 U.S. 456', 'case_name': 'Smith v.
+Jones', 'extracted_case_name': 'Smith v. Jones', 'canonical_name': None,
+'extracted_date': '2020', 'canonical_date': None, 'verified': True,
+'court': None, 'confidence': 0.9999999999999999, 'method': 'regex',
+'pattern': 'us', 'context': 'The court in Smith v. Jones, 123 U.S. 456
+(2020)', 'start_index': 29, 'end_index': 41, 'is_parallel': False,
+'is_cluster': False, 'parallel_citations': [], 'cluster_members': [],
+'pinpoint_pages': [], 'docket_numbers': [], 'case_history': [],
+'publication_status': None, 'url': 'https://example.com/result1',
+'source': 'google_scholar', 'error': None, 'metadata': {},
+'extraction_method': None}], 'clusters': [{'cluster_id': 'singleton_123
+U.S. 456', 'canonical_name': 'Smith v. Jones', 'canonical_date': '2020',
+'extracted_case_name': 'Smith v. Jones', 'extracted_date': '2020', 'url':
+'https://example.com/result1', 'source': 'google_scholar', 'citations':
+[{'citation': '123 U.S. 456', 'extracted_case_name': 'Smith v. Jones',
+'extracted_date': '2020', 'canonical_name': 'N/A', 'canonical_date':
+None, 'confidence': 0.9999999999999999, 'source': 'google_scholar',
+'url': 'https://example.com/result1', 'court': None, 'context': 'The
+court in Smith v. Jones, 123 U.S. 456 (2020)', 'verified': True,
+'parallel_citations': []}], 'has_parallel_citations': False, 'size': 1}],
+'statistics': {}}, 'request_id': 'eec1050d-5b30-492a-ab52-66fdea7303b0',
+'success': True, 'metadata': {'source': 'api-input', 'text_length': 61,
+'processing_time': 1754512235.5744371, 'processing_mode': 'immediate',
+'request_id': 'eec1050d-5b30-492a-ab52-66fdea7303b0', 'endpoint':
+'/analyze', 'timestamp': '2025-08-06T20:29:15.792692', 'input_type':
+'json', 'input_size': 104, 'content_type': 'application/json',
+'has_json_data': True, 'processing_time_ms': 79783, 'status':
+'completed', 'success': True}}
+2025-08-06 20:30:52 - src.vue_api_endpoints_updated - DEBUG - [Request
+f77b1c41-af93-4d16-8a0b-aaf8b9b42a42] Response data: {'result':
+{'citations': [{'citation': '123 U.S. 456', 'case_name': 'Smith v.
+Jones', 'extracted_case_name': 'Smith v. Jones', 'canonical_name': None,
+'extracted_date': '2020', 'canonical_date': None, 'verified': True,
+'court': None, 'confidence': 0.9999999999999999, 'method': 'regex',
+'pattern': 'us', 'context': 'The court in Smith v. Jones, 123 U.S. 456
+(2020)', 'start_index': 29, 'end_index': 41, 'is_parallel': False,
+'is_cluster': False, 'parallel_citations': [], 'cluster_members': [],
+'pinpoint_pages': [], 'docket_numbers': [], 'case_history': [],
+'publication_status': None, 'url': 'https://example.com/result1',
+'source': 'google_scholar', 'error': None, 'metadata': {},
+'extraction_method': None}], 'clusters': [{'cluster_id': 'singleton_123
+U.S. 456', 'canonical_name': 'Smith v. Jones', 'canonical_date': '2020',
+'extracted_case_name': 'Smith v. Jones', 'extracted_date': '2020', 'url':
+'https://example.com/result1', 'source': 'google_scholar', 'citations':
+[{'citation': '123 U.S. 456', 'extracted_case_name': 'Smith v. Jones',
+'extracted_date': '2020', 'canonical_name': 'N/A', 'canonical_date':
+None, 'confidence': 0.9999999999999999, 'source': 'google_scholar',
+'url': 'https://example.com/result1', 'court': None, 'context': 'The
+court in Smith v. Jones, 123 U.S. 456 (2020)', 'verified': True,
+'parallel_citations': []}], 'has_parallel_citations': False, 'size': 1}],
+'statistics': {}}, 'request_id': 'f77b1c41-af93-4d16-8a0b-aaf8b9b42a42',
+'success': True, 'metadata': {'source': 'api-input', 'text_length': 61,
+'processing_time': 1754512252.5747118, 'processing_mode': 'immediate',
+'request_id': 'f77b1c41-af93-4d16-8a0b-aaf8b9b42a42', 'endpoint':
+'/analyze', 'timestamp': '2025-08-06T20:29:50.814297', 'input_type':
+'json', 'input_size': 104, 'content_type': 'application/json',
+'has_json_data': True, 'processing_time_ms': 61762, 'status':
+'completed', 'success': True}}
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_pdf_optimization.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python src/optimization_config.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python src/integration_guide.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_integration.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>python test_integration.py
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -Command "& { . .\cslaunch.ps1; Write-Host 'Syntax check passed' }"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -Command "& { . .\cslaunch.ps1; Write-Host 'Syntax check passed' }"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>copy cslaunch_backup.ps1 cslaunch.ps1
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>powershell -Command "& { . .\cslaunch.ps1; Write-Host 'Syntax check passed' }"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_docker_health.ps1
+At D:\dev\casestrainer\cslaunch_docker_health.ps1:18 char:69
++ ... CaseStrainer with Docker health monitoring..." -ForegroundColor Green
++                                                  ~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_docker_health.ps1:13 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\cslaunch_docker_health.ps1:18 char:69
++ ... CaseStrainer with Docker health monitoring..." -ForegroundColor
+Green
++
+~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_docker_health.ps1:13 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\integrate_docker_health.ps1
+=== Testing Docker Health Check Functions ===
+Running Docker health check...
+
+=== Docker Health Check Results ===
+âœ… Docker CLI is responsive
+âœ… Resource usage is normal
+âœ… All containers are healthy
+
+âœ… Docker is healthy!
+
+=== Test Complete ===
+
+=== Docker Health Monitoring ===
+1. Start Docker Health Monitoring
+2. Stop Docker Health Monitoring
+3. Run Docker Health Check Now
+4. View Monitoring Status
+0. Back to Main Menu
+Invalid selection. Please enter a number between 0 and 4.
+
+Press any key to continue...
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1 | Measure-Object -Line
+
+Lines Words Characters Property
+----- ----- ---------- --------
+ 3079
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_simple.ps1 -Help
+At D:\dev\casestrainer\cslaunch_simple.ps1:117 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:137 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor Cyan
++                                                   ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:117 char:13
++     } catch {
++             ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch_simple.ps1:117 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:137 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor
+Cyan
++
+~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:117 char:13
++     } catch {
++             ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_simple.ps1 -Help
+At D:\dev\casestrainer\cslaunch_simple.ps1:120 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:140 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor Cyan
++                                                   ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:120 char:13
++     } catch {
++             ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch_simple.ps1:120 char:5
++     } catch {
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:140 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor
+Cyan
++
+~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:120 char:13
++     } catch {
++             ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_simple.ps1 -Help
+At D:\dev\casestrainer\cslaunch_simple.ps1:121 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:142 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor Cyan
++                                                   ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:122 char:11
++     catch {
++           ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch_simple.ps1:121 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:142 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor
+Cyan
++
+~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_simple.ps1:122 char:11
++     catch {
++           ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_minimal.ps1 -Help
+At D:\dev\casestrainer\cslaunch_minimal.ps1:118 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_minimal.ps1:139 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor Cyan
++                                                   ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_minimal.ps1:119 char:11
++     catch {
++           ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch_minimal.ps1:118 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch_minimal.ps1:139 char:68
++ ... tion specified, using Fast Start (recommended)" -ForegroundColor
+Cyan
++
+~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch_minimal.ps1:119 char:11
++     catch {
++           ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Rename-Item -Path "cslaunch.ps1" -NewName "cslaunch_complex.ps1"
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:60 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:60 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:60 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:60 char:5
++     }
++     ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:91 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:91 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:91 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:91 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1 | Measure-Object -Line
+
+Lines Words Characters Property
+----- ----- ---------- --------
+  104
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1 | Select-Object -Last 10
+} elseif ($Fast) {
+    Start-FastLaunch
+} elseif ($Full) {
+    Start-FullLaunch
+} elseif ($Auto) {
+    Start-AutoLaunch
+} else {
+    # Default to auto-detection (most user-friendly)
+    Start-AutoLaunch
+}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch_simple_test.ps1 -Help
+Test Launcher
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:45 char:78
++ ...  docker ps --filter "name=casestrainer" --format "{{.Names}}" 2>$null
++                                                                 ~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\cslaunch.ps1:45 char:78
++ ...  docker ps --filter "name=casestrainer" --format "{{.Names}}"
+2>$null
++
+~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:45 char:84
++ ... r ps --filter "name=casestrainer" --format "table {{.Names}}" 2>$null
++                                                                 ~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\cslaunch.ps1:45 char:84
++ ... r ps --filter "name=casestrainer" --format "table {{.Names}}"
+2>$null
++
+~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:45 char:73
++ ... ers = docker ps --filter "name=casestrainer" --format "table" 2>$null
++                                                                 ~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\cslaunch.ps1:45 char:73
++ ... ers = docker ps --filter "name=casestrainer" --format "table"
+2>$null
++
+~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:44 char:39
++     Write-Host "ðŸ” Auto-detecting..." -ForegroundColor Magenta
++                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+At D:\dev\casestrainer\cslaunch.ps1:44 char:39
++     Write-Host "ðŸ” Auto-detecting..." -ForegroundColor Magenta
++                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\cslaunch.ps1:43 char:8
++ } else {
++        ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : TerminatorExpectedAtEndOfString
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>New-Item -Path "cslaunch.ps1" -ItemType File
+
+
+    Directory: D:\dev\casestrainer
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          8/6/2025   2:10 PM              0 cslaunch.ps1
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'param([switch]$Quick, [switch]$Fast, [switch]$Full, [switch]$Help)'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'if ($Help) { Write-Host "CaseStrainer Launcher" -ForegroundColor Cyan; Write-Host "  .\cslaunch.ps1 -Fast        # Fast Start (recommended)" -ForegroundColor Cyan; Write-Host "  .\cslaunch.ps1 -Quick       # Quick Start" -ForegroundColor Green; Write-Host "  .\cslaunch.ps1 -Full        # Full Rebuild" -ForegroundColor Yellow }'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'elseif ($Quick) { Write-Host " Quick Start" -ForegroundColor Green; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Quick Start completed!" -ForegroundColor Green }'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'elseif ($Fast) { Write-Host " Fast Start" -ForegroundColor Cyan; docker-compose -f docker-compose.prod.yml down; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Fast Start completed!" -ForegroundColor Green }'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'elseif ($Full) { Write-Host " Full Rebuild" -ForegroundColor Yellow; docker-compose -f docker-compose.prod.yml down; docker system prune -af --volumes; docker-compose -f docker-compose.prod.yml build --no-cache; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Full Rebuild completed!" -ForegroundColor Green }'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Add-Content -Path "cslaunch.ps1" -Value 'else { Write-Host " Auto-detecting..." -ForegroundColor Magenta; Write-Host " Fast Start" -ForegroundColor Cyan; docker-compose -f docker-compose.prod.yml down; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Fast Start completed!" -ForegroundColor Green }'
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+CaseStrainer Launcher
+  .\cslaunch.ps1 -Fast        # Fast Start (recommended)
+  .\cslaunch.ps1 -Quick       # Quick Start
+  .\cslaunch.ps1 -Full        # Full Rebuild
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1
+param([switch]$Quick, [switch]$Fast, [switch]$Full, [switch]$Help)
+if ($Help) { Write-Host "CaseStrainer Launcher" -ForegroundColor Cyan; Write-Host "  .\cslaunch.ps1 -Fast        # Fast Start (recommended)" -ForegroundColor Cyan; Write-Host "  .\cslaunch.ps1 -Quick       # Quick Start" -ForegroundColor Green; Write-Host "  .\cslaunch.ps1 -Full        # Full Rebuild" -ForegroundColor Yellow }
+elseif ($Quick) { Write-Host " Quick Start" -ForegroundColor Green; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Quick Start completed!" -ForegroundColor Green }
+elseif ($Fast) { Write-Host " Fast Start" -ForegroundColor Cyan; docker-compose -f docker-compose.prod.yml down; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Fast Start completed!" -ForegroundColor Green }
+elseif ($Full) { Write-Host " Full Rebuild" -ForegroundColor Yellow; docker-compose -f docker-compose.prod.yml down; docker system prune -af --volumes; docker-compose -f docker-compose.prod.yml build --no-cache; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Full Rebuild completed!" -ForegroundColor Green }
+else { Write-Host " Auto-detecting..." -ForegroundColor Magenta; Write-Host " Fast Start" -ForegroundColor Cyan; docker-compose -f docker-compose.prod.yml down; docker-compose -f docker-compose.prod.yml up -d; Write-Host " Fast Start completed!" -ForegroundColor Green }
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+ Auto-detecting...
+ Fast Start
+
+
+ Fast Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Quick
+ Quick Start
+
+ Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:66 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:66 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+At D:\dev\casestrainer\cslaunch.ps1:102 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\cslaunch.ps1:102 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1 | Measure-Object -Line
+
+Lines Words Characters Property
+----- ----- ---------- --------
+  101
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-Content cslaunch.ps1 | Select-Object -Last 5
+        Write-Host "ðŸš€ Quick Start" -ForegroundColor Green
+        docker-compose -f docker-compose.prod.yml up -d
+        Write-Host "âœ… Quick Start completed!" -ForegroundColor Green
+    }
+}
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -Help
+CaseStrainer Launcher
+  .\cslaunch.ps1              # Intelligent auto-detect (recommended)
+  .\cslaunch.ps1 -Fast        # Fast Start (restart with latest code)
+  .\cslaunch.ps1 -Quick       # Quick Start (when everything is ready)
+  .\cslaunch.ps1 -Full        # Full Rebuild (complete reset)
+
+Auto-detection logic:
+  â€¢ No containers exist â†’ Full Rebuild
+  â€¢ Containers stopped â†’ Fast Start
+  â€¢ Code changes detected â†’ Fast Start
+  â€¢ No changes, running â†’ Quick Start
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Intelligent Auto-Detection...
+Frontend files changed recently
+Backend files changed recently
+Code changes detected - using Fast Start
+Fast Start
+
+
+Fast Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Intelligent Auto-Detection...
+Frontend files changed recently
+Backend files changed recently
+Code changes detected - using Fast Start
+Fast Start
+
+
+Fast Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>git add .
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>git status
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>git commit -m "Major efficiency improvements: Simplified cslaunch.ps1 with intelligent auto-detection, optimized PDF extraction, Docker health monitoring, and UI text updates"
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>git push
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem logs -File | Sort-Object LastWriteTime -Descending | Select-Object -First 10 Name, Length, LastWriteTime
+
+Name                         Length LastWriteTime
+----                         ------ -------------
+casestrainer.log            3683589 8/6/2025 2:27:42 PM
+script_20250806_095206.log    81441 8/6/2025 2:26:00 PM
+script_20250806_130854.log    77014 8/6/2025 2:26:00 PM
+script_20250806_130701.log    77542 8/6/2025 2:26:00 PM
+script_20250806_092751.log    83850 8/6/2025 2:26:00 PM
+frontend_api_results.log     392736 8/6/2025 2:00:43 PM
+debug_prints.txt            5426597 8/6/2025 2:00:43 PM
+script_20250806_092424.log    20275 8/6/2025 1:59:56 PM
+case_name_debug.txt        51682781 8/6/2025 1:59:44 PM
+production_test.log          294748 8/6/2025 1:30:24 PM
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem logs -File | Measure-Object -Property Length -Sum | Select-Object Count, @{Name="Size(MB)";Expression={[math]::Round($_.Sum/1MB,2)}}
+
+Count Size(MB)
+----- --------
+  152   188.65
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:104
++ ... sage detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per cor ...
++                                                                  ~
+You must provide a value expression following the '%' operator.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:105
++ ...  detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per core)"  ...
++                                                               ~~~
+Unexpected token 'per' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:104
++ ... sage detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per cor ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\docker_health_check.ps1:234 char:27
++     if ($dockerProcesses) {
++                           ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:113
++ ... ted: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per core)" -Foreg ...
++                                                                 ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:33
++             $results.Issues += "High CPU usage: $totalCPU%"
++                                 ~~~~
+Unexpected token 'High' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:317 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:104
++ ... sage detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per
+cor ...
++                                                                  ~
+You must provide a value expression following the '%' operator.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:105
++ ...  detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per
+core)"  ...
++                                                               ~~~
+Unexpected token 'per' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:104
++ ... sage detected: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per
+cor ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\docker_health_check.ps1:234 char:27
++     if ($dockerProcesses) {
++                           ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:253 char:113
++ ... ted: $totalCPU% (${([math]::Round($totalCPU/4,1))}% per core)"
+-Foreg ...
++                                                                 ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:33
++             $results.Issues += "High CPU usage: $totalCPU%"
++                                 ~~~~
+Unexpected token 'High' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:317 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:82
++ ... st "âš ï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per cor ...
++                                                                  ~
+You must provide a value expression following the '%' operator.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:83
++ ... âš ï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per core)"  ...
++                                                               ~~~
+Unexpected token 'per' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:82
++ ... st "âš ï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per cor ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\docker_health_check.ps1:234 char:27
++     if ($dockerProcesses) {
++                           ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:91
++ ...   High CPU usage detected: $totalCPU% ($perCoreCPU% per core)" -Foreg ...
++                                                                 ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:255 char:33
++             $results.Issues += "High CPU usage: $totalCPU%"
++                                 ~~~~
+Unexpected token 'High' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:318 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:82
++ ... st "âšï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per
+cor ...
++                                                                  ~
+You must provide a value expression following the '%' operator.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:83
++ ... âšï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per core)"
+ ...
++                                                               ~~~
+Unexpected token 'per' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:82
++ ... st "âšï¸  High CPU usage detected: $totalCPU% ($perCoreCPU% per
+cor ...
++                                                                  ~
+Missing closing ')' in expression.
+
+At D:\dev\casestrainer\docker_health_check.ps1:234 char:27
++     if ($dockerProcesses) {
++                           ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:254 char:91
++ ...   High CPU usage detected: $totalCPU% ($perCoreCPU% per core)"
+-Foreg ...
++                                                                 ~
+Unexpected token ')' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:255 char:33
++             $results.Issues += "High CPU usage: $totalCPU%"
++                                 ~~~~
+Unexpected token 'High' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:318 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:336 char:36
++         Write-Host "Detail: $detail" -ForegroundColor Gray
++                                    ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:336 char:36
++         Write-Host "Detail: $detail" -ForegroundColor Gray
++                                    ~~~~~~~~~~~~~~~~~~~~~~~
+The string is missing the terminator: ".
+
+At D:\dev\casestrainer\docker_health_check.ps1:213 char:39
++     if (-not $results.RecoveryNeeded) {
++                                       ~
+Missing closing '}' in statement block or type definition.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+
+At D:\dev\casestrainer\docker_health_check.ps1:158 char:28
++ function Test-DockerHealth {
++                            ~
+Missing closing '}' in statement block or type definition.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+At D:\dev\casestrainer\docker_health_check.ps1:155 char:1
++ }
++ ~
+Unexpected token '}' in expression or statement.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : UnexpectedToken
+
+]633;D;1]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check_clean.ps1 -DeepDiagnostics
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check_clean.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  com.docker.backend (PID: 17948) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  com.docker.backend (PID: 18032) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  com.docker.build (PID: 2136) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  Docker Desktop (PID: 4244) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  Docker Desktop (PID: 5408) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  Docker Desktop (PID: 9092) - CPU: %
+Method invocation failed because [System.Object[]] does not contain a method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas ...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [], RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+Method invocation failed because [System.Object[]] does not contain a
+method named 'op_Division'.
+At D:\dev\casestrainer\docker_health_check_clean.ps1:54 char:9
++         $cpuPercent = [math]::Round(($proc.CPU / (Get-WmiObject -Clas
+...
++         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : InvalidOperation: (op_Division:String) [],
+   RuntimeException
+    + FullyQualifiedErrorId : MethodNotFound
+
+  Docker Desktop (PID: 14268) - CPU: %
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Copy-Item docker_health_check_clean.ps1 docker_health_check.ps1 -Force
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -DeepDiagnostics
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\docker_health_check.ps1 -AutoRestart -DeepDiagnostics
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1 -HealthCheck
+ðŸ  Running Docker Health Check with Auto-Recovery... -ForegroundColor Magenta
+    & .\docker_health_check.ps1 -AutoRestart -DeepDiagnostics -CollectLogs
+}
+elseif (False) { 
+    Write-Host Quick Start -ForegroundColor Green
+    docker-compose -f docker-compose.prod.yml up -d
+    Write-Host Quick Start completed! -ForegroundColor Green
+}
+elseif (False) { 
+    Write-Host Fast Start -ForegroundColor Cyan
+    docker-compose -f docker-compose.prod.yml down
+    docker-compose -f docker-compose.prod.yml up -d
+    Write-Host Fast Start completed! -ForegroundColor Green
+}
+elseif (False) { 
+    Write-Host Full Rebuild -ForegroundColor Yellow
+    docker-compose -f docker-compose.prod.yml down
+    docker system prune -af --volumes
+    docker-compose -f docker-compose.prod.yml build --no-cache
+    docker-compose -f docker-compose.prod.yml up -d
+    Write-Host Full Rebuild completed! -ForegroundColor Green
+}
+else { 
+    Write-Host Intelligent Auto-Detection... -ForegroundColor Magenta
+    
+    # Enhanced Docker health check before proceeding
+    Write-Host ðŸ Pre-flight Docker health check...
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  docker (PID: 3656) - CPU: N/A
+  docker (PID: 9740) - CPU: N/A
+  docker (PID: 13292) - CPU: N/A
+  docker (PID: 16712) - CPU: N/A
+  docker (PID: 16784) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+No recent changes, containers running - using Quick Start
+Quick Start
+
+Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Intelligent Auto-Detection...
+Pre-flight Docker health check...
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+No recent changes, containers running - using Quick Start
+Quick Start
+
+Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>./cslaunch
+Intelligent Auto-Detection...
+Pre-flight Docker health check...
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+No recent changes, containers running - using Quick Start
+Quick Start
+
+Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+]633;D]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Intelligent Auto-Detection...
+Pre-flight Docker health check...
+Deep Diagnostics Mode...
+Docker Desktop logs not found at: C:\Users\jafrank\AppData\Roaming\Docker\log.txt
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+No recent changes, containers running - using Quick Start
+Quick Start
+
+Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Test-Path "$env:APPDATA\Docker\log.txt"
+False
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem "$env:APPDATA\Docker\" -ErrorAction SilentlyContinue
+
+
+    Directory: C:\Users\jafrank\AppData\Roaming\Docker
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         10/7/2024  11:39 AM                buildstore
+d-----         7/31/2025   5:59 PM                extensions
+-a----         10/7/2024  11:28 AM             36 .trackid
+-a----          8/6/2025   2:18 PM             25 auth-token-family-creati
+                                                  on-time.txt
+-a----          8/6/2025   1:20 PM              3 features-overrides.json
+-a----          8/6/2025   1:20 PM              3 locked-directories
+-a----          8/2/2025  11:07 AM           2100 reports.log
+-a----          8/6/2025   2:18 PM            422 settings-store.json
+-a----          8/6/2025   1:20 PM          24389 unleash-v2-docker-deskto
+                                                  p.json
+-a----          8/6/2025   2:52 PM              0 wc.dat
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem "$env:LOCALAPPDATA\Docker\" -ErrorAction SilentlyContinue
+
+
+    Directory: C:\Users\jafrank\AppData\Local\Docker
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----         6/30/2025   7:27 PM                log
+d-----          8/6/2025   1:20 PM                run
+d-----          8/6/2025   1:20 PM                tasks
+d-----         7/31/2025   5:59 PM                wsl
+-a----         6/30/2025   7:27 PM              0 backend.lock
+-a----          8/2/2025  11:07 AM            119 debug.log
+-a----          7/6/2025   7:18 PM           1161 install-log.0.txt
+-a----         7/16/2025   9:22 AM           1156 install-log.1.txt
+-a----         7/31/2025   3:56 PM           1059 install-log.txt
+-a----         6/30/2025   7:27 PM              3 volume-backup-schedule.j
+                                                  son
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem "$env:LOCALAPPDATA\Docker\log\" -ErrorAction SilentlyContinue
+
+
+    Directory: C:\Users\jafrank\AppData\Local\Docker\log
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+d-----          8/6/2025   2:51 PM                host
+d-----          8/6/2025   2:48 PM                vm
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>Get-ChildItem "$env:LOCALAPPDATA\Docker\log\host\" -ErrorAction SilentlyContinue
+
+
+    Directory: C:\Users\jafrank\AppData\Local\Docker\log\host
+
+
+Mode                 LastWriteTime         Length Name
+----                 -------------         ------ ----
+-a----          8/6/2025   1:22 PM        1048504 com.docker.backend.exe.l
+                                                  og
+-a----          8/5/2025   5:58 PM        1048514 com.docker.backend.exe.l
+                                                  og.1
+-a----          8/5/2025   5:55 PM        1048538 com.docker.backend.exe.l
+                                                  og.3
+-a----          8/2/2025  12:24 PM        1048557 com.docker.backend.exe.l
+                                                  og.5
+-a----          8/2/2025  12:17 PM        1048395 com.docker.backend.exe.l
+                                                  og.6
+-a----          8/2/2025  12:08 PM        1044534 com.docker.backend.exe.l
+                                                  og.7
+-a----          8/2/2025  12:03 PM        1048429 com.docker.backend.exe.l
+                                                  og.8
+-a----          8/6/2025   2:50 PM        1029475 com.docker.build.log
+-a----          8/6/2025   1:19 PM          25056 Docker Desktop.exe.log
+-a----          8/6/2025   1:20 PM           4982 Docker
+                                                  Desktop.exe.stderr.log
+-a----          8/6/2025   1:20 PM           7836 Docker
+                                                  Desktop.exe.stdout.log
+-a----          8/6/2025   2:52 PM         985194 docker-desktop.exe.log
+-a----         7/27/2025   6:05 AM        1048511 docker-desktop.exe.log.0
+-a----         7/12/2025   7:52 PM        1048463 docker-desktop.exe.log.1
+-a----         7/29/2025  11:34 PM          28570 electron-2025-07-29.log
+-a----         7/30/2025   8:51 PM          23958 electron-2025-07-30.log
+-a----         7/31/2025  11:58 PM         230348 electron-2025-07-31.log
+-a----          8/1/2025  11:59 PM        6082819 electron-2025-08-01.log
+-a----          8/2/2025  11:54 PM          83332 electron-2025-08-02.log
+-a----          8/3/2025  11:53 PM          56405 electron-2025-08-03.log
+-a----          8/4/2025  11:46 PM          23372 electron-2025-08-04.log
+-a----          8/5/2025   7:08 PM          38046 electron-2025-08-05.log
+-a----          8/6/2025   2:48 PM          55595 electron-2025-08-06.log
+-a----          8/6/2025   1:55 AM           1685 electron-audit-log.json
+-a----         7/21/2025   6:13 PM            809 electron-errd-2025-07-21
+                                                  .log
+-a----         7/31/2025   9:58 AM           1618 electron-errd-2025-07-31
+                                                  .log
+-a----          8/2/2025  11:07 AM            809 electron-errd-2025-08-02
+                                                  .log
+-a----          8/2/2025  11:07 AM            865 electron-errd-audit-log.
+                                                  json
+-a----          8/2/2025  11:53 PM         103844 electron-ui-console-2025
+                                                  -08-02.log
+-a----          8/3/2025  11:53 PM         139036 electron-ui-console-2025
+                                                  -08-03.log
+-a----          8/4/2025  11:45 PM          88384 electron-ui-console-2025
+                                                  -08-04.log
+-a----          8/5/2025   1:23 PM         131728 electron-ui-console-2025
+                                                  -08-05.log
+-a----          8/6/2025   2:16 PM          60717 electron-ui-console-2025
+                                                  -08-06.log
+-a----          8/6/2025   9:25 AM           1075 electron-ui-console-audi
+                                                  t-log.json
+-a----          8/6/2025   2:50 PM         467933 httpproxy.log
+-a----          8/5/2025   2:40 AM        1048497 httpproxy.log.0
+-a----          8/3/2025   8:47 PM        1048564 httpproxy.log.1
+-a----          8/2/2025   3:51 AM        1048458 httpproxy.log.2
+-a----         7/31/2025   4:42 PM        1048534 httpproxy.log.3
+-a----         7/30/2025   4:50 PM        1048481 httpproxy.log.4
+-a----         7/29/2025   5:50 PM        1048507 httpproxy.log.5
+-a----         7/28/2025  10:01 PM        1048533 httpproxy.log.6
+-a----         7/28/2025   9:33 PM        1048573 httpproxy.log.7
+-a----         7/27/2025   5:33 AM        1048529 httpproxy.log.8
+-a----          8/6/2025   2:33 PM         214077 inference.log
+-a----          8/6/2025   2:52 PM         618811 monitor.log
+-a----          8/6/2025   2:51 PM        1048441 monitor.log.0
+-a----          8/6/2025   2:50 PM        1048436 monitor.log.1
+-a----          8/6/2025   2:48 PM        1048461 monitor.log.2
+-a----          8/6/2025   2:47 PM        1048434 monitor.log.3
+-a----          8/6/2025   2:45 PM        1048524 monitor.log.4
+-a----          8/6/2025   2:43 PM        1048502 monitor.log.5
+-a----          8/6/2025   2:42 PM        1048534 monitor.log.6
+-a----          8/6/2025   2:40 PM        1048442 monitor.log.7
+-a----          8/6/2025   2:39 PM        1048425 monitor.log.8
+
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+PS>.\cslaunch.ps1
+Intelligent Auto-Detection...
+Pre-flight Docker health check...
+Deep Diagnostics Mode...
+Docker Desktop Logs (last 20 lines):
+  [2025-08-06T20:22:31.623368780Z][com.docker.backend.exe.init.apiproxy] << GET /v1.51/containers/json?all=1 (93.192723ms)
+  [2025-08-06T20:22:31.624510800Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.624761464Z][init.apiproxy         ] << GET /v1.51/containers/json?all=1 (95.047135ms)
+  [2025-08-06T20:22:31.624761464Z][com.docker.backend.exe.init.apiproxy] << GET /v1.51/containers/json?all=1 (95.047135ms)
+  [2025-08-06T20:22:31.629455900Z][com.docker.backend.exe.apiproxy] << GET /v1.51/containers/json?all=1 (103.4179ms)
+  [2025-08-06T20:22:31.632429900Z][com.docker.backend.exe.apiproxy] << GET /v1.51/containers/json?all=1 (105.0365ms)
+  [2025-08-06T20:22:31.632781100Z][com.docker.backend.exe.apiproxy] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.633035200Z][com.docker.backend.exe.apiproxy] >> GET /v1.51/containers/8d49074c9875/stats?stream=0
+  [2025-08-06T20:22:31.633837900Z][com.docker.backend.exe.apiproxy] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.633837900Z][com.docker.backend.exe.apiproxy] >> GET /v1.51/containers/48d462c258be/stats?stream=0
+  [2025-08-06T20:22:31.633837900Z][com.docker.backend.exe.apiproxy] >> GET /v1.51/containers/2a623bfdb220/stats?stream=0
+  [2025-08-06T20:22:31.635199000Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.635179492Z][init.apiproxy         ] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.635179492Z][com.docker.backend.exe.init.apiproxy] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.635199000Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.635495711Z][init.apiproxy         ] >> GET /v1.51/containers/8d49074c9875/stats?stream=0
+  [2025-08-06T20:22:31.635495711Z][com.docker.backend.exe.init.apiproxy] >> GET /v1.51/containers/8d49074c9875/stats?stream=0
+  [2025-08-06T20:22:31.636024200Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.636456369Z][init.apiproxy         ] >> GET /v1.51/containers/2a623bfdb220/stats?stream=0
+  [2025-08-06T20:22:31.636024200Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.636468670Z][init.apiproxy         ] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.636024200Z][com.docker.backend.exe.wsl-bootstrap] [2025-08-06T20:22:31.636681583Z][init.apiproxy         ] >> GET /v1.51/containers/48d462c258be/stats?stream=0
+  [2025-08-06T20:22:31.636456369Z][com.docker.backend.exe.init.apiproxy] >> GET /v1.51/containers/2a623bfdb220/stats?stream=0
+  [2025-08-06T20:22:31.636468670Z][com.docker.backend.exe.init.apiproxy] >> GET /v1.51/containers/7e30953288ae/stats?stream=0
+  [2025-08-06T20:22:31.636681583Z][com.docker.backend.exe.init.apiproxy] >> GET /v1.51/containers/48d462c258be/stats?stream=0
+Docker Daemon Status:
+docker : WARNING: No blkio throttle.read_bps_device support
+At D:\dev\casestrainer\docker_health_check.ps1:27 char:23
++         $daemonInfo = docker system info 2>$null
++                       ~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: No blk..._device support:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+WARNING: No blkio throttle.write_bps_device support
+WARNING: No blkio throttle.read_iops_device support
+WARNING: No blkio throttle.write_iops_device support
+WARNING: DOCKER_INSECURE_NO_IPTABLES_RAW is set
+Docker daemon is responding
+Network Connectivity:
+WARNING: TCP connect to (::1 : 2375) failed
+WARNING: TCP connect to (127.0.0.1 : 2375) failed
+Docker socket not accessible
+Docker Desktop Processes:
+  com.docker.backend (PID: 17948) - CPU: N/A
+  com.docker.backend (PID: 18032) - CPU: N/A
+  com.docker.build (PID: 2136) - CPU: N/A
+  Docker Desktop (PID: 4244) - CPU: N/A
+  Docker Desktop (PID: 5408) - CPU: N/A
+  Docker Desktop (PID: 9092) - CPU: N/A
+  Docker Desktop (PID: 14268) - CPU: N/A
+No recent changes, containers running - using Quick Start
+Quick Start
+
+Quick Start completed!
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

@@ -1,0 +1,44 @@
+[2025-08-07 17:26:22] [INFO] Smart Docker Monitor ready
+[2025-08-07 17:26:22] [INFO] Usage:
+[2025-08-07 17:26:22] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-07 17:26:22] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-07 17:26:22] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-07 17:26:44] [INFO] Smart Docker Monitor ready
+[2025-08-07 17:26:44] [INFO] Usage:
+[2025-08-07 17:26:44] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-07 17:26:44] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-07 17:26:44] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-07 17:27:18] [INFO] Smart Docker Monitor ready
+[2025-08-07 17:27:18] [INFO] Usage:
+[2025-08-07 17:27:18] [INFO]   .\smart_docker_monitor_clean.ps1                    # Run once
+[2025-08-07 17:27:18] [INFO]   .\smart_docker_monitor_clean.ps1 -CheckInterval 60  # Run every minute
+[2025-08-07 17:27:18] [INFO]   .\smart_docker_monitor_clean.ps1 -DryRun            # Preview actions
+[2025-08-07 17:27:18] [INFO] Starting Docker process monitoring service...
+[2025-08-07 17:27:18] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-07 17:27:18] [INFO] Total processes: 9
+[2025-08-07 17:27:18] [INFO] Legitimate: 6
+[2025-08-07 17:27:18] [WARN] Suspicious: 3
+[2025-08-07 17:27:18] [CLEANUP] Zombie: 0
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: com.docker.build (PID: 17192)
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: docker (PID: 23412)
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: docker (PID: 24000)
+[2025-08-07 17:27:18] [INFO] Starting Smart Docker Monitor (interval: 300s)
+[2025-08-07 17:27:18] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-07 17:27:18] [INFO] Total processes: 9
+[2025-08-07 17:27:18] [INFO] Legitimate: 6
+[2025-08-07 17:27:18] [WARN] Suspicious: 3
+[2025-08-07 17:27:18] [CLEANUP] Zombie: 0
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: com.docker.build (PID: 17192)
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: docker (PID: 23412)
+[2025-08-07 17:27:18] [WARN] Suspicious process detected: docker (PID: 24000)
+[2025-08-07 18:09:55] [INFO] Smart Docker Monitor ready
+[2025-08-07 18:09:55] [INFO] Usage:
+[2025-08-07 18:09:55] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-07 18:09:55] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-07 18:09:55] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-07 18:09:55] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-07 18:09:55] [INFO] Total processes: 7
+[2025-08-07 18:09:55] [INFO] Legitimate: 6
+[2025-08-07 18:09:55] [WARN] Suspicious: 1
+[2025-08-07 18:09:55] [CLEANUP] Zombie: 0
+[2025-08-07 18:09:55] [WARN] Suspicious process detected: com.docker.build (PID: 17192)

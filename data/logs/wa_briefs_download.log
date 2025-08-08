@@ -1,0 +1,3 @@
+2025-05-08 13:26:11,201 - wa_briefs_downloader - INFO - Searching with params: {'court': 'supreme'}
+2025-05-08 13:26:11,319 - wa_briefs_downloader - INFO - Found 0 briefs
+2025-05-08 13:26:11,320 - wa_briefs_downloader - WARNING - No briefs found matching the criteria.

@@ -166079,3 +166079,629 @@ WL 8438651, at *2 (N.D. Ala. Feb. 27, 2006) (granting Rule 30(a)(2)(B) motion an
 finding no good cause to de
 ---
 [DEBUG] No case name match for citation: 2006 WL 8438651
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 138 S. Ct. 2206
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 138 S. Ct. 2206
+[DEBUG] Citation: 573 U.S. 373
+[DEBUG] Context:
+California, 
+---
+[DEBUG] No case name match for citation: 573 U.S. 373
+[DEBUG] Citation: 565 U.S. 400
+[DEBUG] Context:
+Jones, 
+---
+[DEBUG] No case name match for citation: 565 U.S. 400
+[DEBUG] Citation: 389 U.S. 347
+[DEBUG] Context:
+United States, 
+---
+[DEBUG] No case name match for citation: 389 U.S. 347
+[DEBUG] Citation: 590 F. Supp. 3d 901
+[DEBUG] Context:
+Chatrie, 
+---
+[DEBUG] No case name match for citation: 590 F. Supp. 3d 901
+[DEBUG] Citation: 137 S. Ct. 2290
+[DEBUG] Context:
+ese challenges will only become more acute.
+3. Primary Authorities & Introductory Notes
+A. State v. Loomis, 881 N.W.2d 749 (Wis. 2016), cert. denied, 
+---
+[DEBUG] No case name match for citation: 137 S. Ct. 2290
+[DEBUG] Citation: 510 U.S. 5694
+[DEBUG] Context:
+Acuff-Rose Music, Inc., 
+---
+[DEBUG] No case name match for citation: 510 U.S. 5694
+[DEBUG] Citation: 804 F.3d 202
+[DEBUG] Context:
+Google, Inc., 
+---
+[DEBUG] No case name match for citation: 804 F.3d 202
+[DEBUG] Citation: 143 S. Ct. 1258
+[DEBUG] Context:
+Goldsmith, 
+---
+[DEBUG] No case name match for citation: 143 S. Ct. 1258
+[DEBUG] Citation: 598 U.S. 508
+[DEBUG] Context:
+Goldsmith, 
+---
+[DEBUG] No case name match for citation: 598 U.S. 508
+[DEBUG] Citation: 40 F.3d 1223
+[DEBUG] Context:
+Barr Labs., Inc., 
+---
+[DEBUG] No case name match for citation: 40 F.3d 1223
+[DEBUG] Citation: 558 F. Supp. 3d 238
+[DEBUG] Context:
+Hirshfeld, 
+---
+[DEBUG] No case name match for citation: 558 F. Supp. 3d 238
+[DEBUG] Citation: 734 F.3d 1315
+[DEBUG] Context:
+Max-Planck-Gesellschaft, 
+---
+[DEBUG] No case name match for citation: 734 F.3d 1315
+[DEBUG] Citation: 143 S. Ct. 1785
+[DEBUG] Context:
+Supreme Court Denial of Certiorari (
+---
+[DEBUG] No case name match for citation: 143 S. Ct. 1785
+[DEBUG] Citation: 599 U.S. 140
+[DEBUG] Context:
+Properties, Inc., 
+---
+[DEBUG] No case name match for citation: 599 U.S. 140
+[DEBUG] Citation: 143 S. Ct. 2278
+[DEBUG] Context:
+gin, false or misleading description or representation of fact)]
+B. Key Case Law
+i. VIP Products LLC v. Jack Daniel's Properties, Inc., 599 U.S. 140, 
+---
+[DEBUG] No case name match for citation: 143 S. Ct. 2278
+[DEBUG] Citation: 599 F.2d 341
+[DEBUG] Context:
+Sleekcraft Boats, 
+---
+[DEBUG] No case name match for citation: 599 F.2d 341
+[DEBUG] Citation: 287 F.2d 492
+[DEBUG] Context:
+Polarad Elecs. Corp., 
+---
+[DEBUG] No case name match for citation: 287 F.2d 492
+[DEBUG] Citation: 376 U.S. 254
+[DEBUG] Context:
+Sullivan, 
+---
+[DEBUG] No case name match for citation: 376 U.S. 254
+[DEBUG] Citation: 485 U.S. 46
+[DEBUG] Context:
+Falwell, 
+---
+[DEBUG] No case name match for citation: 485 U.S. 46
+[DEBUG] Citation: 401 U.S. 424
+[DEBUG] Context:
+Duke Power Co., 
+---
+[DEBUG] No case name match for citation: 401 U.S. 424
+[DEBUG] Citation: 576 U.S. 519
+[DEBUG] Context:
+Inclusive Communities Project, Inc., 
+---
+[DEBUG] No case name match for citation: 576 U.S. 519
+[DEBUG] Citation: 2023 WL 4114965
+[DEBUG] Context:
+PKC), 
+---
+[DEBUG] No case name match for citation: 2023 WL 4114965
+[DEBUG] Citation: 118 U.S. 394
+[DEBUG] Context:
+Southern Pacific Railroad, 
+---
+[DEBUG] No case name match for citation: 118 U.S. 394
+[DEBUG] Citation: 558 U.S. 310
+[DEBUG] Context:
+FEC, 
+---
+[DEBUG] No case name match for citation: 558 U.S. 310
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 129 Wn. 2d 320
+[DEBUG] Context:
+tcomes.”4 We agree with Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)
+---
+[DEBUG] No case name match for citation: 129 Wn. 2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 
+---
+[DEBUG] No case name match for citation: 917 P.2d 100
+[DEBUG] Citation: 496 P.3d 305
+[DEBUG] Context:
+d 357, 362, 
+---
+[DEBUG] No case name match for citation: 496 P.3d 305
+[DEBUG] Citation: 66 Wn. App. 134
+[DEBUG] Context:
+Marriage of King, 
+---
+[DEBUG] No case name match for citation: 66 Wn. App. 134
+[DEBUG] Citation: 8 P.2d 1094
+[DEBUG] Context:
+I/
+---
+[DEBUG] No case name match for citation: 8 P.2d 1094
+[DEBUG] Citation: 68 Wn. App. 922
+[DEBUG] Context:
+Marriage of Stern, 
+---
+[DEBUG] No case name match for citation: 68 Wn. App. 922
+[DEBUG] Citation: 846 P.2d 1387
+[DEBUG] Context:
+-6-I/8 P.2d 1094 (1992). But a judicial error is one of substance. In re Marriage of Stern, 68 Wn. App. 922, 927, 
+---
+[DEBUG] No case name match for citation: 846 P.2d 1387
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+ial schedule in the original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+4). A court abuses its discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+s discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 28 Wn. App. 187
+[DEBUG] Context:
+Marriage of Murray, 
+---
+[DEBUG] No case name match for citation: 28 Wn. App. 187
+[DEBUG] Citation: 622 P.2d 1288
+[DEBUG] Context:
+reflect consideration of the statutory elements, specific findings are not required on each factor.” In re Marriage of Murray, 28 Wn. App. 187, 189, 
+---
+[DEBUG] No case name match for citation: 622 P.2d 1288
+[DEBUG] Citation: 141 Wn. App. 235
+[DEBUG] Context:
+Marriage of Rockwell, 
+---
+[DEBUG] No case name match for citation: 141 Wn. App. 235
+[DEBUG] Citation: 170 P.3d 572
+[DEBUG] Context:
+-43, 
+---
+[DEBUG] No case name match for citation: 170 P.3d 572
+[DEBUG] Citation: 105 Wn. App. 545
+[DEBUG] Context:
+Marriage of White, 
+---
+[DEBUG] No case name match for citation: 105 Wn. App. 545
+[DEBUG] Citation: 20 P.3d 481
+[DEBUG] Context:
+ble.”9 And to be community or separate property, one of the parties must have acquired the asset. See In re Marriage of White, 105 Wn. App. 545, 550, 
+---
+[DEBUG] No case name match for citation: 20 P.3d 481
+[DEBUG] Citation: 183 Wn. App. 503
+[DEBUG] Context:
+Marriage of Raskob, 
+---
+[DEBUG] No case name match for citation: 183 Wn. App. 503
+[DEBUG] Citation: 334 P.3d 30
+[DEBUG] Context:
+statutory costs.” Id. When exercising that discretion, we consider the parties’ financial resources. In re Marriage of Raskob, 183 Wn. App. 503, 520, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 30
+[DEBUG] Citation: 90 Wn. App. 796
+[DEBUG] Context:
+Verhey, 
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 796
+[DEBUG] Citation: 8 U.S. 954
+[DEBUG] Context:
+P.3d 30 (2014). We balance the needs of the requesting party against the other party’s ability to pay. Leslie v. Verhey, 90 Wn. App. 796, 
+---
+[DEBUG] No case name match for citation: 8 U.S. 954
+[DEBUG] Citation: 954 P.2d 330
+[DEBUG] Context:
+U.S. 
+---
+[DEBUG] No case name match for citation: 954 P.2d 330
+[DEBUG] Citation: 187 Wn. 2d 535
+[DEBUG] Context:
+as an appellate remedy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 387 P.3d 703 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 535
+[DEBUG] Citation: 387 P.3d 703
+[DEBUG] Context:
+dy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 
+---
+[DEBUG] No case name match for citation: 387 P.3d 703
+[DEBUG] Citation: 129 Wn. 2d 320
+[DEBUG] Context:
+tcomes.”4 We agree with Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)
+---
+[DEBUG] No case name match for citation: 129 Wn. 2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 
+---
+[DEBUG] No case name match for citation: 917 P.2d 100
+[DEBUG] Citation: 496 P.3d 305
+[DEBUG] Context:
+d 357, 362, 
+---
+[DEBUG] No case name match for citation: 496 P.3d 305
+[DEBUG] Citation: 66 Wn. App. 134
+[DEBUG] Context:
+Marriage of King, 
+---
+[DEBUG] No case name match for citation: 66 Wn. App. 134
+[DEBUG] Citation: 8 P.2d 1094
+[DEBUG] Context:
+I/
+---
+[DEBUG] No case name match for citation: 8 P.2d 1094
+[DEBUG] Citation: 68 Wn. App. 922
+[DEBUG] Context:
+Marriage of Stern, 
+---
+[DEBUG] No case name match for citation: 68 Wn. App. 922
+[DEBUG] Citation: 846 P.2d 1387
+[DEBUG] Context:
+-6-I/8 P.2d 1094 (1992). But a judicial error is one of substance. In re Marriage of Stern, 68 Wn. App. 922, 927, 
+---
+[DEBUG] No case name match for citation: 846 P.2d 1387
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+ial schedule in the original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+4). A court abuses its discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+s discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 28 Wn. App. 187
+[DEBUG] Context:
+Marriage of Murray, 
+---
+[DEBUG] No case name match for citation: 28 Wn. App. 187
+[DEBUG] Citation: 622 P.2d 1288
+[DEBUG] Context:
+reflect consideration of the statutory elements, specific findings are not required on each factor.” In re Marriage of Murray, 28 Wn. App. 187, 189, 
+---
+[DEBUG] No case name match for citation: 622 P.2d 1288
+[DEBUG] Citation: 141 Wn. App. 235
+[DEBUG] Context:
+Marriage of Rockwell, 
+---
+[DEBUG] No case name match for citation: 141 Wn. App. 235
+[DEBUG] Citation: 170 P.3d 572
+[DEBUG] Context:
+-43, 
+---
+[DEBUG] No case name match for citation: 170 P.3d 572
+[DEBUG] Citation: 105 Wn. App. 545
+[DEBUG] Context:
+Marriage of White, 
+---
+[DEBUG] No case name match for citation: 105 Wn. App. 545
+[DEBUG] Citation: 20 P.3d 481
+[DEBUG] Context:
+ble.”9 And to be community or separate property, one of the parties must have acquired the asset. See In re Marriage of White, 105 Wn. App. 545, 550, 
+---
+[DEBUG] No case name match for citation: 20 P.3d 481
+[DEBUG] Citation: 183 Wn. App. 503
+[DEBUG] Context:
+Marriage of Raskob, 
+---
+[DEBUG] No case name match for citation: 183 Wn. App. 503
+[DEBUG] Citation: 334 P.3d 30
+[DEBUG] Context:
+statutory costs.” Id. When exercising that discretion, we consider the parties’ financial resources. In re Marriage of Raskob, 183 Wn. App. 503, 520, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 30
+[DEBUG] Citation: 90 Wn. App. 796
+[DEBUG] Context:
+Verhey, 
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 796
+[DEBUG] Citation: 8 U.S. 954
+[DEBUG] Context:
+P.3d 30 (2014). We balance the needs of the requesting party against the other party’s ability to pay. Leslie v. Verhey, 90 Wn. App. 796, 
+---
+[DEBUG] No case name match for citation: 8 U.S. 954
+[DEBUG] Citation: 954 P.2d 330
+[DEBUG] Context:
+U.S. 
+---
+[DEBUG] No case name match for citation: 954 P.2d 330
+[DEBUG] Citation: 187 Wn. 2d 535
+[DEBUG] Context:
+as an appellate remedy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 387 P.3d 703 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 535
+[DEBUG] Citation: 387 P.3d 703
+[DEBUG] Context:
+dy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 
+---
+[DEBUG] No case name match for citation: 387 P.3d 703
+[DEBUG] Citation: 129 Wn. 2d 320
+[DEBUG] Context:
+tcomes.”4 We agree with Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)
+---
+[DEBUG] No case name match for citation: 129 Wn. 2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+Chea. We review a trial court’s amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 
+---
+[DEBUG] No case name match for citation: 917 P.2d 100
+[DEBUG] Citation: 496 P.3d 305
+[DEBUG] Context:
+d 357, 362, 
+---
+[DEBUG] No case name match for citation: 496 P.3d 305
+[DEBUG] Citation: 66 Wn. App. 134
+[DEBUG] Context:
+Marriage of King, 
+---
+[DEBUG] No case name match for citation: 66 Wn. App. 134
+[DEBUG] Citation: 8 P.2d 1094
+[DEBUG] Context:
+I/
+---
+[DEBUG] No case name match for citation: 8 P.2d 1094
+[DEBUG] Citation: 68 Wn. App. 922
+[DEBUG] Context:
+Marriage of Stern, 
+---
+[DEBUG] No case name match for citation: 68 Wn. App. 922
+[DEBUG] Citation: 846 P.2d 1387
+[DEBUG] Context:
+-6-I/8 P.2d 1094 (1992). But a judicial error is one of substance. In re Marriage of Stern, 68 Wn. App. 922, 927, 
+---
+[DEBUG] No case name match for citation: 846 P.2d 1387
+[DEBUG] Citation: 180 Wn. 2d 632
+[DEBUG] Context:
+ial schedule in the original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 327 P.3d 644 (2014)
+---
+[DEBUG] No case name match for citation: 180 Wn. 2d 632
+[DEBUG] Citation: 327 P.3d 644
+[DEBUG] Context:
+original parenting plan. We agree.7 We review a trial court’s parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn.2d 632, 642, 
+---
+[DEBUG] No case name match for citation: 327 P.3d 644
+[DEBUG] Citation: 133 Wn. 2d 39
+[DEBUG] Context:
+4). A court abuses its discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 940 P.2d 1362 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 39
+[DEBUG] Citation: 940 P.2d 1362
+[DEBUG] Context:
+s discretion if its decision is manifestly unreasonable or based on untenable grounds or reasons. In re Marriage of Littlefield, 133 Wn.2d 39, 46-47, 
+---
+[DEBUG] No case name match for citation: 940 P.2d 1362
+[DEBUG] Citation: 28 Wn. App. 187
+[DEBUG] Context:
+Marriage of Murray, 
+---
+[DEBUG] No case name match for citation: 28 Wn. App. 187
+[DEBUG] Citation: 622 P.2d 1288
+[DEBUG] Context:
+reflect consideration of the statutory elements, specific findings are not required on each factor.” In re Marriage of Murray, 28 Wn. App. 187, 189, 
+---
+[DEBUG] No case name match for citation: 622 P.2d 1288
+[DEBUG] Citation: 141 Wn. App. 235
+[DEBUG] Context:
+Marriage of Rockwell, 
+---
+[DEBUG] No case name match for citation: 141 Wn. App. 235
+[DEBUG] Citation: 170 P.3d 572
+[DEBUG] Context:
+-43, 
+---
+[DEBUG] No case name match for citation: 170 P.3d 572
+[DEBUG] Citation: 105 Wn. App. 545
+[DEBUG] Context:
+Marriage of White, 
+---
+[DEBUG] No case name match for citation: 105 Wn. App. 545
+[DEBUG] Citation: 20 P.3d 481
+[DEBUG] Context:
+ble.”9 And to be community or separate property, one of the parties must have acquired the asset. See In re Marriage of White, 105 Wn. App. 545, 550, 
+---
+[DEBUG] No case name match for citation: 20 P.3d 481
+[DEBUG] Citation: 183 Wn. App. 503
+[DEBUG] Context:
+Marriage of Raskob, 
+---
+[DEBUG] No case name match for citation: 183 Wn. App. 503
+[DEBUG] Citation: 334 P.3d 30
+[DEBUG] Context:
+statutory costs.” Id. When exercising that discretion, we consider the parties’ financial resources. In re Marriage of Raskob, 183 Wn. App. 503, 520, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 30
+[DEBUG] Citation: 90 Wn. App. 796
+[DEBUG] Context:
+Verhey, 
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 796
+[DEBUG] Citation: 8 U.S. 954
+[DEBUG] Context:
+P.3d 30 (2014). We balance the needs of the requesting party against the other party’s ability to pay. Leslie v. Verhey, 90 Wn. App. 796, 
+---
+[DEBUG] No case name match for citation: 8 U.S. 954
+[DEBUG] Citation: 954 P.2d 330
+[DEBUG] Context:
+U.S. 
+---
+[DEBUG] No case name match for citation: 954 P.2d 330
+[DEBUG] Citation: 187 Wn. 2d 535
+[DEBUG] Context:
+as an appellate remedy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 387 P.3d 703 (2017)
+---
+[DEBUG] No case name match for citation: 187 Wn. 2d 535
+[DEBUG] Citation: 387 P.3d 703
+[DEBUG] Context:
+dy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 
+---
+[DEBUG] No case name match for citation: 387 P.3d 703

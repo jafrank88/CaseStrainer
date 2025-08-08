@@ -1,0 +1,275 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250731054944
+Username: NETID\jafrank
+RunAs User: NETID\jafrank
+Configuration Name: 
+Machine: HAUMEA (Microsoft Windows NT 10.0.20348.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -noexit -command try { . "c:\Users\jafrank\AppData\Local\Programs\Windsurf\resources\app\out\vs\workbench\contrib\terminal\common\scripts\shellIntegration.ps1" } catch {}
+Process ID: 6468
+PSVersion: 5.1.20348.3932
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.20348.3932
+BuildVersion: 10.0.20348.3932
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250731_054944.log
+[cslaunch] Starting interactive menu...
+
+========================================
+ Enhanced CaseStrainer Docker Launcher
+                v1.3 (ENHANCED)
+========================================
+
+ 1.  Quick Production Start (FASTEST)
+    - Minimal checks, maximum speed
+
+ 2.  Smart Production Start (RECOMMENDED)
+    - Intelligent build detection, balanced speed
+
+ 3.  Force Full Rebuild
+    - Complete rebuild, use when needed
+
+ 4.   Advanced Diagnostics
+ 5.   Cache Management
+ 6.   Stop All Services
+ 7.  Quick Status Check
+ 8.  Run Production Server Test
+ 0.  Exit
+
+TIP: Use option 1 for fastest startup!
+
+Deleting all .pyc files and __pycache__ directories to prevent stale bytecode...
+Analyzing code changes to determine rebuild strategy...
+ðŸ„ Rebuilding backend image to ensure Python code changes are included...
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Vue build is up to date
+ERROR Docker is not running or not available
+Please start Docker Desktop and try again.
+
+=== Starting Docker Production Mode ===
+Checking if Vue build is needed...
+Using cached Vue build check result: False
+ERROR Docker is not running or not available
+Please start Docker Desktop and try again.
+âŒ Docker production failed
+(.venv) TerminatingError(): "System error."
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+(.venv) ./cslaunch
+At D:\dev\casestrainer\cslaunch.ps1:50 char:33
++                 Write-Host "âœ… $toolName: $version" -ForegroundColor ...
++                                 ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:55 char:29
++             Write-Host "âŒ $toolName: Not found or not in PATH" -For ...
++                             ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:179 char:29
++             Write-Host "âŒ $var: Not set" -ForegroundColor Red
++                             ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:184 char:29
++             Write-Host "âœ… $var: $displayValue" -ForegroundColor Gre ...
++                             ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:352 char:9
++ Testing & Debugging:
++         ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use; wrap an ampersand in double 
+quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:359 char:7
++ Cache & Maintenance:
++       ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use; wrap an ampersand in double 
+quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:364 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-7, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:385 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:791 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:791 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : InvalidVariableReferenceWithDrive
+At D:\dev\casestrainer\cslaunch.ps1:50 char:33
++                 Write-Host "âœ… $toolName: $version" -ForegroundColor ...
++                                 ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:55 char:29
++             Write-Host "âŒ $toolName: Not found or not in PATH" -For ...
++                             ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:179 char:29
++             Write-Host "âŒ $var: Not set" -ForegroundColor Red
++                             ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:184 char:29
++             Write-Host "âœ… $var: $displayValue" -ForegroundColor Gre ...
++                             ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:352 char:9
++ Testing & Debugging:
++         ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use;
+wrap an ampersand in double quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:359 char:7
++ Cache & Maintenance:
++       ~
+The ampersand (&) character is not allowed. The & operator is reserved for future use;
+wrap an ampersand in double quotation marks ("&") to pass it as part of a string.
+
+At D:\dev\casestrainer\cslaunch.ps1:364 char:15
++   -MenuOption <int>   Skip menu and run option directly (1-7, 0=exit)
++               ~
+The '<' operator is reserved for future use.
+
+At D:\dev\casestrainer\cslaunch.ps1:385 char:40
++     $logDir = Join-Path $PSScriptRoot "logs"
++                                        ~~~~~
+Unexpected token 'logs"
+    if (-not (Test-Path $logDir)) {
+        try {
+            New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+        }
+        catch {
+            Write-Warning "Could' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:791 char:88
++ ...  throw "npm build failed - insufficient disk space ($freeGB GB free)"
++                                                                 ~~
+Unexpected token 'GB' in expression or statement.
+
+At D:\dev\casestrainer\cslaunch.ps1:791 char:87
++ ...    throw "npm build failed - insufficient disk space ($freeGB GB free ...
++                                                                  ~
+Missing closing ')' in expression.
+
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : InvalidVariableReferenceWithDrive
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+(.venv) ./cslaunch
+At D:\dev\casestrainer\cslaunch.ps1:50 char:34
++                 Write-Host "[OK] $toolName: $version" -ForegroundColo ...
++                                  ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:55 char:33
++             Write-Host "[ERROR] $toolName: Not found or not in PATH"  ...
++                                 ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:179 char:33
++             Write-Host "[ERROR] $var: Not set" -ForegroundColor Red
++                                 ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:184 char:30
++             Write-Host "[OK] $var: $displayValue" -ForegroundColor Gr ...
++                              ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name character. Consider using ${} to delimit 
+the name.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : InvalidVariableReferenceWithDrive
+At D:\dev\casestrainer\cslaunch.ps1:50 char:34
++                 Write-Host "[OK] $toolName: $version" -ForegroundColo ...
++                                  ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:55 char:33
++             Write-Host "[ERROR] $toolName: Not found or not in PATH"  ...
++                                 ~~~~~~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:179 char:33
++             Write-Host "[ERROR] $var: Not set" -ForegroundColor Red
++                                 ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+
+At D:\dev\casestrainer\cslaunch.ps1:184 char:30
++             Write-Host "[OK] $var: $displayValue" -ForegroundColor Gr ...
++                              ~~~~~
+Variable reference is not valid. ':' was not followed by a valid variable name
+character. Consider using ${} to delimit the name.
+    + CategoryInfo          : ParserError: (:) [], ParseException
+    + FullyQualifiedErrorId : InvalidVariableReferenceWithDrive
+
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+(.venv) ./cslaunch
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250731_061958.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[ERROR] Docker daemon is not available: Client:  Version:    28.3.2  Context:    desktop-linux  Debug Mode: false  Plugins:   ai: Docker AI Agent - Ask Gordon (Docker Inc.)     Version:  v1.9.9     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-ai.exe   buildx: Docker Buildx (Docker Inc.)     Version:  v0.25.0-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-buildx.exe   cloud: Docker Cloud (Docker Inc.)     Version:  v0.4.2     Path:     C:\Program Files\Docker\cli-plugins\docker-cloud.exe   compose: Docker Compose (Docker Inc.)     Version:  v2.38.2-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-compose.exe   debug: Get a shell into any image or container (Docker Inc.)     Version:  0.0.41     Path:     C:\Program Files\Docker\cli-plugins\docker-debug.exe   desktop: Docker Desktop commands (Docker Inc.)     Version:  v0.1.11     Path:     C:\Program Files\Docker\cli-plugins\docker-desktop.exe   extension: Manages Docker extensions (Docker Inc.)     Version:  v0.2.29     Path:     C:\Program Files\Docker\cli-plugins\docker-extension.exe   init: Creates Docker-related starter files for your project (Docker Inc.)     Version:  v1.4.0     Path:     C:\Program Files\Docker\cli-plugins\docker-init.exe   mcp: Docker MCP Plugin (Docker Inc.)     Version:  v0.9.9     Path:     C:\Program Files\Docker\cli-plugins\docker-mcp.exe   model: Docker Model Runner (EXPERIMENTAL) (Docker Inc.)     Version:  v0.1.33     Path:     C:\Program Files\Docker\cli-plugins\docker-model.exe   sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc.)     Version:  0.6.0     Path:     C:\Program Files\Docker\cli-plugins\docker-sbom.exe   scout: Docker Scout (Docker Inc.)     Version:  v1.18.2     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-scout.exe  Server: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version errors pretty printing info
+âŒ Docker is not available. Please ensure Docker Desktop is installed and running.
+   Visit https://www.docker.com/products/docker-desktop to download and install Docker Desktop
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+(.venv) ./cslaunch
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250731_063259.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[ERROR] Docker daemon is not available: Client: ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version  Version:    28.3.2  Context:    desktop-linux  Debug Mode: false  Plugins:   ai: Docker AI Agent - Ask Gordon (Docker Inc.)     Version:  v1.9.9     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-ai.exe   buildx: Docker Buildx (Docker Inc.)     Version:  v0.25.0-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-buildx.exe   cloud: Docker Cloud (Docker Inc.)     Version:  v0.4.2     Path:     C:\Program Files\Docker\cli-plugins\docker-cloud.exe   compose: Docker Compose (Docker Inc.)     Version:  v2.38.2-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-compose.exe   debug: Get a shell into any image or container (Docker Inc.)     Version:  0.0.41     Path:     C:\Program Files\Docker\cli-plugins\docker-debug.exe   desktop: Docker Desktop commands (Docker Inc.)     Version:  v0.1.11     Path:     C:\Program Files\Docker\cli-plugins\docker-desktop.exe   extension: Manages Docker extensions (Docker Inc.)     Version:  v0.2.29     Path:     C:\Program Files\Docker\cli-plugins\docker-extension.exe   init: Creates Docker-related starter files for your project (Docker Inc.)     Version:  v1.4.0     Path:     C:\Program Files\Docker\cli-plugins\docker-init.exe   mcp: Docker MCP Plugin (Docker Inc.)     Version:  v0.9.9     Path:     C:\Program Files\Docker\cli-plugins\docker-mcp.exe   model: Docker Model Runner (EXPERIMENTAL) (Docker Inc.)     Version:  v0.1.33     Path:     C:\Program Files\Docker\cli-plugins\docker-model.exe   sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc.)     Version:  0.6.0     Path:     C:\Program Files\Docker\cli-plugins\docker-sbom.exe   scout: Docker Scout (Docker Inc.)     Version:  v1.18.2     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-scout.exe  Server: errors pretty printing info
+âŒ Docker is not available. Please ensure Docker Desktop is installed and running.
+   Visit https://www.docker.com/products/docker-desktop to download and install Docker Desktop
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B
+(.venv) ./cslaunch
+Transcript started, output file is D:\dev\casestrainer\logs\script_20250731_063510.log
+
+=== Checking Docker Availability ===
+[OK] Docker CLI is available: Docker version 28.3.2, build 578ccf6
+[ERROR] Docker daemon is not available: Client:  Version:    28.3.2  Context:    desktop-linux  Debug Mode: false  Plugins:   ai: Docker AI Agent - Ask Gordon (Docker Inc.)     Version:  v1.9.9     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-ai.exe   buildx: Docker Buildx (Docker Inc.)     Version:  v0.25.0-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-buildx.exe   cloud: Docker Cloud (Docker Inc.)     Version:  v0.4.2     Path:     C:\Program Files\Docker\cli-plugins\docker-cloud.exe   compose: Docker Compose (Docker Inc.)     Version:  v2.38.2-desktop.1     Path:     C:\Program Files\Docker\cli-plugins\docker-compose.exe   debug: Get a shell into any image or container (Docker Inc.)     Version:  0.0.41     Path:     C:\Program Files\Docker\cli-plugins\docker-debug.exe   desktop: Docker Desktop commands (Docker Inc.)     Version:  v0.1.11     Path:     C:\Program Files\Docker\cli-plugins\docker-desktop.exe ERROR: request returned 500 Internal Server Error for API route and version http://%2F%2F.%2Fpipe%2FdockerDesktopLinuxEngine/v1.51/info, check if the server supports the requested API version   extension: Manages Docker extensions (Docker Inc.)     Version:  v0.2.29     Path:     C:\Program Files\Docker\cli-plugins\docker-extension.exe   init: Creates Docker-related starter files for your project (Docker Inc.)     Version:  v1.4.0     Path:     C:\Program Files\Docker\cli-plugins\docker-init.exe   mcp: Docker MCP Plugin (Docker Inc.)     Version:  v0.9.9     Path:     C:\Program Files\Docker\cli-plugins\docker-mcp.exe   model: Docker Model Runner (EXPERIMENTAL) (Docker Inc.)     Version:  v0.1.33     Path:     C:\Program Files\Docker\cli-plugins\docker-model.exe   sbom: View the packaged-based Software Bill Of Materials (SBOM) for an image (Anchore Inc.)     Version:  0.6.0     Path:     C:\Program Files\Docker\cli-plugins\docker-sbom.exe   scout: Docker Scout (Docker Inc.)     Version:  v1.18.2     Path:     C:\Users\jafrank\.docker\cli-plugins\docker-scout.exe  Server: errors pretty printing info
+âŒ Docker is not available. Please ensure Docker Desktop is installed and running.
+   Visit https://www.docker.com/products/docker-desktop to download and install Docker Desktop
+]633;D;0]633;A]633;P;Cwd=D:\x5cdev\x5ccasestrainerPS D:\dev\casestrainer> ]633;B

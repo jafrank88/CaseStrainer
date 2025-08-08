@@ -10,12 +10,22 @@
     <div v-if="showLoading && !results" class="loading-container">
       <div class="loading-content">
         <div class="spinner-container">
-          <div class="spinner-border text-primary" role="status">
+          <div class="custom-spinner" role="status" ref="spinnerElement">
+            <div class="spinner-circle" ref="spinnerCircle"></div>
             <span class="visually-hidden">Processing...</span>
           </div>
         </div>
         <h3>Processing Citations</h3>
         <p class="text-muted">Extracting and analyzing citations from your document...</p>
+        <div class="loading-info">
+          <p class="timeout-info">This may take up to 30 seconds. Please don't close this page.</p>
+          <div class="progress-indicator">
+            <div class="progress-bar">
+              <div class="progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+            </div>
+            <span class="progress-text">{{ loadingProgressText }}</span>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -70,6 +80,9 @@ export default {
     const error = ref(null);
     const hasActiveRequest = ref(false);
     const simpleLoading = ref(false);
+    const loadingStartTime = ref(null);
+    const loadingProgress = ref(0);
+    const loadingProgressText = ref('');
 
     // Debug: Log results every time it changes and show an alert
     watch(results, (newVal) => {
@@ -79,8 +92,19 @@ export default {
       }
     }, { immediate: true, deep: true });
 
+    // Watch for loading state changes to start spinner animation
+    watch(showLoading, (isLoading) => {
+      if (isLoading) {
+        // Start JavaScript fallback animation after a short delay
+        setTimeout(() => {
+          startSpinnerAnimation();
+        }, 100);
+      }
+    });
+
     const showLoading = computed(() => {
       const result = simpleLoading.value || hasActiveRequest.value;
+      console.log('🔄 showLoading computed - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value, 'result:', result);
       return result;
     });
 
@@ -103,6 +127,24 @@ export default {
       console.log('EnhancedValidator component mounted successfully!');
     });
 
+    // JavaScript fallback animation for spinner
+    const startSpinnerAnimation = () => {
+      console.log('🔄 Starting JavaScript spinner animation');
+      const spinnerCircle = document.querySelector('.spinner-circle');
+      if (spinnerCircle) {
+        console.log('🔄 Spinner circle found, starting rotation');
+        let rotation = 0;
+        const animate = () => {
+          rotation += 10;
+          spinnerCircle.style.transform = `rotate(${rotation}deg)`;
+          requestAnimationFrame(animate);
+        };
+        animate();
+      } else {
+        console.log('⚠️ Spinner circle not found');
+      }
+    };
+
     // Handler for unified analyze requests
     const handleUnifiedAnalyze = async (data) => {
       console.log('🚀 handleUnifiedAnalyze called with data:', data);
@@ -111,9 +153,24 @@ export default {
       
       try {
         // Set loading state
+        console.log('🔄 Setting loading state to true');
         simpleLoading.value = true;
         hasActiveRequest.value = true;
         error.value = null;
+        loadingStartTime.value = Date.now();
+        loadingProgress.value = 0;
+        loadingProgressText.value = 'Starting...';
+        console.log('🔄 Loading state set - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value);
+        
+        // Start progress tracking
+        const progressInterval = setInterval(() => {
+          if (loadingStartTime.value) {
+            const elapsed = (Date.now() - loadingStartTime.value) / 1000;
+            const progress = Math.min((elapsed / 30) * 100, 95); // Cap at 95% until complete
+            loadingProgress.value = progress;
+            loadingProgressText.value = `${Math.floor(elapsed)}s elapsed`;
+          }
+        }, 1000);
 
         if (data instanceof FormData) {
           // Handle file uploads
@@ -200,8 +257,13 @@ export default {
         error.value = err.message;
       } finally {
         // Clear loading state
+        console.log('🔄 Clearing loading state');
         simpleLoading.value = false;
         hasActiveRequest.value = false;
+        loadingStartTime.value = null;
+        loadingProgress.value = 0;
+        loadingProgressText.value = '';
+        console.log('🔄 Loading state cleared - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value);
       }
     };
 
@@ -293,9 +355,13 @@ export default {
       error,
       hasActiveRequest,
       simpleLoading,
+      loadingProgress,
+      loadingProgressText,
       showLoading,
       shouldShowInput,
       headerTitle,
+      // Methods
+      startSpinnerAnimation,
 
       // Methods
       handleUnifiedAnalyze,
@@ -341,20 +407,83 @@ export default {
   margin-bottom: 1rem;
 }
 
-.spinner-border {
+.loading-info {
+  margin-top: 1.5rem;
+}
+
+.timeout-info {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+.progress-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progress-bar {
+  width: 200px;
+  height: 6px;
+  background-color: #e9ecef;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #0d6efd;
+  transition: width 0.3s ease;
+  border-radius: 3px;
+}
+
+.progress-text {
+  font-size: 0.8rem;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.custom-spinner {
   width: 3rem;
   height: 3rem;
-  border: 0.25em solid currentColor;
-  border-right-color: transparent;
-  border-radius: 50%;
-  animation: spinner-border 0.75s linear infinite;
+  position: relative;
   display: inline-block;
 }
 
-@keyframes spinner-border {
-  to {
-    transform: rotate(360deg);
+.spinner-circle {
+  width: 100%;
+  height: 100%;
+  border: 0.25em solid #e9ecef;
+  border-top: 0.25em solid #0d6efd;
+  border-radius: 50%;
+  animation: custom-spin 1s linear infinite;
+  /* Force animation even with reduced motion */
+  animation-duration: 1s !important;
+  animation-iteration-count: infinite !important;
+}
+
+@keyframes custom-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Fallback for when animations are completely disabled */
+@media (prefers-reduced-motion: reduce) {
+  .spinner-circle {
+    animation: custom-spin 1s linear infinite !important;
   }
+  
+  /* Alternative: pulsing effect if rotation is disabled */
+  .spinner-circle:not([style*="animation"]) {
+    animation: pulse 1.5s ease-in-out infinite !important;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .text-primary {

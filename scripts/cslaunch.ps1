@@ -37,126 +37,35 @@ function Test-EnsureDockerRunning {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n=== Docker Pre-Flight Check ===" -ForegroundColor Cyan
+    Write-Host "`n=== Docker Pre‑Flight Check ===" -ForegroundColor Cyan
     
-    # Check if Docker CLI is available
+    # Ensure Docker CLI is available
     if (-not (Test-CommandExists 'docker')) {
         Write-Host "[ERROR] Docker CLI is not installed or not in PATH" -ForegroundColor Red
-        Write-Host "`nPlease install Docker Desktop from: https://www.docker.com/products/docker-desktop/" -ForegroundColor Yellow
+        Write-Host "Please install Docker Desktop from: https://www.docker.com/products/docker-desktop/" -ForegroundColor Yellow
         return $false
     }
     
-    # Check if Docker Desktop is running
-    $dockerProcess = Get-Process -Name 'Docker Desktop' -ErrorAction SilentlyContinue
-    if (-not $dockerProcess) {
-        Write-Host "[WARNING] Docker Desktop is not running. Attempting to start..." -ForegroundColor Yellow
+    $maxAttempts = 30
+    for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
-            # Check if Docker Desktop is installed in the default location
-            $dockerDesktopPath = "C:\Program Files\Docker\Docker\Docker Desktop.exe"
-            if (-not (Test-Path $dockerDesktopPath)) {
-                Write-Host "[ERROR] Docker Desktop not found at: $dockerDesktopPath" -ForegroundColor Red
-                Write-Host "Please ensure Docker Desktop is installed or update the path in the script." -ForegroundColor Yellow
-                return $false
-            }
-            
-            # Start Docker Desktop
-            Write-Host "Starting Docker Desktop..." -ForegroundColor Yellow
-            $process = Start-Process -FilePath $dockerDesktopPath -PassThru -WindowStyle Minimized
-            
-            # Wait for Docker Desktop to start (up to 30 seconds)
-        $maxAttempts = 30
-        $attempt = 0
-        $dockerReady = $false
-        
-        Write-Host "Waiting for Docker Desktop to start (this may take a minute)..." -ForegroundColor Yellow
-        
-        while ($attempt -lt $maxAttempts) {
-            $attempt++
-            Write-Progress -Activity "Waiting for Docker Desktop" -Status "Attempt $attempt of $maxAttempts" -PercentComplete (($attempt / $maxAttempts) * 100)
-            
-            # Check if Docker daemon is responding
-            $dockerInfo = docker info 2>&1
+            docker info >$null 2>&1
             if ($LASTEXITCODE -eq 0) {
-                $dockerReady = $true
-                Write-Progress -Activity "Docker Desktop" -Completed -Status "Ready"
-                break
+                Write-Host "[OK] Docker daemon is running and accessible (attempt $attempt)" -ForegroundColor Green
+                return $true
             }
-            
-            Start-Sleep -Seconds 2
-        }
-        
-        if (-not $dockerReady) {
-            Write-Host "`n[WARNING] Docker Desktop is taking longer than expected to start." -ForegroundColor Yellow
-            Write-Host "Please check Docker Desktop and ensure it's running properly." -ForegroundColor Yellow
-            Write-Host "You may need to log in or complete the initial setup." -ForegroundColor Yellow
-            
-            # Try to bring Docker Desktop window to front
-            try {
-                Add-Type -TypeDefinition @"
-                using System;
-                using System.Runtime.InteropServices;
-                
-                public class WindowHelper {
-                    [DllImport("user32.dll")]
-                    [return: MarshalAs(UnmanagedType.Bool)]
-                    public static extern bool SetForegroundWindow(IntPtr hWnd);
-                }
-"@
-                $null = [WindowHelper]::SetForegroundWindow($process.MainWindowHandle)
-            } catch {
-                # Ignore errors in bringing window to front
-            }
-            
-            return $false
-        }
-            
         } catch {
-            Write-Host "[ERROR] Failed to start Docker Desktop: $_" -ForegroundColor Red
-            Write-Host "`nTroubleshooting steps:" -ForegroundColor Yellow
-            Write-Host "1. Start Docker Desktop manually" -ForegroundColor White
-            Write-Host "2. Ensure virtualization is enabled in BIOS" -ForegroundColor White
-            Write-Host "3. Run 'wsl --update' in an administrator PowerShell" -ForegroundColor White
-            Write-Host "4. Restart your computer if the issue persists" -ForegroundColor White
-            return $false
+            # ignore errors, will retry
         }
+        Start-Sleep -Seconds 2
     }
     
-    # Check if Docker daemon is accessible
-    try {
-        $dockerInfo = docker info 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "[WARNING] Docker daemon is not accessible. Attempting to reset..." -ForegroundColor Yellow
-            
-            # Try restarting the Docker service
-            try {
-                $service = Get-Service -Name 'com.docker.service' -ErrorAction Stop
-                if ($service.Status -ne 'Running') {
-                    Write-Host "Starting Docker service..." -ForegroundColor Yellow
-                    Start-Service -Name 'com.docker.service' -ErrorAction Stop
-                    Start-Sleep -Seconds 5
-                }
-                
-                # Try docker info again
-                $dockerInfo = docker info 2>&1
-                if ($LASTEXITCODE -ne 0) {
-                    throw "Docker daemon still not accessible after service restart"
-                }
-            } catch {
-                Write-Host "[ERROR] Failed to start Docker service: $_" -ForegroundColor Red
-                Write-Host "`nRecommended actions:" -ForegroundColor Yellow
-                Write-Host "1. Open Docker Desktop manually" -ForegroundColor White
-                Write-Host "2. Right-click Docker icon → Troubleshoot → Restart" -ForegroundColor White
-                Write-Host "3. Restart your computer if the issue persists" -ForegroundColor White
-                return $false
-            }
-        }
-        
-        Write-Host "[OK] Docker is running and accessible" -ForegroundColor Green
-        return $true
-    } catch {
-        Write-Host "[ERROR] Error checking Docker status: $_" -ForegroundColor Red
-        return $false
-    }
+    Write-Host "[ERROR] Docker daemon is not reachable after $maxAttempts attempts." -ForegroundColor Red
+    Write-Host "Please ensure Docker Desktop is running and the Docker service is started." -ForegroundColor Yellow
+    Write-Host "You may need to start Docker Desktop manually or restart your computer." -ForegroundColor Yellow
+    return $false
+    # Service restart logic removed - Docker must be started manually
+
 }
 
 # Helper function to check if a command exists

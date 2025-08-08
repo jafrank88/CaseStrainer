@@ -1,0 +1,34 @@
+2025-08-01 00:56:01,616 - __main__ - INFO - Initializing ComprehensiveWebSearchEngine...
+2025-08-01 00:56:03,823 - __main__ - INFO - 
+=== Testing known good citation: 180 Wn.2d 1 ===
+2025-08-01 00:56:03,824 - __main__ - ERROR - Error during web search test: 'coroutine' object has no attribute 'get'
+2025-08-01 00:56:03,825 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\tests\test_web_search_engine.py", line 43, in test_web_search_engine
+    print(f"Verified: {result.get('verified', False)}")
+                       ^^^^^^^^^^
+AttributeError: 'coroutine' object has no attribute 'get'
+
+2025-08-01 00:58:24,268 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-01 00:58:25,748 - __main__ - INFO - Initializing ComprehensiveWebSearchEngine...
+2025-08-01 00:58:28,051 - __main__ - INFO - 
+=== Testing known good citation: 180 Wn.2d 1 ===
+2025-08-01 00:58:28,052 - src.comprehensive_websearch_engine - INFO - [LEGAL_DATABASE] Searching Justia for citation: 180 Wn.2d 1
+2025-08-01 00:58:29,264 - src.comprehensive_websearch_engine - DEBUG - [JUSTIA] Raw HTML snippet: <!DOCTYPE html>
+<html xml:lang="en" lang="en" dir="ltr">    <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# website: http://ogp.me/ns/website#">                    
+                                                    
+    <title>                Log In - Justia Accounts    </title>
+                                        <meta name="robots" content="index,follow" />
+                                                                    <meta name="referrer" content="origin" />
+         
+2025-08-01 00:58:29,265 - src.comprehensive_websearch_engine - DEBUG - [JUSTIA] Candidate case name: Log In to Your Account
+2025-08-01 00:58:29,306 - __main__ - INFO - 
+=== Testing target citation: 327 P.3d 644 ===
+2025-08-01 00:58:29,306 - src.comprehensive_websearch_engine - INFO - [LEGAL_DATABASE] Searching Justia for citation: 327 P.3d 644
+2025-08-01 00:58:30,010 - src.comprehensive_websearch_engine - DEBUG - [JUSTIA] Raw HTML snippet: <!DOCTYPE html>
+<html xml:lang="en" lang="en" dir="ltr">    <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# website: http://ogp.me/ns/website#">                    
+                                                    
+    <title>                Log In - Justia Accounts    </title>
+                                        <meta name="robots" content="index,follow" />
+                                                                    <meta name="referrer" content="origin" />
+         
+2025-08-01 00:58:30,011 - src.comprehensive_websearch_engine - DEBUG - [JUSTIA] Candidate case name: Log In to Your Account

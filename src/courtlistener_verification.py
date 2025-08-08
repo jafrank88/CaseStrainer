@@ -133,14 +133,13 @@ def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_na
         return _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name)
 
 def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name=None):
-    """Two-step CourtListener verification: citation-lookup first, then search API fallback"""
+    """Two-step CourtListener verification with strict validation requiring both canonical name and year"""
     print(f"[DEBUG PRINT] ENTERED _verify_with_courtlistener_basic for citation: {citation}")
     result = {
         "canonical_name": None,
         "canonical_date": None,
         "url": None,
         "verified": False,
-        "raw": None,
         "source": None
     }
     
@@ -173,12 +172,11 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                     print(f"[DEBUG PRINT] Found {len(found_results)} valid results in citation-lookup")
                     
                     # Check if we need name similarity matching
-                    # This can happen with multiple results OR multiple clusters within a single result
                     needs_similarity_matching = False
                     total_clusters = 0
                     
-                    for result in found_results:
-                        clusters = result.get('clusters', [])
+                    for api_result in found_results:
+                        clusters = api_result.get('clusters', [])
                         total_clusters += len(clusters)
                     
                     needs_similarity_matching = extracted_case_name and (len(found_results) > 1 or total_clusters > 1)
@@ -202,56 +200,53 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                                 debug=True
                             )
                     else:
+                        print(f"[DEBUG PRINT] Using first cluster from first result")
+                        # Use first cluster from first result
                         best_result = found_results[0]
                         cluster = best_result['clusters'][0] if best_result.get('clusters') else None
-                        print(f"[DEBUG PRINT] Using first result (no similarity matching needed)")
                     
                     if cluster:
-                        # CRITICAL FIX: Validate that cluster contains actual case data
-                        case_name = cluster.get('case_name')
-                        date_filed = cluster.get('date_filed')
-                        absolute_url = cluster.get('absolute_url')
+                        case_name = cluster.get("case_name")
+                        date_filed = cluster.get("date_filed")
+                        absolute_url = cluster.get("absolute_url")
                         
-                        # Only mark as verified if we have essential case data
-                        if case_name and case_name.strip() and absolute_url and absolute_url.strip():
-                            result['canonical_name'] = case_name
-                            result['canonical_date'] = date_filed
-                            result['url'] = f"https://www.courtlistener.com{absolute_url}"
-                            result['verified'] = True
-                            result['source'] = 'CourtListener-lookup'
-                            
-                            print(f"[DEBUG PRINT] SUCCESS: Citation-lookup found valid canonical data:")
-                            print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
-                            print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
-                            print(f"[DEBUG PRINT]   URL: {result['url']}")
+                        # STRICT VALIDATION: Require both canonical name and year
+                        if case_name and date_filed and absolute_url:
+                            print(f"[DEBUG PRINT] Found valid cluster with case name and date: {case_name} ({date_filed})")
+                            result.update({
+                                "canonical_name": case_name,
+                                "canonical_date": date_filed,
+                                "url": absolute_url,
+                                "verified": True,
+                                "source": "CourtListener"
+                            })
                             return result
                         else:
-                            print(f"[DEBUG PRINT] REJECTED: Cluster exists but missing essential data:")
-                            print(f"[DEBUG PRINT]   case_name: '{case_name}'")
-                            print(f"[DEBUG PRINT]   absolute_url: '{absolute_url}'")
-                            print(f"[DEBUG PRINT]   This prevents false positive verification")
+                            print(f"[DEBUG PRINT] Cluster missing required data: case_name={case_name}, date_filed={date_filed}, absolute_url={absolute_url}")
                 
-                print(f"[DEBUG PRINT] Citation-lookup returned no valid results (all 404s)")
+                print(f"[DEBUG PRINT] No valid clusters found in citation-lookup")
                 
-            except json.JSONDecodeError as e:
-                print(f"[DEBUG PRINT] Failed to parse citation-lookup JSON: {e}")
-                logger.error(f"[CL citation-lookup] {citation} JSON decode error: {e}")
+            except (KeyError, IndexError) as e:
+                print(f"[DEBUG PRINT] Error parsing citation-lookup response: {e}")
+                
+        elif response.status_code == 404:
+            print(f"[DEBUG PRINT] Citation not found in citation-lookup")
         else:
-            print(f"[DEBUG PRINT] Citation-lookup API error: {response.status_code}")
+            print(f"[DEBUG PRINT] Citation-lookup returned status: {response.status_code}")
             
     except Exception as e:
-        print(f"[DEBUG PRINT] Exception in citation-lookup: {e}")
-        logger.error(f"[CL citation-lookup] {citation} exception: {e}")
-    
-    # STEP 2: Fallback to search API if citation-lookup failed
-    print(f"[DEBUG PRINT] STEP 2: Falling back to search API for {citation}")
+        print(f"[DEBUG PRINT] Error in citation-lookup: {e}")
+        
+    # STEP 2: Fallback to search API
+    print(f"[DEBUG PRINT] STEP 2: Trying search API fallback for {citation}")
     try:
         search_url = "https://www.courtlistener.com/api/rest/v4/search/"
         search_params = {
-            "type": "o",  # opinions
-            "q": f'citation:"{citation}"',  # Search specifically in citation field
+            "type": "opinion",
+            "q": f'citation:"{citation}"',
             "format": "json",
-            "order_by": "score desc"
+            "order_by": "score desc",
+            "limit": 1
         }
         print(f"[DEBUG PRINT] GET to {search_url} with params: {search_params}")
         
@@ -259,37 +254,29 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
         print(f"[DEBUG PRINT] Search API response status: {response.status_code}")
         
         if response.status_code == 200:
-            try:
-                search_results = response.json()
-                result['raw'] = response.text
+            search_results = response.json()
+            print(f"[DEBUG PRINT] Search API returned {len(search_results.get('results', []))} results")
+            
+            if search_results.get('results'):
+                best_result = search_results['results'][0]
+                case_name = best_result.get("case_name")
+                date_filed = best_result.get("date_filed")
                 
-                results_count = search_results.get('count', 0)
-                print(f"[DEBUG PRINT] Search API found {results_count} results")
-                
-                if results_count > 0 and search_results.get('results'):
-                    # Use the first search result
-                    first_result = search_results['results'][0]
-                    
-                    # CRITICAL FIX: Validate that search result contains actual case data
-                    case_name = first_result.get('caseName')
-                    date_filed = first_result.get('dateFiled')
-                    absolute_url = first_result.get('absolute_url')
-                    
-                    # Only mark as verified if we have essential case data
-                    if case_name and case_name.strip() and absolute_url and absolute_url.strip():
-                        result['canonical_name'] = case_name
-                        result['canonical_date'] = date_filed
-                        result['url'] = f"https://www.courtlistener.com{absolute_url}"
-                        result['verified'] = True
-                        result['source'] = 'CourtListener-search'
-                        
-                        print(f"[DEBUG PRINT] SUCCESS: Search API found valid canonical data:")
-                        print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
-                        print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
-                        print(f"[DEBUG PRINT]   URL: {result['url']}")
-                        return result
-                    else:
-                        print(f"[DEBUG PRINT] REJECTED: Search result exists but missing essential data:")
+                # STRICT VALIDATION: Require both canonical name and year
+                if case_name and date_filed:
+                    print(f"[DEBUG PRINT] Found valid search result with case name and date: {case_name} ({date_filed})")
+                    result.update({
+                        "canonical_name": case_name,
+                        "canonical_date": date_filed,
+                        "url": absolute_url,
+                        "verified": True,
+                        "source": "CourtListener"
+                    })
+                    print(f"[DEBUG PRINT] SUCCESS: Search API found valid canonical data:")
+                    print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
+                    print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
+                    print(f"[DEBUG PRINT]   URL: {result['url']}")
+                    return result
                         print(f"[DEBUG PRINT]   caseName: '{case_name}'")
                         print(f"[DEBUG PRINT]   absolute_url: '{absolute_url}'")
                         print(f"[DEBUG PRINT]   This prevents false positive verification")

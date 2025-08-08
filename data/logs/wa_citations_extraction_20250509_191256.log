@@ -1,0 +1,12 @@
+2025-05-09 19:12:56,224 - INFO - Starting citation extraction from D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs
+2025-05-09 19:12:56,226 - INFO - Found 187 PDF files to process
+2025-05-09 19:12:56,226 - INFO - Processing D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\1.pdf
+2025-05-09 19:13:43,148 - ERROR - Error finding citations: No module named 'hyperscan'
+2025-05-09 19:13:43,149 - INFO - Found 0 citations in D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\1.pdf
+2025-05-09 19:13:43,149 - INFO - Processing D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\10.pdf
+2025-05-09 19:14:29,699 - ERROR - Error finding citations: No module named 'hyperscan'
+2025-05-09 19:14:29,700 - INFO - Found 0 citations in D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\10.pdf
+2025-05-09 19:14:29,700 - INFO - Processing D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\100.pdf
+2025-05-09 19:15:14,154 - ERROR - Error finding citations: No module named 'hyperscan'
+2025-05-09 19:15:14,155 - INFO - Found 0 citations in D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\100.pdf
+2025-05-09 19:15:14,155 - INFO - Processing D:\WOLF Processing Folder\Wash App\wash-app full vol pdfs\101.pdf

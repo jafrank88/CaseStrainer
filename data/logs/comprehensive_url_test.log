@@ -1,0 +1,74 @@
+2025-05-09 17:10:21,307 - comprehensive_url_test - INFO - Starting comprehensive URL input testing for CaseStrainer...
+2025-05-09 17:10:21,308 - comprehensive_url_test - INFO - Testing direct URL analysis with: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 17:10:21,310 - comprehensive_url_test - INFO - Sending request to: http://localhost:5000/api/direct_url_analyze
+2025-05-09 17:10:21,311 - comprehensive_url_test - INFO - Payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 17:10:23,631 - comprehensive_url_test - INFO - Response status code: 200
+2025-05-09 17:10:23,632 - comprehensive_url_test - INFO - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Sat, 10 May 2025 00:10:23 GMT', 'Content-Type': 'application/json', 'Content-Length': '192', 'Access-Control-Allow-Origin': '*', 'Connection': 'close'}
+2025-05-09 17:10:23,632 - comprehensive_url_test - INFO - Response JSON: {
+  "analysis_id": "323f8a83-a0c1-472b-be11-548904c77b48",
+  "citations": [],
+  "citations_count": 0,
+  "status": "success",
+  "url": "https://www.law.cornell.edu/supremecourt/text/347/483"
+}
+2025-05-09 17:10:23,633 - comprehensive_url_test - INFO - Direct URL analysis test successful
+2025-05-09 17:10:23,633 - comprehensive_url_test - INFO - Testing analyze endpoint with URL input: https://www.law.cornell.edu/supremecourt/text/347/483
+2025-05-09 17:10:23,634 - comprehensive_url_test - INFO - Sending request to: http://localhost:5000/api/analyze
+2025-05-09 17:10:23,634 - comprehensive_url_test - INFO - Payload: {"url": "https://www.law.cornell.edu/supremecourt/text/347/483"}
+2025-05-09 17:10:25,642 - comprehensive_url_test - INFO - Response status code: 404
+2025-05-09 17:10:25,643 - comprehensive_url_test - INFO - Response headers: {'Server': 'Werkzeug/3.1.3 Python/3.13.3', 'Date': 'Sat, 10 May 2025 00:10:25 GMT', 'Content-Type': 'text/html; charset=utf-8', 'Content-Length': '207', 'Access-Control-Allow-Origin': '*', 'Connection': 'close'}
+2025-05-09 17:10:25,643 - comprehensive_url_test - ERROR - Analyze endpoint test failed with status code 404: <!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+2025-05-09 17:10:25,644 - comprehensive_url_test - INFO - Testing output tabs with analysis ID: 323f8a83-a0c1-472b-be11-548904c77b48
+2025-05-09 17:10:25,644 - comprehensive_url_test - INFO - Waiting for processing to complete...
+2025-05-09 17:10:30,645 - comprehensive_url_test - INFO - Checking verified_citations tab...
+2025-05-09 17:10:30,645 - comprehensive_url_test - INFO - Requesting: http://localhost:5000/api/results/323f8a83-a0c1-472b-be11-548904c77b48/verified_citations
+2025-05-09 17:10:32,654 - comprehensive_url_test - INFO - Response status code: 404
+2025-05-09 17:10:32,654 - comprehensive_url_test - ERROR - verified_citations tab request failed with status code 404: <!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+2025-05-09 17:10:32,655 - comprehensive_url_test - INFO - Checking unconfirmed_citations tab...
+2025-05-09 17:10:32,655 - comprehensive_url_test - INFO - Requesting: http://localhost:5000/api/results/323f8a83-a0c1-472b-be11-548904c77b48/unconfirmed_citations
+2025-05-09 17:10:34,665 - comprehensive_url_test - INFO - Response status code: 404
+2025-05-09 17:10:34,666 - comprehensive_url_test - ERROR - unconfirmed_citations tab request failed with status code 404: <!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+2025-05-09 17:10:34,666 - comprehensive_url_test - INFO - Checking courtlistener_cases tab...
+2025-05-09 17:10:34,667 - comprehensive_url_test - INFO - Requesting: http://localhost:5000/api/results/323f8a83-a0c1-472b-be11-548904c77b48/courtlistener_cases
+2025-05-09 17:10:36,675 - comprehensive_url_test - INFO - Response status code: 404
+2025-05-09 17:10:36,676 - comprehensive_url_test - ERROR - courtlistener_cases tab request failed with status code 404: <!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+2025-05-09 17:10:36,677 - comprehensive_url_test - INFO - Checking google_scholar_cases tab...
+2025-05-09 17:10:36,677 - comprehensive_url_test - INFO - Requesting: http://localhost:5000/api/results/323f8a83-a0c1-472b-be11-548904c77b48/google_scholar_cases
+2025-05-09 17:10:38,685 - comprehensive_url_test - INFO - Response status code: 404
+2025-05-09 17:10:38,685 - comprehensive_url_test - ERROR - google_scholar_cases tab request failed with status code 404: <!doctype html>
+<html lang=en>
+<title>404 Not Found</title>
+<h1>Not Found</h1>
+<p>The requested URL was not found on the server. If you entered the URL manually please check your spelling and try again.</p>
+
+2025-05-09 17:10:38,686 - comprehensive_url_test - ERROR - Some output tabs failed testing
+2025-05-09 17:10:38,686 - comprehensive_url_test - INFO -   - verified_citations: FAILED
+2025-05-09 17:10:38,687 - comprehensive_url_test - INFO -   - unconfirmed_citations: FAILED
+2025-05-09 17:10:38,687 - comprehensive_url_test - INFO -   - courtlistener_cases: FAILED
+2025-05-09 17:10:38,687 - comprehensive_url_test - INFO -   - google_scholar_cases: FAILED
+2025-05-09 17:10:38,688 - comprehensive_url_test - INFO - === TEST RESULTS SUMMARY ===
+2025-05-09 17:10:38,688 - comprehensive_url_test - INFO - Direct URL analyze endpoint: PASSED
+2025-05-09 17:10:38,688 - comprehensive_url_test - INFO - Analyze endpoint with URL input: FAILED
+2025-05-09 17:10:38,688 - comprehensive_url_test - INFO - Output tabs with direct URL analysis: FAILED
+2025-05-09 17:10:38,689 - comprehensive_url_test - INFO - Output tabs with analyze endpoint: FAILED
+2025-05-09 17:10:38,689 - comprehensive_url_test - ERROR - ALL TESTS FAILED. Please check the logs for details.
