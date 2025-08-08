@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
     ],
     
     // Base public path when served in production
-    base: env.VITE_APP_ENV === 'production' ? '/casestrainer/' : '/',
+    base: '/casestrainer/',
     
     // Development server configuration
     server: {

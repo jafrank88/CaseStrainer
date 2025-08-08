@@ -214,7 +214,7 @@
  </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 // import RecentInputs from './RecentInputs.vue'; // Temporarily hidden
 
 const props = defineProps({
@@ -228,6 +228,12 @@ watch(() => props.isAnalyzing, (newVal) => {
 }, { immediate: true });
 
 const emit = defineEmits(['analyze']);
+
+// Debug: Log when component is mounted
+onMounted(() => {
+  console.log('UnifiedInput component mounted!');
+  console.log('Props:', { isAnalyzing: props.isAnalyzing });
+});
 
  const modes = ['text', 'url', 'file'];
  const modeLabels = { 
@@ -421,24 +427,42 @@ function clearFile() {
 }
 
 function emitAnalyze() {
+  console.log('🔵 emitAnalyze called, inputMode:', inputMode.value);
+  
   if (!canAnalyze.value) {
+    console.log('🟡 Cannot analyze - validation failed');
     showValidationWarning.value = true;
     return;
   }
+  
   showValidationWarning.value = false;
+  
+  // For all input types, create a FormData object for consistency
+  const formData = new FormData();
+  
   if (inputMode.value === 'text') {
+    console.log('📝 Sending text for analysis');
+    formData.append('text', text.value);
+    formData.append('type', 'text');
     emit('analyze', { text: text.value, type: 'text' });
+    
   } else if (inputMode.value === 'url') {
-    emit('analyze', { url: url.value, type: 'url' });
+    console.log('🌐 Sending URL for analysis:', url.value);
+    formData.append('url', url.value);
+    formData.append('type', 'url');
+    // Send as FormData to be consistent with file uploads
+    emit('analyze', formData);
+    
   } else if (inputMode.value === 'file') {
-    // Always send FormData with 'type' and optional 'options'
-    const formData = new FormData();
+    console.log('📁 Sending file for analysis:', file.value?.name);
     formData.append('file', file.value);
     formData.append('type', 'file');
     // If you have options, add them here (example: analysis options)
     // formData.append('options', JSON.stringify(options));
     emit('analyze', formData);
   }
+  
+  console.log('🟢 Analysis request emitted');
 }
 
 function loadRecentInput(input) {

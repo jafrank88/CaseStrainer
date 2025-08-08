@@ -1,12 +1,6 @@
 <template>
   <div class="home">
-      <div style="position:fixed;top:0;left:0;right:0;z-index:999999;background:magenta;color:white;font-size:32px;text-align:center;padding:20px;">
-    HOME VIEW IS RENDERED - URL: {{ $route.path }} - Should NOT be here!
-  </div>
-    <!-- DEBUG: Test banner to verify Vue is working -->
-    <div style="background: red !important; color: white !important; padding: 20px !important; text-align: center !important; font-weight: bold !important; position: fixed !important; top: 0 !important; left: 0 !important; right: 0 !important; z-index: 99999 !important; font-size: 20px !important; border: 5px solid yellow !important; box-shadow: 0 0 20px black !important;">
-      🚨🚨🚨 HOME VIEW DEBUG BANNER - Vue is working! 🚨🚨🚨
-    </div>
+    <div class="background-pattern"></div>
     <div class="background-pattern"></div>
     
     <!-- Main Content Section -->

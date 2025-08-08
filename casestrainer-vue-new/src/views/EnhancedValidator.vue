@@ -1,9 +1,16 @@
 <template>
   <div class="enhanced-validator">
-    
     <!-- Header -->
     <div class="header text-center mb-4">
       <h1 class="results-title">{{ headerTitle }}</h1>
+      <div style="background: yellow; color: black; padding: 10px; margin: 10px; border: 2px solid red;">
+        <strong>DEBUG: EnhancedValidator component is rendering!</strong>
+        <br>shouldShowInput: {{ shouldShowInput }}
+        <br>results: {{ !!results }}
+        <br>error: {{ !!error }}
+        <br>simpleLoading: {{ simpleLoading }}
+        <br>hasActiveRequest: {{ hasActiveRequest }}
+      </div>
     </div>
 
     <!-- Loading State -->
@@ -78,30 +85,18 @@ export default {
     // ===== REACTIVE STATE =====
     const results = ref(null);
     const error = ref(null);
-    const hasActiveRequest = ref(false);
     const simpleLoading = ref(false);
+    const hasActiveRequest = ref(false);
     const loadingStartTime = ref(null);
     const loadingProgress = ref(0);
     const loadingProgressText = ref('');
 
-    // Debug: Log results every time it changes and show an alert
+    // Debug: Log results every time it changes
     watch(results, (newVal) => {
       console.log('🟢 EnhancedValidator.vue results.value changed:', newVal);
-      if (newVal && newVal.result && Array.isArray(newVal.result.citations)) {
-        alert('Results received! Number of citations: ' + newVal.result.citations.length);
-      }
-    }, { immediate: true, deep: true });
-
-    // Watch for loading state changes to start spinner animation
-    watch(showLoading, (isLoading) => {
-      if (isLoading) {
-        // Start JavaScript fallback animation after a short delay
-        setTimeout(() => {
-          startSpinnerAnimation();
-        }, 100);
-      }
     });
 
+    // Computed property to determine loading state
     const showLoading = computed(() => {
       const result = simpleLoading.value || hasActiveRequest.value;
       console.log('🔄 showLoading computed - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value, 'result:', result);
@@ -110,266 +105,137 @@ export default {
 
     // Computed property to determine when to show input form
     const shouldShowInput = computed(() => {
-      return !results.value && !error.value && !simpleLoading.value && !hasActiveRequest.value;
+      const show = !results.value && !error.value && !showLoading.value;
+      console.log('🔍 shouldShowInput computed -', { 
+        show, 
+        hasResults: !!results.value, 
+        hasError: !!error.value, 
+        isLoading: showLoading.value 
+      });
+      return show;
     });
 
     // Computed property for dynamic header title
     const headerTitle = computed(() => {
-      if (results.value) {
-        return 'Citation Verification Results';
-      } else {
-        return 'Citation Verification';
-      }
+      return results.value ? 'Citation Verification Results' : 'Citation Verification';
     });
-
-    // Add onMounted hook
-    onMounted(() => {
-      console.log('EnhancedValidator component mounted successfully!');
-    });
-
-    // JavaScript fallback animation for spinner
-    const startSpinnerAnimation = () => {
-      console.log('🔄 Starting JavaScript spinner animation');
-      const spinnerCircle = document.querySelector('.spinner-circle');
-      if (spinnerCircle) {
-        console.log('🔄 Spinner circle found, starting rotation');
-        let rotation = 0;
-        const animate = () => {
-          rotation += 10;
-          spinnerCircle.style.transform = `rotate(${rotation}deg)`;
-          requestAnimationFrame(animate);
-        };
-        animate();
-      } else {
-        console.log('⚠️ Spinner circle not found');
-      }
-    };
 
     // Handler for unified analyze requests
     const handleUnifiedAnalyze = async (data) => {
       console.log('🚀 handleUnifiedAnalyze called with data:', data);
-      console.log('🚀 Data type:', typeof data);
-      console.log('🚀 Is FormData:', data instanceof FormData);
       
       try {
         // Set loading state
-        console.log('🔄 Setting loading state to true');
         simpleLoading.value = true;
         hasActiveRequest.value = true;
         error.value = null;
         loadingStartTime.value = Date.now();
         loadingProgress.value = 0;
         loadingProgressText.value = 'Starting...';
-        console.log('🔄 Loading state set - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value);
-        
-        // Start progress tracking
-        const progressInterval = setInterval(() => {
-          if (loadingStartTime.value) {
-            const elapsed = (Date.now() - loadingStartTime.value) / 1000;
-            const progress = Math.min((elapsed / 30) * 100, 95); // Cap at 95% until complete
-            loadingProgress.value = progress;
-            loadingProgressText.value = `${Math.floor(elapsed)}s elapsed`;
-          }
-        }, 1000);
 
-        if (data instanceof FormData) {
-          // Handle file uploads
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-          let response;
+        let response;
+        const formData = new FormData();
+        let endpoint = '';
 
-          try {
-            response = await fetch('/casestrainer/api/analyze', {
-              method: 'POST',
-              body: data, // FormData will automatically set the correct Content-Type
-              signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-          } catch (fetchError) {
-            clearTimeout(timeoutId);
-            if (fetchError.name === 'AbortError') {
-              throw new Error('Request timed out after 30 seconds');
-            }
-            throw fetchError;
-          }
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          // Check if this is an async task (file processing)
-          if (result.status === 'processing' && result.task_id) {
-            console.log('File processing started, polling for results...');
-            await pollForResults(result.task_id);
-          } else {
-            // Immediate result (text processing)
-            results.value = result.result || result;
-          }
-
-        } else {
-          // Handle text/URL data
-          console.log('Text/URL data received:', data);
-          
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
-          let response;
-
-          try {
-            response = await fetch('/casestrainer/api/analyze', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify(data),
-              signal: controller.signal
-            });
-
-            clearTimeout(timeoutId);
-          } catch (fetchError) {
-            clearTimeout(timeoutId);
-            if (fetchError.name === 'AbortError') {
-              throw new Error('Request timed out after 30 seconds');
-            }
-            throw fetchError;
-          }
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          // Check if this is an async task (URL processing might be async for large documents)
-          if (result.status === 'processing' && result.task_id) {
-            console.log('URL processing started, polling for results...');
-            await pollForResults(result.task_id);
-          } else {
-            // Immediate result (text/URL processing)
-            results.value = result.result || result;
-          }
+        // Prepare request based on input type
+        if (data.type === 'file') {
+          // File upload
+          endpoint = '/api/upload';
+          // data is already a FormData object with the file
+          formData.append('file', data.get('file'));
+        } else if (data.type === 'text') {
+          // Text input
+          endpoint = '/api/text';
+          formData.append('text', data.text);
+        } else if (data.type === 'url') {
+          // URL input
+          endpoint = '/api/url';
+          formData.append('url', data.url);
         }
 
+        console.log('📤 Sending request to:', endpoint);
+        
+        // Make the API request
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+
+        try {
+          response = await fetch(endpoint, {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal,
+            // Don't set Content-Type header, let the browser set it with the correct boundary
+          });
+
+          clearTimeout(timeoutId);
+        } catch (fetchError) {
+          clearTimeout(timeoutId);
+          if (fetchError.name === 'AbortError') {
+            throw new Error('Request timed out. The server is taking too long to respond.');
+          }
+          throw fetchError;
+        }
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Server returned ${response.status}: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('✅ API Response:', result);
+        
+        // Update results
+        results.value = result;
+        
       } catch (err) {
-        console.error('Error in handleUnifiedAnalyze:', err);
-        error.value = err.message;
+        console.error('❌ Error in handleUnifiedAnalyze:', err);
+        error.value = err.message || 'An error occurred while processing your request';
       } finally {
-        // Clear loading state
-        console.log('🔄 Clearing loading state');
+        // Reset loading state
         simpleLoading.value = false;
         hasActiveRequest.value = false;
-        loadingStartTime.value = null;
-        loadingProgress.value = 0;
-        loadingProgressText.value = '';
-        console.log('🔄 Loading state cleared - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value);
+        loadingProgress.value = 100;
+        loadingProgressText.value = 'Complete';
       }
     };
 
-    // Poll for async task results
-    const pollForResults = async (taskId) => {
-      const maxAttempts = 60; // 5 minutes with 5-second intervals
-      let attempts = 0;
-      const startTime = Date.now();
-
-      while (attempts < maxAttempts) {
-        try {
-          const response = await fetch(`/casestrainer/api/task_status/${taskId}`);
-
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-
-          const result = await response.json();
-
-          if (result.status === 'completed') {
-            console.log('Task completed, setting results');
-            // The task_status endpoint returns results in result.result
-            results.value = result.result || result;
-            break;
-          } else if (result.status === 'failed') {
-            throw new Error(result.error || 'Task failed');
-          } else {
-            // Still processing, update progress and wait
-            const elapsedTime = (Date.now() - startTime) / 1000;
-            const progress = Math.min((attempts / maxAttempts) * 100, 95); // Cap at 95% until complete
-            
-            // Update progress state for the progress bar
-            results.value = {
-              status: 'processing',
-              progress: progress,
-              elapsedTime: elapsedTime,
-              remainingTime: Math.max(0, (maxAttempts - attempts) * 5),
-              message: `Processing... (${attempts + 1}/${maxAttempts} attempts)`
-            };
-            
-            console.log(`Task still processing (attempt ${attempts + 1}/${maxAttempts}, progress: ${progress.toFixed(1)}%)`);
-            await new Promise(resolve => setTimeout(resolve, 5000)); // Wait 5 seconds
-            attempts++;
-          }
-        } catch (err) {
-          console.error('Error polling for results:', err);
-          error.value = err.message;
-          break;
-        }
-      }
-
-      if (attempts >= maxAttempts) {
-        error.value = 'Processing timed out. Please try again.';
-      }
-    };
-
-    // Toast notification handler
-    const showToast = (toastData) => {
-      // You can implement toast notifications here
-      console.log('Toast:', toastData);
-    };
-
-    // Start new analysis - reset all state
+    // Placeholder methods - implement as needed
+    const copyResults = () => console.log('Copy results');
+    const downloadResults = () => console.log('Download results');
+    const showToast = (message) => console.log('Toast:', message);
     const startNewAnalysis = () => {
-      console.log('🔄 Starting new analysis - resetting state');
-      alert('🔄 New Analysis button clicked! Resetting state...');
       results.value = null;
       error.value = null;
-      simpleLoading.value = false;
-      hasActiveRequest.value = false;
-      console.log('🔄 State reset complete. shouldShowInput:', shouldShowInput.value);
     };
 
-    // Copy results handler
-    const copyResults = () => {
-      // Implementation for copying results
-      console.log('Copying results...');
-    };
-
-    // Download results handler
-    const downloadResults = () => {
-      // Implementation for downloading results
-      console.log('Downloading results...');
-    };
+    // Debug: Log the initial state
+    console.log('EnhancedValidator setup completed', { 
+      shouldShowInput: shouldShowInput.value,
+      results: !!results.value,
+      error: !!error.value,
+      showLoading: showLoading.value
+    });
 
     return {
       // State
       results,
       error,
-      hasActiveRequest,
       simpleLoading,
+      hasActiveRequest,
       loadingProgress,
       loadingProgressText,
+      
+      // Computed
       showLoading,
       shouldShowInput,
       headerTitle,
-      // Methods
-      startSpinnerAnimation,
-
+      
       // Methods
       handleUnifiedAnalyze,
-      pollForResults,
-      showToast,
-      startNewAnalysis,
       copyResults,
-      downloadResults
+      downloadResults,
+      showToast,
+      startNewAnalysis
     };
   }
 };
@@ -379,165 +245,27 @@ export default {
 .enhanced-validator {
   max-width: 1200px;
   margin: 0 auto;
-  min-height: 100vh;
-  padding: 1rem 0.5rem;
-}
-
-.header {
-  background: #f8f9fa;
-  padding: 1rem;
-  text-align: center;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  padding: 20px;
 }
 
 .loading-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 40vh;
-  text-align: center;
-}
-
-.loading-content {
-  max-width: 400px;
-}
-
-.spinner-container {
-  margin-bottom: 1rem;
-}
-
-.loading-info {
-  margin-top: 1.5rem;
-}
-
-.timeout-info {
-  font-size: 0.9rem;
-  color: #6c757d;
-  margin-bottom: 1rem;
-}
-
-.progress-indicator {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.progress-bar {
-  width: 200px;
-  height: 6px;
-  background-color: #e9ecef;
-  border-radius: 3px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #0d6efd;
-  transition: width 0.3s ease;
-  border-radius: 3px;
-}
-
-.progress-text {
-  font-size: 0.8rem;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-.custom-spinner {
-  width: 3rem;
-  height: 3rem;
-  position: relative;
-  display: inline-block;
-}
-
-.spinner-circle {
-  width: 100%;
-  height: 100%;
-  border: 0.25em solid #e9ecef;
-  border-top: 0.25em solid #0d6efd;
-  border-radius: 50%;
-  animation: custom-spin 1s linear infinite;
-  /* Force animation even with reduced motion */
-  animation-duration: 1s !important;
-  animation-iteration-count: infinite !important;
-}
-
-@keyframes custom-spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* Fallback for when animations are completely disabled */
-@media (prefers-reduced-motion: reduce) {
-  .spinner-circle {
-    animation: custom-spin 1s linear infinite !important;
-  }
-  
-  /* Alternative: pulsing effect if rotation is disabled */
-  .spinner-circle:not([style*="animation"]) {
-    animation: pulse 1.5s ease-in-out infinite !important;
-  }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.text-primary {
-  color: #0d6efd !important;
-}
-
-.text-muted {
-  color: #6c757d !important;
+  min-height: 300px;
 }
 
 .error-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 40vh;
   text-align: center;
-}
-
-.error-content {
-  max-width: 400px;
-}
-
-.error-icon {
-  font-size: 2.5rem;
+  padding: 20px;
   color: #dc3545;
-  margin-bottom: 0.75rem;
 }
 
 .main-content-wrapper {
-  padding: 1rem;
+  margin-top: 20px;
 }
 
-.input-section {
-  margin-bottom: 1rem;
-}
-
-.results-section {
-  margin-top: 1rem;
-}
-
-.results-title {
-  color: #333;
-  margin-bottom: 1rem;
-}
-
-.visually-hidden {
-  position: absolute !important;
-  width: 1px !important;
-  height: 1px !important;
-  padding: 0 !important;
-  margin: -1px !important;
-  overflow: hidden !important;
-  clip: rect(0, 0, 0, 0) !important;
-  white-space: nowrap !important;
-  border: 0 !important;
+.input-section, .results-section {
+  margin-bottom: 30px;
 }
 </style>
