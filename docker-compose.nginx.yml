@@ -1,0 +1,19 @@
+services:
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: casestrainer-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-ssl-fixed.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./casestrainer-vue-new/dist:/usr/share/nginx/html/casestrainer:ro
+    restart: unless-stopped
+    networks:
+      - casestrainer_app-network
+
+networks:
+  casestrainer_app-network:
+    external: true
