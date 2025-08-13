@@ -31,7 +31,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
       - FLASK_ENV=production
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
@@ -64,21 +64,23 @@ services:
           memory: 2G
           cpus: '1.0'
 
-  rqworker:
+  # Worker Services
+  rqworker1:
     build: .
-    container_name: casestrainer-rqworker-prod
+    container_name: casestrainer-rqworker1-prod
     command: python src/rq_worker.py
     depends_on:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=1
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -113,14 +115,16 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=2
     volumes:
+      - ./src:/app/src
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
@@ -153,13 +157,14 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=3
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -186,8 +191,6 @@ services:
           memory: 1G
           cpus: '0.5'
 
-
-
   # Frontend Production Build
   frontend-prod:
     build: 
@@ -211,32 +214,45 @@ services:
 
   # Infrastructure Layer
   nginx:
-    image: nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
     container_name: casestrainer-nginx-prod
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/conf.d/casestrainer.conf:/etc/nginx/conf.d/casestrainer.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/clean-wolf.conf:/etc/nginx/conf.d/wolf.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
-      - ./casestrainer-vue-new/dist:/usr/share/nginx/html:ro
+      - ./casestrainer-vue-new/dist:/usr/share/nginx/html/casestrainer:ro
+      - ./logs/nginx:/var/log/nginx
     environment:
-      - BACKEND_SERVICE_NAME=casestrainer-backend-prod
+      - NGINX_HOST=wolf.law.uw.edu
+      - NGINX_PORT=80
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    # Remove default config and start Nginx with our config
+    command: >
+      sh -c "rm -f /etc/nginx/conf.d/default.conf &&
+             nginx -t &&
+             nginx -g 'daemon off;'"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+      frontend-prod:
+        condition: service_healthy
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://127.0.0.1:80/casestrainer/api/health || exit 1"]
-      interval: 60s
-      timeout: 30s
-      retries: 8
-      start_period: 180s
     networks:
       - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
   redis_data_prod:
 
 networks:
   app-network:
-    driver: bridge 
+    driver: bridge
