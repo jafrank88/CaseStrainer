@@ -31,6 +31,7 @@ param(
     
     [switch]$Confirm,
     [switch]$DryRun,
+    [switch]$Verbose,
     [switch]$Force
 )
 
@@ -66,7 +67,7 @@ function Write-Log {
             'INFO'  { Write-Host $logEntry -ForegroundColor Green }
             'WARN'  { Write-Host $logEntry -ForegroundColor Yellow }
             'ERROR' { Write-Host $logEntry -ForegroundColor Red }
-            'DEBUG' { if ($VerbosePreference -eq 'Continue') { Write-Host $logEntry -ForegroundColor Gray } }
+            'DEBUG' { if ($Verbose) { Write-Host $logEntry -ForegroundColor Gray } }
         }
     }
 }

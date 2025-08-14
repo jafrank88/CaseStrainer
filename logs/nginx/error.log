@@ -4025,3 +4025,10 @@
 2025/08/14 17:15:18 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
 2025/08/14 17:15:24 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
 2025/08/14 17:15:38 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:16:04 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:16:56 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:17:56 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:18:57 [emerg] 9#9: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:19:57 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:20:58 [emerg] 8#8: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12
+2025/08/14 17:21:58 [emerg] 7#7: open() "/etc/nginx/conf/mime.types" failed (2: No such file or directory) in /etc/nginx/nginx.conf:12

@@ -1,0 +1,33 @@
+{
+  "environment": "production",
+  "docker": {
+    "composeFile": "docker-compose.prod.yml",
+    "networkName": "casestrainer_app-network",
+    "healthCheckTimeout": 30,
+    "maxRestartAttempts": 3
+  },
+  "monitoring": {
+    "enableBackgroundJobs": true,
+    "healthCheckInterval": 60,
+    "logLevel": "INFO",
+    "alerting": {
+      "email": "admin@example.com",
+      "webhookUrl": "https://your-monitoring-system/webhook"
+    }
+  },
+  "paths": {
+    "sourceDirectories": [
+      "src",
+      "casestrainer-vue-new/src"
+    ],
+    "configFiles": [
+      "docker-compose.prod.yml",
+      "nginx/nginx.conf"
+    ]
+  },
+  "security": {
+    "allowVolumeCleanup": false,
+    "requireConfirmationForDestructive": true,
+    "enableSecurityScanning": true
+  }
+}
