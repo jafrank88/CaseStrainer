@@ -11,6 +11,18 @@ logger = logging.getLogger(__name__)
 # --- Clustering and propagation logic moved from unified_citation_processor_v2.py ---
 
 def group_citations_into_clusters(citations: list, original_text: str | None = None) -> list:
+    """
+    DEPRECATED: This function has been replaced by UnifiedCitationClusterer.
+    
+    Use src.unified_citation_clustering.cluster_citations_unified() instead.
+    This function is kept for backward compatibility only.
+    """
+    import warnings
+    warnings.warn(
+        "group_citations_into_clusters is deprecated. Use UnifiedCitationClusterer instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     clusters_by_id = {}
     # --- NEW: If any member of a parallel group is verified, cluster all members together ---
     # Build a mapping from citation to its parallel group
@@ -937,45 +949,19 @@ def _propagate_extracted_to_parallels_clusters(citations: list):
 
 def _propagate_best_extracted_to_clusters(citations: list):
     """
-    Propagate the best extracted case name and date to all citations in a cluster.
+    DEPRECATED: This function has been replaced by UnifiedCitationClusterer.
+    
+    The dangerous proximity-based propagation logic has been removed and replaced
+    with safer clustering logic in the unified system.
+    
+    Use src.unified_citation_clustering.UnifiedCitationClusterer instead.
     """
-    # DISABLE DANGEROUS PROXIMITY-BASED PROPAGATION: This was the main source of contamination!
-    # It propagates case names between citations within 100 characters of each other,
-    # causing 578 U.S. 5 to get "Gideon v. Wainwright" because they're close in the text.
-    #
-    # def is_valid_name(name):
-    #     if not name or name == 'N/A':
-    #         return False
-    #     if len(name) < 5:
-    #         return False
-    #     if not any(c.isalpha() for c in name):
-    #         return False
-    #     return True
-    #
-    # # Forward propagation
-    # for i, citation in enumerate(citations):
-    #     if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
-    #         for j, other in enumerate(citations):
-    #             if i == j:
-    #                 continue
-    #             if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
-    #                 if 0 <= other.start_index - citation.end_index <= 100:
-    #                     if is_valid_name(getattr(other, 'extracted_case_name', None)):
-    #                         citation.extracted_case_name = other.extracted_case_name
-    #                     if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
-    #                         citation.extracted_date = other.extracted_date
-    # # Backward propagation
-    # for i, citation in enumerate(citations):
-    #     if not is_valid_name(getattr(citation, 'extracted_case_name', None)):
-    #         for j, other in enumerate(citations):
-    #             if i == j:
-    #                 continue
-    #             if hasattr(other, 'start_index') and hasattr(citation, 'end_index') and other.start_index is not None and citation.end_index is not None:
-    #                 if 0 <= other.start_index - citation.end_index <= 100:
-    #                     if is_valid_name(getattr(other, 'extracted_case_name', None)):
-    #                         citation.extracted_case_name = other.extracted_case_name
-    #                     if getattr(other, 'extracted_date', None) and getattr(other, 'extracted_date', None) != 'N/A':
-    #                         citation.extracted_date = other.extracted_date
+    import warnings
+    warnings.warn(
+        "_propagate_best_extracted_to_clusters is deprecated. Use UnifiedCitationClusterer instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     pass
 
     # Return the properly formatted clusters

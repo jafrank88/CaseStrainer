@@ -1,0 +1,24 @@
+[wsl2]
+# Limits memory usage to 8GB (adjust based on your system's available RAM)
+memory=8GB
+
+# Limits WSL2 to use 4 CPU cores (adjust based on your CPU core count)
+processors=4
+
+# Enables nested virtualization
+nestedVirtualization=true
+
+# Enables page reporting (frees unused memory back to the host)
+pageReporting=true
+
+# Enables systemd in WSL2
+systemd=true
+
+# Enables experimental features
+[experimental]
+autoMemoryReclaim=dropcache
+sparseVhd=true
+hostGatewayLoopback=true
+nestedVirtualization=true
+# Enable experimental kernel features
+kernelCommandLine = vsyscall=emulate

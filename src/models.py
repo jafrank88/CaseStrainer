@@ -8,6 +8,7 @@ class CitationResult:
     extracted_date: Optional[str] = None
     canonical_name: Optional[str] = None
     canonical_date: Optional[str] = None
+    canonical_url: Optional[str] = None
     verified: bool = False
     url: Optional[str] = None
     court: Optional[str] = None
@@ -44,6 +45,41 @@ class CitationResult:
             self.case_history = []
         if self.metadata is None:
             self.metadata = {}
+            
+    def to_dict(self):
+        """Convert the CitationResult to a dictionary for JSON serialization."""
+        result = {
+            'citation': self.citation,
+            'extracted_case_name': self.extracted_case_name,
+            'extracted_date': self.extracted_date,
+            'canonical_name': self.canonical_name,
+            'canonical_date': self.canonical_date,
+            'canonical_url': self.canonical_url,
+            'verified': self.verified,
+            'url': self.url,
+            'court': self.court,
+            'docket_number': self.docket_number,
+            'confidence': self.confidence,
+            'method': self.method,
+            'pattern': self.pattern,
+            'context': self.context,
+            'start_index': self.start_index,
+            'end_index': self.end_index,
+            'is_parallel': self.is_parallel,
+            'is_cluster': self.is_cluster,
+            'parallel_citations': self.parallel_citations,
+            'cluster_members': self.cluster_members,
+            'pinpoint_pages': self.pinpoint_pages,
+            'docket_numbers': self.docket_numbers,
+            'case_history': self.case_history,
+            'publication_status': self.publication_status,
+            'source': self.source,
+            'error': self.error,
+            'metadata': self.metadata,
+            'cluster_id': self.cluster_id,
+            'is_verified': self.verified  # Add is_verified alias for backward compatibility
+        }
+        return result
 
 @dataclass
 class ProcessingConfig:

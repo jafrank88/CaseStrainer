@@ -347,53 +347,80 @@ class ChunkedCitationProcessor:
     
     async def _process_chunk(self, chunk: str, document_type: str) -> List[Dict]:
         """Process a single chunk for citations using the canonical UnifiedCitationProcessorV2."""
+        chunk_hash = hash(chunk) % 1000
+        logger.info(f"[Chunk-{chunk_hash}] Starting chunk processing (size: {len(chunk)} chars)")
+        
         try:
             # Use the canonical UnifiedCitationProcessorV2 for real citation extraction
+            logger.info(f"[Chunk-{chunk_hash}] Importing UnifiedCitationProcessorV2...")
             from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2, ProcessingConfig
             
+            logger.info(f"[Chunk-{chunk_hash}] Creating ProcessingConfig...")
             config = ProcessingConfig(
                 use_eyecite=True,
                 use_regex=True,
                 extract_case_names=True,
                 extract_dates=True,
                 enable_clustering=True,  # Enable clustering to detect parallel citations
-                enable_verification=False  # Disable verification for faster processing
+                enable_verification=True  # Enable verification for complete analysis
             )
             
+            logger.info(f"[Chunk-{chunk_hash}] Creating processor instance...")
             processor = UnifiedCitationProcessorV2(config)
+            
+            logger.info(f"[Chunk-{chunk_hash}] Starting process_text()...")
+            start_time = time.time()
             results = processor.process_text(chunk)
+            process_time = time.time() - start_time
+            logger.info(f"[Chunk-{chunk_hash}] process_text() completed in {process_time:.2f}s, got {len(results)} results")
             
             # Convert CitationResult objects to dictionaries
+            logger.info(f"[Chunk-{chunk_hash}] Converting {len(results)} results to dicts...")
             citations = []
-            for result in results:  # type: ignore
-                citations.append({
-                    'id': len(citations) + 1,
-                    'citation': result.citation,
-                    'raw_text': result.citation,
-                    'case_name': result.canonical_name or result.extracted_case_name or 'Unknown Case',
-                    'year': result.canonical_date or result.extracted_date or 'No year',
-                    'confidence_score': 0.85,  # Default confidence
-                    'chunk_index': hash(chunk) % 1000,
-                    'extracted_case_name': result.extracted_case_name,
-                    'canonical_name': result.canonical_name,
-                    'extracted_date': result.extracted_date,
-                    'canonical_date': result.canonical_date,
-                    'verified': result.verified,
-                    'source': result.source,
-                    'method': result.method,
-                    'is_parallel': result.is_parallel,
-                    'parallel_citations': result.parallel_citations or [],
-                    'start_index': result.start_index,
-                    'end_index': result.end_index,
-                    'context': result.context,
-                    'url': result.url,
-                    'metadata': result.metadata or {}
-                })
+            for i, result in enumerate(results, 1):  # type: ignore
+                try:
+                    citation_data = {
+                        'id': len(citations) + 1,
+                        'citation': result.citation,
+                        'raw_text': result.citation,
+                        'case_name': result.canonical_name or result.extracted_case_name or 'Unknown Case',
+                        'year': result.canonical_date or result.extracted_date or 'No year',
+                        'confidence_score': 0.85,  # Default confidence
+                        'chunk_index': chunk_hash,
+                        'extracted_case_name': result.extracted_case_name,
+                        'canonical_name': result.canonical_name,
+                        'extracted_date': result.extracted_date,
+                        'canonical_date': result.canonical_date,
+                        'verified': result.verified,
+                        'source': result.source,
+                        'method': result.method,
+                        'is_parallel': result.is_parallel,
+                        'parallel_citations': result.parallel_citations or [],
+                        'start_index': result.start_index,
+                        'end_index': result.end_index,
+                        'context': result.context,
+                        'url': result.url,
+                        'metadata': result.metadata or {}
+                    }
+                    citations.append(citation_data)
+                    
+                    # Log first few citations for debugging
+                    if i <= 3:  # Only log first 3 citations to avoid log spam
+                        logger.debug(f"[Chunk-{chunk_hash}] Citation {i}: {result.citation} | "
+                                   f"Name: {result.extracted_case_name} | "
+                                   f"Date: {result.extracted_date} | "
+                                   f"Verified: {result.verified}")
+                except Exception as cite_err:
+                    logger.error(f"[Chunk-{chunk_hash}] Error processing citation {i}: {str(cite_err)}")
+                    logger.error(traceback.format_exc())
             
+            logger.info(f"[Chunk-{chunk_hash}] Processed {len(citations)} citations")
             return citations
             
         except Exception as e:
-            logger.error(f"Error processing chunk: {e}")
+            error_msg = f"[Chunk-{chunk_hash}] Error processing chunk: {str(e)}"
+            logger.error(error_msg)
+            logger.error(traceback.format_exc())
             return []
     
     async def _process_document_async(self, task_id: str, document_text: str, document_type: str, tracker: 'ProgressTracker'):
@@ -518,7 +545,7 @@ class ChunkedCitationProcessor:
         
         # Convert dict citations back to CitationResult objects for clustering
         from src.models import CitationResult
-        from src.citation_clustering import group_citations_into_clusters
+        from src.unified_citation_clustering import cluster_citations_unified
         
         citation_objects = []
         for citation_dict in citations:
@@ -542,7 +569,7 @@ class ChunkedCitationProcessor:
             citation_objects.append(citation_obj)
         
         # Perform clustering
-        clusters = group_citations_into_clusters(citation_objects)
+        clusters = cluster_citations_unified(citation_objects)
         
         return {
             'citations': citations,
@@ -1244,23 +1271,78 @@ document.getElementById('analyze-button').addEventListener('click', () => {
 });
 '''
 
-
-# ============================================================================
 # SOLUTION 6: Configuration and Setup
 # ============================================================================
+
+def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
+    """
+    Process citation task directly (for use with RQ workers).
+    
+    Args:
+        task_id: Unique task ID
+        input_type: Type of input ('text', 'url', 'file')
+        input_data: Dictionary containing the input data
+        
+    Returns:
+        Dictionary with processing results
+    """
+    from src.unified_input_processor import UnifiedInputProcessor
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    logger.info(f"[Task {task_id}] Starting direct citation processing for {input_type}")
+    
+    try:
+        # Initialize processor
+        processor = UnifiedInputProcessor()
+        
+        # Process based on input type
+        if input_type == 'text':
+            text = input_data.get('text', '')
+            if not text:
+                raise ValueError("No text provided for processing")
+                
+            result = processor.process_any_input(
+                input_data=text,
+                input_type='text',
+                request_id=task_id
+            )
+            
+            return {
+                'success': True,
+                'task_id': task_id,
+                'status': 'completed',
+                'result': result
+            }
+            
+        else:
+            raise ValueError(f"Unsupported input type for direct processing: {input_type}")
+            
+    except Exception as e:
+        logger.error(f"[Task {task_id}] Error in direct citation processing: {str(e)}", exc_info=True)
+        return {
+            'success': False,
+            'task_id': task_id,
+            'status': 'failed',
+            'error': str(e)
+        }
+
 
 def setup_progress_enabled_app():
     """Complete setup example for progress-enabled citation processing"""
     app = Flask(__name__)
     
-    # Option 1: Server-Sent Events setup
-    progress_manager = SSEProgressManager()
-    citation_processor = ChunkedCitationProcessor(progress_manager)
-    create_progress_routes(app, progress_manager, citation_processor)
+    # Configure logging
+    logging.basicConfig(level=logging.INFO)
     
-    # Option 2: WebSocket setup (alternative)
-    # socketio = SocketIO(app, cors_allowed_origins="*")
-    # ws_progress_manager = WebSocketProgressManager(socketio)
+    # Initialize progress manager
+    progress_manager = SSEProgressManager()
+    
+    # Initialize citation processor
+    citation_processor = ChunkedCitationProcessor(progress_manager)
+    
+    # Create routes
+    create_progress_routes(app, progress_manager, citation_processor)
     
     return app
 

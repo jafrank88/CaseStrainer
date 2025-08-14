@@ -123,8 +123,9 @@
                 v-model="text"
                 placeholder="Paste your legal document text here for comprehensive citation analysis..."
                 :disabled="isAnalyzing"
-                @input="analyzeTextContent"
+                @input="handleTextInput"
                 :class="{ 'analyzing': isAnalyzing }"
+                style="min-height: 200px;"
               ></textarea>
               
               <!-- Text Stats Overlay -->
@@ -270,7 +271,7 @@
 </template>
 
 <script>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 
 export default {
   name: 'ModernTextPaste',
@@ -416,42 +417,84 @@ export default {
       validateCitation();
     };
     
-    const analyzeTextContent = () => {
-      const textValue = text.value.trim();
+    // Debounce utility with immediate option
+    const debounce = (func, wait, immediate = false) => {
+      let timeout;
+      return function() {
+        const context = this;
+        const args = arguments;
+        
+        const later = function() {
+          timeout = null;
+          if (!immediate) func.apply(context, args);
+        };
+        
+        const callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        
+        if (callNow) func.apply(context, args);
+      };
+    };
+
+    // Track if component is mounted
+    const isMounted = ref(true);
+    
+    // Enhanced text analysis with better error handling
+    const analyzeTextContent = debounce(() => {
+      if (!isMounted.value) return;
       
+      const textValue = text.value ? text.value.trim() : '';
+      
+      // Only update stats if we have meaningful content
       if (!textValue) {
         textStats.value = { wordCount: 0, estimatedCitations: 0, uniqueYears: 0, characterCount: 0 };
         return;
       }
       
-      // Calculate word count
-      const words = textValue.split(/\s+/).filter(word => word.length > 0);
-      const wordCount = words.length;
-      
-      // Estimate citations
-      const citationPatterns = [
-        /\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+/g,
-        /\d+\s+U\.?S\.?\s+\d+/g,
-        /\d+\s+F\.?\s*(?:2d|3d)?\s+\d+/g
-      ];
-      
-      let citationCount = 0;
-      citationPatterns.forEach(pattern => {
-        const matches = textValue.match(pattern);
-        if (matches) citationCount += matches.length;
+      // Use requestAnimationFrame to ensure UI updates are smooth
+      requestAnimationFrame(() => {
+        try {
+          // Calculate word count (more accurate word splitting)
+          const words = textValue.split(/\s+/).filter(word => word.length > 0);
+          const wordCount = words.length;
+          
+          // Estimate citations with better pattern matching
+          const citationPatterns = [
+            /\b\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+\b/g,  // Matches: 123 Wash. 2d 456
+            /\b\d+\s+U\.?\s*S\.?\s+\d+\b/gi,                   // Matches: 123 US 456 or 123 U.S. 456
+            /\b\d+\s+F\.?\s*(?:2d|3d)?\s+\d+\b/gi,             // Matches: 123 F.2d 456
+            /\b\d+\s+[A-Z]{2,}\.?\s+\d+\b/g,                   // Matches: 123 F.Supp. 456
+            /\b\d+\s+[A-Z][a-z]+\s+\d+\b/g                     // Matches: 123 Wash. 456
+          ];
+          
+          // Use a Set to avoid duplicate matches
+          const citationMatches = new Set();
+          
+          citationPatterns.forEach(pattern => {
+            const matches = textValue.match(pattern) || [];
+            matches.forEach(match => citationMatches.add(match));
+          });
+          
+          // Count unique years (more precise year matching)
+          const yearMatches = textValue.match(/\b(19|20)\d{2}\b/g) || [];
+          const uniqueYears = new Set(yearMatches).size;
+          
+          // Update stats in a single operation
+          textStats.value = {
+            wordCount,
+            estimatedCitations: citationMatches.size,
+            uniqueYears,
+            characterCount: textValue.length
+          };
+          
+        } catch (error) {
+          console.error('Error analyzing text content:', error);
+          // Reset stats on error to prevent UI issues
+          textStats.value = { wordCount: 0, estimatedCitations: 0, uniqueYears: 0, characterCount: 0 };
+        }
       });
-      
-      // Count unique years
-      const yearMatches = textValue.match(/\b(19|20)\d{2}\b/g);
-      const uniqueYears = yearMatches ? new Set(yearMatches).size : 0;
-      
-      textStats.value = {
-        wordCount,
-        estimatedCitations: citationCount,
-        uniqueYears,
-        characterCount: textValue.length
-      };
-    };
+    }, 300); // 300ms debounce delay
     
     const getLengthScore = () => {
       return Math.min(30, Math.floor((textStats.value.wordCount / 200) * 30));
@@ -473,6 +516,26 @@ export default {
       const words = textStats.value.wordCount;
       const citations = textStats.value.estimatedCitations;
       return `${words.toLocaleString()} words • ${citations} potential citations detected`;
+    };
+    
+    // Create a debounced version of analyzeTextContent
+    const debouncedAnalyzeTextContent = debounce(analyzeTextContent, 300);
+    
+    const handleTextInput = (event) => {
+      // Update the text value directly
+      const newValue = event.target.value;
+      text.value = newValue;
+      
+      // Call the debounced analysis function
+      debouncedAnalyzeTextContent();
+      
+      // Also update the text stats immediately for better UX
+      const wordCount = newValue.trim() ? newValue.trim().split(/\s+/).length : 0;
+      textStats.value = {
+        ...textStats.value,
+        wordCount,
+        characterCount: newValue.length
+      };
     };
     
     const emitAnalyze = () => {
@@ -512,20 +575,38 @@ export default {
       if (newVal) {
         progressStep.value = 1;
         const interval = setInterval(() => {
-          if (progressStep.value < 4 && props.isAnalyzing) {
+          if (!isMounted.value || !props.isAnalyzing) {
+            clearInterval(interval);
+            return;
+          }
+          if (progressStep.value < 4) {
             progressStep.value++;
           } else {
             clearInterval(interval);
           }
         }, 1000);
+        
+        // Cleanup interval when component is unmounted
+        return () => clearInterval(interval);
       }
     });
     
     // Initialize
-    if (props.initialText) {
-      analyzeTextContent();
-      validateCitation();
-    }
+    onMounted(() => {
+      isMounted.value = true;
+      if (props.initialText) {
+        // Small delay to ensure DOM is ready
+        setTimeout(() => {
+          analyzeTextContent();
+          validateCitation();
+        }, 100);
+      }
+    });
+    
+    // Cleanup on unmount
+    onUnmounted(() => {
+      isMounted.value = false;
+    });
     
     return {
       text,

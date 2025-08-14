@@ -83,21 +83,6 @@ services:
       timeout: 10s
       retries: 3
 
-  # Frontend Layer (Development)
-  frontend-dev:
-    build: 
-      context: ./casestrainer-vue-new
-      dockerfile: Dockerfile.dev
-    container_name: casestrainer-frontend-dev
-    ports:
-      - "5173:5173"
-    volumes:
-      - ./casestrainer-vue-new:/app
-      - /app/node_modules
-    environment:
-      - NODE_ENV=development
-    restart: unless-stopped
-
   # Frontend Layer (Production Build)
   frontend-prod:
     build: 

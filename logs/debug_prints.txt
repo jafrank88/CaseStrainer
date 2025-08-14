@@ -166705,3 +166705,3367 @@ as an appellate remedy when we offer “sufficient guidance to effectively limit
 dy when we offer “sufficient guidance to effectively limit trial court discretion on remand,” as we do here. State v. Solis-Diaz, 187 Wn.2d 535, 540, 
 ---
 [DEBUG] No case name match for citation: 387 P.3d 703
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 202 F.3d 1126
+[DEBUG] Context:
+eral case law applying Fourth and 
+Fourteenth Amendment protections to child welfare investigations.   (See, e.g., Wallis v. 
+Spencer (9th Cir. 2000) 
+---
+[DEBUG] No case name match for citation: 202 F.3d 1126
+[DEBUG] Citation: 883 F.3d 1228
+[DEBUG] Context:
+stody with parental consent , pursuant to a court 
+order , or if exigent circumstances exist.  ( Id. at p. 1138 ; Keates  v. Koile  (9th Cir. 2018)  
+
+---
+[DEBUG] No case name match for citation: 883 F.3d 1228
+[DEBUG] Citation: 197 Wn. 2d 170
+[DEBUG] Context:
+secution as RCW 
+9A.44.050(1)(b) is a strict liability statute with no scienter  requirement and, as such, it violates 
+due process. State v. Blake , 197 Wn.2d 170, 185, 481 P.3d 521 (2021)
+---
+[DEBUG] No case name match for citation: 197 Wn. 2d 170
+[DEBUG] Citation: 200 Wn. 2d 581
+[DEBUG] Context:
+econd Degree , a particularly serious 
+felony offense which carries a sentence of life imprisonment , In re Personal Restraint of 
+Forcha- Williams , 200 Wn.2d 581, 598- 99, 520 P.3d 939 (2022)
+---
+[DEBUG] No case name match for citation: 200 Wn. 2d 581
+[DEBUG] Citation: 130 Wn. 2d 747
+[DEBUG] Context:
+onally endowed with an overriding presumption of innocence, a presumption that extends to every element of the charged  offense.” State v. Crediford, 130 Wn.2d 747, 759, 
+927 P.2d 1129, 1135 (1996)
+---
+[DEBUG] No case name match for citation: 130 Wn. 2d 747
+[DEBUG] Citation: 141 Wn. 2d 357
+[DEBUG] Context:
+); accord State v. 
+Anderson, 141 Wn.2d 357, 366- 67, 5 P.3d 1247 (2000)
+---
+[DEBUG] No case name match for citation: 141 Wn. 2d 357
+[DEBUG] Citation: 194 Wn. 2d 33
+[DEBUG] Context:
+); accord State v. A.M., 
+194 Wn.2d 33, 46- 47, 448 P.3d 35 (2019)
+---
+[DEBUG] No case name match for citation: 194 Wn. 2d 33
+[DEBUG] Citation: 88 Wn. 2d 337
+[DEBUG] Context:
+; State v. Roberts, 88 Wn.2d 337, 344, 562 P.2d 1259 (1977)
+---
+[DEBUG] No case name match for citation: 88 Wn. 2d 337
+[DEBUG] Citation: 130 Wn. 2d 594
+[DEBUG] Context:
+; see State v. Bash , 130 Wn.2d 594, 606, 925 P.2d 978, 
+983 (1996)
+---
+[DEBUG] No case name match for citation: 130 Wn. 2d 594
+[DEBUG] Citation: 58 Wash.2d 779
+[DEBUG] Context:
+City of Seattle , 
+---
+[DEBUG] No case name match for citation: 58 Wash.2d 779
+[DEBUG] Citation: 3 Wash.2d 543
+[DEBUG] Context:
+Smith, 
+---
+[DEBUG] No case name match for citation: 3 Wash.2d 543
+[DEBUG] Citation: 173 Wash.2d 895
+[DEBUG] Context:
+Johnson, 
+---
+[DEBUG] No case name match for citation: 173 Wash.2d 895
+[DEBUG] Citation: 168 Wn. 2d 1
+[DEBUG] Context:
+upreme Court has stated that an “affirmative 
+defense admits the defendant committed a criminal act but pleads an excuse for doing so.” State v. Fry, 168 Wn.2d 1, 7, 228 P.3d 1, 4- 5 (2010)
+---
+[DEBUG] No case name match for citation: 168 Wn. 2d 1
+[DEBUG] Citation: 181 Wn. 2d 757
+[DEBUG] Context:
+ous burden on the 
+accused , who begins their journey in the criminal justice system presumed guilty by the ultimate 
+factfinder. State v. W.R., Jr., 181 Wn.2d 757, 770, 336 P.3d 1134 (2014)
+---
+[DEBUG] No case name match for citation: 181 Wn. 2d 757
+[DEBUG] Citation: 96 Wn. 2d 373
+[DEBUG] Context:
+when it came to Washington’s no w vacated felony drug possession law and the judicially 
+crafted “unwitting” possession  defense. State v. Cleppe , 96 Wn.2d 373, 380, 635 P.2d 373 
+(1981)
+---
+[DEBUG] No case name match for citation: 96 Wn. 2d 373
+[DEBUG] Citation: 87 Wash.2d 829, 558 P.2d 173
+[DEBUG] Context:
+Kroll, 
+---
+[DEBUG] No case name match for citation: 87 Wash.2d 829, 558 P.2d 173
+[DEBUG] Citation: 158 Wash.2d 904
+[DEBUG] Context:
+Williams , 
+---
+[DEBUG] No case name match for citation: 158 Wash.2d 904
+[DEBUG] Citation: 141 Wash.2d 357
+[DEBUG] Context:
+Anderson, 
+---
+[DEBUG] No case name match for citation: 141 Wash.2d 357
+[DEBUG] Citation: 198 Wash.2d 737
+[DEBUG] Context:
+ul 
+possession of a firearm pursuant to RCW 9.41.190(1)); State v. Anderson, 141 Wash.2d 357, 360- 67, 5 P.3d 1247 (2000) (same for RCW 9.41.040)).  
+
+---
+[DEBUG] No case name match for citation: 198 Wash.2d 737
+[DEBUG] Citation: 182 Wn. 2d 398
+[DEBUG] Context:
+; Utter v. Bldg. Indus. Ass’n of Washington, 182 Wn.2d 398, 434, 341 P.3d 
+953 (2015)
+---
+[DEBUG] No case name match for citation: 182 Wn. 2d 398
+[DEBUG] Citation: 481 P.3d 521
+[DEBUG] Context:
+44.050(1)(b) is a strict liability statute with no scienter  requirement and, as such, it violates 
+due process. State v. Blake , 197 Wn.2d 170, 185, 
+---
+[DEBUG] No case name match for citation: 481 P.3d 521
+[DEBUG] Citation: 520 P.3d 939
+[DEBUG] Context:
+larly serious 
+felony offense which carries a sentence of life imprisonment , In re Personal Restraint of 
+Forcha- Williams , 200 Wn.2d 581, 598- 99, 
+---
+[DEBUG] No case name match for citation: 520 P.3d 939
+[DEBUG] Citation: 5 P.3d 1247
+[DEBUG] Context:
+); accord State v. 
+Anderson, 141 Wn.2d 357, 366- 67, 
+---
+[DEBUG] No case name match for citation: 5 P.3d 1247
+[DEBUG] Citation: 448 P.3d 35
+[DEBUG] Context:
+); accord State v. A.M., 
+194 Wn.2d 33, 46- 47, 
+---
+[DEBUG] No case name match for citation: 448 P.3d 35
+[DEBUG] Citation: 460 P.3d 205
+[DEBUG] Context:
+s 
+consistent with having consumed a particular category of drug or was “definitely impaired .” 
+City of Seattle v. Levesque , 12 Wn.App.2d 687, 699, 
+---
+[DEBUG] No case name match for citation: 460 P.3d 205
+[DEBUG] Citation: 270 P.3d 591
+[DEBUG] Context:
+ove that the defendant knew the victim's age, which is what makes the acts constituting the offense criminal. State v. Johnson, 173 Wash.2d 895, 902, 270 
+P.3d 591 (2012)
+---
+[DEBUG] No case name match for citation: 270 P.3d 591
+[DEBUG] Citation: 228 P.3d 1
+[DEBUG] Context:
+stated that an “affirmative 
+defense admits the defendant committed a criminal act but pleads an excuse for doing so.” State v. Fry, 168 Wn.2d 1, 7, 
+---
+[DEBUG] No case name match for citation: 228 P.3d 1
+[DEBUG] Citation: 336 P.3d 1134
+[DEBUG] Context:
+ccused , who begins their journey in the criminal justice system presumed guilty by the ultimate 
+factfinder. State v. W.R., Jr., 181 Wn.2d 757, 770, 
+---
+[DEBUG] No case name match for citation: 336 P.3d 1134
+[DEBUG] Citation: 148 P.3d 993
+[DEBUG] Context:
+as when a mens rea  element is necessary to avoid criminalizing 
+otherwise innocent conduct. See, e.g., State v. Williams , 158 Wash.2d 904, 908-
+16, 
+---
+[DEBUG] No case name match for citation: 148 P.3d 993
+[DEBUG] Citation: 499 P.3d 198
+[DEBUG] Context:
+rearm pursuant to RCW 9.41.190(1)); State v. Anderson, 141 Wash.2d 357, 360- 67, 5 P.3d 1247 (2000) (same for RCW 9.41.040)).  
+198 Wash.2d 737, 750, 
+---
+[DEBUG] No case name match for citation: 499 P.3d 198
+[DEBUG] Citation: 341 P.3d 953
+[DEBUG] Context:
+; Utter v. Bldg. Indus. Ass’n of Washington, 182 Wn.2d 398, 434, 341 P.3d 
+953 (2015)
+---
+[DEBUG] No case name match for citation: 341 P.3d 953
+[DEBUG] Citation: 927 P.2d 1129
+[DEBUG] Context:
+n overriding presumption of innocence, a presumption that extends to every element of the charged  offense.” State v. Crediford, 130 Wn.2d 747, 759, 
+
+---
+[DEBUG] No case name match for citation: 927 P.2d 1129
+[DEBUG] Citation: 562 P.2d 1259
+[DEBUG] Context:
+; State v. Roberts, 88 Wn.2d 337, 344, 
+---
+[DEBUG] No case name match for citation: 562 P.2d 1259
+[DEBUG] Citation: 925 P.2d 978
+[DEBUG] Context:
+; see State v. Bash , 130 Wn.2d 594, 606, 
+---
+[DEBUG] No case name match for citation: 925 P.2d 978
+[DEBUG] Citation: 655 P.2d 1313
+[DEBUG] Context:
+State , 
+---
+[DEBUG] No case name match for citation: 655 P.2d 1313
+[DEBUG] Citation: 583 P.2d 836
+[DEBUG] Context:
+viewed 
+expansion of strict liability as a threat to the princip le “that consciousness of wrongdoing is an 
+essential element of penal liability .” 
+---
+[DEBUG] No case name match for citation: 583 P.2d 836
+[DEBUG] Citation: 460 P.2d 77
+[DEBUG] Context:
+State , 
+---
+[DEBUG] No case name match for citation: 460 P.2d 77
+[DEBUG] Citation: 364 P.2d 916
+[DEBUG] Context:
+lice power and [must] not violate any direct or positive  mandate of the constitution.” Id. 
+(quoting Ragan v. City of Seattle , 58 Wash.2d 779, 783, 
+---
+[DEBUG] No case name match for citation: 364 P.2d 916
+[DEBUG] Citation: 765 P.2d 349
+[DEBUG] Context:
+understanding the nature and consequences of the act of sexual contact due to the influence of a substance.
+ State v. VanVlack , 53 Wn. App. 86, 91, 
+---
+[DEBUG] No case name match for citation: 765 P.2d 349
+[DEBUG] Citation: 101 P.2d 298
+[DEBUG] Context:
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+25 
+26 
+27 
+ 
+ 
+State v. Smith, 3 Wash.2d 543, 553, 
+---
+[DEBUG] No case name match for citation: 101 P.2d 298
+[DEBUG] Citation: 911 P.2d 1014
+[DEBUG] Context:
+kes the acts constituting the offense criminal. State v. Johnson, 173 Wash.2d 895, 902, 270 
+P.3d 591 (2012) (citing Chhom , 128 Wash.2d at 741, 743, 
+---
+[DEBUG] No case name match for citation: 911 P.2d 1014
+[DEBUG] Citation: 788 P.2d 220
+[DEBUG] Context:
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+25 
+26 
+27 
+ 
+ 
+Stiffler , 117 Idaho 405, 
+---
+[DEBUG] No case name match for citation: 788 P.2d 220
+[DEBUG] Citation: 635 P.2d 373
+[DEBUG] Context:
+ashington’s no w vacated felony drug possession law and the judicially 
+crafted “unwitting” possession  defense. State v. Cleppe , 96 Wn.2d 373, 380, 
+---
+[DEBUG] No case name match for citation: 635 P.2d 373
+[DEBUG] Citation: 558 P.2d 173
+[DEBUG] Context:
+S.Ct. 1881, 44 L.Ed.2d 508 
+(1975) ; State v. Kroll, 87 Wash.2d 829, 
+---
+[DEBUG] No case name match for citation: 558 P.2d 173
+[DEBUG] Citation: 53 Wn. App. 86
+[DEBUG] Context:
+VanVlack , 
+---
+[DEBUG] No case name match for citation: 53 Wn. App. 86
+[DEBUG] Citation: 501 U.S. 624
+[DEBUG] Context:
+tion by eliminating an “inherent element” of an offense and 
+requiring the accused  to bear the burden of proving himself innocent. Schad v. Arizona, 501 
+U.S. 624, 640, (1991)
+---
+[DEBUG] No case name match for citation: 501 U.S. 624
+[DEBUG] Citation: 282 U.S. 687
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 282 U.S. 687
+[DEBUG] Citation: 120 U.S. 430
+[DEBUG] Context:
+Utah, 
+---
+[DEBUG] No case name match for citation: 120 U.S. 430
+[DEBUG] Citation: 116 U.S. 55
+[DEBUG] Context:
+; Cannon v. United State s, 
+---
+[DEBUG] No case name match for citation: 116 U.S. 55
+[DEBUG] Citation: 156 U.S. 432
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 156 U.S. 432
+[DEBUG] Citation: 397 U.S. 358
+[DEBUG] Context:
+Winship , 
+---
+[DEBUG] No case name match for citation: 397 U.S. 358
+[DEBUG] Citation: 581 U.S. 128
+[DEBUG] Context:
+Colorado, 
+---
+[DEBUG] No case name match for citation: 581 U.S. 128
+[DEBUG] Citation: 342 U.S. 246
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 342 U.S. 246
+[DEBUG] Citation: 588 U.S. 225
+[DEBUG] Context:
+United 
+States , 
+---
+[DEBUG] No case name match for citation: 588 U.S. 225
+[DEBUG] Citation: 530 U.S. 466
+[DEBUG] Context:
+New Jersey, 
+---
+[DEBUG] No case name match for citation: 530 U.S. 466
+[DEBUG] Citation: 588 U.S. 229
+[DEBUG] Context:
+Rehaif , 
+---
+[DEBUG] No case name match for citation: 588 U.S. 229
+[DEBUG] Citation: 513 U.S. 64
+[DEBUG] Context:
+X -Citement Video, Inc ., 
+---
+[DEBUG] No case name match for citation: 513 U.S. 64
+[DEBUG] Citation: 588 U.S. 231
+[DEBUG] Context:
+Rehaif , 
+---
+[DEBUG] No case name match for citation: 588 U.S. 231
+[DEBUG] Citation: 511 U.S. 600
+[DEBUG] Context:
+ct liability statutes, such laws are disfavored, and the 
+default view is that an accused must operate with a culpable mental state. Staples v. U.S., 511 
+U.S. 600, 605 (1994)
+---
+[DEBUG] No case name match for citation: 511 U.S. 600
+[DEBUG] Citation: 218 U.S. 57
+[DEBUG] Context:
+State of Minn., 
+---
+[DEBUG] No case name match for citation: 218 U.S. 57
+[DEBUG] Citation: 355 U.S. 225
+[DEBUG] Context:
+California, 
+---
+[DEBUG] No case name match for citation: 355 U.S. 225
+[DEBUG] Citation: 521 U.S. 346
+[DEBUG] Context:
+Hendricks, 
+---
+[DEBUG] No case name match for citation: 521 U.S. 346
+[DEBUG] Citation: 372 U.S. 144
+[DEBUG] Context:
+(citing Kennedy v. Mendoza- Martinez , 372 U.S. 
+144, 168 (1963)
+---
+[DEBUG] No case name match for citation: 372 U.S. 144
+[DEBUG] Citation: 421 U.S. 684
+[DEBUG] Context:
+t rebut undermine these fundamental principles. In 
+Mullaney v. Wilbur , the Supreme Court ruled that Maine’s homicide statute violated due 
+process. 
+---
+[DEBUG] No case name match for citation: 421 U.S. 684
+[DEBUG] Citation: 432 U.S. 197
+[DEBUG] Context:
+New York, 
+---
+[DEBUG] No case name match for citation: 432 U.S. 197
+[DEBUG] Citation: 241 U.S. 79
+[DEBUG] Context:
+Am. Sugar Ref. Co., 
+---
+[DEBUG] No case name match for citation: 241 U.S. 79
+[DEBUG] Citation: 357 U.S. 513
+[DEBUG] Context:
+Randall , 
+---
+[DEBUG] No case name match for citation: 357 U.S. 513
+[DEBUG] Citation: 559 U.S. 460
+[DEBUG] Context:
+Stevens , 
+---
+[DEBUG] No case name match for citation: 559 U.S. 460
+[DEBUG] Citation: 291 U.S. 82
+[DEBUG] Context:
+California, 
+---
+[DEBUG] No case name match for citation: 291 U.S. 82
+[DEBUG] Citation: 438 U.S. 422
+[DEBUG] Context:
+U.S. 
+Gypsum Co. , 
+---
+[DEBUG] No case name match for citation: 438 U.S. 422
+[DEBUG] Citation: 96 U.S. 699
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 96 U.S. 699
+[DEBUG] Citation: 511 U.S. 600
+[DEBUG] Context:
+Staples , 
+
+---
+[DEBUG] No case name match for citation: 511 U.S. 600
+[DEBUG] Citation: 471 U.S. 419
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 471 U.S. 419
+[DEBUG] Citation: 401 U.S. 601
+[DEBUG] Context:
+Freed , 
+---
+[DEBUG] No case name match for citation: 401 U.S. 601
+[DEBUG] Citation: 535 U.S. 55
+[DEBUG] Context:
+Vonn, 
+---
+[DEBUG] No case name match for citation: 535 U.S. 55
+[DEBUG] Citation: 490 U.S. 858
+[DEBUG] Context:
+bt canon instructs that statutes are interpreted to avoid 
+constitutional doubts when statutory language reasonably permits. Gomez v. United States , 490 
+U.S. 858, 864 (1989)
+---
+[DEBUG] No case name match for citation: 490 U.S. 858
+[DEBUG] Citation: 405 F.2d 358
+[DEBUG] Context:
+Lowery , 
+---
+[DEBUG] No case name match for citation: 405 F.2d 358
+[DEBUG] Citation: 758 F.2d 1121
+[DEBUG] Context:
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+25 
+26 
+27 
+ 
+ 
+irreparably damages the accused 's reputation and deprives her of many of her civil rights for 
+life. 
+---
+[DEBUG] No case name match for citation: 758 F.2d 1121
+[DEBUG] Citation: 806 F.2d 425
+[DEBUG] Context:
+Engler , 
+---
+[DEBUG] No case name match for citation: 806 F.2d 425
+[DEBUG] Citation: 984 F.2d 1402
+[DEBUG] Context:
+Garrett , 
+
+---
+[DEBUG] No case name match for citation: 984 F.2d 1402
+[DEBUG] Citation: 598 F.2d 1323
+[DEBUG] Context:
+Foley , 
+---
+[DEBUG] No case name match for citation: 598 F.2d 1323
+[DEBUG] Citation: 873 F.2d 1558
+[DEBUG] Context:
+Leeke, 
+---
+[DEBUG] No case name match for citation: 873 F.2d 1558
+[DEBUG] Citation: 411 F.2d 946
+[DEBUG] Context:
+U.S., 
+---
+[DEBUG] No case name match for citation: 411 F.2d 946
+[DEBUG] Citation: 825 F. Supp. 485
+[DEBUG] Context:
+Cordoba-
+Hincapie , 
+---
+[DEBUG] No case name match for citation: 825 F. Supp. 485
+[DEBUG] Citation: 138 S. Ct. 830
+[DEBUG] Context:
+Rodriguez , 
+---
+[DEBUG] No case name match for citation: 138 S. Ct. 830
+[DEBUG] Citation: 137 S. Ct. 929
+[DEBUG] Context:
+SW Gen., Inc., 
+---
+[DEBUG] No case name match for citation: 137 S. Ct. 929
+[DEBUG] Citation: 95 S. Ct. 1881
+[DEBUG] Context:
+n of persuasion by 
+proof beyond a reasonable doubt. This  burden must, at all times, remain with the 
+prosecution. Mullaney v. Wilbur, 421 U.S. 684, 95 S.Ct. 1881, 44 L.Ed.2d 508 
+(1975)
+---
+[DEBUG] No case name match for citation: 95 S. Ct. 1881
+[DEBUG] Citation: 72 S. Ct. 240
+[DEBUG] Context:
+nerally, conduct must be accompanied by “culpable state of mind” in order to be considered criminal. Morissette v. United States , 342 U.S. 246, 250, 72 S. 
+Ct. 240,
+---
+[DEBUG] No case name match for citation: 72 S. Ct. 240
+[DEBUG] Citation: 96 L. Ed. 288
+[DEBUG] Context:
+S. 
+Ct. 240, 
+---
+[DEBUG] No case name match for citation: 96 L. Ed. 288
+[DEBUG] Citation: 44 L. Ed. 2d 508
+[DEBUG] Context:
+S.Ct. 1881, 44 L.Ed.2d 508 
+(1975)
+---
+[DEBUG] No case name match for citation: 44 L. Ed. 2d 508
+[DEBUG] Citation: 160 A.3d 1136
+[DEBUG] Context:
+1 
+2 
+3 
+4 
+5 
+6 
+7 
+8 
+9 
+10 
+11 
+12 
+13 
+14 
+15 
+16 
+17 
+18 
+19 
+20 
+21 
+22 
+23 
+24 
+25 
+26 
+27 
+ 
+ 
+
+---
+[DEBUG] No case name match for citation: 160 A.3d 1136
+[DEBUG] Citation: 151 Wn. 2d 664
+[DEBUG] Context:
+USION  ...................................................... 42 
+  
+ 
+ 
+iii 
+ TABLE OF AUTHORITIES  
+ 
+Washington Cases  
+City of Redmond v. Moore , 151 Wn.2d 664, 668, 91 P.3d 
+875 (2004)
+---
+[DEBUG] No case name match for citation: 151 Wn. 2d 664
+[DEBUG] Citation: 198 Wn. 2d 136, 493 P.3d 94
+[DEBUG] Context:
+Moore , 151 Wn.2d 664, 668, 91 P.3d 
+875 (2004)  ..................................................................... 32 
+City of Seattle, v. Long, 198 Wn.2d 136, 493 P.3d 94 
+(2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 136, 493 P.3d 94
+[DEBUG] Citation: 160 Wn. 2d 354, 158 P.3d 27
+[DEBUG] Context:
+attle, v. Long, 198 Wn.2d 136, 493 P.3d 94 
+(2021)  ............................................................................ 16 
+State v. Athan,  160 Wn.2d 354,  158 P.3d 27 (2007)
+---
+[DEBUG] No case name match for citation: 160 Wn. 2d 354, 158 P.3d 27
+[DEBUG] Citation: 133 Wn. 2d 389, 945 P.2d 1120
+[DEBUG] Context:
+d 266, 554 P.3d 1245 
+(2024)  .............................................. 36, 37, 38, 40, 41, 42  
+State v. Bourgeois , 133 Wn.2d 389,  945  P.2d 1120 
+(1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 389, 945 P.2d 1120
+[DEBUG] Citation: 148 Wn. 2d 672, 63 P.3d 765
+[DEBUG] Context:
+P.2d 126  
+(2000)  ...................................................................... 28, 30  
+ 
+State v. C.J. , 148 Wn.2d 672, 63 P.3d 765 (2003)
+---
+[DEBUG] No case name match for citation: 148 Wn. 2d 672, 63 P.3d 765
+[DEBUG] Citation: 191 Wn. 2d 169, 421 P.3d 944
+[DEBUG] Context:
+P.3d 893  
+(2006)  .......................................................................... 4, 5 
+ 
+State v. Dennis,  191 Wn.2d 169, 421 P.3d 944  
+(2018)
+---
+[DEBUG] No case name match for citation: 191 Wn. 2d 169, 421 P.3d 944
+[DEBUG] Citation: 150 Wn. 2d 774, 83 P.2d 410
+[DEBUG] Context:
+P.3d 804 
+(2010)  ............................................................................ 25 
+State v. Goodman,  150 Wn.2d 774, 83 P.2d 410  
+(2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 774, 83 P.2d 410
+[DEBUG] Citation: 181 Wn. 2d 102, 330 P.3d 182
+[DEBUG] Context:
+P.2d 9 (1997)  ........ 26 
+State v. Homan, 181 Wn.2d  102, 330 P.3d 182 (2014)
+---
+[DEBUG] No case name match for citation: 181 Wn. 2d 102, 330 P.3d 182
+[DEBUG] Citation: 160 Wn. 2d 873, 161 P.3d 990
+[DEBUG] Context:
+P.3d 789  
+(2005 ) ............................................................................ 25 
+ 
+State v. Kirkpatrick , 160 Wn.2d 873,  161 P.3d 990  
+(2007)
+---
+[DEBUG] No case name match for citation: 160 Wn. 2d 873, 161 P.3d 990
+[DEBUG] Citation: 144 Wn. 2d 600, 30 P.3d 1255
+[DEBUG] Context:
+d 667, 565 P.3d 128  
+(2025)  ...................................................................... 41, 42 
+ State v. O’Neal, 144 Wn.2d 600, 30 P.3d 1255 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 600, 30 P.3d 1255
+[DEBUG] Citation: 98 Wn. 2d 30, 653 P.2d 284
+[DEBUG] Context:
+.............................................................. 41, 42 
+ State v. O’Neal, 144 Wn.2d 600, 30 P.3d 1255 (2001)  .. 23 
+State v. Robtoy,  98 Wn.2d 30, 653 P.2d 284 (1982)
+---
+[DEBUG] No case name match for citation: 98 Wn. 2d 30, 653 P.2d 284
+[DEBUG] Citation: 195 Wn. 2d 597, 461 P.3d 1173
+[DEBUG] Context:
+d 111, 447 P.3d 606  
+(2019)  ............................................................................ 32 
+State v. Van Wolvelaere, 195 Wn.2d 597, 461 P.3d 1173 
+(2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 597, 461 P.3d 1173
+[DEBUG] Citation: 150 Wn. 2d 774
+[DEBUG] Context:
+ed at a trial “admits the truth of the State’s evidence” and all reasonable inferences therefrom are 
+drawn in favor of the State. State v. Goodman,  150 Wn.2d 
+774, 781, 83 P.2d 410 (2004)
+---
+[DEBUG] No case name match for citation: 150 Wn. 2d 774
+[DEBUG] Citation: 181 Wn. 2d 102, 330 P.3d 182
+[DEBUG] Context:
+3 P.2d 410 (2004).  “These inferences must be 
+6 
+ drawn in favor of the State and interpreted most strongly 
+against the defendant.” State v. Homan, 181 Wn.2d 102, 
+330 P.3d 182 (2014)
+---
+[DEBUG] No case name match for citation: 181 Wn. 2d 102, 330 P.3d 182
+[DEBUG] Citation: 195 Wn. 2d 597
+[DEBUG] Context:
+ruction of RCW 29A.84.650. AOB 
+14-17.  
+The primary goal of statutory interpretation is to 
+determine the drafter’s intent. State v. Van Wolvelaere, 195 
+Wn.2d 597, 600, 461 P.3d 1173 (2020)
+---
+[DEBUG] No case name match for citation: 195 Wn. 2d 597
+[DEBUG] Citation: 191 Wn. 2d 169
+[DEBUG] Context:
+t, 2) “the context of the statute where the 
+provision is found,” 3) any relat ed provisions, and (4) the 
+entire statutory scheme. State v. Dennis,  191 Wn.2d 169, 
+172, 421 P.3d 944 (2018)
+---
+[DEBUG] No case name match for citation: 191 Wn. 2d 169
+[DEBUG] Citation: 198 Wn. 2d 136
+[DEBUG] Context:
+never possible, statutes are to be construed 
+so no clause, sentence or word shall be superfluous, void, or insignificant.” City of Seattle, v. Long, 198 Wn.2d 136, 
+148, 493 P.3d 94 (2021)
+---
+[DEBUG] No case name match for citation: 198 Wn. 2d 136
+[DEBUG] Citation: 160 Wn. 2d 354
+[DEBUG] Context:
+t evidence lies within the sound 
+discretion of the trial court and will not be disturbed on 
+appeal absent an abuse of discretion.  State v. Athan,  160 
+Wn.2d 354, 382, 158 P.3d 27 (2007)
+---
+[DEBUG] No case name match for citation: 160 Wn. 2d 354
+[DEBUG] Citation: 148 Wn. 2d 672
+[DEBUG] Context:
+l court abuses 
+its discretion only when its decision is manifestly 
+23 
+ unreasonable or is based on untenable reasons or 
+grounds.”  State v. C.J., 148 Wn.2d 672, 686, 63 P.3d 765 
+(2003)
+---
+[DEBUG] No case name match for citation: 148 Wn. 2d 672
+[DEBUG] Citation: 144 Wn. 2d 600
+[DEBUG] Context:
+tate v. C.J., 148 Wn.2d 672, 686, 63 P.3d 765 
+(2003) ( citations omitted ). A misapplication of the law is an 
+abuse of discretion. State v. O’Neal, 144 Wn.2d 600, 609, 30 P.3d 1255 (2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 600
+[DEBUG] Citation: 98 Wn. 2d 30
+[DEBUG] Context:
+of evidence on appeal, an appellant must prove that no reasonable person would have taken the position adopted by the trial court.  State v. Robtoy,  98 Wn.2d 30, 
+42, 653 P.2d 284 (1982 ).  
+If the trial court’s evidentiary ruling is erroneous, the 
+reviewing court must determine if the erroneous ruling was 
+prejudicial. State v. Bourgeois , 133 Wn.2d 389, 403, 945  
+P.2d 1120 (1997)
+---
+[DEBUG] No case name match for citation: 98 Wn. 2d 30
+[DEBUG] Citation: 133 Wn. 2d 389
+[DEBUG] Context:
+the trial court’s evidentiary ruling is erroneous, the 
+reviewing court must determine if the erroneous ruling was 
+prejudicial. State v. Bourgeois , 133 Wn.2d 389, 403, 945  
+P.2d 1120 (1997)
+---
+[DEBUG] No case name match for citation: 133 Wn. 2d 389
+[DEBUG] Citation: 160 Wn. 2d 873
+[DEBUG] Context:
+tations omitted).  
+25 
+ Hearsay is inadmissible unless it falls into one of the 
+exceptions or exemptions authorized by law. State v. 
+Kirkpatrick , 160 Wn.2d 873, 881, 161 P.3d 990 (2007)
+---
+[DEBUG] No case name match for citation: 160 Wn. 2d 873
+[DEBUG] Citation: 91 P.3d 875
+[DEBUG] Context:
+......................................... 42 
+  
+ 
+ 
+iii 
+ TABLE OF AUTHORITIES  
+ 
+Washington Cases  
+City of Redmond v. Moore , 151 Wn.2d 664, 668, 91 P.3d 
+875 (2004)
+---
+[DEBUG] No case name match for citation: 91 P.3d 875
+[DEBUG] Citation: 493 P.3d 94
+[DEBUG] Context:
+.2d 664, 668, 91 P.3d 
+875 (2004)  ..................................................................... 32 
+City of Seattle, v. Long, 198 Wn.2d 136, 
+---
+[DEBUG] No case name match for citation: 493 P.3d 94
+[DEBUG] Citation: 158 P.3d 27
+[DEBUG] Context:
+198 Wn.2d 136, 493 P.3d 94 
+(2021)  ............................................................................ 16 
+State v. Athan,  160 Wn.2d 354,  
+---
+[DEBUG] No case name match for citation: 158 P.3d 27
+[DEBUG] Citation: 554 P.3d 1245
+[DEBUG] Context:
+d 266, 
+---
+[DEBUG] No case name match for citation: 554 P.3d 1245
+[DEBUG] Citation: 63 P.3d 765
+[DEBUG] Context:
+P.2d 126  
+(2000)  ...................................................................... 28, 30  
+ 
+State v. C.J. , 148 Wn.2d 672, 
+---
+[DEBUG] No case name match for citation: 63 P.3d 765
+[DEBUG] Citation: 137 P.3d 893
+[DEBUG] Context:
+P.2d 1345  
+(1998)  ............................................................................ 29 
+ State v. Colquitt , 133 Wn. App. 789, 
+---
+[DEBUG] No case name match for citation: 137 P.3d 893
+[DEBUG] Citation: 421 P.3d 944
+[DEBUG] Context:
+P.3d 893  
+(2006)  .......................................................................... 4, 5 
+ 
+State v. Dennis,  191 Wn.2d 169, 
+---
+[DEBUG] No case name match for citation: 421 P.3d 944
+[DEBUG] Citation: 228 P.3d 804
+[DEBUG] Context:
+169, 421 P.3d 944  
+(2018)  ................................................................ 11, 12, 18  
+ State v. Flemming III , 155 Wn. App. 489, 
+---
+[DEBUG] No case name match for citation: 228 P.3d 804
+[DEBUG] Citation: 565 P.3d 595
+[DEBUG] Context:
+83 P.2d 410  
+(2004)  .............................................................................. 5 
+ 
+iv 
+ State v. Hamilton, __ Wn. App. 2d __, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 595
+[DEBUG] Citation: 261 P.3d 683
+[DEBUG] Context:
+Wn. App. 2d __, 565 P.3d 595 
+(2025)  .......................................................... 33, 39, 41, 42  
+State v. Hilton , 164 Wn. App. 81, 
+---
+[DEBUG] No case name match for citation: 261 P.3d 683
+[DEBUG] Citation: 330 P.3d 182
+[DEBUG] Context:
+P.2d 9 (1997)  ........ 26 
+State v. Homan, 181 Wn.2d  102, 
+---
+[DEBUG] No case name match for citation: 330 P.3d 182
+[DEBUG] Citation: 108 P.3d 789
+[DEBUG] Context:
+P.2d 9 (1997)  ........ 26 
+State v. Homan, 181 Wn.2d  102, 330 P.3d 182 (2014)  .... 6 
+State v. Iverson , 126 Wn. App. 329, 
+---
+[DEBUG] No case name match for citation: 108 P.3d 789
+[DEBUG] Citation: 161 P.3d 990
+[DEBUG] Context:
+P.3d 789  
+(2005 ) ............................................................................ 25 
+ 
+State v. Kirkpatrick , 160 Wn.2d 873,  
+---
+[DEBUG] No case name match for citation: 161 P.3d 990
+[DEBUG] Citation: 567 P.3d 653
+[DEBUG] Context:
+.2d 873,  161 P.3d 990  
+(2007)  ............................................................................ 25 
+ 
+State v. Koch, __ Wn. App. 2d __, 
+---
+[DEBUG] No case name match for citation: 567 P.3d 653
+[DEBUG] Citation: 24 P.3d 485
+[DEBUG] Context:
+567 P.3d 653        
+(2025)  ...................................................................... 41, 42  
+State v. Krzeszowski , 106 Wn. App. 638, 
+---
+[DEBUG] No case name match for citation: 24 P.3d 485
+[DEBUG] Citation: 263 P.3d 1287
+[DEBUG] Context:
+P.3d 485 
+(2001)  ............................................................................ 33 
+State v. Lohr, 164 Wn. App. 414, 
+---
+[DEBUG] No case name match for citation: 263 P.3d 1287
+[DEBUG] Citation: 311 P.3d 83
+[DEBUG] Context:
+P.3d 1287  
+(2011)  .......................................................................... 5, 6 
+ 
+State v. Nava , 177 Wn. App. 272, 
+---
+[DEBUG] No case name match for citation: 311 P.3d 83
+[DEBUG] Citation: 121 P.3d 724
+[DEBUG] Context:
+P.3d 83  
+(2013)  ............................................................................ 24 
+ 
+State v. Olinger , 130 Wn. App. 22,  
+---
+[DEBUG] No case name match for citation: 121 P.3d 724
+[DEBUG] Citation: 565 P.3d 128
+[DEBUG] Context:
+d 667, 
+---
+[DEBUG] No case name match for citation: 565 P.3d 128
+[DEBUG] Citation: 30 P.3d 1255
+[DEBUG] Context:
+d 667, 565 P.3d 128  
+(2025)  ...................................................................... 41, 42 
+ State v. O’Neal, 144 Wn.2d 600, 
+---
+[DEBUG] No case name match for citation: 30 P.3d 1255
+[DEBUG] Citation: 537 P.3d 1114
+[DEBUG] Context:
+d 644,  
+---
+[DEBUG] No case name match for citation: 537 P.3d 1114
+[DEBUG] Citation: 344 P.3d 1244
+[DEBUG] Context:
+23), review denied 2 Wn.3d 1026  
+(2024)  .............................................. 32, 35, 36, 37 , 39, 42  
+State v. Smith , 185 Wn. App. 945, 
+---
+[DEBUG] No case name match for citation: 344 P.3d 1244
+[DEBUG] Citation: 447 P.3d 606
+[DEBUG] Context:
+d 111, 
+---
+[DEBUG] No case name match for citation: 447 P.3d 606
+[DEBUG] Citation: 461 P.3d 1173
+[DEBUG] Context:
+111, 447 P.3d 606  
+(2019)  ............................................................................ 32 
+State v. Van Wolvelaere, 195 Wn.2d 597, 
+---
+[DEBUG] No case name match for citation: 461 P.3d 1173
+[DEBUG] Citation: 263 P.3d 1287
+[DEBUG] Context:
+P.3d 1244 
+(2015) (citation omitted). Unchallenged findings are verities on appeal. State v. Lohr, 164 Wn. App. 414, 418, 263 P.3d 
+1287 (2011)
+---
+[DEBUG] No case name match for citation: 263 P.3d 1287
+[DEBUG] Citation: 91 P.3d 875
+[DEBUG] Context:
+ossession 
+of firearms.   
+1. Standard Of Review.  
+ 
+Courts review constitutional challenges de novo. City 
+of Redmond v. Moore, 151 Wn.2d 664, 668, 
+---
+[DEBUG] No case name match for citation: 91 P.3d 875
+[DEBUG] Citation: 567 P.3d 658
+[DEBUG] Context:
+Koch, 
+---
+[DEBUG] No case name match for citation: 567 P.3d 658
+[DEBUG] Citation: 945 P.2d 1120
+[DEBUG] Context:
+d 266, 554 P.3d 1245 
+(2024)  .............................................. 36, 37, 38, 40, 41, 42  
+State v. Bourgeois , 133 Wn.2d 389,  945  P.2d 1120 
+(1997)
+---
+[DEBUG] No case name match for citation: 945 P.2d 1120
+[DEBUG] Citation: 991 P.2d 126
+[DEBUG] Context:
+.2d 389,  945  P.2d 1120 
+(1997)  ............................................................................ 24 
+State v. Chapman, 98 Wn. App. 888, 
+---
+[DEBUG] No case name match for citation: 991 P.2d 126
+[DEBUG] Citation: 954 P.2d 1345
+[DEBUG] Context:
+..................................... 28, 30  
+ 
+State v. C.J. , 148 Wn.2d 672, 63 P.3d 765 (2003)  ......... 23 
+State v.  C.N.H.,  90 Wn. App. 947, 
+---
+[DEBUG] No case name match for citation: 954 P.2d 1345
+[DEBUG] Citation: 83 P.2d 410
+[DEBUG] Context:
+P.3d 804 
+(2010)  ............................................................................ 25 
+State v. Goodman,  150 Wn.2d 774, 
+---
+[DEBUG] No case name match for citation: 83 P.2d 410
+[DEBUG] Citation: 941 P.2d 9
+[DEBUG] Context:
+P.3d 683  
+(2011)  ............................................................................ 24 
+ 
+State v. Hines , 87 Wn. App. 98, 
+---
+[DEBUG] No case name match for citation: 941 P.2d 9
+[DEBUG] Citation: 653 P.2d 284
+[DEBUG] Context:
+................................................. 41, 42 
+ State v. O’Neal, 144 Wn.2d 600, 30 P.3d 1255 (2001)  .. 23 
+State v. Robtoy,  98 Wn.2d 30, 
+---
+[DEBUG] No case name match for citation: 653 P.2d 284
+[DEBUG] Citation: 945 P.2d 1120
+[DEBUG] Context:
+identiary ruling is erroneous, the 
+reviewing court must determine if the erroneous ruling was 
+prejudicial. State v. Bourgeois , 133 Wn.2d 389, 403, 945  
+P.2d 1120 (1997)
+---
+[DEBUG] No case name match for citation: 945 P.2d 1120
+[DEBUG] Citation: 991 P.2d 126
+[DEBUG] Context:
+e in 
+the courts of this state.  
+ 
+RCW 5.44.040. Yet  not all certified public records meet this 
+exception. State v. Chapman, 98 Wn. App. 888, 891, 991 
+P.2d 126  (2000)
+---
+[DEBUG] No case name match for citation: 991 P.2d 126
+[DEBUG] Citation: 98 Wn. App. 888, 991 P.2d 126
+[DEBUG] Context:
+Chapman, 
+---
+[DEBUG] No case name match for citation: 98 Wn. App. 888, 991 P.2d 126
+[DEBUG] Citation: 90 Wn. App. 947, 954 P.2d 1345
+[DEBUG] Context:
+C.N.H.,  
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 947, 954 P.2d 1345
+[DEBUG] Citation: 133 Wn. App. 789, 137 P.3d 893
+[DEBUG] Context:
+Colquitt , 
+---
+[DEBUG] No case name match for citation: 133 Wn. App. 789, 137 P.3d 893
+[DEBUG] Citation: 155 Wn. App. 489, 228 P.3d 804
+[DEBUG] Context:
+Flemming III , 
+---
+[DEBUG] No case name match for citation: 155 Wn. App. 489, 228 P.3d 804
+[DEBUG] Citation: 164 Wn. App. 81, 261 P.3d 683
+[DEBUG] Context:
+Hilton , 
+---
+[DEBUG] No case name match for citation: 164 Wn. App. 81, 261 P.3d 683
+[DEBUG] Citation: 87 Wn. App. 98, 941 P.2d 9
+[DEBUG] Context:
+Hines , 
+---
+[DEBUG] No case name match for citation: 87 Wn. App. 98, 941 P.2d 9
+[DEBUG] Citation: 126 Wn. App. 329, 108 P.3d 789
+[DEBUG] Context:
+Iverson , 
+---
+[DEBUG] No case name match for citation: 126 Wn. App. 329, 108 P.3d 789
+[DEBUG] Citation: 106 Wn. App. 638, 24 P.3d 485
+[DEBUG] Context:
+Krzeszowski , 
+---
+[DEBUG] No case name match for citation: 106 Wn. App. 638, 24 P.3d 485
+[DEBUG] Citation: 164 Wn. App. 414, 263 P.3d 1287
+[DEBUG] Context:
+Lohr, 
+---
+[DEBUG] No case name match for citation: 164 Wn. App. 414, 263 P.3d 1287
+[DEBUG] Citation: 177 Wn. App. 272, 311 P.3d 83
+[DEBUG] Context:
+Nava , 
+---
+[DEBUG] No case name match for citation: 177 Wn. App. 272, 311 P.3d 83
+[DEBUG] Citation: 130 Wn. App. 22, 121 P.3d 724
+[DEBUG] Context:
+P.3d 83  
+(2013)  ............................................................................ 24 
+ 
+State v. Olinger , 130 Wn. App. 22,  121 P.3d 724  
+(2005)
+---
+[DEBUG] No case name match for citation: 130 Wn. App. 22, 121 P.3d 724
+[DEBUG] Citation: 185 Wn. App. 945, 344 P.3d 1244
+[DEBUG] Context:
+Smith , 
+---
+[DEBUG] No case name match for citation: 185 Wn. App. 945, 344 P.3d 1244
+[DEBUG] Citation: 133 Wn. App. 789
+[DEBUG] Context:
+Colquitt , 
+---
+[DEBUG] No case name match for citation: 133 Wn. App. 789
+[DEBUG] Citation: 185 Wn. App. 945
+[DEBUG] Context:
+Smith , 
+---
+[DEBUG] No case name match for citation: 185 Wn. App. 945
+[DEBUG] Citation: 164 Wn. App. 414
+[DEBUG] Context:
+Lohr, 
+---
+[DEBUG] No case name match for citation: 164 Wn. App. 414
+[DEBUG] Citation: 130 Wn. App. 22
+[DEBUG] Context:
+Olinger , 
+---
+[DEBUG] No case name match for citation: 130 Wn. App. 22
+[DEBUG] Citation: 177 Wn. App. 272
+[DEBUG] Context:
+Nava , 
+---
+[DEBUG] No case name match for citation: 177 Wn. App. 272
+[DEBUG] Citation: 164 Wn. App. 81
+[DEBUG] Context:
+Hilton , 
+---
+[DEBUG] No case name match for citation: 164 Wn. App. 81
+[DEBUG] Citation: 126 Wn. App. 329
+[DEBUG] Context:
+Iverson , 
+---
+[DEBUG] No case name match for citation: 126 Wn. App. 329
+[DEBUG] Citation: 155 Wn. App. 489
+[DEBUG] Context:
+Flemming III , 
+---
+[DEBUG] No case name match for citation: 155 Wn. App. 489
+[DEBUG] Citation: 87 Wn. App. 98
+[DEBUG] Context:
+Hines, 
+---
+[DEBUG] No case name match for citation: 87 Wn. App. 98
+[DEBUG] Citation: 98 Wn. App. 888
+[DEBUG] Context:
+Chapman, 
+---
+[DEBUG] No case name match for citation: 98 Wn. App. 888
+[DEBUG] Citation: 90 Wn. App. 947
+[DEBUG] Context:
+C.N.H.,  
+---
+[DEBUG] No case name match for citation: 90 Wn. App. 947
+[DEBUG] Citation: 106 Wn. App. 638
+[DEBUG] Context:
+Krzeszowski , 
+---
+[DEBUG] No case name match for citation: 106 Wn. App. 638
+[DEBUG] Citation: 554 U.S. 570
+[DEBUG] Context:
+Heller , 
+---
+[DEBUG] No case name match for citation: 554 U.S. 570
+[DEBUG] Citation: 397 U.S. 358
+[DEBUG] Context:
+Winship, 
+---
+[DEBUG] No case name match for citation: 397 U.S. 358
+[DEBUG] Citation: 561 U.S. 742
+[DEBUG] Context:
+City of Chicago, Ill ., 
+---
+[DEBUG] No case name match for citation: 561 U.S. 742
+[DEBUG] Citation: 597 U.S. 1
+[DEBUG] Context:
+................ 33, 34, 35 
+Medina v. Whitaker, 913 F.3d 152 (2019)  ...................... 40 
+New York State Rifle & Pistol Ass’n, Inc. v. Bruen , 597 
+U.S. 1,  142 S. Ct. 2111,
+---
+[DEBUG] No case name match for citation: 597 U.S. 1
+[DEBUG] Citation: 602 U.S. 680
+[DEBUG] Context:
+Rahimi , 
+---
+[DEBUG] No case name match for citation: 602 U.S. 680
+[DEBUG] Citation: 597 U.S. 1
+[DEBUG] Context:
+Bruen , 
+---
+[DEBUG] No case name match for citation: 597 U.S. 1
+[DEBUG] Citation: 913 F.3d 152
+[DEBUG] Context:
+Whitaker, 
+---
+[DEBUG] No case name match for citation: 913 F.3d 152
+[DEBUG] Citation: 128 S. Ct. 2783
+[DEBUG] Context:
+(2020)  ...................................................................... 11, 12  
+Federal Cases 
+District of Columbia v. Heller , 554 U.S. 570, 128 S. Ct. 
+2783,
+---
+[DEBUG] No case name match for citation: 128 S. Ct. 2783
+[DEBUG] Citation: 144 S. Ct. 2706
+[DEBUG] Context:
+d 637 (2008)  ................... 32, 34, 35, 36  
+Garland v. Range, No. 23 -374, __ U.S. __, 144 S.  Ct. 
+2706, 219 L.  Ed. 2d 1313 (U.S. July 2, 2024)  .... 37, 38, 40  
+In re Winship,
+---
+[DEBUG] No case name match for citation: 144 S. Ct. 2706
+[DEBUG] Citation: 130 S. Ct. 3020
+[DEBUG] Context:
+25 L.Ed.2d 
+368 (1970)  ....................................................................... 4 
+McDonald v. City of Chicago, Ill ., 561 U.S. 742,  130 S. Ct. 
+3020,
+---
+[DEBUG] No case name match for citation: 130 S. Ct. 3020
+[DEBUG] Citation: 142 S. Ct. 2111
+[DEBUG] Context:
+.. 33, 34, 35 
+Medina v. Whitaker, 913 F.3d 152 (2019)  ...................... 40 
+New York State Rifle & Pistol Ass’n, Inc. v. Bruen , 597 
+U.S. 1,  
+---
+[DEBUG] No case name match for citation: 142 S. Ct. 2111
+[DEBUG] Citation: 144 S. Ct. 1889
+[DEBUG] Context:
+nited States of America, 69 
+F.4th 96 (3d Cir. 2023)  ................................................... 37 
+United States v. Rahimi , 602 U.S. 680, 
+---
+[DEBUG] No case name match for citation: 144 S. Ct. 1889
+[DEBUG] Citation: 128 S. Ct. 2783
+[DEBUG] Context:
+It is well -established that the Second Amendment 
+right to bear arms does not extend to felons. District of 
+Columbia v. Heller , 554 U.S. 570, 626, 
+---
+[DEBUG] No case name match for citation: 128 S. Ct. 2783
+[DEBUG] Citation: 130 S. Ct. 3020
+[DEBUG] Context:
+d 637 (2008). See also McDonald v. City of 
+Chicago, Ill ., 561 U.S. 742, 786, 
+---
+[DEBUG] No case name match for citation: 130 S. Ct. 3020
+[DEBUG] Citation: 144 S. Ct. 2706
+[DEBUG] Context:
+v. Attorney 
+General United States of America, 69 F.4th 96 (3d Cir. 
+2023) , vacated and remanded sub nom, Garland v. Range, 
+No. 23-374, __ U.S. __, 144 S.  Ct. 2706, 219 L.  Ed. 2d 
+1313 (U.S. July 2, 2024) , to support his argument “that 
+Second Amendment protect
+---
+[DEBUG] No case name match for citation: 144 S. Ct. 2706
+[DEBUG] Citation: 171 L. Ed. 2d 637
+[DEBUG] Context:
+S. Ct. 
+2783, 
+---
+[DEBUG] No case name match for citation: 171 L. Ed. 2d 637
+[DEBUG] Citation: 219 L. Ed. 2d 1313
+[DEBUG] Context:
+d 637 (2008)  ................... 32, 34, 35, 36  
+Garland v. Range, No. 23 -374, __ U.S. __, 144 S.  Ct. 
+2706, 219 L.  Ed. 2d 1313 (U.S. July 2, 2024)  .... 37, 38, 40  
+In re Winship,
+---
+[DEBUG] No case name match for citation: 219 L. Ed. 2d 1313
+[DEBUG] Citation: 25 L. Ed. 2d 368
+[DEBUG] Context:
+S. Ct 1068, 25 L.Ed.2d 
+368 (1970)
+---
+[DEBUG] No case name match for citation: 25 L. Ed. 2d 368
+[DEBUG] Citation: 177 L. Ed. 2d 894
+[DEBUG] Context:
+S. Ct. 
+3020, 
+---
+[DEBUG] No case name match for citation: 177 L. Ed. 2d 894
+[DEBUG] Citation: 213 L. Ed. 2d 387
+[DEBUG] Context:
+S. Ct. 2111, 
+---
+[DEBUG] No case name match for citation: 213 L. Ed. 2d 387
+[DEBUG] Citation: 25 L. Ed. 2d 368
+[DEBUG] Context:
+-65, 90 S. Ct 1068, 25 
+L.Ed.2d 368 (1970)
+---
+[DEBUG] No case name match for citation: 25 L. Ed. 2d 368
+[DEBUG] Citation: 177 L. Ed. 2d 894
+[DEBUG] Context:
+S. Ct. 3020, 177 L. 
+Ed. 2d 894 (2010)
+---
+[DEBUG] No case name match for citation: 177 L. Ed. 2d 894
+[DEBUG] Citation: 219 L. Ed. 2d 1313
+[DEBUG] Context:
+al United States of America, 69 F.4th 96 (3d Cir. 
+2023) , vacated and remanded sub nom, Garland v. Range, 
+No. 23-374, __ U.S. __, 144 S.  Ct. 2706, 219 L.  Ed. 2d 
+1313 (U.S. July 2, 2024) , to support his argument “that 
+Second Amendment protections are not limited t
+---
+[DEBUG] No case name match for citation: 219 L. Ed. 2d 1313
+[DEBUG] Citation: 238 F. Supp. 3d 1359
+[DEBUG] Context:
+Miami Beach Healthcare Group Ltd., 
+---
+[DEBUG] No case name match for citation: 238 F. Supp. 3d 1359
+[DEBUG] Citation: 2025 WL 19699959
+[DEBUG] Context:
+INTIFF-APPELLANTS’ SUPPLEMENTAL BRIEF
+The Florida Supreme Court’s recent decision in Rojas v. University of Florida Board of Trustees, --- So.3d ---, 
+---
+[DEBUG] No case name match for citation: 2025 WL 19699959
+[DEBUG] Citation: 564 U.S. 299
+[DEBUG] Context:
+Bayer Corp., 
+---
+[DEBUG] No case name match for citation: 564 U.S. 299
+[DEBUG] Citation: 536 U.S. 1
+[DEBUG] Context:
+Scardelletti, 
+---
+[DEBUG] No case name match for citation: 536 U.S. 1
+[DEBUG] Citation: 980 F.3d 879
+[DEBUG] Context:
+Pep Boys Manny Moe & Jack Inc., 
+---
+[DEBUG] No case name match for citation: 980 F.3d 879
+[DEBUG] Citation: 338 F. Supp. 3d 815
+[DEBUG] Context:
+Pfizer Inc., 
+---
+[DEBUG] No case name match for citation: 338 F. Supp. 3d 815
+[DEBUG] Citation: 582 A.2d 390
+[DEBUG] Context:
+Metro. Edison Co., 
+---
+[DEBUG] No case name match for citation: 582 A.2d 390
+[DEBUG] Citation: 546 A.2d 114
+[DEBUG] Context:
+Foster Med. Corp., 
+---
+[DEBUG] No case name match for citation: 546 A.2d 114
+[DEBUG] Citation: 845 A.2d 846
+[DEBUG] Context:
+Comsup Commodities, Inc., 
+---
+[DEBUG] No case name match for citation: 845 A.2d 846
+[DEBUG] Citation: 844 A.2d 62
+[DEBUG] Context:
+eeding a declaratory judgment action should not ordinarily be entertained.” Pittsburgh Palisades Park, LLC v. Pennsylvania State Horse Racing Comm’n, 
+---
+[DEBUG] No case name match for citation: 844 A.2d 62
+[DEBUG] Citation: 931 A.2d 1
+[DEBUG] Context:
+Consol. Rail Corp., 
+---
+[DEBUG] No case name match for citation: 931 A.2d 1
+[DEBUG] Citation: 149 A.2d 35
+[DEBUG] Context:
+here venue is laid.” Deyarmin v. Consol. Rail Corp., 931 A.2d 1, 10–11 (Pa. Super. Ct. 2007) (quoting Craig v. W.J. Thiele & Sons, Inc., 395 Pa. 129, 
+---
+[DEBUG] No case name match for citation: 149 A.2d 35
+[DEBUG] Citation: 791 A.2d 384
+[DEBUG] Context:
+R.A. Barlow Homebuilders, 
+---
+[DEBUG] No case name match for citation: 791 A.2d 384
+[DEBUG] Citation: 829 A.2d 673
+[DEBUG] Context:
+University of Pittsburgh, 
+---
+[DEBUG] No case name match for citation: 829 A.2d 673
+[DEBUG] Citation: 844 A.2d 567
+[DEBUG] Context:
+Brill, 
+---
+[DEBUG] No case name match for citation: 844 A.2d 567
+[DEBUG] Citation: 312 A.3d 910
+[DEBUG] Context:
+Chipego, 
+---
+[DEBUG] No case name match for citation: 312 A.3d 910
+[DEBUG] Citation: 131 A.3d 1062
+[DEBUG] Context:
+Kane, 
+---
+[DEBUG] No case name match for citation: 131 A.3d 1062
+[DEBUG] Citation: 152 A.3d 983
+[DEBUG] Context:
+t merely in anticipation of an action at law by another party.” GGNSC Clarion LP v. Kane, 131 A.3d 1062, 1068–69 (Pa. Commw. Ct.), aff’d, 638 Pa. 52, 
+---
+[DEBUG] No case name match for citation: 152 A.3d 983
+[DEBUG] Citation: 2019 WL 5168594
+[DEBUG] Context:
+Pennsylvania State Police, 
+---
+[DEBUG] No case name match for citation: 2019 WL 5168594
+[DEBUG] Citation: 2025 WL 305036
+[DEBUG] Context:
+Amazon Web Services, Inc., 
+---
+[DEBUG] No case name match for citation: 2025 WL 305036
+[DEBUG] Citation: 2017 WL 436485
+[DEBUG] Context:
+Symphony Health Solutions Corp., 
+---
+[DEBUG] No case name match for citation: 2017 WL 436485
+[DEBUG] Citation: 2015 WL 6675184
+[DEBUG] Context:
+King, 
+---
+[DEBUG] No case name match for citation: 2015 WL 6675184
+[DEBUG] Citation: 118 Wn. 2d 79
+[DEBUG] Context:
+P.2d 34 (Div. I 1990), aff’d 118 Wn.2d  
+79 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 79
+[DEBUG] Citation: 171 Wn. 2d 342, 254 P.3d 797
+[DEBUG] Context:
+34 (Div. I 1990), aff’d 118 Wn.2d  
+79 (1991)  .................................................... 39, 41 -42,46  
+Blair v. TA-Seattle E. No. 176 , 171 Wn.2d 342,   
+254 P.3d 797 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 342, 254 P.3d 797
+[DEBUG] Citation: 139 Wn. 2d 659, 989 P.2d 1111
+[DEBUG] Context:
+eattle E. No. 176 , 171 Wn.2d 342,   
+254 P.3d 797 (2011)  ................................................... 28 
+Brand v. Dep’t of Labor & Indus. , 139 Wn.2d 659,  
+989 P.2d 1111 (1999)
+---
+[DEBUG] No case name match for citation: 139 Wn. 2d 659, 989 P.2d 1111
+[DEBUG] Citation: 131 Wn. 2d 484, 933 P.2d 1036
+[DEBUG] Context:
+. Dep’t of Labor & Indus. , 139 Wn.2d 659,  
+989 P.2d 1111 (1999)  ................................................. 55 
+Burnet v. Spokane Ambulance, 131 Wn.2d 484,  
+933 P.2d 1036 (1997)
+---
+[DEBUG] No case name match for citation: 131 Wn. 2d 484, 933 P.2d 1036
+[DEBUG] Citation: 114 Wn. 2d 1026
+[DEBUG] Context:
+P.2d 
+839, rev. den. 114 Wn.2d 1026 (1990)
+---
+[DEBUG] No case name match for citation: 114 Wn. 2d 1026
+[DEBUG] Citation: 113 Wn. 2d 612, 782 P.2d 1002
+[DEBUG] Context:
+P.2d 
+839, rev. den. 114 Wn.2d 1026 (1990)  ........................ 33 
+Dicomes v. State, 113 Wn.2d 612, 782 P.2d 1002  
+(1989)
+---
+[DEBUG] No case name match for citation: 113 Wn. 2d 612, 782 P.2d 1002
+[DEBUG] Citation: 118 Wn. 2d 451, 824 P.2d 1207
+[DEBUG] Context:
+Crown Zellerbach , 720 F.2d 1008 (9th Cir.  
+1983)  .......................................................................... 44 
+Eriks v. Denver , 118 Wn.2d 451, 824 P.2d 1207  
+(1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 451, 824 P.2d 1207
+[DEBUG] Citation: 128 Wn. 2d 931, 913 P.2d 377
+[DEBUG] Context:
+P.3d 579 (2005)  ......................... 49 
+iv Gardner v. Loomis Armored, Inc. , 128 Wn.2d 931,  
+913 P.2d 377 (1996)
+---
+[DEBUG] No case name match for citation: 128 Wn. 2d 931, 913 P.2d 377
+[DEBUG] Citation: 144 Wn. 2d 172
+[DEBUG] Context:
+P.2d 424 (Div. III 1994)  ................................... 39, 40, 42  
+Hill v. BCTI INCOME FUND -I, 144 Wn.2d 172  
+(2001)
+---
+[DEBUG] No case name match for citation: 144 Wn. 2d 172
+[DEBUG] Citation: 179 Wn. 2d 322
+[DEBUG] Context:
+P.2d 1223 (1996)  ................... 33 
+Jones v. City of Seattle , 179 Wn.2d 322, 338, 314 P.3d 
+380 (2013)
+---
+[DEBUG] No case name match for citation: 179 Wn. 2d 322
+[DEBUG] Citation: 184 Wn. 2d 358, 357 P.3d 1080
+[DEBUG] Context:
+City of Seattle , 179 Wn.2d 322, 338, 314 P.3d 
+380 (2013)  .................................................................. 29 
+Keck v. Collins,  184 Wn.2d 358, 357 P.3d 1080  
+ (2015)
+---
+[DEBUG] No case name match for citation: 184 Wn. 2d 358, 357 P.3d 1080
+[DEBUG] Citation: 57 Wn. 2d 499, 358 P.2d 339
+[DEBUG] Context:
+P.3d 
+220 (2006)  .................................................................. 55 
+Norris v. Witter , 57 Wn.2d 499, 358 P.2d 339 (1961)
+---
+[DEBUG] No case name match for citation: 57 Wn. 2d 499, 358 P.2d 339
+[DEBUG] Citation: 148 Wn. 2d 35, 59 P.3d 611
+[DEBUG] Context:
+........................................................ 55 
+Norris v. Witter , 57 Wn.2d 499, 358 P.2d 339 (1961)  ..... 55 
+Robel v. Roundup Corp. , 148 Wn.2d 35, 59 P.3d 611 
+(2002)
+---
+[DEBUG] No case name match for citation: 148 Wn. 2d 35, 59 P.3d 611
+[DEBUG] Citation: 125 Wn. 2d 697, 887 P.2d 886
+[DEBUG] Context:
+ndup Corp. , 148 Wn.2d 35, 59 P.3d 611 
+(2002)  ......................................................................... 52 
+v Ruff v. King County , 125 Wn.2d 697, 887 P.2d 886 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 697, 887 P.2d 886
+[DEBUG] Citation: 118 Wn. 2d 383, 823 P.2d 499
+[DEBUG] Context:
+125 Wn.2d 697, 887 P.2d 886 (1995)
+ ............................................................................. 31, 38 
+Safeco Insurance v. Butler, 118 Wn.2d 383, 823 P.2d 499 
+(1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 383, 823 P.2d 499
+[DEBUG] Citation: 171 Wn. 2d 260, 259 P.3d 129
+[DEBUG] Context:
+n.2d 383, 823 P.2d 499 
+(1992)  ......................................................................... 31 
+Schnall v. AT&T Wireless Servs., Inc.,  171 Wn.2d 260,  
+259 P.3d 129 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 260, 259 P.3d 129
+[DEBUG] Citation: 181 Wn. 2d 439, 334 P.3d 541
+[DEBUG] Context:
+&T Wireless Servs., Inc.,  171 Wn.2d 260,  
+259 P.3d 129 (2011).  .................................................. 53 
+Scrivener v. Clark College , 181 Wn.2d 439, 334 P.3d 541 
+(2014)
+---
+[DEBUG] No case name match for citation: 181 Wn. 2d 439, 334 P.3d 541
+[DEBUG] Citation: 145 Wn. 2d 379
+[DEBUG] Context:
+lark College , 181 Wn.2d 439, 334 P.3d 541 
+(2014))  .................................................................. 30, 32 
+Sedlacek  v. Hillis , 145 Wn.2d 379, 387, 36 P.3d 1014, 
+1018 (2001)
+---
+[DEBUG] No case name match for citation: 145 Wn. 2d 379
+[DEBUG] Citation: 102 Wn. 2d 219, 685 P.2d 1081
+[DEBUG] Context:
+PECA, 809 F.2d 626 (9th Cir. 
+1987)  .......................................................................... 32 
+Thompson v. St. Regis Paper Co. , 102 Wn.2d 219,  685 
+P.2d 1081 (1984)
+---
+[DEBUG] No case name match for citation: 102 Wn. 2d 219, 685 P.2d 1081
+[DEBUG] Citation: 138 Wn. 2d 1019
+[DEBUG] Context:
+P.2d 348 (1999), 
+review denied , 138 Wn.2d 1019 (1999)
+---
+[DEBUG] No case name match for citation: 138 Wn. 2d 1019
+[DEBUG] Citation: 118 Wn. 2d 46, 821 P.2d 18
+[DEBUG] Context:
+P.2d 348 (1999), 
+review denied , 138 Wn.2d 1019 (1999)  ...................... 44 
+Wilmot v. Kaiser Aluminum , 118 Wn.2d 46,  
+821 P.2d 18 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 46, 821 P.2d 18
+[DEBUG] Citation: 127 Wn. 2d 592
+[DEBUG] Context:
+tinue for an Abuse of Discretion . 
+This Court reviews a trial court’s denial of a motion 
+to continue for an abuse of discretion.   State  v. Hurd , 127 
+Wn.2d 592, 594, 902 P.2d 651, 651 (1995)
+---
+[DEBUG] No case name match for citation: 127 Wn. 2d 592
+[DEBUG] Citation: 184 Wn. 2d 358
+[DEBUG] Context:
+viewed.  While a summary judgment itself  is reviewed de 
+novo, th is Court must first determine what evidence is 
+being reviewed. Keck  v. Collins , 184 Wn.2d 358, 368–69, 
+357 P.3d 1080, 1085 (2015)
+---
+[DEBUG] No case name match for citation: 184 Wn. 2d 358
+[DEBUG] Citation: 131 Wn. 2d 484
+[DEBUG] Context:
+the County .   
+Before excluding untimely evidence, the trial court 
+must consider the Burnet  factors on the record .  Burnet v. 
+Spokane Ambulance, 131 Wn.2d 484, 494, 933 P.2d 1036 
+(1997)
+---
+[DEBUG] No case name match for citation: 131 Wn. 2d 484
+[DEBUG] Citation: 171 Wn. 2d 342
+[DEBUG] Context:
+trial court’s  exclusion 
+28 and Burnet  analysis  for an abuse of discretion.  Keck , 184 
+Wn.2d  at 368; see also Blair v. TA-Seattle E. No. 176 , 171 
+Wn.2d 342, 348, 254 P.3d 797 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 342
+[DEBUG] Citation: 179 Wn. 2d 322
+[DEBUG] Context:
+whether the 
+violation was willful or deliberate, and whether 
+the violation substantially prejudiced the 
+opposing party. Jones v. City of Seattle , 179 
+Wn.2d 322, 338, 314 P.3d 380 (2013)
+---
+[DEBUG] No case name match for citation: 179 Wn. 2d 322
+[DEBUG] Citation: 181 Wn. 2d 439
+[DEBUG] Context:
+e issue exists as to any material fact and the nonmoving party is entitled to judgment as a matter of law . 
+Id. (citing Scrivener v. Clark College , 181 Wn.2d 439, 444 , 
+334 P.3d 541 (2014)
+---
+[DEBUG] No case name match for citation: 181 Wn. 2d 439
+[DEBUG] Citation: 30 Wn. 2d 383, 823 P.2d 499
+[DEBUG] Context:
+561, 564 (9th Cir. 1996).     
+The moving party bears the burden of showing there 
+is no material fact at issue.   Safeco Insurance v. Butler , 118 
+30 Wn.2d 383, 823 P.2d 499 (1992)
+---
+[DEBUG] No case name match for citation: 30 Wn. 2d 383, 823 P.2d 499
+[DEBUG] Citation: 118 Wn. 2d 451
+[DEBUG] Context:
+v. Butler , 118 
+30 Wn.2d 383, 823 P.2d 499 (1992) .  A material fact is one 
+upon which the outcome of the litigation depends .  Eriks v. 
+Denver , 118 Wn.2d 451, 456, 824 P.2d 1207 (1992)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 451
+[DEBUG] Citation: 125 Wn. 2d 697
+[DEBUG] Context:
+2d 451, 456, 824 P.2d 1207 (1992) .  Only 
+when reasonable minds can reach but one conclusion may 
+summary judgment be granted.  Ruff v. King County, 125 
+Wn.2d 697, 704, 887 P.2d 886 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 697
+[DEBUG] Citation: 125 Wn. 2d 697
+[DEBUG] Context:
+a 
+matter of weeks,  then reasonable minds can likewise reach 
+more than one conclusion .  Summary judgment should be 
+denied.  Ruff v. King County , 125 Wn.2d 697, 704, 887 
+P.2d 886 (1995)
+---
+[DEBUG] No case name match for citation: 125 Wn. 2d 697
+[DEBUG] Citation: 118 Wn. 2d 46, 821 P.2d 18
+[DEBUG] Context:
+action, and 3) that there 
+was a causal connection between the exercise of the 
+protected activity and the adverse action.  Wilmot v. Kaiser 
+Alum ., 118 Wn.2d 46, 821 P.2d 18 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 46, 821 P.2d 18
+[DEBUG] Citation: 118 Wn. 2d 79, 821 P.2d 34
+[DEBUG] Context:
+of the 
+protected activity and the adverse action.  Wilmot v. Kaiser 
+Alum ., 118 Wn.2d 46, 821 P.2d 18 (1991) ; Allison v. Seattle 
+Housing Auth. , 118 Wn.2d 79, 821 P.2d 34 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 79, 821 P.2d 34
+[DEBUG] Citation: 118 Wn. 2d 79
+[DEBUG] Context:
+(Div. I 1990), 
+aff’d 118 Wn.2d 79 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 79
+[DEBUG] Citation: 138 Wn. 2d 1019, 989 P.2d 1143
+[DEBUG] Context:
+P.2d 348 (Div. III, 1999), review 
+denied,  138 Wn.2d 1019, 989 P.2d 1143 (1999 ; Wilmot v. 
+Kaiser Aluminum,  118 Wn.2d 46, 69, 821 P.2d 18 (1991)
+---
+[DEBUG] No case name match for citation: 138 Wn. 2d 1019, 989 P.2d 1143
+[DEBUG] Citation: 118 Wn. 2d 46
+[DEBUG] Context:
+P.2d 348 (Div. III, 1999), review 
+denied,  138 Wn.2d 1019, 989 P.2d 1143 (1999 ; Wilmot v. 
+Kaiser Aluminum,  118 Wn.2d 46, 69, 821 P.2d 18 (1991)
+---
+[DEBUG] No case name match for citation: 118 Wn. 2d 46
+[DEBUG] Citation: 102 Wn. 2d 219
+[DEBUG] Context:
+the 
+employer to plead and prove that the employee's 
+termination was motivated by other, legitimate, 
+reasons.”   Thompson v. St. Regis Paper Co. , 102 Wn.2d 
+219, 232 -33, 685 P.2d 1081 (1984)
+---
+[DEBUG] No case name match for citation: 102 Wn. 2d 219
+[DEBUG] Citation: 128 Wn. 2d 931
+[DEBUG] Context:
+aims; and (4) where employees are fired in retaliation for 
+reporting employer misconduct, i.e., whistleblowing .” 
+Gardner v. Loomis Armored, Inc. , 128 Wn.2d 931, 936, 913 
+44 P.2d 377 (1996)
+---
+[DEBUG] No case name match for citation: 128 Wn. 2d 931
+[DEBUG] Citation: 113 Wn. 2d 612
+[DEBUG] Context:
+loyer misconduct, i.e., whistleblowing .” 
+Gardner v. Loomis Armored, Inc. , 128 Wn.2d 931, 936, 913 
+44 P.2d 377 (1996)  (citing  Dicomes v. State , 113 Wn.2d 612, 
+618, 782 P.2d 1002 (1989)
+---
+[DEBUG] No case name match for citation: 113 Wn. 2d 612
+[DEBUG] Citation: 148 Wn. 2d 35
+[DEBUG] Context:
+, an employer is vicariously liable to third parties 
+for its employee's  torts committed within the scope of 
+employment. Robel  v. Roundup  Corp. , 148 Wn.2d 35, 53, 
+59 P.3d 611 (2002)
+---
+[DEBUG] No case name match for citation: 148 Wn. 2d 35
+[DEBUG] Citation: 171 Wn. 2d 260
+[DEBUG] Context:
+ay 
+recover reasonable attorney’s fees when authorized by statute, contract, or recognized ground of equity. Schnall v. 
+AT&T Wireless Servs., Inc. , 171 Wn.2d 260, 292, 259 P.3d 
+129 (2011)
+---
+[DEBUG] No case name match for citation: 171 Wn. 2d 260
+[DEBUG] Citation: 57 Wn. 2d 499
+[DEBUG] Context:
+P.2d 911 (1986) ; Norris v. Witter , 57 Wn.2d 
+499, 502, 358 P.2d 339 (1961)
+---
+[DEBUG] No case name match for citation: 57 Wn. 2d 499
+[DEBUG] Citation: 139 Wn. 2d 659
+[DEBUG] Context:
+s fees for work 
+on the appellate brief and oral argument, as well as fees 
+associated with post- appeal motions. Brand v. Dep’t of 
+Labor & Indus ., 139 Wn.2d 659, 673, 989 P.2d 1111 
+(1999)
+---
+[DEBUG] No case name match for citation: 139 Wn. 2d 659
+[DEBUG] Citation: 254 P.3d 797
+[DEBUG] Context:
+aff’d 118 Wn.2d  
+79 (1991)  .................................................... 39, 41 -42,46  
+Blair v. TA-Seattle E. No. 176 , 171 Wn.2d 342,   
+
+---
+[DEBUG] No case name match for citation: 254 P.3d 797
+[DEBUG] Citation: 65 P.3d 671
+[DEBUG] Context:
+t v. Spokane Ambulance, 131 Wn.2d 484,  
+933 P.2d 1036 (1997)  ................................................. 28 
+Butler v. Joy, 116 W n.App. 291, 
+---
+[DEBUG] No case name match for citation: 65 P.3d 671
+[DEBUG] Citation: 120 P.3d 579
+[DEBUG] Context:
+)  ......................................................................... 31 
+Estevez v. Faculty Club of the Univ. of Wash.,  129 
+Wash.App. 774,  
+---
+[DEBUG] No case name match for citation: 120 P.3d 579
+[DEBUG] Citation: 314 P.3d 380
+[DEBUG] Context:
+P.2d 1223 (1996)  ................... 33 
+Jones v. City of Seattle , 179 Wn.2d 322, 338, 314 P.3d 
+380 (2013)
+---
+[DEBUG] No case name match for citation: 314 P.3d 380
+[DEBUG] Citation: 357 P.3d 1080
+[DEBUG] Context:
+e , 179 Wn.2d 322, 338, 314 P.3d 
+380 (2013)  .................................................................. 29 
+Keck v. Collins,  184 Wn.2d 358, 
+---
+[DEBUG] No case name match for citation: 357 P.3d 1080
+[DEBUG] Citation: 128 P.3d 220
+[DEBUG] Context:
+P.2d 526 
+(1990)  ......................................................................... 24 
+Marquez v. Kitsap Transit , 131 Wn. App. 254, 128 P.3d 
+220 (2006)
+---
+[DEBUG] No case name match for citation: 128 P.3d 220
+[DEBUG] Citation: 59 P.3d 611
+[DEBUG] Context:
+.......................................... 55 
+Norris v. Witter , 57 Wn.2d 499, 358 P.2d 339 (1961)  ..... 55 
+Robel v. Roundup Corp. , 148 Wn.2d 35, 
+---
+[DEBUG] No case name match for citation: 59 P.3d 611
+[DEBUG] Citation: 259 P.3d 129
+[DEBUG] Context:
+d 499 
+(1992)  ......................................................................... 31 
+Schnall v. AT&T Wireless Servs., Inc.,  171 Wn.2d 260,  
+
+---
+[DEBUG] No case name match for citation: 259 P.3d 129
+[DEBUG] Citation: 334 P.3d 541
+[DEBUG] Context:
+vs., Inc.,  171 Wn.2d 260,  
+259 P.3d 129 (2011).  .................................................. 53 
+Scrivener v. Clark College , 181 Wn.2d 439, 
+---
+[DEBUG] No case name match for citation: 334 P.3d 541
+[DEBUG] Citation: 36 P.3d 1014
+[DEBUG] Context:
+n.2d 439, 334 P.3d 541 
+(2014))  .................................................................. 30, 32 
+Sedlacek  v. Hillis , 145 Wn.2d 379, 387, 
+---
+[DEBUG] No case name match for citation: 36 P.3d 1014
+[DEBUG] Citation: 65 P.3d 671
+[DEBUG] Context:
+e would be established by further 
+discovery, or (3) the new evidence would raise a genuine 
+issue of fact.   Butler v. Joy , 116 Wash.App. 291, 299, 65 
+P.3d 671 (2003)
+---
+[DEBUG] No case name match for citation: 65 P.3d 671
+[DEBUG] Citation: 314 P.3d 380
+[DEBUG] Context:
+n was willful or deliberate, and whether 
+the violation substantially prejudiced the 
+opposing party. Jones v. City of Seattle , 179 
+Wn.2d 322, 338, 
+---
+[DEBUG] No case name match for citation: 314 P.3d 380
+[DEBUG] Citation: 259 P.3d 129
+[DEBUG] Context:
+le attorney’s fees when authorized by statute, contract, or recognized ground of equity. Schnall v. 
+AT&T Wireless Servs., Inc. , 171 Wn.2d 260, 292, 259 P.3d 
+129 (2011)
+---
+[DEBUG] No case name match for citation: 259 P.3d 129
+[DEBUG] Citation: 128 P.3d 220
+[DEBUG] Context:
+–72, 
+---
+[DEBUG] No case name match for citation: 128 P.3d 220
+[DEBUG] Citation: 821 P.2d 34
+[DEBUG] Context:
+CONCLUSION  AND RELIEF REQUESTED ......... .. 50 
+ 
+  
+iii TABLE OF AUTHORITIES  
+Cases : 
+Allison v. Seattle Housing Authority , 59 Wn. App.  
+624, 
+---
+[DEBUG] No case name match for citation: 821 P.2d 34
+[DEBUG] Citation: 989 P.2d 1111
+[DEBUG] Context:
+, 171 Wn.2d 342,   
+254 P.3d 797 (2011)  ................................................... 28 
+Brand v. Dep’t of Labor & Indus. , 139 Wn.2d 659,  
+
+---
+[DEBUG] No case name match for citation: 989 P.2d 1111
+[DEBUG] Citation: 933 P.2d 1036
+[DEBUG] Context:
+& Indus. , 139 Wn.2d 659,  
+989 P.2d 1111 (1999)  ................................................. 55 
+Burnet v. Spokane Ambulance, 131 Wn.2d 484,  
+
+---
+[DEBUG] No case name match for citation: 933 P.2d 1036
+[DEBUG] Citation: 786 P.2d 839
+[DEBUG] Context:
+P.3d 671 (2003)  ..... 24 
+deLisle v. FMC Corporation , 57 Wn.App. 79, 786 P.2d 
+839, rev. den. 114 Wn.2d 1026 (1990)
+---
+[DEBUG] No case name match for citation: 786 P.2d 839
+[DEBUG] Citation: 782 P.2d 1002
+[DEBUG] Context:
+P.2d 
+839, rev. den. 114 Wn.2d 1026 (1990)  ........................ 33 
+Dicomes v. State, 113 Wn.2d 612, 
+---
+[DEBUG] No case name match for citation: 782 P.2d 1002
+[DEBUG] Citation: 824 P.2d 1207
+[DEBUG] Context:
+ch , 720 F.2d 1008 (9th Cir.  
+1983)  .......................................................................... 44 
+Eriks v. Denver , 118 Wn.2d 451, 
+---
+[DEBUG] No case name match for citation: 824 P.2d 1207
+[DEBUG] Citation: 913 P.2d 377
+[DEBUG] Context:
+P.3d 579 (2005)  ......................... 49 
+iv Gardner v. Loomis Armored, Inc. , 128 Wn.2d 931,  
+
+---
+[DEBUG] No case name match for citation: 913 P.2d 377
+[DEBUG] Citation: 887 P.2d 424
+[DEBUG] Context:
+ored, Inc. , 128 Wn.2d 931,  
+913 P.2d 377 (1996)  ................................................... 48 
+Graves v. Dep’t of Game , 76 Wn. App. 705, 887  
+P.2d 424 (Div. III 1994)  ................................... 39, 40, 42  
+Hill v. BCTI INCOME FUND -I, 144 Wn.2d 172  
+(2001)
+---
+[DEBUG] No case name match for citation: 887 P.2d 424
+[DEBUG] Citation: 907 P.2d 1223
+[DEBUG] Context:
+Johnson v. Department of Social & Health Services , 80 
+Wn.App. 212, 226, 
+---
+[DEBUG] No case name match for citation: 907 P.2d 1223
+[DEBUG] Citation: 716 P.2d 911
+[DEBUG] Context:
+, 357 P.3d 1080  
+ (2015)(en banc)  .............................................. 27-28 , 30 
+Kvinnesland v. County of Snohomish , 43 Wn. App. 239, 
+
+---
+[DEBUG] No case name match for citation: 716 P.2d 911
+[DEBUG] Citation: 794 P.2d 526
+[DEBUG] Context:
+P.2d 911 (1986)  .............................................. 54-55  
+Lindgren v. Lindgren , 58 Wash.App. 588, 
+---
+[DEBUG] No case name match for citation: 794 P.2d 526
+[DEBUG] Citation: 358 P.2d 339
+[DEBUG] Context:
+P.3d 
+220 (2006)  .................................................................. 55 
+Norris v. Witter , 57 Wn.2d 499, 
+---
+[DEBUG] No case name match for citation: 358 P.2d 339
+[DEBUG] Citation: 887 P.2d 886
+[DEBUG] Context:
+8 Wn.2d 35, 59 P.3d 611 
+(2002)  ......................................................................... 52 
+v Ruff v. King County , 125 Wn.2d 697, 
+---
+[DEBUG] No case name match for citation: 887 P.2d 886
+[DEBUG] Citation: 823 P.2d 499
+[DEBUG] Context:
+887 P.2d 886 (1995)
+ ............................................................................. 31, 38 
+Safeco Insurance v. Butler, 118 Wn.2d 383, 
+---
+[DEBUG] No case name match for citation: 823 P.2d 499
+[DEBUG] Citation: 726 P.2d 468
+[DEBUG] Context:
+1014, 
+1018 (2001)  ................................................................ 50 
+Selberg v. United Pacific Insurance Co.,  45 Wn. App. 469, 
+
+---
+[DEBUG] No case name match for citation: 726 P.2d 468
+[DEBUG] Citation: 851 P.2d 716
+[DEBUG] Context:
+P.2d 468 (1986)  ................................................... 43 
+Sellsted v. Washington Mutual Savings Bank , 69 Wn. 
+App. 852, 
+---
+[DEBUG] No case name match for citation: 851 P.2d 716
+[DEBUG] Citation: 685 P.2d 1081
+[DEBUG] Context:
+26 (9th Cir. 
+1987)  .......................................................................... 32 
+Thompson v. St. Regis Paper Co. , 102 Wn.2d 219,  685 
+P.2d 1081 (1984)
+---
+[DEBUG] No case name match for citation: 685 P.2d 1081
+[DEBUG] Citation: 974 P.2d 348
+[DEBUG] Context:
+gis Paper Co. , 102 Wn.2d 219,  685 
+P.2d 1081 (1984)  ........................................................ 47 
+Vasquez v. State, 94 Wn.App. 976, 
+---
+[DEBUG] No case name match for citation: 974 P.2d 348
+[DEBUG] Citation: 821 P.2d 18
+[DEBUG] Context:
+P.2d 348 (1999), 
+review denied , 138 Wn.2d 1019 (1999)  ...................... 44 
+Wilmot v. Kaiser Aluminum , 118 Wn.2d 46,  
+
+---
+[DEBUG] No case name match for citation: 821 P.2d 18
+[DEBUG] Citation: 902 P.2d 651
+[DEBUG] Context:
+Discretion . 
+This Court reviews a trial court’s denial of a motion 
+to continue for an abuse of discretion.   State  v. Hurd , 127 
+Wn.2d 592, 594, 
+---
+[DEBUG] No case name match for citation: 902 P.2d 651
+[DEBUG] Citation: 786 P.2d 839
+[DEBUG] Context:
+-84, 
+---
+[DEBUG] No case name match for citation: 786 P.2d 839
+[DEBUG] Citation: 887 P.2d 886
+[DEBUG] Context:
+then reasonable minds can likewise reach 
+more than one conclusion .  Summary judgment should be 
+denied.  Ruff v. King County , 125 Wn.2d 697, 704, 887 
+P.2d 886 (1995)
+---
+[DEBUG] No case name match for citation: 887 P.2d 886
+[DEBUG] Citation: 887 P.2d 37
+[DEBUG] Context:
+821 P.2d 18 (1991) ; Allison v. Seattle 
+Housing Auth. , 118 Wn.2d 79, 821 P.2d 34 (1991) ; accord: 
+Graves v. Dep’t of Game , 76 Wn. App. 705, 712, 887 P.2d 
+37 424 (Div. III 1994) .  The third element is met by establishing 
+that the employee engaged in protec
+---
+[DEBUG] No case name match for citation: 887 P.2d 37
+[DEBUG] Citation: 887 P.2d 424
+[DEBUG] Context:
+lum ., 118 Wn.2d 46, 821 P.2d 18 (1991) ; Allison 
+v. Seattle Housing Auth. , 118 Wn.2d 79 ; accord: Graves v. 
+Dep’t of Game , 76 Wn. App. 705, 712, 
+---
+[DEBUG] No case name match for citation: 887 P.2d 424
+[DEBUG] Citation: 989 P.2d 1143
+[DEBUG] Context:
+P.2d 348 (Div. III, 1999), review 
+denied,  138 Wn.2d 1019, 
+---
+[DEBUG] No case name match for citation: 989 P.2d 1143
+[DEBUG] Citation: 685 P.2d 1081
+[DEBUG] Context:
+nd prove that the employee's 
+termination was motivated by other, legitimate, 
+reasons.”   Thompson v. St. Regis Paper Co. , 102 Wn.2d 
+219, 232 -33, 
+---
+[DEBUG] No case name match for citation: 685 P.2d 1081
+[DEBUG] Citation: 44 P.2d 377
+[DEBUG] Context:
+yees are fired in retaliation for 
+reporting employer misconduct, i.e., whistleblowing .” 
+Gardner v. Loomis Armored, Inc. , 128 Wn.2d 931, 936, 913 
+
+---
+[DEBUG] No case name match for citation: 44 P.2d 377
+[DEBUG] Citation: 59 Wn. App. 624, 821 P.2d 34
+[DEBUG] Context:
+……………….. 48  
+ 
+VI. CONCLUSION  AND RELIEF REQUESTED ......... .. 50 
+ 
+  
+iii TABLE OF AUTHORITIES  
+Cases : 
+Allison v. Seattle Housing Authority , 59 Wn. App.  
+624, 821 P.2d 34 (Div. I 1990), aff’d 118 Wn.2d  
+79 (1991)
+---
+[DEBUG] No case name match for citation: 59 Wn. App. 624, 821 P.2d 34
+[DEBUG] Citation: 57 Wn.App. 79, 786 P.2d 839
+[DEBUG] Context:
+P.3d 671 (2003)  ..... 24 
+deLisle v. FMC Corporation , 57 Wn.App. 79, 786 P.2d 
+839, rev. den. 114 Wn.2d 1026 (1990)
+---
+[DEBUG] No case name match for citation: 57 Wn.App. 79, 786 P.2d 839
+[DEBUG] Citation: 129 Wash.App. 774, 120 P.3d 579
+[DEBUG] Context:
+824 P.2d 1207  
+(1992)  ......................................................................... 31 
+Estevez v. Faculty Club of the Univ. of Wash.,  129 
+Wash.App. 774,  120 P.3d 579 (2005)
+---
+[DEBUG] No case name match for citation: 129 Wash.App. 774, 120 P.3d 579
+[DEBUG] Citation: 76 Wn. App. 705, 887 P.2d 424
+[DEBUG] Context:
+ner v. Loomis Armored, Inc. , 128 Wn.2d 931,  
+913 P.2d 377 (1996)  ................................................... 48 
+Graves v. Dep’t of Game , 76 Wn. App. 705, 887  
+P.2d 424 (Div. III 1994)  ................................... 39, 40, 42  
+Hill v. BCTI INCOME FUND -I, 144 Wn.2d 172  
+(2001)
+---
+[DEBUG] No case name match for citation: 76 Wn. App. 705, 887 P.2d 424
+[DEBUG] Citation: 80 Wn.App. 212
+[DEBUG] Context:
+Johnson v. Department of Social & Health Services , 80 
+Wn.App. 212, 226, 907 P.2d 1223 (1996)
+---
+[DEBUG] No case name match for citation: 80 Wn.App. 212
+[DEBUG] Citation: 43 Wn. App. 239, 716 P.2d 911
+[DEBUG] Context:
+ns,  184 Wn.2d 358, 357 P.3d 1080  
+ (2015)(en banc)  .............................................. 27-28 , 30 
+Kvinnesland v. County of Snohomish , 43 Wn. App. 239, 
+716 P.2d 911 (1986)
+---
+[DEBUG] No case name match for citation: 43 Wn. App. 239, 716 P.2d 911
+[DEBUG] Citation: 58 Wash.App. 588, 794 P.2d 526
+[DEBUG] Context:
+Lindgren , 
+---
+[DEBUG] No case name match for citation: 58 Wash.App. 588, 794 P.2d 526
+[DEBUG] Citation: 131 Wn. App. 254, 128 P.3d 220
+[DEBUG] Context:
+P.2d 526 
+(1990)  ......................................................................... 24 
+Marquez v. Kitsap Transit , 131 Wn. App. 254, 128 P.3d 
+220 (2006)
+---
+[DEBUG] No case name match for citation: 131 Wn. App. 254, 128 P.3d 220
+[DEBUG] Citation: 45 Wn. App. 469, 726 P.2d 468
+[DEBUG] Context:
+379, 387, 36 P.3d 1014, 
+1018 (2001)  ................................................................ 50 
+Selberg v. United Pacific Insurance Co.,  45 Wn. App. 469, 
+726 P.2d 468 (1986)
+---
+[DEBUG] No case name match for citation: 45 Wn. App. 469, 726 P.2d 468
+[DEBUG] Citation: 69 Wn. App. 852, 851 P.2d 716
+[DEBUG] Context:
+P.2d 468 (1986)  ................................................... 43 
+Sellsted v. Washington Mutual Savings Bank , 69 Wn. 
+App. 852, 851 P.2d 716 (1993)
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 852, 851 P.2d 716
+[DEBUG] Citation: 94 Wn.App. 976, 974 P.2d 348
+[DEBUG] Context:
+State, 
+---
+[DEBUG] No case name match for citation: 94 Wn.App. 976, 974 P.2d 348
+[DEBUG] Citation: 69 Wn. App. 852
+[DEBUG] Context:
+ment on 
+the pleadings by agreement,  with the Court walking 
+through the basis for its oral ruling relying on “Sellstad v. 
+Washington Mutual , it’s 
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 852
+[DEBUG] Citation: 116 Wash.App. 291
+[DEBUG] Context:
+Joy , 
+---
+[DEBUG] No case name match for citation: 116 Wash.App. 291
+[DEBUG] Citation: 69 Wn. App. 852
+[DEBUG] Context:
+moving party is  to be believed, and all 
+justifiable inferences are to be drawn in that party’s favor. 
+Sellsted v. Washington Mutual Savings Bank , 69 Wn. App. 
+852, 859, 851 P.2d 716 (1993)
+---
+[DEBUG] No case name match for citation: 69 Wn. App. 852
+[DEBUG] Citation: 80 Wn.App. 212
+[DEBUG] Context:
+Department of Social & 
+Health Services , 
+---
+[DEBUG] No case name match for citation: 80 Wn.App. 212
+[DEBUG] Citation: 57 Wn.App. 79
+[DEBUG] Context:
+FMC 
+Corporation,  
+---
+[DEBUG] No case name match for citation: 57 Wn.App. 79
+[DEBUG] Citation: 76 Wn. App. 705
+[DEBUG] Context:
+Game , 
+---
+[DEBUG] No case name match for citation: 76 Wn. App. 705
+[DEBUG] Citation: 59 Wn. App. 624
+[DEBUG] Context:
+Seattle Housing Authority , 
+---
+[DEBUG] No case name match for citation: 59 Wn. App. 624
+[DEBUG] Citation: 94 Wn.App. 976
+[DEBUG] Context:
+are motivated by retaliation, plaintiffs 
+ordinarily must resort to circumstantial evidence to demonstrate retaliatory purpose”.  Vasquez v. State , 94 
+Wn.App. 976, 985, 974 P.2d 348 (Div. III, 1999), review 
+denied,  138 Wn.2d 1019, 989 P.2d 1143 (1999 ; Wilmot v. 
+Kaiser Aluminum,  118 Wn.2d 46, 69, 821 P.2d 18 (1991)
+---
+[DEBUG] No case name match for citation: 94 Wn.App. 976
+[DEBUG] Citation: 129 Wash.App. 774
+[DEBUG] Context:
+Faculty  Club of the 
+Univ.  of Wash ., 
+---
+[DEBUG] No case name match for citation: 129 Wash.App. 774
+[DEBUG] Citation: 43 Wn. App. 239
+[DEBUG] Context:
+ho prevails on appeal under a fee- authorizing 
+statute is also entitled to attorney’s fees incurred on 
+appeal. Kvinnesland v. County of Snohomish , 43 Wn. App. 
+239, 245, 716 P.2d 911 (1986)
+---
+[DEBUG] No case name match for citation: 43 Wn. App. 239
+[DEBUG] Citation: 131 Wn. App. 254
+[DEBUG] Context:
+Kitsap Transit , 
+
+---
+[DEBUG] No case name match for citation: 131 Wn. App. 254
+[DEBUG] Citation: 488 U.S. 1004
+[DEBUG] Context:
+......................................................... 35 
+Hillebrand v. M -Tron Indus., Inc., 827 F.2d 363, 365  
+(8th Cir. 1987),  cert. denied, 
+---
+[DEBUG] No case name match for citation: 488 U.S. 1004
+[DEBUG] Citation: 94 F.3d 561
+[DEBUG] Context:
+Bank of America NT & SA, 
+---
+[DEBUG] No case name match for citation: 94 F.3d 561
+[DEBUG] Citation: 720 F.2d 1008
+[DEBUG] Context:
+Crown Zellerbach , 
+---
+[DEBUG] No case name match for citation: 720 F.2d 1008
+[DEBUG] Citation: 827 F.2d 363
+[DEBUG] Context:
+M -Tron Indus., Inc., 
+---
+[DEBUG] No case name match for citation: 827 F.2d 363
+[DEBUG] Citation: 914 F.2d 1564
+[DEBUG] Context:
+Titan Capital Corp. , 
+---
+[DEBUG] No case name match for citation: 914 F.2d 1564
+[DEBUG] Citation: 809 F.2d 626
+[DEBUG] Context:
+PECA, 
+---
+[DEBUG] No case name match for citation: 809 F.2d 626
+[DEBUG] Citation: 720 F.2d 1008
+[DEBUG] Context:
+P.2d 468 (1986) ; EEOC v. Crown Zellerbach,  720 F.2d 
+1008 (9th Cir. 1983) .   
+Our courts have observed that “[b]ecause employers 
+rarely will reveal they ar
+---
+[DEBUG] No case name match for citation: 720 F.2d 1008
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 534 F.3d 1290
+[DEBUG] Context:
+Caraway , 
+---
+[DEBUG] No case name match for citation: 534 F.3d 1290
+[DEBUG] Citation: 2006 WL 3801910
+[DEBUG] Context:
+U.S. 
+Department of Energy , 
+---
+[DEBUG] No case name match for citation: 2006 WL 3801910
+[DEBUG] Citation: 2018 WL 2446162
+[DEBUG] Context:
+Keller , 
+---
+[DEBUG] No case name match for citation: 2018 WL 2446162
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+matory evidence should be excluded , reinforcing the need 
+to maintain a fair and impartial trial environment.  Further,  United States v. Hargrove , 2019 WL 
+2516279 (D. Wyo. 2019), reiterated that evidence likely to cause unfair prejudice should be 
+excluded  if i
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+ated that evidence likely to cause unfair prejudice should be 
+excluded  if it outweighs its probative value . Similarly, Meyer v. City of Cheyenne , 2017 WL 
+3461055 (D. Wyo. 2017), highlighted that the use of terms that could unduly influence a jury ’s 
+perception
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2017 WL 3461055
+[DEBUG] Context:
+City 
+of Cheyenne , 
+---
+[DEBUG] No case name match for citation: 2017 WL 3461055
+[DEBUG] Citation: 2010 WL 4683851
+[DEBUG] Context:
+State of Wyoming , 
+---
+[DEBUG] No case name match for citation: 2010 WL 4683851
+[DEBUG] Citation: 2011 WL 2160468
+[DEBUG] Context:
+United States , 
+---
+[DEBUG] No case name match for citation: 2011 WL 2160468
+[DEBUG] Citation: 2019 WL 2516279
+[DEBUG] Context:
+Hargrove , 
+---
+[DEBUG] No case name match for citation: 2019 WL 2516279
+[DEBUG] Citation: 2016 WL 165971
+[DEBUG] Context:
+at such list ing is essentially a  certification  that 
+their product is safe and cannot cause injury o r malfunction. In Woods v. BNSF Railway Co ., 2016 
+WL 165971 (D. Wyo. 2016), the court held that allowing a defendant to present evidence of their 
+product's sa
+---
+[DEBUG] No case name match for citation: 2016 WL 165971
+[DEBUG] Citation: 2018 WL 3037217
+[DEBUG] Context:
+City of New York , 
+---
+[DEBUG] No case name match for citation: 2018 WL 3037217
+[DEBUG] Citation: 123 U.S. 456
+[DEBUG] Context:
+This is a test with citation 
+---
+[DEBUG] No case name match for citation: 123 U.S. 456
+[DEBUG] Citation: 347 U.S. 483
+[DEBUG] Context:
+Board of Education, 
+---
+[DEBUG] No case name match for citation: 347 U.S. 483
+[DEBUG] Citation: 129 Wn.2d 320
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 129 Wn.2d 320
+[DEBUG] Citation: 917 P.2d 100
+[DEBUG] Context:
+
+---
+[DEBUG] No case name match for citation: 917 P.2d 100

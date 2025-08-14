@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 // Base path for the application
-const BASE_PATH = '/casestrainer/';
+const BASE_PATH = import.meta.env.BASE_URL || '/casestrainer/';
 
 // Import views directly
+import HomeView from '@/views/HomeView.vue';
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
 const MinimalTest = () => import('@/views/MinimalTest.vue');
 const NotFound = () => import('@/views/NotFound.vue');
@@ -16,7 +17,7 @@ const routes = [
   {
     path: '/',
     name: 'Home',
-    component: EnhancedValidator,
+    component: HomeView,
     meta: {
       title: 'CaseStrainer - Legal Citation Validator',
       metaTags: [
@@ -97,6 +98,7 @@ const routes = [
 
 const router = createRouter({
   history: createWebHistory(BASE_PATH),
+  base: BASE_PATH, // Ensure the router is aware of the base path
   routes,
   scrollBehavior(to, from, savedPosition) {
     // Return saved position when using back/forward buttons

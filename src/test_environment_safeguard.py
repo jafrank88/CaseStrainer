@@ -44,14 +44,35 @@ class TestEnvironmentSafeguard:
         ]
     
     def is_test_environment(self) -> bool:
-        """Check if we're running in a test environment"""
-        # Check environment variables - be more selective about which ones indicate actual testing
-        # CI and GITHUB_ACTIONS alone don't necessarily mean we're running tests
-        # Only block if we're actually running test frameworks
+        """Check if we're running in a test environment
+        
+        Returns:
+            bool: True if running in a test environment, False otherwise
+            
+        Note:
+            In development mode, we're more permissive to allow testing with sample data.
+            In production, we're more strict to prevent test data from being processed.
+        """
+        # Check if we're in development mode
+        is_development = os.getenv('FLASK_ENV', '').lower() == 'development' or \
+                        os.getenv('FLASK_DEBUG', '').lower() == 'true' or \
+                        os.getenv('ENVIRONMENT', '').lower() == 'development'
+        
+        # In development, be more permissive
+        if is_development:
+            # Only block if explicitly running tests
+            if os.getenv('PYTEST_CURRENT_TEST') or os.getenv('UNITTEST_RUNNING'):
+                logger.warning("Test environment detected via test runner")
+                return True
+            return False
+            
+        # In production, be more strict
         test_env_vars = [
             'TESTING',
             'PYTEST_CURRENT_TEST',
-            'UNITTEST_RUNNING'
+            'UNITTEST_RUNNING',
+            'GITHUB_ACTIONS',
+            'CI'
         ]
         
         for var in test_env_vars:
@@ -97,7 +118,45 @@ class TestEnvironmentSafeguard:
         return False
     
     def is_test_request(self, request_data: Dict[str, Any], headers: Optional[Dict[str, str]] = None) -> bool:
-        """Check if a request contains test data"""
+        """Check if a request contains test data
+        
+        Args:
+            request_data: The request data to check
+            headers: Optional request headers
+            
+        Returns:
+            bool: True if the request appears to be test data, False otherwise
+            
+        Note:
+            In development mode, we're more permissive to allow testing with sample data.
+            In production, we're more strict to prevent test data from being processed.
+        """
+        # Check if we're in development mode
+        is_development = os.getenv('FLASK_ENV', '').lower() == 'development' or \
+                        os.getenv('FLASK_DEBUG', '').lower() == 'true' or \
+                        os.getenv('ENVIRONMENT', '').lower() == 'development'
+                        
+        # In development, only block obvious test patterns
+        if is_development:
+            if not request_data or not isinstance(request_data, dict):
+                return False
+                
+            # Check for test patterns in text input
+            if 'text' in request_data and isinstance(request_data['text'], str):
+                text = request_data['text'].lower()
+                test_phrases = [
+                    'test citation',
+                    'sample citation',
+                    'fake citation',
+                    'example citation'
+                ]
+                
+                for phrase in test_phrases:
+                    if phrase in text:
+                        logger.warning(f"Test data detected in development: {phrase}")
+                        return True
+            
+            return False
         
         # Check for test data in request
         if isinstance(request_data, dict):

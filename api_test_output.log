@@ -1,0 +1,50 @@
+Test started at: 2025-08-13 00:41:29.981481
+Testing API endpoint: http://localhost:5000/casestrainer/api/analyze
+--------------------------------------------------------------------------------
+
+TEST 1: JSON content-type with JSON body
+
+================================================================================
+TESTING POST http://localhost:5000/casestrainer/api/analyze
+--------------------------------------------------------------------------------
+HEADERS: {
+  "Content-Type": "application/json"
+}
+BODY (JSON): {
+  "text": "The case of Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) is relevant. Also see Roe v. Wade, 410 U.S. 113 (1973).",
+  "type": "text"
+}
+================================================================================
+
+Status Code: 403
+Response: {"citations":[],"clusters":[],"error":"Test execution blocked: Test execution not allowed in production: Test data detected in request","metadata":{"block_reason":"Test execution not allowed in production: Test data detected in request","rejected_reason":"test_execution_blocked"},"request_id":"f3d3455d-8b72-49aa-9a16-6e387b39a6ff","success":false}
+
+
+TEST 2: text/plain content-type with raw text
+
+================================================================================
+TESTING POST http://localhost:5000/casestrainer/api/analyze
+--------------------------------------------------------------------------------
+HEADERS: {
+  "Content-Type": "text/plain"
+}
+BODY (JSON): "The case of Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) is relevant. Also see Roe v. Wade, 410 U.S. 113 (1973)."
+================================================================================
+
+Status Code: 400
+Response: {"citations":[],"clusters":[],"details":"Invalid or missing input. No file, JSON, or form data found. Content-Type: text/plain, Data length: 112","error":"Invalid or missing input. Please check the Content-Type header and request format.","metadata":{"content_type":"text/plain","endpoint":"/analyze","error_details":"Invalid or missing input. No file, JSON, or form data found. Content-Type: text/plain, Data length: 112","error_type":"invalid_input","input_size":112,"input_type":"unknown","process...
+
+TEST 3: multipart/form-data with file upload
+
+================================================================================
+TESTING POST http://localhost:5000/casestrainer/api/analyze
+--------------------------------------------------------------------------------
+HEADERS: {}
+FILES: {'file': 'The case of Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) is relevant. Also see Roe v. Wade, 410 U.S. 113 (1973).', 'type': 'text'}
+================================================================================
+
+Status Code: 200
+Response: {"metadata":{"content_type":"text/plain","endpoint":"/analyze","file_extension":"txt","filename":"test.txt","input_size":"0","input_type":"file","processing_mode":"immediate","processing_time_ms":"1615","request_id":"c63735c5-a895-41ec-91e4-b92a43e0a174","source":"file","status":"completed","success":"True","text_length":"112","timestamp":"2025-08-13T07:41:30.099990"},"request_id":"c63735c5-a895-41ec-91e4-b92a43e0a174","result":{"citations":[{"canonical_date":"None","canonical_name":"None","cano...
+
+================================================================================
+Test completed at: 2025-08-13 00:41:31.729850

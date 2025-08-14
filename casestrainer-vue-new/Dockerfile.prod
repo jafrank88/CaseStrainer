@@ -5,14 +5,27 @@ WORKDIR /app
 
 # Install dependencies
 COPY package*.json ./
-RUN npm install
+RUN npm install --prefer-offline --no-audit --progress=false
 
-# Copy source code
-COPY . .
+# Copy only necessary files for production build
+COPY public/ public/
+COPY src/ src/
+COPY index.html .
+COPY vite.config.js .
 
-# Build the app
+# Set environment to production
+ENV NODE_ENV=production
 ENV VITE_APP_ENV=production
+ENV VITE_API_BASE_URL=/casestrainer/api/
+ENV VITE_APP_TITLE=CaseStrainer
+
+# Build the app with production settings
 RUN npm run build
+
+# Verify the built index.html exists
+RUN if [ ! -f "/app/dist/index.html" ]; then \
+      echo "ERROR: index.html was not generated in the build process" && exit 1; \
+    fi
 
 # Production stage
 FROM nginx:alpine AS production-stage
@@ -20,13 +33,34 @@ FROM nginx:alpine AS production-stage
 # Copy built app to nginx
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# Copy nginx configuration
-COPY nginx.conf /etc/nginx/nginx.conf
+# Remove default nginx configuration
+RUN rm -f /etc/nginx/conf.d/*
+
+# Copy user's minimal nginx configuration for testing
+COPY nginx-user-minimal.conf /etc/nginx/nginx.conf
 
 # Copy wait-for-backend script
 COPY wait-for-backend.sh /wait-for-backend.sh
 RUN chmod +x /wait-for-backend.sh
 
+# Expose port 80
 EXPOSE 80
 
+# Create a script to test Nginx configuration and start the server
+RUN echo '#!/bin/sh' > /start-nginx.sh && \
+    echo '' >> /start-nginx.sh && \
+    echo '# Test Nginx configuration' >> /start-nginx.sh && \
+    echo 'if ! nginx -t; then' >> /start-nginx.sh && \
+    echo '  echo "[ERROR] Nginx configuration test failed"' >> /start-nginx.sh && \
+    echo '  exit 1' >> /start-nginx.sh && \
+    echo 'fi' >> /start-nginx.sh && \
+    echo '' >> /start-nginx.sh && \
+    echo '# Start Nginx in the background' >> /start-nginx.sh && \
+    echo 'nginx -g "daemon off;" &' >> /start-nginx.sh && \
+    echo '' >> /start-nginx.sh && \
+    echo '# Keep the container running' >> /start-nginx.sh && \
+    echo 'wait' >> /start-nginx.sh && \
+    chmod +x /start-nginx.sh
+
+# Start Nginx with the wait-for-backend script
 CMD ["/wait-for-backend.sh"]

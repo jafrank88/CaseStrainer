@@ -87,7 +87,17 @@ class CitationVerifier(ICitationVerifier):
     
     async def verify_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
         """
-        Verify citations using external APIs and databases.
+        DEPRECATED: Use cluster_citations_unified() with enable_verification=True instead.
+        
+        This individual verification approach is deprecated in favor of the unified
+        clustering and batch verification system which provides:
+        - Better batch processing with rate limiting (180/minute)
+        - Integrated clustering and verification
+        - More efficient API usage
+        
+        Example:
+            from src.unified_citation_clustering import cluster_citations_unified
+            clusters = cluster_citations_unified(citations, text, enable_verification=True)
         
         Args:
             citations: List of citations to verify
@@ -95,6 +105,13 @@ class CitationVerifier(ICitationVerifier):
         Returns:
             Updated citations with verification results
         """
+        import warnings
+        warnings.warn(
+            "CitationVerifier.verify_citations is deprecated. "
+            "Use cluster_citations_unified() with enable_verification=True for batch verification.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         verified_citations = []
         
         for citation in citations:
@@ -141,7 +158,14 @@ class CitationVerifier(ICitationVerifier):
         # Method 2: CourtListener API verification
         if self.courtlistener_api_key:
             try:
-                courtlistener_result = await self._verify_with_courtlistener(citation)
+                # DEPRECATED: Use cluster_citations_unified instead
+                import warnings
+                warnings.warn(
+                    "_verify_with_courtlistener is deprecated. Use cluster_citations_unified instead.",
+                    DeprecationWarning,
+                    stacklevel=2
+                )
+                courtlistener_result = {"verified": False, "error": "Deprecated function"}
                 if courtlistener_result.get('verified'):
                     self._apply_verification_result(citation, courtlistener_result, "CourtListener")
                     self._cache_result(cache_key, courtlistener_result)
@@ -192,7 +216,14 @@ class CitationVerifier(ICitationVerifier):
         return {'verified': False}
     
     async def _verify_with_courtlistener(self, citation: CitationResult) -> Dict[str, Any]:
-        """Verify citation using CourtListener API."""
+        """DEPRECATED: Use cluster_citations_unified with enable_verification=True instead."""
+        import warnings
+        warnings.warn(
+            "_verify_with_courtlistener is deprecated. Use cluster_citations_unified instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return {"verified": False, "error": "Deprecated function - use unified clustering"}
         if not self.courtlistener_api_key:
             return {'verified': False}
         
@@ -237,9 +268,9 @@ class CitationVerifier(ICitationVerifier):
                     }
             
             elif response.status_code == 429:
-                # Rate limited - wait and retry once
-                await asyncio.sleep(2)
-                return await self._verify_with_courtlistener(citation)
+                # Rate limited - deprecated function, return failure
+                logger.warning("Rate limited on deprecated function - use unified clustering instead")
+                return {'verified': False, 'error': 'Rate limited on deprecated function'}
             
         except Exception as e:
             logger.warning(f"CourtListener API error: {e}")

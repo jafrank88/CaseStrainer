@@ -60,9 +60,22 @@ def analyze_text():
     """
     # Log the start of the request
     request_id = str(uuid.uuid4())
-    logger.info(f"[Request {request_id}] Starting analyze request")
+    logger.info(f"[Request {request_id}] ===== Starting analyze request =====")
+    logger.info(f"[Request {request_id}] Method: {request.method}")
     logger.info(f"[Request {request_id}] Content-Type: {request.content_type}")
-    logger.info(f"[Request {request_id}] About to enter try block")
+    logger.info(f"[Request {request_id}] Headers: {dict(request.headers)}")
+    logger.info(f"[Request {request_id}] Form data keys: {list(request.form.keys())}")
+    logger.info(f"[Request {request_id}] Files: {list(request.files.keys())}")
+    
+    # Log form data (excluding sensitive fields)
+    for key in request.form:
+        logger.info(f"[Request {request_id}] Form[{key}]: {request.form[key][:100]}{'...' if len(request.form[key]) > 100 else ''}")
+    
+    # Log file metadata (not the actual file content)
+    for file_key in request.files:
+        file = request.files[file_key]
+        if file and hasattr(file, 'filename'):
+            logger.info(f"[Request {request_id}] File[{file_key}]: {file.filename}, {file.content_type}, {file.content_length} bytes")
     
     try:
         logger.info(f"[Request {request_id}] Entering try block")
@@ -96,10 +109,21 @@ def analyze_text():
             uploads_dir = os.path.join(os.getcwd(), 'uploads')
             os.makedirs(uploads_dir, exist_ok=True)
             
-            # Save file to temporary location
-            temp_file_path = os.path.join(uploads_dir, f"{request_id}_{filename}")
+            # Save file to temporary location with timestamp to avoid conflicts
+            import time
+            timestamp = str(int(time.time()))
+            safe_filename = f"{timestamp}_{filename}"
+            temp_file_path = os.path.join(uploads_dir, safe_filename)
             file.save(temp_file_path)
             logger.info(f"[Request {request_id}] File saved to: {temp_file_path}")
+            
+            # Verify file was saved correctly
+            if not os.path.exists(temp_file_path):
+                logger.error(f"[Request {request_id}] File not found after save: {temp_file_path}")
+                return jsonify({
+                    'error': 'File upload failed',
+                    'request_id': request_id
+                }), 500
             
             try:
                 # Import RQ for async task processing
@@ -107,7 +131,7 @@ def analyze_text():
                 from redis import Redis
                 
                 # Connect to Redis using environment variable or default
-                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
                 redis_conn = Redis.from_url(redis_url)
                 queue = Queue('casestrainer', connection=redis_conn)
                 
@@ -136,6 +160,14 @@ def analyze_text():
                     'request_id': request_id,
                     'details': str(e) if current_app.debug else None
                 }), 500
+        
+        # If we reach here and it was a file upload, something went wrong
+        if 'file' in request.files:
+            logger.error(f"[Request {request_id}] File upload handling failed - no file or empty filename")
+            return jsonify({
+                'error': 'Invalid file upload - no file selected or empty filename',
+                'request_id': request_id
+            }), 400
                 
         # Get request data - handle both JSON and form data
         data = None
@@ -155,12 +187,17 @@ def analyze_text():
                     'details': str(e)
                 }), 400
         else:
-            # Handle form data
+            # Handle form data - support both text and URL form submissions
             text_content = request.form.get('text', '')
+            url_content = request.form.get('url', '')
             if text_content is None:
                 text_content = ''
+            if url_content is None:
+                url_content = ''
+            
             data = {
                 'text': text_content,
+                'url': url_content,
                 'type': request.form.get('type', 'text')
             }
         
@@ -173,7 +210,7 @@ def analyze_text():
                 from redis import Redis
                 
                 # Connect to Redis using environment variable or default
-                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
                 redis_conn = Redis.from_url(redis_url)
                 queue = Queue('casestrainer', connection=redis_conn)
                 
@@ -222,7 +259,7 @@ def analyze_text():
             from redis import Redis
             
             # Connect to Redis using environment variable or default
-            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
             redis_conn = Redis.from_url(redis_url)
             queue = Queue('casestrainer', connection=redis_conn)
             
@@ -301,7 +338,7 @@ def get_task_status(task_id):
         from redis import Redis
         
         # Connect to Redis using environment variable or default
-        redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+        redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
         redis_conn = Redis.from_url(redis_url)
         queue = Queue('casestrainer', connection=redis_conn)
         

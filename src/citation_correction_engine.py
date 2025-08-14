@@ -105,7 +105,7 @@ class CitationCorrectionEngine:
         try:
             logger.info(f"Processing citation: {citation}")
             # Normalize the input citation
-            normalized_citation = self._normalize_citation(citation)
+            normalized_citation = self._normalize_citation_comprehensive(citation, purpose="verification")
 
             # Basic validation
             if not normalized_citation or len(normalized_citation.strip()) < 3:
@@ -198,20 +198,21 @@ class CitationCorrectionEngine:
                 "error": f"Error generating suggestions: {str(e)}",
             }
 
-    def _normalize_citation(self, citation: str) -> str:
+    def _normalize_citation_comprehensive(self, citation: str, purpose: str = "general") -> str:
         """
-        Normalize citation format for better matching.
-
+        Comprehensive citation normalization that replaces the deprecated _normalize_citation.
+        
         Args:
             citation: The citation to normalize
-
+            purpose: The purpose of normalization ("general", "bluebook", "verification", "comparison")
+            
         Returns:
             The normalized citation
         """
         if not citation:
             return ""
 
-        logger.info(f"Normalizing citation: {citation}")
+        logger.info(f"Normalizing citation: {citation} (purpose: {purpose})")
 
         try:
             # Basic normalization

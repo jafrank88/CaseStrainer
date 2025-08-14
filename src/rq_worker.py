@@ -52,23 +52,47 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     """Direct wrapper function to create CitationService instance and call process_citation_task."""
     from src.api.services.citation_service import CitationService
     import asyncio
+    import signal
+    import time
     
     service = CitationService()
     
-    # Create event loop for async processing
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    # Add timeout protection to prevent stuck jobs
+    def timeout_handler(signum, frame):
+        raise TimeoutError(f"Task {task_id} timed out after 10 minutes")
+    
+    # Set timeout alarm (10 minutes)
+    signal.signal(signal.SIGALRM, timeout_handler)
+    signal.alarm(600)  # 10 minutes
     
     try:
-        # Process the task
-        result = loop.run_until_complete(service.process_citation_task(task_id, input_type, input_data))
-        logger.info(f"Task {task_id} completed successfully")
+        # Use asyncio.run instead of creating new event loop to prevent deadlocks
+        start_time = time.time()
+        logger.info(f"Starting task {task_id} of type {input_type}")
+        
+        result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
+        
+        processing_time = time.time() - start_time
+        logger.info(f"Task {task_id} completed successfully in {processing_time:.2f} seconds")
         return result
+        
+    except TimeoutError as e:
+        logger.error(f"Task {task_id} timed out: {e}")
+        return {
+            'status': 'failed',
+            'error': 'Task timed out after 10 minutes',
+            'task_id': task_id
+        }
     except Exception as e:
-        logger.error(f"Task {task_id} failed: {e}")
-        raise
+        logger.error(f"Task {task_id} failed: {e}", exc_info=True)
+        return {
+            'status': 'failed',
+            'error': str(e),
+            'task_id': task_id
+        }
     finally:
-        loop.close()
+        # Cancel timeout alarm
+        signal.alarm(0)
 
 class RobustWorker(Worker):
     """Enhanced RQ worker with memory management and graceful shutdown."""

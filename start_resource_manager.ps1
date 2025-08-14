@@ -69,3 +69,4 @@ if ($Verbose) { $params += "-Verbose" }
 Write-Host "Launching Smart Resource Manager..." -ForegroundColor Green
 & ".\smart_resource_manager.ps1" @params
 
+

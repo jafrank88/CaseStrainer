@@ -18,6 +18,8 @@ from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
 from src.test_environment_safeguard import validate_request, check_test_environment, test_safeguard
+from src.rq_worker import process_citation_task_direct
+from src.unified_input_processor import UnifiedInputProcessor
 
 logger = logging.getLogger(__name__)
 
@@ -133,7 +135,7 @@ def db_stats():
         return jsonify({'error': 'Database stats unavailable'}), 503
 
 @vue_api.route('/analyze', methods=['POST'])
-async def analyze():
+def analyze():
     """
     Main analysis endpoint that handles all types of input (file, JSON, form, URL).
     
@@ -244,145 +246,194 @@ async def analyze():
             except Exception as e:
                 logger.warning(f"[Request {request_id}] Failed to parse JSON data: {str(e)}")
         
-        # Route to appropriate handler based on input type
+        # Initialize unified input processor
+        processor = UnifiedInputProcessor()
+        
+        # Determine input type and data
+        input_data = None
+        input_type = None
+        
         # 1. Check for file uploads first
         if 'file' in request.files and request.files['file'].filename:
-            logger.info(f"[Request {request_id}] Routing to file upload handler")
+            logger.info(f"[Request {request_id}] Processing file upload")
+            input_data = request.files['file']
+            input_type = 'file'
             metadata.update({
                 'input_type': 'file',
                 'filename': request.files['file'].filename,
                 'content_type': request.files['file'].content_type or 'application/octet-stream'
             })
-            
-            try:
-                # Temporarily disable test safeguard for file uploads
-                # result = await _handle_file_upload(service, request_id)
-                result = await _handle_file_upload(service, request_id)
-                return _format_response(result, request_id, metadata, start_time)
-                
-            except Exception as e:
-                error_msg = f"Error in file upload handler: {str(e)}"
-                logger.error(f"[Request {request_id}] {error_msg}", exc_info=True)
-                return _format_error(
-                    error_msg, 
-                    status_code=500, 
-                    request_id=request_id, 
-                    metadata={
-                        **metadata,
-                        'error_type': 'file_upload_error',
-                        'error_details': str(e)
-                    }
-                )
         
-        # 2. Check for JSON input
+        # 2. Check for JSON input (text or URL) - use immediate processing for text
         elif request.is_json or json_data:
-            logger.info(f"[Request {request_id}] Routing to JSON input handler")
-            metadata.update({
-                'input_type': 'json',
-                'has_json_data': json_data is not None
-            })
+            logger.info(f"[Request {request_id}] Processing JSON input")
+            data = json_data or request.get_json()
             
-            try:
-                result = await _handle_json_input(service, request_id, json_data or request.get_json())
-                # Check if result indicates an error
-                if result.get('success') is False or result.get('error'):
-                    return _format_error(
-                        result.get('error', 'Unknown error'),
-                        status_code=400,
-                        request_id=request_id,
-                        metadata={
-                            **metadata,
-                            **result.get('metadata', {})
-                        }
-                    )
-                return _format_response(result, request_id, metadata, start_time)
-                
-            except Exception as e:
-                error_msg = f"Error in JSON input handler: {str(e)}"
-                logger.error(f"[Request {request_id}] {error_msg}", exc_info=True)
-                return _format_error(
-                    error_msg,
-                    status_code=400,
-                    request_id=request_id,
-                    metadata={
-                        **metadata,
-                        'error_type': 'json_parse_error',
-                        'error_details': str(e)
-                    }
-                )
+            if data and isinstance(data, dict):
+                if data.get('type') == 'url' and data.get('url'):
+                    input_data = data['url']
+                    input_type = 'url'
+                    metadata.update({
+                        'input_type': 'url',
+                        'url': data['url']
+                    })
+                elif data.get('type') == 'text' and data.get('text'):
+                    # Handle text input with immediate processing check
+                    text_data = data['text']
+                    input_dict = {'type': 'text', 'text': text_data}
+                    
+                    # Check if we should process immediately
+                    if service.should_process_immediately(input_dict):
+                        logger.info(f"[Request {request_id}] Processing JSON text immediately (short text)")
+                        try:
+                            result = service.process_immediately(input_dict)
+                            
+                            # Add request metadata
+                            result['request_id'] = request_id
+                            if 'metadata' not in result:
+                                result['metadata'] = {}
+                            result['metadata'].update({
+                                'processing_mode': 'immediate',
+                                'input_type': 'text',
+                                'text_length': len(text_data)
+                            })
+                            
+                            return _format_response(result, request_id, metadata, start_time)
+                        except Exception as e:
+                            logger.error(f"[Request {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
+                            # Fall back to async processing
+                    
+                    # Set for async processing if immediate processing failed or not applicable
+                    input_data = text_data
+                    input_type = 'text'
+                    metadata.update({
+                        'input_type': 'text',
+                        'text_length': len(text_data)
+                    })
+                elif data.get('text'):  # Legacy format
+                    # Handle legacy text input with immediate processing check
+                    text_data = data['text']
+                    input_dict = {'type': 'text', 'text': text_data}
+                    
+                    # Check if we should process immediately
+                    if service.should_process_immediately(input_dict):
+                        logger.info(f"[Request {request_id}] Processing legacy JSON text immediately (short text)")
+                        try:
+                            result = service.process_immediately(input_dict)
+                            
+                            # Add request metadata
+                            result['request_id'] = request_id
+                            if 'metadata' not in result:
+                                result['metadata'] = {}
+                            result['metadata'].update({
+                                'processing_mode': 'immediate',
+                                'input_type': 'text',
+                                'text_length': len(text_data)
+                            })
+                            
+                            return _format_response(result, request_id, metadata, start_time)
+                        except Exception as e:
+                            logger.error(f"[Request {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
+                            # Fall back to async processing
+                    
+                    # Set for async processing if immediate processing failed or not applicable
+                    input_data = text_data
+                    input_type = 'text'
+                    metadata.update({
+                        'input_type': 'text',
+                        'text_length': len(text_data)
+                    })
         
-        # 3. Check for form data (including URL parameters)
+        # 3. Check for form data
         elif request.form:
-            logger.info(f"[Request {request_id}] Routing to form input handler")
-            metadata.update({
-                'input_type': 'form',
-                'form_fields': list(request.form.keys())
-            })
-            
-            try:
-                result = await _handle_form_input(service, request_id)
-                # Check if result indicates an error
-                if result.get('success') is False or result.get('error'):
-                    return _format_error(
-                        result.get('error', 'Unknown error'),
-                        status_code=400,
-                        request_id=request_id,
-                        metadata={
-                            **metadata,
-                            **result.get('metadata', {})
-                        }
-                    )
-                return _format_response(result, request_id, metadata, start_time)
-                
-            except Exception as e:
-                error_msg = f"Error in form input handler: {str(e)}"
-                logger.error(f"[Request {request_id}] {error_msg}", exc_info=True)
-                return _format_error(
-                    error_msg,
-                    status_code=400,
-                    request_id=request_id,
-                    metadata={
-                        **metadata,
-                        'error_type': 'form_parse_error',
-                        'error_details': str(e)
-                    }
-                )
+            logger.info(f"[Request {request_id}] Processing form input")
+            if 'url' in request.form:
+                input_data = request.form['url']
+                input_type = 'url'
+                metadata.update({
+                    'input_type': 'url',
+                    'url': request.form['url']
+                })
+            elif 'text' in request.form:
+                input_data = request.form['text']
+                input_type = 'text'
+                metadata.update({
+                    'input_type': 'text',
+                    'text_length': len(request.form['text'])
+                })
         
-        # 4. Check for raw URL in request data (for backward compatibility)
+        # 4. Check for raw URL in request data (backward compatibility)
         elif request.data and isinstance(request.data, (str, bytes)):
             try:
                 url = request.data.decode('utf-8').strip() if isinstance(request.data, bytes) else request.data.strip()
                 if url.startswith(('http://', 'https://')):
-                    logger.info(f"[Request {request_id}] Detected raw URL input: {url}")
-                    
-                    # Validate URL before processing
-                    if not _validate_url(url):
-                        error_msg = 'Invalid or unsafe URL provided'
-                        logger.warning(f"[Request {request_id}] URL validation failed: {url}")
-                        return _format_error(
-                            error_msg,
-                            status_code=400,
-                            request_id=request_id,
-                            metadata={
-                                **metadata,
-                                'input_type': 'url',
-                                'url': url,
-                                'rejected_reason': 'url_validation_failed'
-                            }
-                        )
-                    
+                    logger.info(f"[Request {request_id}] Processing raw URL input")
+                    input_data = url
+                    input_type = 'url'
                     metadata.update({
                         'input_type': 'url',
                         'url': url
                     })
-                    
-                    result = await _process_url_input(url)
-                    return _format_response(result, request_id, metadata, start_time)
-                    
             except Exception as e:
-                logger.warning(f"[Request {request_id}] Failed to process as URL: {str(e)}")
+                logger.warning(f"[Request {request_id}] Failed to process raw data as URL: {str(e)}")
         
-        # 5. No valid input found
+        # Process input - check for immediate processing first
+        if input_data is not None and input_type is not None:
+            logger.info(f"[Request {request_id}] Processing {input_type} input")
+            
+            try:
+                # Check if we should process immediately (for short text)
+                if input_type == 'text':
+                    input_dict = {'type': 'text', 'text': input_data}
+                    if service.should_process_immediately(input_dict):
+                        logger.info(f"[Request {request_id}] Processing text immediately (short text)")
+                        result = service.process_immediately(input_dict)
+                        
+                        # Add request metadata
+                        result['request_id'] = request_id
+                        if 'metadata' not in result:
+                            result['metadata'] = {}
+                        result['metadata'].update({
+                            'processing_mode': 'immediate',
+                            'input_type': input_type,
+                            'text_length': len(input_data)
+                        })
+                        
+                        return _format_response(result, request_id, metadata, start_time)
+                
+                # Use unified processor for async processing (files, URLs, long text)
+                logger.info(f"[Request {request_id}] Using unified processor for {input_type} input")
+                result = processor.process_any_input(input_data, input_type, request_id)
+                
+                # Check if result indicates an error
+                if result.get('success') is False or result.get('error'):
+                    return _format_error(
+                        result.get('error', 'Unknown error'),
+                        status_code=400,
+                        request_id=request_id,
+                        metadata={
+                            **metadata,
+                            **result.get('metadata', {})
+                        }
+                    )
+                
+                return _format_response(result, request_id, metadata, start_time)
+                
+            except Exception as e:
+                error_msg = f"Error in unified processor: {str(e)}"
+                logger.error(f"[Request {request_id}] {error_msg}", exc_info=True)
+                return _format_error(
+                    error_msg,
+                    status_code=500,
+                    request_id=request_id,
+                    metadata={
+                        **metadata,
+                        'error_type': 'unified_processor_error',
+                        'error_details': str(e)
+                    }
+                )
+        
+        # No valid input found
         content_type = request.content_type or 'not specified'
         error_msg = (
             f"Invalid or missing input. No file, JSON, or form data found. "
@@ -446,6 +497,7 @@ def _format_response(result, request_id, metadata, start_time):
         },
         'request_id': request_id,
         'success': result.get('success', True),
+        'status': result.get('status', 'completed'),  # Always include status
         'metadata': {**result.get('metadata', {}), **metadata}
     }
     
@@ -464,22 +516,78 @@ def _format_response(result, request_id, metadata, start_time):
     
     # Log successful response (without large data)
     log_data = copy.deepcopy(response_data)
+    
+    def safe_serialize(obj):
+        """Safely serialize objects to JSON, handling custom objects"""
+        if hasattr(obj, '__dict__'):
+            return obj.__dict__
+        elif hasattr(obj, 'to_dict'):
+            return obj.to_dict()
+        elif isinstance(obj, (list, tuple)):
+            return [safe_serialize(item) for item in obj]
+        elif isinstance(obj, dict):
+            return {k: safe_serialize(v) for k, v in obj.items()}
+        return str(obj)  # Fallback to string representation
+    
+    # Clean up the log data to avoid excessive logging
     if 'result' in log_data:
         result_data = log_data['result']
-        if 'citations' in result_data and len(result_data['citations']) > 5:
-            result_data['citations'] = f"[list of {len(result_data['citations'])} citations]"
-        if 'clusters' in result_data and len(result_data['clusters']) > 3:
-            result_data['clusters'] = f"[list of {len(result_data['clusters'])} clusters]"
+        if 'citations' in result_data:
+            if len(result_data['citations']) > 5:
+                result_data['citations'] = f"[list of {len(result_data['citations'])} citations]"
+            else:
+                result_data['citations'] = safe_serialize(result_data['citations'])
+                
+        if 'clusters' in result_data:
+            if len(result_data['clusters']) > 3:
+                result_data['clusters'] = f"[list of {len(result_data['clusters'])} clusters]"
+            else:
+                result_data['clusters'] = safe_serialize(result_data['clusters'])
     
     logger.info(f"[Request {request_id}] Request completed successfully in {processing_time_ms}ms")
     logger.debug(f"[Request {request_id}] Response data: {log_data}")
 
     # Write full API response to a log file for debugging
     try:
+        # Ensure the logs directory exists
+        os.makedirs('/app/logs', exist_ok=True)
+        
+        # Safely serialize the response data
+        serializable_data = safe_serialize(response_data)
+        
         with open('/app/logs/frontend_api_results.log', 'a', encoding='utf-8') as f:
-            f.write(json.dumps(response_data, ensure_ascii=False) + '\n')
+            f.write(json.dumps(serializable_data, ensure_ascii=False) + '\n')
     except Exception as e:
         logger.error(f"Failed to write API response to log file: {e}")
+        # Don't fail the request just because logging failed
+    
+    # Ensure the response is JSON-serializable
+    try:
+        # First, try to serialize the entire response
+        json.dumps(response_data)
+    except (TypeError, ValueError) as e:
+        logger.error(f"Response contains non-serializable data: {e}")
+        try:
+            # If that fails, try to serialize each part individually
+            if 'result' in response_data and response_data['result']:
+                if 'citations' in response_data['result']:
+                    response_data['result']['citations'] = [
+                        cit.to_dict() if hasattr(cit, 'to_dict') else safe_serialize(cit)
+                        for cit in response_data['result']['citations']
+                    ]
+                if 'clusters' in response_data['result']:
+                    response_data['result']['clusters'] = [
+                        {k: (v.to_dict() if hasattr(v, 'to_dict') else safe_serialize(v)) 
+                         for k, v in cluster.items()}
+                        for cluster in response_data['result']['clusters']
+                    ]
+            
+            # Try to serialize again after fixing the citations and clusters
+            json.dumps(response_data)
+        except (TypeError, ValueError) as e2:
+            logger.error(f"Failed to fix non-serializable data: {e2}")
+            # As a last resort, convert everything to strings
+            response_data = safe_serialize(response_data)
 
     return jsonify(response_data)
 
@@ -729,7 +837,7 @@ def processing_progress():
     # Redirect to the existing task_status endpoint
     return task_status(task_id)
 
-async def _handle_file_upload(service, request_id):
+def _handle_file_upload(service, request_id):
     """
     Handle file upload with proper async processing and CitationService integration
     
@@ -835,7 +943,7 @@ async def _handle_file_upload(service, request_id):
                 from src.rq_worker import process_citation_task_direct
                 
                 # Connect to Redis using environment variable or default
-                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
                 redis_conn = Redis.from_url(redis_url)
                 queue = Queue('casestrainer', connection=redis_conn)
                 
@@ -877,9 +985,17 @@ async def _handle_file_upload(service, request_id):
                 if file_ext == 'pdf':
                     import PyPDF2
                     text = ''
-                    with open(file_path, 'rb') as f:
-                        pdf_reader = PyPDF2.PdfReader(f)
-                        text = '\n'.join(page.extract_text() for page in pdf_reader.pages)
+                    logger.info(f"[File Upload {request_id}] Starting PDF text extraction from: {file_path}")
+                    try:
+                        with open(file_path, 'rb') as f:
+                            pdf_reader = PyPDF2.PdfReader(f)
+                            logger.info(f"[File Upload {request_id}] PDF has {len(pdf_reader.pages)} pages")
+                            text = '\n'.join(page.extract_text() for page in pdf_reader.pages)
+                            logger.info(f"[File Upload {request_id}] Extracted text length: {len(text)} characters")
+                            logger.info(f"[File Upload {request_id}] First 200 chars: {text[:200]}")
+                    except Exception as e:
+                        logger.error(f"[File Upload {request_id}] PDF extraction failed: {e}")
+                        text = f"[Error extracting PDF content: {str(e)}]"
                 elif file_ext == 'docx':
                     try:
                         from docx import Document
@@ -936,9 +1052,32 @@ async def _handle_file_upload(service, request_id):
                     with open(file_path, 'r', encoding='utf-8', errors='replace') as f:
                         text = f.read()
                 
-                # Process the text synchronously (for files, we want immediate processing)
+                # Process the text synchronously using the correct citation processor
                 logger.info(f"[File Upload {request_id}] Processing extracted text synchronously")
-                result = await service.process_citations_from_text(text)
+                logger.info(f"[File Upload {request_id}] Text to process length: {len(text)} characters")
+                logger.info(f"[File Upload {request_id}] Text preview: {text[:300]}...")
+                
+                # Use the new unified citation extraction pipeline
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                processor = UnifiedCitationProcessorV2()
+                
+                # Use the unified extraction method that includes:
+                # 1. Both regex and eyecite extraction with false positive prevention
+                # 2. Deduplication of combined results  
+                # 3. Name and date extraction for each citation
+                # 4. Component normalization
+                citations = processor._extract_citations_unified(text)
+                
+                # Format result to match expected structure
+                result = {
+                    'citations': [citation.__dict__ if hasattr(citation, '__dict__') else citation for citation in citations],
+                    'clusters': [],  # Clustering will be handled by full async pipeline if needed
+                    'statistics': {'total_citations': len(citations)}
+                }
+                
+                logger.info(f"[File Upload {request_id}] Citation processing completed")
+                logger.info(f"[File Upload {request_id}] Found {len(result.get('citations', []))} citations")
+                logger.info(f"[File Upload {request_id}] Found {len(result.get('clusters', []))} clusters")
                 
                 # Format the result for consistency
                 formatted_result = {
@@ -1000,7 +1139,7 @@ async def _handle_file_upload(service, request_id):
         logger.error(f"File upload error: {e}", exc_info=True)
         return jsonify({'error': f'Failed to process file: {str(e)}', 'citations': [], 'clusters': []}), 500
 
-async def _handle_json_input(service, request_id, data=None):
+def _handle_json_input(service, request_id, data=None):
     """
     Handle JSON input processing with CitationService integration
     
@@ -1105,7 +1244,7 @@ async def _handle_json_input(service, request_id, data=None):
                 
             logger.info(f"[JSON Input {request_id}] Processing text input...")
             try:
-                result = await _process_text_input(
+                result = _process_text_input(
                     service=service,
                     request_id=request_id,
                     text=text,
@@ -1149,7 +1288,7 @@ async def _handle_json_input(service, request_id, data=None):
                 
             logger.info(f"[_handle_json_input] [Request {request_id}] Processing URL input...")
             try:
-                result = await _process_url_input(url, request_id)
+                result = _process_url_input(url, request_id)
                 logger.info(f"[_handle_json_input] [Request {request_id}] URL processing completed successfully")
                 return result
             except Exception as e:
@@ -1250,8 +1389,8 @@ async def _handle_form_input(service, request_id):
             'success': False
         }
 
-async def _process_text_input(service, request_id, text, source_name="form-input"):
-    """Process text input with citation service using async queue."""
+def _process_text_input(service, request_id, text, source_name="form-input"):
+    """Process text input with citation service synchronously."""
     try:
         logger.info(f"[Text Input {request_id}] Processing text of length: {len(text)}")
         
@@ -1273,63 +1412,61 @@ async def _process_text_input(service, request_id, text, source_name="form-input
                 }
             }
         
-        # Check if we should process immediately or queue
+        # Process the text immediately for better reliability
+        logger.info(f"[Text Input {request_id}] Processing text immediately")
         input_data = {'type': 'text', 'text': text}
-        if service.should_process_immediately(input_data):
-            logger.info(f"[Text Input {request_id}] Processing text immediately (short text)")
-            result = await service.process_immediately(input_data)
+        result = service.process_immediately(input_data)
+        
+        # Ensure all citations have the required six data points
+        citations = result.get('citations', [])
+        for citation in citations:
+            # Ensure all required fields are present
+            citation.setdefault('extracted_case_name', None)
+            citation.setdefault('extracted_date', None)
+            citation.setdefault('canonical_name', None)
+            citation.setdefault('canonical_date', None)
+            citation.setdefault('canonical_url', None)
+            citation.setdefault('verified', False)
             
-            return {
-                'citations': result.get('citations', []),
-                'clusters': result.get('clusters', []),
-                'request_id': request_id,
-                'success': True,
-                'metadata': {
-                    'source': source_name,
-                    'text_length': len(text),
-                    'processing_time': time.time(),
-                    'processing_mode': 'immediate'
-                }
+            # Set case_name to extracted_case_name if not present
+            if 'case_name' not in citation and citation.get('extracted_case_name'):
+                citation['case_name'] = citation['extracted_case_name']
+                
+            # Set year to extracted_date if not present
+            if 'year' not in citation and citation.get('extracted_date'):
+                citation['year'] = citation['extracted_date']
+        
+        return {
+            'citations': citations,
+            'clusters': result.get('clusters', []),
+            'request_id': request_id,
+            'success': True,
+            'metadata': {
+                'source': source_name,
+                'text_length': len(text),
+                'processing_time': time.time(),
+                'processing_mode': 'immediate',
+                'citation_count': len(citations),
+                'cluster_count': len(result.get('clusters', [])),
+                'has_verified_citations': any(c.get('verified', False) for c in citations)
             }
-        else:
-            logger.info(f"[Text Input {request_id}] Queuing text for async processing")
-            
-            # Import RQ for async task processing
-            from rq import Queue
-            from redis import Redis
-            
-            # Connect to Redis using environment variable or default
-            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
-            redis_conn = Redis.from_url(redis_url)
-            queue = Queue('casestrainer', connection=redis_conn)
-            
-            # Enqueue the text processing task
-            job = queue.enqueue(
-                process_citation_task_direct,
-                args=(request_id, 'text', {'text': text}),
-                job_timeout=600,  # 10 minutes timeout (optimized)
-                result_ttl=86400,
-                failure_ttl=86400
-            )
-            
-            logger.info(f"[Text Input {request_id}] Text processing task enqueued with job_id: {job.id}")
-            
-            # Return task_id for frontend polling
-            return {
-                'task_id': request_id,
-                'status': 'processing',
-                'message': 'Text processing started',
-                'request_id': request_id,
-                'success': True,
-                'metadata': {
-                    'source': source_name,
-                    'text_length': len(text),
-                    'processing_mode': 'queued'
-                }
-            }
+        }
             
     except Exception as e:
         logger.error(f"[Text Input {request_id}] Error: {str(e)}", exc_info=True)
+        return {
+            'error': f'Error processing text: {str(e)}',
+            'citations': [],
+            'clusters': [],
+            'request_id': request_id,
+            'success': False,
+            'metadata': {
+                'source': source_name,
+                'text_length': len(text) if 'text' in locals() else 0,
+                'error_type': type(e).__name__,
+                'processing_mode': 'failed'
+            }
+        }
         raise
 
 def _is_test_citation_text(text: str) -> bool:
@@ -1442,7 +1579,7 @@ def _validate_url(url: str) -> bool:
         logger.warning(f"URL validation error: {str(e)}")
         return False
 
-async def _process_url_input(url, request_id=None):
+def _process_url_input(url, request_id=None):
     """Process URL input by fetching content and processing it with citation service."""
     try:
         # Generate request_id if not provided
@@ -1518,7 +1655,7 @@ async def _process_url_input(url, request_id=None):
         input_data = {'type': 'text', 'text': content}
         if service.should_process_immediately(input_data):
             logger.info(f"[URL Input {request_id}] Processing URL content immediately (short content)")
-            result = await service.process_immediately(input_data)
+            result = service.process_immediately(input_data)
             
             return {
                 'citations': result.get('citations', []),
@@ -1542,7 +1679,7 @@ async def _process_url_input(url, request_id=None):
             from redis import Redis
             
             # Connect to Redis using environment variable or default
-            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0')
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
             redis_conn = Redis.from_url(redis_url)
             queue = Queue('casestrainer', connection=redis_conn)
             

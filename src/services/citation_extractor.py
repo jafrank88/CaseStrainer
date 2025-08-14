@@ -554,7 +554,8 @@ class CitationExtractor(ICitationExtractor):
         deduplicated = []
         
         for citation in citations:
-            normalized = self._normalize_citation(citation.citation)
+            # Use comprehensive normalization with comparison purpose
+            normalized = self._normalize_citation_comprehensive(citation.citation, purpose="comparison")
             
             if normalized not in seen:
                 seen[normalized] = citation

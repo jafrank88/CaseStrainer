@@ -25,13 +25,14 @@
 
 <script>
 import { computed } from 'vue';
-import { useLoadingState } from '@/utils/loading';
+import { globalProgress } from '@/stores/progressStore';
 
 export default {
   name: 'AppErrorHandler',
   
   setup() {
-    const { errors, clearErrors } = useLoadingState();
+    const errors = computed(() => globalProgress.progressState.error ? [globalProgress.progressState.error] : []);
+    const clearErrors = () => globalProgress.clearError();
     
     const hasErrors = computed(() => errors.value.length > 0);
     

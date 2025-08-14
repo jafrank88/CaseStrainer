@@ -14,6 +14,23 @@ logger = logging.getLogger(__name__)
 # Add stubs for canonical_service and websearch verification as well
 
 def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, text):
+    """
+    DEPRECATED: Use cluster_citations_unified() with enable_verification=True instead.
+    
+    This function is deprecated in favor of the unified clustering and verification system.
+    The new system provides better batch processing, rate limiting, and integration.
+    
+    Example:
+        from src.unified_citation_clustering import cluster_citations_unified
+        clusters = cluster_citations_unified(citations, text, enable_verification=True)
+    """
+    import warnings
+    warnings.warn(
+        "verify_citations_with_courtlistener_batch is deprecated. "
+        "Use cluster_citations_unified() with enable_verification=True instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     print(f"[DEBUG PRINT] ENTERED verify_citations_with_courtlistener_batch with {len(citations)} citations")
     if not courtlistener_api_key:
         print("[DEBUG PRINT] No CourtListener API key available")
@@ -130,16 +147,27 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
 
 def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_name=None):
     """
-    DEPRECATED: This function is broken and should not be used.
+    DEPRECATED: Use cluster_citations_unified() with enable_verification=True instead.
     
-    Issues with this function:
-    1. Uses wrong request format (data= instead of json=)
-    2. Incomplete response parsing logic
-    3. Always returns verified=False
+    This individual verification function is deprecated in favor of the unified
+    clustering and batch verification system which is more efficient and accurate.
     
-    Use the correct function from src.courtlistener_verification instead:
-    from src.courtlistener_verification import verify_with_courtlistener
+    Issues with individual verification:
+    1. Inefficient - makes one API call per citation
+    2. No rate limiting coordination
+    3. Doesn't benefit from clustering context
+    
+    Use the unified system instead:
+        from src.unified_citation_clustering import cluster_citations_unified
+        clusters = cluster_citations_unified(citations, text, enable_verification=True)
     """
+    import warnings
+    warnings.warn(
+        "verify_with_courtlistener is deprecated. "
+        "Use cluster_citations_unified() with enable_verification=True for batch verification.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     import warnings
     warnings.warn(
         "This verify_with_courtlistener function in citation_verification.py is DEPRECATED and BROKEN. "

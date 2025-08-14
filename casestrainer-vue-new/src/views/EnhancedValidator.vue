@@ -3,14 +3,7 @@
     <!-- Header -->
     <div class="header text-center mb-4">
       <h1 class="results-title">{{ headerTitle }}</h1>
-      <div style="background: yellow; color: black; padding: 10px; margin: 10px; border: 2px solid red;">
-        <strong>DEBUG: EnhancedValidator component is rendering!</strong>
-        <br>shouldShowInput: {{ shouldShowInput }}
-        <br>results: {{ !!results }}
-        <br>error: {{ !!error }}
-        <br>simpleLoading: {{ simpleLoading }}
-        <br>hasActiveRequest: {{ hasActiveRequest }}
-      </div>
+
     </div>
 
     <!-- Loading State -->
@@ -28,9 +21,9 @@
           <p class="timeout-info">This may take up to 30 seconds. Please don't close this page.</p>
           <div class="progress-indicator">
             <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: loadingProgress + '%' }"></div>
+              <div class="progress-fill" :style="{ width: globalProgress.progressState.percentage + '%' }"></div>
             </div>
-            <span class="progress-text">{{ loadingProgressText }}</span>
+            <span class="progress-text">{{ globalProgress.progressState.statusText }}</span>
           </div>
         </div>
       </div>
@@ -72,8 +65,10 @@
 
 <script>
 import { ref, computed, onMounted, watch } from 'vue';
+import axios from 'axios';
 import UnifiedInput from '@/components/UnifiedInput.vue';
 import CitationResults from '@/components/CitationResults.vue';
+import { globalProgress } from '@/stores/progressStore';
 
 export default {
   name: 'EnhancedValidator',
@@ -87,32 +82,25 @@ export default {
     const error = ref(null);
     const simpleLoading = ref(false);
     const hasActiveRequest = ref(false);
-    const loadingStartTime = ref(null);
-    const loadingProgress = ref(0);
-    const loadingProgressText = ref('');
-
-    // Debug: Log results every time it changes
+    
+    // Watch for results changes
     watch(results, (newVal) => {
-      console.log('🟢 EnhancedValidator.vue results.value changed:', newVal);
+      // Handle results changes if needed
+    });
+    
+    // Component mounted hook
+    onMounted(() => {
+      // Component initialization code here
     });
 
     // Computed property to determine loading state
     const showLoading = computed(() => {
-      const result = simpleLoading.value || hasActiveRequest.value;
-      console.log('🔄 showLoading computed - simpleLoading:', simpleLoading.value, 'hasActiveRequest:', hasActiveRequest.value, 'result:', result);
-      return result;
+      return simpleLoading.value || hasActiveRequest.value || globalProgress.progressState.isActive;
     });
 
     // Computed property to determine when to show input form
     const shouldShowInput = computed(() => {
-      const show = !results.value && !error.value && !showLoading.value;
-      console.log('🔍 shouldShowInput computed -', { 
-        show, 
-        hasResults: !!results.value, 
-        hasError: !!error.value, 
-        isLoading: showLoading.value 
-      });
-      return show;
+      return !results.value && !error.value && !showLoading.value;
     });
 
     // Computed property for dynamic header title
@@ -122,80 +110,144 @@ export default {
 
     // Handler for unified analyze requests
     const handleUnifiedAnalyze = async (data) => {
-      console.log('🚀 handleUnifiedAnalyze called with data:', data);
       
       try {
         // Set loading state
         simpleLoading.value = true;
         hasActiveRequest.value = true;
         error.value = null;
-        loadingStartTime.value = Date.now();
-        loadingProgress.value = 0;
-        loadingProgressText.value = 'Starting...';
+        // Start global progress tracking
+        globalProgress.startProgress('document', {});
 
         let response;
-        const formData = new FormData();
+        let formData = new FormData();
         let endpoint = '';
 
+        // All requests go to the same analyze endpoint with the /casestrainer prefix
+        endpoint = '/casestrainer/api/analyze';
+
         // Prepare request based on input type
-        if (data.type === 'file') {
-          // File upload
-          endpoint = '/api/upload';
-          // data is already a FormData object with the file
-          formData.append('file', data.get('file'));
+        if (data instanceof FormData) {
+          // For file uploads and URL requests, data is already a FormData object
+          formData = data;
         } else if (data.type === 'text') {
-          // Text input
-          endpoint = '/api/text';
           formData.append('text', data.text);
+          formData.append('type', 'text');
+          // Add source and other metadata if available
+          if (data.source) formData.append('source', data.source);
+          if (data.fileName) formData.append('fileName', data.fileName);
+          if (data.fileSize) formData.append('fileSize', data.fileSize);
         } else if (data.type === 'url') {
           // URL input
-          endpoint = '/api/url';
+          console.log('🌐 URL input data:', data);
           formData.append('url', data.url);
+          formData.append('type', 'url');
         }
 
-        console.log('📤 Sending request to:', endpoint);
-        
-        // Make the API request
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5 minute timeout
+        // Prepare request data
 
+        // Use axios instead of fetch to leverage the configured base URL
         try {
-          response = await fetch(endpoint, {
-            method: 'POST',
-            body: formData,
-            signal: controller.signal,
-            // Don't set Content-Type header, let the browser set it with the correct boundary
+          response = await axios.post(endpoint, formData, {
+            timeout: 300000, // 5 minute timeout
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest',
+              // Let axios set the Content-Type for FormData with boundary
+              'Accept': 'application/json, text/plain, */*'
+            },
+            transformRequest: (data, headers) => {
+              // Let axios handle the FormData content type with boundary
+              if (data instanceof FormData) {
+                // Remove any existing Content-Type to let the browser set it with the boundary
+                delete headers['Content-Type'];
+              }
+              return data;
+            },
+            withCredentials: true // Include cookies in the request
           });
-
-          clearTimeout(timeoutId);
-        } catch (fetchError) {
-          clearTimeout(timeoutId);
-          if (fetchError.name === 'AbortError') {
+        } catch (axiosError) {
+          console.error('Axios error details:', {
+            message: axiosError.message,
+            code: axiosError.code,
+            status: axiosError.response?.status,
+            statusText: axiosError.response?.statusText,
+            responseData: axiosError.response?.data,
+            config: {
+              url: axiosError.config?.url,
+              method: axiosError.config?.method,
+              headers: axiosError.config?.headers,
+              data: axiosError.config?.data
+            }
+          });
+          
+          if (axiosError.code === 'ECONNABORTED') {
             throw new Error('Request timed out. The server is taking too long to respond.');
+          } else if (axiosError.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            const { status, data } = axiosError.response;
+            console.error('Server responded with error:', { status, data });
+            
+            if (status === 400) {
+              throw new Error(data?.message || 'Bad request. Please check your input and try again.');
+            } else if (status === 401) {
+              throw new Error('Session expired. Please refresh the page and try again.');
+            } else if (status === 403) {
+              throw new Error('You do not have permission to perform this action.');
+            } else if (status === 404) {
+              throw new Error('The requested resource was not found.');
+            } else if (status >= 500) {
+              throw new Error('A server error occurred. Please try again later.');
+            } else {
+              throw new Error(`Request failed with status code ${status}`);
+            }
+          } else if (axiosError.request) {
+            // The request was made but no response was received
+            console.error('No response received:', axiosError.request);
+            throw new Error('No response from server. Please check your network connection.');
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.error('Request setup error:', axiosError.message);
+            throw new Error(`Request failed: ${axiosError.message}`);
           }
-          throw fetchError;
         }
 
-        if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+        if (response.status >= 400) {
+          const errorData = response.data || {};
           throw new Error(errorData.message || `Server returned ${response.status}: ${response.statusText}`);
         }
 
-        const result = await response.json();
-        console.log('✅ API Response:', result);
+        const result = response.data;
         
-        // Update results
-        results.value = result;
+        // Update results - handle nested structure from backend
+        if (result.result) {
+          // Backend returns nested structure: { result: { citations: [...], clusters: [...] } }
+          // Ensure we have the expected structure with clusters and citations
+          if (result.result.clusters || result.result.citations) {
+            results.value = result.result;
+          } else {
+            // If the structure is different, try to normalize it
+            results.value = {
+              clusters: result.result.clusters || [],
+              citations: result.result.citations || []
+            };
+          }
+        } else {
+          // Fallback for direct structure
+          results.value = result;
+        }
         
       } catch (err) {
         console.error('❌ Error in handleUnifiedAnalyze:', err);
         error.value = err.message || 'An error occurred while processing your request';
+        // Set error in global progress store
+        globalProgress.setError(err.message || 'An error occurred while processing your request');
       } finally {
         // Reset loading state
         simpleLoading.value = false;
         hasActiveRequest.value = false;
-        loadingProgress.value = 100;
-        loadingProgressText.value = 'Complete';
+        // Stop global progress tracking
+        // globalProgress tracking is handled by the API response
       }
     };
 
@@ -208,13 +260,7 @@ export default {
       error.value = null;
     };
 
-    // Debug: Log the initial state
-    console.log('EnhancedValidator setup completed', { 
-      shouldShowInput: shouldShowInput.value,
-      results: !!results.value,
-      error: !!error.value,
-      showLoading: showLoading.value
-    });
+    // Initialization complete
 
     return {
       // State
@@ -222,8 +268,9 @@ export default {
       error,
       simpleLoading,
       hasActiveRequest,
-      loadingProgress,
-      loadingProgressText,
+      // loadingProgress and loadingProgressText are now handled by globalProgress store
+      // loadingProgress,
+      // loadingProgressText,
       
       // Computed
       showLoading,

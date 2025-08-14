@@ -437,6 +437,11 @@ class DockerOptimizedProcessor:
         import logging
         logging.info(f"[DEBUG] ENTERED process_document for file_path={file_path}")
         start_time = time.time()
+        
+        # Extract options from kwargs
+        options = kwargs.get('options', {})
+        enable_verification = options.get('enable_verification', True)  # Default to True for backward compatibility
+        
         # Extract text
         print(f"[DEBUG PRINT] About to call extract_text_distributed for file_path={file_path}")
         logging.info(f"[DEBUG] About to call extract_text_distributed for file_path={file_path}")
@@ -452,18 +457,18 @@ class DockerOptimizedProcessor:
                 'error': text,
                 'processing_time': time.time() - start_time
             }
-        # Process citations using existing citation service with verification enabled
+        # Process citations using existing citation service with verification setting from options
         print(f"[DEBUG PRINT] About to import and call CitationService for file_path={file_path}")
         logging.info(f"[DEBUG] About to import and call CitationService for file_path={file_path}")
         from src.api.services.citation_service import CitationService
         from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
         from src.models import ProcessingConfig
         
-        # Explicitly enable verification for async processing (same as sync path)
-        print(f"[DEBUG PRINT] Creating citation processor with verification enabled for async processing")
-        logging.info(f"[DEBUG] Creating citation processor with verification enabled for async processing")
+        # Use verification setting from options
+        print(f"[DEBUG PRINT] Creating citation processor with verification={'enabled' if enable_verification else 'disabled'} for async processing")
+        logging.info(f"[DEBUG] Creating citation processor with verification={'enabled' if enable_verification else 'disabled'} for async processing")
         config = ProcessingConfig(
-            enable_verification=True,
+            enable_verification=enable_verification,
             debug_mode=False  # Disable debug mode to get real citation data
         )
         

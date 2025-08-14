@@ -384,7 +384,7 @@ export default {
         
       } catch (error) {
         console.error('PDF generation failed:', error);
-        alert('PDF generation failed. Please try again.');
+        console.error('PDF generation failed. Please try again.');
       } finally {
         this.generatingPDF = false;
       }

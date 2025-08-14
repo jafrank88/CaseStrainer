@@ -1,2 +1,24 @@
 2025/05/06 20:59:33 [emerg] 8448#8240: unknown directive "http2" in C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx-1.24.0/conf/nginx.conf:25
 2025/05/16 10:46:23 [emerg] 5780#976: unknown directive "http2" in C:\Users\jafrank\OneDrive - UW\Documents\GitHub\CaseStrainer\nginx/conf/nginx.conf:25
+2025/08/14 01:18:21 [warn] 18176#23092: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:18:21 [emerg] 18176#23092: CreateFile() "d:/etc/nginx/mime.types" failed (3: The system cannot find the path specified) in d:\dev\casestrainer\nginx\nginx.conf:12
+2025/08/14 01:18:44 [warn] 8184#21848: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:18:44 [emerg] 8184#21848: CreateFile() "d:\dev\casestrainer\nginx\mime.types" failed (2: The system cannot find the file specified) in d:\dev\casestrainer\nginx\nginx.conf:12
+2025/08/14 01:19:03 [warn] 22984#13736: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:19:03 [emerg] 22984#13736: unknown directive "http2" in d:\dev\casestrainer\nginx\conf.d/wolf.conf:21
+2025/08/14 01:19:30 [warn] 17484#15300: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:19:30 [emerg] 17484#15300: CreateFile() "d:/etc/nginx/mime.types" failed (3: The system cannot find the path specified) in d:\dev\casestrainer\nginx\conf.d/wolf.conf:58
+2025/08/14 01:19:54 [warn] 3452#19340: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:19:54 [emerg] 3452#19340: CreateFile() "d:\dev\casestrainer\nginx\../../conf/mime.types" failed (3: The system cannot find the path specified) in d:\dev\casestrainer\nginx\conf.d/wolf.conf:58
+2025/08/14 01:20:35 [warn] 19980#7200: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:20:35 [emerg] 19980#7200: CreateFile() "d:\dev\casestrainer\nginx\mime.types" failed (2: The system cannot find the file specified) in d:\dev\casestrainer\nginx\conf.d/wolf.conf:58
+2025/08/14 01:20:54 [warn] 17124#22580: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:20:54 [warn] 17124#22580: duplicate extension "js", content type: "application/javascript", previous content type: "application/javascript" in d:\dev\casestrainer\nginx\conf.d/wolf.conf:60
+2025/08/14 01:20:54 [warn] 17124#22580: duplicate extension "css", content type: "text/css", previous content type: "text/css" in d:\dev\casestrainer\nginx\conf.d/wolf.conf:61
+2025/08/14 01:20:54 [emerg] 17124#22580: host not found in upstream "casestrainer-backend-prod" in d:\dev\casestrainer\nginx\conf.d/casestrainer.conf:17
+2025/08/14 01:23:14 [warn] 21204#6516: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:23:14 [emerg] 21204#6516: host not found in upstream "casestrainer-backend-prod" in d:\dev\casestrainer\nginx\conf.d/casestrainer.conf:17
+2025/08/14 01:24:18 [warn] 13532#14896: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:24:18 [emerg] 13532#14896: host not found in upstream "casestrainer-backend" in d:\dev\casestrainer\nginx\conf.d/casestrainer.conf:17
+2025/08/14 01:31:34 [warn] 11844#16524: "user" is not supported, ignored in d:\dev\casestrainer\nginx\nginx.conf:1
+2025/08/14 01:31:34 [emerg] 11844#16524: host not found in upstream "casestrainer-backend" in d:\dev\casestrainer\nginx\conf.d/casestrainer.conf:17

@@ -1,0 +1,57 @@
+{
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true,
+      "policy": [
+        {"keepStorage": "10GB", "filter": ["unused-for=24h"]},
+        {"keepStorage": "50GB", "all": true}
+      ]
+    }
+  },
+  "experimental": false,
+  "features": {
+    "buildkit": true,
+    "containerd-snapshotter": true
+  },
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "10m",
+    "max-file": "3",
+    "compress": "true"
+  },
+  "storage-driver": "overlay2",
+  "storage-opts": [
+    "overlay2.override_kernel_check=true"
+  ],
+  "default-ulimits": {
+    "nofile": {
+      "Name": "nofile",
+      "Hard": 65535,
+      "Soft": 65535
+    }
+  },
+  "max-concurrent-downloads": 5,
+  "max-concurrent-uploads": 3,
+  "registry-mirrors": ["https://registry-1.docker.io"],
+  "insecure-registries": [],
+  "default-address-pools": [
+    {
+      "base": "172.17.0.0/16",
+      "size": 24
+    }
+  ],
+  "shutdown-timeout": 15,
+  "debug": false,
+  "metrics-addr": "127.0.0.1:9323",
+  "dns": ["8.8.8.8", "8.8.4.4"],
+  "ipv6": false,
+  "ip-forward": true,
+  "ip-masq": true,
+  "userland-proxy": true,
+  "ip": "0.0.0.0",
+  "icc": true,
+  "live-restore": true,
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "cgroup-parent": "/docker/containers"
+}

@@ -1,8 +1,22 @@
 """
 Unified Citation Processor v2 - Refactored
 
-This is the refactored version of the unified citation processor that uses
-modular components for better maintainability and type safety.
+DEPRECATED: This refactored version is being deprecated in favor of the corrected 
+unified_citation_processor_v2.py which now includes:
+
+1. CORRECTED PROCESSING ORDER: Name/date extraction and clustering happen while 
+   full text context is still available (based on user feedback)
+2. ENHANCED FALSE POSITIVE PREVENTION: Prevents volume/page confusion issues
+3. UNIFIED PIPELINE: Integrates both regex and eyecite extraction with proper deduplication
+
+This refactored version had good modular design but:
+- Used the wrong processing order (deduplication before context-dependent operations)
+- Lacked the enhanced false positive prevention logic
+- Had incomplete integration with the existing codebase
+
+The main unified_citation_processor_v2.py now incorporates the best logic from both versions.
+
+MIGRATION: Use unified_citation_processor_v2.py instead of this file.
 """
 
 import logging

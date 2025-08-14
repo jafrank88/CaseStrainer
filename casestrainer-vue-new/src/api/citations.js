@@ -8,7 +8,7 @@ const citationsApi = {
    */
   validateCitation(citation) {
     // Send single citations through the paste text pipeline for consistency
-    return api.post('/analyze', { 
+    return api.post('/casestrainer/api/analyze', { 
       text: citation,
       type: 'text'
     });
@@ -29,7 +29,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   getCitationMetadata(citation) {
-    return api.get(`/metadata?citation=${encodeURIComponent(citation)}`);
+    return api.get(`/casestrainer/api/metadata?citation=${encodeURIComponent(citation)}`);
   },
 
   /**
@@ -39,7 +39,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   getCitationNetwork(citation, depth = 1) {
-    return api.get(`/network?citation=${encodeURIComponent(citation)}&depth=${depth}`);
+    return api.get(`/casestrainer/api/network?citation=${encodeURIComponent(citation)}&depth=${depth}`);
   },
 
   /**
@@ -48,7 +48,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   classifyCitation(citation) {
-    return api.post('/classify', { citation });
+    return api.post('/casestrainer/api/classify', { citation });
   },
 
   /**
@@ -57,7 +57,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   getCitationFeedback(citation) {
-    return api.get(`/feedback?citation=${encodeURIComponent(citation)}`);
+    return api.get(`/casestrainer/api/feedback?citation=${encodeURIComponent(citation)}`);
   },
 
   /**
@@ -69,7 +69,7 @@ const citationsApi = {
    * @returns {Promise} - API response
    */
   submitFeedback(feedback) {
-    return api.post('/feedback', feedback);
+    return api.post('/casestrainer/api/feedback', feedback);
   },
 };
 

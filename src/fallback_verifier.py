@@ -33,6 +33,20 @@ class FallbackVerifier:
         
     def verify_citation(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:
         """
+        DEPRECATED: Use cluster_citations_unified() with enable_verification=True instead.
+        
+        This individual verification approach is deprecated in favor of the unified
+        clustering and batch verification system which provides better efficiency
+        and integration with the clustering pipeline.
+        """
+        import warnings
+        warnings.warn(
+            "FallbackVerifier.verify_citation is deprecated. "
+            "Use cluster_citations_unified() with enable_verification=True for batch verification.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        """
         Verify a citation using fallback sources.
         
         Args:

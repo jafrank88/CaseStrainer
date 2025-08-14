@@ -124,8 +124,17 @@ class CanonicalCaseNameService:
             # Fallback to environment only
             return os.environ.get(key)
     
-    def _normalize_citation(self, citation: str) -> str:
-        """Normalize citation format for better API matching"""
+    def _normalize_citation_comprehensive(self, citation: str, purpose: str = "verification") -> str:
+        """
+        Normalize citation format for better API matching.
+        
+        Args:
+            citation: The citation to normalize
+            purpose: The purpose of normalization ("general", "bluebook", "verification", "comparison")
+            
+        Returns:
+            The normalized citation
+        """
         if not citation:
             return ""
         
@@ -727,7 +736,7 @@ def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional
         # Normalize citation for lookup
         # At this point, citation is guaranteed to be a string
         citation_str: str = citation
-        normalized_citation = _canonical_service._normalize_citation(str(citation_str))
+        normalized_citation = _canonical_service._normalize_citation_comprehensive(str(citation_str), purpose="verification")
         logger.info(f"get_canonical_case_name_with_date called for: {citation_str} (normalized: {normalized_citation})")
         
         # Perform cached lookup

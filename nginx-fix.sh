@@ -1,0 +1,87 @@
+#!/bin/sh
+# Create a clean nginx configuration
+cat > /etc/nginx/conf.d/default.conf << 'EOL'
+server {
+    listen 80;
+    server_name wolf.law.uw.edu localhost;
+    
+    # Set root to the directory containing the static files
+    root /usr/share/nginx/html;
+    index index.html;
+
+    # Enable gzip compression
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+
+    # Handle the root path with a redirect to /casestrainer/
+    location = / {
+        return 301 /casestrainer/;
+    }
+
+    # Handle the /casestrainer/ path
+    location /casestrainer/ {
+        # Serve files from the root directory
+        alias /usr/share/nginx/html/;
+        
+        # Try to serve the file directly, fall back to index.html for SPA routing
+        try_files $uri $uri/ /index.html;
+        
+        # Add headers for single page app
+        add_header Cache-Control 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0';
+    }
+
+    # API proxy
+    location /casestrainer/api/ {
+        proxy_pass http://backend:5000/;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_redirect off;
+        
+        # Increase timeouts for long-running requests
+        proxy_connect_timeout 300s;
+        proxy_send_timeout 300s;
+        proxy_read_timeout 300s;
+        send_timeout 300s;
+    }
+
+    # Serve static files directly with proper caching
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|woff|woff2|ttf|svg|eot)$ {
+        root /usr/share/nginx/html;
+        access_log off;
+        expires 1y;
+        add_header Cache-Control "public, no-transform";
+    }
+
+    # Handle 404 errors
+    error_page 404 /index.html;
+    
+    # Disable logging for favicon.ico
+    location = /favicon.ico {
+        access_log off;
+        log_not_found off;
+    }
+
+    # Security headers for all responses
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains; preload" always;
+}
+EOL
+
+# Test the configuration
+nginx -t
+
+# Reload nginx if config test passes
+if [ $? -eq 0 ]; then
+    nginx -s reload
+    echo "Nginx configuration updated and reloaded successfully."
+else
+    echo "Error in Nginx configuration. Please check the configuration file."
+    exit 1
+fi

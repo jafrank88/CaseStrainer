@@ -347,6 +347,27 @@ else {
     # Check if containers exist
     $containersExist = docker ps -a --format "table {{.Names}}" | Select-String -Pattern "casestrainer" -Quiet
     
+    # Function to ensure clean container restart
+    function Invoke-SafeDockerComposeDown {
+        Write-Host "Stopping and removing containers..." -ForegroundColor Yellow
+        
+        # First, stop all containers to prevent auto-restart interference
+        $runningContainers = docker ps -a --filter "name=casestrainer" --format "{{.Names}}" 2>$null
+        foreach ($container in $runningContainers) {
+            Write-Host "Stopping container: $container" -ForegroundColor Gray
+            docker stop $container 2>$null
+            
+            # Give it a moment to stop
+            Start-Sleep -Seconds 2
+            
+            # Force remove if still exists
+            docker rm -f $container 2>$null | Out-Null
+        }
+        
+        # Run docker-compose down to clean up networks and volumes if needed
+        docker-compose -f docker-compose.prod.yml down 2>$null
+    }
+
     # Determine action based on state and changes
     if (-not $containersExist) {
         Write-Host "No containers exist - performing Full Rebuild..." -ForegroundColor Magenta
@@ -354,9 +375,9 @@ else {
             & "$PSScriptRoot\cslaunch_full.ps1"
         } else {
             Write-Host "Running docker-compose up --build for full rebuild..." -ForegroundColor Magenta
-            docker-compose down
-            docker-compose build --no-cache
-            docker-compose up -d
+            Invoke-SafeDockerComposeDown
+            docker-compose -f docker-compose.prod.yml build --no-cache
+            docker-compose -f docker-compose.prod.yml up -d
         }
     } elseif ($rebuildNeeded -or $codeChanged) {
         Write-Host "Source changes detected - performing Fast Start with rebuild..." -ForegroundColor Yellow
@@ -364,9 +385,9 @@ else {
             & "$PSScriptRoot\cslaunch_fast.ps1"
         } else {
             Write-Host "Running docker-compose up --build for fast rebuild..." -ForegroundColor Yellow
-            docker-compose down
-            docker-compose build
-            docker-compose up -d
+            Invoke-SafeDockerComposeDown
+            docker-compose -f docker-compose.prod.yml build
+            docker-compose -f docker-compose.prod.yml up -d
         }
     } else {
         Write-Host "No source changes detected - performing Quick Start..." -ForegroundColor Green
@@ -374,7 +395,7 @@ else {
             & "$PSScriptRoot\cslaunch_quick.ps1"
         } else {
             Write-Host "Running docker-compose up for quick start..." -ForegroundColor Green
-            docker-compose up -d
+            docker-compose -f docker-compose.prod.yml up -d
         }
     }
     
@@ -384,6 +405,17 @@ else {
         Write-Host "Docker is not running. Please start Docker Desktop first." -ForegroundColor Red
         Write-Host "Try: .\cslaunch.ps1 -HealthCheck" -ForegroundColor Yellow
         exit 1
+    }
+    
+    # Start container monitoring if not already running
+    $monitoringJob = Get-Job -Name "DockerAutoRecovery" -ErrorAction SilentlyContinue
+    if (-not $monitoringJob) {
+        Write-Host "Starting container monitoring and auto-recovery..." -ForegroundColor Cyan
+        Start-Job -ScriptBlock { 
+            & "$using:PSScriptRoot\docker_auto_recovery.ps1" -CheckInterval 30 -Verbose 
+        } -Name "DockerAutoRecovery" | Out-Null
+    } else {
+        Write-Host "Container monitoring is already running" -ForegroundColor Green
     }
     
     # Check if containers exist and are running
@@ -421,42 +453,78 @@ else {
         Write-Host "No containers exist - using Full Rebuild" -ForegroundColor Yellow
         Write-Host "Full Rebuild" -ForegroundColor Yellow
         docker-compose -f docker-compose.prod.yml down
-        docker system prune -af --volumes
         docker-compose -f docker-compose.prod.yml build --no-cache
-        docker-compose -f docker-compose.prod.yml up -d
+        docker-compose -f docker-compose.prod.yml up -d --build --remove-orphans
         Write-Host "Full Rebuild completed!" -ForegroundColor Green
     } elseif (-not $containers) {
         Write-Host "Containers exist but not running - using Fast Start" -ForegroundColor Cyan
         Write-Host "Fast Start" -ForegroundColor Cyan
         docker-compose -f docker-compose.prod.yml down
-        docker-compose -f docker-compose.prod.yml up -d
+        docker-compose -f docker-compose.prod.yml up -d --build --force-recreate --remove-orphans
         Write-Host "Fast Start completed!" -ForegroundColor Green
     } elseif ($recentChanges) {
         Write-Host "Code changes detected - using Fast Start" -ForegroundColor Cyan
         Write-Host "Fast Start" -ForegroundColor Cyan
         docker-compose -f docker-compose.prod.yml down
         docker-compose -f docker-compose.prod.yml up -d
-        Write-Host "Fast Start completed!" -ForegroundColor Green
+        
+        # Wait a moment for containers to start
+        Start-Sleep -Seconds 5
+        
+        # Verify containers are running
+        $containers = docker ps --filter "name=casestrainer" --format "{{.Names}}" 2>$null
+        if ($containers) {
+            Write-Host "`n[SUCCESS] CaseStrainer containers started successfully:" -ForegroundColor Green
+            $containers | ForEach-Object { Write-Host "- $_" -ForegroundColor Cyan }
+        } else {
+            Write-Host "`n[WARNING] No CaseStrainer containers are running" -ForegroundColor Yellow
+        }
     } else {
         Write-Host "No recent changes, containers running - using Quick Start" -ForegroundColor Green
         Write-Host "Quick Start" -ForegroundColor Green
         docker-compose -f docker-compose.prod.yml up -d
-        Write-Host "Quick Start completed!" -ForegroundColor Green
-    }
-    
-    # Start monitoring systems if not already running
-    $monitoringJobs = Get-Job | Where-Object { $_.State -eq "Running" }
-    if (-not $monitoringJobs) {
-        Write-Host "Starting background monitoring systems..." -ForegroundColor Green
-        if (Test-Path ".\start_monitoring.ps1") {
-            & .\start_monitoring.ps1 -Background -Verbose
+        
+        # Wait a moment for containers to start
+        Start-Sleep -Seconds 5
+        
+        # Verify containers are running
+        $containers = docker ps --filter "name=casestrainer" --format "{{.Names}}" 2>$null
+        if ($containers) {
+            Write-Host "`n[SUCCESS] CaseStrainer containers are running:" -ForegroundColor Green
+            $containers | ForEach-Object { Write-Host "- $_" -ForegroundColor Cyan }
+        }
+        
+        # Start container monitoring if not already running
+        $monitoringJob = Get-Job -Name "DockerAutoRecovery" -ErrorAction SilentlyContinue
+        if (-not $monitoringJob) {
+            Write-Host "Starting container monitoring and auto-recovery..." -ForegroundColor Cyan
+            Start-Job -ScriptBlock { 
+                & "$using:PSScriptRoot\docker_auto_recovery.ps1" -CheckInterval 30 -Verbose 
+            } -Name "DockerAutoRecovery" | Out-Null
+        } else {
+            Write-Host "Container monitoring is already running" -ForegroundColor Green
         }
     }
     
+    # Start any additional monitoring systems
+    Write-Host "Starting background monitoring systems..." -ForegroundColor Green
+    if (Test-Path ".\start_monitoring.ps1") {
+        & .\start_monitoring.ps1 -Background -Verbose
+    }
+    
+    # Display final status
+    Write-Host "`n[SUCCESS] CaseStrainer is ready!" -ForegroundColor Green
+    if (Get-Job -Name "DockerAutoRecovery" -ErrorAction SilentlyContinue) {
+        Write-Host "[INFO] Container monitoring and auto-recovery is active" -ForegroundColor Green
+    } else {
+        Write-Host "[WARNING] Container monitoring is not running" -ForegroundColor Yellow
+    }
     Write-Host ""
-    Write-Host "✅ CaseStrainer is ready!" -ForegroundColor Green
-    Write-Host "🧟 Zombie Process Monitor: Run 'docker_zombie_monitor.ps1' for continuous monitoring" -ForegroundColor Magenta
-    Write-Host "🌐 Access at: https://wolf.law.uw.edu/casestrainer/" -ForegroundColor Cyan
-    Write-Host "📊 Status: .\cslaunch.ps1 -Status" -ForegroundColor Yellow
-    Write-Host "🔍 Monitor: .\cslaunch.ps1 -Monitor" -ForegroundColor Yellow
+    Write-Host "[RESTART] .\cslaunch.ps1" -ForegroundColor Cyan
+    Write-Host "[QUICK]   .\cslaunch.ps1 -Quick" -ForegroundColor Cyan
+    Write-Host "[FAST]    .\cslaunch.ps1 -Fast" -ForegroundColor Cyan
+    Write-Host "[FULL]    .\cslaunch.ps1 -Full" -ForegroundColor Yellow
+    Write-Host "[STATUS]  .\cslaunch.ps1 -Status" -ForegroundColor Yellow
+    Write-Host "[MONITOR] .\cslaunch.ps1 -Monitor" -ForegroundColor Yellow
+    Write-Host "[STOP]    .\cslaunch.ps1 -StopMonitoring" -ForegroundColor Red
 }

@@ -140,196 +140,265 @@
   </div>
 </template>
 
-<script>
-import { ref, computed } from 'vue';
+<script setup>
+import { ref, computed, onMounted, watch } from 'vue';
 
-export default {
-  name: 'ModernFileUpload',
-  emits: ['analyze'],
-  props: {
-    isAnalyzing: {
-      type: Boolean,
-      default: false
-    }
-  },
-  setup(props, { emit }) {
-    const file = ref(null);
-    const fileInput = ref(null);
-    const isDragOver = ref(false);
-    const fileError = ref('');
+// Define props
+const props = defineProps({
+  isLoading: {
+    type: Boolean,
+    default: false
+  }
+});
+
+// Define emits
+const emit = defineEmits(['analyze', 'file-selected', 'error']);
+
+// Refs
+const file = ref(null);
+const fileInput = ref(null);
+const isDragOver = ref(false);
+const fileError = ref('');
+const isAnalyzing = ref(false);
+
+// File handling methods
+const handleFileChange = (event) => {
+  console.log('🔍 handleFileChange triggered', event);
+  const target = event.target;
+  const selectedFile = target.files ? target.files[0] : null;
+  
+  console.log('🔍 Selected file from input:', selectedFile);
+  
+  if (selectedFile) {
+    // Reset the input value to allow re-uploading the same file
+    event.target.value = '';
+    validateAndSetFile(selectedFile);
+  } else {
+    console.warn('⚠️ No file selected in handleFileChange');
+  }
+};
+
+const onFileDrop = (event) => {
+  event.preventDefault();
+  isDragOver.value = false;
+  
+  console.log('🔍 onFileDrop triggered', event);
+  
+  if (!event.dataTransfer || !event.dataTransfer.files || event.dataTransfer.files.length === 0) {
+    console.warn('⚠️ No files found in drop event');
+    return;
+  }
+  
+  const droppedFile = event.dataTransfer.files[0];
+  console.log('🔍 Dropped file:', droppedFile);
+  
+  if (droppedFile) {
+    validateAndSetFile(droppedFile);
+  } else {
+    console.warn('⚠️ Could not process dropped file');
+    fileError.value = 'Could not process the dropped file. Please try again.';
+  }
+};
+
+const onDragOver = (event) => {
+  event.preventDefault();
+  isDragOver.value = true;
+};
+
+const onDragLeave = () => {
+  isDragOver.value = false;
+};
+
+const validateAndSetFile = (selectedFile) => {
+  console.log('🔍 validateAndSetFile called with file:', selectedFile);
+  console.log('🔍 File type:', selectedFile.type, 'File name:', selectedFile.name, 'File size:', selectedFile.size);
+  
+  // Reset previous error
+  fileError.value = '';
+  
+  // Check file type
+  const validTypes = [
+    'application/pdf', 
+    'application/msword', 
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 
+    'text/plain', 
+    'text/rtf', 
+    'text/markdown', 
+    'text/html', 
+    'application/xml', 
+    'application/xhtml+xml'
+  ];
+  
+  if (!validTypes.includes(selectedFile.type) && !selectedFile.name.match(/\.(pdf|docx?|txt|rtf|md|html?|xml|xhtml)$/i)) {
+    fileError.value = 'Invalid file type. Please upload a PDF, DOCX, TXT, RTF, MD, HTML, or XML file.';
+    return;
+  }
+  
+  // Check file size (10MB max)
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  if (selectedFile.size > maxSize) {
+    fileError.value = 'File is too large. Maximum size is 10MB.';
+    return;
+  }
+  
+  // File is valid
+  file.value = selectedFile;
+  console.log('✅ File set, current file state:', file.value);
+  console.log('✅ Button should be enabled. File exists:', !!file.value, 'isAnalyzing:', isAnalyzing.value, 'fileError:', fileError.value);
+  
+  // We're not emitting the analyze event here anymore - let the user click the Analyze button
+  // This gives better control and feedback
+};
+
+const triggerFileInput = () => {
+  fileInput.value?.click();
+};
+
+// Computed properties
+const fileName = computed(() => {
+  return file.value ? file.value.name : 'No file selected';
+});
+
+const fileSize = computed(() => {
+  if (!file.value) return '';
+  
+  const size = file.value.size;
+  if (size < 1024) return `${size} bytes`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(2)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(2)} MB`;
+});
+
+const fileType = computed(() => {
+  if (!file.value) return '';
+  
+  const type = file.value.type;
+  if (type) {
+    return type.split('/').pop()?.toUpperCase() || '';
+  }
+  
+  // Fallback to file extension if type is not available
+  const extension = file.value.name.split('.').pop()?.toLowerCase();
+  return extension ? extension.toUpperCase() : 'UNKNOWN';
+});
+
+// Debug: Alert when component is mounted
+onMounted(() => {
+  alert('✅ FileUpload.vue mounted');
+});
+
+const clearFile = () => {
+  file.value = null;
+  fileError.value = '';
+  if (fileInput.value) {
+    fileInput.value.value = '';
+  }
+  emit('file-selected', null); // Notify parent that file has been cleared
+};
+
+// Utility methods
+const formatFileSize = (bytes) => {
+  if (!bytes) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+};
+
+const formatDate = (timestamp) => {
+  if (!timestamp) return 'Unknown';
+  return new Date(timestamp).toLocaleDateString();
+};
+
+const getFileIcon = (fileName) => {
+  const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+  const iconMap = {
+    '.pdf': 'bi bi-file-earmark-pdf text-danger',
+    '.doc': 'bi bi-file-earmark-word text-primary',
+    '.docx': 'bi bi-file-earmark-word text-primary',
+    '.txt': 'bi bi-file-earmark-text text-secondary',
+    '.rtf': 'bi bi-file-earmark-richtext text-info',
+    '.html': 'bi bi-file-earmark-code text-warning',
+    '.htm': 'bi bi-file-earmark-code text-warning'
+  };
+  return iconMap[extension] || 'bi bi-file-earmark text-muted';
+};
+
+const getFileType = (fileName) => {
+  const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
+  const typeMap = {
+    '.pdf': 'PDF Document',
+    '.doc': 'Word Document',
+    '.docx': 'Word Document',
+    '.txt': 'Text File',
+    '.rtf': 'Rich Text Format',
+    '.html': 'HTML Document',
+    '.htm': 'HTML Document'
+  };
+  return typeMap[extension] || 'Document';
+};
+
+const emitAnalyze = async () => {
+  console.log('🔍 emitAnalyze called. File exists:', !!file.value, 'File error:', fileError.value);
+  console.log('🔍 File details:', file.value);
+  console.log('🔍 isAnalyzing:', isAnalyzing.value);
+  
+  if (!file.value) {
+    console.error('❌ No file selected');
+    fileError.value = 'No file selected. Please select a file first.';
+    return;
+  }
+  
+  if (fileError.value) {
+    console.error('❌ File error:', fileError.value);
+    return;
+  }
+  
+  // Set analyzing state
+  isAnalyzing.value = true;
+  
+  try {
+    // Create FormData for file upload
+    const formData = new FormData();
+    formData.append('file', file.value);
+    formData.append('type', 'file');
+    formData.append('fileName', file.value.name);
+    formData.append('fileSize', file.value.size.toString());
     
-    // File handling methods
-    const handleFileChange = (event) => {
-      const selectedFile = event.target.files[0];
-      if (selectedFile) {
-        validateAndSetFile(selectedFile);
-      }
-    };
+    console.log('📤 Emitting analyze event with file data');
+    emit('analyze', formData);
+  } catch (error) {
+    console.error('❌ Error in emitAnalyze:', error);
+    fileError.value = 'Error processing file. Please try again.';
+    isAnalyzing.value = false;
+  }
+  
+  console.log('🔍 FileUpload: Starting text extraction process');
+  
+  try {
+    // Step 1: Extract text from the file
+    let extractedText = '';
     
-    const onFileDrop = (event) => {
-      event.preventDefault();
-      isDragOver.value = false;
+    if (file.value.type === 'text/plain' || file.value.name.endsWith('.txt')) {
+      // For text files, read directly
+      extractedText = await file.value.text();
+    } else if (file.value.type === 'application/pdf' || file.value.name.endsWith('.pdf')) {
+      // For PDFs, we'll need to send to backend for extraction
+      console.log('🔍 FileUpload: PDF detected, sending to backend for text extraction');
+      const formData = new FormData();
+      formData.append('file', file.value);
+      formData.append('type', 'file');
+      formData.append('fileName', file.value.name);
+      formData.append('fileSize', file.value.size.toString());
+      formData.append('extractText', 'true');
       
-      const droppedFile = event.dataTransfer.files[0];
-      if (droppedFile) {
-        validateAndSetFile(droppedFile);
-      }
-    };
-    
-    const onDragOver = (event) => {
-      event.preventDefault();
-      isDragOver.value = true;
-    };
-    
-    const onDragLeave = (event) => {
-      event.preventDefault();
-      isDragOver.value = false;
-    };
-    
-    const validateAndSetFile = (selectedFile) => {
-      fileError.value = '';
-      
-      // Validate file type
-      const allowedTypes = [
-        'application/pdf',
-        'application/msword',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-        'text/plain',
-        'application/rtf',
-        'text/html',
-        'text/htm'
-      ];
-      
-      const allowedExtensions = ['.pdf', '.doc', '.docx', '.txt', '.rtf', '.html', '.htm'];
-      const fileExtension = selectedFile.name.toLowerCase().substring(selectedFile.name.lastIndexOf('.'));
-      
-      if (!allowedTypes.includes(selectedFile.type) && !allowedExtensions.includes(fileExtension)) {
-        fileError.value = 'Please select a valid file type (PDF, DOCX, TXT, RTF, MD, HTML, or XML)';
-        return;
-      }
-      
-      // Validate file size (100MB)
-      if (selectedFile.size > 100 * 1024 * 1024) {
-        fileError.value = 'File size must be less than 100MB';
-        return;
-      }
-      
-      file.value = selectedFile;
-    };
-    
-    const triggerFileInput = () => {
-      if (!props.isAnalyzing && fileInput.value) {
-        fileInput.value.click();
-      }
-    };
-    
-    const clearFile = () => {
-      file.value = null;
-      fileError.value = '';
-      if (fileInput.value) {
-        fileInput.value.value = '';
-      }
-    };
-    
-    // Utility methods
-    const formatFileSize = (bytes) => {
-      if (!bytes) return '0 Bytes';
-      const k = 1024;
-      const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(k));
-      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-    };
-    
-    const formatDate = (timestamp) => {
-      if (!timestamp) return 'Unknown';
-      return new Date(timestamp).toLocaleDateString();
-    };
-    
-    const getFileIcon = (fileName) => {
-      const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-      const iconMap = {
-        '.pdf': 'bi bi-file-earmark-pdf text-danger',
-        '.doc': 'bi bi-file-earmark-word text-primary',
-        '.docx': 'bi bi-file-earmark-word text-primary',
-        '.txt': 'bi bi-file-earmark-text text-secondary',
-        '.rtf': 'bi bi-file-earmark-richtext text-info',
-        '.html': 'bi bi-file-earmark-code text-warning',
-        '.htm': 'bi bi-file-earmark-code text-warning'
-      };
-      return iconMap[extension] || 'bi bi-file-earmark text-muted';
-    };
-    
-    const getFileType = (fileName) => {
-      const extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.'));
-      const typeMap = {
-        '.pdf': 'PDF Document',
-        '.doc': 'Word Document',
-        '.docx': 'Word Document',
-        '.txt': 'Text File',
-        '.rtf': 'Rich Text Format',
-        '.html': 'HTML Document',
-        '.htm': 'HTML Document'
-      };
-      return typeMap[extension] || 'Document';
-    };
-    
-    const emitAnalyze = async () => {
-      if (!file.value || fileError.value) return;
-      
-      console.log('🔍 FileUpload: Starting text extraction process');
-      
+      emit('analyze', formData);
+      return;
+    } else {
+      // For other file types, try to read as text
       try {
-        // Step 1: Extract text from the file
-        let extractedText = '';
-        
-        if (file.value.type === 'text/plain' || file.value.name.endsWith('.txt')) {
-          // For text files, read directly
-          extractedText = await file.value.text();
-        } else if (file.value.type === 'application/pdf' || file.value.name.endsWith('.pdf')) {
-          // For PDFs, we'll need to send to backend for extraction
-          console.log('🔍 FileUpload: PDF detected, sending to backend for text extraction');
-          const formData = new FormData();
-          formData.append('file', file.value);
-          formData.append('type', 'file');
-          formData.append('fileName', file.value.name);
-          formData.append('fileSize', file.value.size.toString());
-          formData.append('extractText', 'true');
-          
-          emit('analyze', formData);
-          return;
-        } else {
-          // For other file types, try to read as text
-          try {
-            extractedText = await file.value.text();
-          } catch (error) {
-            console.error('🔍 FileUpload: Error reading file as text:', error);
-            // Fallback to original file upload
-            const formData = new FormData();
-            formData.append('file', file.value);
-            formData.append('type', 'file');
-            formData.append('fileName', file.value.name);
-            formData.append('fileSize', file.value.size.toString());
-            emit('analyze', formData);
-            return;
-          }
-        }
-        
-        console.log('🔍 FileUpload: Text extracted successfully, length:', extractedText.length);
-        
-        // Step 2: Pass extracted text to text processing
-        const textData = {
-          text: extractedText,
-          type: 'text',
-          source: 'file',
-          fileName: file.value.name,
-          fileSize: file.value.size
-        };
-        
-        console.log('🔍 FileUpload: Emitting text data for processing');
-        emit('analyze', textData);
-        
+        extractedText = await file.value.text();
       } catch (error) {
-        console.error('🔍 FileUpload: Error in text extraction:', error);
+        console.error('🔍 FileUpload: Error reading file as text:', error);
         // Fallback to original file upload
         const formData = new FormData();
         formData.append('file', file.value);
@@ -337,28 +406,69 @@ export default {
         formData.append('fileName', file.value.name);
         formData.append('fileSize', file.value.size.toString());
         emit('analyze', formData);
+        return;
       }
+    }
+    
+    console.log('🔍 FileUpload: Text extracted successfully, length:', extractedText.length);
+    
+    // Step 2: Pass extracted text to text processing
+    const textData = {
+      text: extractedText,
+      type: 'text',
+      source: 'file',
+      fileName: file.value.name,
+      fileSize: file.value.size
     };
     
-    return {
-      file,
-      fileInput,
-      isDragOver,
-      fileError,
-      handleFileChange,
-      onFileDrop,
-      onDragOver,
-      onDragLeave,
-      triggerFileInput,
-      clearFile,
-      formatFileSize,
-      formatDate,
-      getFileIcon,
-      getFileType,
-      emitAnalyze
-    };
+    console.log('🔍 FileUpload: Emitting text data for processing');
+    emit('analyze', textData);
+    
+  } catch (error) {
+    console.error('🔍 FileUpload: Error in text extraction:', error);
+    // Fallback to original file upload
+    const formData = new FormData();
+    formData.append('file', file.value);
+    formData.append('type', 'file');
+    formData.append('fileName', file.value.name);
+    formData.append('fileSize', file.value.size.toString());
+    emit('analyze', formData);
   }
 };
+
+// Watch for changes to the file ref
+watch(file, () => {
+  // Handle file changes if needed
+}, { deep: true });
+
+// Component mounted hook
+onMounted(() => {
+  // Component initialization code here
+});
+
+// Export all necessary variables and methods for the template
+defineExpose({
+  file,
+  fileInput,
+  isDragOver,
+  fileError,
+  isAnalyzing,
+  fileName,
+  fileSize,
+  fileType,
+  handleFileChange,
+  onFileDrop,
+  onDragOver,
+  onDragLeave,
+  validateAndSetFile,
+  triggerFileInput,
+  clearFile,
+  formatFileSize,
+  formatDate,
+  getFileIcon,
+  getFileType,
+  emitAnalyze
+});
 </script>
 
 <style scoped>

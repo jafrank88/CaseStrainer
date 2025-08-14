@@ -1,13 +1,13 @@
 import { createApp } from 'vue';
 import axios from 'axios';
 import { createPinia } from 'pinia';
-import { createLoader } from '@/utils/loading';
 import './style.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
 import App from './App.vue';
 import router from './router';
 import AppErrorHandler from '@/components/AppErrorHandler.vue';
+import { createLoader } from '@/utils/loading.js';
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;

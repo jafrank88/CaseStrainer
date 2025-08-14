@@ -97,7 +97,7 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
             'text': ' '.join(citations_to_verify)
         }
         print(f"[DEBUG PRINT] About to POST to {url} with data: {data}")
-        response = requests.post(url, headers=headers, json=data, timeout=30)
+        response = requests.post(url, headers=headers, json=data, timeout=5)
         print(f"[DEBUG PRINT] CourtListener response status: {response.status_code}")
         print(f"[DEBUG PRINT] CourtListener response body: {response.text[:1000]}")
         logger.info(f"[CL batch] API response status: {response.status_code}")
@@ -156,7 +156,7 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
         lookup_data = {"text": citation}
         print(f"[DEBUG PRINT] POST to {lookup_url} with data: {lookup_data}")
         
-        response = requests.post(lookup_url, headers=headers, json=lookup_data, timeout=30)
+        response = requests.post(lookup_url, headers=headers, json=lookup_data, timeout=5)
         print(f"[DEBUG PRINT] Citation-lookup response status: {response.status_code}")
         
         if response.status_code == 200:
@@ -250,39 +250,42 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
         }
         print(f"[DEBUG PRINT] GET to {search_url} with params: {search_params}")
         
-        response = requests.get(search_url, headers=headers, params=search_params, timeout=30)
+        response = requests.get(search_url, headers=headers, params=search_params, timeout=5)
         print(f"[DEBUG PRINT] Search API response status: {response.status_code}")
         
         if response.status_code == 200:
-            search_results = response.json()
-            print(f"[DEBUG PRINT] Search API returned {len(search_results.get('results', []))} results")
-            
-            if search_results.get('results'):
-                best_result = search_results['results'][0]
-                case_name = best_result.get("case_name")
-                date_filed = best_result.get("date_filed")
+            try:
+                search_results = response.json()
+                print(f"[DEBUG PRINT] Search API returned {len(search_results.get('results', []))} results")
                 
-                # STRICT VALIDATION: Require both canonical name and year
-                if case_name and date_filed:
-                    print(f"[DEBUG PRINT] Found valid search result with case name and date: {case_name} ({date_filed})")
-                    result.update({
-                        "canonical_name": case_name,
-                        "canonical_date": date_filed,
-                        "url": absolute_url,
-                        "verified": True,
-                        "source": "CourtListener"
-                    })
-                    print(f"[DEBUG PRINT] SUCCESS: Search API found valid canonical data:")
-                    print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
-                    print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
-                    print(f"[DEBUG PRINT]   URL: {result['url']}")
-                    return result
+                if search_results.get('results'):
+                    best_result = search_results['results'][0]
+                    case_name = best_result.get("case_name")
+                    date_filed = best_result.get("date_filed")
+                    
+                    # STRICT VALIDATION: Require both canonical name and year
+                    if case_name and date_filed:
+                        print(f"[DEBUG PRINT] Found valid search result with case name and date: {case_name} ({date_filed})")
+                        result.update({
+                            "canonical_name": case_name,
+                            "canonical_date": date_filed,
+                            "url": absolute_url,
+                            "verified": True,
+                            "source": "CourtListener"
+                        })
+                        print(f"[DEBUG PRINT] SUCCESS: Search API found valid canonical data:")
+                        print(f"[DEBUG PRINT]   Name: {result['canonical_name']}")
+                        print(f"[DEBUG PRINT]   Date: {result['canonical_date']}")
+                        print(f"[DEBUG PRINT]   URL: {result['url']}")
                         print(f"[DEBUG PRINT]   caseName: '{case_name}'")
                         print(f"[DEBUG PRINT]   absolute_url: '{absolute_url}'")
                         print(f"[DEBUG PRINT]   This prevents false positive verification")
+                        return result
+                    else:
+                        print(f"[DEBUG PRINT] Search result missing case name or date")
                 else:
-                    print(f"[DEBUG PRINT] Search API returned no results")
-                    
+                    print(f"[DEBUG PRINT] Search API returned empty results")
+                        
             except json.JSONDecodeError as e:
                 print(f"[DEBUG PRINT] Failed to parse search API JSON: {e}")
                 logger.error(f"[CL search] {citation} JSON decode error: {e}")

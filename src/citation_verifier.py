@@ -17,12 +17,15 @@ from src.citation_utils import (
 
 logger = logging.getLogger(__name__)
 
-# Import verification functions
-from src.courtlistener_verification import verify_with_courtlistener
-from src.citation_verification import (
-    verify_citations_with_canonical_service,
-    verify_citations_with_legal_websearch
-)
+# DEPRECATED IMPORTS - Use unified clustering with verification instead
+# from src.courtlistener_verification import verify_with_courtlistener  # DEPRECATED
+# from src.citation_verification import (  # DEPRECATED
+#     verify_citations_with_canonical_service,  # DEPRECATED
+#     verify_citations_with_legal_websearch  # DEPRECATED
+# )
+
+# Use unified clustering system instead
+from src.unified_citation_clustering import cluster_citations_unified
 
 class CitationVerifier:
     """Citation verification functionality."""
@@ -80,44 +83,35 @@ class CitationVerifier:
         }
     
     def verify_citation_with_courtlistener(self, citation: CitationResult) -> bool:
-        """Verify a citation using CourtListener API."""
-        if not citation or not self.courtlistener_api_key:
-            return False
-        
-        extracted_case_name = get_extracted_case_name(citation)
-        
-        try:
-            verify_result = verify_with_courtlistener(
-                self.courtlistener_api_key, 
-                citation.citation, 
-                extracted_case_name
-            )
-            
-            return apply_verification_result(citation, verify_result, "CourtListener")
-            
-        except Exception as e:
-            logger.error(f"Error verifying citation with CourtListener: {e}")
-            return False
+        """DEPRECATED: Use cluster_citations_unified with enable_verification=True instead."""
+        import warnings
+        warnings.warn(
+            "verify_citation_with_courtlistener is deprecated. Use cluster_citations_unified instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        logger.warning("[DEPRECATED] verify_citation_with_courtlistener called - use cluster_citations_unified instead")
+        return False
     
     def verify_citations_with_canonical_service(self, citations: CitationList) -> None:
-        """Verify citations using canonical service."""
-        if not citations:
-            return
-        
-        try:
-            verify_citations_with_canonical_service(citations)
-        except Exception as e:
-            logger.error(f"Error verifying citations with canonical service: {e}")
+        """DEPRECATED: Use cluster_citations_unified with enable_verification=True instead."""
+        import warnings
+        warnings.warn(
+            "verify_citations_with_canonical_service is deprecated. Use cluster_citations_unified instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        logger.warning("[DEPRECATED] verify_citations_with_canonical_service called - use cluster_citations_unified instead")
     
     async def verify_citations_with_legal_websearch(self, citations: CitationList) -> None:
-        """Verify citations using legal web search."""
-        if not citations:
-            return
-        
-        try:
-            await verify_citations_with_legal_websearch(citations)
-        except Exception as e:
-            logger.error(f"Error verifying citations with legal web search: {e}")
+        """DEPRECATED: Use cluster_citations_unified with enable_verification=True instead."""
+        import warnings
+        warnings.warn(
+            "verify_citations_with_legal_websearch is deprecated. Use cluster_citations_unified instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        logger.warning("[DEPRECATED] verify_citations_with_legal_websearch called - use cluster_citations_unified instead")
     
     async def verify_citations(self, citations: CitationList, text: Optional[str] = None) -> CitationList:
         """

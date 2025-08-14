@@ -1,5 +1,5 @@
 import { ref, onUnmounted } from 'vue';
-import { createLoader } from '@/utils/loading';
+import { globalProgress } from '@/stores/progressStore';
 
 /**
  * Composable for making API calls with loading and error states
@@ -24,19 +24,15 @@ export function useApi(options = {}) {
   const error = ref(null);
   const isLoading = ref(false);
   const status = ref(null);
-  let loader = null;
   let controller = null;
   
-  // Create a unique ID for this API call
-  const callId = `api_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+  // Track active requests for cleanup
+  const activeRequests = new Set();
   
   // Cleanup on component unmount
   onUnmounted(() => {
     if (controller) {
       controller.abort();
-    }
-    if (loader) {
-      loader.remove();
     }
   });
   
@@ -59,9 +55,11 @@ export function useApi(options = {}) {
     status.value = null;
     data.value = null;
     
-    // Set up loading state
-    if (showLoader) {
-      loader = createLoader(callId, { message });
+    // Start loading
+    if (options.showLoading !== false) {
+      globalProgress.startProgress('api', {
+        text: options.loadingMessage || 'Processing request...'
+      });
     }
     
     isLoading.value = true;
@@ -99,13 +97,10 @@ export function useApi(options = {}) {
     } finally {
       isLoading.value = false;
       
-      if (loader) {
-        if (error.value) {
-          loader.error(error.value);
-        } else {
-          loader.complete();
-        }
-        loader = null;
+      // Update progress
+      if (options.showLoading !== false) {
+        // Progress updates are handled by the global progress store
+        // globalProgress.updateProgress(progress);
       }
       
       if (onFinally) {

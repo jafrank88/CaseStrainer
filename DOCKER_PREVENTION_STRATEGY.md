@@ -190,3 +190,4 @@ With these prevention strategies in place:
 4. Test manual restart procedures
 
 This comprehensive strategy should prevent Docker Desktop from stopping unexpectedly and ensure your CaseStrainer application remains available.
+

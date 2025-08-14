@@ -1,0 +1,603 @@
+2025-08-10 16:23:12,640 - __main__ - INFO - ============================================================
+2025-08-10 16:23:12,640 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:23:12,714 - root - WARNING - [DEBUG] sys.executable: D:\Python\python.exe
+2025-08-10 16:23:12,714 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:23:12,878 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:23:13,885 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:23:13,888 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:23:13,888 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:23:13,892 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:23:13,963 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:23:13,964 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:23:13,964 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:23:13,965 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:23:13,965 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:23:13,965 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:23:14,426 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:23:14,855 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:23:17,120 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:23:17,121 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:23:17,121 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:23:17,122 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:23:17,122 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:23:17,122 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:23:17,122 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:23:17,124 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:23:17,125 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:23:17,125 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:23:17,181 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:23:17,181 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:23:17,185 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:23:17,185 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:23:17,187 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:23:17,190 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:23:17,192 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:23:17,194 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,196 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,197 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:23:17,199 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,201 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,203 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,204 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:23:17,205 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:23:17,205 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:23:17,206 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,206 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,206 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:23:17,207 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,207 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,208 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,208 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:23:17,209 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:23:17,209 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:23:17,210 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,210 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,210 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:23:17,211 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,211 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,212 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,212 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:23:17,213 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:23:17,213 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:23:17,213 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,214 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,214 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:23:17,215 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,215 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:23:17,216 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:23:17,216 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-08-10 16:23:17,217 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 4 citations
+2025-08-10 16:23:17,217 - src.unified_citation_clustering - INFO - Starting unified clustering for 4 citations
+2025-08-10 16:23:17,218 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-10 16:23:17,218 - src.unified_citation_clustering - INFO - Detected 4 parallel citation groups
+2025-08-10 16:23:17,219 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-10 16:23:17,220 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-10 16:23:17,220 - src.unified_citation_clustering - INFO - Batch verifying 4 citations with CourtListener API
+2025-08-10 16:23:17,220 - src.unified_citation_clustering - INFO - Processing batch 1/1 (4 citations)
+2025-08-10 16:23:17,466 - src.unified_citation_clustering - INFO - Applying fallback verification to 1 unverified citations
+2025-08-10 16:23:17,468 - src.unified_citation_clustering - INFO - Attempting fallback verification for: 327 P.3d 644
+2025-08-10 16:23:17,469 - src.fallback_verifier - INFO - Starting fallback verification for: 327 P.3d 644
+2025-08-10 16:23:17,476 - src.unified_citation_clustering - WARNING - Fallback verification error for 327 P.3d 644: name 'time' is not defined
+2025-08-10 16:23:17,477 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-08-10 16:23:17,478 - src.api.services.citation_service - INFO - [CitationService] Found 4 citations, 2 clusters
+2025-08-10 16:23:17,478 - __main__ - INFO - Processing completed in 3.59 seconds
+2025-08-10 16:23:17,479 - __main__ - INFO - Result status: completed
+2025-08-10 16:23:17,479 - __main__ - INFO - Citations found: 4
+2025-08-10 16:23:17,479 - __main__ - INFO - Clusters found: 2
+2025-08-10 16:23:17,483 - __main__ - INFO -    1. 180 Wash.2d 632
+2025-08-10 16:23:17,484 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:23:17,484 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:23:17,484 - __main__ - INFO -       Canonical Name: In re the Marriage of Chandola
+2025-08-10 16:23:17,485 - __main__ - INFO -       Verified: True
+2025-08-10 16:23:17,485 - __main__ - INFO -    2. 327 P.3d 644
+2025-08-10 16:23:17,486 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:23:17,486 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:23:17,486 - __main__ - INFO -       Canonical Name: None
+2025-08-10 16:23:17,487 - __main__ - INFO -       Verified: False
+2025-08-10 16:23:17,487 - __main__ - INFO -    3. 133 Wash.2d 39
+2025-08-10 16:23:17,487 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:23:17,487 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:23:17,488 - __main__ - INFO -       Canonical Name: In re the Marriage of Littlefield
+2025-08-10 16:23:17,488 - __main__ - INFO -       Verified: True
+2025-08-10 16:23:17,488 - __main__ - INFO -    4. 940 P.2d 1362
+2025-08-10 16:23:17,488 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:23:17,489 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:23:17,489 - __main__ - INFO -       Canonical Name: In Re Marriage of Littlefield
+2025-08-10 16:23:17,489 - __main__ - INFO -       Verified: True
+2025-08-10 16:23:17,493 - __main__ - INFO -    Cluster 1: 2 citations
+2025-08-10 16:23:17,500 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_user_washington_citations.py", line 224, in test_direct_processing
+    logger.info(f"      {j}. {citation.get('citation')}")
+                              ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-10 16:23:34,784 - __main__ - INFO - ============================================================
+2025-08-10 16:23:34,784 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:23:34,863 - root - WARNING - [DEBUG] sys.executable: D:\dev\casestrainer\.venv\Scripts\python.exe
+2025-08-10 16:23:34,863 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'D:\\dev\\casestrainer\\.venv', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\win32', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\win32\\lib', 'D:\\dev\\casestrainer\\.venv\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:23:36,182 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:23:37,192 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:23:37,195 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:23:37,195 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:23:37,200 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:23:37,800 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:23:37,801 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:23:37,801 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:23:37,801 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:23:37,802 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:23:37,802 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:23:39,115 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:23:41,545 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:24:12,622 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:24:12,623 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:24:12,623 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:24:12,624 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:24:12,624 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:24:12,624 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:24:12,625 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:24:12,626 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:24:12,627 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:24:12,627 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:24:12,680 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:24:12,680 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:24:12,685 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:24:12,685 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:24:12,688 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:24:12,690 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:24:12,693 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:24:12,695 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,696 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,698 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:24:12,700 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,701 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,702 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,704 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:24:12,705 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:24:12,705 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:24:12,706 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,707 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,708 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:24:12,709 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,709 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,709 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,710 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:24:12,710 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:24:12,711 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:24:12,711 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,711 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,712 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:24:12,712 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,713 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,714 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,714 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:24:12,715 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:24:12,715 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:24:12,716 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,716 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,716 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:24:12,716 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,717 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:24:12,718 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:24:12,719 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-08-10 16:24:12,719 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 4 citations
+2025-08-10 16:24:12,720 - src.unified_citation_clustering - INFO - Starting unified clustering for 4 citations
+2025-08-10 16:24:12,720 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-10 16:24:12,720 - src.unified_citation_clustering - INFO - Detected 4 parallel citation groups
+2025-08-10 16:24:12,721 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-10 16:24:12,722 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-10 16:24:12,723 - src.unified_citation_clustering - INFO - Batch verifying 4 citations with CourtListener API
+2025-08-10 16:24:12,723 - src.unified_citation_clustering - INFO - Processing batch 1/1 (4 citations)
+2025-08-10 16:24:12,986 - src.unified_citation_clustering - INFO - Applying fallback verification to 1 unverified citations
+2025-08-10 16:24:12,989 - src.unified_citation_clustering - INFO - Attempting fallback verification for: 327 P.3d 644
+2025-08-10 16:24:12,990 - src.fallback_verifier - INFO - Starting fallback verification for: 327 P.3d 644
+2025-08-10 16:24:12,997 - src.unified_citation_clustering - WARNING - Fallback verification error for 327 P.3d 644: name 'time' is not defined
+2025-08-10 16:24:12,998 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-08-10 16:24:12,998 - src.api.services.citation_service - INFO - [CitationService] Found 4 citations, 2 clusters
+2025-08-10 16:24:12,999 - __main__ - INFO - Processing completed in 35.80 seconds
+2025-08-10 16:24:12,999 - __main__ - INFO - Result status: completed
+2025-08-10 16:24:12,999 - __main__ - INFO - Citations found: 4
+2025-08-10 16:24:13,000 - __main__ - INFO - Clusters found: 2
+2025-08-10 16:24:13,003 - __main__ - INFO -    1. 180 Wash.2d 632
+2025-08-10 16:24:13,004 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:24:13,004 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:24:13,004 - __main__ - INFO -       Canonical Name: In re the Marriage of Chandola
+2025-08-10 16:24:13,005 - __main__ - INFO -       Verified: True
+2025-08-10 16:24:13,005 - __main__ - INFO -    2. 327 P.3d 644
+2025-08-10 16:24:13,005 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:24:13,006 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:24:13,006 - __main__ - INFO -       Canonical Name: None
+2025-08-10 16:24:13,006 - __main__ - INFO -       Verified: False
+2025-08-10 16:24:13,007 - __main__ - INFO -    3. 133 Wash.2d 39
+2025-08-10 16:24:13,007 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:24:13,007 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:24:13,007 - __main__ - INFO -       Canonical Name: In re the Marriage of Littlefield
+2025-08-10 16:24:13,008 - __main__ - INFO -       Verified: True
+2025-08-10 16:24:13,008 - __main__ - INFO -    4. 940 P.2d 1362
+2025-08-10 16:24:13,008 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:24:13,009 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:24:13,009 - __main__ - INFO -       Canonical Name: In Re Marriage of Littlefield
+2025-08-10 16:24:13,009 - __main__ - INFO -       Verified: True
+2025-08-10 16:24:13,013 - __main__ - INFO -    Cluster 1: 2 citations
+2025-08-10 16:24:13,020 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_user_washington_citations.py", line 224, in test_direct_processing
+    logger.info(f"      {j}. {citation.get('citation')}")
+                              ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-10 16:25:41,663 - __main__ - INFO - 🔍 TESTING USER'S WASHINGTON STATE CITATIONS
+2025-08-10 16:25:41,664 - __main__ - INFO - ============================================================
+2025-08-10 16:25:41,664 - __main__ - INFO - 📋 Text length: 392 characters
+2025-08-10 16:25:41,664 - __main__ - INFO - 📋 Expected: 2 clusters of 2 citations each
+2025-08-10 16:25:41,665 - __main__ - INFO -    - Cluster 1: Marriage of Chandola (180 Wn.2d 632, 327 P.3d 644)
+2025-08-10 16:25:41,665 - __main__ - INFO -    - Cluster 2: Marriage of Littlefield (133 Wn.2d 39, 940 P.2d 1362)
+2025-08-10 16:25:41,691 - __main__ - INFO - 
+🔬 DIRECT PROCESSING TEST
+2025-08-10 16:25:41,692 - __main__ - INFO - ============================================================
+2025-08-10 16:25:41,692 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:25:41,765 - root - WARNING - [DEBUG] sys.executable: D:\Python\python.exe
+2025-08-10 16:25:41,765 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:25:41,928 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:25:42,938 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:25:42,941 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:25:42,941 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:25:42,941 - __main__ - INFO - ✅ Text should be processed immediately
+2025-08-10 16:25:42,942 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:25:43,029 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:25:43,030 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:25:43,030 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:25:43,031 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:25:43,031 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:25:43,032 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:25:43,502 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:25:43,946 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:25:46,238 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:25:46,238 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:25:46,239 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:25:46,239 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:25:46,239 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:25:46,240 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:25:46,240 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:25:46,242 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:25:46,242 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:25:46,243 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:25:46,302 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:25:46,302 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:25:46,306 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:25:46,306 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:25:46,310 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:25:46,312 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:25:46,315 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:25:46,316 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,318 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,320 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:25:46,321 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,323 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,324 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,325 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:25:46,325 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:25:46,326 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:25:46,326 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,327 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,327 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:25:46,327 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,328 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,328 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,329 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:25:46,330 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:25:46,330 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:25:46,331 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,331 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,332 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:25:46,332 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,333 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,333 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,334 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_v_precise' failed: name 'time' is not defined
+2025-08-10 16:25:46,334 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_vs' failed: name 'time' is not defined
+2025-08-10 16:25:46,334 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'standard_versus' failed: name 'time' is not defined
+2025-08-10 16:25:46,335 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'state_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,335 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'us_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,336 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'in_re' failed: name 'time' is not defined
+2025-08-10 16:25:46,336 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'estate_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,337 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'matter_of' failed: name 'time' is not defined
+2025-08-10 16:25:46,338 - src.unified_case_name_extractor - WARNING - [REGEX_ERROR] Pattern 'dept_v' failed: name 'time' is not defined
+2025-08-10 16:25:46,338 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-08-10 16:25:46,339 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 4 citations
+2025-08-10 16:25:46,340 - src.unified_citation_clustering - INFO - Starting unified clustering for 4 citations
+2025-08-10 16:25:46,340 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-10 16:25:46,340 - src.unified_citation_clustering - INFO - Detected 4 parallel citation groups
+2025-08-10 16:25:46,341 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-10 16:25:46,342 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-10 16:25:46,342 - src.unified_citation_clustering - INFO - Batch verifying 4 citations with CourtListener API
+2025-08-10 16:25:46,343 - src.unified_citation_clustering - INFO - Processing batch 1/1 (4 citations)
+2025-08-10 16:25:46,541 - src.unified_citation_clustering - INFO - ✓ API verified: 180 Wash.2d 632 -> In re the Marriage of Chandola (2014)
+2025-08-10 16:25:46,541 - src.unified_citation_clustering - INFO - ✓ API verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield (1997)
+2025-08-10 16:25:46,542 - src.unified_citation_clustering - INFO - ✓ API verified: 940 P.2d 1362 -> In Re Marriage of Littlefield (1997)
+2025-08-10 16:25:46,542 - src.unified_citation_clustering - INFO - ✓ Verified: 180 Wash.2d 632 -> In re the Marriage of Chandola
+2025-08-10 16:25:46,542 - src.unified_citation_clustering - INFO - ✗ Unverified: 327 P.3d 644 - No clusters found in API response
+2025-08-10 16:25:46,543 - src.unified_citation_clustering - INFO - ✓ Verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield
+2025-08-10 16:25:46,543 - src.unified_citation_clustering - INFO - ✓ Verified: 940 P.2d 1362 -> In Re Marriage of Littlefield
+2025-08-10 16:25:46,543 - src.unified_citation_clustering - INFO - Applying fallback verification to 1 unverified citations
+2025-08-10 16:25:46,546 - src.unified_citation_clustering - INFO - Attempting fallback verification for: 327 P.3d 644
+2025-08-10 16:25:46,546 - src.fallback_verifier - INFO - Starting fallback verification for: 327 P.3d 644
+2025-08-10 16:25:46,548 - src.unified_citation_clustering - INFO - ✗ No fallback verification found: 327 P.3d 644
+2025-08-10 16:25:46,548 - src.unified_citation_clustering - WARNING - Fallback verification error for 327 P.3d 644: name 'time' is not defined
+2025-08-10 16:25:46,549 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-08-10 16:25:46,549 - src.api.services.citation_service - INFO - [CitationService] Found 4 citations, 2 clusters
+2025-08-10 16:25:46,550 - __main__ - INFO - Processing completed in 3.61 seconds
+2025-08-10 16:25:46,550 - __main__ - INFO - Result status: completed
+2025-08-10 16:25:46,550 - __main__ - INFO - Citations found: 4
+2025-08-10 16:25:46,551 - __main__ - INFO - Clusters found: 2
+2025-08-10 16:25:46,551 - __main__ - INFO - 
+📋 CITATIONS:
+2025-08-10 16:25:46,551 - __main__ - INFO -    1. 180 Wash.2d 632
+2025-08-10 16:25:46,552 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:25:46,552 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:25:46,552 - __main__ - INFO -       Canonical Name: In re the Marriage of Chandola
+2025-08-10 16:25:46,552 - __main__ - INFO -       Verified: True
+2025-08-10 16:25:46,553 - __main__ - INFO -    2. 327 P.3d 644
+2025-08-10 16:25:46,553 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:25:46,553 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:25:46,554 - __main__ - INFO -       Canonical Name: None
+2025-08-10 16:25:46,554 - __main__ - INFO -       Verified: False
+2025-08-10 16:25:46,554 - __main__ - INFO -    3. 133 Wash.2d 39
+2025-08-10 16:25:46,555 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:25:46,555 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:25:46,555 - __main__ - INFO -       Canonical Name: In re the Marriage of Littlefield
+2025-08-10 16:25:46,555 - __main__ - INFO -       Verified: True
+2025-08-10 16:25:46,556 - __main__ - INFO -    4. 940 P.2d 1362
+2025-08-10 16:25:46,556 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:25:46,556 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:25:46,557 - __main__ - INFO -       Canonical Name: In Re Marriage of Littlefield
+2025-08-10 16:25:46,557 - __main__ - INFO -       Verified: True
+2025-08-10 16:25:46,557 - __main__ - INFO - 
+🔗 CLUSTERS:
+2025-08-10 16:25:46,557 - __main__ - INFO -    Cluster 1: 2 citations
+2025-08-10 16:25:46,558 - __main__ - ERROR - ❌ Direct processing test failed: 'str' object has no attribute 'get'
+2025-08-10 16:25:46,560 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_user_washington_citations.py", line 256, in test_direct_processing
+    logger.info(f"      {j}. {citation.get('citation')}")
+                              ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-10 16:27:01,078 - __main__ - INFO - 🔍 TESTING USER'S WASHINGTON STATE CITATIONS
+2025-08-10 16:27:01,079 - __main__ - INFO - ============================================================
+2025-08-10 16:27:01,079 - __main__ - INFO - 📋 Text length: 392 characters
+2025-08-10 16:27:01,080 - __main__ - INFO - 📋 Expected: 2 clusters of 2 citations each
+2025-08-10 16:27:01,080 - __main__ - INFO -    - Cluster 1: Marriage of Chandola (180 Wn.2d 632, 327 P.3d 644)
+2025-08-10 16:27:01,080 - __main__ - INFO -    - Cluster 2: Marriage of Littlefield (133 Wn.2d 39, 940 P.2d 1362)
+2025-08-10 16:27:01,124 - __main__ - INFO - 
+🔬 DIRECT PROCESSING TEST
+2025-08-10 16:27:01,125 - __main__ - INFO - ============================================================
+2025-08-10 16:27:01,125 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:27:01,202 - root - WARNING - [DEBUG] sys.executable: D:\Python\python.exe
+2025-08-10 16:27:01,203 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:27:01,379 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:27:02,390 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:27:02,392 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:27:02,393 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:27:02,393 - __main__ - INFO - ✅ Text should be processed immediately
+2025-08-10 16:27:02,393 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:27:02,479 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:27:02,480 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:27:02,480 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:27:02,480 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:27:02,481 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:27:02,481 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:27:02,935 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:27:03,357 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:27:05,555 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:27:05,556 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:27:05,556 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:27:05,557 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:27:05,557 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:27:05,557 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:27:05,558 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:27:05,560 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:27:05,560 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:27:05,560 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:27:05,618 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:27:05,619 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:27:05,622 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:27:05,622 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:32:06,594 - __main__ - INFO - 🔍 TESTING USER'S WASHINGTON STATE CITATIONS
+2025-08-10 16:32:06,595 - __main__ - INFO - ============================================================
+2025-08-10 16:32:06,595 - __main__ - INFO - 📋 Text length: 392 characters
+2025-08-10 16:32:06,596 - __main__ - INFO - 📋 Expected: 2 clusters of 2 citations each
+2025-08-10 16:32:06,596 - __main__ - INFO -    - Cluster 1: Marriage of Chandola (180 Wn.2d 632, 327 P.3d 644)
+2025-08-10 16:32:06,596 - __main__ - INFO -    - Cluster 2: Marriage of Littlefield (133 Wn.2d 39, 940 P.2d 1362)
+2025-08-10 16:32:06,634 - __main__ - INFO - 
+🔬 DIRECT PROCESSING TEST
+2025-08-10 16:32:06,635 - __main__ - INFO - ============================================================
+2025-08-10 16:32:06,635 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:32:06,735 - root - WARNING - [DEBUG] sys.executable: D:\Python\python.exe
+2025-08-10 16:32:06,735 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:32:06,909 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:32:07,931 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:32:07,934 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:32:07,935 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:32:07,935 - __main__ - INFO - ✅ Text should be processed immediately
+2025-08-10 16:32:07,935 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:32:08,024 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:32:08,024 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:32:08,025 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:32:08,025 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:32:08,026 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:32:08,026 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:32:08,491 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:32:08,946 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:32:11,317 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:32:11,318 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:32:11,318 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:32:11,318 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:32:11,319 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:32:11,319 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:32:11,319 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:32:11,321 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:32:11,322 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:32:11,322 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:32:11,384 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:32:11,385 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:32:11,389 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:32:11,389 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:32:11,864 - src.unified_case_name_extractor - ERROR - Error in unified case name extraction: cannot access local variable 'matches' where it is not associated with a value
+2025-08-10 16:32:17,036 - src.unified_case_name_extractor - ERROR - Error in unified case name extraction: cannot access local variable 'matches' where it is not associated with a value
+2025-08-10 16:33:23,077 - src.unified_case_name_extractor - ERROR - Error in unified case name extraction: cannot access local variable 'matches' where it is not associated with a value
+2025-08-10 16:45:15,653 - src.unified_case_name_extractor - ERROR - Error in unified case name extraction: cannot access local variable 'matches' where it is not associated with a value
+2025-08-10 16:45:15,654 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-08-10 16:45:15,654 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 4 citations
+2025-08-10 16:45:15,655 - src.unified_citation_clustering - INFO - Starting unified clustering for 4 citations
+2025-08-10 16:45:15,655 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-10 16:45:15,655 - src.unified_citation_clustering - INFO - Detected 4 parallel citation groups
+2025-08-10 16:45:15,656 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-10 16:45:15,657 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-10 16:45:15,658 - src.unified_citation_clustering - INFO - Batch verifying 4 citations with CourtListener API
+2025-08-10 16:45:15,658 - src.unified_citation_clustering - INFO - Processing batch 1/1 (4 citations)
+2025-08-10 16:45:15,875 - src.unified_citation_clustering - INFO - ✓ API verified: 180 Wash.2d 632 -> In re the Marriage of Chandola (2014)
+2025-08-10 16:45:15,876 - src.unified_citation_clustering - INFO - ✓ API verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield (1997)
+2025-08-10 16:45:15,876 - src.unified_citation_clustering - INFO - ✓ API verified: 940 P.2d 1362 -> In Re Marriage of Littlefield (1997)
+2025-08-10 16:45:15,876 - src.unified_citation_clustering - INFO - ✓ Verified: 180 Wash.2d 632 -> In re the Marriage of Chandola
+2025-08-10 16:45:15,877 - src.unified_citation_clustering - INFO - ✗ Unverified: 327 P.3d 644 - No clusters found in API response
+2025-08-10 16:45:15,877 - src.unified_citation_clustering - INFO - ✓ Verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield
+2025-08-10 16:45:15,877 - src.unified_citation_clustering - INFO - ✓ Verified: 940 P.2d 1362 -> In Re Marriage of Littlefield
+2025-08-10 16:45:15,878 - src.unified_citation_clustering - INFO - Applying fallback verification to 1 unverified citations
+2025-08-10 16:45:15,880 - src.unified_citation_clustering - INFO - Attempting fallback verification for: 327 P.3d 644
+2025-08-10 16:45:15,881 - src.fallback_verifier - INFO - Starting fallback verification for: 327 P.3d 644
+2025-08-10 16:45:15,882 - src.unified_citation_clustering - INFO - ✗ No fallback verification found: 327 P.3d 644
+2025-08-10 16:45:15,883 - src.unified_citation_clustering - WARNING - Fallback verification error for 327 P.3d 644: name 'time' is not defined
+2025-08-10 16:45:15,883 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-08-10 16:45:15,884 - src.api.services.citation_service - INFO - [CitationService] Found 4 citations, 2 clusters
+2025-08-10 16:45:15,884 - __main__ - INFO - Processing completed in 787.95 seconds
+2025-08-10 16:45:15,885 - __main__ - INFO - Result status: completed
+2025-08-10 16:45:15,885 - __main__ - INFO - Citations found: 4
+2025-08-10 16:45:15,885 - __main__ - INFO - Clusters found: 2
+2025-08-10 16:45:15,885 - __main__ - INFO - 
+📋 CITATIONS:
+2025-08-10 16:45:15,886 - __main__ - INFO -    1. 180 Wash.2d 632
+2025-08-10 16:45:15,886 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:45:15,886 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:45:15,887 - __main__ - INFO -       Canonical Name: In re the Marriage of Chandola
+2025-08-10 16:45:15,887 - __main__ - INFO -       Verified: True
+2025-08-10 16:45:15,887 - __main__ - INFO -    2. 327 P.3d 644
+2025-08-10 16:45:15,887 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:45:15,888 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:45:15,888 - __main__ - INFO -       Canonical Name: None
+2025-08-10 16:45:15,888 - __main__ - INFO -       Verified: False
+2025-08-10 16:45:15,889 - __main__ - INFO -    3. 133 Wash.2d 39
+2025-08-10 16:45:15,889 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:45:15,889 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:45:15,889 - __main__ - INFO -       Canonical Name: In re the Marriage of Littlefield
+2025-08-10 16:45:15,890 - __main__ - INFO -       Verified: True
+2025-08-10 16:45:15,890 - __main__ - INFO -    4. 940 P.2d 1362
+2025-08-10 16:45:15,890 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:45:15,890 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:45:15,891 - __main__ - INFO -       Canonical Name: In Re Marriage of Littlefield
+2025-08-10 16:45:15,891 - __main__ - INFO -       Verified: True
+2025-08-10 16:45:15,891 - __main__ - INFO - 
+🔗 CLUSTERS:
+2025-08-10 16:45:15,892 - __main__ - INFO -    Cluster 1: 2 citations
+2025-08-10 16:45:15,892 - __main__ - ERROR - ❌ Direct processing test failed: 'str' object has no attribute 'get'
+2025-08-10 16:45:15,894 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_user_washington_citations.py", line 256, in test_direct_processing
+    logger.info(f"      {j}. {citation.get('citation')}")
+                              ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+
+2025-08-10 16:47:43,983 - __main__ - INFO - 🔍 TESTING USER'S WASHINGTON STATE CITATIONS
+2025-08-10 16:47:43,983 - __main__ - INFO - ============================================================
+2025-08-10 16:47:43,984 - __main__ - INFO - 📋 Text length: 392 characters
+2025-08-10 16:47:43,984 - __main__ - INFO - 📋 Expected: 2 clusters of 2 citations each
+2025-08-10 16:47:43,985 - __main__ - INFO -    - Cluster 1: Marriage of Chandola (180 Wn.2d 632, 327 P.3d 644)
+2025-08-10 16:47:43,985 - __main__ - INFO -    - Cluster 2: Marriage of Littlefield (133 Wn.2d 39, 940 P.2d 1362)
+2025-08-10 16:47:44,046 - __main__ - INFO - 
+🔬 DIRECT PROCESSING TEST
+2025-08-10 16:47:44,046 - __main__ - INFO - ============================================================
+2025-08-10 16:47:44,047 - __main__ - INFO - Importing CitationService...
+2025-08-10 16:47:44,127 - root - WARNING - [DEBUG] sys.executable: D:\Python\python.exe
+2025-08-10 16:47:44,127 - root - WARNING - [DEBUG] sys.path: ['D:\\dev\\casestrainer\\src', 'D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-08-10 16:47:44,293 - __main__ - INFO - Initializing CitationService...
+2025-08-10 16:47:45,299 - src.redis_distributed_processor - WARNING - Redis connection failed: Error 11001 connecting to casestrainer-redis-prod:6379. getaddrinfo failed.
+2025-08-10 16:47:45,302 - __main__ - INFO - Testing should_process_immediately...
+2025-08-10 16:47:45,302 - __main__ - INFO - should_process_immediately: True
+2025-08-10 16:47:45,302 - __main__ - INFO - ✅ Text should be processed immediately
+2025-08-10 16:47:45,303 - __main__ - INFO - Processing text immediately...
+2025-08-10 16:47:45,391 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-08-10 16:47:45,391 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-08-10 16:47:45,392 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-08-10 16:47:45,392 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-08-10 16:47:45,392 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-08-10 16:47:45,393 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-08-10 16:47:45,861 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-10 16:47:46,294 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-10 16:47:48,595 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-10 16:47:48,596 - src.api.services.citation_service - INFO - [CitationService] Processing text immediately: We review a trial court's parenting plan for abuse of discretion. In re Marriage of Chandola, 180 Wn...
+2025-08-10 16:47:48,596 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-08-10 16:47:48,596 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-08-10 16:47:48,597 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-08-10 16:47:48,597 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-08-10 16:47:48,597 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 392 chars
+2025-08-10 16:47:48,599 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-08-10 16:47:48,600 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-08-10 16:47:48,600 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-08-10 16:47:48,658 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-08-10 16:47:48,659 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-08-10 16:47:48,662 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 4 citations
+2025-08-10 16:47:48,662 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-08-10 16:47:48,664 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-08-10 16:47:48,665 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 4 citations
+2025-08-10 16:47:48,665 - src.unified_citation_clustering - INFO - Starting unified clustering for 4 citations
+2025-08-10 16:47:48,666 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-10 16:47:48,666 - src.unified_citation_clustering - INFO - Detected 4 parallel citation groups
+2025-08-10 16:47:48,666 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-10 16:47:48,667 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-10 16:47:48,668 - src.unified_citation_clustering - INFO - Batch verifying 4 citations with CourtListener API
+2025-08-10 16:47:48,668 - src.unified_citation_clustering - INFO - Processing batch 1/1 (4 citations)
+2025-08-10 16:47:49,058 - src.unified_citation_clustering - INFO - ✓ API verified: 180 Wash.2d 632 -> In re the Marriage of Chandola (2014)
+2025-08-10 16:47:49,059 - src.unified_citation_clustering - INFO - ✓ API verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield (1997)
+2025-08-10 16:47:49,060 - src.unified_citation_clustering - INFO - ✓ API verified: 940 P.2d 1362 -> In Re Marriage of Littlefield (1997)
+2025-08-10 16:47:49,060 - src.unified_citation_clustering - INFO - ✓ Verified: 180 Wash.2d 632 -> In re the Marriage of Chandola
+2025-08-10 16:47:49,060 - src.unified_citation_clustering - INFO - ✗ Unverified: 327 P.3d 644 - No clusters found in API response
+2025-08-10 16:47:49,061 - src.unified_citation_clustering - INFO - ✓ Verified: 133 Wash.2d 39 -> In re the Marriage of Littlefield
+2025-08-10 16:47:49,061 - src.unified_citation_clustering - INFO - ✓ Verified: 940 P.2d 1362 -> In Re Marriage of Littlefield
+2025-08-10 16:47:49,062 - src.unified_citation_clustering - INFO - Applying fallback verification to 1 unverified citations
+2025-08-10 16:47:49,064 - src.unified_citation_clustering - INFO - Attempting fallback verification for: 327 P.3d 644
+2025-08-10 16:47:49,065 - src.fallback_verifier - INFO - Starting fallback verification for: 327 P.3d 644
+2025-08-10 16:47:49,066 - src.unified_citation_clustering - INFO - ✗ No fallback verification found: 327 P.3d 644
+2025-08-10 16:47:49,066 - src.unified_citation_clustering - WARNING - Fallback verification error for 327 P.3d 644: name 'time' is not defined
+2025-08-10 16:47:49,067 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-08-10 16:47:49,068 - src.api.services.citation_service - INFO - [CitationService] Found 4 citations, 2 clusters
+2025-08-10 16:47:49,068 - __main__ - INFO - Processing completed in 3.77 seconds
+2025-08-10 16:47:49,069 - __main__ - INFO - Result status: completed
+2025-08-10 16:47:49,069 - __main__ - INFO - Citations found: 4
+2025-08-10 16:47:49,069 - __main__ - INFO - Clusters found: 2
+2025-08-10 16:47:49,069 - __main__ - INFO - 
+📋 CITATIONS:
+2025-08-10 16:47:49,070 - __main__ - INFO -    1. 180 Wash.2d 632
+2025-08-10 16:47:49,070 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:47:49,070 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:47:49,071 - __main__ - INFO -       Canonical Name: In re the Marriage of Chandola
+2025-08-10 16:47:49,071 - __main__ - INFO -       Verified: True
+2025-08-10 16:47:49,071 - __main__ - INFO -    2. 327 P.3d 644
+2025-08-10 16:47:49,072 - __main__ - INFO -       Case Name: In re Marriage of Chandola
+2025-08-10 16:47:49,072 - __main__ - INFO -       Extracted Name: In re Marriage of Chandola
+2025-08-10 16:47:49,072 - __main__ - INFO -       Canonical Name: None
+2025-08-10 16:47:49,073 - __main__ - INFO -       Verified: False
+2025-08-10 16:47:49,073 - __main__ - INFO -    3. 133 Wash.2d 39
+2025-08-10 16:47:49,073 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:47:49,074 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:47:49,074 - __main__ - INFO -       Canonical Name: In re the Marriage of Littlefield
+2025-08-10 16:47:49,074 - __main__ - INFO -       Verified: True
+2025-08-10 16:47:49,075 - __main__ - INFO -    4. 940 P.2d 1362
+2025-08-10 16:47:49,075 - __main__ - INFO -       Case Name: In re Marriage of Littlefield
+2025-08-10 16:47:49,075 - __main__ - INFO -       Extracted Name: In re Marriage of Littlefield
+2025-08-10 16:47:49,076 - __main__ - INFO -       Canonical Name: In Re Marriage of Littlefield
+2025-08-10 16:47:49,076 - __main__ - INFO -       Verified: True
+2025-08-10 16:47:49,077 - __main__ - INFO - 
+🔗 CLUSTERS:
+2025-08-10 16:47:49,077 - __main__ - INFO -    Cluster 1: 2 citations
+2025-08-10 16:47:49,077 - __main__ - ERROR - ❌ Direct processing test failed: 'str' object has no attribute 'get'
+2025-08-10 16:47:49,080 - __main__ - ERROR - Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_user_washington_citations.py", line 256, in test_direct_processing
+    logger.info(f"      {j}. {citation.get('citation')}")
+                              ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+

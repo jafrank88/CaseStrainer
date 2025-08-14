@@ -1,0 +1,15 @@
+﻿{
+    "LastError":  "Docker repair completed but failed to start",
+    "LastStopAttempt":  "2025-08-13T11:54:29.9009035-07:00",
+    "LastStartAttempt":  null,
+    "CurrentMode":  "linux",
+    "StatusHistory":  [
+                          {
+                              "Status":  "stopped",
+                              "Timestamp":  "2025-08-13T11:54:29.9085121-07:00",
+                              "Reason":  "Repairing Docker installation"
+                          }
+                      ],
+    "StopCount":  1,
+    "StartCount":  0
+}

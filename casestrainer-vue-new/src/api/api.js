@@ -249,7 +249,7 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       });
       
       // DEBUG: Alert when task is completed
-      alert(`🎉 TASK COMPLETED! Citations: ${response.data.result?.citations?.length || 0}`);
+      console.log(`🎉 TASK COMPLETED! Citations: ${response.data.result?.citations?.length || 0}`);
       
       return { ...response.data, requestId: clientRequestId };
     } else if (response.data.status === 'failed') {
@@ -443,9 +443,10 @@ const validateUrl = (url) => {
             throw new Error('Only HTTP and HTTPS URLs are supported');
         }
         
-        // Check for test URLs
+        // Check for test URLs (temporarily disabled for debugging)
         if (isTestUrl(url)) {
-            throw new Error('Test or local URLs are not allowed');
+            console.warn('Test URL detected but allowing for debugging:', url);
+            // throw new Error('Test or local URLs are not allowed');
         }
         
         return true;
@@ -474,7 +475,7 @@ export const analyze = async (requestData, requestId = null) => {
     // NUCLEAR BLOCK: If on EnhancedValidator page and this is a file upload, block HomeView calls
     if (isEnhancedValidatorPage && requestData instanceof FormData) {
         console.log('🔍 NUCLEAR BLOCK: analyze function blocked on EnhancedValidator page for file uploads!');
-        alert('🔍 NUCLEAR BLOCK: analyze function blocked on EnhancedValidator page! Only EnhancedValidator should handle file uploads!');
+        console.log('🔍 NUCLEAR BLOCK: analyze function blocked on EnhancedValidator page! Only EnhancedValidator should handle file uploads!');
         throw new Error('File uploads are blocked on EnhancedValidator page. Only EnhancedValidator should handle file uploads.');
     }
     
@@ -492,7 +493,7 @@ export const analyze = async (requestData, requestId = null) => {
     
     // Show stack trace in alert to see where it's called from
     const stackLines = stackTrace.split('\n').slice(1, 4).join('\n'); // Get first 3 lines of stack
-    alert('🔍 ANALYZE FUNCTION CALLED! Type: ' + typeInfo + ' | IsFormData: ' + (requestData instanceof FormData) + '\n\nStack:\n' + stackLines);
+    console.log('🔍 ANALYZE FUNCTION CALLED! Type: ' + typeInfo + ' | IsFormData: ' + (requestData instanceof FormData) + '\n\nStack:\n' + stackLines);
     
     // Check for test data and reject it (only for text and URL inputs, not file uploads)
     if (!(requestData instanceof FormData) && isTestData(requestData)) {

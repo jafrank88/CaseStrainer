@@ -1,6 +1,12 @@
 """
 Citation Normalization Module
 Handles citation normalization and variant generation.
+
+DEPRECATED: This module is deprecated in favor of the consolidated 
+_normalize_citation_comprehensive method in UnifiedCitationProcessorV2.
+
+Use UnifiedCitationProcessorV2._normalize_citation_comprehensive instead.
+This module will be removed in a future version.
 """
 
 import re

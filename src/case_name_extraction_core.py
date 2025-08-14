@@ -188,7 +188,7 @@ def find_case_name_start(text: str, start_pos: int, citation: str = '') -> int:
     
     # Pattern 3: Look for common legal phrases that might precede a case name
     legal_phrases = [
-        'in', 'see', 'see also', 'cf.', 'e.g.,', 'accord', 'but see',
+        'in', 'see', 'see also', 'cf.', 'e.g.,', 'accord', 'but see', 'further',
         'the court in', 'in the case of', 'as stated in', 'as held in',
         'as explained in', 'as recognized in', 'as noted in', 'as discussed in'
     ]

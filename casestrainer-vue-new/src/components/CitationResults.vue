@@ -45,12 +45,22 @@ watch(() => props.results, (newResults) => {
     resultsKeys: newResults ? Object.keys(newResults) : [],
     hasCitations: !!(newResults?.citations),
     hasClusters: !!(newResults?.clusters),
-    citationsLength: newResults?.citations?.length || 0,
-    clustersLength: newResults?.clusters?.length || 0,
+    citationsLength: Array.isArray(newResults?.citations) ? newResults.citations.length : 0,
+    clustersLength: Array.isArray(newResults?.clusters) ? newResults.clusters.length : 0,
     clustersData: newResults?.clusters,
-    displayCondition: !!(newResults && newResults.clusters && newResults.clusters.length > 0),
-    sampleCluster: newResults?.clusters?.[0]
+    displayCondition: !!(newResults && Array.isArray(newResults.clusters) && newResults.clusters.length > 0),
+    sampleCluster: Array.isArray(newResults?.clusters) ? newResults.clusters[0] : null
   });
+  
+  // Debug: Check the structure of the first cluster if it exists
+  if (newResults?.clusters?.[0]) {
+    console.log('🔍 First cluster structure:', {
+      clusterKeys: Object.keys(newResults.clusters[0]),
+      hasCitations: Array.isArray(newResults.clusters[0].citations),
+      citationsLength: Array.isArray(newResults.clusters[0].citations) ? newResults.clusters[0].citations.length : 0,
+      sampleCitation: Array.isArray(newResults.clusters[0].citations) ? newResults.clusters[0].citations[0] : null
+    });
+  }
 }, { immediate: true, deep: true })
 
 // Helper functions for filtering
@@ -133,50 +143,87 @@ const invalidCount = computed(() => {
 })
 
 const filteredClusters = computed(() => {
-  if (!props.results?.clusters || props.results.clusters.length === 0) {
-    return []
+  // Ensure we have valid clusters data
+  if (!props.results || !Array.isArray(props.results.clusters) || props.results.clusters.length === 0) {
+    console.log('❌ No valid clusters found in results:', props.results);
+    return [];
   }
   
-  return props.results.clusters.map(cluster => {
-    // Filter citations within each cluster
-    let filteredCitations = cluster.citations.filter(c => !isStatuteOrRegulation(c))
-    
-    if (activeFilter.value === 'verified') {
-      filteredCitations = filteredCitations.filter(c => c.verified === 'true' || c.verified === true)
-    } else if (activeFilter.value === 'invalid') {
-      filteredCitations = filteredCitations.filter(c => c.verified === 'false' || c.verified === false)
-    }
-    
-    if (searchQuery.value.trim()) {
-      const query = searchQuery.value.toLowerCase()
-      filteredCitations = filteredCitations.filter(c => 
-        (c.citation && c.citation.toLowerCase().includes(query)) ||
-        (c.canonical_citation && c.canonical_citation.toLowerCase().includes(query)) ||
-        (c.primary_citation && c.primary_citation.toLowerCase().includes(query)) ||
-        (getCaseName(c) && getCaseName(c).toLowerCase().includes(query))
-      )
-    }
-    
-    // Return cluster with filtered citations, but only if it has any citations left
-    if (filteredCitations.length > 0) {
-      return {
-        ...cluster,
-        citations: filteredCitations,
-        size: filteredCitations.length
+  console.log('🔍 Processing clusters:', props.results.clusters);
+  
+  return props.results.clusters
+    .filter(cluster => cluster && typeof cluster === 'object')
+    .map(cluster => {
+      try {
+        // Ensure citations is an array
+        const citations = Array.isArray(cluster.citations) ? cluster.citations : [];
+        console.log(`📊 Cluster ${cluster.cluster_id || 'unnamed'} has ${citations.length} citations`);
+        
+        // Filter citations within each cluster
+        let filteredCitations = citations.filter(c => c && !isStatuteOrRegulation(c));
+        
+        // Apply filters
+        if (activeFilter.value === 'verified') {
+          filteredCitations = filteredCitations.filter(c => c.verified === true || c.verified === 'true');
+        } else if (activeFilter.value === 'invalid') {
+          filteredCitations = filteredCitations.filter(c => c.verified === false || c.verified === 'false');
+        }
+        
+        // Apply search query
+        if (searchQuery.value.trim()) {
+          const query = searchQuery.value.toLowerCase();
+          filteredCitations = filteredCitations.filter(c => {
+            if (!c) return false;
+            return (
+              (c.citation && c.citation.toString().toLowerCase().includes(query)) ||
+              (c.canonical_citation && c.canonical_citation.toString().toLowerCase().includes(query)) ||
+              (c.primary_citation && c.primary_citation.toString().toLowerCase().includes(query)) ||
+              (getCaseName(c) && getCaseName(c).toString().toLowerCase().includes(query))
+            );
+          });
+        }
+        
+        // Return cluster with filtered citations, but only if it has any citations left
+        if (filteredCitations.length > 0) {
+          return {
+            ...cluster,
+            citations: filteredCitations,
+            size: filteredCitations.length,
+            // Ensure we have a cluster_id for React keys
+            cluster_id: cluster.cluster_id || `cluster-${Math.random().toString(36).substr(2, 9)}`
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error('❌ Error processing cluster:', error);
+        return null;
       }
-    }
-    return null
-  }).filter(cluster => cluster !== null)
+    })
+    .filter(cluster => cluster !== null);
 })
 
 const allCitations = computed(() => {
-  if (props.results?.clusters && props.results.clusters.length > 0) {
-    // Get all citations from all clusters
-    return props.results.clusters.flatMap(cluster => cluster.citations)
+  try {
+    // If we have clusters, get citations from all clusters
+    if (Array.isArray(props.results?.clusters) && props.results.clusters.length > 0) {
+      return props.results.clusters.flatMap(cluster => {
+        // Ensure cluster.citations is an array
+        const citations = Array.isArray(cluster?.citations) ? cluster.citations : [];
+        return citations.filter(c => c && !isStatuteOrRegulation(c));
+      });
+    }
+    
+    // Fallback to direct citations array if no clusters
+    if (Array.isArray(props.results?.citations)) {
+      return props.results.citations.filter(c => c && !isStatuteOrRegulation(c));
+    }
+    
+    console.log('⚠️ No valid citations found in results:', props.results);
+    return [];
+  } catch (error) {
+    console.error('❌ Error in allCitations computed property:', error);
+    return [];
   }
-  
-  if (!props.results?.citations) return []
-  return props.results.citations.filter(c => !isStatuteOrRegulation(c))
 })
 
 // Helper function to calculate citation score (4/4 system)
@@ -213,6 +260,42 @@ const calculateCitationScore = (citation) => {
 // Filter clusters to only show those that don't have perfect 4/4 scores
 const citationsNeedingAttention = computed(() => {
   console.log('🔍 citationsNeedingAttention computed - props.results:', props.results);
+  
+  // If we don't have results or clusters, return empty array
+  if (!props.results || !Array.isArray(props.results.clusters) || props.results.clusters.length === 0) {
+    console.log('⚠️ No clusters found in results');
+    return [];
+  }
+  
+  try {
+    // Process each cluster
+    return props.results.clusters
+      .filter(cluster => {
+        if (!cluster || !Array.isArray(cluster.citations) || cluster.citations.length === 0) {
+          return false; // Skip invalid clusters
+        }
+        
+        // Check if any citation in the cluster doesn't have a perfect score
+        return cluster.citations.some(citation => {
+          if (!citation) return false;
+          const score = calculateCitationScore(citation);
+          return score < 4; // Only include clusters with at least one citation needing attention
+        });
+      })
+      .map(cluster => {
+        // Ensure we have all required properties
+        return {
+          ...cluster,
+          cluster_id: cluster.cluster_id || `cluster-${Math.random().toString(36).substr(2, 9)}`,
+          citations: Array.isArray(cluster.citations) 
+            ? cluster.citations.filter(c => c) // Filter out any null/undefined citations
+            : []
+        };
+      });
+  } catch (error) {
+    console.error('❌ Error in citationsNeedingAttention computed property:', error);
+    return [];
+  }
   
   if (props.results?.clusters && props.results.clusters.length > 0) {
     const filteredClusters = props.results.clusters.filter(cluster => {
@@ -336,20 +419,20 @@ const getCaseName = (citation) => {
 }
 
 const getCanonicalCaseName = (citation) => {
-  return citation.canonical_name || null
+  return citation.canonical_name || citation.metadata?.canonical_name || null
 }
 
 const getExtractedCaseName = (citation) => {
-  const value = citation.extracted_case_name;
+  const value = citation.extracted_case_name || citation.metadata?.extracted_case_name;
   return (value && value !== 'N/A') ? value : null;
 }
 
 const getCanonicalDate = (citation) => {
-  return citation.canonical_date || null
+  return citation.canonical_date || citation.metadata?.canonical_date || null
 }
 
 const getExtractedDate = (citation) => {
-  const value = citation.extracted_date;
+  const value = citation.extracted_date || citation.metadata?.extracted_date;
   return (value && value !== 'N/A') ? value : null;
 }
 
@@ -382,16 +465,22 @@ const getError = (citation) => {
 
 const getVerificationStatus = (citation) => {
   // Check if verified is true (direct verification)
-  if (citation.verified === 'true' || citation.verified === true) return 'verified'
+  if (citation.verified === 'True' || citation.verified === 'true' || citation.verified === true) return 'verified'
   
   // Check if verified is 'true_by_parallel' (string from backend)
-  if (citation.verified === 'true_by_parallel') return 'true_by_parallel'
+  if (citation.verified === 'true_by_parallel' || citation.verified === 'True_by_parallel') return 'true_by_parallel'
   
   // Check if true_by_parallel field is true (boolean from backend)
-  if (citation.true_by_parallel === true) return 'true_by_parallel'
+  if (citation.true_by_parallel === true || citation.true_by_parallel === 'true') return 'true_by_parallel'
   
   // Check if metadata contains true_by_parallel flag
-  if (citation.metadata && citation.metadata.true_by_parallel === true) return 'true_by_parallel'
+  if (citation.metadata) {
+    if (citation.metadata.true_by_parallel === true || citation.metadata.true_by_parallel === 'true') return 'true_by_parallel'
+    if (citation.metadata.verification_status === 'verified') return 'verified'
+  }
+  
+  // Check if citation is in a cluster with verification status
+  if (citation.metadata?.verification_status === 'verified') return 'verified'
   
   return 'unverified'
 }
@@ -689,7 +778,7 @@ function getUniqueCitations(citations) {
 // Handle new analysis button click
 function handleNewAnalysis() {
   console.log('🔄 New Analysis button clicked in CitationResults');
-  alert('🔄 New Analysis button clicked in CitationResults!');
+  console.log('🔄 New Analysis button clicked in CitationResults!');
   emit('new-analysis');
 }
 </script>

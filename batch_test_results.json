@@ -1,0 +1,27 @@
+[
+  {
+    "file": "001_Answer to Petition for Review.txt",
+    "error": "object of type 'coroutine' has no len()",
+    "total_citations": 0
+  },
+  {
+    "file": "002_Petition for Review.txt",
+    "error": "object of type 'coroutine' has no len()",
+    "total_citations": 0
+  },
+  {
+    "file": "018_Plaintiff Opening Brief.txt",
+    "error": "object of type 'coroutine' has no len()",
+    "total_citations": 0
+  },
+  {
+    "file": "020_Appellants Brief.txt",
+    "error": "object of type 'coroutine' has no len()",
+    "total_citations": 0
+  },
+  {
+    "file": "025_Amicus - ACLU of Washington.txt",
+    "error": "object of type 'coroutine' has no len()",
+    "total_citations": 0
+  }
+]
