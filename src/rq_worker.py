@@ -57,13 +57,21 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     
     service = CitationService()
     
-    # Add timeout protection to prevent stuck jobs
-    def timeout_handler(signum, frame):
-        raise TimeoutError(f"Task {task_id} timed out after 10 minutes")
-    
-    # Set timeout alarm (10 minutes)
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(600)  # 10 minutes
+    # Add timeout protection to prevent stuck jobs (cross-platform)
+    import platform
+    timeout_set = False
+    if platform.system() != 'Windows':
+        try:
+            def timeout_handler(signum, frame):
+                raise TimeoutError(f"Task {task_id} timed out after 10 minutes")
+            
+            # Set timeout alarm (10 minutes) - Unix/Linux only
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(600)  # 10 minutes
+            timeout_set = True
+        except (AttributeError, OSError):
+            # SIGALRM not available on this system
+            pass
     
     try:
         # Use asyncio.run instead of creating new event loop to prevent deadlocks
@@ -91,8 +99,9 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             'task_id': task_id
         }
     finally:
-        # Cancel timeout alarm
-        signal.alarm(0)
+        # Cancel timeout alarm (Unix/Linux only)
+        if platform.system() != 'Windows':
+            signal.alarm(0)
 
 class RobustWorker(Worker):
     """Enhanced RQ worker with memory management and graceful shutdown."""
