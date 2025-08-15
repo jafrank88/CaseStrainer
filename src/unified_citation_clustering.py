@@ -81,8 +81,12 @@ class UnifiedCitationClusterer:
             logger.info("Step 3: Verifying citations with CourtListener API")
             self._verify_clusters_with_api(clusters)
         
-        # Step 4: Format clusters for output
-        formatted_clusters = self._format_clusters_for_output(clusters)
+        # Step 4: Merge clusters based on propagated extracted metadata
+        logger.info("Step 4: Merging clusters based on propagated extracted case names and years")
+        merged_clusters = self._merge_clusters_by_extracted_metadata(clusters)
+        
+        # Step 5: Format clusters for output
+        formatted_clusters = self._format_clusters_for_output(merged_clusters)
         
         logger.info(f"Unified clustering completed: {len(formatted_clusters)} clusters created")
         
@@ -91,19 +95,22 @@ class UnifiedCitationClusterer:
     def _detect_parallel_citation_groups(self, citations: List[Any], text: str) -> List[List[Any]]:
         """
         STEP 1: Detect parallel citation groups based on patterns and proximity.
-        This is the FIRST step - no reliance on extracted metadata.
+        This includes both explicit relationships and proximity-based detection.
         """
         groups = []
         visited = set()
         
-        for citation in citations:
+        # Sort citations by position for proximity analysis
+        sorted_citations = sorted(citations, key=lambda c: c.start_index if hasattr(c, 'start_index') and c.start_index is not None else 0)
+        
+        for citation in sorted_citations:
             if citation.citation in visited:
                 continue
             
             group = [citation]
             visited.add(citation.citation)
             
-            # Check for explicit parallel relationships
+            # Method 1: Check for explicit parallel relationships
             parallel_citations = getattr(citation, 'parallel_citations', [])
             citation_lookup = {c.citation: c for c in citations}
             
@@ -120,9 +127,19 @@ class UnifiedCitationClusterer:
                             group.append(parallel_citation)
                             visited.add(parallel_cite)
             
+            # Method 2: Check for proximity-based parallel citations
+            for other_citation in sorted_citations:
+                if other_citation.citation in visited:
+                    continue
+                
+                # Check if citations are close enough to be parallel
+                if self._are_citations_parallel_by_proximity(citation, other_citation, text):
+                    group.append(other_citation)
+                    visited.add(other_citation.citation)
+            
             groups.append(group)
         
-        logger.info(f"Detected {len(groups)} parallel citation groups")
+        logger.info(f"Detected {len(groups)} parallel citation groups (including proximity-based)")
         return groups
     
     def _extract_and_propagate_metadata(self, groups: List[List[Any]], text: str) -> Dict[str, List[Any]]:
@@ -142,10 +159,34 @@ class UnifiedCitationClusterer:
             # Extract case name from FIRST citation in group
             case_name = self._extract_case_name_from_citation(sorted_group[0], text)
             
-            # Extract year from LAST citation in group  
-            year = self._extract_year_from_citation(sorted_group[-1], text)
+            # For parallel citations, try to find the most reliable year
+            # Look for years that appear after all the citations in the group
+            year = None
             
-            # If we couldn't extract from first/last, try other citations in the group
+            # First, try to extract year considering the entire group's text span
+            if len(sorted_group) > 1:
+                # For parallel citations, look for year after the last citation
+                last_citation = sorted_group[-1]
+                year = self._extract_year_from_citation(last_citation, text)
+                
+                # If that fails, try each citation and pick the most reliable one
+                if not year or year == "N/A":
+                    candidate_years = []
+                    for citation in sorted_group:
+                        extracted_year = self._extract_year_from_citation(citation, text)
+                        if extracted_year and extracted_year != "N/A" and extracted_year.isdigit():
+                            candidate_years.append(extracted_year)
+                    
+                    # Use the most common year, or the most recent if all different
+                    if candidate_years:
+                        from collections import Counter
+                        year_counts = Counter(candidate_years)
+                        year = year_counts.most_common(1)[0][0]
+            else:
+                # Single citation - extract normally
+                year = self._extract_year_from_citation(sorted_group[0], text)
+            
+            # If we couldn't extract case name from first, try other citations in the group
             if not case_name or case_name == "N/A":
                 for citation in sorted_group:
                     extracted_name = self._extract_case_name_from_citation(citation, text)
@@ -153,6 +194,7 @@ class UnifiedCitationClusterer:
                         case_name = extracted_name
                         break
             
+            # Final fallback for year extraction
             if not year or year == "N/A":
                 for citation in reversed(sorted_group):
                     extracted_year = self._extract_year_from_citation(citation, text)
@@ -160,10 +202,17 @@ class UnifiedCitationClusterer:
                         year = extracted_year
                         break
             
+            # Debug logging for year extraction
+            if self.debug_mode and len(sorted_group) > 1:
+                citation_list = [c.citation for c in sorted_group]
+                logger.debug(f"Parallel group: {citation_list} -> case_name: '{case_name}', year: '{year}'")
+            
             # Propagate extracted case name and year to ALL citations in this group
             for citation in sorted_group:
                 citation.extracted_case_name = case_name or "N/A"
                 citation.extracted_date = year or "N/A"
+                if self.debug_mode:
+                    logger.debug(f"Propagated to {citation.citation}: case_name='{citation.extracted_case_name}', date='{citation.extracted_date}'")
             
             # Create cluster
             if case_name and year and case_name != "N/A" and year != "N/A":
@@ -177,6 +226,213 @@ class UnifiedCitationClusterer:
             clusters[cluster_key].extend(sorted_group)
         
         return clusters
+    
+    def _are_citations_parallel_by_proximity(self, citation1: Any, citation2: Any, text: str) -> bool:
+        """
+        Determine if two citations are parallel based on proximity and patterns.
+        
+        Args:
+            citation1: First citation to compare
+            citation2: Second citation to compare
+            text: Original text for context
+            
+        Returns:
+            True if citations appear to be parallel (same case, different reporters)
+        """
+        # Check proximity first - must be within reasonable distance
+        if not (hasattr(citation1, 'start_index') and hasattr(citation2, 'start_index')):
+            return False
+        
+        # Check if start_index values are not None
+        if citation1.start_index is None or citation2.start_index is None:
+            return False
+            
+        distance = abs(citation1.start_index - citation2.start_index)
+        if distance > self.proximity_threshold:
+            return False
+        
+        # Check if they're different reporter types (likely parallel)
+        reporter1 = self._extract_reporter_type(citation1.citation)
+        reporter2 = self._extract_reporter_type(citation2.citation)
+        
+        # If same reporter type, probably not parallel
+        if reporter1 == reporter2:
+            return False
+        
+        # Check for common parallel patterns
+        is_parallel = self._match_parallel_patterns(citation1.citation, citation2.citation)
+        
+        if self.debug_mode and is_parallel:
+            logger.debug(f"Detected parallel citations by proximity: {citation1.citation} & {citation2.citation}")
+        
+        return is_parallel
+    
+    def _extract_reporter_type(self, citation: str) -> str:
+        """
+        Extract the reporter type from a citation.
+        
+        Args:
+            citation: Citation string to analyze
+            
+        Returns:
+            Reporter type (e.g., 'wash2d', 'p3d', 'p2d')
+        """
+        citation_lower = citation.lower().replace(' ', '').replace('.', '')
+        
+        # Common reporter patterns
+        if 'wash2d' in citation_lower or 'wn2d' in citation_lower:
+            return 'wash2d'
+        elif 'p3d' in citation_lower:
+            return 'p3d'
+        elif 'p2d' in citation_lower:
+            return 'p2d'
+        elif 'us' in citation_lower:
+            return 'us'
+        elif 'sct' in citation_lower:
+            return 'sct'
+        elif 'fed' in citation_lower:
+            return 'fed'
+        elif 'f3d' in citation_lower:
+            return 'f3d'
+        elif 'f2d' in citation_lower:
+            return 'f2d'
+        else:
+            return 'unknown'
+    
+    def _match_parallel_patterns(self, citation1: str, citation2: str) -> bool:
+        """
+        Check if two citations match common parallel citation patterns.
+        
+        Args:
+            citation1: First citation string
+            citation2: Second citation string
+            
+        Returns:
+            True if citations match parallel patterns
+        """
+        # Common parallel combinations
+        parallel_combinations = [
+            ('wash2d', 'p3d'),  # Washington 2d and Pacific 3d
+            ('wash2d', 'p2d'),  # Washington 2d and Pacific 2d
+            ('us', 'sct'),      # U.S. and Supreme Court Reporter
+            ('fed', 'f3d'),     # Federal and F.3d
+            ('fed', 'f2d'),     # Federal and F.2d
+        ]
+        
+        reporter1 = self._extract_reporter_type(citation1)
+        reporter2 = self._extract_reporter_type(citation2)
+        
+        # Check if the combination is a known parallel pattern
+        combination = (reporter1, reporter2)
+        reverse_combination = (reporter2, reporter1)
+        
+        return combination in parallel_combinations or reverse_combination in parallel_combinations
+    
+    def _merge_clusters_by_extracted_metadata(self, clusters: Dict[str, List[Any]]) -> Dict[str, List[Any]]:
+        """
+        Merge clusters that have the same extracted case name and year after propagation.
+        IMPORTANT: Preserve parallel relationships - don't split clusters that were detected as parallel.
+        
+        Args:
+            clusters: Initial clusters based on parallel detection
+            
+        Returns:
+            Merged clusters based on extracted case name and year, preserving parallel relationships
+        """
+        merged_clusters = {}
+        cluster_mapping = {}  # Track which citations belong to which final cluster
+        
+        for cluster_key, citations in clusters.items():
+            if not citations:
+                continue
+            
+            # Check if this cluster contains parallel citations (multiple different reporter types)
+            reporter_types = set()
+            for citation in citations:
+                reporter = self._extract_reporter_type(citation.citation)
+                if reporter:
+                    reporter_types.add(reporter)
+            
+            # If this cluster has parallel citations (multiple reporters), keep it together
+            if len(reporter_types) > 1:
+                logger.debug(f"Preserving parallel cluster '{cluster_key}' with reporters: {reporter_types}")
+                # Keep the original cluster key to preserve parallel relationship
+                merged_clusters[cluster_key] = citations
+                for citation in citations:
+                    cluster_mapping[citation.citation] = cluster_key
+            else:
+                # Single reporter type - safe to merge by extracted metadata
+                sample_citation = citations[0]
+                extracted_name = getattr(sample_citation, 'extracted_case_name', 'N/A')
+                extracted_year = getattr(sample_citation, 'extracted_date', 'N/A')
+                
+                # Create a new cluster key based on extracted metadata
+                if extracted_name and extracted_year and extracted_name != 'N/A' and extracted_year != 'N/A':
+                    # Normalize the case name for clustering
+                    normalized_name = self._normalize_case_name_for_clustering(extracted_name)
+                    metadata_cluster_key = f"{normalized_name}_{extracted_year}"
+                else:
+                    # Fallback to original cluster key if metadata is incomplete
+                    metadata_cluster_key = cluster_key
+                
+                # Check if any citation in this group is already assigned to a different cluster
+                existing_cluster = None
+                for citation in citations:
+                    if citation.citation in cluster_mapping:
+                        existing_cluster = cluster_mapping[citation.citation]
+                        break
+                
+                if existing_cluster:
+                    # Merge into existing cluster
+                    for citation in citations:
+                        if citation not in merged_clusters[existing_cluster]:
+                            merged_clusters[existing_cluster].append(citation)
+                            cluster_mapping[citation.citation] = existing_cluster
+                else:
+                    # Create new cluster or merge into existing metadata cluster
+                    if metadata_cluster_key not in merged_clusters:
+                        merged_clusters[metadata_cluster_key] = []
+                    merged_clusters[metadata_cluster_key].extend(citations)
+                    for citation in citations:
+                        cluster_mapping[citation.citation] = metadata_cluster_key
+        
+        logger.info(f"Merged {len(clusters)} initial clusters into {len(merged_clusters)} final clusters (preserving parallel relationships)")
+        
+        # Log the merging details in debug mode
+        if self.debug_mode:
+            for cluster_key, citations in merged_clusters.items():
+                citation_strs = [c.citation for c in citations]
+                reporter_types = [self._extract_reporter_type(c.citation) for c in citations]
+                logger.debug(f"Final cluster '{cluster_key}': {citation_strs} (reporters: {reporter_types})")
+        
+        return merged_clusters
+    
+    def _normalize_case_name_for_clustering(self, case_name: str) -> str:
+        """
+        Normalize case name for consistent clustering.
+        
+        Args:
+            case_name: Raw case name to normalize
+            
+        Returns:
+            Normalized case name for clustering
+        """
+        if not case_name or case_name == 'N/A':
+            return 'unknown'
+        
+        # Convert to lowercase and replace problematic characters
+        normalized = case_name.lower().strip()
+        
+        # Standardize common variations
+        normalized = normalized.replace('in re the marriage of', 'in re marriage of')
+        normalized = normalized.replace('in the matter of', 'in re')
+        normalized = normalized.replace('matter of', 'in re')
+        
+        # Remove punctuation and extra spaces
+        normalized = re.sub(r'[^\w\s]', '', normalized)
+        normalized = re.sub(r'\s+', '_', normalized)
+        
+        return normalized
     
     def _extract_case_name_from_citation(self, citation: Any, text: str) -> str:
         """Extract case name for a specific citation from surrounding text."""
@@ -329,15 +585,18 @@ class UnifiedCitationClusterer:
                                 citation.canonical_name = canonical_name
                                 citation.canonical_date = result.get('canonical_date')
                                 citation.canonical_url = result.get('canonical_url') or result.get('url')
+                                citation.verified = True
                                 citation.is_verified = True
                                 
                                 logger.info(f"✓ Verified: {citation.citation} -> {canonical_name}")
                             else:
                                 # Failed validation - mark as unverified
+                                citation.verified = False
                                 citation.is_verified = False
                                 logger.info(f"✗ Failed validation: {citation.citation}")
                         else:
                             # Mark as unverified but keep extracted data
+                            citation.verified = False
                             citation.is_verified = False
                             error_msg = result.get('error', 'Unknown error')
                             logger.info(f"✗ Unverified: {citation.citation} - {error_msg}")
@@ -477,6 +736,7 @@ class UnifiedCitationClusterer:
                             citation.canonical_name = canonical_name
                             citation.canonical_date = result.get('canonical_date')
                             citation.canonical_url = canonical_url
+                            citation.verified = True
                             citation.is_verified = True
                             
                             # Update metadata
@@ -535,13 +795,23 @@ class UnifiedCitationClusterer:
             r'(Ex parte [A-Z][a-zA-Z\s&.]+)',  # "Ex parte X" pattern
         ]
         
+        # Debug logging
+        if self.debug_mode:
+            logger.debug(f"Case extraction context for {citation.citation}: '{context}'")
+            logger.debug(f"Citation start_index: {citation.start_index}")
+        
         for pattern in case_patterns:
             matches = re.findall(pattern, context)
             if matches:
                 # Return the last (closest) match
                 case_name = matches[-1].strip()
                 if len(case_name) > 5 and case_name != "N/A":
+                    if self.debug_mode:
+                        logger.debug(f"Found case name '{case_name}' with pattern '{pattern}'")
                     return case_name
+        
+        if self.debug_mode:
+            logger.debug(f"No case name found for {citation.citation}")
         
         return "N/A"
     
@@ -550,27 +820,41 @@ class UnifiedCitationClusterer:
         if not text or not hasattr(citation, 'start_index') or citation.start_index is None:
             return "N/A"
         
-        # Look for year patterns around the citation
+        # For parallel citations, look for the CLOSEST year after the citation
+        citation_end = getattr(citation, 'end_index', citation.start_index + len(citation.citation))
+        
+        # Look for year patterns, prioritizing those closest to this citation
         start_pos = max(0, citation.start_index - 50)
-        end_pos = min(len(text), citation.start_index + 200)
+        end_pos = min(len(text), citation_end + 100)  # Reduced window to avoid distant years
         context = text[start_pos:end_pos]
         
-        # Year patterns
+        # Year patterns with position tracking
         year_patterns = [
-            r'\((\d{4})\)',  # Year in parentheses
+            r'\((\d{4})\)',  # Year in parentheses (highest priority)
             r'\b(\d{4})\b',  # Standalone 4-digit year
         ]
         
-        for pattern in year_patterns:
-            matches = re.findall(pattern, context)
-            if matches:
-                # Return the first reasonable year found
-                for year in matches:
-                    year_int = int(year)
-                    if 1800 <= year_int <= 2030:  # Reasonable year range
-                        return year
+        best_year = None
+        best_distance = float('inf')
         
-        return "N/A"
+        for pattern in year_patterns:
+            for match in re.finditer(pattern, context):
+                year = match.group(1)
+                year_int = int(year)
+                if 1800 <= year_int <= 2030:  # Reasonable year range
+                    # Calculate distance from citation end
+                    year_pos_in_text = start_pos + match.start()
+                    distance = abs(year_pos_in_text - citation_end)
+                    
+                    # Prefer years in parentheses and closer to the citation
+                    weight = 1 if pattern == r'\((\d{4})\)' else 2  # Parentheses are more reliable
+                    weighted_distance = distance * weight
+                    
+                    if weighted_distance < best_distance:
+                        best_year = year
+                        best_distance = weighted_distance
+        
+        return best_year or "N/A"
     
     def _detect_parallel_citations(self, citations: List[Any], text: str):
         """
@@ -860,7 +1144,10 @@ class UnifiedCitationClusterer:
                 'cluster_type': 'unified_extracted'
             }
             
-            # Add cluster metadata to each citation
+            # Check if any citation in the cluster is verified
+            any_verified = any(getattr(c, 'verified', False) for c in citations)
+            
+            # Add cluster metadata to each citation and set true_by_parallel status
             for citation in citations:
                 if not hasattr(citation, 'metadata'):
                     citation.metadata = {}
@@ -871,6 +1158,14 @@ class UnifiedCitationClusterer:
                     'cluster_case_name': case_name,
                     'cluster_year': year
                 })
+                
+                # Set true_by_parallel for unverified citations in clusters with verified citations
+                if any_verified and not getattr(citation, 'verified', False):
+                    # This citation is not verified, but another in the cluster is
+                    citation.true_by_parallel = True
+                    if not hasattr(citation, 'metadata'):
+                        citation.metadata = {}
+                    citation.metadata['true_by_parallel'] = True
             
             formatted_clusters.append(cluster_dict)
         
@@ -878,7 +1173,7 @@ class UnifiedCitationClusterer:
 
 
 # Deprecated function wrappers for backward compatibility
-def group_citations_into_clusters(citations: list, original_text: str = None) -> list:
+def group_citations_into_clusters(citations: list, original_text: Optional[str] = None) -> list:
     """
     DEPRECATED: Use UnifiedCitationClusterer instead.
     

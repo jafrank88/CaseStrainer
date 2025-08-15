@@ -351,11 +351,8 @@ class CitationService:
             }
             
         except Exception as e:
-            # Clean up on error
-            try:
-                os.remove(temp_file_path)
-            except:
-                pass
+            # Log error and re-raise
+            logger.error(f"Error in _process_url_task: {str(e)}", exc_info=True)
             raise
     
     async def _process_text_task(self, task_id: str, input_data: Dict) -> Dict[str, Any]:

@@ -128,7 +128,9 @@ class UnifiedInputProcessor:
         
         try:
             # Validate URL
+            logger.info(f"[Unified Processor {request_id}] Validating URL...")
             if not self._validate_url(url):
+                logger.warning(f"[Unified Processor {request_id}] URL validation failed: {url}")
                 return {
                     'success': False,
                     'error': 'Invalid or unsafe URL provided',
@@ -136,10 +138,13 @@ class UnifiedInputProcessor:
                     'metadata': {'input_type': 'url', 'url': url, 'error': 'validation_failed'}
                 }
             
+            logger.info(f"[Unified Processor {request_id}] URL validation passed, fetching content...")
             # Fetch content from URL
             content = fetch_url_content(url)
+            logger.info(f"[Unified Processor {request_id}] Content fetched, length: {len(content) if content else 0}")
             
             if not content or len(content.strip()) < 10:
+                logger.warning(f"[Unified Processor {request_id}] Insufficient content from URL: {len(content) if content else 0} chars")
                 return {
                     'success': False,
                     'error': 'URL returned empty or insufficient content for analysis',
@@ -152,6 +157,7 @@ class UnifiedInputProcessor:
                     }
                 }
             
+            logger.info(f"[Unified Processor {request_id}] Successfully extracted {len(content)} characters from URL")
             return {
                 'success': True,
                 'text': content,
@@ -279,64 +285,95 @@ class UnifiedInputProcessor:
         Process citations using the unified pipeline (same for all input types).
         """
         logger.info(f"[Unified Processor {request_id}] Processing citations from {source_name}")
+        logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
+        logger.info(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
         
         try:
             # Use CitationService to determine processing mode (immediate vs queued)
             input_data = {'type': 'text', 'text': text}
+            logger.info(f"[Unified Processor {request_id}] Checking if should process immediately...")
             
-            if self.citation_service.should_process_immediately(input_data):
+            should_process_immediately = self.citation_service.should_process_immediately(input_data)
+            logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
+            
+            if should_process_immediately:
                 logger.info(f"[Unified Processor {request_id}] Processing immediately (short content)")
-                result = self.citation_service.process_immediately(input_data)
-                
-                return {
-                    'success': True,
-                    'citations': result.get('citations', []),
-                    'clusters': result.get('clusters', []),
-                    'request_id': request_id,
-                    'metadata': {
-                        **input_metadata,
-                        'processing_mode': 'immediate',
-                        'source': source_name
+                try:
+                    result = self.citation_service.process_immediately(input_data)
+                    logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
+                    
+                    return {
+                        'success': True,
+                        'citations': result.get('citations', []),
+                        'clusters': result.get('clusters', []),
+                        'request_id': request_id,
+                        'metadata': {
+                            **input_metadata,
+                            'processing_mode': 'immediate',
+                            'source': source_name
+                        }
                     }
-                }
-            else:
+                except Exception as e:
+                    logger.error(f"[Unified Processor {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
+                    # Fall back to async processing
+                    should_process_immediately = False
+            
+            # If we reach here, either immediate processing failed or wasn't applicable
+            if not should_process_immediately:
                 logger.info(f"[Unified Processor {request_id}] Queuing for async processing (large content)")
                 
-                # Import RQ for async processing
-                from rq import Queue
-                from redis import Redis
-                from src.progress_manager import process_citation_task_direct
-                
-                # Connect to Redis
-                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
-                redis_conn = Redis.from_url(redis_url)
-                queue = Queue('casestrainer', connection=redis_conn)
-                
-                # Enqueue processing task
-                job = queue.enqueue(
-                    process_citation_task_direct,
-                    args=(request_id, 'text', {'text': text}),
-                    job_timeout=600,  # 10 minutes timeout
-                    result_ttl=86400,
-                    failure_ttl=86400
-                )
-                
-                logger.info(f"[Unified Processor {request_id}] Task enqueued with job_id: {job.id}")
-                
-                return {
-                    'success': True,
-                    'task_id': request_id,
-                    'status': 'processing',
-                    'message': f'{source_name.title()} processing started',
-                    'request_id': request_id,
-                    'metadata': {
-                        **input_metadata,
-                        'processing_mode': 'queued',
-                        'source': source_name,
-                        'job_id': job.id
+                try:
+                    # Import RQ for async processing
+                    from rq import Queue
+                    from redis import Redis
+                    from src.progress_manager import process_citation_task_direct
+                    
+                    # Connect to Redis
+                    redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+                    redis_conn = Redis.from_url(redis_url)
+                    queue = Queue('casestrainer', connection=redis_conn)
+                    
+                    # Enqueue processing task with the request_id as the job ID
+                    job = queue.enqueue(
+                        process_citation_task_direct,
+                        args=(request_id, 'text', {'text': text}),
+                        job_id=request_id,  # Use request_id as the job ID
+                        job_timeout=600,  # 10 minutes timeout
+                        result_ttl=86400,
+                        failure_ttl=86400
+                    )
+                    
+                    logger.info(f"[Unified Processor {request_id}] Task enqueued with job_id: {job.id}")
+                    
+                    return {
+                        'success': True,
+                        'task_id': request_id,
+                        'status': 'processing',
+                        'message': f'{source_name.title()} processing started',
+                        'request_id': request_id,
+                        'metadata': {
+                            **input_metadata,
+                            'processing_mode': 'queued',
+                            'source': source_name,
+                            'job_id': job.id
+                        }
                     }
-                }
-                
+                except Exception as e:
+                    logger.error(f"[Unified Processor {request_id}] Error enqueueing async task: {str(e)}", exc_info=True)
+                    return {
+                        'success': False,
+                        'error': f'Failed to enqueue processing task: {str(e)}',
+                        'citations': [],
+                        'clusters': [],
+                        'request_id': request_id,
+                        'metadata': {
+                            **input_metadata,
+                            'processing_mode': 'enqueue_failed',
+                            'source': source_name,
+                            'error_details': str(e)
+                        }
+                    }
+        
         except Exception as e:
             logger.error(f"[Unified Processor {request_id}] Error in citation processing: {str(e)}", exc_info=True)
             return {
@@ -351,6 +388,21 @@ class UnifiedInputProcessor:
                     'error_details': str(e)
                 }
             }
+        
+        # This should never be reached, but ensures all code paths return a value
+        logger.error(f"[Unified Processor {request_id}] Unexpected end of function reached")
+        return {
+            'success': False,
+            'error': 'Unexpected processing state',
+            'citations': [],
+            'clusters': [],
+            'request_id': request_id,
+            'metadata': {
+                **input_metadata,
+                'error': 'unexpected_state',
+                'error_details': 'Function reached unexpected end'
+            }
+        }
     
     def _validate_url(self, url: str) -> bool:
         """Validate URL format and safety."""

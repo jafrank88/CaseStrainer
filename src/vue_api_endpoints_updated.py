@@ -256,6 +256,7 @@ def analyze():
         # 1. Check for file uploads first
         if 'file' in request.files and request.files['file'].filename:
             logger.info(f"[Request {request_id}] Processing file upload")
+            logger.info(f"[Request {request_id}] File details: name={request.files['file'].filename}, size={request.files['file'].content_length}, type={request.files['file'].content_type}")
             input_data = request.files['file']
             input_type = 'file'
             metadata.update({
@@ -732,6 +733,10 @@ def task_status(task_id):
         # Log job details
         logger.info(f"Job {task_id} status: {job.get_status()}")
         logger.info(f"Job {task_id} meta: {job.meta}")
+        logger.info(f"Job {task_id} is_finished: {job.is_finished}")
+        logger.info(f"Job {task_id} is_failed: {job.is_failed}")
+        logger.info(f"Job {task_id} is_started: {job.is_started}")
+        logger.info(f"Job {task_id} is_queued: {job.is_queued}")
         
         # Get job result if available
         result = None

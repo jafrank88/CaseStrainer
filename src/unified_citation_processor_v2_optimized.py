@@ -214,11 +214,8 @@ class OptimizedUnifiedCitationProcessorV2:
                 
                 citation = CitationResult(
                     citation=citation_text,
-                    start=match.start(),
-                    end=match.end(),
-                    volume=volume,
-                    reporter=reporter,
-                    page=page,
+                    start_index=match.start(),
+                    end_index=match.end(),
                     source='regex_optimized'
                 )
                 
@@ -287,10 +284,10 @@ class OptimizedUnifiedCitationProcessorV2:
     def _extract_names_and_dates_optimized(self, citations: List[CitationResult], text: str):
         """Optimized name and date extraction using context windows."""
         for citation in citations:
-            if hasattr(citation, 'start') and citation.start is not None:
+            if hasattr(citation, 'start_index') and citation.start_index is not None:
                 # Use context window around citation
-                context_start = max(0, citation.start - self.CONTEXT_WINDOW)
-                context_end = min(len(text), citation.start + self.CONTEXT_WINDOW)
+                context_start = max(0, citation.start_index - self.CONTEXT_WINDOW)
+                context_end = min(len(text), citation.start_index + self.CONTEXT_WINDOW)
                 context = text[context_start:context_end]
             else:
                 # Fallback: find citation in text and use context
@@ -340,8 +337,8 @@ class OptimizedUnifiedCitationProcessorV2:
         # Sort citations by position for efficient proximity checking
         positioned_citations = []
         for citation in citations:
-            if hasattr(citation, 'start') and citation.start is not None:
-                positioned_citations.append((citation.start, citation))
+            if hasattr(citation, 'start_index') and citation.start_index is not None:
+                positioned_citations.append((citation.start_index, citation))
             else:
                 # Find position in text
                 pos = text.find(citation.citation)

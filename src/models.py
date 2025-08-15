@@ -31,6 +31,7 @@ class CitationResult:
     error: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
     cluster_id: Optional[str] = None
+    true_by_parallel: bool = False
 
     def __post_init__(self):
         if self.parallel_citations is None:
@@ -77,6 +78,7 @@ class CitationResult:
             'error': self.error,
             'metadata': self.metadata,
             'cluster_id': self.cluster_id,
+            'true_by_parallel': self.true_by_parallel,
             'is_verified': self.verified  # Add is_verified alias for backward compatibility
         }
         return result

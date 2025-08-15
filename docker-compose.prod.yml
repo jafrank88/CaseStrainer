@@ -223,6 +223,7 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf:/etc/nginx/conf:ro
       - ./nginx/clean-wolf.conf:/etc/nginx/conf.d/wolf.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
       - ./casestrainer-vue-new/dist:/usr/share/nginx/html/casestrainer:ro

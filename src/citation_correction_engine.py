@@ -553,8 +553,8 @@ class CitationCorrectionEngine:
     def _similarity_score(self, citation1: str, citation2: str) -> float:
         """Calculate similarity score between two citations."""
         # Normalize citations
-        norm1 = self._normalize_citation(citation1)
-        norm2 = self._normalize_citation(citation2)
+        norm1 = self._normalize_citation_comprehensive(citation1, purpose="similarity")
+        norm2 = self._normalize_citation_comprehensive(citation2, purpose="similarity")
 
         # Calculate similarity using available method
         if LEVENSHTEIN_AVAILABLE:

@@ -13,8 +13,9 @@
     - Rollback capabilities
 
 .EXAMPLE
-    .\cslaunch-production.ps1 -Environment Production -Mode Quick
-    .\cslaunch-production.ps1 -Environment Staging -Mode Full -Confirm
+    .\cslaunch.ps1 -Environment Production -Mode Quick
+    .\cslaunch.ps1 -Environment Staging -Mode Full -Confirm
+    .\cslaunch.ps1 -Mode Fast -AlwaysRebuild
 #>
 
 param(
@@ -31,7 +32,8 @@ param(
     
     [switch]$Confirm,
     [switch]$DryRun,
-    [switch]$Force
+    [switch]$Force,
+    [switch]$AlwaysRebuild
 )
 
 # Global error handling
@@ -164,25 +166,33 @@ function Invoke-SafeDockerOperation {
         return $true
     }
     
-    try {
-        $result = Invoke-Expression $fullCommand 2>&1
-        if ($LASTEXITCODE -eq 0) {
-            Write-Log "Docker operation completed successfully: $Operation" -Level INFO
+    # Execute the command directly without try-catch to avoid PowerShell exceptions
+    $argumentString = $Arguments -join ' '
+    $output = cmd /c "docker-compose -f `"$($config.docker.composeFile)`" $Operation $argumentString 2>&1"
+    $exitCode = $LASTEXITCODE
+    
+    Write-Log "Docker operation exit code: $exitCode" -Level DEBUG
+    if ($output) {
+        Write-Log "Docker output: $($output -join '; ')" -Level DEBUG
+    }
+    
+    # Success if exit code is 0
+    if ($exitCode -eq 0) {
+        Write-Log "Docker operation completed successfully: $Operation" -Level INFO
+        return $true
+    }
+    else {
+        if ($IgnoreErrors) {
+            Write-Log "Docker operation failed but ignored: $Operation (Exit code: $exitCode)" -Level WARN
             return $true
         }
         else {
-            if ($IgnoreErrors) {
-                Write-Log "Docker operation failed but ignored: $Operation" -Level WARN
-                return $true
+            Write-Log "Docker operation failed: $Operation (Exit code: $exitCode)" -Level ERROR -Console
+            if ($output) {
+                Write-Log "Docker error output: $($output -join '; ')" -Level ERROR -Console
             }
-            else {
-                throw "Docker operation failed with exit code $LASTEXITCODE"
-            }
+            return $false
         }
-    }
-    catch {
-        Write-Log "Docker operation failed: $Operation - $($_.Exception.Message)" -Level ERROR -Console
-        return $false
     }
 }
 
@@ -194,13 +204,51 @@ function Start-Deployment {
     switch ($DeploymentMode) {
         'Quick' {
             Write-Log "Performing Quick Start (containers assumed healthy)..." -Console
+            
+            if ($AlwaysRebuild) {
+                Write-Log "Rebuilding Docker images (AlwaysRebuild flag set)..." -Console
+                $success = Invoke-SafeDockerOperation -Operation "build"
+                if (-not $success) {
+                    Write-Log "Image rebuild failed - attempting startup anyway" -Level WARN -Console
+                }
+            }
+            
             return Invoke-SafeDockerOperation -Operation "up" -Arguments @("-d")
         }
         
         'Fast' {
-            Write-Log "Performing Fast Start (restart with current images)..." -Console
+            Write-Log "Performing Fast Start (restart with rebuild if needed)..." -Console
             $success = Invoke-SafeDockerOperation -Operation "down" -IgnoreErrors
             if ($success) {
+                # Check if we need to rebuild due to recent changes or AlwaysRebuild flag
+                $needsRebuild = $AlwaysRebuild
+                
+                if (-not $needsRebuild) {
+                    foreach ($dir in $config.paths.sourceDirectories) {
+                        if (Test-Path $dir) {
+                            $recentFiles = Get-ChildItem -Path $dir -Recurse -File | 
+                                          Where-Object { $_.LastWriteTime -gt (Get-Date).AddMinutes(-120) }
+                            if ($recentFiles) {
+                                $needsRebuild = $true
+                                Write-Log "Recent changes in $dir - will rebuild images" -Console
+                                break
+                            }
+                        }
+                    }
+                }
+                
+                if ($needsRebuild) {
+                    if ($AlwaysRebuild) {
+                        Write-Log "Rebuilding Docker images (AlwaysRebuild flag set)..." -Console
+                    } else {
+                        Write-Log "Rebuilding Docker images due to recent changes..." -Console
+                    }
+                    $success = Invoke-SafeDockerOperation -Operation "build"
+                    if (-not $success) {
+                        Write-Log "Image rebuild failed - attempting startup anyway" -Level WARN -Console
+                    }
+                }
+                
                 return Invoke-SafeDockerOperation -Operation "up" -Arguments @("-d")
             }
             return $false
@@ -230,6 +278,61 @@ function Start-Deployment {
     }
 }
 
+function Test-VueBuildNeeded {
+    # Check if Vue source is newer than built files
+    $vueSourceDir = "casestrainer-vue-new/src"
+    $vueDistDir = "casestrainer-vue-new/dist"
+    
+    if (-not (Test-Path $vueSourceDir) -or -not (Test-Path $vueDistDir)) {
+        return $false
+    }
+    
+    $newestSource = Get-ChildItem -Path $vueSourceDir -Recurse -File | 
+                   Sort-Object LastWriteTime -Descending | 
+                   Select-Object -First 1
+    
+    $newestDist = Get-ChildItem -Path $vueDistDir -Recurse -File | 
+                 Sort-Object LastWriteTime -Descending | 
+                 Select-Object -First 1
+    
+    if ($newestSource.LastWriteTime -gt $newestDist.LastWriteTime) {
+        Write-Log "Vue source files are newer than dist files - rebuild needed" -Console
+        return $true
+    }
+    
+    return $false
+}
+
+function Invoke-VueBuild {
+    Write-Log "Building Vue frontend..." -Console
+    
+    if (-not (Test-Path "casestrainer-vue-new/package.json")) {
+        Write-Log "Vue package.json not found - skipping Vue build" -Level WARN -Console
+        return $true
+    }
+    
+    $originalLocation = Get-Location
+    try {
+        Set-Location "casestrainer-vue-new"
+        
+        # Run npm build
+        $output = cmd /c "npm run build 2>&1"
+        $exitCode = $LASTEXITCODE
+        
+        if ($exitCode -eq 0) {
+            Write-Log "Vue build completed successfully" -Console
+            return $true
+        } else {
+            Write-Log "Vue build failed (Exit code: $exitCode)" -Level ERROR -Console
+            Write-Log "Build output: $($output -join '; ')" -Level ERROR
+            return $false
+        }
+    }
+    finally {
+        Set-Location $originalLocation
+    }
+}
+
 function Get-AutoDetectedMode {
     Write-Log "Auto-detecting deployment mode..." -Console
     
@@ -241,21 +344,33 @@ function Get-AutoDetectedMode {
         return 'Full'
     }
     
+    # Check if Vue build is needed
+    $vueBuildNeeded = Test-VueBuildNeeded
+    if ($vueBuildNeeded) {
+        Write-Log "Vue source files are newer than dist - performing build and Fast restart" -Console
+        if (Invoke-VueBuild) {
+            return 'Fast'  # Fast restart after Vue build
+        } else {
+            Write-Log "Vue build failed - falling back to Full rebuild" -Level WARN -Console
+            return 'Full'
+        }
+    }
+    
     # Containers exist but not running
     if ($status.Running -eq 0) {
         Write-Log "Containers exist but not running - recommending Fast start" -Console
         return 'Fast'
     }
     
-    # Check for recent code changes
+    # Check for recent code changes (extended to 2 hours for more thorough detection)
     $hasChanges = $false
     foreach ($dir in $config.paths.sourceDirectories) {
         if (Test-Path $dir) {
             $recentFiles = Get-ChildItem -Path $dir -Recurse -File | 
-                          Where-Object { $_.LastWriteTime -gt (Get-Date).AddMinutes(-30) }
+                          Where-Object { $_.LastWriteTime -gt (Get-Date).AddMinutes(-120) }
             if ($recentFiles) {
                 $hasChanges = $true
-                Write-Log "Recent changes detected in $dir" -Level DEBUG
+                Write-Log "Recent changes detected in $dir (within 2 hours)" -Level DEBUG
                 break
             }
         }

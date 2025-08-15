@@ -370,14 +370,16 @@ class ChunkedCitationProcessor:
             
             logger.info(f"[Chunk-{chunk_hash}] Starting process_text()...")
             start_time = time.time()
-            results = processor.process_text(chunk)
+            results = await processor.process_text(chunk)
             process_time = time.time() - start_time
-            logger.info(f"[Chunk-{chunk_hash}] process_text() completed in {process_time:.2f}s, got {len(results)} results")
+            logger.info(f"[Chunk-{chunk_hash}] process_text() completed in {process_time:.2f}s, got {len(results.get('citations', []))} citations")
             
-            # Convert CitationResult objects to dictionaries
-            logger.info(f"[Chunk-{chunk_hash}] Converting {len(results)} results to dicts...")
+            # Extract citations from results dictionary
             citations = []
-            for i, result in enumerate(results, 1):  # type: ignore
+            raw_citations = results.get('citations', [])
+            logger.info(f"[Chunk-{chunk_hash}] Converting {len(raw_citations)} citations to dicts...")
+            
+            for i, result in enumerate(raw_citations, 1):
                 try:
                     citation_data = {
                         'id': len(citations) + 1,

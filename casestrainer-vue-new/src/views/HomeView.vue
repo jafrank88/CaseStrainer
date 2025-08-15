@@ -6,8 +6,8 @@
     <!-- Main Content Section -->
     <div class="container">
       <div class="main-content-wrapper">
-        <!-- Main Input Area -->
-        <div class="main-input-area">
+        <!-- Main Input Area - Hidden when results are shown -->
+        <div v-if="!analysisResults && !analysisError" class="main-input-area">
           <div class="hero-content">
             <div class="hero-text">
               <h1 class="hero-title">
@@ -142,11 +142,7 @@
                         <i class="bi bi-exclamation-triangle-fill me-2"></i>
                         Please enter at least 10 characters for meaningful analysis
                       </div>
-                      <div v-else class="alert alert-success py-2 mb-0">
-                        <i class="bi bi-check-circle-fill me-2"></i>
-                        Text is ready for analysis
-                        <span class="ms-2 text-muted">(Ctrl+Enter to analyze)</span>
-                      </div>
+
                     </div>
                   </div>
                 </div>
@@ -233,59 +229,7 @@
                   </div>
                 </div>
                 
-                <!-- File Type Hints -->
-                <div class="file-type-hints mt-4">
-                  <h6 class="mb-3">Supported Document Types:</h6>
-                  <div class="row g-3">
-                    <div class="col-md-4">
-                      <div class="card h-100 border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                          <div class="icon-shape icon-lg bg-danger bg-opacity-10 text-danger rounded-circle mb-3 mx-auto">
-                            <i class="bi bi-file-earmark-pdf"></i>
-                          </div>
-                          <h6 class="mb-2">PDF Documents</h6>
-                          <p class="small text-muted mb-0">Scanned or digital PDFs with selectable text. Best results with text-based PDFs.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="card h-100 border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                          <div class="icon-shape icon-lg bg-primary bg-opacity-10 text-primary rounded-circle mb-3 mx-auto">
-                            <i class="bi bi-file-earmark-word"></i>
-                          </div>
-                          <h6 class="mb-2">Word Documents</h6>
-                          <p class="small text-muted mb-0">.doc and .docx formats supported. Preserves formatting and structure.</p>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="col-md-4">
-                      <div class="card h-100 border-0 shadow-sm hover-lift">
-                        <div class="card-body text-center p-4">
-                          <div class="icon-shape icon-lg bg-secondary bg-opacity-10 text-secondary rounded-circle mb-3 mx-auto">
-                            <i class="bi bi-file-earmark-text"></i>
-                          </div>
-                          <h6 class="mb-2">Plain Text</h6>
-                          <p class="small text-muted mb-0">.txt and .rtf formats. Simple text with basic formatting.</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="alert alert-info mt-4 mb-0">
-                    <div class="d-flex">
-                      <i class="bi bi-info-circle-fill me-2 mt-1"></i>
-                      <div>
-                        <strong>Need help with document preparation?</strong>
-                        <ul class="mb-0 mt-2">
-                          <li>For best results, ensure your document has selectable text (not just scanned images)</li>
-                          <li>Documents should be in English for accurate citation analysis</li>
-                          <li>Maximum file size: 20MB</li>
-                        </ul>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+
               </div>
 
               <!-- URL Input Tab -->
@@ -549,67 +493,55 @@
         <!-- <div class="recent-inputs-sidebar-container">
           <RecentInputs @load-input="loadRecentInput" />
         </div> -->
+
+        <!-- Async Task Progress Section -->
+        <AsyncTaskProgress
+          v-if="asyncTaskProgress && !analysisResults && !analysisError"
+          :task-id="asyncTaskProgress.taskId"
+          :initial-status="asyncTaskProgress.status"
+          :initial-message="asyncTaskProgress.message"
+          @cancel="handleCancelAsyncTask"
+          @complete="handleAsyncTaskComplete"
+          @error="handleAsyncTaskError"
+        />
+
+        <!-- Results Section - Replaces input area when results are available -->
+        <div v-if="analysisResults || analysisError" class="results-replacement-area">
+          <div class="results-header">
+            <h2 class="results-title">
+              <i class="bi bi-shield-check me-2"></i>
+              Citation Analysis Results
+            </h2>
+            <button 
+              @click="handleNewAnalysis" 
+              class="btn btn-primary new-analysis-btn"
+            >
+              <i class="bi bi-plus-circle me-2"></i>
+              New Analysis
+            </button>
+          </div>
+          
+          <CitationResults
+            :results="analysisResults"
+            :error="analysisError"
+            @new-analysis="handleNewAnalysis"
+            @copy-results="handleCopyResults"
+            @download-results="handleDownloadResults"
+          />
+        </div>
       </div>
     </div>
 
-    <!-- Features Section -->
-    <section class="features-section py-5 bg-dark text-white">
-      <div class="container">
-        <div class="text-center mb-5">
-          <h2 class="mb-3">Citation Analysis Features</h2>
-          <p class="lead text-white-50">Comprehensive U.S. case citation verification</p>
-        </div>
-        
-        <div class="row g-4">
-          <div class="col-md-6 col-lg-3">
-            <div class="feature-card h-100 p-4 bg-dark bg-opacity-25 rounded-3">
-              <div class="feature-icon text-primary mb-3">
-                <i class="bi bi-search fs-1"></i>
-              </div>
-              <h4 class="h5 mb-3">Smart Detection</h4>
-              <p class="text-white-75 mb-0">Automatically identifies and extracts citations from complex legal documents using advanced pattern recognition.</p>
-            </div>
-          </div>
-          
-          <div class="col-md-6 col-lg-3">
-            <div class="feature-card h-100 p-4 bg-dark bg-opacity-25 rounded-3">
-              <div class="feature-icon text-primary mb-3">
-                <i class="bi bi-shield-check fs-1"></i>
-              </div>
-              <h4 class="h5 mb-3">Accuracy Verification</h4>
-              <p class="text-white-75 mb-0">Cross-references citations against authoritative legal databases to ensure accuracy and validity.</p>
-            </div>
-          </div>
-          
-          <div class="col-md-6 col-lg-3">
-            <div class="feature-card h-100 p-4 bg-dark bg-opacity-25 rounded-3">
-              <div class="feature-icon text-primary mb-3">
-                <i class="bi bi-lightning fs-1"></i>
-              </div>
-              <h4 class="h5 mb-3">Instant Analysis</h4>
-              <p class="text-white-75 mb-0">Get comprehensive results in seconds with detailed breakdowns of citation quality and completeness.</p>
-            </div>
-          </div>
-          
-          <div class="col-md-6 col-lg-3">
-            <div class="feature-card h-100 p-4 bg-dark bg-opacity-25 rounded-3">
-              <div class="feature-icon text-primary mb-3">
-                <i class="bi bi-file-earmark-text fs-1"></i>
-              </div>
-              <h4 class="h5 mb-3">Multiple Formats</h4>
-              <p class="text-white-75 mb-0">Supports PDF, Word documents, plain text, and direct URL analysis for maximum flexibility.</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import { analyze } from '@/api/api';
+import api, { analyze } from '@/api/api';
 import { globalProgress } from '@/stores/progressStore';
+import CitationResults from '@/components/CitationResults.vue';
+import AsyncTaskProgress from '@/components/AsyncTaskProgress.vue';
+import pollingService from '@/services/pollingService';
 // import RecentInputs from '@/components/RecentInputs.vue'; // Temporarily hidden
 // import { useRecentInputs } from '@/composables/useRecentInputs'; // Temporarily hidden
 
@@ -624,8 +556,31 @@ const urlError = ref('');
 const isAnalyzing = ref(false);
 const isDragOver = ref(false);
 const dragOver = ref(false);
+const analysisResults = ref(null);
+const analysisError = ref('');
+
+// Async task state
+const activeAsyncTask = ref(null);
+const asyncTaskProgress = ref(null);
 
 // Progress tracking state is now handled by the global store
+
+// Watch for tab changes to clear results
+watch(activeTab, () => {
+  // Clear previous results when switching tabs
+  analysisResults.value = null;
+  analysisError.value = '';
+  
+  // Stop any active async task polling when switching tabs
+  if (activeAsyncTask.value) {
+    pollingService.stopPolling(activeAsyncTask.value);
+    activeAsyncTask.value = null;
+    asyncTaskProgress.value = null;
+    isAnalyzing.value = false;
+  }
+  
+  console.log('Tab changed - results cleared and async tasks stopped');
+});
 
 // Initialize with URL parameters if present
 onMounted(() => {
@@ -640,6 +595,16 @@ onMounted(() => {
       urlContent.value = route.query.url;
     }
   }
+});
+
+// Cleanup on component unmount
+onUnmounted(() => {
+  // Stop all active polling
+  if (activeAsyncTask.value) {
+    pollingService.stopPolling(activeAsyncTask.value);
+  }
+  pollingService.stopAllPolling();
+  console.log('HomeView unmounted - all polling stopped');
 });
 
 // Input Quality Computed Properties
@@ -975,6 +940,11 @@ const clearFile = () => {
   }
   selectedFile.value = null;
   fileError.value = '';
+  
+  // Clear previous results when changing input
+  analysisResults.value = null;
+  analysisError.value = '';
+  
   console.log('🗑️ File selection cleared');
 };
 
@@ -991,54 +961,64 @@ const formatFileSize = (bytes) => {
 // Progress tracking methods are now handled by the global progress store
 
 const analyzeContent = async () => {
-  if (!canAnalyze.value || isAnalyzing.value) return;
+  // Show debug popup
+  alert(`=== ANALYZE CONTENT CALLED ===\nActive tab: ${activeTab.value}\nCan analyze: ${canAnalyze.value}\nIs analyzing: ${isAnalyzing.value}\nURL content: ${urlContent.value}\nText content: ${textContent.value}\nSelected file: ${selectedFile.value ? selectedFile.value.name : 'None'}`);
   
-  // Add text length validation here instead of in canAnalyze
-  if (activeTab.value === 'paste' && textContent.value.trim().length < 5) {
-    // Show error to user (you can implement this with a toast or error message)
-    console.error('Text must be at least 5 characters long');
-    // Optionally set an error message to show to the user
-    // errorMessage.value = 'Text must be at least 5 characters long';
+  if (!canAnalyze.value || isAnalyzing.value) {
+    alert(`❌ Cannot analyze - canAnalyze: ${canAnalyze.value}, isAnalyzing: ${isAnalyzing.value}`);
     return;
   }
   
+  // Add text length validation here instead of in canAnalyze
+  if (activeTab.value === 'paste' && textContent.value.trim().length < 5) {
+    alert('Text must be at least 5 characters long');
+    return;
+  }
+  
+  alert('✅ Starting analysis...');
   isAnalyzing.value = true;
   
+  // Start progress tracking
+  globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
+  
   try {
-    // Create form data based on active tab
-    const formData = new FormData();
-    let endpoint = '/api/analyze';
+    let requestData;
     
+    // Prepare request data based on active tab
     if (activeTab.value === 'file' && selectedFile.value) {
-      formData.append('file', selectedFile.value);
-      endpoint = '/api/upload';
+      alert('📁 Preparing file upload request');
+      // For file uploads, use FormData
+      requestData = new FormData();
+      requestData.append('file', selectedFile.value);
+      requestData.append('type', 'file');
     } else if (activeTab.value === 'url' && urlContent.value) {
-      formData.append('url', urlContent.value);
-      endpoint = '/api/url';
+      alert('🌐 Preparing URL request');
+      // For URL analysis, use JSON data
+      requestData = {
+        type: 'url',
+        url: urlContent.value.trim()
+      };
+      alert(`URL request data: ${JSON.stringify(requestData)}`);
     } else if (activeTab.value === 'paste' && textContent.value) {
-      formData.append('text', textContent.value);
-      endpoint = '/api/text';
+      alert('📝 Preparing text request');
+      // For text analysis, use JSON data
+      requestData = {
+        type: 'text',
+        text: textContent.value.trim()
+      };
+    } else {
+      alert('❌ Invalid input configuration');
+      throw new Error('Invalid input configuration');
     }
     
-    console.log(`Sending ${activeTab.value} request to ${endpoint}`);
+    alert(`🚀 Sending ${activeTab.value} request using analyze() function\nRequest data: ${JSON.stringify(requestData)}`);
     
-    // Make the API request
-    const response = await api.post(endpoint, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
-    });
+    // Use the analyze function from the API
+    alert('📡 Calling analyze() function...');
+    const response = await analyze(requestData);
+    alert(`📡 analyze() function returned: ${JSON.stringify(response, null, 2)}`);
     
-    console.log('🔍 HomeView: Response details:', {
-      hasResponse: !!response,
-      hasTaskId: !!response?.data?.task_id,
-      hasStatus: !!response?.data?.status,
-      status: response?.data?.status,
-      hasCitations: !!response?.data?.citations,
-      citationsCount: response?.data?.citations?.length || 0,
-      hasResult: !!response?.data?.result,
-      resultCitationsCount: response?.data?.result?.citations?.length || 0
-    });
+    alert(`🔍 HomeView: Response details:\nHas response: ${!!response}\nHas task_id: ${!!response?.task_id}\nHas status: ${!!response?.status}\nStatus: ${response?.status}\nHas citations: ${!!response?.citations}\nCitations count: ${response?.citations?.length || 0}\nHas result: ${!!response?.result}\nResult citations count: ${response?.result?.citations?.length || 0}`);
 
     console.log('Response analysis:');
     console.log('- Has response:', !!response);
@@ -1047,78 +1027,150 @@ const analyzeContent = async () => {
     console.log('- Citations count:', response?.citations?.length || 0);
     console.log('- Success:', response?.success);
 
-    if (response && response.task_id) {
-      console.log('Navigating to enhanced-validator with task_id:', response.task_id);
-      try {
-        await router.push({
-          name: 'EnhancedValidator',
-          query: { task_id: response.task_id }
-        });
-        console.log('Navigation successful');
-        return;
-      } catch (navigationError) {
-        console.error('Navigation failed:', navigationError);
-        // Fallback: try using path instead of name
-        try {
-          await router.push({
-            path: '/',
-            query: { task_id: response.task_id }
-          });
-          console.log('Fallback navigation successful');
-          return;
-        } catch (fallbackError) {
-          console.error('Fallback navigation also failed:', fallbackError);
-          // Don't let the error propagate - just show results on current page
-          console.log('Using current page for results');
-        }
-      }
-    }
-
-    if (response) {
-      console.log('Navigating to main page with results in state');
-      // DEBUG: Show navigation banner
-      console.log('🎉 RESULTS RECEIVED! Navigating to results page... Citations: ' + (response.citations?.length || 0));
+    // Check if we have immediate results vs. async task
+    if (response && response.status === 'completed' && response.result) {
+      alert(`🎉 IMMEDIATE RESULTS RECEIVED! Citations: ${response.result?.citations?.length || 0}`);
       
-      // Check if we're already on the main page
-      const currentPath = router.currentRoute.value.path;
-      console.log('🔍 Current path:', currentPath, 'Target path: /');
+      console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', response.result?.citations?.length || 0);
       
-      const navigationData = { 
-        path: '/', 
-        query: { 
-          tab: activeTab.value,
-          ...(activeTab.value === 'paste' && textContent.value.trim() ? { text: textContent.value.trim() } : {})
-        },
-        state: { 
-          results: response 
-        }
+      // Store results in the format expected by CitationResults component
+      // Map citation_objects to citations for component compatibility
+      const mappedClusters = (response.result.clusters || []).map(cluster => ({
+        ...cluster,
+        citations: cluster.citation_objects || cluster.citations || []
+      }));
+      
+      analysisResults.value = {
+        clusters: mappedClusters,
+        citations: response.result.citations || [],
+        message: response.message,
+        metadata: response.metadata,
+        success: response.success,
+        total_citations: response.result.citations?.length || 0
       };
-      console.log('Navigation data:', navigationData);
+      analysisError.value = '';
       
-      // If we're already on the target page, try to trigger a route update
-      if (currentPath === '/') {
-        console.log('🔍 Already on main page - triggering route update');
-        try {
-          await router.replace(navigationData);
-          console.log('Route update completed successfully');
-          console.log('✅ Route update to main page completed!');
-        } catch (updateError) {
-          console.error('Route update failed:', updateError);
-          console.error('❌ Route update failed: ' + updateError.message);
+      // Complete progress tracking
+      globalProgress.completeProgress(analysisResults.value);
+      
+      console.log('Results stored for display:', {
+        citations: response.result?.citations?.length || 0,
+        clusters: response.result?.clusters?.length || 0,
+        message: response.message,
+        reformattedData: analysisResults.value
+      });
+      
+      return; // Don't navigate, show results on current page
+    }
+    
+    // Handle async task with task_id
+    if (response && response.task_id) {
+      alert(`🔄 Async task started with task_id: ${response.task_id}`);
+      
+      console.log('🔄 Async task started with task_id:', response.task_id);
+      
+      // Set up async task progress tracking
+      activeAsyncTask.value = response.task_id;
+      asyncTaskProgress.value = {
+        taskId: response.task_id,
+        status: 'queued',
+        message: response.message || 'Task queued and waiting to be processed'
+      };
+      
+      // Start polling for task status
+      pollingService.startPolling(
+        response.task_id,
+        // Progress callback
+        (progressData) => {
+          console.log('📊 Task progress:', progressData);
+          if (asyncTaskProgress.value) {
+            asyncTaskProgress.value.status = progressData.status;
+            asyncTaskProgress.value.message = progressData.message;
+          }
+        },
+        // Complete callback
+        (result) => {
+          console.log('✅ Task completed:', result);
+          
+          // Format the result data for CitationResults component
+          if (result.result) {
+            const mappedClusters = (result.result.clusters || []).map(cluster => ({
+              ...cluster,
+              citations: cluster.citation_objects || cluster.citations || []
+            }));
+            
+            analysisResults.value = {
+              clusters: mappedClusters,
+              citations: result.result.citations || [],
+              message: result.message || 'Analysis completed successfully',
+              metadata: result.metadata || {},
+              success: true,
+              total_citations: result.result.citations?.length || 0
+            };
+          } else {
+            analysisResults.value = {
+              clusters: [],
+              citations: [],
+              message: 'Analysis completed but no results found',
+              metadata: {},
+              success: false,
+              total_citations: 0
+            };
+          }
+          
+          // Clear async task state
+          activeAsyncTask.value = null;
+          asyncTaskProgress.value = null;
+          
+          // Complete progress tracking
+          globalProgress.completeProgress(analysisResults.value);
+          
+          console.log('Async task results stored:', analysisResults.value);
+        },
+        // Error callback
+        (errorMessage) => {
+          console.error('❌ Task failed:', errorMessage);
+          
+          analysisError.value = `Task failed: ${errorMessage}`;
+          
+          // Clear async task state
+          activeAsyncTask.value = null;
+          asyncTaskProgress.value = null;
+          
+          // Complete progress tracking
+          globalProgress.completeProgress(null);
         }
+      );
+      
+      return; // Don't navigate, show progress on current page
+    } else if (response) {
+      console.log('Response received but no task_id or immediate results - storing for display');
+      // Format response data for CitationResults component
+      if (response.result) {
+        // Map citation_objects to citations for component compatibility
+        const mappedClusters = (response.result.clusters || []).map(cluster => ({
+          ...cluster,
+          citations: cluster.citation_objects || cluster.citations || []
+        }));
+        
+        analysisResults.value = {
+          clusters: mappedClusters,
+          citations: response.result.citations || [],
+          message: response.message,
+          metadata: response.metadata,
+          success: response.success,
+          total_citations: response.result.citations?.length || 0
+        };
       } else {
-        try {
-          await router.push(navigationData);
-          console.log('Navigation completed successfully');
-          console.log('✅ Navigation to main page completed!');
-        } catch (navigationError) {
-          console.error('Navigation failed:', navigationError);
-          console.error('❌ Navigation failed: ' + navigationError.message);
-        }
+        analysisResults.value = response;
       }
+      analysisError.value = '';
+      
+      // Complete progress tracking
+      globalProgress.completeProgress(analysisResults.value);
     } else {
-      console.log('No response received - no navigation');
-      console.error('❌ No response received - no navigation');
+      console.log('No response received');
+      analysisError.value = 'No response received from server';
     }
   } catch (error) {
     console.error('=== ANALYSIS ERROR ===');
@@ -1126,6 +1178,7 @@ const analyzeContent = async () => {
     console.error('Error response:', error.response);
     console.error('Error message:', error.message);
     
+    analysisResults.value = null;
     let errorMessage = 'An error occurred during analysis. Please try again.';
     
     if (error.response) {
@@ -1153,14 +1206,126 @@ const analyzeContent = async () => {
     
     console.error('Final error message:', errorMessage);
     console.error(errorMessage);
+    
+    // Store error for display
+    analysisError.value = errorMessage;
+    
     // Set error in global progress store
     globalProgress.setError(errorMessage);
   } finally {
     console.log('=== ANALYSIS COMPLETED ===');
     isAnalyzing.value = false;
-    // Stop global progress tracking
-    // globalProgress tracking is handled by the API response
+    
+    // Complete progress tracking if not already completed
+    if (globalProgress.progressState.isActive) {
+      globalProgress.completeProgress();
+    }
   }
+};
+
+// Handler functions for CitationResults component
+const handleNewAnalysis = () => {
+  // Clear previous results and reset form
+  analysisResults.value = null;
+  analysisError.value = '';
+  textContent.value = '';
+  urlContent.value = '';
+  selectedFile.value = null;
+  fileError.value = '';
+  urlError.value = '';
+  
+  // Stop any active async task polling
+  if (activeAsyncTask.value) {
+    pollingService.stopPolling(activeAsyncTask.value);
+    activeAsyncTask.value = null;
+    asyncTaskProgress.value = null;
+    isAnalyzing.value = false;
+  }
+  
+  // Focus on text input
+  activeTab.value = 'paste';
+  
+  console.log('New analysis initiated - form reset and async tasks stopped');
+};
+
+const handleCopyResults = () => {
+  // This will be handled by the CitationResults component
+  console.log('Copy results requested');
+};
+
+const handleDownloadResults = () => {
+  // This will be handled by the CitationResults component
+  console.log('Download results requested');
+};
+
+// Async task handler methods
+const handleCancelAsyncTask = (taskId) => {
+  console.log('Cancelling async task:', taskId);
+  
+  // Stop polling for this task
+  pollingService.stopPolling(taskId);
+  
+  // Clear async task state
+  activeAsyncTask.value = null;
+  asyncTaskProgress.value = null;
+  
+  // Reset analysis state
+  isAnalyzing.value = false;
+  
+  // Complete progress tracking
+  globalProgress.completeProgress(null);
+  
+  console.log('Async task cancelled and state cleared');
+};
+
+const handleAsyncTaskComplete = (result) => {
+  console.log('Async task completed via component event:', result);
+  
+  // The result should already be stored in analysisResults.value
+  // from the polling service callback, but let's ensure it's there
+  if (!analysisResults.value && result) {
+    // Format the result data for CitationResults component
+    if (result.result) {
+      const mappedClusters = (result.result.clusters || []).map(cluster => ({
+        ...cluster,
+        citations: cluster.citation_objects || cluster.citations || []
+      }));
+      
+      analysisResults.value = {
+        clusters: mappedClusters,
+        citations: result.result.citations || [],
+        message: result.message || 'Analysis completed successfully',
+        metadata: result.metadata || {},
+        success: true,
+        total_citations: result.result.citations?.length || 0
+      };
+    }
+  }
+  
+  // Clear async task state
+  activeAsyncTask.value = null;
+  asyncTaskProgress.value = null;
+  
+  console.log('Async task completion handled');
+};
+
+const handleAsyncTaskError = (errorMessage) => {
+  console.error('Async task error via component event:', errorMessage);
+  
+  // Set error message
+  analysisError.value = `Task failed: ${errorMessage}`;
+  
+  // Clear async task state
+  activeAsyncTask.value = null;
+  asyncTaskProgress.value = null;
+  
+  // Reset analysis state
+  isAnalyzing.value = false;
+  
+  // Complete progress tracking
+  globalProgress.completeProgress(null);
+  
+  console.log('Async task error handled');
 };
 </script>
 
@@ -1812,6 +1977,63 @@ const analyzeContent = async () => {
   
   .file-drop-icon {
     font-size: 2rem;
+  }
+}
+
+/* Results Replacement Area Styles */
+.results-replacement-area {
+  margin-top: 2rem;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  border: 1px solid #dee2e6;
+}
+
+.results-title {
+  margin: 0;
+  color: #2c3e50;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.new-analysis-btn {
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
+}
+
+.new-analysis-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+  background: linear-gradient(45deg, #0056b3, #004085);
+}
+
+/* Mobile responsive for results header */
+@media (max-width: 768px) {
+  .results-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .results-title {
+    font-size: 1.25rem;
+  }
+  
+  .new-analysis-btn {
+    width: 100%;
+    padding: 1rem;
   }
 }
 </style>
