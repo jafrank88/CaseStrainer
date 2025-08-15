@@ -329,27 +329,70 @@ class CitationClusterer(ICitationClusterer):
                         citation.canonical_date = canonical_source.canonical_date
                     
                     # Update metadata to track propagation
-        
-        # Propagate canonical data to all members that lack it
-        if canonical_source:
-            for citation in cluster_members:
-                if not citation.canonical_name:
-                    citation.canonical_name = canonical_source.canonical_name
-                if not citation.canonical_date:
-                    citation.canonical_date = canonical_source.canonical_date
-                
-                # Update metadata to track propagation
-                citation.metadata = citation.metadata or {}
-                if citation != canonical_source:
-                    citation.metadata['canonical_data_source'] = canonical_source.citation
-
-def _format_clusters(self, clusters: Dict[str, List[CitationResult]]) -> List[Dict[str, Any]]:
-    """Format clusters for output with proper merging and canonical name extraction."""
-    formatted_clusters = []
+                    citation.metadata = citation.metadata or {}
+                    if citation != canonical_source:
+                        citation.metadata['canonical_data_source'] = canonical_source.citation
     
-    for cluster_key, cluster_members in clusters.items():
-        if not cluster_members:
-            continue
+    def _format_clusters(self, clusters: Dict[str, List[CitationResult]]) -> List[Dict[str, Any]]:
+        """Format clusters for output with proper merging and canonical name extraction."""
+        formatted_clusters = []
+        
+        for cluster_key, cluster_members in clusters.items():
+            if not cluster_members:
+                continue
+            
+            # Get the best case name for this cluster
+            case_name = self._get_best_case_name_for_cluster(cluster_members)
+            
+            # Create cluster structure
+            cluster = {
+                'id': cluster_key,
+                'case_name': case_name,
+                'size': len(cluster_members),
+                'citations': [self._citation_to_dict(c) for c in cluster_members],
+                'verified_count': sum(1 for c in cluster_members if c.verified),
+                'unverified_count': sum(1 for c in cluster_members if not c.verified)
+            }
+            
+            formatted_clusters.append(cluster)
+        
+        return formatted_clusters
+    
+    def _get_best_case_name_for_cluster(self, cluster_members: List[CitationResult]) -> str:
+        """Get the best case name for a cluster, prioritizing canonical over extracted."""
+        # First try to find a canonical name
+        for citation in cluster_members:
+            if citation.canonical_name:
+                return citation.canonical_name
+        
+        # Fall back to extracted name
+        for citation in cluster_members:
+            if citation.extracted_case_name:
+                return citation.extracted_case_name
+        
+        # Default fallback
+        return "Unknown Case"
+    
+    def _citation_to_dict(self, citation: CitationResult) -> Dict[str, Any]:
+        """Convert a CitationResult to a dictionary for output."""
+        return {
+            'citation': citation.citation,
+            'verified': citation.verified,
+            'canonical_name': citation.canonical_name,
+            'canonical_date': citation.canonical_date,
+            'extracted_case_name': citation.extracted_case_name,
+            'extracted_date': citation.extracted_date,
+            'start_index': citation.start_index,
+            'end_index': citation.end_index,
+            'confidence': citation.confidence,
+            'method': citation.method,
+            'metadata': citation.metadata
+        }
+    
+    def _normalize_case_name(self, case_name: str) -> str:
+        """Normalize case name for consistent clustering."""
+        if not case_name:
+            return ""
         
         # Convert to lowercase and remove extra whitespace
         normalized = re.sub(r'\s+', ' ', case_name.strip().lower())

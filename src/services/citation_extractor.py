@@ -589,3 +589,55 @@ class CitationExtractor(ICitationExtractor):
             normalized = normalized.replace(old, new)
         
         return normalized
+    
+    def _normalize_citation_comprehensive(self, citation: str, purpose: str = "comparison") -> str:
+        """
+        Comprehensive citation normalization for different purposes.
+        
+        Args:
+            citation: The citation string to normalize
+            purpose: The purpose of normalization ("comparison", "similarity", "extraction")
+            
+        Returns:
+            Normalized citation string
+        """
+        if not citation:
+            return ""
+        
+        # Remove extra whitespace and convert to lowercase
+        normalized = re.sub(r'\s+', ' ', citation.strip().lower())
+        
+        if purpose == "similarity":
+            # For similarity comparison, be more aggressive with normalization
+            # Remove punctuation that might cause false negatives
+            normalized = re.sub(r'[^\w\s]', '', normalized)
+        elif purpose == "extraction":
+            # For extraction, preserve some punctuation that might be meaningful
+            # but normalize common variations
+            normalized = re.sub(r'[^\w\s\.]', '', normalized)
+        else:  # comparison (default)
+            # Standard normalization for general comparison
+            pass
+        
+        # Standardize common abbreviations
+        replacements = {
+            'wash.': 'wn.',
+            'wash. 2d': 'wn. 2d',
+            'wash. app.': 'wn. app.',
+            's. ct.': 's.ct.',
+            'l. ed.': 'l.ed.',
+            'f. supp.': 'f.supp.',
+            'p.': 'p',
+            'p2d': 'p2d',
+            'p3d': 'p3d',
+            'f.': 'f',
+            'f2d': 'f2d',
+            'f3d': 'f3d',
+            'u.s.': 'us',
+            'sup. ct.': 'supct'
+        }
+        
+        for old, new in replacements.items():
+            normalized = normalized.replace(old, new)
+        
+        return normalized
