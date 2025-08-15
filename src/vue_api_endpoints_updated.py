@@ -397,7 +397,7 @@ def analyze():
                         result['metadata'].update({
                             'processing_mode': 'immediate',
                             'input_type': input_type,
-                            'text_length': len(input_data)
+                            'text_length': len(str(input_data)) if hasattr(input_data, '__len__') else 0
                         })
                         
                         return _format_response(result, request_id, metadata, start_time)
