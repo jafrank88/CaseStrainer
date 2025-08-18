@@ -641,11 +641,11 @@ class UnifiedCitationClusterer:
             if batch_idx < len(batches) - 1:  # Don't wait after the last batch
                 time.sleep(0.4)  # Conservative rate limiting
         
-        # Step 4: Apply fallback verification for unverified citations
+        # Step 4: Apply comprehensive legal web search verification for unverified citations
         unverified_citations = [c for c in all_citations if not getattr(c, 'is_verified', False)]
         if unverified_citations:
-            logger.info(f"Applying fallback verification to {len(unverified_citations)} unverified citations")
-            self._apply_fallback_verification(unverified_citations)
+            logger.info(f"Applying comprehensive verification to {len(unverified_citations)} unverified citations")
+            self._apply_comprehensive_verification(unverified_citations)
     
     def _calculate_name_similarity(self, name1: str, name2: str) -> float:
         """
@@ -674,95 +674,89 @@ class UnifiedCitationClusterer:
         
         return len(intersection) / len(union) if union else 0.0
     
-    def _apply_fallback_verification(self, citations: List[Any]):
+    def _apply_comprehensive_verification(self, citations: List[Any]):
         """
-        Apply fallback verification for citations not found in CourtListener.
+        Apply comprehensive legal web search verification for citations not found in CourtListener.
         
-        Uses multiple fallback sources in order of reliability:
-        1. Cornell Law School Legal Information Institute
-        2. Justia legal database
-        3. Google Scholar
-        4. Caselaw Access Project
-        5. Generic legal web search
+        Uses the comprehensive verification system that includes:
+        - vLex
+        - CaseMine
+        - Justia
+        - Cornell Law
+        - Google Scholar
+        - And many other legal databases
         """
         try:
-            from src.fallback_verifier import FallbackVerifier
             from src.citation_verification import verify_citations_with_legal_websearch
         except ImportError:
-            logger.warning("Fallback verification modules not available - skipping fallback")
+            logger.warning("Comprehensive verification module not available - skipping fallback")
             return
         
-        # Initialize fallback verifier
-        fallback_verifier = FallbackVerifier()
-        
-        for citation in citations:
+        # Use comprehensive legal web search verification
+        try:
+            logger.info(f"Applying comprehensive verification to {len(citations)} unverified citations")
+            
+            # Convert citations to the format expected by verify_citations_with_legal_websearch
+            citation_list = []
+            for citation in citations:
+                citation_list.append(citation)
+            
+            # Call the comprehensive verification system
+            # Note: This is an async function, so we need to handle it properly
+            import asyncio
+            
             try:
-                logger.info(f"Attempting fallback verification for: {citation.citation}")
-                
-                # Get extracted metadata for context
-                extracted_name = getattr(citation, 'extracted_case_name', None)
-                extracted_date = getattr(citation, 'extracted_date', None)
-                
-                # Try fallback verification
-                result = fallback_verifier.verify_citation(
-                    citation.citation,
-                    extracted_case_name=extracted_name,
-                    extracted_date=extracted_date
-                )
-                
-                if result and result.get('verified', False):
-                    # Validate fallback result quality
-                    canonical_name = result.get('canonical_name')
-                    canonical_url = result.get('url')
-                    
-                    # Apply same validation as CourtListener results
-                    if (canonical_name and canonical_name.strip() and 
-                        len(canonical_name.strip()) >= 5 and
-                        canonical_url and canonical_url.strip()):
-                        
-                        # Additional name similarity check if we have extracted name
-                        validation_passed = True
-                        if extracted_name and extracted_name != "N/A":
-                            similarity = self._calculate_name_similarity(canonical_name, extracted_name)
-                            if similarity < 0.2:  # Even lower threshold for fallback
-                                logger.warning(f"✗ Fallback name mismatch: {citation.citation}")
-                                logger.warning(f"  Canonical: '{canonical_name}'")
-                                logger.warning(f"  Extracted: '{extracted_name}'")
-                                logger.warning(f"  Similarity: {similarity:.2f} - rejecting fallback")
-                                validation_passed = False
-                        
-                        if validation_passed:
-                            # Populate canonical data from fallback
-                            citation.canonical_name = canonical_name
-                            citation.canonical_date = result.get('canonical_date')
-                            citation.canonical_url = canonical_url
-                            citation.verified = True
-                            citation.is_verified = True
-                            
-                            # Update metadata
-                            if not hasattr(citation, 'metadata'):
-                                citation.metadata = {}
-                            citation.metadata.update({
-                                'verification_status': 'verified_fallback',
-                                'verification_source': f"fallback_{result.get('source', 'unknown')}",
-                                'canonical_data_available': True,
-                                'fallback_confidence': result.get('confidence', 0.5)
-                            })
-                            
-                            logger.info(f"✓ Fallback verified: {citation.citation} -> {canonical_name} via {result.get('source')}")
-                        else:
-                            logger.info(f"✗ Fallback validation failed: {citation.citation}")
-                    else:
-                        logger.info(f"✗ Fallback result missing essential data: {citation.citation}")
+                # Try to get the event loop
+                loop = asyncio.get_event_loop()
+                if loop.is_running():
+                    # If we're already in an event loop, create a task
+                    task = asyncio.create_task(verify_citations_with_legal_websearch(citation_list))
+                    # For now, we'll wait for it to complete
+                    # In a real async environment, this would be handled differently
+                    loop.run_until_complete(task)
+                    verified_results = task.result()
                 else:
-                    logger.info(f"✗ No fallback verification found: {citation.citation}")
-                    
-                # Rate limiting for fallback sources
-                time.sleep(1.0)  # Be respectful to fallback sources
-                
-            except Exception as e:
-                logger.warning(f"Fallback verification error for {citation.citation}: {e}")
-                continue
+                    # Run in the event loop
+                    verified_results = loop.run_until_complete(verify_citations_with_legal_websearch(citation_list))
+            except RuntimeError:
+                # No event loop, create one
+                verified_results = asyncio.run(verify_citations_with_legal_websearch(citation_list))
+            
+            # Update citations with verification results
+            for citation in citations:
+                # Find matching verified result
+                for verified_citation in verified_results:
+                    if verified_citation.citation == citation.citation and verified_citation.verified:
+                        # Update citation with verification data
+                        citation.verified = True
+                        citation.is_verified = True
+                        citation.source = verified_citation.source
+                        citation.url = verified_citation.url
+                        
+                        # Update canonical data if available
+                        if hasattr(verified_citation, 'canonical_name') and verified_citation.canonical_name:
+                            citation.canonical_name = verified_citation.canonical_name
+                        if hasattr(verified_citation, 'canonical_date') and verified_citation.canonical_date:
+                            citation.canonical_date = verified_citation.canonical_date
+                        if hasattr(verified_citation, 'canonical_url') and verified_citation.canonical_url:
+                            citation.canonical_url = verified_citation.canonical_url
+                        
+                        # Update metadata
+                        if not hasattr(citation, 'metadata'):
+                            citation.metadata = {}
+                        citation.metadata.update({
+                            'verification_status': 'verified_comprehensive',
+                            'verification_source': f"comprehensive_{verified_citation.source}",
+                            'canonical_data_available': True
+                        })
+                        
+                        logger.info(f"✓ Comprehensive verification: {citation.citation} -> {citation.canonical_name} via {verified_citation.source}")
+                        break
+                        
+        except Exception as e:
+            logger.warning(f"Comprehensive verification error: {e}")
+            # If comprehensive verification fails, just log the error
+            # Don't fall back to the old system
     
     def _extract_case_names_and_dates(self, citations: List[Any], text: str):
         """
