@@ -44,6 +44,7 @@ services:
       - ./uploads:/app/uploads
       - ./citation_cache:/app/citation_cache
       - ./correction_cache:/app/correction_cache
+      - ./static:/app/static
     restart: unless-stopped
     mem_limit: 4g
     mem_reservation: 2g
@@ -215,7 +216,7 @@ services:
   # Infrastructure Layer
   nginx:
     build:
-      context: ./nginx
+      context: ./docker/nginx
       dockerfile: Dockerfile
     container_name: casestrainer-nginx-prod
     ports:
@@ -226,7 +227,6 @@ services:
       - ./nginx/conf:/etc/nginx/conf:ro
       - ./nginx/clean-wolf.conf:/etc/nginx/conf.d/wolf.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
-      - ./casestrainer-vue-new/dist:/usr/share/nginx/html/casestrainer:ro
       - ./logs/nginx:/var/log/nginx
     environment:
       - NGINX_HOST=wolf.law.uw.edu
