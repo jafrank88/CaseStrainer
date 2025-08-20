@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Progress Bar Test</title>
+    <style>
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            transition: width 0.3s ease;
+        }
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007bff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Progress Bar Debug Test</h1>
+    
+    <button id="testBtn">Test Progress Bar</button>
+    <button id="resetBtn">Reset</button>
+    
+    <div id="progressSection" class="hidden">
+        <h3>Progress Section</h3>
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+        </div>
+        <div id="progressText">0%</div>
+        <div id="spinner" class="spinner"></div>
+        <div id="status">Ready</div>
+    </div>
+    
+    <script>
+        const testBtn = document.getElementById('testBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        const spinner = document.getElementById('spinner');
+        const status = document.getElementById('status');
+        
+        let isAnalyzing = false;
+        let progress = 0;
+        
+        testBtn.addEventListener('click', () => {
+            if (isAnalyzing) return;
+            
+            isAnalyzing = true;
+            progressSection.classList.remove('hidden');
+            testBtn.disabled = true;
+            status.textContent = 'Analyzing...';
+            
+            // Simulate progress
+            progress = 0;
+            const interval = setInterval(() => {
+                progress += 2;
+                progressFill.style.width = progress + '%';
+                progressText.textContent = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    isAnalyzing = false;
+                    testBtn.disabled = false;
+                    status.textContent = 'Completed!';
+                }
+            }, 100);
+        });
+        
+        resetBtn.addEventListener('click', () => {
+            isAnalyzing = false;
+            progress = 0;
+            progressFill.style.width = '0%';
+            progressText.textContent = '0%';
+            status.textContent = 'Ready';
+            testBtn.disabled = false;
+            progressSection.classList.add('hidden');
+        });
+    </script>
+</body>
+</html>

@@ -962,63 +962,77 @@ const formatFileSize = (bytes) => {
 
 const analyzeContent = async () => {
   // Show debug popup
-  alert(`=== ANALYZE CONTENT CALLED ===\nActive tab: ${activeTab.value}\nCan analyze: ${canAnalyze.value}\nIs analyzing: ${isAnalyzing.value}\nURL content: ${urlContent.value}\nText content: ${textContent.value}\nSelected file: ${selectedFile.value ? selectedFile.value.name : 'None'}`);
+      // Debug alert removed for cleaner interface
   
   if (!canAnalyze.value || isAnalyzing.value) {
-    alert(`❌ Cannot analyze - canAnalyze: ${canAnalyze.value}, isAnalyzing: ${isAnalyzing.value}`);
     return;
   }
   
   // Add text length validation here instead of in canAnalyze
   if (activeTab.value === 'paste' && textContent.value.trim().length < 5) {
-    alert('Text must be at least 5 characters long');
     return;
   }
   
-  alert('✅ Starting analysis...');
   isAnalyzing.value = true;
-  
-  // Start progress tracking
-  globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
   
   try {
     let requestData;
     
     // Prepare request data based on active tab
     if (activeTab.value === 'file' && selectedFile.value) {
-      alert('📁 Preparing file upload request');
       // For file uploads, use FormData
       requestData = new FormData();
       requestData.append('file', selectedFile.value);
       requestData.append('type', 'file');
     } else if (activeTab.value === 'url' && urlContent.value) {
-      alert('🌐 Preparing URL request');
       // For URL analysis, use JSON data
       requestData = {
         type: 'url',
         url: urlContent.value.trim()
       };
-      alert(`URL request data: ${JSON.stringify(requestData)}`);
     } else if (activeTab.value === 'paste' && textContent.value) {
-      alert('📝 Preparing text request');
       // For text analysis, use JSON data
       requestData = {
         type: 'text',
         text: textContent.value.trim()
       };
     } else {
-      alert('❌ Invalid input configuration');
       throw new Error('Invalid input configuration');
     }
     
-    alert(`🚀 Sending ${activeTab.value} request using analyze() function\nRequest data: ${JSON.stringify(requestData)}`);
+    // Start progress tracking AFTER we have requestData
+    try {
+      globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
+      
+      // Set up processing steps for text analysis
+      if (activeTab.value === 'text') {
+        globalProgress.setSteps([
+          { step: 'Initializing...', estimated_time: 2 },
+          { step: 'Extracting citations...', estimated_time: 8 },
+          { step: 'Verifying citations...', estimated_time: 15 },
+          { step: 'Clustering citations...', estimated_time: 5 }
+        ]);
+        
+        // Update to first step immediately
+        globalProgress.updateProgress({ 
+          step: 'Initializing...', 
+          progress: 5,
+          total_progress: 5 
+        });
+      }
+    } catch (error) {
+      throw error;
+    }
+    
+    // Debug alert removed for cleaner interface
     
     // Use the analyze function from the API
-    alert('📡 Calling analyze() function...');
-    const response = await analyze(requestData);
-    alert(`📡 analyze() function returned: ${JSON.stringify(response, null, 2)}`);
+    // Debug alerts removed for cleaner interface
     
-    alert(`🔍 HomeView: Response details:\nHas response: ${!!response}\nHas task_id: ${!!response?.task_id}\nHas status: ${!!response?.status}\nStatus: ${response?.status}\nHas citations: ${!!response?.citations}\nCitations count: ${response?.citations?.length || 0}\nHas result: ${!!response?.result}\nResult citations count: ${response?.result?.citations?.length || 0}`);
+    const response = await analyze(requestData);
+    // Debug alert removed for cleaner interface
+    
+    // Response details logged to console for debugging
 
     console.log('Response analysis:');
     console.log('- Has response:', !!response);
@@ -1029,9 +1043,14 @@ const analyzeContent = async () => {
 
     // Check if we have immediate results vs. async task
     if (response && response.status === 'completed' && response.result) {
-      alert(`🎉 IMMEDIATE RESULTS RECEIVED! Citations: ${response.result?.citations?.length || 0}`);
-      
       console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', response.result?.citations?.length || 0);
+      
+      // Update progress to show completion
+      globalProgress.updateProgress({ 
+        step: 'Clustering citations...', 
+        progress: 90,
+        total_progress: 90 
+      });
       
       // Store results in the format expected by CitationResults component
       // Map citation_objects to citations for component compatibility
@@ -1065,8 +1084,6 @@ const analyzeContent = async () => {
     
     // Handle async task with task_id
     if (response && response.task_id) {
-      alert(`🔄 Async task started with task_id: ${response.task_id}`);
-      
       console.log('🔄 Async task started with task_id:', response.task_id);
       
       // Set up async task progress tracking
@@ -1077,12 +1094,41 @@ const analyzeContent = async () => {
         message: response.message || 'Task queued and waiting to be processed'
       };
       
+      // Update progress to show queued status
+      globalProgress.updateProgress({ 
+        step: 'Task queued...', 
+        progress: 20,
+        total_progress: 20 
+      });
+      
       // Start polling for task status
       pollingService.startPolling(
         response.task_id,
         // Progress callback
         (progressData) => {
           console.log('📊 Task progress:', progressData);
+          
+          // Update global progress based on task status
+          if (progressData.status === 'queued') {
+            globalProgress.updateProgress({ 
+              step: 'Task queued...', 
+              progress: 20,
+              total_progress: 20 
+            });
+          } else if (progressData.status === 'processing') {
+            globalProgress.updateProgress({ 
+              step: 'Processing citations...', 
+              progress: 50,
+              total_progress: 50 
+            });
+          } else if (progressData.status === 'verifying') {
+            globalProgress.updateProgress({ 
+              step: 'Verifying citations...', 
+              progress: 75,
+              total_progress: 75 
+            });
+          }
+          
           if (asyncTaskProgress.value) {
             asyncTaskProgress.value.status = progressData.status;
             asyncTaskProgress.value.message = progressData.message;

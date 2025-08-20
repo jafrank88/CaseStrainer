@@ -1,0 +1,108 @@
+version: '3.8'
+
+services:
+  redis:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: casestrainer-redis-windows
+    command: powershell -Command "Write-Host 'Redis placeholder for Windows'"
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:C:\\data
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.windows
+    container_name: casestrainer-backend-windows
+    environment:
+      - FLASK_APP=src/app_final_vue.py
+      - FLASK_ENV=production
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - ./temp_uploads:/app/temp_uploads
+      - ./citation_cache:/app/citation_cache
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  rqworker1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.windows
+    container_name: casestrainer-rqworker1-windows
+    command: ["python", "-m", "rq", "worker", "--url", "redis://redis:6379", "default"]
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  rqworker2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.windows
+    container_name: casestrainer-rqworker2-windows
+    command: ["python", "-m", "rq", "worker", "--url", "redis://redis:6379", "default"]
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  rqworker3:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.windows
+    container_name: casestrainer-rqworker3-windows
+    command: ["python", "-m", "rq", "worker", "--url", "redis:6379", "default"]
+    environment:
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend-prod:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: casestrainer-frontend-windows
+    command: powershell -Command "Write-Host 'Frontend placeholder for Windows'"
+    ports:
+      - "8080:80"
+    volumes:
+      - ./casestrainer-vue-new/dist-minimal:/app
+    restart: unless-stopped
+
+  nginx:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: casestrainer-nginx-windows
+    command: powershell -Command "Write-Host 'Nginx placeholder for Windows'"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:/etc/nginx/conf.d
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/logs:/var/log/nginx
+      - ./nginx/ssl:/etc/nginx/ssl
+    depends_on:
+      - backend
+      - frontend-prod
+    restart: unless-stopped
+
+volumes:
+  redis_data:

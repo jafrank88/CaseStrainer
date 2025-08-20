@@ -771,6 +771,7 @@ class ApplicationFactory:
     def _register_error_handlers(self, app: Any) -> None:
         """Register error handlers"""
         from flask import jsonify
+        from werkzeug.exceptions import RequestEntityTooLarge
         
         @app.errorhandler(404)
         def not_found(error: Any) -> tuple[Any, int]:
@@ -780,6 +781,15 @@ class ApplicationFactory:
         def internal_error(error: Any) -> tuple[Any, int]:
             self.logger.error(f"Internal server error: {error}")
             return jsonify({'error': 'Internal server error'}), 500
+        
+        @app.errorhandler(RequestEntityTooLarge)
+        def handle_file_too_large(error: Any) -> tuple[Any, int]:
+            self.logger.warning(f"File upload too large: {error}")
+            return jsonify({
+                'error': 'File too large',
+                'message': 'The uploaded file exceeds the maximum allowed size (50MB)',
+                'max_size_mb': 50
+            }), 413
         
         @app.errorhandler(Exception)
         def handle_exception(error: Any) -> tuple[Any, int]:
@@ -813,8 +823,8 @@ class ApplicationFactory:
             sys.exit(0)
         # Only set up signal handlers in the main thread
         if threading.current_thread() is threading.main_thread():
-            _ = signal.signal(signal.SIGINT, signal_handler)
-            _ = signal.signal(signal.SIGTERM, signal_handler)
+            _ = signal.signal(signal.SIGINT, signal_handler)  # type: ignore[attr-defined]
+            _ = signal.signal(signal.SIGTERM, signal_handler)  # type: ignore[attr-defined]
         else:
             self.logger.info("Skipping signal handler setup (not in main thread)")
 

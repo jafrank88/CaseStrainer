@@ -1,0 +1,5 @@
+{
+  "storage-driver": "vfs",
+  "experimental": false,
+  "debug": false
+}

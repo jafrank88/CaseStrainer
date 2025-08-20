@@ -228,7 +228,7 @@ async def verify_citations_with_legal_websearch(citations):
             ('findlaw', search_engine.search_findlaw),
             ('leagle', search_engine.search_leagle),
             ('casetext', search_engine.search_casetext),
-            ('vlex', search_engine.search_vlex),
+            # vlex deprecated due to site blocking and unreliable web scraping
             ('casemine', search_engine.search_casemine),
             ('openjurist', search_engine.search_openjurist),
             ('google_scholar', search_engine.search_google_scholar),
@@ -266,15 +266,37 @@ async def verify_citations_with_legal_websearch(citations):
                             citation.source = source_name
                             citation.url = result.get('url', '')
                             
-                            # Only set canonical data if it comes from a trusted source
-                            if source_name in ['courtlistener', 'justia', 'findlaw', 'leagle', 'casetext']:
-                                if 'canonical_name' in result:
+                            # Set canonical data for trusted sources and reliable fallbacks
+                            trusted_sources = ['courtlistener', 'justia', 'findlaw', 'leagle', 'casetext']
+                            reliable_fallbacks = ['google_scholar', 'bing', 'duckduckgo']
+                            
+                            if source_name in trusted_sources or source_name in reliable_fallbacks:
+                                if 'canonical_name' in result and result['canonical_name']:
                                     citation.canonical_name = result['canonical_name']
-                                if 'canonical_date' in result:
+                                if 'canonical_date' in result and result['canonical_date']:
                                     citation.canonical_date = str(result['canonical_date'])
+                                
+                                # For fallback sources, also set the extracted case name and date if no canonical data
+                                if source_name in reliable_fallbacks:
+                                    if not citation.canonical_name and case_name:
+                                        citation.canonical_name = case_name
+                                        logger.info(f"[VERIFY] Set canonical_name from extracted_case_name for {citation.citation}: {case_name}")
+                                    if not citation.canonical_date and getattr(citation, 'extracted_date', None):
+                                        citation.canonical_date = citation.extracted_date
+                                        logger.info(f"[VERIFY] Set canonical_date from extracted_date for {citation.citation}: {citation.extracted_date}")
                             
                             verified = True
                             verified_citations.append(citation)
+                            
+                            # Log verification success with details
+                            logger.info(f"[VERIFY] SUCCESS: {citation.citation} verified via {source_name}")
+                            if citation.canonical_name:
+                                logger.info(f"[VERIFY]   Canonical name: {citation.canonical_name}")
+                            if citation.canonical_date:
+                                logger.info(f"[VERIFY]   Canonical date: {citation.canonical_date}")
+                            if citation.url:
+                                logger.info(f"[VERIFY]   URL: {citation.url}")
+                            
                             break  # Stop after first successful verification
                             
                     except Exception as e:

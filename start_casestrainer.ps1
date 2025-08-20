@@ -1,52 +1,48 @@
-# Start CaseStrainer in PowerShell
+# Simple CaseStrainer Startup Script
+Write-Host "Starting CaseStrainer..." -ForegroundColor Green
 
-# Set environment variables
-$env:FLASK_APP = "src/app_final_vue.py"
-$env:HOST = "0.0.0.0"
-$env:PORT = 5000
-$env:THREADS = 10
-$env:USE_CHEROOT = "True"
+# Stop any existing Python processes
+$existingProcess = Get-Process python -ErrorAction SilentlyContinue | Where-Object { 
+    $_.ProcessName -eq "python" 
+}
 
-# Create required directories
-if (!(Test-Path "logs")) { New-Item -ItemType Directory -Path "logs" }
-if (!(Test-Path "uploads")) { New-Item -ItemType Directory -Path "uploads" }
-if (!(Test-Path "casestrainer_sessions")) { New-Item -ItemType Directory -Path "casestrainer_sessions" }
-
-# Check if port 5000 is available
-Write-Host "Checking if port 5000 is available..."
-$portInUse = Get-NetTCPConnection -LocalPort 5000 -ErrorAction SilentlyContinue
-if ($portInUse) {
-    Write-Host "WARNING: Port 5000 is already in use."
-    Write-Host "Stopping any processes using port 5000..."
-    
-    $portInUse | ForEach-Object {
-        $processId = $_.OwningProcess
-        $process = Get-Process -Id $processId -ErrorAction SilentlyContinue
-        if ($process) {
-            Write-Host "Killing process with PID: $($process.Id) - $($process.ProcessName)"
-            Stop-Process -Id $process.Id -Force
+if ($existingProcess) {
+    Write-Host "Stopping existing Python processes..." -ForegroundColor Yellow
+    $existingProcess | ForEach-Object { 
+        try { 
+            Stop-Process -Id $_.Id -Force 
+            Write-Host "Stopped Python process: $($_.Id)" -ForegroundColor Green
+        } catch {
+            Write-Host "Could not stop Python process $($_.Id)" -ForegroundColor Red
         }
     }
-    
     Start-Sleep -Seconds 2
 }
 
-# Install/update dependencies
-Write-Host "Installing dependencies..."
-py -3.13 -m pip install -r requirements.txt
+# Start CaseStrainer
+Write-Host "Starting CaseStrainer Flask app..." -ForegroundColor Cyan
+$process = Start-Process -FilePath "python" -ArgumentList "src\app_final_vue.py" -WorkingDirectory (Get-Location) -WindowStyle Hidden -PassThru
 
-# Start Nginx if not already running
-$nginxProcess = Get-Process nginx -ErrorAction SilentlyContinue
-if (-not $nginxProcess) {
-    Write-Host "Starting Nginx..."
-    Start-Process -FilePath "nginx/nginx.exe" -ArgumentList "-p `"nginx`" -c `"conf\nginx.conf`"" -NoNewWindow
-} else {
-    Write-Host "Nginx is already running."
+# Wait for startup
+Write-Host "Waiting for CaseStrainer to start..." -ForegroundColor Yellow
+Start-Sleep -Seconds 10
+
+# Test if it's responding
+try {
+    $response = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/health" -UseBasicParsing -TimeoutSec 10
+    if ($response.StatusCode -eq 200) {
+        Write-Host "✅ CaseStrainer started successfully with PID: $($process.Id)" -ForegroundColor Green
+        Write-Host "🌐 Access URL: http://localhost:5000/casestrainer/" -ForegroundColor Cyan
+        Write-Host "🔧 API Health: http://localhost:5000/casestrainer/api/health" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "To make it accessible at https://wolf.law.uw.edu/casestrainer/:" -ForegroundColor Yellow
+        Write-Host "1. Configure your web server to proxy /casestrainer/ to localhost:5000" -ForegroundColor White
+        Write-Host "2. Set up SSL certificates for HTTPS" -ForegroundColor White
+        Write-Host "3. Configure firewall rules to allow external access" -ForegroundColor White
+    } else {
+        Write-Host "⚠️ CaseStrainer started but health check failed: $($response.StatusCode)" -ForegroundColor Yellow
+    }
+} catch {
+    Write-Host "❌ Failed to start CaseStrainer: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "Check the logs for more details" -ForegroundColor Yellow
 }
-
-# Start the Flask application
-Write-Host "Starting Flask application..."
-Start-Process -FilePath "py" -ArgumentList "-3.13", "src/app_final_vue.py", "--host=$($env:HOST)", "--port=$($env:PORT)" -NoNewWindow
-
-Write-Host "CaseStrainer is now running!"
-Write-Host "Access the application at: http://localhost:5000"

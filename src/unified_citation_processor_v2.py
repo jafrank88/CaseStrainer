@@ -136,6 +136,10 @@ class UnifiedCitationProcessorV2:
             'wn_app': re.compile(r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b', re.IGNORECASE),
             # Washington Court of Appeals (with optional space): e.g., '123 Wn. App 456'
             'wn_app_space': re.compile(r'\b(\d+)\s+Wn\.\s*App\s+(\d+)\b', re.IGNORECASE),
+            # Washington Supreme Court 3d series: e.g., '123 Wn. 3d 456'
+            'wn3d': re.compile(r'\b(\d+)\s+Wn\.\s*3d\s+(\d+)\b', re.IGNORECASE),
+            # Washington Supreme Court 3d series (with optional space): e.g., '123 Wn. 3d 456'
+            'wn3d_space': re.compile(r'\b(\d+)\s+Wn\.\s*3d\s+(\d+)\b', re.IGNORECASE),
             # Washington Supreme Court (Wash.): e.g., '123 Wash. 2d 456' with optional parallel P.3d citation
             'wash2d': re.compile(r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)(?:\s*,\s*\d+\s*P\.3d\s*\d+)?\b', re.IGNORECASE),
             # Washington Supreme Court (Wash. with optional space): e.g., '123 Wash. 2d 456' with optional parallel P.3d citation
@@ -828,6 +832,12 @@ class UnifiedCitationProcessorV2:
             'wash_complete',
             'wash_with_parallel',
             'parallel_cluster',
+            'wn_app',           # Washington Court of Appeals
+            'wn_app_space',     # Washington Court of Appeals (with space)
+            'wn3d',             # Washington Supreme Court 3d series
+            'wn3d_space',       # Washington Supreme Court 3d series (with space)
+            'wash_app',         # Washington Court of Appeals (Wash.)
+            'wash_app_space',   # Washington Court of Appeals (Wash. with space)
         ]
         logger.debug('Starting priority pattern loop')
         for pattern_name in priority_patterns:
@@ -883,46 +893,44 @@ class UnifiedCitationProcessorV2:
             matches = list(pattern.finditer(text))
             logger.debug(f"[DEBUG] Pattern '{pattern_name}' matched {len(matches)} times.")
             if matches:
-                logger.debug(f"[DEBUG] Pattern '{pattern_name}' matched {len(matches)} times.")
                 for match in matches:
                     logger.debug(f"[DEBUG]   Match: '{match.group(0)}'")
-            for match in matches:
-                citation_str = match.group(0).strip()
-                if not citation_str or citation_str in seen_citations:
-                    continue
-                # Exclude citations where the reporter is 'at' (e.g., '196 Wn.2d at 295')
-                components = self._extract_citation_components(citation_str)
-                reporter = components.get('reporter', '').strip().lower().replace('.', '')
-                if reporter == 'at':
-                    logger.debug(f"[DEBUG] Skipping citation with reporter 'at': '{citation_str}'")
-                    continue
-                logger.debug(f"[DEBUG] Calling _is_citation_contained_in_any for {citation_str}")
-                if _is_citation_contained_in_any(citation_str, seen_citations):
-                    logger.debug(f"[DEBUG] _is_citation_contained_in_any returned True for {citation_str}")
-                    logger.debug(f"[DEBUG] Skipping contained citation: '{citation_str}'")
-                    continue
-                logger.debug(f"[DEBUG] _is_citation_contained_in_any returned False for {citation_str}")
-                seen_citations.add(citation_str)
-                logger.debug(f"[DEBUG] Processing citation: '{citation_str}'")
-                start_pos = match.start()
-                end_pos = match.end()
-                logger.debug(f"[DEBUG] Calling _extract_context for {citation_str}")
-                context = self._extract_context(text, start_pos, end_pos)
-                logger.debug(f"[DEBUG] Returned from _extract_context for {citation_str}")
-                citation = CitationResult(
-                    citation=citation_str,
-                    start_index=start_pos,
-                    end_index=end_pos,
-                    method="regex",
-                    pattern=pattern_name,
-                    context=context,
-                    source="regex"
-                )
-                # FIX 1: Extract metadata immediately
-                self._extract_metadata(citation, text, match)
-                logger.debug(f"[DEBUG] Created CitationResult: {citation.citation}")
-                citations.append(citation)
-                logger.debug(f"[EXTRACTION CONTEXT] Citation: {citation.citation}, start: {getattr(citation, 'start_index', None)}, end: {getattr(citation, 'end_index', None)}, context: {getattr(citation, 'context', None)}")
+                    citation_str = match.group(0).strip()
+                    if not citation_str or citation_str in seen_citations:
+                        continue
+                    # Exclude citations where the reporter is 'at' (e.g., '196 Wn.2d at 295')
+                    components = self._extract_citation_components(citation_str)
+                    reporter = components.get('reporter', '').strip().lower().replace('.', '')
+                    if reporter == 'at':
+                        logger.debug(f"[DEBUG] Skipping citation with reporter 'at': '{citation_str}'")
+                        continue
+                    logger.debug(f"[DEBUG] Calling _is_citation_contained_in_any for {citation_str}")
+                    if _is_citation_contained_in_any(citation_str, seen_citations):
+                        logger.debug(f"[DEBUG] _is_citation_contained_in_any returned True for {citation_str}")
+                        logger.debug(f"[DEBUG] Skipping contained citation: '{citation_str}'")
+                        continue
+                    logger.debug(f"[DEBUG] _is_citation_contained_in_any returned False for {citation_str}")
+                    seen_citations.add(citation_str)
+                    logger.debug(f"[DEBUG] Processing citation: '{citation_str}'")
+                    start_pos = match.start()
+                    end_pos = match.end()
+                    logger.debug(f"[DEBUG] Calling _extract_context for {citation_str}")
+                    context = self._extract_context(text, start_pos, end_pos)
+                    logger.debug(f"[DEBUG] Returned from _extract_context for {citation_str}")
+                    citation = CitationResult(
+                        citation=citation_str,
+                        start_index=start_pos,
+                        end_index=end_pos,
+                        method="regex",
+                        pattern=pattern_name,
+                        context=context,
+                        source="regex"
+                    )
+                    # FIX 1: Extract metadata immediately
+                    self._extract_metadata(citation, text, match)
+                    logger.debug(f"[DEBUG] Created CitationResult: {citation.citation}")
+                    citations.append(citation)
+                    logger.debug(f"[EXTRACTION CONTEXT] Citation: {citation.citation}, start: {getattr(citation, 'start_index', None)}, end: {getattr(citation, 'end_index', None)}, context: {getattr(citation, 'context', None)}")
         logger.debug(f"[DEBUG] _extract_with_regex completed, total citations: {len(citations)}")
         logger.debug(f"[DEBUG] Total citations created: {len(citations)}")
         logger.info(f"[DEBUG] All extracted citations: {[c.citation for c in citations]}")
@@ -2339,13 +2347,13 @@ class UnifiedCitationProcessorV2:
         
         if unverified_citations:
             try:
-                # Import and use the fallback verifier
+                # Import and use the enhanced fallback verifier
                 import sys
                 import os
                 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-                from src.fallback_verifier import FallbackVerifier
+                from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
                 
-                verifier = FallbackVerifier()
+                verifier = EnhancedFallbackVerifier()
                 
                 for citation in unverified_citations:
                     try:
@@ -2357,7 +2365,7 @@ class UnifiedCitationProcessorV2:
                         if self.config.debug_mode:
                             logger.debug(f"[VERIFICATION] Fallback context - Extracted name: {extracted_case_name}, Date: {extracted_date}")
                         
-                        result = verifier.verify_citation(
+                        result = verifier.verify_citation_sync(
                             citation_text, 
                             extracted_case_name, 
                             extracted_date
@@ -2861,26 +2869,6 @@ class UnifiedCitationProcessorV2:
         
         # STEP 2: Comprehensive pattern list including federal citations
         priority_patterns = [
-            # Federal citations (most common)
-            'us',
-            'us_spaced', 
-            'f3d',
-            'f2d',
-            'f_supp',
-            'f_supp2d',
-            'f_supp3d',
-            's_ct',
-            'l_ed',
-            'l_ed2d',
-            # State and regional citations
-            'p3d',
-            'p2d',
-            'wn2d',
-            'wn2d_space',
-            'wn_app',
-            'wash2d',
-            'wash_app',
-            # Complex parallel patterns
             'parallel_citation_cluster',
             'flexible_wash2d',
             'flexible_p3d',
@@ -2888,6 +2876,12 @@ class UnifiedCitationProcessorV2:
             'wash_complete',
             'wash_with_parallel',
             'parallel_cluster',
+            'wn_app',           # Washington Court of Appeals
+            'wn_app_space',     # Washington Court of Appeals (with space)
+            'wn3d',             # Washington Supreme Court 3d series
+            'wn3d_space',       # Washington Supreme Court 3d series (with space)
+            'wash_app',         # Washington Court of Appeals (Wash.)
+            'wash_app_space',   # Washington Court of Appeals (Wash. with space)
         ]
         
         for pattern_name in priority_patterns:
@@ -3048,7 +3042,7 @@ class UnifiedCitationProcessorV2:
         
         # PHASE 5: CLUSTERING
         logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system")
-        clusters = cluster_citations_unified(citations, original_text=text)
+        clusters = cluster_citations_unified(citations, original_text=text, enable_verification=True)
         logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using unified clustering")
         
         # PHASE 6: VERIFICATION (Optional - can be enabled later)
@@ -3426,6 +3420,10 @@ class UnifiedCitationProcessorV2:
             r'\b(\d+)\s+A\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?',
             r'\b(\d+)\s+A\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?',
             r'\b(\d+)\s+A\.?\s+(\d+)(?:\s*\((\d{4})\))?',
+            
+            # Washington Supreme Court 3d series
+            r'\b(\d+)\s+Wn\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?',
+            r'\b(\d+)\s+Wash\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?',
         ]
         
         # Extract citations using comprehensive patterns

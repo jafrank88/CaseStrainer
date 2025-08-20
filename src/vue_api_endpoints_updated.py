@@ -257,12 +257,22 @@ def analyze():
         if 'file' in request.files and request.files['file'].filename:
             logger.info(f"[Request {request_id}] Processing file upload")
             logger.info(f"[Request {request_id}] File details: name={request.files['file'].filename}, size={request.files['file'].content_length}, type={request.files['file'].content_type}")
-            input_data = request.files['file']
+            
+            # Convert file object to proper format for processor
+            file_obj = request.files['file']
+            input_data = {
+                'type': 'file',
+                'file': file_obj,
+                'filename': file_obj.filename,
+                'content_type': file_obj.content_type or 'application/octet-stream',
+                'file_size': getattr(file_obj, 'content_length', 0) or 0
+            }
             input_type = 'file'
             metadata.update({
                 'input_type': 'file',
-                'filename': request.files['file'].filename,
-                'content_type': request.files['file'].content_type or 'application/octet-stream'
+                'filename': file_obj.filename,
+                'content_type': file_obj.content_type or 'application/octet-stream',
+                'file_size': getattr(file_obj, 'content_length', 0) or 0
             })
         
         # 2. Check for JSON input (text or URL) - use immediate processing for text

@@ -5072,3 +5072,2314 @@
 2025/08/15 04:41:01 [notice] 1#1: start worker process 11
 2025/08/15 04:41:01 [notice] 1#1: start worker process 12
 2025/08/15 04:41:01 [notice] 1#1: start worker process 13
+2025/08/15 04:54:51 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 04:54:51 [notice] 13#13: gracefully shutting down
+2025/08/15 04:54:51 [notice] 13#13: exiting
+2025/08/15 04:54:51 [notice] 12#12: gracefully shutting down
+2025/08/15 04:54:51 [notice] 12#12: exiting
+2025/08/15 04:54:51 [notice] 10#10: gracefully shutting down
+2025/08/15 04:54:51 [notice] 12#12: exit
+2025/08/15 04:54:51 [notice] 13#13: exit
+2025/08/15 04:54:51 [notice] 11#11: gracefully shutting down
+2025/08/15 04:54:51 [notice] 10#10: exiting
+2025/08/15 04:54:51 [notice] 10#10: exit
+2025/08/15 04:54:51 [notice] 11#11: exiting
+2025/08/15 04:54:51 [notice] 11#11: exit
+2025/08/15 04:54:51 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 04:54:51 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 04:54:51 [notice] 1#1: worker process 13 exited with code 0
+2025/08/15 04:54:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 04:54:51 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/15 04:54:51 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 04:54:51 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 04:54:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 04:54:51 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 04:54:51 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 04:54:51 [notice] 1#1: exit
+2025/08/15 04:55:39 [notice] 1#1: using the "epoll" event method
+2025/08/15 04:55:39 [notice] 1#1: nginx/1.29.1
+2025/08/15 04:55:39 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 04:55:39 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 04:55:39 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 04:55:39 [notice] 1#1: start worker processes
+2025/08/15 04:55:39 [notice] 1#1: start worker process 8
+2025/08/15 04:55:39 [notice] 1#1: start worker process 9
+2025/08/15 04:55:39 [notice] 1#1: start worker process 10
+2025/08/15 04:55:39 [notice] 1#1: start worker process 11
+2025/08/15 04:58:00 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 04:58:00 [notice] 10#10: gracefully shutting down
+2025/08/15 04:58:00 [notice] 10#10: exiting
+2025/08/15 04:58:00 [notice] 8#8: gracefully shutting down
+2025/08/15 04:58:00 [notice] 8#8: exiting
+2025/08/15 04:58:00 [notice] 11#11: gracefully shutting down
+2025/08/15 04:58:00 [notice] 8#8: exit
+2025/08/15 04:58:00 [notice] 10#10: exit
+2025/08/15 04:58:00 [notice] 9#9: gracefully shutting down
+2025/08/15 04:58:00 [notice] 9#9: exiting
+2025/08/15 04:58:00 [notice] 9#9: exit
+2025/08/15 04:58:00 [notice] 11#11: exiting
+2025/08/15 04:58:00 [notice] 11#11: exit
+2025/08/15 04:58:00 [notice] 1#1: signal 17 (SIGCHLD) received from 8
+2025/08/15 04:58:00 [notice] 1#1: worker process 8 exited with code 0
+2025/08/15 04:58:00 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 04:58:00 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 04:58:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 04:58:00 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 04:58:00 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 04:58:00 [notice] 1#1: exit
+2025/08/15 04:58:46 [notice] 1#1: using the "epoll" event method
+2025/08/15 04:58:46 [notice] 1#1: nginx/1.29.1
+2025/08/15 04:58:46 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 04:58:46 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 04:58:46 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 04:58:46 [notice] 1#1: start worker processes
+2025/08/15 04:58:46 [notice] 1#1: start worker process 9
+2025/08/15 04:58:46 [notice] 1#1: start worker process 10
+2025/08/15 04:58:46 [notice] 1#1: start worker process 11
+2025/08/15 04:58:46 [notice] 1#1: start worker process 12
+2025/08/15 05:03:58 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 05:03:58 [notice] 11#11: gracefully shutting down
+2025/08/15 05:03:58 [notice] 9#9: gracefully shutting down
+2025/08/15 05:03:58 [notice] 11#11: exiting
+2025/08/15 05:03:58 [notice] 9#9: exiting
+2025/08/15 05:03:58 [notice] 10#10: gracefully shutting down
+2025/08/15 05:03:58 [notice] 12#12: gracefully shutting down
+2025/08/15 05:03:58 [notice] 11#11: exit
+2025/08/15 05:03:58 [notice] 10#10: exiting
+2025/08/15 05:03:58 [notice] 12#12: exiting
+2025/08/15 05:03:58 [notice] 12#12: exit
+2025/08/15 05:03:58 [notice] 9#9: exit
+2025/08/15 05:03:58 [notice] 10#10: exit
+2025/08/15 05:03:59 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 05:03:59 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 05:03:59 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 05:03:59 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 05:03:59 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 05:03:59 [notice] 1#1: exit
+2025/08/15 05:04:43 [notice] 1#1: using the "epoll" event method
+2025/08/15 05:04:43 [notice] 1#1: nginx/1.29.1
+2025/08/15 05:04:43 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 05:04:43 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 05:04:43 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 05:04:43 [notice] 1#1: start worker processes
+2025/08/15 05:04:43 [notice] 1#1: start worker process 9
+2025/08/15 05:04:43 [notice] 1#1: start worker process 10
+2025/08/15 05:04:43 [notice] 1#1: start worker process 11
+2025/08/15 05:04:43 [notice] 1#1: start worker process 12
+2025/08/15 05:08:22 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 05:08:22 [notice] 12#12: gracefully shutting down
+2025/08/15 05:08:22 [notice] 10#10: gracefully shutting down
+2025/08/15 05:08:22 [notice] 11#11: gracefully shutting down
+2025/08/15 05:08:22 [notice] 11#11: exiting
+2025/08/15 05:08:22 [notice] 12#12: exiting
+2025/08/15 05:08:22 [notice] 12#12: exit
+2025/08/15 05:08:22 [notice] 10#10: exiting
+2025/08/15 05:08:22 [notice] 9#9: gracefully shutting down
+2025/08/15 05:08:22 [notice] 9#9: exiting
+2025/08/15 05:08:22 [notice] 9#9: exit
+2025/08/15 05:08:22 [notice] 11#11: exit
+2025/08/15 05:08:22 [notice] 10#10: exit
+2025/08/15 05:08:22 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 05:08:22 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 05:08:22 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 05:08:22 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 05:08:22 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 05:08:22 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 05:08:22 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 05:08:22 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 05:08:22 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 05:08:22 [notice] 1#1: exit
+2025/08/15 05:09:07 [notice] 1#1: using the "epoll" event method
+2025/08/15 05:09:07 [notice] 1#1: nginx/1.29.1
+2025/08/15 05:09:07 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 05:09:07 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 05:09:07 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 05:09:07 [notice] 1#1: start worker processes
+2025/08/15 05:09:07 [notice] 1#1: start worker process 8
+2025/08/15 05:09:07 [notice] 1#1: start worker process 9
+2025/08/15 05:09:07 [notice] 1#1: start worker process 10
+2025/08/15 05:09:07 [notice] 1#1: start worker process 11
+2025/08/15 05:16:26 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 05:16:26 [notice] 8#8: gracefully shutting down
+2025/08/15 05:16:26 [notice] 9#9: gracefully shutting down
+2025/08/15 05:16:26 [notice] 11#11: gracefully shutting down
+2025/08/15 05:16:26 [notice] 10#10: gracefully shutting down
+2025/08/15 05:16:26 [notice] 10#10: exiting
+2025/08/15 05:16:26 [notice] 8#8: exiting
+2025/08/15 05:16:26 [notice] 11#11: exiting
+2025/08/15 05:16:26 [notice] 11#11: exit
+2025/08/15 05:16:26 [notice] 9#9: exiting
+2025/08/15 05:16:26 [notice] 10#10: exit
+2025/08/15 05:16:26 [notice] 8#8: exit
+2025/08/15 05:16:26 [notice] 9#9: exit
+2025/08/15 05:16:26 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 05:16:26 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 05:16:26 [notice] 1#1: worker process 8 exited with code 0
+2025/08/15 05:16:26 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 05:16:26 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 05:16:26 [notice] 1#1: exit
+2025/08/15 05:17:12 [notice] 1#1: using the "epoll" event method
+2025/08/15 05:17:12 [notice] 1#1: nginx/1.29.1
+2025/08/15 05:17:12 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 05:17:12 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 05:17:12 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 05:17:12 [notice] 1#1: start worker processes
+2025/08/15 05:17:12 [notice] 1#1: start worker process 9
+2025/08/15 05:17:12 [notice] 1#1: start worker process 10
+2025/08/15 05:17:12 [notice] 1#1: start worker process 11
+2025/08/15 05:17:12 [notice] 1#1: start worker process 12
+2025/08/15 05:25:39 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 05:25:39 [notice] 9#9: gracefully shutting down
+2025/08/15 05:25:39 [notice] 12#12: gracefully shutting down
+2025/08/15 05:25:39 [notice] 11#11: gracefully shutting down
+2025/08/15 05:25:39 [notice] 12#12: exiting
+2025/08/15 05:25:39 [notice] 10#10: gracefully shutting down
+2025/08/15 05:25:39 [notice] 11#11: exiting
+2025/08/15 05:25:39 [notice] 10#10: exiting
+2025/08/15 05:25:39 [notice] 9#9: exiting
+2025/08/15 05:25:39 [notice] 10#10: exit
+2025/08/15 05:25:39 [notice] 12#12: exit
+2025/08/15 05:25:39 [notice] 9#9: exit
+2025/08/15 05:25:39 [notice] 11#11: exit
+2025/08/15 05:25:39 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 05:25:39 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 05:25:39 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 05:25:39 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 05:25:39 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 05:25:39 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 05:25:39 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 05:25:39 [notice] 1#1: exit
+2025/08/15 05:26:13 [notice] 1#1: using the "epoll" event method
+2025/08/15 05:26:13 [notice] 1#1: nginx/1.29.1
+2025/08/15 05:26:13 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 05:26:13 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 05:26:13 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 05:26:13 [notice] 1#1: start worker processes
+2025/08/15 05:26:13 [notice] 1#1: start worker process 9
+2025/08/15 05:26:13 [notice] 1#1: start worker process 10
+2025/08/15 05:26:13 [notice] 1#1: start worker process 11
+2025/08/15 05:26:13 [notice] 1#1: start worker process 12
+2025/08/15 05:29:15 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 05:29:15 [notice] 9#9: gracefully shutting down
+2025/08/15 05:29:15 [notice] 9#9: exiting
+2025/08/15 05:29:15 [notice] 12#12: gracefully shutting down
+2025/08/15 05:29:15 [notice] 12#12: exiting
+2025/08/15 05:29:15 [notice] 11#11: gracefully shutting down
+2025/08/15 05:29:15 [notice] 11#11: exiting
+2025/08/15 05:29:15 [notice] 11#11: exit
+2025/08/15 05:29:15 [notice] 10#10: gracefully shutting down
+2025/08/15 05:29:15 [notice] 10#10: exiting
+2025/08/15 05:29:15 [notice] 9#9: exit
+2025/08/15 05:29:15 [notice] 12#12: exit
+2025/08/15 05:29:15 [notice] 10#10: exit
+2025/08/15 05:29:15 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 05:29:15 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 05:29:15 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 05:29:15 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 05:29:15 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 05:29:15 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 05:29:15 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 05:29:15 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 05:29:15 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 05:29:15 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 05:29:15 [notice] 1#1: exit
+2025/08/15 05:29:38 [notice] 1#1: using the "epoll" event method
+2025/08/15 05:29:38 [notice] 1#1: nginx/1.29.1
+2025/08/15 05:29:38 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 05:29:38 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 05:29:38 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 05:29:38 [notice] 1#1: start worker processes
+2025/08/15 05:29:38 [notice] 1#1: start worker process 9
+2025/08/15 05:29:38 [notice] 1#1: start worker process 10
+2025/08/15 05:29:38 [notice] 1#1: start worker process 11
+2025/08/15 05:29:38 [notice] 1#1: start worker process 12
+2025/08/15 05:47:38 [error] 9#9: *37 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/15 06:42:28 [error] 9#9: *156 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/15 06:42:51 [error] 9#9: *157 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 08:10:10 [error] 11#11: *956 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 08:18:56 [error] 11#11: *980 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 08:18:57 [error] 11#11: *982 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:41:24 [error] 12#12: *1197 open() "/usr/share/nginx/html/owa/auth/x.js" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/x.js HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:43:54 [error] 12#12: *1204 open() "/usr/share/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:47:12 [error] 10#10: *1236 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:47:13 [error] 10#10: *1237 open() "/usr/share/nginx/html/sitemap.xml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /sitemap.xml HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:47:13 [error] 10#10: *1238 open() "/usr/share/nginx/html/.well-known/security.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.well-known/security.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/15 09:47:13 [error] 10#10: *1239 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 10:13:19 [error] 10#10: *1292 open() "/usr/share/nginx/html/version" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /version HTTP/1.1", host: "128.208.154.3"
+2025/08/15 10:36:35 [error] 11#11: *1404 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 10:38:17 [error] 11#11: *1409 "/usr/share/nginx/html/WebInterface/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /WebInterface/ HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3/WebInterface/"
+2025/08/15 10:45:44 [error] 11#11: *1432 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 11:52:05 [crit] 12#12: *1581 SSL_do_handshake() failed (SSL: error:0A0000C6:SSL routines::packet length too long error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.19.0.1, server: 0.0.0.0:443
+2025/08/15 11:58:34 [error] 12#12: *1609 "/usr/share/nginx/html/WebInterface/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /WebInterface/ HTTP/1.1", host: "128.208.154.3"
+2025/08/15 11:59:39 [error] 9#9: *1612 open() "/usr/share/nginx/html/config/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /config/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 12:14:02 [error] 9#9: *1646 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/actuator/gateway/routes"
+2025/08/15 14:09:36 [warn] 9#9: *1887 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 14:14:36 [error] 9#9: *1887 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.5:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 14:15:48 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 14:15:48 [notice] 9#9: gracefully shutting down
+2025/08/15 14:15:48 [notice] 11#11: gracefully shutting down
+2025/08/15 14:15:48 [notice] 11#11: exiting
+2025/08/15 14:15:48 [notice] 12#12: gracefully shutting down
+2025/08/15 14:15:48 [notice] 10#10: gracefully shutting down
+2025/08/15 14:15:48 [notice] 12#12: exiting
+2025/08/15 14:15:48 [notice] 10#10: exiting
+2025/08/15 14:15:48 [notice] 9#9: exiting
+2025/08/15 14:15:48 [notice] 9#9: exit
+2025/08/15 14:15:48 [notice] 12#12: exit
+2025/08/15 14:15:48 [notice] 10#10: exit
+2025/08/15 14:15:48 [notice] 11#11: exit
+2025/08/15 14:15:48 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 14:15:48 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 14:15:48 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 14:15:48 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 14:15:48 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 14:15:48 [notice] 1#1: exit
+2025/08/15 14:16:37 [notice] 1#1: using the "epoll" event method
+2025/08/15 14:16:37 [notice] 1#1: nginx/1.29.1
+2025/08/15 14:16:37 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 14:16:37 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 14:16:37 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 14:16:37 [notice] 1#1: start worker processes
+2025/08/15 14:16:37 [notice] 1#1: start worker process 10
+2025/08/15 14:16:37 [notice] 1#1: start worker process 11
+2025/08/15 14:16:37 [notice] 1#1: start worker process 12
+2025/08/15 14:16:37 [notice] 1#1: start worker process 13
+2025/08/15 14:19:13 [warn] 10#10: *6 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 14:22:23 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 14:22:23 [notice] 10#10: gracefully shutting down
+2025/08/15 14:22:23 [notice] 11#11: gracefully shutting down
+2025/08/15 14:22:23 [notice] 13#13: gracefully shutting down
+2025/08/15 14:22:23 [notice] 11#11: exiting
+2025/08/15 14:22:23 [notice] 12#12: gracefully shutting down
+2025/08/15 14:22:23 [notice] 12#12: exiting
+2025/08/15 14:22:23 [notice] 13#13: exiting
+2025/08/15 14:22:23 [notice] 11#11: exit
+2025/08/15 14:22:23 [notice] 13#13: exit
+2025/08/15 14:22:23 [notice] 12#12: exit
+2025/08/15 14:22:23 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/15 14:22:23 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 14:22:23 [notice] 1#1: worker process 13 exited with code 0
+2025/08/15 14:22:23 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 14:22:23 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 14:22:23 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 14:22:23 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 14:23:13 [notice] 1#1: using the "epoll" event method
+2025/08/15 14:23:13 [notice] 1#1: nginx/1.29.1
+2025/08/15 14:23:13 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 14:23:13 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 14:23:13 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 14:23:13 [notice] 1#1: start worker processes
+2025/08/15 14:23:13 [notice] 1#1: start worker process 9
+2025/08/15 14:23:13 [notice] 1#1: start worker process 10
+2025/08/15 14:23:13 [notice] 1#1: start worker process 11
+2025/08/15 14:23:13 [notice] 1#1: start worker process 12
+2025/08/15 14:31:52 [warn] 12#12: *21 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 14:33:51 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 14:33:51 [notice] 10#10: gracefully shutting down
+2025/08/15 14:33:51 [notice] 10#10: exiting
+2025/08/15 14:33:51 [notice] 11#11: gracefully shutting down
+2025/08/15 14:33:51 [notice] 9#9: gracefully shutting down
+2025/08/15 14:33:51 [notice] 9#9: exiting
+2025/08/15 14:33:51 [notice] 12#12: gracefully shutting down
+2025/08/15 14:33:51 [notice] 12#12: exiting
+2025/08/15 14:33:51 [notice] 12#12: exit
+2025/08/15 14:33:51 [notice] 9#9: exit
+2025/08/15 14:33:51 [notice] 11#11: exiting
+2025/08/15 14:33:51 [notice] 11#11: exit
+2025/08/15 14:33:51 [notice] 10#10: exit
+2025/08/15 14:33:51 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 14:33:51 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 14:33:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 14:33:51 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 14:33:51 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 14:33:51 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 14:33:51 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 14:33:51 [notice] 1#1: exit
+2025/08/15 14:34:33 [notice] 1#1: using the "epoll" event method
+2025/08/15 14:34:33 [notice] 1#1: nginx/1.29.1
+2025/08/15 14:34:33 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 14:34:33 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 14:34:33 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 14:34:33 [notice] 1#1: start worker processes
+2025/08/15 14:34:33 [notice] 1#1: start worker process 9
+2025/08/15 14:34:33 [notice] 1#1: start worker process 10
+2025/08/15 14:34:33 [notice] 1#1: start worker process 11
+2025/08/15 14:34:33 [notice] 1#1: start worker process 12
+2025/08/15 15:32:30 [error] 9#9: *124 open() "/usr/share/nginx/html/apple-touch-icon-precomposed.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 15:32:30 [error] 9#9: *124 open() "/usr/share/nginx/html/apple-touch-icon.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 15:32:30 [error] 9#9: *124 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 16:27:40 [error] 9#9: *245 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:41 [error] 9#9: *248 open() "/usr/share/nginx/html/core/.env.save" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.save HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:43 [error] 9#9: *250 open() "/usr/share/nginx/html/docs/.env.conf" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.conf HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:46 [error] 9#9: *252 open() "/usr/share/nginx/html/kyc/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /kyc/.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:47 [error] 9#9: *254 open() "/usr/share/nginx/html/core/.env.smtp" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.smtp HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:49 [error] 9#9: *256 open() "/usr/share/nginx/html/core/.env.test" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.test HTTP/1.1", host: "128.208.154.3"
+2025/08/15 16:27:50 [error] 9#9: *258 open() "/usr/share/nginx/html/mail/.env.conf" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /mail/.env.conf HTTP/1.1", host: "128.208.154.3"
+2025/08/15 17:31:46 [error] 11#11: *464 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 17:49:38 [error] 11#11: *505 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3/favicon.ico"
+2025/08/15 18:05:24 [error] 11#11: *544 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/2.0", host: "128.208.154.3"
+2025/08/15 18:25:56 [error] 11#11: *590 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/08/15 18:43:43 [crit] 10#10: *630 SSL_do_handshake() failed (SSL: error:0A0000C6:SSL routines::packet length too long error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.19.0.1, server: 0.0.0.0:443
+2025/08/15 19:01:33 [error] 10#10: *676 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 19:02:57 [error] 10#10: *686 open() "/usr/share/nginx/html/apple-touch-icon-precomposed.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 19:02:57 [error] 10#10: *686 open() "/usr/share/nginx/html/apple-touch-icon.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 19:02:57 [error] 10#10: *686 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/15 19:03:34 [error] 10#10: *688 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/15 19:03:53 [error] 10#10: *691 open() "/usr/share/nginx/html/wiki" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /wiki HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:05:59 [error] 9#9: *851 open() "/usr/share/nginx/html/info.php" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /info.php HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:06:00 [error] 9#9: *852 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:06:01 [error] 9#9: *853 open() "/usr/share/nginx/html/server-status" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /server-status HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:06:02 [error] 9#9: *854 open() "/usr/share/nginx/html/config.json" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /config.json HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:06:03 [error] 9#9: *855 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 20:06:04 [error] 9#9: *856 open() "/usr/share/nginx/html/telescope/requests" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /telescope/requests HTTP/1.1", host: "128.208.154.3"
+2025/08/15 21:01:21 [error] 9#9: *976 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/2.0", host: "128.208.154.3", referrer: "http://128.208.154.3/favicon.ico"
+2025/08/15 21:16:34 [error] 11#11: *1010 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/15 21:16:35 [error] 11#11: *1012 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/15 22:18:48 [warn] 10#10: *1154 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 22:20:37 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 22:20:37 [notice] 10#10: gracefully shutting down
+2025/08/15 22:20:37 [notice] 11#11: gracefully shutting down
+2025/08/15 22:20:37 [notice] 9#9: gracefully shutting down
+2025/08/15 22:20:37 [notice] 12#12: gracefully shutting down
+2025/08/15 22:20:37 [notice] 10#10: exiting
+2025/08/15 22:20:37 [notice] 9#9: exiting
+2025/08/15 22:20:37 [notice] 12#12: exiting
+2025/08/15 22:20:37 [notice] 11#11: exiting
+2025/08/15 22:20:37 [notice] 12#12: exit
+2025/08/15 22:20:37 [notice] 11#11: exit
+2025/08/15 22:20:37 [notice] 10#10: exit
+2025/08/15 22:20:37 [notice] 9#9: exit
+2025/08/15 22:20:37 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 22:20:37 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 22:20:37 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 22:20:37 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:20:37 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 22:20:37 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 22:20:37 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:20:37 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 22:20:37 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 22:20:37 [notice] 1#1: exit
+2025/08/15 22:21:18 [notice] 1#1: using the "epoll" event method
+2025/08/15 22:21:18 [notice] 1#1: nginx/1.29.1
+2025/08/15 22:21:18 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 22:21:18 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 22:21:18 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 22:21:18 [notice] 1#1: start worker processes
+2025/08/15 22:21:18 [notice] 1#1: start worker process 9
+2025/08/15 22:21:18 [notice] 1#1: start worker process 10
+2025/08/15 22:21:18 [notice] 1#1: start worker process 11
+2025/08/15 22:21:18 [notice] 1#1: start worker process 12
+2025/08/15 22:23:21 [warn] 12#12: *8 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 22:24:52 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 22:24:52 [notice] 10#10: gracefully shutting down
+2025/08/15 22:24:52 [notice] 10#10: exiting
+2025/08/15 22:24:52 [notice] 11#11: gracefully shutting down
+2025/08/15 22:24:52 [notice] 10#10: exit
+2025/08/15 22:24:52 [notice] 9#9: gracefully shutting down
+2025/08/15 22:24:52 [notice] 9#9: exiting
+2025/08/15 22:24:52 [notice] 12#12: gracefully shutting down
+2025/08/15 22:24:52 [notice] 11#11: exiting
+2025/08/15 22:24:52 [notice] 9#9: exit
+2025/08/15 22:24:52 [notice] 11#11: exit
+2025/08/15 22:24:52 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 22:24:52 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 22:24:52 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 22:24:52 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 22:24:52 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:24:52 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 22:25:37 [notice] 1#1: using the "epoll" event method
+2025/08/15 22:25:37 [notice] 1#1: nginx/1.29.1
+2025/08/15 22:25:37 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 22:25:37 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 22:25:37 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 22:25:37 [notice] 1#1: start worker processes
+2025/08/15 22:25:37 [notice] 1#1: start worker process 8
+2025/08/15 22:25:37 [notice] 1#1: start worker process 9
+2025/08/15 22:25:37 [notice] 1#1: start worker process 10
+2025/08/15 22:25:37 [notice] 1#1: start worker process 11
+2025/08/15 22:33:37 [error] 10#10: *24 open() "/usr/share/nginx/html/ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application HTTP/1.1", host: "128.208.154.3"
+2025/08/15 22:41:59 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 22:41:59 [notice] 8#8: gracefully shutting down
+2025/08/15 22:41:59 [notice] 11#11: gracefully shutting down
+2025/08/15 22:41:59 [notice] 8#8: exiting
+2025/08/15 22:41:59 [notice] 9#9: gracefully shutting down
+2025/08/15 22:41:59 [notice] 10#10: gracefully shutting down
+2025/08/15 22:41:59 [notice] 11#11: exiting
+2025/08/15 22:41:59 [notice] 11#11: exit
+2025/08/15 22:41:59 [notice] 9#9: exiting
+2025/08/15 22:41:59 [notice] 8#8: exit
+2025/08/15 22:41:59 [notice] 10#10: exiting
+2025/08/15 22:41:59 [notice] 9#9: exit
+2025/08/15 22:41:59 [notice] 10#10: exit
+2025/08/15 22:41:59 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 22:41:59 [notice] 1#1: worker process 8 exited with code 0
+2025/08/15 22:41:59 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 22:41:59 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:41:59 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 22:41:59 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 22:41:59 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:41:59 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 22:41:59 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 22:41:59 [notice] 1#1: exit
+2025/08/15 22:42:44 [notice] 1#1: using the "epoll" event method
+2025/08/15 22:42:44 [notice] 1#1: nginx/1.29.1
+2025/08/15 22:42:44 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 22:42:44 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 22:42:44 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 22:42:44 [notice] 1#1: start worker processes
+2025/08/15 22:42:44 [notice] 1#1: start worker process 9
+2025/08/15 22:42:44 [notice] 1#1: start worker process 10
+2025/08/15 22:42:44 [notice] 1#1: start worker process 11
+2025/08/15 22:42:44 [notice] 1#1: start worker process 12
+2025/08/15 22:49:21 [warn] 9#9: *12 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 22:54:22 [error] 9#9: *12 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 22:55:56 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 22:55:56 [notice] 10#10: gracefully shutting down
+2025/08/15 22:55:56 [notice] 10#10: exiting
+2025/08/15 22:55:56 [notice] 9#9: gracefully shutting down
+2025/08/15 22:55:56 [notice] 9#9: exiting
+2025/08/15 22:55:56 [notice] 11#11: gracefully shutting down
+2025/08/15 22:55:56 [notice] 12#12: gracefully shutting down
+2025/08/15 22:55:56 [notice] 11#11: exiting
+2025/08/15 22:55:56 [notice] 11#11: exit
+2025/08/15 22:55:56 [notice] 9#9: exit
+2025/08/15 22:55:56 [notice] 10#10: exit
+2025/08/15 22:55:56 [notice] 12#12: exiting
+2025/08/15 22:55:56 [notice] 12#12: exit
+2025/08/15 22:55:56 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 22:55:56 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 22:55:56 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:55:56 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 22:55:56 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 22:55:56 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 22:55:56 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 22:55:56 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 22:55:56 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 22:55:56 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 22:55:56 [notice] 1#1: exit
+2025/08/15 22:56:40 [notice] 1#1: using the "epoll" event method
+2025/08/15 22:56:40 [notice] 1#1: nginx/1.29.1
+2025/08/15 22:56:40 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 22:56:40 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 22:56:40 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 22:56:40 [notice] 1#1: start worker processes
+2025/08/15 22:56:40 [notice] 1#1: start worker process 9
+2025/08/15 22:56:40 [notice] 1#1: start worker process 10
+2025/08/15 22:56:40 [notice] 1#1: start worker process 11
+2025/08/15 22:56:40 [notice] 1#1: start worker process 12
+2025/08/15 23:04:27 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 23:04:27 [notice] 9#9: gracefully shutting down
+2025/08/15 23:04:27 [notice] 9#9: exiting
+2025/08/15 23:04:27 [notice] 10#10: gracefully shutting down
+2025/08/15 23:04:27 [notice] 12#12: gracefully shutting down
+2025/08/15 23:04:27 [notice] 10#10: exiting
+2025/08/15 23:04:27 [notice] 11#11: gracefully shutting down
+2025/08/15 23:04:27 [notice] 12#12: exiting
+2025/08/15 23:04:27 [notice] 12#12: exit
+2025/08/15 23:04:27 [notice] 10#10: exit
+2025/08/15 23:04:27 [notice] 11#11: exiting
+2025/08/15 23:04:27 [notice] 9#9: exit
+2025/08/15 23:04:27 [notice] 11#11: exit
+2025/08/15 23:04:27 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 23:04:27 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 23:04:27 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 23:04:27 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 23:04:27 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:04:27 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 23:04:27 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 23:04:27 [notice] 1#1: exit
+2025/08/15 23:05:06 [notice] 1#1: using the "epoll" event method
+2025/08/15 23:05:06 [notice] 1#1: nginx/1.29.1
+2025/08/15 23:05:06 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 23:05:06 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 23:05:06 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 23:05:06 [notice] 1#1: start worker processes
+2025/08/15 23:05:06 [notice] 1#1: start worker process 9
+2025/08/15 23:05:06 [notice] 1#1: start worker process 10
+2025/08/15 23:05:06 [notice] 1#1: start worker process 11
+2025/08/15 23:05:06 [notice] 1#1: start worker process 12
+2025/08/15 23:06:04 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 23:06:04 [notice] 9#9: gracefully shutting down
+2025/08/15 23:06:04 [notice] 12#12: gracefully shutting down
+2025/08/15 23:06:04 [notice] 10#10: gracefully shutting down
+2025/08/15 23:06:04 [notice] 10#10: exiting
+2025/08/15 23:06:04 [notice] 10#10: exit
+2025/08/15 23:06:04 [notice] 11#11: gracefully shutting down
+2025/08/15 23:06:04 [notice] 11#11: exiting
+2025/08/15 23:06:04 [notice] 9#9: exiting
+2025/08/15 23:06:04 [notice] 12#12: exiting
+2025/08/15 23:06:04 [notice] 11#11: exit
+2025/08/15 23:06:04 [notice] 12#12: exit
+2025/08/15 23:06:04 [notice] 9#9: exit
+2025/08/15 23:06:04 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 23:06:04 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 23:06:04 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:06:04 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 23:06:04 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 23:06:04 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 23:06:04 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:06:04 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 23:06:04 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 23:06:04 [notice] 1#1: exit
+2025/08/15 23:06:43 [notice] 1#1: using the "epoll" event method
+2025/08/15 23:06:43 [notice] 1#1: nginx/1.29.1
+2025/08/15 23:06:43 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 23:06:43 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 23:06:43 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 23:06:43 [notice] 1#1: start worker processes
+2025/08/15 23:06:43 [notice] 1#1: start worker process 9
+2025/08/15 23:06:43 [notice] 1#1: start worker process 10
+2025/08/15 23:06:43 [notice] 1#1: start worker process 11
+2025/08/15 23:06:43 [notice] 1#1: start worker process 12
+2025/08/15 23:07:42 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 23:07:42 [notice] 11#11: gracefully shutting down
+2025/08/15 23:07:42 [notice] 9#9: gracefully shutting down
+2025/08/15 23:07:42 [notice] 11#11: exiting
+2025/08/15 23:07:42 [notice] 10#10: gracefully shutting down
+2025/08/15 23:07:42 [notice] 12#12: gracefully shutting down
+2025/08/15 23:07:42 [notice] 11#11: exit
+2025/08/15 23:07:42 [notice] 9#9: exiting
+2025/08/15 23:07:42 [notice] 9#9: exit
+2025/08/15 23:07:42 [notice] 10#10: exiting
+2025/08/15 23:07:42 [notice] 10#10: exit
+2025/08/15 23:07:42 [notice] 12#12: exiting
+2025/08/15 23:07:42 [notice] 12#12: exit
+2025/08/15 23:07:42 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 23:07:42 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 23:07:42 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:07:42 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 23:07:42 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 23:07:42 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:07:42 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 23:07:42 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 23:07:42 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:07:42 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 23:07:42 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 23:07:42 [notice] 1#1: exit
+2025/08/15 23:08:24 [notice] 1#1: using the "epoll" event method
+2025/08/15 23:08:24 [notice] 1#1: nginx/1.29.1
+2025/08/15 23:08:24 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 23:08:24 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 23:08:24 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 23:08:24 [notice] 1#1: start worker processes
+2025/08/15 23:08:24 [notice] 1#1: start worker process 8
+2025/08/15 23:08:24 [notice] 1#1: start worker process 9
+2025/08/15 23:08:24 [notice] 1#1: start worker process 10
+2025/08/15 23:08:24 [notice] 1#1: start worker process 11
+2025/08/15 23:16:10 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 23:16:10 [notice] 8#8: gracefully shutting down
+2025/08/15 23:16:10 [notice] 9#9: gracefully shutting down
+2025/08/15 23:16:10 [notice] 8#8: exiting
+2025/08/15 23:16:10 [notice] 11#11: gracefully shutting down
+2025/08/15 23:16:10 [notice] 10#10: gracefully shutting down
+2025/08/15 23:16:10 [notice] 9#9: exiting
+2025/08/15 23:16:10 [notice] 10#10: exiting
+2025/08/15 23:16:10 [notice] 11#11: exiting
+2025/08/15 23:16:10 [notice] 9#9: exit
+2025/08/15 23:16:10 [notice] 11#11: exit
+2025/08/15 23:16:10 [notice] 8#8: exit
+2025/08/15 23:16:10 [notice] 10#10: exit
+2025/08/15 23:16:10 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 23:16:10 [notice] 1#1: worker process 8 exited with code 0
+2025/08/15 23:16:10 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 23:16:10 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 23:16:10 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:16:10 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 23:16:10 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/15 23:16:10 [notice] 1#1: worker process 9 exited with code 0
+2025/08/15 23:16:10 [notice] 1#1: exit
+2025/08/15 23:16:49 [notice] 1#1: using the "epoll" event method
+2025/08/15 23:16:49 [notice] 1#1: nginx/1.29.1
+2025/08/15 23:16:49 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 23:16:49 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 23:16:49 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 23:16:49 [notice] 1#1: start worker processes
+2025/08/15 23:16:49 [notice] 1#1: start worker process 10
+2025/08/15 23:16:49 [notice] 1#1: start worker process 11
+2025/08/15 23:16:49 [notice] 1#1: start worker process 12
+2025/08/15 23:16:49 [notice] 1#1: start worker process 13
+2025/08/15 23:17:36 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/15 23:17:36 [notice] 12#12: gracefully shutting down
+2025/08/15 23:17:36 [notice] 10#10: gracefully shutting down
+2025/08/15 23:17:36 [notice] 11#11: gracefully shutting down
+2025/08/15 23:17:36 [notice] 13#13: gracefully shutting down
+2025/08/15 23:17:36 [notice] 12#12: exiting
+2025/08/15 23:17:36 [notice] 13#13: exiting
+2025/08/15 23:17:36 [notice] 12#12: exit
+2025/08/15 23:17:36 [notice] 10#10: exiting
+2025/08/15 23:17:36 [notice] 10#10: exit
+2025/08/15 23:17:36 [notice] 11#11: exiting
+2025/08/15 23:17:36 [notice] 11#11: exit
+2025/08/15 23:17:36 [notice] 13#13: exit
+2025/08/15 23:17:36 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/15 23:17:36 [notice] 1#1: worker process 10 exited with code 0
+2025/08/15 23:17:36 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:17:36 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/15 23:17:36 [notice] 1#1: worker process 11 exited with code 0
+2025/08/15 23:17:36 [notice] 1#1: worker process 12 exited with code 0
+2025/08/15 23:17:36 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/15 23:17:36 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/15 23:17:36 [notice] 1#1: worker process 13 exited with code 0
+2025/08/15 23:17:36 [notice] 1#1: exit
+2025/08/15 23:18:07 [notice] 1#1: using the "epoll" event method
+2025/08/15 23:18:07 [notice] 1#1: nginx/1.29.1
+2025/08/15 23:18:07 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/15 23:18:07 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/15 23:18:07 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/15 23:18:07 [notice] 1#1: start worker processes
+2025/08/15 23:18:07 [notice] 1#1: start worker process 8
+2025/08/15 23:18:07 [notice] 1#1: start worker process 9
+2025/08/15 23:18:07 [notice] 1#1: start worker process 10
+2025/08/15 23:18:07 [notice] 1#1: start worker process 11
+2025/08/15 23:20:56 [warn] 8#8: *2 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 23:25:56 [error] 8#8: *2 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/15 23:58:07 [error] 8#8: *90 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/2.0", host: "128.208.154.3"
+2025/08/16 00:12:17 [error] 8#8: *122 open() "/usr/share/nginx/html/developmentserver/metadatauploader" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /developmentserver/metadatauploader HTTP/1.1", host: "128.208.154.3"
+2025/08/16 00:47:54 [error] 8#8: *196 open() "/usr/share/nginx/html/app/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /app/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 01:47:53 [error] 8#8: *326 "/usr/share/nginx/html/webui/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /webui/ HTTP/1.1", host: "128.208.154.3"
+2025/08/16 01:51:23 [error] 10#10: *344 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 02:01:47 [error] 10#10: *367 open() "/usr/share/nginx/html/login.html" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /login.html HTTP/1.1", host: "128.208.154.3"
+2025/08/16 02:03:23 [error] 10#10: *371 "/usr/share/nginx/html/geoserver/web/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /geoserver/web/ HTTP/1.1", host: "128.208.154.3"
+2025/08/16 02:07:56 [error] 10#10: *381 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 02:21:45 [error] 11#11: *998 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:21:45 [error] 11#11: *1001 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:21:45 [error] 11#11: *1002 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:59:55 [error] 11#11: *1097 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:59:55 [error] 11#11: *1098 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:59:56 [error] 9#9: *1101 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:59:56 [error] 9#9: *1105 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 02:59:56 [error] 9#9: *1102 open() "/usr/share/nginx/html/ip" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ip HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 03:08:25 [error] 9#9: *1135 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 03:08:38 [error] 8#8: *1142 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 03:08:47 [error] 8#8: *1144 open() "/usr/share/nginx/html/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /login HTTP/1.1", host: "128.208.154.3"
+2025/08/16 03:12:09 [error] 8#8: *1152 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 06:36:14 [error] 11#11: *1637 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/16 06:36:14 [error] 11#11: *1639 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/16 07:28:48 [error] 9#9: *1763 open() "/usr/share/nginx/html/config.json" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /config.json HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:49 [error] 9#9: *1764 open() "/usr/share/nginx/html/config/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /config/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:49 [error] 9#9: *1765 open() "/usr/share/nginx/html/.env.ci" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.ci HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:49 [error] 9#9: *1766 open() "/usr/share/nginx/html/.env.preprod" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.preprod HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:50 [error] 9#9: *1767 open() "/usr/share/nginx/html/configuration/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /configuration/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:50 [error] 9#9: *1768 open() "/usr/share/nginx/html/.env.testing" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.testing HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:51 [error] 9#9: *1769 open() "/usr/share/nginx/html/.env.live" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.live HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:51 [error] 9#9: *1770 open() "/usr/share/nginx/html/data/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /data/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:52 [error] 9#9: *1771 open() "/usr/share/nginx/html/admin/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /admin/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:52 [error] 9#9: *1772 open() "/usr/share/nginx/html/media/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /media/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:53 [error] 8#8: *1773 open() "/usr/share/nginx/html/.aws/credentials" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.aws/credentials HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:53 [error] 8#8: *1774 open() "/usr/share/nginx/html/settings/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /settings/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:53 [error] 8#8: *1775 open() "/usr/share/nginx/html/backup/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /backup/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:54 [error] 8#8: *1776 open() "/usr/share/nginx/html/public/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /public/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:54 [error] 8#8: *1777 open() "/usr/share/nginx/html/.env.production" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.production HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:55 [error] 8#8: *1778 open() "/usr/share/nginx/html/.env.production.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.production.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:55 [error] 8#8: *1779 open() "/usr/share/nginx/html/.env.stage" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.stage HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:56 [error] 8#8: *1780 open() "/usr/share/nginx/html/assets../.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /assets../.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:56 [error] 8#8: *1781 open() "/usr/share/nginx/html/prod/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /prod/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:56 [error] 8#8: *1782 open() "/usr/share/nginx/html/.env.testing.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.testing.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:57 [error] 8#8: *1783 open() "/usr/share/nginx/html/dev/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /dev/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:57 [error] 8#8: *1784 open() "/usr/share/nginx/html/docker-compose.prod.yml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docker-compose.prod.yml HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:58 [error] 8#8: *1785 open() "/usr/share/nginx/html/.env.sandbox" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.sandbox HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:58 [error] 8#8: *1787 open() "/usr/share/nginx/html/static../.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /static../.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:59 [error] 8#8: *1788 open() "/usr/share/nginx/html/config/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /config/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:28:59 [error] 8#8: *1789 open() "/usr/share/nginx/html/core/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:00 [error] 10#10: *1790 open() "/usr/share/nginx/html/media../.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /media../.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:00 [error] 10#10: *1791 open() "/usr/share/nginx/html/src/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /src/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:00 [error] 10#10: *1792 open() "/usr/share/nginx/html/.env.staging.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.staging.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:01 [error] 10#10: *1793 open() "/usr/share/nginx/html/.env.dev.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.dev.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:01 [error] 10#10: *1794 open() "/usr/share/nginx/html/.env.config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:02 [error] 10#10: *1795 open() "/usr/share/nginx/html/.env.development.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.development.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:02 [error] 10#10: *1796 open() "/usr/share/nginx/html/.env.qa" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.qa HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:03 [error] 10#10: *1797 open() "/usr/share/nginx/html/.env.test" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.test HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:03 [error] 10#10: *1798 open() "/usr/share/nginx/html/.env.uat" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.uat HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:04 [error] 10#10: *1799 open() "/usr/share/nginx/html/cms/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /cms/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:04 [error] 10#10: *1800 open() "/usr/share/nginx/html/files/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /files/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:04 [error] 10#10: *1801 open() "/usr/share/nginx/html/.env_sample" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env_sample HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:05 [error] 10#10: *1802 open() "/usr/share/nginx/html/.env.bak" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.bak HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:05 [error] 10#10: *1803 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:06 [error] 10#10: *1804 open() "/usr/share/nginx/html/.envrc" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.envrc HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:06 [error] 10#10: *1805 open() "/usr/share/nginx/html/.env.secret" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.secret HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:07 [error] 11#11: *1806 open() "/usr/share/nginx/html/project/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /project/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:07 [error] 11#11: *1807 open() "/usr/share/nginx/html/.env.dist" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.dist HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:07 [error] 11#11: *1808 open() "/usr/share/nginx/html/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:08 [error] 11#11: *1809 open() "/usr/share/nginx/html/api/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /api/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:08 [error] 11#11: *1810 open() "/usr/share/nginx/html/.env.template" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.template HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:09 [error] 11#11: *1811 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:09 [error] 11#11: *1812 open() "/usr/share/nginx/html/server/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /server/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:10 [error] 11#11: *1813 open() "/usr/share/nginx/html/.env.default" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.default HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:10 [error] 11#11: *1814 open() "/usr/share/nginx/html/.env.dev" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.dev HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:11 [error] 11#11: *1815 open() "/usr/share/nginx/html/.env.save" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.save HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:11 [error] 11#11: *1816 open() "/usr/share/nginx/html/api/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /api/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:11 [error] 11#11: *1817 open() "/usr/share/nginx/html/build/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /build/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:12 [error] 11#11: *1818 open() "/usr/share/nginx/html/app/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /app/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:12 [error] 11#11: *1819 open() "/usr/share/nginx/html/.env.prod.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.prod.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:13 [error] 11#11: *1820 open() "/usr/share/nginx/html/www/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /www/.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:13 [error] 11#11: *1821 open() "/usr/share/nginx/html/.env.backup" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.backup HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:29:14 [error] 9#9: *1822 open() "/usr/share/nginx/html/.env.prod" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env.prod HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:30:38 [error] 9#9: *1827 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:35:12 [error] 9#9: *1844 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 07:35:18 [error] 9#9: *1846 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/16 08:00:22 [error] 9#9: *1901 open() "/usr/share/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.0", host: "128.208.154.3", referrer: "https://www.google.com"
+2025/08/16 08:38:16 [error] 9#9: *1983 open() "/usr/share/nginx/html/admin/login.asp" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /admin/login.asp HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 09:00:09 [error] 8#8: *2031 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/16 09:35:17 [error] 8#8: *2104 open() "/usr/share/nginx/html/cgi-bin/luci/;stok=/locale" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/luci/;stok=/locale HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 09:38:10 [error] 8#8: *2111 open() "/usr/share/nginx/html/ab2g" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ab2g HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:38:11 [error] 8#8: *2112 open() "/usr/share/nginx/html/ab2h" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ab2h HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:38:12 [error] 8#8: *2113 open() "/usr/share/nginx/html/alive.php" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /alive.php HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:38:19 [error] 10#10: *2128 open() "/usr/share/nginx/html/teorema505" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /teorema505?t=1 HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:52:19 [error] 9#9: *2189 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:52:19 [error] 9#9: *2190 open() "/usr/share/nginx/html/sitemap.xml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /sitemap.xml HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:52:19 [error] 9#9: *2191 open() "/usr/share/nginx/html/.well-known/security.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.well-known/security.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/16 09:52:20 [error] 9#9: *2192 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 10:23:25 [error] 9#9: *2262 "/usr/share/nginx/html/c/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /c/ HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3/c/"
+2025/08/16 10:46:01 [error] 9#9: *2312 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/actuator/gateway/routes"
+2025/08/16 11:31:57 [error] 8#8: *2420 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 11:32:18 [error] 8#8: *2426 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/16 11:32:23 [error] 10#10: *2429 open() "/usr/share/nginx/html/wiki" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /wiki HTTP/1.1", host: "128.208.154.3"
+2025/08/16 12:12:12 [error] 10#10: *2517 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 12:18:26 [error] 10#10: *2533 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 12:18:27 [error] 10#10: *2535 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/16 12:36:36 [error] 10#10: *2573 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 13:06:20 [error] 11#11: *2649 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 14:10:47 [error] 11#11: *2792 open() "/usr/share/nginx/html/cgi-bin/luci/;stok=/locale" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/luci/;stok=/locale HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/cgi-bin/luci/;stok=/locale"
+2025/08/16 16:07:50 [error] 8#8: *3054 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3/favicon.ico"
+2025/08/16 16:33:57 [error] 8#8: *3114 open() "/usr/share/nginx/html/wp-json/wc/store/products/collection-data" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET //wp-json/wc/store/products/collection-data?calculate_attribute_counts[][taxonomy]=%252522%252529%252520union%252520all%252520select%2525201%25252Ctable%25255fname%252520from%252520information%25255fschema%25252etables%25253B%252500 HTTP/2.0", host: "128.208.154.3"
+2025/08/16 17:00:14 [error] 8#8: *3176 open() "/usr/share/nginx/html/owa/auth/logon.aspx" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/logon.aspx HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:23 [error] 8#8: *3200 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:25 [error] 8#8: *3202 open() "/usr/share/nginx/html/core/.env.save" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.save HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:27 [error] 8#8: *3203 open() "/usr/share/nginx/html/docs/.env.conf" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.conf HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:28 [error] 10#10: *3208 open() "/usr/share/nginx/html/kyc/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /kyc/.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:29 [error] 10#10: *3211 open() "/usr/share/nginx/html/core/.env.smtp" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.smtp HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:32 [error] 10#10: *3217 open() "/usr/share/nginx/html/core/.env.test" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /core/.env.test HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:33 [error] 10#10: *3219 open() "/usr/share/nginx/html/mail/.env.conf" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /mail/.env.conf HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:35 [error] 11#11: *3222 open() "/usr/share/nginx/html/docs/.env.prod" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.prod HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:36 [error] 11#11: *3228 open() "/usr/share/nginx/html/logs/temp/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /logs/temp/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:37 [error] 11#11: *3231 open() "/usr/share/nginx/html/env/config.log" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /env/config.log HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:39 [error] 11#11: *3235 open() "/usr/share/nginx/html/docs/.env.save" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.save HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:41 [error] 9#9: *3239 open() "/usr/share/nginx/html/docs/.env.smtp" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.smtp HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:42 [error] 9#9: *3243 open() "/usr/share/nginx/html/download/.env~" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /download/.env~ HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:44 [error] 9#9: *3244 open() "/usr/share/nginx/html/django/env.php" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /django/env.php HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:45 [error] 9#9: *3245 open() "/usr/share/nginx/html/django/env.yml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /django/env.yml HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:46 [error] 9#9: *3246 open() "/usr/share/nginx/html/crm/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /crm/.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:47 [error] 9#9: *3247 open() "/usr/share/nginx/html/docs/.env.test" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /docs/.env.test HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:49 [error] 9#9: *3248 open() "/usr/share/nginx/html/crm/config.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /crm/config.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:51 [error] 9#9: *3249 open() "/usr/share/nginx/html/cron/.env.dist" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /cron/.env.dist HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:54 [error] 9#9: *3250 open() "/usr/share/nginx/html/node/.env.dist" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /node/.env.dist HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:55 [error] 9#9: *3251 open() "/usr/share/nginx/html/nextjs/env.yml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /nextjs/env.yml HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:57 [error] 9#9: *3252 open() "/usr/share/nginx/html/nextjs/env.php" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /nextjs/env.php HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:10:59 [error] 8#8: *3253 open() "/usr/share/nginx/html/express/env.py" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /express/env.py HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:00 [error] 8#8: *3254 open() "/usr/share/nginx/html/database/.env~" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /database/.env~ HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:01 [error] 8#8: *3255 open() "/usr/share/nginx/html/dev/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /dev/.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:03 [error] 8#8: *3256 open() "/usr/share/nginx/html/new/.env.local" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /new/.env.local HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:04 [error] 8#8: *3257 open() "/usr/share/nginx/html/myproject/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /myproject/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:05 [error] 8#8: *3258 open() "/usr/share/nginx/html/dev/.env.stage" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /dev/.env.stage HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:07 [error] 8#8: *3260 open() "/usr/share/nginx/html/gitlab-ci/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /gitlab-ci/.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:09 [error] 8#8: *3261 open() "/usr/share/nginx/html/dev/.env.token" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /dev/.env.token HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:11:13 [error] 8#8: *3262 open() "/usr/share/nginx/html/dev/.env_1.bak" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /dev/.env_1.bak HTTP/1.1", host: "128.208.154.3"
+2025/08/16 17:13:59 [error] 8#8: *3268 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 18:02:19 [error] 8#8: *3371 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 18:02:19 [error] 8#8: *3372 open() "/usr/share/nginx/html/remote/fgt_lang" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/fgt_lang HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 18:02:21 [error] 8#8: *3373 open() "/usr/share/nginx/html/remote/hostcheck_validate" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/hostcheck_validate HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 18:02:22 [error] 8#8: *3374 open() "/usr/share/nginx/html/ssl-vpn/portal.html" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ssl-vpn/portal.html HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 18:02:23 [error] 8#8: *3375 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 18:48:57 [error] 10#10: *3486 open() "/usr/share/nginx/html/autodiscover/autodiscover.json" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /autodiscover/autodiscover.json?@zdi/Powershell HTTP/1.1", host: "128.208.154.3"
+2025/08/16 18:55:17 [error] 11#11: *3515 open() "/usr/share/nginx/html/webui" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /webui HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:17 [error] 11#11: *3517 open() "/usr/share/nginx/html/webui" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /webui HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:17 [error] 11#11: *3521 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:17 [error] 11#11: *3523 "/usr/share/nginx/html/owa/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/ HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:18 [error] 11#11: *3525 "/usr/share/nginx/html/owa/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/ HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:18 [error] 11#11: *3527 "/usr/share/nginx/html/owa/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/ HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 18:55:18 [error] 11#11: *3529 "/usr/share/nginx/html/owa/index.html" is not found (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/ HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/16 19:47:15 [error] 10#10: *3689 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 21:40:50 [error] 11#11: *3940 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 21:40:50 [error] 11#11: *3941 open() "/usr/share/nginx/html/remote/fgt_lang" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/fgt_lang HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 21:40:52 [error] 11#11: *3942 open() "/usr/share/nginx/html/remote/hostcheck_validate" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/hostcheck_validate HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 21:40:53 [error] 11#11: *3943 open() "/usr/share/nginx/html/ssl-vpn/portal.html" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /ssl-vpn/portal.html HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 21:40:55 [error] 11#11: *3944 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3:443"
+2025/08/16 23:15:45 [error] 9#9: *4148 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/16 23:16:30 [error] 9#9: *4159 open() "/usr/share/nginx/html/apple-touch-icon-precomposed.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/16 23:16:30 [error] 9#9: *4159 open() "/usr/share/nginx/html/apple-touch-icon.png" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/16 23:16:30 [error] 9#9: *4159 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/17 19:43:15 [notice] 1#1: using the "epoll" event method
+2025/08/17 19:43:15 [notice] 1#1: nginx/1.29.1
+2025/08/17 19:43:15 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 19:43:15 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 19:43:15 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 19:43:15 [notice] 1#1: start worker processes
+2025/08/17 19:43:15 [notice] 1#1: start worker process 9
+2025/08/17 19:43:15 [notice] 1#1: start worker process 10
+2025/08/17 19:43:15 [notice] 1#1: start worker process 11
+2025/08/17 19:43:15 [notice] 1#1: start worker process 12
+2025/08/17 19:46:28 [notice] 1#1: using the "epoll" event method
+2025/08/17 19:46:28 [notice] 1#1: nginx/1.29.1
+2025/08/17 19:46:28 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 19:46:28 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 19:46:28 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 19:46:28 [notice] 1#1: start worker processes
+2025/08/17 19:46:28 [notice] 1#1: start worker process 10
+2025/08/17 19:46:28 [notice] 1#1: start worker process 11
+2025/08/17 19:46:28 [notice] 1#1: start worker process 12
+2025/08/17 19:46:28 [notice] 1#1: start worker process 13
+2025/08/17 19:51:00 [error] 13#13: *17 open() "/usr/share/nginx/html/owa/auth/x.js" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/x.js HTTP/1.1", host: "128.208.154.3"
+2025/08/17 20:08:17 [error] 10#10: *59 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/17 20:09:00 [error] 10#10: *66 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/17 20:09:16 [error] 10#10: *69 open() "/usr/share/nginx/html/sitemap.xml" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /sitemap.xml HTTP/1.1", host: "128.208.154.3"
+2025/08/17 20:10:25 [warn] 10#10: *71 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:15:25 [error] 10#10: *71 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:16:41 [warn] 10#10: *71 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000002, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:21:41 [error] 10#10: *71 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:36:53 [error] 12#12: *161 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3", referrer: "https://128.208.154.3/"
+2025/08/17 20:37:50 [warn] 12#12: *164 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000003, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:42:50 [error] 12#12: *164 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 20:58:27 [warn] 12#12: *214 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000004, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 21:03:27 [error] 12#12: *214 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 21:14:02 [error] 10#10: *284 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/17 21:33:59 [error] 10#10: *330 open() "/usr/share/nginx/html/actuator/health" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /actuator/health HTTP/1.1", host: "128.208.154.3"
+2025/08/17 21:53:55 [error] 10#10: *370 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3:443"
+2025/08/17 21:53:55 [error] 10#10: *371 open() "/usr/share/nginx/html/remote/login" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3"
+2025/08/17 22:01:39 [warn] 10#10: *386 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000005, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:06:39 [error] 10#10: *386 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:17:09 [warn] 13#13: *424 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000006, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:18:30 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 22:18:30 [notice] 11#11: gracefully shutting down
+2025/08/17 22:18:30 [notice] 13#13: gracefully shutting down
+2025/08/17 22:18:30 [notice] 12#12: gracefully shutting down
+2025/08/17 22:18:30 [notice] 11#11: exiting
+2025/08/17 22:18:30 [notice] 10#10: gracefully shutting down
+2025/08/17 22:18:30 [notice] 10#10: exiting
+2025/08/17 22:18:30 [notice] 12#12: exiting
+2025/08/17 22:18:30 [notice] 10#10: exit
+2025/08/17 22:18:30 [notice] 11#11: exit
+2025/08/17 22:18:30 [notice] 12#12: exit
+2025/08/17 22:18:30 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 22:18:30 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 22:18:30 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:18:30 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 22:18:30 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 22:18:30 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:18:30 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 22:18:30 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 22:18:30 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:19:28 [notice] 1#1: using the "epoll" event method
+2025/08/17 22:19:28 [notice] 1#1: nginx/1.29.1
+2025/08/17 22:19:28 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 22:19:28 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 22:19:28 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 22:19:28 [notice] 1#1: start worker processes
+2025/08/17 22:19:28 [notice] 1#1: start worker process 9
+2025/08/17 22:19:28 [notice] 1#1: start worker process 10
+2025/08/17 22:19:28 [notice] 1#1: start worker process 11
+2025/08/17 22:19:28 [notice] 1#1: start worker process 12
+2025/08/17 22:24:53 [warn] 9#9: *10 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:28:14 [error] 9#9: *10 upstream prematurely closed connection while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.7:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:30:27 [warn] 10#10: *24 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000002, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/17 22:33:17 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 22:33:17 [notice] 9#9: gracefully shutting down
+2025/08/17 22:33:17 [notice] 9#9: exiting
+2025/08/17 22:33:17 [notice] 10#10: gracefully shutting down
+2025/08/17 22:33:17 [notice] 9#9: exit
+2025/08/17 22:33:17 [notice] 11#11: gracefully shutting down
+2025/08/17 22:33:17 [notice] 12#12: gracefully shutting down
+2025/08/17 22:33:17 [notice] 11#11: exiting
+2025/08/17 22:33:17 [notice] 12#12: exiting
+2025/08/17 22:33:17 [notice] 12#12: exit
+2025/08/17 22:33:17 [notice] 11#11: exit
+2025/08/17 22:33:17 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 22:33:17 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 22:33:17 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 22:33:17 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 22:33:17 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:33:17 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 22:33:56 [notice] 1#1: using the "epoll" event method
+2025/08/17 22:33:56 [notice] 1#1: nginx/1.29.1
+2025/08/17 22:33:56 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 22:33:56 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 22:33:56 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 22:33:56 [notice] 1#1: start worker processes
+2025/08/17 22:33:56 [notice] 1#1: start worker process 9
+2025/08/17 22:33:56 [notice] 1#1: start worker process 10
+2025/08/17 22:33:56 [notice] 1#1: start worker process 11
+2025/08/17 22:33:56 [notice] 1#1: start worker process 12
+2025/08/17 22:35:46 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 22:35:46 [notice] 9#9: gracefully shutting down
+2025/08/17 22:35:46 [notice] 9#9: exiting
+2025/08/17 22:35:46 [notice] 10#10: gracefully shutting down
+2025/08/17 22:35:46 [notice] 12#12: gracefully shutting down
+2025/08/17 22:35:46 [notice] 11#11: gracefully shutting down
+2025/08/17 22:35:46 [notice] 9#9: exit
+2025/08/17 22:35:46 [notice] 10#10: exiting
+2025/08/17 22:35:46 [notice] 12#12: exiting
+2025/08/17 22:35:46 [notice] 12#12: exit
+2025/08/17 22:35:46 [notice] 11#11: exiting
+2025/08/17 22:35:46 [notice] 10#10: exit
+2025/08/17 22:35:46 [notice] 11#11: exit
+2025/08/17 22:35:46 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/17 22:35:46 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 22:35:46 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:35:46 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 22:35:46 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 22:35:46 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:35:46 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 22:35:46 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 22:35:46 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 22:35:46 [notice] 1#1: exit
+2025/08/17 22:36:09 [notice] 1#1: using the "epoll" event method
+2025/08/17 22:36:09 [notice] 1#1: nginx/1.29.1
+2025/08/17 22:36:09 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 22:36:09 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 22:36:09 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 22:36:09 [notice] 1#1: start worker processes
+2025/08/17 22:36:09 [notice] 1#1: start worker process 9
+2025/08/17 22:36:09 [notice] 1#1: start worker process 10
+2025/08/17 22:36:09 [notice] 1#1: start worker process 11
+2025/08/17 22:36:09 [notice] 1#1: start worker process 12
+2025/08/17 22:57:51 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 22:57:51 [notice] 10#10: gracefully shutting down
+2025/08/17 22:57:51 [notice] 9#9: gracefully shutting down
+2025/08/17 22:57:51 [notice] 9#9: exiting
+2025/08/17 22:57:51 [notice] 10#10: exiting
+2025/08/17 22:57:51 [notice] 10#10: exit
+2025/08/17 22:57:51 [notice] 11#11: gracefully shutting down
+2025/08/17 22:57:51 [notice] 12#12: gracefully shutting down
+2025/08/17 22:57:51 [notice] 12#12: exiting
+2025/08/17 22:57:51 [notice] 11#11: exiting
+2025/08/17 22:57:51 [notice] 11#11: exit
+2025/08/17 22:57:51 [notice] 9#9: exit
+2025/08/17 22:57:51 [notice] 12#12: exit
+2025/08/17 22:57:51 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 22:57:51 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 22:57:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:57:51 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 22:57:51 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 22:57:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:57:51 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 22:57:51 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 22:57:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 22:57:51 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/17 22:57:51 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 22:57:51 [notice] 1#1: exit
+2025/08/17 22:58:28 [notice] 1#1: using the "epoll" event method
+2025/08/17 22:58:28 [notice] 1#1: nginx/1.29.1
+2025/08/17 22:58:28 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 22:58:28 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 22:58:28 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 22:58:28 [notice] 1#1: start worker processes
+2025/08/17 22:58:28 [notice] 1#1: start worker process 9
+2025/08/17 22:58:28 [notice] 1#1: start worker process 10
+2025/08/17 22:58:28 [notice] 1#1: start worker process 11
+2025/08/17 22:58:28 [notice] 1#1: start worker process 12
+2025/08/17 23:02:52 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 23:02:52 [notice] 11#11: gracefully shutting down
+2025/08/17 23:02:52 [notice] 11#11: exiting
+2025/08/17 23:02:52 [notice] 9#9: gracefully shutting down
+2025/08/17 23:02:52 [notice] 9#9: exiting
+2025/08/17 23:02:52 [notice] 10#10: gracefully shutting down
+2025/08/17 23:02:52 [notice] 10#10: exiting
+2025/08/17 23:02:52 [notice] 12#12: gracefully shutting down
+2025/08/17 23:02:52 [notice] 12#12: exiting
+2025/08/17 23:02:52 [notice] 11#11: exit
+2025/08/17 23:02:52 [notice] 9#9: exit
+2025/08/17 23:02:52 [notice] 10#10: exit
+2025/08/17 23:02:52 [notice] 12#12: exit
+2025/08/17 23:02:52 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 23:02:52 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 23:02:52 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:02:52 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 23:02:52 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 23:02:52 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:02:52 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/17 23:02:52 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 23:02:52 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:02:52 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 23:02:52 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 23:02:52 [notice] 1#1: exit
+2025/08/17 23:03:16 [notice] 1#1: using the "epoll" event method
+2025/08/17 23:03:16 [notice] 1#1: nginx/1.29.1
+2025/08/17 23:03:16 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 23:03:16 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 23:03:16 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 23:03:16 [notice] 1#1: start worker processes
+2025/08/17 23:03:16 [notice] 1#1: start worker process 10
+2025/08/17 23:03:16 [notice] 1#1: start worker process 11
+2025/08/17 23:03:16 [notice] 1#1: start worker process 12
+2025/08/17 23:03:16 [notice] 1#1: start worker process 13
+2025/08/17 23:10:17 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 23:10:17 [notice] 10#10: gracefully shutting down
+2025/08/17 23:10:17 [notice] 10#10: exiting
+2025/08/17 23:10:17 [notice] 10#10: exit
+2025/08/17 23:10:17 [notice] 12#12: gracefully shutting down
+2025/08/17 23:10:17 [notice] 11#11: gracefully shutting down
+2025/08/17 23:10:17 [notice] 13#13: gracefully shutting down
+2025/08/17 23:10:17 [notice] 13#13: exiting
+2025/08/17 23:10:17 [notice] 12#12: exiting
+2025/08/17 23:10:17 [notice] 12#12: exit
+2025/08/17 23:10:17 [notice] 11#11: exiting
+2025/08/17 23:10:17 [notice] 11#11: exit
+2025/08/17 23:10:17 [notice] 13#13: exit
+2025/08/17 23:10:17 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 23:10:17 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 23:10:17 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:10:17 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 23:10:17 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 23:10:17 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:10:17 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/17 23:10:17 [notice] 1#1: worker process 13 exited with code 0
+2025/08/17 23:10:17 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 23:10:17 [notice] 1#1: exit
+2025/08/17 23:10:40 [notice] 1#1: using the "epoll" event method
+2025/08/17 23:10:40 [notice] 1#1: nginx/1.29.1
+2025/08/17 23:10:40 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 23:10:40 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 23:10:40 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 23:10:40 [notice] 1#1: start worker processes
+2025/08/17 23:10:40 [notice] 1#1: start worker process 8
+2025/08/17 23:10:40 [notice] 1#1: start worker process 9
+2025/08/17 23:10:40 [notice] 1#1: start worker process 10
+2025/08/17 23:10:40 [notice] 1#1: start worker process 11
+2025/08/17 23:22:16 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 23:22:16 [notice] 8#8: gracefully shutting down
+2025/08/17 23:22:16 [notice] 8#8: exiting
+2025/08/17 23:22:16 [notice] 9#9: gracefully shutting down
+2025/08/17 23:22:16 [notice] 11#11: gracefully shutting down
+2025/08/17 23:22:16 [notice] 11#11: exiting
+2025/08/17 23:22:16 [notice] 10#10: gracefully shutting down
+2025/08/17 23:22:16 [notice] 10#10: exiting
+2025/08/17 23:22:16 [notice] 8#8: exit
+2025/08/17 23:22:16 [notice] 9#9: exiting
+2025/08/17 23:22:16 [notice] 11#11: exit
+2025/08/17 23:22:16 [notice] 9#9: exit
+2025/08/17 23:22:16 [notice] 10#10: exit
+2025/08/17 23:22:17 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 23:22:17 [notice] 1#1: worker process 8 exited with code 0
+2025/08/17 23:22:17 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 23:22:17 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 23:22:17 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 23:22:17 [notice] 1#1: exit
+2025/08/17 23:22:37 [notice] 1#1: using the "epoll" event method
+2025/08/17 23:22:37 [notice] 1#1: nginx/1.29.1
+2025/08/17 23:22:37 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 23:22:37 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 23:22:37 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 23:22:37 [notice] 1#1: start worker processes
+2025/08/17 23:22:37 [notice] 1#1: start worker process 10
+2025/08/17 23:22:37 [notice] 1#1: start worker process 11
+2025/08/17 23:22:37 [notice] 1#1: start worker process 12
+2025/08/17 23:22:37 [notice] 1#1: start worker process 13
+2025/08/17 23:23:31 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 23:23:31 [notice] 11#11: gracefully shutting down
+2025/08/17 23:23:31 [notice] 11#11: exiting
+2025/08/17 23:23:31 [notice] 12#12: gracefully shutting down
+2025/08/17 23:23:31 [notice] 13#13: gracefully shutting down
+2025/08/17 23:23:31 [notice] 12#12: exiting
+2025/08/17 23:23:31 [notice] 13#13: exiting
+2025/08/17 23:23:31 [notice] 11#11: exit
+2025/08/17 23:23:31 [notice] 13#13: exit
+2025/08/17 23:23:31 [notice] 10#10: gracefully shutting down
+2025/08/17 23:23:31 [notice] 10#10: exiting
+2025/08/17 23:23:31 [notice] 10#10: exit
+2025/08/17 23:23:31 [notice] 12#12: exit
+2025/08/17 23:23:31 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 23:23:31 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 23:23:31 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 23:23:31 [notice] 1#1: worker process 13 exited with code 0
+2025/08/17 23:23:31 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:23:31 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 23:23:31 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 23:23:31 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 23:23:31 [notice] 1#1: exit
+2025/08/17 23:24:21 [notice] 1#1: using the "epoll" event method
+2025/08/17 23:24:21 [notice] 1#1: nginx/1.29.1
+2025/08/17 23:24:21 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 23:24:21 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 23:24:21 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 23:24:21 [notice] 1#1: start worker processes
+2025/08/17 23:24:21 [notice] 1#1: start worker process 9
+2025/08/17 23:24:21 [notice] 1#1: start worker process 10
+2025/08/17 23:24:21 [notice] 1#1: start worker process 11
+2025/08/17 23:24:21 [notice] 1#1: start worker process 12
+2025/08/17 23:24:25 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/17 23:24:25 [notice] 9#9: gracefully shutting down
+2025/08/17 23:24:25 [notice] 9#9: exiting
+2025/08/17 23:24:25 [notice] 11#11: gracefully shutting down
+2025/08/17 23:24:25 [notice] 12#12: gracefully shutting down
+2025/08/17 23:24:25 [notice] 12#12: exiting
+2025/08/17 23:24:25 [notice] 10#10: gracefully shutting down
+2025/08/17 23:24:25 [notice] 10#10: exiting
+2025/08/17 23:24:25 [notice] 10#10: exit
+2025/08/17 23:24:25 [notice] 9#9: exit
+2025/08/17 23:24:25 [notice] 11#11: exiting
+2025/08/17 23:24:25 [notice] 12#12: exit
+2025/08/17 23:24:25 [notice] 11#11: exit
+2025/08/17 23:24:25 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/17 23:24:25 [notice] 1#1: worker process 9 exited with code 0
+2025/08/17 23:24:25 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:24:25 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/17 23:24:25 [notice] 1#1: worker process 12 exited with code 0
+2025/08/17 23:24:25 [notice] 1#1: worker process 10 exited with code 0
+2025/08/17 23:24:25 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/17 23:24:25 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/17 23:24:25 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/17 23:24:25 [notice] 1#1: worker process 11 exited with code 0
+2025/08/17 23:24:25 [notice] 1#1: exit
+2025/08/17 23:25:48 [notice] 1#1: using the "epoll" event method
+2025/08/17 23:25:48 [notice] 1#1: nginx/1.29.1
+2025/08/17 23:25:48 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/17 23:25:48 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/17 23:25:48 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/17 23:25:48 [notice] 1#1: start worker processes
+2025/08/17 23:25:48 [notice] 1#1: start worker process 8
+2025/08/17 23:25:48 [notice] 1#1: start worker process 9
+2025/08/17 23:25:48 [notice] 1#1: start worker process 10
+2025/08/17 23:25:48 [notice] 1#1: start worker process 11
+2025/08/17 23:46:07 [error] 10#10: *42 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/18 00:41:06 [error] 10#10: *163 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/18 00:41:06 [error] 10#10: *163 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/18 01:06:01 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/18 01:06:01 [notice] 8#8: gracefully shutting down
+2025/08/18 01:06:01 [notice] 10#10: gracefully shutting down
+2025/08/18 01:06:01 [notice] 9#9: gracefully shutting down
+2025/08/18 01:06:01 [notice] 11#11: gracefully shutting down
+2025/08/18 01:06:01 [notice] 9#9: exiting
+2025/08/18 01:06:01 [notice] 8#8: exiting
+2025/08/18 01:06:01 [notice] 10#10: exiting
+2025/08/18 01:06:01 [notice] 9#9: exit
+2025/08/18 01:06:01 [notice] 11#11: exiting
+2025/08/18 01:06:01 [notice] 8#8: exit
+2025/08/18 01:06:01 [notice] 10#10: exit
+2025/08/18 01:06:01 [notice] 11#11: exit
+2025/08/18 01:06:01 [notice] 1#1: signal 17 (SIGCHLD) received from 8
+2025/08/18 01:06:01 [notice] 1#1: worker process 8 exited with code 0
+2025/08/18 01:06:01 [notice] 1#1: worker process 10 exited with code 0
+2025/08/18 01:06:01 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:06:01 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/18 01:06:01 [notice] 1#1: worker process 9 exited with code 0
+2025/08/18 01:06:01 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:06:01 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/18 01:06:01 [notice] 1#1: worker process 11 exited with code 0
+2025/08/18 01:06:01 [notice] 1#1: exit
+2025/08/18 01:06:44 [notice] 1#1: using the "epoll" event method
+2025/08/18 01:06:44 [notice] 1#1: nginx/1.29.1
+2025/08/18 01:06:44 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/18 01:06:44 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/18 01:06:44 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/18 01:06:44 [notice] 1#1: start worker processes
+2025/08/18 01:06:44 [notice] 1#1: start worker process 9
+2025/08/18 01:06:44 [notice] 1#1: start worker process 10
+2025/08/18 01:06:44 [notice] 1#1: start worker process 11
+2025/08/18 01:06:44 [notice] 1#1: start worker process 12
+2025/08/18 01:06:47 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/18 01:06:47 [notice] 10#10: gracefully shutting down
+2025/08/18 01:06:47 [notice] 10#10: exiting
+2025/08/18 01:06:47 [notice] 9#9: gracefully shutting down
+2025/08/18 01:06:47 [notice] 9#9: exiting
+2025/08/18 01:06:47 [notice] 11#11: gracefully shutting down
+2025/08/18 01:06:47 [notice] 11#11: exiting
+2025/08/18 01:06:47 [notice] 11#11: exit
+2025/08/18 01:06:47 [notice] 12#12: gracefully shutting down
+2025/08/18 01:06:47 [notice] 12#12: exiting
+2025/08/18 01:06:47 [notice] 9#9: exit
+2025/08/18 01:06:47 [notice] 10#10: exit
+2025/08/18 01:06:47 [notice] 12#12: exit
+2025/08/18 01:06:48 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/18 01:06:48 [notice] 1#1: worker process 11 exited with code 0
+2025/08/18 01:06:48 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:06:48 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/18 01:06:48 [notice] 1#1: worker process 9 exited with code 0
+2025/08/18 01:06:48 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:06:48 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/18 01:06:48 [notice] 1#1: worker process 10 exited with code 0
+2025/08/18 01:06:48 [notice] 1#1: worker process 12 exited with code 0
+2025/08/18 01:06:48 [notice] 1#1: exit
+2025/08/18 01:10:58 [notice] 1#1: using the "epoll" event method
+2025/08/18 01:10:58 [notice] 1#1: nginx/1.29.1
+2025/08/18 01:10:58 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/18 01:10:58 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/18 01:10:58 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/18 01:10:58 [notice] 1#1: start worker processes
+2025/08/18 01:10:58 [notice] 1#1: start worker process 9
+2025/08/18 01:10:58 [notice] 1#1: start worker process 10
+2025/08/18 01:10:58 [notice] 1#1: start worker process 11
+2025/08/18 01:10:58 [notice] 1#1: start worker process 12
+2025/08/18 01:13:57 [warn] 10#10: *10 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/18 01:16:13 [error] 10#10: *18 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.19.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/18 01:18:57 [error] 10#10: *10 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 172.19.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/2.0", upstream: "http://172.19.0.6:5000/casestrainer/api/analyze", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/18 01:21:50 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/18 01:21:50 [notice] 10#10: gracefully shutting down
+2025/08/18 01:21:50 [notice] 9#9: gracefully shutting down
+2025/08/18 01:21:50 [notice] 9#9: exiting
+2025/08/18 01:21:50 [notice] 12#12: gracefully shutting down
+2025/08/18 01:21:50 [notice] 10#10: exiting
+2025/08/18 01:21:50 [notice] 10#10: exit
+2025/08/18 01:21:50 [notice] 9#9: exit
+2025/08/18 01:21:50 [notice] 12#12: exiting
+2025/08/18 01:21:50 [notice] 12#12: exit
+2025/08/18 01:21:50 [notice] 11#11: gracefully shutting down
+2025/08/18 01:21:50 [notice] 11#11: exiting
+2025/08/18 01:21:50 [notice] 11#11: exit
+2025/08/18 01:21:51 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/18 01:21:51 [notice] 1#1: worker process 9 exited with code 0
+2025/08/18 01:21:51 [notice] 1#1: worker process 10 exited with code 0
+2025/08/18 01:21:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:21:51 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/18 01:21:51 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/18 01:21:51 [notice] 1#1: worker process 12 exited with code 0
+2025/08/18 01:21:51 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:21:51 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/18 01:21:51 [notice] 1#1: worker process 11 exited with code 0
+2025/08/18 01:21:51 [notice] 1#1: exit
+2025/08/18 01:23:14 [notice] 1#1: using the "epoll" event method
+2025/08/18 01:23:14 [notice] 1#1: nginx/1.29.1
+2025/08/18 01:23:14 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/18 01:23:14 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/18 01:23:14 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/18 01:23:14 [notice] 1#1: start worker processes
+2025/08/18 01:23:14 [notice] 1#1: start worker process 9
+2025/08/18 01:23:14 [notice] 1#1: start worker process 10
+2025/08/18 01:23:14 [notice] 1#1: start worker process 11
+2025/08/18 01:23:14 [notice] 1#1: start worker process 12
+2025/08/18 01:50:05 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/18 01:50:05 [notice] 10#10: gracefully shutting down
+2025/08/18 01:50:05 [notice] 9#9: gracefully shutting down
+2025/08/18 01:50:05 [notice] 12#12: gracefully shutting down
+2025/08/18 01:50:05 [notice] 10#10: exiting
+2025/08/18 01:50:05 [notice] 11#11: gracefully shutting down
+2025/08/18 01:50:05 [notice] 12#12: exiting
+2025/08/18 01:50:05 [notice] 9#9: exiting
+2025/08/18 01:50:05 [notice] 9#9: exit
+2025/08/18 01:50:05 [notice] 10#10: exit
+2025/08/18 01:50:05 [notice] 12#12: exit
+2025/08/18 01:50:05 [notice] 11#11: exiting
+2025/08/18 01:50:05 [notice] 11#11: exit
+2025/08/18 01:50:05 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/18 01:50:05 [notice] 1#1: worker process 9 exited with code 0
+2025/08/18 01:50:05 [notice] 1#1: worker process 10 exited with code 0
+2025/08/18 01:50:05 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 01:50:05 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/18 01:50:05 [notice] 1#1: worker process 11 exited with code 0
+2025/08/18 01:50:05 [notice] 1#1: worker process 12 exited with code 0
+2025/08/18 01:50:05 [notice] 1#1: exit
+2025/08/18 02:23:27 [notice] 1#1: using the "epoll" event method
+2025/08/18 02:23:27 [notice] 1#1: nginx/1.29.1
+2025/08/18 02:23:27 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/18 02:23:27 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/18 02:23:27 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/18 02:23:27 [notice] 1#1: start worker processes
+2025/08/18 02:23:27 [notice] 1#1: start worker process 9
+2025/08/18 02:23:27 [notice] 1#1: start worker process 10
+2025/08/18 02:23:27 [notice] 1#1: start worker process 11
+2025/08/18 02:23:27 [notice] 1#1: start worker process 12
+2025/08/18 03:35:58 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/18 03:35:58 [notice] 9#9: gracefully shutting down
+2025/08/18 03:35:58 [notice] 9#9: exiting
+2025/08/18 03:35:58 [notice] 12#12: gracefully shutting down
+2025/08/18 03:35:58 [notice] 11#11: gracefully shutting down
+2025/08/18 03:35:58 [notice] 10#10: gracefully shutting down
+2025/08/18 03:35:58 [notice] 11#11: exiting
+2025/08/18 03:35:58 [notice] 12#12: exiting
+2025/08/18 03:35:58 [notice] 10#10: exiting
+2025/08/18 03:35:58 [notice] 11#11: exit
+2025/08/18 03:35:58 [notice] 12#12: exit
+2025/08/18 03:35:58 [notice] 9#9: exit
+2025/08/18 03:35:58 [notice] 10#10: exit
+2025/08/18 03:35:58 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/18 03:35:58 [notice] 1#1: worker process 12 exited with code 0
+2025/08/18 03:35:58 [notice] 1#1: worker process 10 exited with code 0
+2025/08/18 03:35:58 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 03:35:58 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/18 03:35:58 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/18 03:35:58 [notice] 1#1: worker process 9 exited with code 0
+2025/08/18 03:35:58 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/18 03:35:58 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/18 03:35:58 [notice] 1#1: worker process 11 exited with code 0
+2025/08/18 03:35:58 [notice] 1#1: exit
+2025/08/19 16:12:49 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:50 [emerg] 7#7: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:51 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:52 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:53 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:55 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:12:59 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:13:06 [emerg] 9#9: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:13:19 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:13:45 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:03 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:04 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:05 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:06 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:07 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:09 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:13 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:20 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:33 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:15:59 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:05 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:06 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:07 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:08 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:10 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:12 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:16 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:22 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:36 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:56 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:57 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:58 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:16:59 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:00 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:02 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:06 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:13 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:26 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:42 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:43 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:44 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:45 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:46 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:48 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:52 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:17:59 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:18:12 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:01 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:02 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:03 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:04 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:06 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:08 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:12 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:19 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:32 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:44 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:45 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:46 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:47 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:48 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:51 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:22:54 [emerg] 9#9: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:01 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:15 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:37 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:38 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:39 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:40 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:42 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:44 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:48 [emerg] 7#7: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:23:55 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:24:08 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:24:34 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:25:26 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:20 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:21 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:22 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:23 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:24 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:26 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:30 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:37 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:26:50 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:17 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:22 [emerg] 7#7: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:23 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:23 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:24 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:26 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:28 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:32 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:38 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:27:52 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:18 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:40 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:41 [emerg] 9#9: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:42 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:43 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:45 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:47 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:50 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:28:57 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:29:11 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:29:37 [emerg] 8#8: open() "/etc/nginx/logs/nginx.pid" failed (2: No such file or directory)
+2025/08/19 16:30:28 [notice] 1#1: using the "epoll" event method
+2025/08/19 16:30:28 [notice] 1#1: nginx/1.29.1
+2025/08/19 16:30:28 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 16:30:28 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 16:30:28 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 16:30:28 [notice] 1#1: start worker processes
+2025/08/19 16:30:28 [notice] 1#1: start worker process 9
+2025/08/19 16:30:28 [notice] 1#1: start worker process 10
+2025/08/19 16:30:28 [notice] 1#1: start worker process 11
+2025/08/19 16:30:28 [notice] 1#1: start worker process 12
+2025/08/19 16:30:28 [notice] 1#1: start worker process 13
+2025/08/19 16:30:28 [notice] 1#1: start worker process 14
+2025/08/19 16:30:28 [notice] 1#1: start worker process 15
+2025/08/19 16:30:28 [notice] 1#1: start worker process 16
+2025/08/19 16:30:28 [notice] 1#1: start worker process 17
+2025/08/19 16:30:28 [notice] 1#1: start worker process 18
+2025/08/19 16:30:28 [notice] 1#1: start worker process 19
+2025/08/19 16:30:28 [notice] 1#1: start worker process 20
+2025/08/19 16:30:28 [notice] 1#1: start worker process 21
+2025/08/19 16:30:28 [notice] 1#1: start worker process 22
+2025/08/19 16:30:28 [notice] 1#1: start worker process 23
+2025/08/19 16:30:28 [notice] 1#1: start worker process 24
+2025/08/19 16:30:56 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 16:30:56 [notice] 9#9: gracefully shutting down
+2025/08/19 16:30:56 [notice] 10#10: gracefully shutting down
+2025/08/19 16:30:56 [notice] 11#11: gracefully shutting down
+2025/08/19 16:30:56 [notice] 13#13: gracefully shutting down
+2025/08/19 16:30:56 [notice] 12#12: gracefully shutting down
+2025/08/19 16:30:56 [notice] 15#15: gracefully shutting down
+2025/08/19 16:30:56 [notice] 14#14: gracefully shutting down
+2025/08/19 16:30:56 [notice] 18#18: gracefully shutting down
+2025/08/19 16:30:56 [notice] 17#17: gracefully shutting down
+2025/08/19 16:30:56 [notice] 20#20: gracefully shutting down
+2025/08/19 16:30:56 [notice] 19#19: gracefully shutting down
+2025/08/19 16:30:56 [notice] 21#21: gracefully shutting down
+2025/08/19 16:30:56 [notice] 21#21: exiting
+2025/08/19 16:30:56 [notice] 23#23: gracefully shutting down
+2025/08/19 16:30:56 [notice] 23#23: exiting
+2025/08/19 16:30:56 [notice] 22#22: gracefully shutting down
+2025/08/19 16:30:56 [notice] 16#16: gracefully shutting down
+2025/08/19 16:30:56 [notice] 23#23: exit
+2025/08/19 16:30:56 [notice] 24#24: gracefully shutting down
+2025/08/19 16:30:56 [notice] 9#9: exiting
+2025/08/19 16:30:56 [notice] 10#10: exiting
+2025/08/19 16:30:56 [notice] 11#11: exiting
+2025/08/19 16:30:56 [notice] 13#13: exiting
+2025/08/19 16:30:56 [notice] 12#12: exiting
+2025/08/19 16:30:56 [notice] 15#15: exiting
+2025/08/19 16:30:56 [notice] 14#14: exiting
+2025/08/19 16:30:56 [notice] 18#18: exiting
+2025/08/19 16:30:56 [notice] 17#17: exiting
+2025/08/19 16:30:56 [notice] 20#20: exiting
+2025/08/19 16:30:56 [notice] 19#19: exiting
+2025/08/19 16:30:56 [notice] 22#22: exiting
+2025/08/19 16:30:56 [notice] 16#16: exiting
+2025/08/19 16:30:56 [notice] 21#21: exit
+2025/08/19 16:30:56 [notice] 24#24: exiting
+2025/08/19 16:30:56 [notice] 16#16: exit
+2025/08/19 16:30:56 [notice] 9#9: exit
+2025/08/19 16:30:56 [notice] 10#10: exit
+2025/08/19 16:30:56 [notice] 11#11: exit
+2025/08/19 16:30:56 [notice] 13#13: exit
+2025/08/19 16:30:56 [notice] 12#12: exit
+2025/08/19 16:30:56 [notice] 15#15: exit
+2025/08/19 16:30:56 [notice] 14#14: exit
+2025/08/19 16:30:56 [notice] 18#18: exit
+2025/08/19 16:30:56 [notice] 20#20: exit
+2025/08/19 16:30:56 [notice] 17#17: exit
+2025/08/19 16:30:56 [notice] 19#19: exit
+2025/08/19 16:30:56 [notice] 22#22: exit
+2025/08/19 16:30:56 [notice] 24#24: exit
+2025/08/19 16:30:56 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/19 16:30:56 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:30:56 [notice] 1#1: signal 17 (SIGCHLD) received from 18
+2025/08/19 16:30:56 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:30:56 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/19 16:30:56 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/08/19 16:30:56 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 16:30:56 [notice] 1#1: exit
+2025/08/19 16:31:06 [notice] 1#1: using the "epoll" event method
+2025/08/19 16:31:06 [notice] 1#1: nginx/1.29.1
+2025/08/19 16:31:06 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 16:31:06 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 16:31:06 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 16:31:06 [notice] 1#1: start worker processes
+2025/08/19 16:31:06 [notice] 1#1: start worker process 9
+2025/08/19 16:31:06 [notice] 1#1: start worker process 10
+2025/08/19 16:31:06 [notice] 1#1: start worker process 11
+2025/08/19 16:31:06 [notice] 1#1: start worker process 12
+2025/08/19 16:31:06 [notice] 1#1: start worker process 13
+2025/08/19 16:31:06 [notice] 1#1: start worker process 14
+2025/08/19 16:31:06 [notice] 1#1: start worker process 15
+2025/08/19 16:31:06 [notice] 1#1: start worker process 16
+2025/08/19 16:31:06 [notice] 1#1: start worker process 17
+2025/08/19 16:31:06 [notice] 1#1: start worker process 18
+2025/08/19 16:31:06 [notice] 1#1: start worker process 19
+2025/08/19 16:31:06 [notice] 1#1: start worker process 20
+2025/08/19 16:31:06 [notice] 1#1: start worker process 21
+2025/08/19 16:31:06 [notice] 1#1: start worker process 22
+2025/08/19 16:31:06 [notice] 1#1: start worker process 23
+2025/08/19 16:31:06 [notice] 1#1: start worker process 24
+2025/08/19 16:35:11 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 16:35:11 [notice] 9#9: gracefully shutting down
+2025/08/19 16:35:11 [notice] 10#10: gracefully shutting down
+2025/08/19 16:35:11 [notice] 10#10: exiting
+2025/08/19 16:35:11 [notice] 11#11: gracefully shutting down
+2025/08/19 16:35:11 [notice] 12#12: gracefully shutting down
+2025/08/19 16:35:11 [notice] 13#13: gracefully shutting down
+2025/08/19 16:35:11 [notice] 14#14: gracefully shutting down
+2025/08/19 16:35:11 [notice] 15#15: gracefully shutting down
+2025/08/19 16:35:11 [notice] 15#15: exiting
+2025/08/19 16:35:11 [notice] 16#16: gracefully shutting down
+2025/08/19 16:35:11 [notice] 17#17: gracefully shutting down
+2025/08/19 16:35:11 [notice] 23#23: gracefully shutting down
+2025/08/19 16:35:11 [notice] 21#21: gracefully shutting down
+2025/08/19 16:35:11 [notice] 21#21: exiting
+2025/08/19 16:35:11 [notice] 22#22: gracefully shutting down
+2025/08/19 16:35:11 [notice] 18#18: gracefully shutting down
+2025/08/19 16:35:11 [notice] 22#22: exiting
+2025/08/19 16:35:11 [notice] 24#24: gracefully shutting down
+2025/08/19 16:35:11 [notice] 20#20: gracefully shutting down
+2025/08/19 16:35:11 [notice] 19#19: gracefully shutting down
+2025/08/19 16:35:11 [notice] 9#9: exiting
+2025/08/19 16:35:11 [notice] 10#10: exit
+2025/08/19 16:35:11 [notice] 11#11: exiting
+2025/08/19 16:35:11 [notice] 12#12: exiting
+2025/08/19 16:35:11 [notice] 13#13: exiting
+2025/08/19 16:35:11 [notice] 14#14: exiting
+2025/08/19 16:35:11 [notice] 16#16: exiting
+2025/08/19 16:35:11 [notice] 17#17: exiting
+2025/08/19 16:35:11 [notice] 15#15: exit
+2025/08/19 16:35:11 [notice] 23#23: exiting
+2025/08/19 16:35:11 [notice] 18#18: exiting
+2025/08/19 16:35:11 [notice] 21#21: exit
+2025/08/19 16:35:11 [notice] 23#23: exit
+2025/08/19 16:35:11 [notice] 24#24: exiting
+2025/08/19 16:35:11 [notice] 20#20: exiting
+2025/08/19 16:35:11 [notice] 22#22: exit
+2025/08/19 16:35:11 [notice] 24#24: exit
+2025/08/19 16:35:11 [notice] 19#19: exiting
+2025/08/19 16:35:11 [notice] 9#9: exit
+2025/08/19 16:35:11 [notice] 11#11: exit
+2025/08/19 16:35:11 [notice] 12#12: exit
+2025/08/19 16:35:11 [notice] 14#14: exit
+2025/08/19 16:35:11 [notice] 16#16: exit
+2025/08/19 16:35:11 [notice] 17#17: exit
+2025/08/19 16:35:11 [notice] 13#13: exit
+2025/08/19 16:35:11 [notice] 18#18: exit
+2025/08/19 16:35:11 [notice] 20#20: exit
+2025/08/19 16:35:11 [notice] 19#19: exit
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/19 16:35:11 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/19 16:35:11 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/19 16:35:11 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/08/19 16:35:11 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/19 16:35:11 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/19 16:35:11 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 16:35:11 [notice] 1#1: exit
+2025/08/19 16:35:13 [notice] 1#1: using the "epoll" event method
+2025/08/19 16:35:13 [notice] 1#1: nginx/1.29.1
+2025/08/19 16:35:13 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 16:35:13 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 16:35:13 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 16:35:13 [notice] 1#1: start worker processes
+2025/08/19 16:35:13 [notice] 1#1: start worker process 9
+2025/08/19 16:35:13 [notice] 1#1: start worker process 10
+2025/08/19 16:35:13 [notice] 1#1: start worker process 11
+2025/08/19 16:35:13 [notice] 1#1: start worker process 12
+2025/08/19 16:35:13 [notice] 1#1: start worker process 13
+2025/08/19 16:35:13 [notice] 1#1: start worker process 14
+2025/08/19 16:35:13 [notice] 1#1: start worker process 15
+2025/08/19 16:35:13 [notice] 1#1: start worker process 16
+2025/08/19 16:35:13 [notice] 1#1: start worker process 17
+2025/08/19 16:35:13 [notice] 1#1: start worker process 18
+2025/08/19 16:35:13 [notice] 1#1: start worker process 19
+2025/08/19 16:35:13 [notice] 1#1: start worker process 20
+2025/08/19 16:35:13 [notice] 1#1: start worker process 21
+2025/08/19 16:35:13 [notice] 1#1: start worker process 22
+2025/08/19 16:35:13 [notice] 1#1: start worker process 23
+2025/08/19 16:35:13 [notice] 1#1: start worker process 24
+2025/08/19 17:00:53 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:00:53 [notice] 10#10: gracefully shutting down
+2025/08/19 17:00:53 [notice] 19#19: gracefully shutting down
+2025/08/19 17:00:53 [notice] 11#11: gracefully shutting down
+2025/08/19 17:00:53 [notice] 9#9: gracefully shutting down
+2025/08/19 17:00:53 [notice] 14#14: gracefully shutting down
+2025/08/19 17:00:53 [notice] 17#17: gracefully shutting down
+2025/08/19 17:00:53 [notice] 13#13: gracefully shutting down
+2025/08/19 17:00:53 [notice] 20#20: gracefully shutting down
+2025/08/19 17:00:53 [notice] 17#17: exiting
+2025/08/19 17:00:53 [notice] 13#13: exiting
+2025/08/19 17:00:53 [notice] 22#22: gracefully shutting down
+2025/08/19 17:00:53 [notice] 21#21: gracefully shutting down
+2025/08/19 17:00:53 [notice] 18#18: gracefully shutting down
+2025/08/19 17:00:53 [notice] 12#12: gracefully shutting down
+2025/08/19 17:00:53 [notice] 10#10: exiting
+2025/08/19 17:00:53 [notice] 23#23: gracefully shutting down
+2025/08/19 17:00:53 [notice] 24#24: gracefully shutting down
+2025/08/19 17:00:53 [notice] 19#19: exiting
+2025/08/19 17:00:53 [notice] 11#11: exiting
+2025/08/19 17:00:53 [notice] 9#9: exiting
+2025/08/19 17:00:53 [notice] 16#16: gracefully shutting down
+2025/08/19 17:00:53 [notice] 14#14: exiting
+2025/08/19 17:00:53 [notice] 15#15: gracefully shutting down
+2025/08/19 17:00:53 [notice] 20#20: exiting
+2025/08/19 17:00:53 [notice] 22#22: exiting
+2025/08/19 17:00:53 [notice] 17#17: exit
+2025/08/19 17:00:53 [notice] 13#13: exit
+2025/08/19 17:00:53 [notice] 21#21: exiting
+2025/08/19 17:00:53 [notice] 18#18: exiting
+2025/08/19 17:00:53 [notice] 12#12: exiting
+2025/08/19 17:00:53 [notice] 10#10: exit
+2025/08/19 17:00:53 [notice] 23#23: exiting
+2025/08/19 17:00:53 [notice] 24#24: exiting
+2025/08/19 17:00:53 [notice] 11#11: exit
+2025/08/19 17:00:53 [notice] 19#19: exit
+2025/08/19 17:00:53 [notice] 9#9: exit
+2025/08/19 17:00:53 [notice] 16#16: exiting
+2025/08/19 17:00:53 [notice] 15#15: exiting
+2025/08/19 17:00:53 [notice] 20#20: exit
+2025/08/19 17:00:53 [notice] 22#22: exit
+2025/08/19 17:00:53 [notice] 14#14: exit
+2025/08/19 17:00:53 [notice] 21#21: exit
+2025/08/19 17:00:53 [notice] 18#18: exit
+2025/08/19 17:00:53 [notice] 12#12: exit
+2025/08/19 17:00:53 [notice] 23#23: exit
+2025/08/19 17:00:53 [notice] 24#24: exit
+2025/08/19 17:00:53 [notice] 16#16: exit
+2025/08/19 17:00:53 [notice] 15#15: exit
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/08/19 17:00:53 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/19 17:00:53 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 19
+2025/08/19 17:00:53 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/19 17:00:53 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/08/19 17:00:53 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:00:53 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2025/08/19 17:00:53 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:00:53 [notice] 1#1: exit
+2025/08/19 17:00:56 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:00:56 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:00:56 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:00:56 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:00:56 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:00:56 [notice] 1#1: start worker processes
+2025/08/19 17:00:56 [notice] 1#1: start worker process 9
+2025/08/19 17:00:56 [notice] 1#1: start worker process 10
+2025/08/19 17:00:56 [notice] 1#1: start worker process 11
+2025/08/19 17:00:56 [notice] 1#1: start worker process 12
+2025/08/19 17:00:56 [notice] 1#1: start worker process 13
+2025/08/19 17:00:56 [notice] 1#1: start worker process 14
+2025/08/19 17:00:56 [notice] 1#1: start worker process 15
+2025/08/19 17:00:56 [notice] 1#1: start worker process 16
+2025/08/19 17:00:56 [notice] 1#1: start worker process 17
+2025/08/19 17:00:56 [notice] 1#1: start worker process 18
+2025/08/19 17:00:56 [notice] 1#1: start worker process 19
+2025/08/19 17:00:56 [notice] 1#1: start worker process 20
+2025/08/19 17:00:56 [notice] 1#1: start worker process 21
+2025/08/19 17:00:56 [notice] 1#1: start worker process 22
+2025/08/19 17:00:56 [notice] 1#1: start worker process 23
+2025/08/19 17:00:56 [notice] 1#1: start worker process 24
+2025/08/19 17:15:29 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:15:29 [notice] 9#9: gracefully shutting down
+2025/08/19 17:15:29 [notice] 11#11: gracefully shutting down
+2025/08/19 17:15:29 [notice] 10#10: gracefully shutting down
+2025/08/19 17:15:29 [notice] 21#21: gracefully shutting down
+2025/08/19 17:15:29 [notice] 15#15: gracefully shutting down
+2025/08/19 17:15:29 [notice] 16#16: gracefully shutting down
+2025/08/19 17:15:29 [notice] 14#14: gracefully shutting down
+2025/08/19 17:15:29 [notice] 16#16: exiting
+2025/08/19 17:15:29 [notice] 20#20: gracefully shutting down
+2025/08/19 17:15:29 [notice] 13#13: gracefully shutting down
+2025/08/19 17:15:29 [notice] 19#19: gracefully shutting down
+2025/08/19 17:15:29 [notice] 23#23: gracefully shutting down
+2025/08/19 17:15:29 [notice] 17#17: gracefully shutting down
+2025/08/19 17:15:29 [notice] 12#12: gracefully shutting down
+2025/08/19 17:15:29 [notice] 24#24: gracefully shutting down
+2025/08/19 17:15:29 [notice] 22#22: gracefully shutting down
+2025/08/19 17:15:29 [notice] 18#18: gracefully shutting down
+2025/08/19 17:15:29 [notice] 9#9: exiting
+2025/08/19 17:15:29 [notice] 11#11: exiting
+2025/08/19 17:15:29 [notice] 10#10: exiting
+2025/08/19 17:15:29 [notice] 21#21: exiting
+2025/08/19 17:15:29 [notice] 15#15: exiting
+2025/08/19 17:15:29 [notice] 14#14: exiting
+2025/08/19 17:15:29 [notice] 20#20: exiting
+2025/08/19 17:15:29 [notice] 10#10: exit
+2025/08/19 17:15:29 [notice] 13#13: exiting
+2025/08/19 17:15:29 [notice] 16#16: exit
+2025/08/19 17:15:29 [notice] 14#14: exit
+2025/08/19 17:15:29 [notice] 19#19: exiting
+2025/08/19 17:15:29 [notice] 23#23: exiting
+2025/08/19 17:15:29 [notice] 17#17: exiting
+2025/08/19 17:15:29 [notice] 12#12: exiting
+2025/08/19 17:15:29 [notice] 24#24: exiting
+2025/08/19 17:15:29 [notice] 22#22: exiting
+2025/08/19 17:15:29 [notice] 23#23: exit
+2025/08/19 17:15:29 [notice] 18#18: exiting
+2025/08/19 17:15:29 [notice] 22#22: exit
+2025/08/19 17:15:29 [notice] 9#9: exit
+2025/08/19 17:15:29 [notice] 11#11: exit
+2025/08/19 17:15:29 [notice] 21#21: exit
+2025/08/19 17:15:29 [notice] 15#15: exit
+2025/08/19 17:15:29 [notice] 20#20: exit
+2025/08/19 17:15:29 [notice] 13#13: exit
+2025/08/19 17:15:29 [notice] 17#17: exit
+2025/08/19 17:15:29 [notice] 24#24: exit
+2025/08/19 17:15:29 [notice] 12#12: exit
+2025/08/19 17:15:29 [notice] 19#19: exit
+2025/08/19 17:15:29 [notice] 18#18: exit
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 21
+2025/08/19 17:15:29 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/19 17:15:29 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/19 17:15:29 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2025/08/19 17:15:29 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/19 17:15:29 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/08/19 17:15:29 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:15:29 [notice] 1#1: exit
+2025/08/19 17:22:45 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:22:45 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:22:45 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:22:45 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:22:45 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:22:45 [notice] 1#1: start worker processes
+2025/08/19 17:22:45 [notice] 1#1: start worker process 9
+2025/08/19 17:22:45 [notice] 1#1: start worker process 10
+2025/08/19 17:22:45 [notice] 1#1: start worker process 11
+2025/08/19 17:22:45 [notice] 1#1: start worker process 12
+2025/08/19 17:22:45 [notice] 1#1: start worker process 13
+2025/08/19 17:22:45 [notice] 1#1: start worker process 14
+2025/08/19 17:22:45 [notice] 1#1: start worker process 15
+2025/08/19 17:22:45 [notice] 1#1: start worker process 16
+2025/08/19 17:22:45 [notice] 1#1: start worker process 17
+2025/08/19 17:22:45 [notice] 1#1: start worker process 18
+2025/08/19 17:22:45 [notice] 1#1: start worker process 19
+2025/08/19 17:22:45 [notice] 1#1: start worker process 20
+2025/08/19 17:22:45 [notice] 1#1: start worker process 21
+2025/08/19 17:22:45 [notice] 1#1: start worker process 22
+2025/08/19 17:22:45 [notice] 1#1: start worker process 23
+2025/08/19 17:22:45 [notice] 1#1: start worker process 24
+2025/08/19 17:33:44 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:33:44 [notice] 9#9: gracefully shutting down
+2025/08/19 17:33:44 [notice] 14#14: gracefully shutting down
+2025/08/19 17:33:44 [notice] 10#10: gracefully shutting down
+2025/08/19 17:33:44 [notice] 15#15: gracefully shutting down
+2025/08/19 17:33:44 [notice] 10#10: exiting
+2025/08/19 17:33:44 [notice] 15#15: exiting
+2025/08/19 17:33:44 [notice] 16#16: gracefully shutting down
+2025/08/19 17:33:44 [notice] 18#18: gracefully shutting down
+2025/08/19 17:33:44 [notice] 17#17: gracefully shutting down
+2025/08/19 17:33:44 [notice] 19#19: gracefully shutting down
+2025/08/19 17:33:44 [notice] 20#20: gracefully shutting down
+2025/08/19 17:33:44 [notice] 17#17: exiting
+2025/08/19 17:33:44 [notice] 23#23: gracefully shutting down
+2025/08/19 17:33:44 [notice] 24#24: gracefully shutting down
+2025/08/19 17:33:44 [notice] 22#22: gracefully shutting down
+2025/08/19 17:33:44 [notice] 21#21: gracefully shutting down
+2025/08/19 17:33:44 [notice] 12#12: gracefully shutting down
+2025/08/19 17:33:44 [notice] 21#21: exiting
+2025/08/19 17:33:44 [notice] 13#13: gracefully shutting down
+2025/08/19 17:33:44 [notice] 9#9: exiting
+2025/08/19 17:33:44 [notice] 11#11: gracefully shutting down
+2025/08/19 17:33:44 [notice] 14#14: exiting
+2025/08/19 17:33:44 [notice] 16#16: exiting
+2025/08/19 17:33:44 [notice] 9#9: exit
+2025/08/19 17:33:44 [notice] 18#18: exiting
+2025/08/19 17:33:44 [notice] 19#19: exiting
+2025/08/19 17:33:44 [notice] 10#10: exit
+2025/08/19 17:33:44 [notice] 15#15: exit
+2025/08/19 17:33:44 [notice] 20#20: exiting
+2025/08/19 17:33:44 [notice] 23#23: exiting
+2025/08/19 17:33:44 [notice] 17#17: exit
+2025/08/19 17:33:44 [notice] 24#24: exiting
+2025/08/19 17:33:44 [notice] 22#22: exiting
+2025/08/19 17:33:44 [notice] 23#23: exit
+2025/08/19 17:33:44 [notice] 12#12: exiting
+2025/08/19 17:33:44 [notice] 21#21: exit
+2025/08/19 17:33:44 [notice] 13#13: exiting
+2025/08/19 17:33:44 [notice] 11#11: exiting
+2025/08/19 17:33:44 [notice] 14#14: exit
+2025/08/19 17:33:44 [notice] 16#16: exit
+2025/08/19 17:33:44 [notice] 18#18: exit
+2025/08/19 17:33:44 [notice] 19#19: exit
+2025/08/19 17:33:44 [notice] 20#20: exit
+2025/08/19 17:33:44 [notice] 24#24: exit
+2025/08/19 17:33:44 [notice] 22#22: exit
+2025/08/19 17:33:44 [notice] 13#13: exit
+2025/08/19 17:33:44 [notice] 11#11: exit
+2025/08/19 17:33:44 [notice] 12#12: exit
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/08/19 17:33:44 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/19 17:33:44 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/08/19 17:33:44 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2025/08/19 17:33:44 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/19 17:33:44 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/19 17:33:44 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:33:44 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/19 17:33:44 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:33:44 [notice] 1#1: exit
+2025/08/19 17:33:45 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:33:45 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:33:45 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:33:45 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:33:45 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:33:45 [notice] 1#1: start worker processes
+2025/08/19 17:33:45 [notice] 1#1: start worker process 9
+2025/08/19 17:33:45 [notice] 1#1: start worker process 10
+2025/08/19 17:33:45 [notice] 1#1: start worker process 11
+2025/08/19 17:33:45 [notice] 1#1: start worker process 12
+2025/08/19 17:33:45 [notice] 1#1: start worker process 13
+2025/08/19 17:33:45 [notice] 1#1: start worker process 14
+2025/08/19 17:33:45 [notice] 1#1: start worker process 15
+2025/08/19 17:33:45 [notice] 1#1: start worker process 16
+2025/08/19 17:33:45 [notice] 1#1: start worker process 17
+2025/08/19 17:33:45 [notice] 1#1: start worker process 18
+2025/08/19 17:33:45 [notice] 1#1: start worker process 19
+2025/08/19 17:33:45 [notice] 1#1: start worker process 20
+2025/08/19 17:33:45 [notice] 1#1: start worker process 21
+2025/08/19 17:33:45 [notice] 1#1: start worker process 22
+2025/08/19 17:33:45 [notice] 1#1: start worker process 23
+2025/08/19 17:33:45 [notice] 1#1: start worker process 24
+2025/08/19 17:44:24 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:44:24 [notice] 10#10: gracefully shutting down
+2025/08/19 17:44:24 [notice] 22#22: gracefully shutting down
+2025/08/19 17:44:24 [notice] 20#20: gracefully shutting down
+2025/08/19 17:44:24 [notice] 22#22: exiting
+2025/08/19 17:44:24 [notice] 17#17: gracefully shutting down
+2025/08/19 17:44:24 [notice] 15#15: gracefully shutting down
+2025/08/19 17:44:24 [notice] 18#18: gracefully shutting down
+2025/08/19 17:44:24 [notice] 15#15: exiting
+2025/08/19 17:44:24 [notice] 15#15: exit
+2025/08/19 17:44:24 [notice] 21#21: gracefully shutting down
+2025/08/19 17:44:24 [notice] 19#19: gracefully shutting down
+2025/08/19 17:44:24 [notice] 23#23: gracefully shutting down
+2025/08/19 17:44:24 [notice] 24#24: gracefully shutting down
+2025/08/19 17:44:24 [notice] 9#9: gracefully shutting down
+2025/08/19 17:44:24 [notice] 12#12: gracefully shutting down
+2025/08/19 17:44:24 [notice] 14#14: gracefully shutting down
+2025/08/19 17:44:24 [notice] 11#11: gracefully shutting down
+2025/08/19 17:44:24 [notice] 13#13: gracefully shutting down
+2025/08/19 17:44:24 [notice] 10#10: exiting
+2025/08/19 17:44:24 [notice] 20#20: exiting
+2025/08/19 17:44:24 [notice] 13#13: exiting
+2025/08/19 17:44:24 [notice] 16#16: gracefully shutting down
+2025/08/19 17:44:24 [notice] 17#17: exiting
+2025/08/19 17:44:24 [notice] 18#18: exiting
+2025/08/19 17:44:24 [notice] 21#21: exiting
+2025/08/19 17:44:24 [notice] 19#19: exiting
+2025/08/19 17:44:24 [notice] 24#24: exiting
+2025/08/19 17:44:24 [notice] 23#23: exiting
+2025/08/19 17:44:24 [notice] 22#22: exit
+2025/08/19 17:44:24 [notice] 9#9: exiting
+2025/08/19 17:44:24 [notice] 12#12: exiting
+2025/08/19 17:44:24 [notice] 14#14: exiting
+2025/08/19 17:44:24 [notice] 11#11: exiting
+2025/08/19 17:44:24 [notice] 10#10: exit
+2025/08/19 17:44:24 [notice] 20#20: exit
+2025/08/19 17:44:24 [notice] 13#13: exit
+2025/08/19 17:44:24 [notice] 16#16: exiting
+2025/08/19 17:44:24 [notice] 17#17: exit
+2025/08/19 17:44:24 [notice] 18#18: exit
+2025/08/19 17:44:24 [notice] 21#21: exit
+2025/08/19 17:44:24 [notice] 19#19: exit
+2025/08/19 17:44:24 [notice] 24#24: exit
+2025/08/19 17:44:24 [notice] 23#23: exit
+2025/08/19 17:44:24 [notice] 9#9: exit
+2025/08/19 17:44:24 [notice] 12#12: exit
+2025/08/19 17:44:24 [notice] 14#14: exit
+2025/08/19 17:44:24 [notice] 11#11: exit
+2025/08/19 17:44:24 [notice] 16#16: exit
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/08/19 17:44:24 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2025/08/19 17:44:24 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/19 17:44:24 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2025/08/19 17:44:24 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 19
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/19 17:44:24 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 21
+2025/08/19 17:44:24 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:44:24 [notice] 1#1: signal 17 (SIGCHLD) received from 18
+2025/08/19 17:44:24 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:44:24 [notice] 1#1: exit
+2025/08/19 17:44:26 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:44:26 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:44:26 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:44:26 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:44:26 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:44:26 [notice] 1#1: start worker processes
+2025/08/19 17:44:26 [notice] 1#1: start worker process 10
+2025/08/19 17:44:26 [notice] 1#1: start worker process 11
+2025/08/19 17:44:26 [notice] 1#1: start worker process 12
+2025/08/19 17:44:26 [notice] 1#1: start worker process 13
+2025/08/19 17:44:26 [notice] 1#1: start worker process 14
+2025/08/19 17:44:26 [notice] 1#1: start worker process 15
+2025/08/19 17:44:26 [notice] 1#1: start worker process 16
+2025/08/19 17:44:26 [notice] 1#1: start worker process 17
+2025/08/19 17:44:26 [notice] 1#1: start worker process 18
+2025/08/19 17:44:26 [notice] 1#1: start worker process 19
+2025/08/19 17:44:26 [notice] 1#1: start worker process 20
+2025/08/19 17:44:26 [notice] 1#1: start worker process 21
+2025/08/19 17:44:26 [notice] 1#1: start worker process 22
+2025/08/19 17:44:26 [notice] 1#1: start worker process 23
+2025/08/19 17:44:26 [notice] 1#1: start worker process 24
+2025/08/19 17:44:26 [notice] 1#1: start worker process 25
+2025/08/19 17:46:46 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:46:46 [notice] 10#10: gracefully shutting down
+2025/08/19 17:46:46 [notice] 10#10: exiting
+2025/08/19 17:46:46 [notice] 11#11: gracefully shutting down
+2025/08/19 17:46:46 [notice] 11#11: exiting
+2025/08/19 17:46:46 [notice] 13#13: gracefully shutting down
+2025/08/19 17:46:46 [notice] 12#12: gracefully shutting down
+2025/08/19 17:46:46 [notice] 14#14: gracefully shutting down
+2025/08/19 17:46:46 [notice] 15#15: gracefully shutting down
+2025/08/19 17:46:46 [notice] 15#15: exiting
+2025/08/19 17:46:46 [notice] 16#16: gracefully shutting down
+2025/08/19 17:46:46 [notice] 16#16: exiting
+2025/08/19 17:46:46 [notice] 17#17: gracefully shutting down
+2025/08/19 17:46:46 [notice] 17#17: exiting
+2025/08/19 17:46:46 [notice] 18#18: gracefully shutting down
+2025/08/19 17:46:46 [notice] 18#18: exiting
+2025/08/19 17:46:46 [notice] 19#19: gracefully shutting down
+2025/08/19 17:46:46 [notice] 21#21: gracefully shutting down
+2025/08/19 17:46:46 [notice] 18#18: exit
+2025/08/19 17:46:46 [notice] 20#20: gracefully shutting down
+2025/08/19 17:46:46 [notice] 22#22: gracefully shutting down
+2025/08/19 17:46:46 [notice] 23#23: gracefully shutting down
+2025/08/19 17:46:46 [notice] 23#23: exiting
+2025/08/19 17:46:46 [notice] 24#24: gracefully shutting down
+2025/08/19 17:46:46 [notice] 25#25: gracefully shutting down
+2025/08/19 17:46:46 [notice] 25#25: exiting
+2025/08/19 17:46:46 [notice] 10#10: exit
+2025/08/19 17:46:46 [notice] 13#13: exiting
+2025/08/19 17:46:46 [notice] 12#12: exiting
+2025/08/19 17:46:46 [notice] 11#11: exit
+2025/08/19 17:46:46 [notice] 14#14: exiting
+2025/08/19 17:46:46 [notice] 15#15: exit
+2025/08/19 17:46:46 [notice] 16#16: exit
+2025/08/19 17:46:46 [notice] 17#17: exit
+2025/08/19 17:46:46 [notice] 19#19: exiting
+2025/08/19 17:46:46 [notice] 21#21: exiting
+2025/08/19 17:46:46 [notice] 20#20: exiting
+2025/08/19 17:46:46 [notice] 22#22: exiting
+2025/08/19 17:46:46 [notice] 23#23: exit
+2025/08/19 17:46:46 [notice] 19#19: exit
+2025/08/19 17:46:46 [notice] 24#24: exiting
+2025/08/19 17:46:46 [notice] 25#25: exit
+2025/08/19 17:46:46 [notice] 13#13: exit
+2025/08/19 17:46:46 [notice] 24#24: exit
+2025/08/19 17:46:46 [notice] 12#12: exit
+2025/08/19 17:46:46 [notice] 14#14: exit
+2025/08/19 17:46:46 [notice] 21#21: exit
+2025/08/19 17:46:46 [notice] 20#20: exit
+2025/08/19 17:46:46 [notice] 22#22: exit
+2025/08/19 17:46:46 [notice] 1#1: signal 17 (SIGCHLD) received from 10
+2025/08/19 17:46:46 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:46:46 [notice] 1#1: signal 17 (SIGCHLD) received from 18
+2025/08/19 17:46:46 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:46:46 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/08/19 17:46:46 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/19 17:46:46 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 25 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:46:46 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2025/08/19 17:46:46 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:46:46 [notice] 1#1: exit
+2025/08/19 17:46:47 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:46:47 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:46:47 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:46:47 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:46:47 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:46:47 [notice] 1#1: start worker processes
+2025/08/19 17:46:47 [notice] 1#1: start worker process 9
+2025/08/19 17:46:47 [notice] 1#1: start worker process 10
+2025/08/19 17:46:47 [notice] 1#1: start worker process 11
+2025/08/19 17:46:47 [notice] 1#1: start worker process 12
+2025/08/19 17:46:47 [notice] 1#1: start worker process 13
+2025/08/19 17:46:47 [notice] 1#1: start worker process 14
+2025/08/19 17:46:47 [notice] 1#1: start worker process 15
+2025/08/19 17:46:47 [notice] 1#1: start worker process 16
+2025/08/19 17:46:47 [notice] 1#1: start worker process 17
+2025/08/19 17:46:47 [notice] 1#1: start worker process 18
+2025/08/19 17:46:47 [notice] 1#1: start worker process 19
+2025/08/19 17:46:47 [notice] 1#1: start worker process 20
+2025/08/19 17:46:47 [notice] 1#1: start worker process 21
+2025/08/19 17:46:47 [notice] 1#1: start worker process 22
+2025/08/19 17:46:47 [notice] 1#1: start worker process 23
+2025/08/19 17:46:47 [notice] 1#1: start worker process 24
+2025/08/19 17:51:18 [error] 11#11: *17 open() "/usr/share/nginx/html/casestrainer/assets/index-VfJm0jwi.js" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /casestrainer/assets/index-VfJm0jwi.js HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/19 17:51:18 [error] 11#11: *17 open() "/usr/share/nginx/html/casestrainer/assets/vue-DOX4hRq3.js" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /casestrainer/assets/vue-DOX4hRq3.js HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/19 17:51:18 [error] 11#11: *17 open() "/usr/share/nginx/html/casestrainer/assets/vendor-C-1G2k3o.js" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /casestrainer/assets/vendor-C-1G2k3o.js HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/19 17:51:18 [error] 11#11: *17 open() "/usr/share/nginx/html/casestrainer/assets/index-DWptuENn.css" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /casestrainer/assets/index-DWptuENn.css HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/19 17:51:18 [error] 11#11: *17 open() "/usr/share/nginx/html/casestrainer/vite.svg" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /casestrainer/vite.svg HTTP/2.0", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/08/19 17:52:10 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/19 17:52:10 [notice] 9#9: gracefully shutting down
+2025/08/19 17:52:10 [notice] 10#10: gracefully shutting down
+2025/08/19 17:52:10 [notice] 11#11: gracefully shutting down
+2025/08/19 17:52:10 [notice] 10#10: exiting
+2025/08/19 17:52:10 [notice] 12#12: gracefully shutting down
+2025/08/19 17:52:10 [notice] 13#13: gracefully shutting down
+2025/08/19 17:52:10 [notice] 14#14: gracefully shutting down
+2025/08/19 17:52:10 [notice] 15#15: gracefully shutting down
+2025/08/19 17:52:10 [notice] 17#17: gracefully shutting down
+2025/08/19 17:52:10 [notice] 16#16: gracefully shutting down
+2025/08/19 17:52:10 [notice] 18#18: gracefully shutting down
+2025/08/19 17:52:10 [notice] 17#17: exiting
+2025/08/19 17:52:10 [notice] 19#19: gracefully shutting down
+2025/08/19 17:52:10 [notice] 20#20: gracefully shutting down
+2025/08/19 17:52:10 [notice] 22#22: gracefully shutting down
+2025/08/19 17:52:10 [notice] 23#23: gracefully shutting down
+2025/08/19 17:52:10 [notice] 21#21: gracefully shutting down
+2025/08/19 17:52:10 [notice] 24#24: gracefully shutting down
+2025/08/19 17:52:10 [notice] 9#9: exiting
+2025/08/19 17:52:10 [notice] 11#11: exiting
+2025/08/19 17:52:10 [notice] 12#12: exiting
+2025/08/19 17:52:10 [notice] 10#10: exit
+2025/08/19 17:52:10 [notice] 13#13: exiting
+2025/08/19 17:52:10 [notice] 14#14: exiting
+2025/08/19 17:52:10 [notice] 15#15: exiting
+2025/08/19 17:52:10 [notice] 16#16: exiting
+2025/08/19 17:52:10 [notice] 13#13: exit
+2025/08/19 17:52:10 [notice] 18#18: exiting
+2025/08/19 17:52:10 [notice] 17#17: exit
+2025/08/19 17:52:10 [notice] 19#19: exiting
+2025/08/19 17:52:10 [notice] 20#20: exiting
+2025/08/19 17:52:10 [notice] 18#18: exit
+2025/08/19 17:52:10 [notice] 22#22: exiting
+2025/08/19 17:52:10 [notice] 23#23: exiting
+2025/08/19 17:52:10 [notice] 21#21: exiting
+2025/08/19 17:52:10 [notice] 24#24: exiting
+2025/08/19 17:52:10 [notice] 9#9: exit
+2025/08/19 17:52:10 [notice] 23#23: exit
+2025/08/19 17:52:10 [notice] 11#11: exit
+2025/08/19 17:52:10 [notice] 12#12: exit
+2025/08/19 17:52:10 [notice] 14#14: exit
+2025/08/19 17:52:10 [notice] 15#15: exit
+2025/08/19 17:52:10 [notice] 16#16: exit
+2025/08/19 17:52:10 [notice] 19#19: exit
+2025/08/19 17:52:10 [notice] 20#20: exit
+2025/08/19 17:52:10 [notice] 22#22: exit
+2025/08/19 17:52:10 [notice] 21#21: exit
+2025/08/19 17:52:10 [notice] 24#24: exit
+2025/08/19 17:52:10 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/19 17:52:10 [notice] 1#1: worker process 12 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:52:10 [notice] 1#1: signal 17 (SIGCHLD) received from 14
+2025/08/19 17:52:10 [notice] 1#1: worker process 9 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 10 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 11 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 13 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 14 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 17 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 18 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 23 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/19 17:52:10 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/19 17:52:10 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/19 17:52:10 [notice] 1#1: worker process 15 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 16 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 19 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 20 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 21 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 22 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: worker process 24 exited with code 0
+2025/08/19 17:52:10 [notice] 1#1: exit
+2025/08/19 17:52:11 [notice] 1#1: using the "epoll" event method
+2025/08/19 17:52:11 [notice] 1#1: nginx/1.29.1
+2025/08/19 17:52:11 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 17:52:11 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 17:52:11 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 17:52:11 [notice] 1#1: start worker processes
+2025/08/19 17:52:11 [notice] 1#1: start worker process 9
+2025/08/19 17:52:11 [notice] 1#1: start worker process 10
+2025/08/19 17:52:11 [notice] 1#1: start worker process 11
+2025/08/19 17:52:11 [notice] 1#1: start worker process 12
+2025/08/19 17:52:11 [notice] 1#1: start worker process 13
+2025/08/19 17:52:11 [notice] 1#1: start worker process 14
+2025/08/19 17:52:11 [notice] 1#1: start worker process 15
+2025/08/19 17:52:11 [notice] 1#1: start worker process 16
+2025/08/19 17:52:11 [notice] 1#1: start worker process 17
+2025/08/19 17:52:11 [notice] 1#1: start worker process 18
+2025/08/19 17:52:11 [notice] 1#1: start worker process 19
+2025/08/19 17:52:11 [notice] 1#1: start worker process 20
+2025/08/19 17:52:11 [notice] 1#1: start worker process 21
+2025/08/19 17:52:11 [notice] 1#1: start worker process 22
+2025/08/19 17:52:11 [notice] 1#1: start worker process 23
+2025/08/19 17:52:11 [notice] 1#1: start worker process 24
+2025/08/19 18:37:17 [error] 19#19: *132 open() "/usr/share/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.0", host: "128.208.154.3", referrer: "https://www.google.com"
+2025/08/19 22:23:51 [notice] 1#1: using the "epoll" event method
+2025/08/19 22:23:51 [notice] 1#1: nginx/1.29.1
+2025/08/19 22:23:51 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 22:23:51 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 22:23:51 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 22:23:51 [notice] 1#1: start worker processes
+2025/08/19 22:23:51 [notice] 1#1: start worker process 8
+2025/08/19 22:23:51 [notice] 1#1: start worker process 9
+2025/08/19 22:23:51 [notice] 1#1: start worker process 10
+2025/08/19 22:23:51 [notice] 1#1: start worker process 11
+2025/08/19 22:23:51 [notice] 1#1: start worker process 12
+2025/08/19 22:23:51 [notice] 1#1: start worker process 13
+2025/08/19 22:23:51 [notice] 1#1: start worker process 14
+2025/08/19 22:23:51 [notice] 1#1: start worker process 15
+2025/08/19 22:23:51 [notice] 1#1: start worker process 16
+2025/08/19 22:23:51 [notice] 1#1: start worker process 17
+2025/08/19 22:23:51 [notice] 1#1: start worker process 18
+2025/08/19 22:23:51 [notice] 1#1: start worker process 19
+2025/08/19 22:23:51 [notice] 1#1: start worker process 20
+2025/08/19 22:23:51 [notice] 1#1: start worker process 21
+2025/08/19 22:23:51 [notice] 1#1: start worker process 22
+2025/08/19 22:23:51 [notice] 1#1: start worker process 23
+2025/08/19 22:29:22 [notice] 1#1: using the "epoll" event method
+2025/08/19 22:29:22 [notice] 1#1: nginx/1.29.1
+2025/08/19 22:29:22 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 22:29:22 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 22:29:22 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 22:29:22 [notice] 1#1: start worker processes
+2025/08/19 22:29:22 [notice] 1#1: start worker process 10
+2025/08/19 22:29:22 [notice] 1#1: start worker process 11
+2025/08/19 22:29:22 [notice] 1#1: start worker process 12
+2025/08/19 22:29:22 [notice] 1#1: start worker process 13
+2025/08/19 22:29:22 [notice] 1#1: start worker process 14
+2025/08/19 22:29:22 [notice] 1#1: start worker process 15
+2025/08/19 22:29:22 [notice] 1#1: start worker process 16
+2025/08/19 22:29:22 [notice] 1#1: start worker process 17
+2025/08/19 22:29:22 [notice] 1#1: start worker process 18
+2025/08/19 22:29:22 [notice] 1#1: start worker process 19
+2025/08/19 22:29:22 [notice] 1#1: start worker process 20
+2025/08/19 22:29:22 [notice] 1#1: start worker process 21
+2025/08/19 22:29:22 [notice] 1#1: start worker process 22
+2025/08/19 22:29:22 [notice] 1#1: start worker process 23
+2025/08/19 22:29:22 [notice] 1#1: start worker process 24
+2025/08/19 22:29:22 [notice] 1#1: start worker process 25
+2025/08/19 22:37:31 [notice] 1#1: using the "epoll" event method
+2025/08/19 22:37:31 [notice] 1#1: nginx/1.29.1
+2025/08/19 22:37:31 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/19 22:37:31 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/19 22:37:31 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/19 22:37:31 [notice] 1#1: start worker processes
+2025/08/19 22:37:31 [notice] 1#1: start worker process 9
+2025/08/19 22:37:31 [notice] 1#1: start worker process 10
+2025/08/19 22:37:31 [notice] 1#1: start worker process 11
+2025/08/19 22:37:31 [notice] 1#1: start worker process 12
+2025/08/19 22:37:31 [notice] 1#1: start worker process 13
+2025/08/19 22:37:31 [notice] 1#1: start worker process 14
+2025/08/19 22:37:31 [notice] 1#1: start worker process 15
+2025/08/19 22:37:31 [notice] 1#1: start worker process 16
+2025/08/19 22:37:31 [notice] 1#1: start worker process 17
+2025/08/19 22:37:31 [notice] 1#1: start worker process 18
+2025/08/19 22:37:31 [notice] 1#1: start worker process 19
+2025/08/19 22:37:31 [notice] 1#1: start worker process 20
+2025/08/19 22:37:31 [notice] 1#1: start worker process 21
+2025/08/19 22:37:31 [notice] 1#1: start worker process 22
+2025/08/19 22:37:31 [notice] 1#1: start worker process 23
+2025/08/19 22:37:31 [notice] 1#1: start worker process 24
+2025/08/19 22:50:19 [error] 10#10: *31 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3/favicon.ico"
+2025/08/19 23:07:47 [error] 13#13: *80 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "128.208.154.3"
+2025/08/19 23:27:03 [error] 16#16: *124 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/08/20 00:07:58 [error] 19#19: *211 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/20 00:40:06 [error] 22#22: *291 open() "/usr/share/nginx/html/ReportServer" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /ReportServer HTTP/1.1", host: "128.208.154.3"

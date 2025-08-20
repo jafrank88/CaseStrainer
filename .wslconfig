@@ -1,24 +1,32 @@
+# WSL Configuration for Docker Desktop - Optimized for CaseStrainer
 [wsl2]
-# Limits memory usage to 8GB (adjust based on your system's available RAM)
-memory=8GB
 
-# Limits WSL2 to use 4 CPU cores (adjust based on your CPU core count)
+# Memory allocation - 4GB for Docker containers
+memory=4GB
+
+# CPU allocation - 4 cores for Docker containers  
 processors=4
 
-# Enables nested virtualization
+# Swap configuration - 2GB for memory management
+swap=2GB
+
+# Enable nested virtualization for better Docker performance
 nestedVirtualization=true
 
-# Enables page reporting (frees unused memory back to the host)
+# Enable WSLg for GUI applications
+guiApplications=true
+
+# Network configuration for Docker
+networkingMode=mirrored
+dnsTunneling=true
+localhostForwarding=true
+
+# Kernel optimizations for Docker
+kernelCommandLine=vsyscall=emulate
+
+# Memory management optimizations
 pageReporting=true
+memoryReclaim=true
 
-# Enables systemd in WSL2
-systemd=true
-
-# Enables experimental features
-[experimental]
-autoMemoryReclaim=dropcache
-sparseVhd=true
-hostGatewayLoopback=true
-nestedVirtualization=true
-# Enable experimental kernel features
-kernelCommandLine = vsyscall=emulate
+# Disk size for WSL2
+disk=128GB

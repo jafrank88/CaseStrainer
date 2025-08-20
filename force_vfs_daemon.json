@@ -1,0 +1,14 @@
+{
+  "storage-driver": "vfs",
+  "storage-opts": [],
+  "experimental": false,
+  "debug": false,
+  "features": {
+    "buildkit": false
+  },
+  "builder": {
+    "gc": {
+      "enabled": false
+    }
+  }
+}

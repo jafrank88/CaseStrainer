@@ -411,6 +411,10 @@ class ComprehensiveWebSearchEngine:
         try:
             if engine == 'google_scholar':
                 results = self._google_search(query, num_results)
+            elif engine == 'justia':
+                results = self._justia_search(query, num_results)
+            elif engine == 'findlaw':
+                results = self._findlaw_search(query, num_results)
             elif engine == 'bing':
                 results = self._bing_search(query, num_results)
             elif engine == 'duckduckgo':
@@ -441,6 +445,40 @@ class ComprehensiveWebSearchEngine:
                 'url': f'https://example.com/result{i+1}',
                 'snippet': f'This is a snippet for result {i+1}',
                 'source': 'google_scholar'
+            })
+        
+        return results
+    
+    def _justia_search(self, query: str, num_results: int) -> List[Dict]:
+        """Perform Justia search for legal documents."""
+        # This is a simplified implementation
+        # In practice, you'd need to handle Justia's search API or web scraping
+        results = []
+        
+        # Simulate Justia search results
+        for i in range(min(num_results, 3)):
+            results.append({
+                'title': f'Justia legal result {i+1} for {query}',
+                'url': f'https://law.justia.com/result{i+1}',
+                'snippet': f'This is a Justia legal snippet for result {i+1}',
+                'source': 'justia'
+            })
+        
+        return results
+    
+    def _findlaw_search(self, query: str, num_results: int) -> List[Dict]:
+        """Perform FindLaw search for legal documents."""
+        # This is a simplified implementation
+        # In practice, you'd need to handle FindLaw's search API or web scraping
+        results = []
+        
+        # Simulate FindLaw search results
+        for i in range(min(num_results, 3)):
+            results.append({
+                'title': f'FindLaw legal result {i+1} for {query}',
+                'url': f'https://caselaw.findlaw.com/result{i+1}',
+                'snippet': f'This is a FindLaw legal snippet for result {i+1}',
+                'source': 'findlaw'
             })
         
         return results
@@ -478,9 +516,28 @@ class ComprehensiveWebSearchEngine:
         return results
     
     async def search_vlex(self, citation: str, case_name: Optional[str] = None) -> Dict:
-        """Search Vlex for legal documents."""
-        # Implementation would go here
-        return {'source': 'vlex', 'results': []}
+        """
+        Search Vlex for legal documents.
+        
+        DEPRECATED: This function is deprecated due to site blocking and unreliable web scraping.
+        Use search_google_scholar, search_bing, or search_duckduckgo for more reliable fallback verification.
+        """
+        import warnings
+        warnings.warn(
+            "search_vlex is deprecated due to site blocking and unreliable web scraping. "
+            "Use search_google_scholar, search_bing, or search_duckduckgo for more reliable fallback verification.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        
+        logger.warning(f"vLex search deprecated for {citation} - use Google Scholar, Bing, or DuckDuckGo instead")
+        return {
+            'source': 'vlex', 
+            'verified': False,
+            'results': [],
+            'deprecated': True,
+            'message': 'vLex search deprecated - use Google Scholar, Bing, or DuckDuckGo instead'
+        }
     
     async def search_casetext(self, citation: str, case_name: Optional[str] = None) -> Dict:
         """Search Casetext for legal documents."""
@@ -694,12 +751,30 @@ class ComprehensiveWebSearchEngine:
                     
                     if results:
                         best_result = results[0]
+                        # Try to extract case name from the search result title
+                        extracted_case_name = case_name
+                        if not extracted_case_name and best_result.get('title'):
+                            title = best_result.get('title', '')
+                            # Look for case name patterns in the title
+                            case_patterns = [
+                                r'([A-Z][a-zA-Z\s&.]+\s+v\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X v. Y
+                                r'([A-Z][a-zA-Z\s&.]+\s+vs\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X vs. Y
+                                r'(In re [A-Z][a-zA-Z\s&.]+)',  # In re X
+                                r'(Ex parte [A-Z][a-zA-Z\s&.]+)',  # Ex parte X
+                            ]
+                            
+                            for pattern in case_patterns:
+                                match = re.search(pattern, title)
+                                if match:
+                                    extracted_case_name = match.group(1).strip()
+                                    break
+                        
                         return {
                             'source': 'google_scholar',
                             'verified': True,
                             'url': best_result.get('url', ''),
                             'title': best_result.get('title', ''),
-                            'canonical_name': case_name,
+                            'canonical_name': extracted_case_name or case_name,
                             'canonical_date': None,
                             'results': results
                         }
@@ -724,12 +799,30 @@ class ComprehensiveWebSearchEngine:
                     
                     if results:
                         best_result = results[0]
+                        # Try to extract case name from the search result title
+                        extracted_case_name = case_name
+                        if not extracted_case_name and best_result.get('title'):
+                            title = best_result.get('title', '')
+                            # Look for case name patterns in the title
+                            case_patterns = [
+                                r'([A-Z][a-zA-Z\s&.]+\s+v\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X v. Y
+                                r'([A-Z][a-zA-Z\s&.]+\s+vs\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X vs. Y
+                                r'(In re [A-Z][a-zA-Z\s&.]+)',  # In re X
+                                r'(Ex parte [A-Z][a-zA-Z\s&.]+)',  # Ex parte X
+                            ]
+                            
+                            for pattern in case_patterns:
+                                match = re.search(pattern, title)
+                                if match:
+                                    extracted_case_name = match.group(1).strip()
+                                    break
+                        
                         return {
                             'source': 'bing',
                             'verified': True,
                             'url': best_result.get('url', ''),
                             'title': best_result.get('title', ''),
-                            'canonical_name': case_name,
+                            'canonical_name': extracted_case_name or case_name,
                             'canonical_date': None,
                             'results': results
                         }
@@ -754,12 +847,30 @@ class ComprehensiveWebSearchEngine:
                     
                     if results:
                         best_result = results[0]
+                        # Try to extract case name from the search result title
+                        extracted_case_name = case_name
+                        if not extracted_case_name and best_result.get('title'):
+                            title = best_result.get('title', '')
+                            # Look for case name patterns in the title
+                            case_patterns = [
+                                r'([A-Z][a-zA-Z\s&.]+\s+v\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X v. Y
+                                r'([A-Z][a-zA-Z\s&.]+\s+vs\.?\s+[A-Z][a-zA-Z\s&.]+)',  # X vs. Y
+                                r'(In re [A-Z][a-zA-Z\s&.]+)',  # In re X
+                                r'(Ex parte [A-Z][a-zA-Z\s&.]+)',  # Ex parte X
+                            ]
+                            
+                            for pattern in case_patterns:
+                                match = re.search(pattern, title)
+                                if match:
+                                    extracted_case_name = match.group(1).strip()
+                                    break
+                        
                         return {
                             'source': 'duckduckgo',
                             'verified': True,
                             'url': best_result.get('url', ''),
                             'title': best_result.get('title', ''),
-                            'canonical_name': case_name,
+                            'canonical_name': extracted_case_name or case_name,
                             'canonical_date': None,
                             'results': results
                         }

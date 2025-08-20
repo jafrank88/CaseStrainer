@@ -77,6 +77,8 @@ class FallbackVerifier:
         sources = [
             ('cornell_law', self._verify_with_cornell_law),
             ('justia', self._verify_with_justia),
+            # vlex deprecated due to site blocking and unreliable web scraping
+            ('casemine', self._verify_with_casemine),
             ('google_scholar', self._verify_with_google_scholar),
             ('caselaw_access', self._verify_with_caselaw_access)
         ]
@@ -114,8 +116,8 @@ class FallbackVerifier:
             r'(\d+)\s+U\.S\.\s+(\d+)',
             # Federal: "123 F.2d 456", "456 F.3d 789"
             r'(\d+)\s+F\.(?:2d|3d)\s+(\d+)',
-            # State: "123 Wash. 2d 456", "789 P.2d 123"
-            r'(\d+)\s+(?:Wash\.|P\.)(?:\s*2d)?\s+(\d+)',
+            # State: "123 Wn. 2d 456", "123 Wn. App. 456", "789 P.2d 123"
+            r'(\d+)\s+(?:Wn\.|Wash\.|P\.)(?:\s*(?:2d|App\.))?\s+(\d+)',
             # Law Review: "123 Harv. L. Rev. 456"
             r'(\d+)\s+\w+\.?\s+L\.?\s+Rev\.?\s+(\d+)',
         ]
@@ -487,11 +489,34 @@ class FallbackVerifier:
                     broader_pattern = r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*\s+v\.\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)'
                     broader_matches = re.findall(broader_pattern, content)
                     if broader_matches:
-                        # Take the first reasonable case name
-                        for potential_name in broader_matches:
-                            if len(potential_name) > 10 and len(potential_name) < 100:
-                                case_name = potential_name.strip()
-                                break
+                        # Use fuzzy matching to find the best case name if we have extracted_case_name
+                        if extracted_case_name:
+                            try:
+                                from src.enhanced_case_name_matcher import enhanced_matcher
+                                best_match = enhanced_matcher.find_best_match(
+                                    extracted_case_name, broader_matches, threshold=0.5
+                                )
+                                if best_match:
+                                    case_name = best_match[0]
+                                    logger.info(f"Found best case name match via fuzzy matching: '{case_name}' (similarity: {best_match[1]:.3f})")
+                                else:
+                                    # Fallback to first reasonable case name
+                                    for potential_name in broader_matches:
+                                        if len(potential_name) > 10 and len(potential_name) < 100:
+                                            case_name = potential_name.strip()
+                                            break
+                            except ImportError:
+                                # Fallback to basic selection if enhanced matcher is not available
+                                for potential_name in broader_matches:
+                                    if len(potential_name) > 10 and len(potential_name) < 100:
+                                        case_name = potential_name.strip()
+                                        break
+                        else:
+                            # Take the first reasonable case name
+                            for potential_name in broader_matches:
+                                if len(potential_name) > 10 and len(potential_name) < 100:
+                                    case_name = potential_name.strip()
+                                    break
             
             if case_name:
                 # Extract year if available
@@ -506,7 +531,8 @@ class FallbackVerifier:
                     'canonical_name': case_name,
                     'canonical_date': year,
                     'url': link_url if link_url.startswith('http') else f"https://law.justia.com{link_url}",
-                    'confidence': 0.75  # Slightly lower confidence for search-based results
+                    'confidence': 0.75,  # Slightly lower confidence for search-based results
+                    'source_content': content  # Include content for parallel citation verification
                 }
         
         # Alternative: Look for citation mentions in case summaries or snippets
@@ -541,30 +567,87 @@ class FallbackVerifier:
     
     def _verify_with_caselaw_access(self, citation_text: str, citation_info: Dict,
                                    extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
-        """Verify citation with Caselaw Access Project or similar free databases."""
-        
-        # This would integrate with Harvard's Caselaw Access Project API
+        """Verify citation with CaseLaw Access Project."""
         # For now, return None (not implemented)
         return None
     
+    def _verify_with_vlex(self, citation_text: str, citation_info: Dict,
+                          extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
+        """
+        Verify citation with vLex legal database.
+        
+        DEPRECATED: This function is deprecated due to site blocking and unreliable web scraping.
+        Use Google Scholar, Bing, or DuckDuckGo for more reliable fallback verification.
+        """
+        import warnings
+        warnings.warn(
+            "_verify_with_vlex is deprecated due to site blocking and unreliable web scraping. "
+            "Use Google Scholar, Bing, or DuckDuckGo for more reliable fallback verification.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        
+        try:
+            # vLex has a search API, but for now we'll use a generic approach
+            # since we don't have API credentials
+            logger.debug(f"vLex verification deprecated for {citation_text} - use Google Scholar, Bing, or DuckDuckGo instead")
+            return None
+        except Exception as e:
+            logger.debug(f"vLex verification error for {citation_text}: {str(e)}")
+            return None
+    
+    def _verify_with_casemine(self, citation_text: str, citation_info: Dict,
+                              extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Optional[Dict]:
+        """Verify citation with CaseMine legal database."""
+        try:
+            # CaseMine has a search API, but for now we'll use a generic approach
+            # since we don't have API credentials
+            logger.debug(f"CaseMine verification not fully implemented for {citation_text}")
+            return None
+        except Exception as e:
+            logger.debug(f"CaseMine verification error for {citation_text}: {str(e)}")
+            return None
+    
     def _names_match(self, name1: str, name2: str) -> bool:
-        """Check if two case names likely refer to the same case."""
+        """Check if two case names likely refer to the same case using enhanced fuzzy matching."""
         if not name1 or not name2:
             return False
         
-        # Normalize names for comparison
-        def normalize_name(name):
-            # Remove common legal terms and normalize spacing
-            name = re.sub(r'\b(v\.?|vs\.?|versus)\b', 'v', name, flags=re.IGNORECASE)
-            name = re.sub(r'[^\w\s]', ' ', name)
-            name = re.sub(r'\s+', ' ', name)
-            return name.lower().strip()
+        # Try to import the enhanced matcher
+        try:
+            from src.enhanced_case_name_matcher import enhanced_matcher
+            # Use enhanced fuzzy matching with a lenient threshold for fallback verification
+            return enhanced_matcher.is_likely_same_case(name1, name2, threshold=0.6)
+        except ImportError:
+            # Fallback to basic matching if enhanced matcher is not available
+            def normalize_name(name):
+                # Remove common legal terms and normalize spacing
+                name = re.sub(r'\b(v\.?|vs\.?|versus)\b', 'v', name, flags=re.IGNORECASE)
+                name = re.sub(r'[^\w\s]', ' ', name)
+                name = re.sub(r'\s+', ' ', name)
+                return name.lower().strip()
+            
+            norm1 = normalize_name(name1)
+            norm2 = normalize_name(name2)
+            
+            # Simple substring matching as fallback
+            return norm1 in norm2 or norm2 in norm1 or norm1 == norm2
+    
+    def _citations_match(self, citation1: str, citation2: str) -> bool:
+        """Check if two citations are the same (for verification purposes)."""
+        if not citation1 or not citation2:
+            return False
         
-        norm1 = normalize_name(name1)
-        norm2 = normalize_name(name2)
+        # Normalize citations for comparison
+        def normalize_citation(citation):
+            # Remove extra whitespace and normalize
+            return re.sub(r'\s+', ' ', citation.strip().lower())
         
-        # Simple substring matching
-        return norm1 in norm2 or norm2 in norm1 or norm1 == norm2
+        norm1 = normalize_citation(citation1)
+        norm2 = normalize_citation(citation2)
+        
+        # Citations must be exactly the same to be verified
+        return norm1 == norm2
 
 
 def verify_citations_with_fallback(citations: List, progress_callback=None) -> None:

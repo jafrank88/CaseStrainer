@@ -1,0 +1,258 @@
+services:
+  # Data Layer
+  redis:
+    image: redis:7-alpine
+    container_name: casestrainer-redis-prod
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data_prod:/data
+    restart: unless-stopped
+    environment:
+      - REDIS_PASSWORD=***REDACTED_REDIS_PASSWORD***
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - app-network
+    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379", "--requirepass", "***REDACTED_REDIS_PASSWORD***", "--appendonly", "yes"]
+
+  # Application Layer - Using Pre-built Image
+  backend:
+    image: casestrainer-backend:latest
+    container_name: casestrainer-backend-prod
+    command: waitress-serve --host=0.0.0.0 --port=5000 src.app_final_vue:app
+    ports:
+      - "5000:5000"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+      - FLASK_ENV=production
+      - FLASK_DEBUG=False
+      - PYTHONPATH=/app
+      - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+    volumes:
+      - ./src:/app/src
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./uploads:/app/uploads
+      - ./citation_cache:/app/citation_cache
+      - ./correction_cache:/app/correction_cache
+      - ./static:/app/static
+    restart: unless-stopped
+    mem_limit: 4g
+    mem_reservation: 2g
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 120s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  # Worker Services - Using Pre-built Image
+  rqworker1:
+    image: casestrainer-rqworker:latest
+    container_name: casestrainer-rqworker1-prod
+    command: python src/rq_worker.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=1
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  rqworker2:
+    image: casestrainer-rqworker:latest
+    container_name: casestrainer-rqworker2-prod
+    command: python src/rq_worker.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=2
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  rqworker3:
+    image: casestrainer-rqworker:latest
+    container_name: casestrainer-rqworker3-prod
+    command: python src/rq_worker.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONPATH=/app
+      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=1024
+      - WORKER_ID=3
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: unless-stopped
+    mem_limit: 2g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  # Frontend Production - Using Pre-built Image
+  frontend-prod:
+    image: casestrainer-frontend:latest
+    container_name: casestrainer-frontend-prod
+    ports:
+      - "8080:80"
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+
+  # Infrastructure Layer - Using Pre-built Image
+  nginx:
+    image: casestrainer-nginx:latest
+    container_name: casestrainer-nginx-prod
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf:/etc/nginx/conf:ro
+      - ./nginx/clean-wolf.conf:/etc/nginx/conf.d/wolf.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+      - ./casestrainer-vue-new/dist:/usr/share/nginx/html/casestrainer:ro
+      - ./logs/nginx:/var/log/nginx
+    environment:
+      - NGINX_HOST=wolf.law.uw.edu
+      - NGINX_PORT=80
+      - NGINX_ENTRYPOINT_QUIET_LOGS=1
+    command: >
+      sh -c "rm -f /etc/nginx/conf.d/default.conf &&
+             nginx -t &&
+             nginx -g 'daemon off;'"
+    depends_on:
+      backend:
+        condition: service_healthy
+      frontend-prod:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  redis_data_prod:
+
+networks:
+  app-network:
+    driver: bridge
+
+

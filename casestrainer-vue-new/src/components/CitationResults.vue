@@ -78,7 +78,10 @@ const filteredCitationsNeedingAttention = computed(() => {
   if (showAll.value) {
     // Show all clusters/citations
     if (props.results?.clusters && props.results.clusters.length > 0) {
-      return props.results.clusters
+      return props.results.clusters.map(cluster => ({
+        ...cluster,
+        citations: cluster.citation_objects || cluster.citations || []
+      }))
     }
     if (props.results?.citations) {
       return [{ citations: props.results.citations }]
@@ -207,8 +210,9 @@ const allCitations = computed(() => {
     // If we have clusters, get citations from all clusters
     if (Array.isArray(props.results?.clusters) && props.results.clusters.length > 0) {
       return props.results.clusters.flatMap(cluster => {
-        // Ensure cluster.citations is an array
-        const citations = Array.isArray(cluster?.citations) ? cluster.citations : [];
+        // Use citation_objects if available, otherwise fall back to citations
+        const citations = Array.isArray(cluster?.citation_objects) ? cluster.citation_objects : 
+                         Array.isArray(cluster?.citations) ? cluster.citations : [];
         return citations.filter(c => c && !isStatuteOrRegulation(c));
       });
     }
@@ -271,12 +275,19 @@ const citationsNeedingAttention = computed(() => {
     // Process each cluster
     return props.results.clusters
       .filter(cluster => {
-        if (!cluster || !Array.isArray(cluster.citations) || cluster.citations.length === 0) {
+        // Check if cluster has citations (either citation_objects or citations)
+        const hasCitations = (cluster.citation_objects && Array.isArray(cluster.citation_objects) && cluster.citation_objects.length > 0) ||
+                           (cluster.citations && Array.isArray(cluster.citations) && cluster.citations.length > 0);
+        
+        if (!hasCitations) {
           return false; // Skip invalid clusters
         }
         
+        // Use citation_objects if available, otherwise fall back to citations
+        const citationsToCheck = cluster.citation_objects || cluster.citations;
+        
         // Check if any citation in the cluster doesn't have a perfect score
-        return cluster.citations.some(citation => {
+        return citationsToCheck.some(citation => {
           if (!citation) return false;
           const score = calculateCitationScore(citation);
           return score < 4; // Only include clusters with at least one citation needing attention
@@ -284,11 +295,14 @@ const citationsNeedingAttention = computed(() => {
       })
       .map(cluster => {
         // Ensure we have all required properties
+        // Use citation_objects if available, otherwise fall back to citations
+        const citations = cluster.citation_objects || cluster.citations;
+        
         return {
           ...cluster,
           cluster_id: cluster.cluster_id || `cluster-${Math.random().toString(36).substr(2, 9)}`,
-          citations: Array.isArray(cluster.citations) 
-            ? cluster.citations.filter(c => c) // Filter out any null/undefined citations
+          citations: Array.isArray(citations) 
+            ? citations.filter(c => c) // Filter out any null/undefined citations
             : []
         };
       });
@@ -627,7 +641,10 @@ const noCitationsFound = computed(() => {
   // Check if we have any citations in clusters
   if (props.results.clusters && props.results.clusters.length > 0) {
     const totalCitations = props.results.clusters.reduce((total, cluster) => {
-      return total + (cluster.citations ? cluster.citations.length : 0)
+      // Check both citation_objects (full objects) and citations (strings)
+      const citationObjects = cluster.citation_objects ? cluster.citation_objects.length : 0
+      const citations = cluster.citations ? cluster.citations.length : 0
+      return total + citationObjects + citations
     }, 0)
     if (totalCitations > 0) return false
   }

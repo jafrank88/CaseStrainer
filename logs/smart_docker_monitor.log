@@ -703,3 +703,245 @@
 [2025-08-14 10:09:34] [WARN] Suspicious: 1
 [2025-08-14 10:09:34] [CLEANUP] Zombie: 0
 [2025-08-14 10:09:34] [WARN] Suspicious process detected: com.docker.build (PID: 5720)
+[2025-08-17 16:23:14] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 16:23:14] [INFO] Usage:
+[2025-08-17 16:23:14] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 16:23:14] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 16:23:14] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 16:23:14] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 16:23:14] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 16:23:15] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 16:23:15] [INFO] Total processes: 8
+[2025-08-17 16:23:15] [INFO] Legitimate: 6
+[2025-08-17 16:23:15] [WARN] Suspicious: 2
+[2025-08-17 16:23:15] [CLEANUP] Zombie: 0
+[2025-08-17 16:23:15] [WARN] Suspicious process detected: com.docker.build (PID: 23004)
+[2025-08-17 16:23:15] [WARN] Suspicious process detected: docker-cloud (PID: 13084)
+[2025-08-17 18:05:48] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 18:05:48] [INFO] Usage:
+[2025-08-17 18:05:48] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 18:05:48] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 18:05:48] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 18:05:48] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 18:05:49] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 18:05:49] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 18:05:49] [INFO] Total processes: 11
+[2025-08-17 18:05:49] [INFO] Legitimate: 6
+[2025-08-17 18:05:49] [WARN] Suspicious: 5
+[2025-08-17 18:05:49] [CLEANUP] Zombie: 0
+[2025-08-17 18:05:49] [WARN] Suspicious process detected: com.docker.build (PID: 17972)
+[2025-08-17 18:05:49] [WARN] Suspicious process detected: docker (PID: 6664)
+[2025-08-17 18:05:49] [WARN] Suspicious process detected: docker (PID: 6952)
+[2025-08-17 18:05:49] [WARN] Suspicious process detected: docker (PID: 10172)
+[2025-08-17 18:05:49] [WARN] Suspicious process detected: docker-cloud (PID: 13136)
+[2025-08-17 18:21:36] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 18:21:36] [INFO] Usage:
+[2025-08-17 18:21:36] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 18:21:36] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 18:21:36] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 18:21:36] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 18:21:36] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 18:21:37] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 18:21:37] [INFO] Total processes: 11
+[2025-08-17 18:21:37] [INFO] Legitimate: 6
+[2025-08-17 18:21:37] [WARN] Suspicious: 5
+[2025-08-17 18:21:37] [CLEANUP] Zombie: 0
+[2025-08-17 18:21:37] [WARN] Suspicious process detected: com.docker.build (PID: 7268)
+[2025-08-17 18:21:37] [WARN] Suspicious process detected: docker (PID: 18708)
+[2025-08-17 18:21:37] [WARN] Suspicious process detected: docker (PID: 21828)
+[2025-08-17 18:21:37] [WARN] Suspicious process detected: docker (PID: 22684)
+[2025-08-17 18:21:37] [WARN] Suspicious process detected: docker-cloud (PID: 1028)
+[2025-08-17 18:49:49] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 18:49:49] [INFO] Usage:
+[2025-08-17 18:49:49] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 18:49:49] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 18:49:49] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 18:49:49] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 18:49:49] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 18:49:50] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 18:49:50] [INFO] Total processes: 8
+[2025-08-17 18:49:50] [INFO] Legitimate: 6
+[2025-08-17 18:49:50] [WARN] Suspicious: 2
+[2025-08-17 18:49:50] [CLEANUP] Zombie: 0
+[2025-08-17 18:49:50] [WARN] Suspicious process detected: com.docker.build (PID: 17128)
+[2025-08-17 18:49:50] [WARN] Suspicious process detected: docker-cloud (PID: 19784)
+[2025-08-17 19:17:31] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 19:17:31] [INFO] Usage:
+[2025-08-17 19:17:31] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 19:17:31] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 19:17:31] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 19:17:31] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 19:17:31] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 19:17:31] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 19:17:31] [INFO] Total processes: 2
+[2025-08-17 19:17:31] [INFO] Legitimate: 2
+[2025-08-17 19:17:31] [WARN] Suspicious: 0
+[2025-08-17 19:17:31] [CLEANUP] Zombie: 0
+[2025-08-17 19:19:58] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 19:19:58] [INFO] Usage:
+[2025-08-17 19:19:58] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 19:19:58] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 19:19:58] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 19:19:58] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 19:19:58] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 19:19:58] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 19:19:58] [INFO] Total processes: 2
+[2025-08-17 19:19:58] [INFO] Legitimate: 2
+[2025-08-17 19:19:58] [WARN] Suspicious: 0
+[2025-08-17 19:19:58] [CLEANUP] Zombie: 0
+[2025-08-17 20:35:37] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-17 20:35:37] [INFO] Usage:
+[2025-08-17 20:35:37] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-17 20:35:37] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-17 20:35:37] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-17 20:35:37] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-17 20:35:37] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-17 20:35:37] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-17 20:35:37] [INFO] Total processes: 7
+[2025-08-17 20:35:37] [INFO] Legitimate: 5
+[2025-08-17 20:35:37] [WARN] Suspicious: 2
+[2025-08-17 20:35:37] [CLEANUP] Zombie: 0
+[2025-08-17 20:35:37] [WARN] Suspicious process detected: com.docker.build (PID: 2984)
+[2025-08-17 20:35:37] [WARN] Suspicious process detected: docker-cloud (PID: 5272)
+[2025-08-18 09:57:16] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 09:57:16] [INFO] Usage:
+[2025-08-18 09:57:16] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 09:57:16] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 09:57:16] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 09:57:16] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 09:57:16] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 09:57:36] [ERROR] Fatal error in Docker monitor: Cannot find an overload for "op_Subtraction" and the argument count: "2".
+[2025-08-18 09:57:36] [ERROR] at Get-SmartDockerAnalysis, D:\dev\casestrainer\smart_docker_monitor.ps1: line 131
+at Invoke-SmartCleanup, D:\dev\casestrainer\smart_docker_monitor.ps1: line 150
+at <ScriptBlock>, D:\dev\casestrainer\smart_docker_monitor.ps1: line 298
+at <ScriptBlock>, D:\dev\casestrainer\cslaunch.ps1: line 260
+at <ScriptBlock>, <No file>: line 1
+[2025-08-18 09:57:36] [WARN] Attempting emergency Docker restart...
+[2025-08-18 09:57:36] [WARN] Attempting to restart Docker Desktop...
+[2025-08-18 09:57:41] [INFO] Waiting for Docker to start...
+[2025-08-18 09:57:42] [INFO] Docker Desktop restarted successfully
+[2025-08-18 10:32:14] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 10:32:14] [INFO] Usage:
+[2025-08-18 10:32:14] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 10:32:14] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 10:32:14] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 10:32:14] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 10:32:14] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 10:32:15] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 10:32:15] [INFO] Total processes: 8
+[2025-08-18 10:32:15] [INFO] Legitimate: 6
+[2025-08-18 10:32:15] [WARN] Suspicious: 2
+[2025-08-18 10:32:15] [CLEANUP] Zombie: 0
+[2025-08-18 10:32:15] [WARN] Suspicious process detected: com.docker.build (PID: 33716)
+[2025-08-18 10:32:15] [WARN] Suspicious process detected: docker-cloud (PID: 25788)
+[2025-08-18 11:25:01] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 11:25:01] [INFO] Usage:
+[2025-08-18 11:25:01] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 11:25:01] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 11:25:01] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 11:25:01] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 11:25:01] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 11:25:01] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 11:25:01] [INFO] Total processes: 8
+[2025-08-18 11:25:01] [INFO] Legitimate: 6
+[2025-08-18 11:25:01] [WARN] Suspicious: 2
+[2025-08-18 11:25:01] [CLEANUP] Zombie: 0
+[2025-08-18 11:25:01] [WARN] Suspicious process detected: com.docker.build (PID: 7612)
+[2025-08-18 11:25:01] [WARN] Suspicious process detected: docker-cloud (PID: 9508)
+[2025-08-18 13:42:02] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 13:42:02] [INFO] Usage:
+[2025-08-18 13:42:02] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 13:42:02] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 13:42:02] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 13:42:02] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 13:42:02] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 13:42:03] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 13:42:03] [INFO] Total processes: 8
+[2025-08-18 13:42:03] [INFO] Legitimate: 6
+[2025-08-18 13:42:03] [WARN] Suspicious: 2
+[2025-08-18 13:42:03] [CLEANUP] Zombie: 0
+[2025-08-18 13:42:03] [WARN] Suspicious process detected: com.docker.build (PID: 11444)
+[2025-08-18 13:42:03] [WARN] Suspicious process detected: docker-cloud (PID: 8752)
+[2025-08-18 14:00:32] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 14:00:32] [INFO] Usage:
+[2025-08-18 14:00:32] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 14:00:32] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 14:00:32] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 14:00:32] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 14:00:32] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 14:00:33] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 14:00:33] [INFO] Total processes: 8
+[2025-08-18 14:00:33] [INFO] Legitimate: 6
+[2025-08-18 14:00:33] [WARN] Suspicious: 2
+[2025-08-18 14:00:33] [CLEANUP] Zombie: 0
+[2025-08-18 14:00:33] [WARN] Suspicious process detected: com.docker.build (PID: 15128)
+[2025-08-18 14:00:33] [WARN] Suspicious process detected: docker-cloud (PID: 15008)
+[2025-08-18 14:05:48] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 14:05:48] [INFO] Usage:
+[2025-08-18 14:05:48] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 14:05:48] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 14:05:48] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 14:05:48] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 14:05:48] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 14:05:49] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 14:05:49] [INFO] Total processes: 10
+[2025-08-18 14:05:49] [INFO] Legitimate: 6
+[2025-08-18 14:05:49] [WARN] Suspicious: 4
+[2025-08-18 14:05:49] [CLEANUP] Zombie: 0
+[2025-08-18 14:05:49] [WARN] Suspicious process detected: com.docker.build (PID: 13644)
+[2025-08-18 14:05:49] [WARN] Suspicious process detected: docker-buildx (PID: 13036)
+[2025-08-18 14:05:49] [WARN] Suspicious process detected: docker-cloud (PID: 10504)
+[2025-08-18 14:05:49] [WARN] Suspicious process detected: docker-compose (PID: 8704)
+[2025-08-18 14:10:14] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 14:10:14] [INFO] Usage:
+[2025-08-18 14:10:14] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 14:10:14] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 14:10:14] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 14:10:14] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 14:10:14] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 14:10:14] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 14:10:14] [INFO] Total processes: 8
+[2025-08-18 14:10:14] [INFO] Legitimate: 6
+[2025-08-18 14:10:14] [WARN] Suspicious: 2
+[2025-08-18 14:10:14] [CLEANUP] Zombie: 0
+[2025-08-18 14:10:14] [WARN] Suspicious process detected: com.docker.build (PID: 1804)
+[2025-08-18 14:10:14] [WARN] Suspicious process detected: docker-cloud (PID: 13416)
+[2025-08-18 14:28:15] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 14:28:15] [INFO] Usage:
+[2025-08-18 14:28:15] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 14:28:15] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 14:28:15] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 14:28:15] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 14:28:15] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 14:28:16] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 14:28:16] [INFO] Total processes: 1
+[2025-08-18 14:28:16] [INFO] Legitimate: 0
+[2025-08-18 14:28:16] [WARN] Suspicious: 1
+[2025-08-18 14:28:16] [CLEANUP] Zombie: 0
+[2025-08-18 14:28:16] [WARN] Suspicious process detected: docker-cloud (PID: 13624)
+[2025-08-18 14:44:00] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 14:44:00] [INFO] Usage:
+[2025-08-18 14:44:00] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 14:44:00] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 14:44:00] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 14:44:00] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 14:44:00] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 14:44:00] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 14:44:00] [INFO] Total processes: 2
+[2025-08-18 14:44:00] [INFO] Legitimate: 1
+[2025-08-18 14:44:00] [WARN] Suspicious: 1
+[2025-08-18 14:44:00] [CLEANUP] Zombie: 0
+[2025-08-18 14:44:00] [WARN] Suspicious process detected: dockerd (PID: 12124)
+[2025-08-18 15:02:52] [INFO] Enhanced Smart Docker Monitor ready
+[2025-08-18 15:02:53] [INFO] Usage:
+[2025-08-18 15:02:53] [INFO]   .\smart_docker_monitor.ps1                    # Run once
+[2025-08-18 15:02:53] [INFO]   .\smart_docker_monitor.ps1 -CheckInterval 60  # Run every minute
+[2025-08-18 15:02:53] [INFO]   .\smart_docker_monitor.ps1 -DryRun            # Preview actions
+[2025-08-18 15:02:53] [INFO]   .\smart_docker_monitor.ps1 -MaxUnresponsiveRetries 5  # Set max retries
+[2025-08-18 15:02:53] [INFO]   .\smart_docker_monitor.ps1 -DockerStartupWait 45     # Set Docker startup wait time
+[2025-08-18 15:02:53] [INFO] === SMART DOCKER CLEANUP ===
+[2025-08-18 15:02:53] [INFO] Total processes: 1
+[2025-08-18 15:02:53] [INFO] Legitimate: 0
+[2025-08-18 15:02:53] [WARN] Suspicious: 1
+[2025-08-18 15:02:53] [CLEANUP] Zombie: 0
+[2025-08-18 15:02:53] [WARN] Suspicious process detected: dockerd (PID: 12124)

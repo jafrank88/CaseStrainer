@@ -1,12 +1,96 @@
 # Enhanced Docker Health Check with Deep Diagnostics and Auto-Recovery
 # Detects and fixes Docker unresponsiveness issues
+# Auto-restart is ENABLED by default for automatic recovery
+# Includes comprehensive logging for freeze detection and restart tracking
 
 param(
     [int]$MaxCPUPercent = 320,  # 80% of 4 cores = 320%
-    [switch]$AutoRestart,
+    [switch]$AutoRestart = $true,  # Auto-restart enabled by default
     [switch]$DeepDiagnostics,
     [switch]$CollectLogs
 )
+
+# Logging Configuration - Use absolute paths to avoid system32 issues
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$LogDir = Join-Path $ScriptDir "logs"
+$LogFile = Join-Path $LogDir "docker_health_monitor.log"
+$RestartLogFile = Join-Path $LogDir "docker_restart_events.log"
+$FreezeLogFile = Join-Path $LogDir "docker_freeze_detection.log"
+
+# Ensure logs directory exists
+if (!(Test-Path $LogDir)) {
+    New-Item -ItemType Directory -Path $LogDir -Force | Out-Null
+}
+
+function Write-HealthLog {
+    param(
+        [string]$Message,
+        [string]$Level = "INFO",
+        [string]$LogPath = $LogFile
+    )
+    
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "[$timestamp] [$Level] $Message"
+    
+    # Write to specified log file
+    Add-Content -Path $LogPath -Value $logMessage -Force
+    
+    # Also write to console with appropriate color
+    $color = switch($Level) { 
+        "ERROR" { "Red" } 
+        "WARN" { "Yellow" } 
+        "SUCCESS" { "Green" }
+        "RESTART" { "Magenta" }
+        "FREEZE" { "Red" }
+        "INFO" { "White" } 
+        default { "Gray" } 
+    }
+    Write-Host $logMessage -ForegroundColor $color
+}
+
+function Test-DockerFreezeConditions {
+    param(
+        [string]$TestName,
+        [scriptblock]$TestCommand,
+        [int]$TimeoutSeconds = 15
+    )
+    
+    Write-HealthLog "Testing for freeze conditions: $TestName" -Level "INFO"
+    
+    $job = Start-Job -ScriptBlock $TestCommand
+    $completed = Wait-Job -Job $job -Timeout $TimeoutSeconds
+    
+    if ($completed) {
+        $result = Receive-Job -Job $job
+        Remove-Job -Job $job
+        Write-HealthLog "Test '$TestName' completed successfully" -Level "INFO"
+        return @{
+            Success = $true
+            Result = $result
+            TimedOut = $false
+            Duration = "< $TimeoutSeconds seconds"
+        }
+    } else {
+        Stop-Job -Job $job
+        Remove-Job -Job $job
+        Write-HealthLog "=== DOCKER FREEZE DETECTED ===" -Level "FREEZE" -LogPath $FreezeLogFile
+        Write-HealthLog "Test: $TestName" -Level "FREEZE" -LogPath $FreezeLogFile
+        Write-HealthLog "Timeout: $TimeoutSeconds seconds" -Level "FREEZE" -LogPath $FreezeLogFile
+        Write-HealthLog "Docker appears to be frozen/unresponsive" -Level "FREEZE" -LogPath $FreezeLogFile
+        
+        # Collect diagnostic info during freeze
+        $processes = Get-Process | Where-Object { $_.ProcessName -like "*docker*" } | Select-Object ProcessName, Id, CPU, WorkingSet
+        $processInfo = $processes | Format-Table -AutoSize | Out-String
+        Write-HealthLog "Docker processes during freeze:`n$processInfo" -Level "FREEZE" -LogPath $FreezeLogFile
+        
+        return @{
+            Success = $false
+            Result = $null
+            TimedOut = $true
+            Duration = "> $TimeoutSeconds seconds (TIMEOUT)"
+        }
+    }
+}
 
 function Test-DockerPortConflicts {
     Write-Host "Checking for Docker Desktop port conflicts..." -ForegroundColor Cyan
@@ -40,9 +124,15 @@ function Test-DockerPortConflicts {
 
 function Start-DockerDesktopRecovery {
     [CmdletBinding(SupportsShouldProcess)]
-    param()
+    param([string]$Reason = "Health check detected issues")
     
-    Write-Host "Starting Docker Desktop recovery..." -ForegroundColor Red
+    $restartId = [guid]::NewGuid().ToString("N").Substring(0,8)
+    Write-HealthLog "=== DOCKER RESTART INITIATED ===" -Level "RESTART" -LogPath $RestartLogFile
+    Write-HealthLog "Restart ID: $restartId" -Level "RESTART" -LogPath $RestartLogFile
+    Write-HealthLog "Reason: $Reason" -Level "RESTART" -LogPath $RestartLogFile
+    Write-HealthLog "Initiated by: Docker Health Check (Auto-Recovery)" -Level "RESTART" -LogPath $RestartLogFile
+    
+    Write-Host "Starting Docker Desktop recovery... (ID: $restartId)" -ForegroundColor Red
     
     # Step 1: Stop all Docker processes
     Write-Host "1. Stopping Docker Desktop processes..." -ForegroundColor Yellow
@@ -86,6 +176,10 @@ function Start-DockerDesktopRecovery {
             $dockerVersion = docker --version 2>$null
             if ($dockerVersion) {
                 Write-Host "Docker is responsive!" -ForegroundColor Green
+                Write-HealthLog "=== DOCKER RESTART SUCCESSFUL ===" -Level "SUCCESS" -LogPath $RestartLogFile
+                Write-HealthLog "Restart ID: $restartId" -Level "SUCCESS" -LogPath $RestartLogFile
+                Write-HealthLog "Recovery completed in $($retryCount * 10 + 45) seconds" -Level "SUCCESS" -LogPath $RestartLogFile
+                Write-HealthLog "Docker version: $dockerVersion" -Level "SUCCESS" -LogPath $RestartLogFile
                 return $true
             }
         } catch {
@@ -96,6 +190,10 @@ function Start-DockerDesktopRecovery {
     } while ($retryCount -lt $maxRetries)
     
     Write-Host "Docker failed to recover after $maxRetries attempts" -ForegroundColor Red
+    Write-HealthLog "=== DOCKER RESTART FAILED ===" -Level "ERROR" -LogPath $RestartLogFile
+    Write-HealthLog "Restart ID: $restartId" -Level "ERROR" -LogPath $RestartLogFile
+    Write-HealthLog "Failed after $maxRetries attempts ($(($maxRetries * 10) + 45) seconds)" -Level "ERROR" -LogPath $RestartLogFile
+    Write-HealthLog "Manual intervention required" -Level "ERROR" -LogPath $RestartLogFile
     return $false
 }
 
@@ -263,6 +361,9 @@ function Test-DockerHealth {
     }
 
     Write-Host "=== Enhanced Docker Health Check ===" -ForegroundColor Cyan
+    Write-HealthLog "=== HEALTH CHECK STARTED ===" -Level "INFO"
+    Write-HealthLog "Auto-restart enabled: $AutoRestart" -Level "INFO"
+    Write-HealthLog "Max CPU threshold: $MaxCPUPercent%" -Level "INFO"
 
     # Test 0: Port Conflict Detection
     Write-Host "Testing for port conflicts..." -ForegroundColor Gray
@@ -272,37 +373,51 @@ function Test-DockerHealth {
         $results.RecoveryNeeded = $true
     }
 
-    # Test 1: Docker CLI Responsiveness
+    # Test 1: Docker CLI Responsiveness (with freeze detection)
     Write-Host "Testing Docker CLI responsiveness..." -ForegroundColor Gray
-    try {
-        $dockerVersion = docker --version 2>$null
-        if ($dockerVersion) {
-            Write-Host "Docker CLI is responsive" -ForegroundColor Green
+    $cliTest = Test-DockerFreezeConditions -TestName "Docker CLI Version Check" -TestCommand {
+        $version = docker --version 2>$null
+        if ($version -and $version -match "Docker version") {
+            return 0  # Success
         } else {
-            Write-Host "Docker CLI is not responsive" -ForegroundColor Red
-            $results.Issues += "Docker CLI unresponsive"
-            $results.RecoveryNeeded = $true
+            return 1  # Failure
         }
-    } catch {
-        Write-Host "Docker CLI communication failed" -ForegroundColor Red
-        $results.Issues += "Docker CLI communication error"
+    } -TimeoutSeconds 10
+    
+    if ($cliTest.Success -and $cliTest.Result -eq 0) {
+        Write-Host "Docker CLI is responsive ($($cliTest.Duration))" -ForegroundColor Green
+        Write-HealthLog "Docker CLI test passed in $($cliTest.Duration)" -Level "INFO"
+    } elseif ($cliTest.TimedOut) {
+        Write-Host "Docker CLI is frozen/unresponsive (timeout after 10s)" -ForegroundColor Red
+        Write-HealthLog "Docker CLI freeze detected - timeout after 10 seconds" -Level "FREEZE" -LogPath $FreezeLogFile
+        $results.Issues += "Docker CLI frozen (timeout)"
+        $results.RecoveryNeeded = $true
+    } else {
+        Write-Host "Docker CLI is not responsive" -ForegroundColor Red
+        Write-HealthLog "Docker CLI not responsive - returned: $($cliTest.Result)" -Level "ERROR"
+        $results.Issues += "Docker CLI unresponsive"
         $results.RecoveryNeeded = $true
     }
 
-    # Test 2: Docker Daemon Communication
+    # Test 2: Docker Daemon Communication (with freeze detection)
     Write-Host "Testing Docker daemon communication..." -ForegroundColor Gray
-    try {
-        $daemonInfo = docker system info 2>$null
-        if ($daemonInfo) {
-            Write-Host "Docker daemon is responding" -ForegroundColor Green
-        } else {
-            Write-Host "Docker daemon not responding" -ForegroundColor Red
-            $results.Issues += "Docker daemon unresponsive"
-            $results.RecoveryNeeded = $true
-        }
-    } catch {
-        Write-Host "Docker daemon communication failed" -ForegroundColor Red
-        $results.Issues += "Docker daemon communication error"
+    $daemonTest = Test-DockerFreezeConditions -TestName "Docker Daemon Info" -TestCommand {
+        $info = docker system info 2>$null
+        if ($info) { return 0 } else { return 1 }
+    } -TimeoutSeconds 15
+    
+    if ($daemonTest.Success -and $daemonTest.Result -eq 0) {
+        Write-Host "Docker daemon is responding ($($daemonTest.Duration))" -ForegroundColor Green
+        Write-HealthLog "Docker daemon test passed in $($daemonTest.Duration)" -Level "INFO"
+    } elseif ($daemonTest.TimedOut) {
+        Write-Host "Docker daemon is frozen/unresponsive (timeout after 15s)" -ForegroundColor Red
+        Write-HealthLog "Docker daemon freeze detected - timeout after 15 seconds" -Level "FREEZE" -LogPath $FreezeLogFile
+        $results.Issues += "Docker daemon frozen (timeout)"
+        $results.RecoveryNeeded = $true
+    } else {
+        Write-Host "Docker daemon not responding" -ForegroundColor Red
+        Write-HealthLog "Docker daemon not responding" -Level "ERROR"
+        $results.Issues += "Docker daemon unresponsive"
         $results.RecoveryNeeded = $true
     }
 
@@ -334,21 +449,36 @@ function Test-DockerHealth {
 
         foreach ($proc in $dockerProcesses) {
             try {
-                $cpuPercent = [math]::Round(($proc.CPU / (Get-CimInstance -ClassName Win32_Processor).NumberOfLogicalProcessors), 1)
+                # Get memory usage (this usually works)
                 $memoryMB = [math]::Round($proc.WorkingSet / 1MB, 1)
-
+                
+                # Get CPU usage using WMI (most reliable method)
+                $cpuPercent = 0
+                try {
+                    $wmiProc = Get-WmiObject -Class Win32_Process -Filter "ProcessId = $($proc.Id)" -ErrorAction SilentlyContinue
+                    if ($wmiProc -and $wmiProc.PercentProcessorTime -ne $null) {
+                        $cpuPercent = [math]::Round($wmiProc.PercentProcessorTime, 1)
+                    }
+                } catch {
+                    # If WMI fails, try to get basic process info
+                    $cpuPercent = 0
+                }
+                
                 $totalCPU += $cpuPercent
                 $totalMemory += $memoryMB
 
                 if ($cpuPercent -gt 50) {
                     Write-Host "High CPU usage: $($proc.ProcessName) - ${cpuPercent}%" -ForegroundColor Yellow
                 }
+                
+                Write-Host "  $($proc.ProcessName) (PID: $($proc.Id)) - CPU: ${cpuPercent}%, Memory: ${memoryMB}MB" -ForegroundColor $(if($cpuPercent -gt 50){"Yellow"}else{"Green"})
             } catch {
-                Write-Host "Skipping CPU calculation for $($proc.ProcessName)" -ForegroundColor Gray
+                Write-Host "  $($proc.ProcessName) (PID: $($proc.Id)) - CPU: N/A, Memory: N/A" -ForegroundColor Gray
             }
         }
 
         Write-Host "Resource Summary: CPU: ${totalCPU}%, Memory: ${totalMemory}MB" -ForegroundColor Cyan
+        Write-Host "  Process Count: $($dockerProcesses.Count) Docker processes monitored" -ForegroundColor Gray
 
         if ($totalCPU -gt $MaxCPUPercent) {
             $perCoreCPU = [math]::Round($totalCPU/4,1)
@@ -365,51 +495,66 @@ function Test-DockerHealth {
         $results.Issues += "No Docker processes running"
     }
 
-    # Test 5: Network Connectivity
-    Write-Host "Testing network connectivity..." -ForegroundColor Gray
+    # Test 5: Network Connectivity (Docker Desktop uses named pipes, not TCP sockets)
+    Write-Host "Testing Docker connectivity..." -ForegroundColor Gray
     try {
-        $netTest = Test-NetConnection -ComputerName localhost -Port 2375 -InformationLevel Quiet 2>$null
-        if ($netTest) {
-            Write-Host "Docker socket is accessible" -ForegroundColor Green
+        # Test if Docker API is accessible via CLI (more reliable for Docker Desktop)
+        $dockerInfoTest = docker info --format "{{.ID}}" 2>$null
+        if ($dockerInfoTest) {
+            Write-Host "Docker API is accessible via CLI" -ForegroundColor Green
         } else {
-            Write-Host "Docker socket not accessible" -ForegroundColor Red
-            $results.Issues += "Docker socket not accessible"
+            Write-Host "Docker API not accessible" -ForegroundColor Red
+            $results.Issues += "Docker API not accessible"
+            $results.RecoveryNeeded = $true
         }
     } catch {
-        Write-Host "Network connectivity test failed" -ForegroundColor Red
-        $results.Issues += "Network connectivity test failed"
+        Write-Host "Docker connectivity test failed" -ForegroundColor Red
+        $results.Issues += "Docker connectivity test failed"
+        $results.RecoveryNeeded = $true
     }
 
     # Determine overall health
     if ($results.Issues.Count -eq 0) {
         $results.Healthy = $true
         Write-Host "Docker is healthy" -ForegroundColor Green
+        Write-HealthLog "=== HEALTH CHECK PASSED ===" -Level "SUCCESS"
+        Write-HealthLog "All tests passed - Docker is healthy" -Level "SUCCESS"
     } else {
         Write-Host "Docker has issues: $($results.Issues -join ', ')" -ForegroundColor Red
+        Write-HealthLog "=== HEALTH CHECK FAILED ===" -Level "ERROR"
+        Write-HealthLog "Issues detected: $($results.Issues -join ', ')" -Level "ERROR"
+        Write-HealthLog "Recovery needed: $($results.RecoveryNeeded)" -Level "ERROR"
 
         # Perform deep diagnostics if requested
         if ($DeepDiagnostics) {
+            Write-HealthLog "Running deep diagnostics..." -Level "INFO"
             Test-DockerDeepDiagnostics
         }
 
         # Collect logs if requested
         if ($CollectLogs) {
+            Write-HealthLog "Collecting diagnostic logs..." -Level "INFO"
             $logDir = Collect-DockerLogs
             $results.Details += "Logs saved to: $logDir"
+            Write-HealthLog "Logs saved to: $logDir" -Level "INFO"
         }
 
         # Auto-recovery if requested and recovery is needed
         if ($AutoRestart -and $results.RecoveryNeeded) {
             Write-Host "Attempting auto-recovery..." -ForegroundColor Yellow
-            $recoverySuccess = Start-DockerDesktopRecovery
+            Write-HealthLog "Auto-recovery triggered" -Level "RESTART"
+            $issuesDescription = $results.Issues -join ', '
+            $recoverySuccess = Start-DockerDesktopRecovery -Reason "Health check failed: $issuesDescription"
 
             if ($recoverySuccess) {
                 Write-Host "Auto-recovery successful!" -ForegroundColor Green
+                Write-HealthLog "Auto-recovery completed successfully" -Level "SUCCESS"
                 $results.Healthy = $true
                 $results.Issues = @()
                 $results.Details += "Auto-recovery completed successfully"
             } else {
                 Write-Host "Auto-recovery failed" -ForegroundColor Red
+                Write-HealthLog "Auto-recovery failed - manual intervention required" -Level "ERROR"
                 $results.Issues += "Auto-recovery failed"
             }
         }

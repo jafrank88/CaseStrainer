@@ -1,0 +1,13 @@
+{
+  "resources": {
+    "cpus": 4,
+    "memory": 4096,
+    "swap": 2048,
+    "diskSize": 128
+  },
+  "experimental": true,
+  "buildkit": true,
+  "useWSL2": true,
+  "wslEngine": 2,
+  "integratedWslDistros": ["Ubuntu"]
+}

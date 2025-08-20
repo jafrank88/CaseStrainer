@@ -35,18 +35,36 @@ const progressState = reactive({
 export function useUnifiedProgress() {
   // Computed properties
   const elapsedTime = computed(() => {
-    if (!progressState.startTime) return 0;
-    return (Date.now() - progressState.startTime) / 1000;
+    if (!progressState.startTime) {
+      console.log('Progress debug: No startTime, returning 0');
+      return 0;
+    }
+    const elapsed = (Date.now() - progressState.startTime) / 1000;
+    const result = isNaN(elapsed) ? 0 : Math.max(0, elapsed);
+    console.log('Progress debug: elapsedTime computed:', { startTime: progressState.startTime, elapsed, result });
+    return result;
   });
 
   const remainingTime = computed(() => {
-    if (!progressState.estimatedTotalTime) return 0;
-    return Math.max(0, progressState.estimatedTotalTime - elapsedTime.value);
+    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
+      console.log('Progress debug: Invalid estimatedTotalTime, returning 0:', progressState.estimatedTotalTime);
+      return 0;
+    }
+    const remaining = progressState.estimatedTotalTime - elapsedTime.value;
+    const result = isNaN(remaining) ? 0 : Math.max(0, remaining);
+    console.log('Progress debug: remainingTime computed:', { estimatedTotalTime: progressState.estimatedTotalTime, elapsedTime: elapsedTime.value, remaining, result });
+    return result;
   });
 
   const progressPercent = computed(() => {
-    if (!progressState.estimatedTotalTime) return 0;
-    return Math.min(100, (elapsedTime.value / progressState.estimatedTotalTime) * 100);
+    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
+      console.log('Progress debug: Invalid estimatedTotalTime for progress, returning 0:', progressState.estimatedTotalTime);
+      return 0;
+    }
+    const percent = (elapsedTime.value / progressState.estimatedTotalTime) * 100;
+    const result = isNaN(percent) ? 0 : Math.min(100, Math.max(0, percent));
+    console.log('Progress debug: progressPercent computed:', { estimatedTotalTime: progressState.estimatedTotalTime, elapsedTime: elapsedTime.value, percent, result });
+    return result;
   });
 
   const currentStepProgress = computed(() => {
@@ -57,8 +75,11 @@ export function useUnifiedProgress() {
     if (currentStepIndex === -1) return 0;
     
     const step = progressState.processingSteps[currentStepIndex];
+    if (!step.estimated_time || step.estimated_time <= 0) return 0;
+    
     const stepElapsed = elapsedTime.value - (step.startTime || 0);
-    return Math.min(100, (stepElapsed / step.estimated_time) * 100);
+    const progress = (stepElapsed / step.estimated_time) * 100;
+    return isNaN(progress) ? 0 : Math.min(100, Math.max(0, progress));
   });
 
   const progressBarClass = computed(() => {
@@ -71,11 +92,15 @@ export function useUnifiedProgress() {
 
   // Utility functions
   const formatTime = (seconds) => {
-    if (seconds < 60) {
-      return `${Math.round(seconds)}s`;
+    // Handle invalid input
+    if (!seconds || isNaN(seconds) || seconds < 0) return '0s';
+    
+    const validSeconds = Math.floor(seconds);
+    if (validSeconds < 60) {
+      return `${validSeconds}s`;
     }
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.round(seconds % 60);
+    const minutes = Math.floor(validSeconds / 60);
+    const remainingSeconds = validSeconds % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
 
@@ -83,12 +108,15 @@ export function useUnifiedProgress() {
   const startProgress = (uploadType, uploadData, estimatedTime = 30) => {
     console.log('Starting unified progress tracking:', { uploadType, estimatedTime });
     
+    // Ensure estimatedTime is a valid positive number
+    const validEstimatedTime = Math.max(1, Math.floor(estimatedTime) || 30);
+    
     // Reset all state
     Object.assign(progressState, {
       isActive: true,
       taskId: null,
       startTime: Date.now(),
-      estimatedTotalTime: estimatedTime,
+      estimatedTotalTime: validEstimatedTime,
       currentStep: 'Initializing...',
       stepProgress: 0,
       totalProgress: 0,
@@ -102,6 +130,12 @@ export function useUnifiedProgress() {
       uploadData,
       hasResults: false,
       resultData: null
+    });
+    
+    console.log('Progress state initialized:', {
+      startTime: progressState.startTime,
+      estimatedTotalTime: progressState.estimatedTotalTime,
+      uploadType: progressState.uploadType
     });
   };
 
@@ -234,6 +268,22 @@ export function useUnifiedProgress() {
     };
   });
 
+  // Debug helper to check progress state validity
+  const isProgressStateValid = computed(() => {
+    return {
+      hasStartTime: !!progressState.startTime,
+      startTimeValue: progressState.startTime,
+      hasEstimatedTime: !!progressState.estimatedTotalTime,
+      estimatedTimeValue: progressState.estimatedTotalTime,
+      elapsedTimeValue: elapsedTime.value,
+      remainingTimeValue: remainingTime.value,
+      progressPercentValue: progressPercent.value,
+      isElapsedValid: !isNaN(elapsedTime.value),
+      isRemainingValid: !isNaN(remainingTime.value),
+      isProgressValid: !isNaN(progressPercent.value)
+    };
+  });
+
   return {
     // State (reactive)
     progressState,
@@ -246,6 +296,7 @@ export function useUnifiedProgress() {
     progressBarClass,
     shouldShowProgress,
     getProgressSummary,
+    isProgressStateValid, // Debug helper
     
     // Functions
     formatTime,

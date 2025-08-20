@@ -134,7 +134,7 @@ const analyzeUrl = async () => {
     emit('analyze', { ...data, type: 'url', source: url.value });
   } catch (error) {
     console.error('Error analyzing URL:', error);
-    alert(`Failed to analyze URL: ${error.message}`);
+            console.error(`Failed to analyze URL: ${error.message}`);
   } finally {
     isLoading.value = false;
   }

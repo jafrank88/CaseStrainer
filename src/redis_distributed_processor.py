@@ -307,7 +307,7 @@ class RedisDistributedPDFSystem:
     
     def _smart_pdf_extraction_strategy(self, file_path: str) -> Tuple[str, str]:
         """
-        Smart file extraction strategy.
+        Smart file extraction strategy using the new optimized PDF processor.
         Handles both PDF and text files appropriately.
         """
         # Check file extension to determine type
@@ -332,15 +332,44 @@ class RedisDistributedPDFSystem:
                 logger.warning(f"Text file reading failed: {e}")
                 return "", "TextFileProcessor"
         
-        # Handle PDF files
-        # Try pdfplumber first (fast and reliable)
-        text = self._extract_with_pdfplumber(file_path)
-        if text:
-            return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
-        
-        # Final fallback to pdfminer.six (reliable general extraction)
-        text = self._extract_with_pdfminer_fast(file_path)
-        return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
+        # Handle PDF files using the new optimized processor
+        try:
+            from src.optimized_pdf_processor import extract_pdf_optimized_v2
+            result = extract_pdf_optimized_v2(file_path)
+            
+            if result.get('error'):
+                logger.warning(f"Optimized PDF extraction failed: {result['error']}")
+                # Fallback to old methods
+                text = self._extract_with_pdfplumber(file_path)
+                if text:
+                    return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
+                
+                text = self._extract_with_pdfminer_fast(file_path)
+                return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
+            
+            # Success with optimized processor
+            text = result.get('text', '')
+            processor = result.get('processor', 'unknown')
+            return str(text), f"OptimizedProcessor({processor})"
+            
+        except ImportError:
+            logger.debug("Optimized PDF processor not available - using fallback methods")
+            # Fallback to old methods
+            text = self._extract_with_pdfplumber(file_path)
+            if text:
+                return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
+            
+            text = self._extract_with_pdfminer_fast(file_path)
+            return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
+        except Exception as e:
+            logger.warning(f"Optimized PDF extraction failed: {e}")
+            # Fallback to old methods
+            text = self._extract_with_pdfplumber(file_path)
+            if text:
+                return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
+            
+            text = self._extract_with_pdfminer_fast(file_path)
+            return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
     
     # Note: _quick_ocr_detection method removed - pdfplumber is now used for all PDFs
     

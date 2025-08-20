@@ -1,0 +1,28 @@
+{
+  "resources": {
+    "cpus": 4,
+    "memory": 4096,
+    "swap": 2048,
+    "diskSize": 128
+  },
+  "memoryMiB": 4096,
+  "swapMiB": 2048,
+  "vpnKitMaxPortIdleTime": "300s",
+  "builder": {
+    "gc": {
+      "defaultKeepStorage": "20GB",
+      "enabled": true
+    }
+  },
+  "experimental": false,
+  "useWSL2": true,
+  "wslEngine": 2,
+  "integratedWslDistros": ["Ubuntu"],
+  "features": {
+    "buildkit": true
+  },
+  "registry": {
+    "mirrors": [],
+    "insecure": []
+  }
+}

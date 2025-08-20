@@ -283,7 +283,7 @@ const fileType = computed(() => {
 
 // Debug: Alert when component is mounted
 onMounted(() => {
-  alert('✅ FileUpload.vue mounted');
+  // FileUpload.vue mounted
 });
 
 const clearFile = () => {
@@ -338,18 +338,14 @@ const getFileType = (fileName) => {
 };
 
 const emitAnalyze = async () => {
-  console.log('🔍 emitAnalyze called. File exists:', !!file.value, 'File error:', fileError.value);
-  console.log('🔍 File details:', file.value);
-  console.log('🔍 isAnalyzing:', isAnalyzing.value);
-  
   if (!file.value) {
-    console.error('❌ No file selected');
+    console.error('No file selected');
     fileError.value = 'No file selected. Please select a file first.';
     return;
   }
   
   if (fileError.value) {
-    console.error('❌ File error:', fileError.value);
+    console.error('File error:', fileError.value);
     return;
   }
   
@@ -357,82 +353,20 @@ const emitAnalyze = async () => {
   isAnalyzing.value = true;
   
   try {
-    // Create FormData for file upload
+    // Create FormData for file upload - send file directly to backend
     const formData = new FormData();
     formData.append('file', file.value);
     formData.append('type', 'file');
     formData.append('fileName', file.value.name);
     formData.append('fileSize', file.value.size.toString());
     
-    console.log('📤 Emitting analyze event with file data');
+    // Send file as FormData directly to backend - let backend handle text extraction
     emit('analyze', formData);
+    
   } catch (error) {
-    console.error('❌ Error in emitAnalyze:', error);
+    console.error('Error in emitAnalyze:', error);
     fileError.value = 'Error processing file. Please try again.';
     isAnalyzing.value = false;
-  }
-  
-  console.log('🔍 FileUpload: Starting text extraction process');
-  
-  try {
-    // Step 1: Extract text from the file
-    let extractedText = '';
-    
-    if (file.value.type === 'text/plain' || file.value.name.endsWith('.txt')) {
-      // For text files, read directly
-      extractedText = await file.value.text();
-    } else if (file.value.type === 'application/pdf' || file.value.name.endsWith('.pdf')) {
-      // For PDFs, we'll need to send to backend for extraction
-      console.log('🔍 FileUpload: PDF detected, sending to backend for text extraction');
-      const formData = new FormData();
-      formData.append('file', file.value);
-      formData.append('type', 'file');
-      formData.append('fileName', file.value.name);
-      formData.append('fileSize', file.value.size.toString());
-      formData.append('extractText', 'true');
-      
-      emit('analyze', formData);
-      return;
-    } else {
-      // For other file types, try to read as text
-      try {
-        extractedText = await file.value.text();
-      } catch (error) {
-        console.error('🔍 FileUpload: Error reading file as text:', error);
-        // Fallback to original file upload
-        const formData = new FormData();
-        formData.append('file', file.value);
-        formData.append('type', 'file');
-        formData.append('fileName', file.value.name);
-        formData.append('fileSize', file.value.size.toString());
-        emit('analyze', formData);
-        return;
-      }
-    }
-    
-    console.log('🔍 FileUpload: Text extracted successfully, length:', extractedText.length);
-    
-    // Step 2: Pass extracted text to text processing
-    const textData = {
-      text: extractedText,
-      type: 'text',
-      source: 'file',
-      fileName: file.value.name,
-      fileSize: file.value.size
-    };
-    
-    console.log('🔍 FileUpload: Emitting text data for processing');
-    emit('analyze', textData);
-    
-  } catch (error) {
-    console.error('🔍 FileUpload: Error in text extraction:', error);
-    // Fallback to original file upload
-    const formData = new FormData();
-    formData.append('file', file.value);
-    formData.append('type', 'file');
-    formData.append('fileName', file.value.name);
-    formData.append('fileSize', file.value.size.toString());
-    emit('analyze', formData);
   }
 };
 

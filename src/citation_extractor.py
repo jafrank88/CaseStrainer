@@ -50,16 +50,16 @@ class CitationExtractor:
             r'\b\d+\s+F\.App\'x\b',
             
             # State patterns
-            r'\b\d+\s+P\.\d*d?\b',
-            r'\b\d+\s+N\.W\.\d*d?\b',
-            r'\b\d+\s+S\.W\.\d*d?\b',
-            r'\b\d+\s+N\.E\.\d*d?\b',
-            r'\b\d+\s+S\.E\.\d*d?\b',
-            r'\b\d+\s+A\.\d*d?\b',
-            r'\b\d+\s+So\.\d*d?\b',
-            r'\b\d+\s+Cal\.\d*d?\b',
-            r'\b\d+\s+Wash\.\d*d?\b',
-            r'\b\d+\s+Wn\.\d*d?\b',
+            r'\b\d+\s+P\.\d*d?\s+\d+\b',
+            r'\b\d+\s+N\.W\.\d*d?\s+\d+\b',
+            r'\b\d+\s+S\.W\.\d*d?\s+\d+\b',
+            r'\b\d+\s+N\.E\.\d*d?\s+\d+\b',
+            r'\b\d+\s+S\.E\.\d*d?\s+\d+\b',
+            r'\b\d+\s+A\.\d*d?\s+\d+\b',
+            r'\b\d+\s+So\.\d*d?\s+\d+\b',
+            r'\b\d+\s+Cal\.\d*d?\s+\d+\b',
+            r'\b\d+\s+Wash\.\d*d?\s+\d+\b',
+            r'\b\d+\s+Wn\.\d*d?\s+\d+\b',
             
             # Regional patterns
             r'\b\d+\s+WL\s+\d+\b',
@@ -71,10 +71,14 @@ class CitationExtractor:
     def _init_case_name_patterns(self):
         """Initialize case name extraction patterns."""
         self.case_name_patterns = [
+            # Standard v. patterns
             r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+v\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
             r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+vs\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
             r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+versus\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
             r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+&\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
+            # In re patterns
+            r'In\s+re\s+([^,\.]+)',
+            r'In\s+re\s+the\s+([^,\.]+)',
         ]
         
         self.compiled_case_patterns = [re.compile(pattern) for pattern in self.case_name_patterns]
@@ -101,6 +105,8 @@ class CitationExtractor:
                 citation_text = match.group(0)
                 start, end = match.span()
                 
+                logger.info(f"🔍 Extracted citation: '{citation_text}' at position {start}-{end}")
+                
                 # Create CitationResult object
                 citation = CitationResult(
                     citation=citation_text,
@@ -123,10 +129,11 @@ class CitationExtractor:
                 if case_name:
                     citation.extracted_case_name = case_name
                 
-                # Extract date from context
-                date = self._extract_date_from_context(context)
-                if date:
-                    citation.extracted_date = date
+                # Extract year from citation text only (most reliable)
+                citation_year = self._extract_year_from_citation(citation_text)
+                if citation_year:
+                    citation.extracted_date = citation_year
+                # No fallback to context - let CourtListener provide canonical year
                 
                 citations.append(citation)
         
@@ -215,12 +222,20 @@ class CitationExtractor:
             return None
         
         # Look for case name patterns in context
-        for pattern in self.compiled_case_patterns:
+        for i, pattern in enumerate(self.compiled_case_patterns):
             match = pattern.search(context)
             if match:
-                case_name = f"{match.group(1)} v. {match.group(2)}"
+                if i < 4:  # Standard v. patterns (first 4 patterns)
+                    case_name = f"{match.group(1)} v. {match.group(2)}"
+                else:  # In re patterns (last 2 patterns)
+                    case_name = f"In re {match.group(1)}"
+                
+                logger.info(f"🔍 Found case name pattern {i}: '{case_name}' from match: {match.groups()}")
                 if is_valid_case_name(case_name):
+                    logger.info(f"✅ Valid case name: '{case_name}'")
                     return case_name
+                else:
+                    logger.info(f"❌ Invalid case name: '{case_name}'")
         
         return None
     
@@ -234,6 +249,23 @@ class CitationExtractor:
             match = pattern.search(context)
             if match:
                 return match.group(0)
+        
+        return None
+    
+    def _extract_year_from_citation(self, citation_text: str) -> Optional[str]:
+        """Extract year from citation text itself (more reliable than context)."""
+        if not citation_text:
+            return None
+        
+        # Look for year in parentheses at the end of citation
+        year_match = re.search(r'\((\d{4})\)$', citation_text)
+        if year_match:
+            return year_match.group(1)
+        
+        # Look for 4-digit year anywhere in citation
+        year_match = re.search(r'\b(19|20)\d{2}\b', citation_text)
+        if year_match:
+            return year_match.group(0)
         
         return None
     

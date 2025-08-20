@@ -8,7 +8,7 @@
 export default {
   name: 'MinimalTest',
   setup() {
-    alert('🟠 MinimalTest setup() called!');
+    // MinimalTest setup() called
   }
 }
 </script>

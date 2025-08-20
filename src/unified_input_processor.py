@@ -184,13 +184,21 @@ class UnifiedInputProcessor:
                 }
             }
     
-    def _extract_from_file(self, file: FileStorage, request_id: str) -> Dict[str, Any]:
+    def _extract_from_file(self, input_data: Union[FileStorage, Dict], request_id: str) -> Dict[str, Any]:
         """Extract text from uploaded file."""
-        logger.info(f"[Unified Processor {request_id}] Extracting text from file: {file.filename}")
+        # Handle both old format (FileStorage) and new format (dict with file)
+        if isinstance(input_data, dict):
+            file = input_data.get('file')
+            filename = input_data.get('filename', 'unknown')
+        else:
+            file = input_data
+            filename = getattr(file, 'filename', 'unknown') if file else 'unknown'
+        
+        logger.info(f"[Unified Processor {request_id}] Extracting text from file: {filename}")
         
         try:
             # Validate file
-            if not file or not file.filename:
+            if not file or not filename:
                 return {
                     'success': False,
                     'error': 'No file provided or empty filename',
@@ -199,7 +207,6 @@ class UnifiedInputProcessor:
                 }
             
             # Get file extension
-            filename = file.filename
             file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
             
             if file_ext not in self.supported_file_extensions:
@@ -266,14 +273,14 @@ class UnifiedInputProcessor:
                     pass
                     
         except Exception as e:
-            logger.error(f"[Unified Processor {request_id}] Error processing file {file.filename}: {str(e)}", exc_info=True)
+            logger.error(f"[Unified Processor {request_id}] Error processing file {filename}: {str(e)}", exc_info=True)
             return {
                 'success': False,
                 'error': f'Failed to process file: {str(e)}',
                 'text': '',
                 'metadata': {
                     'input_type': 'file',
-                    'filename': file.filename if file else 'unknown',
+                    'filename': filename,
                     'error': 'processing_failed',
                     'error_details': str(e)
                 }

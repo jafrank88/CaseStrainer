@@ -659,7 +659,40 @@ class CanonicalCaseNameService:
 
             # Use the best result for canonical extraction
             if legal_results:
+                # If we have multiple results, try to find the best match using fuzzy matching
                 best = legal_results[0]
+                
+                # If we have multiple high-scoring results, use fuzzy matching to find the best case name
+                if len(legal_results) > 1 and legal_results[0].get('legal_relevance_score', 0) >= 80:
+                    try:
+                        from src.enhanced_case_name_matcher import enhanced_matcher
+                        
+                        # Get all candidate names from high-scoring results
+                        candidate_names = [res.get('title', '') for res in legal_results[:3] if res.get('title')]
+                        
+                        # Try to find the best match if we have a citation context
+                        if citation:
+                            # Extract potential case name from citation context
+                            citation_words = citation.split()
+                            if len(citation_words) >= 3:
+                                # Look for patterns that might indicate case names
+                                potential_case_name = ' '.join(citation_words[:3])  # Simple heuristic
+                                
+                                best_match = enhanced_matcher.find_best_match(
+                                    potential_case_name, candidate_names, threshold=0.4
+                                )
+                                if best_match:
+                                    best_candidate = best_match[0]
+                                    # Find the result with this candidate name
+                                    for res in legal_results:
+                                        if res.get('title') == best_candidate:
+                                            best = res
+                                            print(f"[DEBUG] [WEBSEARCH] Fuzzy matched best case name: '{best_candidate}' (similarity: {best_match[1]:.3f})")
+                                            break
+                    except ImportError:
+                        # Enhanced matcher not available, use first result
+                        pass
+                
                 candidate_name = best.get('title')
                 is_valid = candidate_name and is_valid_case_name(candidate_name)
                 print(f"[DEBUG] [WEBSEARCH] Candidate name: {candidate_name}, is_valid: {is_valid}")
@@ -674,6 +707,10 @@ class CanonicalCaseNameService:
                     domain = urlparse(url).netloc.lower()
                 if not domain:
                     domain = best.get('source', 'Web Search')
+                # Note: We're not requiring the exact citation to be in the snippet
+                # The source document (CaseMine, vLex, etc.) contains the case, and we're verifying
+                # that this citation belongs to that case based on case name matching
+                
                 return CanonicalResult(
                     case_name=candidate_name,
                     date=None,  # Date extraction can be added if available

@@ -1,0 +1,10 @@
+{
+  "resources": {
+    "cpus": 4,
+    "memory": 4096,
+    "swap": 2048,
+    "diskSize": 128
+  },
+  "useWSL2": true,
+  "wslEngine": 2
+}

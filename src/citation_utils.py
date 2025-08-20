@@ -140,6 +140,8 @@ def is_valid_case_name(case_name: str) -> bool:
         r'.*\sversus\s.*',  # "Plaintiff versus Defendant"
         r'.*\s&\s.*',  # "Plaintiff & Defendant"
         r'.*\sand\s.*',  # "Plaintiff and Defendant"
+        r'^In\s+re\s+.*',  # "In re Case Name"
+        r'^In\s+re\s+the\s+.*',  # "In re the Case Name"
     ]
     
     for pattern in case_patterns:

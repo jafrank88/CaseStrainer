@@ -1,0 +1,45 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.windows-python
+    container_name: casestrainer-backend-windows
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:C:/app/src
+      - ./data:C:/app/data
+      - ./logs:C:/app/logs
+      - ./uploads:C:/app/uploads
+      - ./temp_uploads:C:/app/temp_uploads
+      - ./citation_cache:C:/app/citation_cache
+    restart: unless-stopped
+
+  frontend:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: casestrainer-frontend-windows
+    command: powershell -Command "Write-Host 'Starting HTTP server...' ; cd C:/app ; python -m http.server 80 --bind 0.0.0.0"
+    ports:
+      - "8080:80"
+    volumes:
+      - ./casestrainer-vue-new/dist-minimal:C:/app
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  nginx:
+    image: mcr.microsoft.com/windows/servercore:ltsc2022
+    container_name: casestrainer-nginx-windows
+    command: powershell -Command "Write-Host 'Nginx placeholder - using Windows HTTP server' ; Start-Sleep -Seconds 3600"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/conf:C:/etc/nginx/conf.d
+      - ./nginx/html:C:/usr/share/nginx/html
+      - ./nginx/logs:C:/var/log/nginx
+      - ./nginx/ssl:C:/etc/nginx/ssl
+    depends_on:
+      - backend
+      - frontend
+    restart: unless-stopped
