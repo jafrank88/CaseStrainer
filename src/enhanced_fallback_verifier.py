@@ -760,6 +760,10 @@ class EnhancedFallbackVerifier:
                 if source_url:
                     best_result['source'] = self._extract_source_from_url(source_url)
                 
+                # Ensure canonical_url is set for UI linking
+                if not best_result.get('canonical_url') and best_result.get('url'):
+                    best_result['canonical_url'] = best_result['url']
+                
                 elapsed = time.time() - start_time
                 logger.info(f"✅ Enhanced fallback verified: {citation_text} -> {best_result.get('canonical_name', 'N/A')} (via {best_result.get('source', 'unknown')}) in {elapsed:.1f}s")
                 return best_result
@@ -813,12 +817,23 @@ class EnhancedFallbackVerifier:
             
             if result and result.get('verified', False):
                 logger.info(f"✓ CourtListener verification successful for: {citation_text}")
+                
+                # Ensure URLs are absolute
+                url = result.get('url', '')
+                canonical_url = result.get('canonical_url') or result.get('url', '')
+                
+                # Convert relative URLs to absolute
+                if url and url.startswith('/'):
+                    url = f"https://www.courtlistener.com{url}"
+                if canonical_url and canonical_url.startswith('/'):
+                    canonical_url = f"https://www.courtlistener.com{canonical_url}"
+                
                 return {
                     'verified': True,
                     'canonical_name': result.get('canonical_name'),
                     'canonical_date': result.get('canonical_date'),
-                    'url': result.get('url'),
-                    'canonical_url': result.get('canonical_url') or result.get('url'),
+                    'url': url,
+                    'canonical_url': canonical_url,
                     'source': 'CourtListener',
                     'validation_method': result.get('validation_method', 'enhanced_cross_validation'),
                     'confidence': result.get('confidence', 0.0),
@@ -878,10 +893,11 @@ class EnhancedFallbackVerifier:
         """Create a standardized fallback result."""
         return {
             'verified': False,
-            'source': status,
+            'source': f"fallback_{status}",
             'canonical_name': None,
             'canonical_date': None,
             'url': None,
+            'canonical_url': None,
             'confidence': 0.0,
             'error': f"Verification {status}"
         }

@@ -12860,3 +12860,691 @@ for_Knight_2014' with reporters: {'wash', 'p3d'}
 2025-08-22 09:16:13 - werkzeug - ERROR - 3.132.23.201 - - [22/Aug/2025 09:16:13] code 400, message Bad request version ('�\x14�')
 2025-08-22 09:16:13 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:16:13] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x88I\x00ydHBVJ\x16��r�}7�\x0cz�wH\x94\x9c,\x10\x9c.]��\x83\x00\x00\x1a�/�+�\x11�\x07�\x13�\x09�\x14�[0m" 400 -
 2025-08-22 16:16:23 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:16:53 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:17:24 - src.app_final_vue - INFO - [RESPONSE #16] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:17:54 - src.app_final_vue - INFO - [RESPONSE #17] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:18:24 - src.app_final_vue - INFO - [RESPONSE #18] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:18:47 - src.memory_monitor - INFO - Memory usage: 50.2MB (0.3%)
+2025-08-22 16:18:50 - src.app_final_vue - INFO - [RESPONSE #19] GET vue_api.health_check -> 200 (450 chars)
+2025-08-22 16:18:53 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
+2025-08-22 16:19:05 - root - INFO - Configured case_name_extraction logger to level: INFO (20)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - === Logging Configuration ===
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Python version: 3.10.18 (main, Aug 12 2025, 22:44:19) [GCC 14.2.0]
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Working directory: /app
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Configuration loaded successfully
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Creating new Flask application instance
+2025-08-22 16:19:05 - src.app_final_vue - INFO - 🔍 Starting memory monitoring...
+2025-08-22 16:19:05 - src.memory_monitor - INFO - Memory monitoring started (threshold: 1024MB, interval: 60s)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - ✅ Memory monitoring started
+2025-08-22 16:19:05 - src.app_final_vue - INFO - === STARTING BLUEPRINT REGISTRATION ===
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Current working directory: /app
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:19:05 - src.api.blueprints - INFO - === REGISTERING BLUEPRINTS ===
+2025-08-22 16:19:05 - src.api.blueprints - INFO - Current working directory: /app
+2025-08-22 16:19:05 - src.api.blueprints - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:19:05 - src.api.blueprints - INFO - Attempting to import Vue API blueprint...
+2025-08-22 16:19:05 - root - WARNING - [DEBUG] sys.executable: /usr/local/bin/python3.10
+2025-08-22 16:19:05 - root - WARNING - [DEBUG] sys.path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:19:05 - src.redis_distributed_processor - INFO - Redis connection established
+2025-08-22 16:19:05 - src.api.blueprints - INFO - ✅ Successfully imported Vue API blueprint (updated) using absolute import
+2025-08-22 16:19:05 - src.api.blueprints - INFO - Blueprint details: <Blueprint 'vue_api'>
+2025-08-22 16:19:05 - src.api.blueprints - INFO - - Name: vue_api
+2025-08-22 16:19:05 - src.api.blueprints - INFO - - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:19:05 - src.api.blueprints - INFO - Registering Vue API blueprint...
+2025-08-22 16:19:05 - src.api.blueprints - INFO - ✅ Vue API blueprint registered successfully
+2025-08-22 16:19:05 - src.api.blueprints - INFO - 
+=== CURRENTLY REGISTERED BLUEPRINTS ===
+2025-08-22 16:19:05 - src.api.blueprints - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-08-22 16:19:05 - src.api.blueprints - INFO -   - URL Prefix: None
+2025-08-22 16:19:05 - src.api.blueprints - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:19:05 - src.app_final_vue - INFO - ✅ Successfully registered all blueprints
+2025-08-22 16:19:05 - src.app_final_vue - INFO - ✅ Vue API blueprint registered successfully
+2025-08-22 16:19:05 - src.app_final_vue - INFO - === REGISTERED BLUEPRINTS ===
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-08-22 16:19:05 - src.app_final_vue - INFO -   - URL Prefix: None
+2025-08-22 16:19:05 - src.app_final_vue - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:19:05 - src.app_final_vue - INFO - 
+=== REGISTERED ROUTES ===
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - static: /casestrainer/<path:filename> (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.analyze: /casestrainer/api/analyze (POST, OPTIONS)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.progress_stream: /casestrainer/api/analyze/progress-stream/<request_id> (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.health_check_alias: /casestrainer/api/casestrainer/api/health (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.db_stats: /casestrainer/api/db_stats (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.processing_progress: /casestrainer/api/processing_progress (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - - vue_api.task_status: /casestrainer/api/task_status/<task_id> (OPTIONS, HEAD, GET)
+2025-08-22 16:19:05 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu', 'http://localhost:5000', 'http://localhost:8080']
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Upload directory ready: /app/uploads
+2025-08-22 16:19:05 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/temp
+2025-08-22 16:19:05 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/processed
+2025-08-22 16:19:05 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/rejected
+2025-08-22 16:19:05 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/quarantine
+2025-08-22 16:19:05 - src.app_final_vue - DEBUG - Directory write permissions verified
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Secure upload directory setup completed: /app/uploads
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Importing progress manager components...
+2025-08-22 16:19:05 - src.app_final_vue - INFO - ✅ Progress manager routes registered successfully
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Application routes registered
+2025-08-22 16:19:05 - src.app_final_vue - INFO - === REGISTERED ROUTES ===
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/<path:filename> -> Endpoint: static
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/health -> Endpoint: vue_api.health_check
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health -> vue_api.health_check (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/casestrainer/api/health -> Endpoint: vue_api.health_check_alias
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/casestrainer/api/health -> vue_api.health_check_alias (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/db_stats -> Endpoint: vue_api.db_stats
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/db_stats -> vue_api.db_stats (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: vue_api.analyze
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> vue_api.analyze (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/task_status/<task_id> -> Endpoint: vue_api.task_status
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/task_status/<task_id> -> vue_api.task_status (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/processing_progress -> Endpoint: vue_api.processing_progress
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/processing_progress -> vue_api.processing_progress (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<request_id> -> Endpoint: vue_api.progress_stream
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<request_id> -> vue_api.progress_stream (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/ -> Endpoint: serve_vue_app
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/<path:path> -> Endpoint: serve_vue_app
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /test -> Endpoint: test
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/routes -> Endpoint: list_routes
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/routes -> list_routes (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: start_citation_analysis
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> start_citation_analysis (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress/<task_id> -> Endpoint: get_progress
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress/<task_id> -> get_progress (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/results/<task_id> -> Endpoint: get_results
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/results/<task_id> -> get_results (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<task_id> -> Endpoint: progress_stream
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<task_id> -> progress_stream (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/memory -> Endpoint: memory_status
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory -> memory_status (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Route: /casestrainer/api/memory/force-gc -> Endpoint: force_garbage_collection
+2025-08-22 16:19:05 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory/force-gc -> force_garbage_collection (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:19:05 - src.app_final_vue - INFO - Flask application created successfully
+2025-08-22 16:19:05 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-22 16:19:09 - src.database_manager - INFO - Updated existing citations table schema
+2025-08-22 16:19:09 - src.database_manager - INFO - Database indexes created/verified
+2025-08-22 16:19:09 - src.database_manager - INFO - Database initialized with optimizations: /app/data/citations.db
+2025-08-22 16:19:09 - src.app_final_vue - INFO - [RESPONSE #1] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:19:39 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 09:19:40 - werkzeug - ERROR - 3.132.23.201 - - [22/Aug/2025 09:19:40] code 400, message Bad request syntax ('SSH-2.0-Go')
+2025-08-22 09:19:40 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:19:40] "[31m[1mSSH-2.0-Go[0m" 400 -
+2025-08-22 16:20:09 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:20:39 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 09:21:09 - werkzeug - ERROR - 3.132.23.201 - - [22/Aug/2025 09:21:09] code 400, message Bad request version ('�\x14�')
+2025-08-22 09:21:09 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:21:09] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03٩�K\x0e\x0f5�T��3DYglj\x84�F�A�\x8d �\x9cm\x8e�Y�\x00\x00\x1a�/�+�\x11�\x07�\x13�\x09�\x14�[0m" 400 -
+2025-08-22 16:21:10 - src.app_final_vue - INFO - [RESPONSE #5] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:21:40 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:22:10 - src.app_final_vue - INFO - [RESPONSE #7] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: b0a6d1f8-c215-4afb-934e-826931098b05] ===
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Method: POST
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Content-Type: application/json
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - DEBUG - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Headers: {'Connection': 'upgrade', 'Host': 'wolf.law.uw.edu', 'X-Real-Ip': '172.18.0.1', 'Content-Length': '759', 'Pragma': 'no-cache', 'Cache-Control': 'no-cache', 'Sec-Ch-Ua-Platform': '"Windows"', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0', 'Accept': 'application/json, text/plain, */*', 'Sec-Ch-Ua': '"Not;A=Brand";v="99", "Microsoft Edge";v="139", "Chromium";v="139"', 'Content-Type': 'application/json', 'X-Api-Key': '***REDACTED_COURTLISTENER_KEY***', 'Sec-Ch-Ua-Mobile': '?0', 'Origin': 'https://wolf.law.uw.edu', 'Sec-Fetch-Site': 'same-origin', 'Sec-Fetch-Mode': 'cors', 'Sec-Fetch-Dest': 'empty', 'Referer': 'https://wolf.law.uw.edu/casestrainer/', 'Accept-Encoding': 'gzip, deflate, br, zstd', 'Accept-Language': 'en-US,en;q=0.9', 'Priority': 'u=1, i', 'Cookie': '_ga=GA1.1.897194812.1749703568; locale=en-US; _ga_DRFG09WF97=GS2.1.s1753951167$o5$g1$t1753951813$j60$l0$h0'}
+2025-08-22 16:22:11 - src.redis_distributed_processor - INFO - Redis connection established
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - DEBUG - [Request b0a6d1f8-c215-4afb-934e-826931098b05] JSON data: {'type': 'text', 'text': '[content of length 717]'}
+2025-08-22 16:22:11 - src.redis_distributed_processor - INFO - Redis connection established
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Processing JSON input
+2025-08-22 16:22:11 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Processing JSON text immediately (short text)
+2025-08-22 16:22:11 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Initialized with thresholds: sync=2048, ultra_fast=500, clustering_skip=300
+2025-08-22 16:22:11 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Processing text: 717 characters
+2025-08-22 16:22:11 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Using full processing with verification
+2025-08-22 16:22:11 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Full processing with verification
+2025-08-22 16:22:11 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-08-22 16:22:12 - src.unified_citation_processor_v2 - DEBUG - TOP OF unified_citation_processor_v2.py MODULE LOADED
+2025-08-22 16:22:12 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - [DEPRECATED] _extract_with_regex is deprecated. Use _extract_citations_unified() instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - Starting priority pattern loop
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: parallel_citation_cluster
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: parallel_citation_cluster
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'parallel_citation_cluster' matched 1 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 188 Wn.2d 114
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 188 Wn.2d 114
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 188 Wn.2d 114
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 188 Wn.2d 114
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petitio...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '188 Wn.2d 114': isolated_context='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when suffici...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '188 Wn.2d 114': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 136, 'citation_start': 438, 'citation_end': 451}}
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 188 Wn.2d 114
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 188 Wn.2d 114 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 188 Wn.2d 114, start: 438, end: 451, context: 1068 (2014). Evidence is 
+substantial when sufficient to persuade a fair-minded person of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: flexible_wash2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: flexible_wash2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'flexible_wash2d' matched 1 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: flexible_p3d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: flexible_p3d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'flexible_p3d' matched 3 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '317 P.3d 1068'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '317 P.3d 1068'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 317 P.3d 1068
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 317 P.3d 1068
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 317 P.3d 1068
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 317 P.3d 1068
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=278, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '317 P.3d 1068': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '317 P.3d 1068': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 70, 'citation_start': 279, 'citation_end': 292}}
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '317 P.3d 1068'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 317 P.3d 1068
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 317 P.3d 1068 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 317 P.3d 1068, start: 279, end: 292, context: -37, 317 P.3d 1068 (2014)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '392 P.3d 1041'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '392 P.3d 1041'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 392 P.3d 1041
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 392 P.3d 1041
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 392 P.3d 1041
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 392 P.3d 1041
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 W...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '392 P.3d 1041': isolated_context='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when sufficient to persuade a fa...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '392 P.3d 1041': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 156, 'citation_start': 458, 'citation_end': 471}}
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '392 P.3d 1041'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 392 P.3d 1041
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 392 P.3d 1041 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 392 P.3d 1041, start: 458, end: 471, context: e is 
+substantial when sufficient to persuade a fair-minded person of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '230 P.3d 233'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '230 P.3d 233'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 230 P.3d 233
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 230 P.3d 233
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 230 P.3d 233
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 230 P.3d 233
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evid...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '230 P.3d 233': isolated_context='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domestic violence protection...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '230 P.3d 233': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 44, 'citation_start': 696, 'citation_end': 708}}
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '230 P.3d 233'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 230 P.3d 233
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 230 P.3d 233 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 230 P.3d 233, start: 696, end: 708, context: ion to 
+grant . . . a domestic violence protection order may contain hearsay or be wholly 
+documentary.” Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 
+(2010)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: flexible_p2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: flexible_p2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'flexible_p2d' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wash_complete
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_complete
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wash_complete' matched 3 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 178 Wn. App. 929
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 178 Wn. App. 929
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 178 Wn. App. 929
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 178 Wn. App. 929
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=252, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '178 Wn. App. 929': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '178 Wn. App. 929': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 252, 'citation_start': 253, 'citation_end': 269}}
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 178 Wn. App. 929
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 178 Wn. App. 929 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 178 Wn. App. 929, start: 253, end: 269, context: of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Processing priority citation: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_context for 155 Wn. App. 715
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Returned from _extract_context for 155 Wn. App. 715
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Creating CitationResult for 155 Wn. App. 715
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Calling _extract_metadata for 155 Wn. App. 715
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+...'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '155 Wn. App. 715': isolated_context='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domes...'
+2025-08-22 16:22:17 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '155 Wn. App. 715': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 21, 'citation_start': 673, 'citation_end': 689}}
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] [parallel_citation_cluster] Appending citation for 155 Wn. App. 715
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Created CitationResult: 155 Wn. App. 715 (parallel: False)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [EXTRACTION CONTEXT] Citation: 155 Wn. App. 715, start: 673, end: 689, context: the trial court’s decision to 
+grant . . . a domestic violence protection order may contain hearsay or be wholly 
+documentary.” Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 
+(2010)
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wash_with_parallel
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_with_parallel
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wash_with_parallel' matched 3 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: parallel_cluster
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: parallel_cluster
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'parallel_cluster' matched 3 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wn_app
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn_app
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wn_app' matched 2 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '178 Wn. App. 929'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Skipping duplicate or empty citation: '155 Wn. App. 715'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wn_app_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn_app_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wn_app_space' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wn3d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn3d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wn3d' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wn3d_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn3d_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wn3d_space' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wash_app
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_app
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wash_app' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern: wash_app_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_app_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Priority pattern 'wash_app_space' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - Starting second pass for remaining patterns
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wn2d' matched 1 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn2d_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wn2d_space' matched 1 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash2d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wash2d' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash2d_space
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wash2d_space' matched 0 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: p3d
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'p3d' matched 3 times.
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '317 P.3d 1068'
+2025-08-22 16:22:17 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '392 P.3d 1041'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '230 P.3d 233'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: p2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'p2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: us
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'us' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: us_spaced
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'us_spaced' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: f3d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'f3d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: f2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'f2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: f_supp
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'f_supp' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: f_supp2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'f_supp2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: f_supp3d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'f_supp3d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: s_ct
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 's_ct' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: l_ed
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'l_ed' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: l_ed2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'l_ed2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: a2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'a2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: a3d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'a3d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: so2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'so2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: so3d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'so3d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_2d_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wash_2d_alt' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wash_app_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wash_app_alt' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn2d_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wn2d_alt' matched 1 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn2d_alt_space
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wn2d_alt_space' matched 1 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: wn_app_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'wn_app_alt' matched 2 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '178 Wn. App. 929'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '155 Wn. App. 715'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: p3d_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'p3d_alt' matched 3 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '317 P.3d 1068'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '392 P.3d 1041'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '230 P.3d 233'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: p2d_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'p2d_alt' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: westlaw
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'westlaw' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: westlaw_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'westlaw_alt' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: simple_wash2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'simple_wash2d' matched 1 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '188 Wn.2d 114'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: simple_p3d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'simple_p3d' matched 3 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '317 P.3d 1068'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '392 P.3d 1041'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG]   Match: '230 P.3d 233'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: simple_p2d
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'simple_p2d' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: lexis
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'lexis' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Applying pattern: lexis_alt
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Pattern 'lexis_alt' matched 0 times.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] _extract_with_regex completed, total citations: 6
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [DEBUG] Total citations created: 6
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - INFO - [DEBUG] All extracted citations: ['188 Wn.2d 114', '317 P.3d 1068', '392 P.3d 1041', '230 P.3d 233', '178 Wn. App. 929', '155 Wn. App. 715']
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petitio...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '188 Wn.2d 114': isolated_context='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when suffici...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '188 Wn.2d 114': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 136, 'citation_start': 438, 'citation_end': 451}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '188 Wn.2d 114'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petitio...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '188 Wn.2d 114': isolated_context='dibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when suffici...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '188 Wn.2d 114': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 136, 'citation_start': 438, 'citation_end': 451}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '188 Wn.2d 114'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=278, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '317 P.3d 1068': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '317 P.3d 1068': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 70, 'citation_start': 279, 'citation_end': 292}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '317 P.3d 1068'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=278, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '317 P.3d 1068': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '317 P.3d 1068': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 70, 'citation_start': 279, 'citation_end': 292}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '317 P.3d 1068'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 W...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '392 P.3d 1041': isolated_context='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when sufficient to persuade a fa...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '392 P.3d 1041': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 156, 'citation_start': 458, 'citation_end': 471}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '392 P.3d 1041'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 W...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '392 P.3d 1041': isolated_context='g 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when sufficient to persuade a fa...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '392 P.3d 1041': {'case_name': '', 'date': '2017', 'year': '2017', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 156, 'citation_start': 458, 'citation_end': 471}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '392 P.3d 1041'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evid...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '230 P.3d 233': isolated_context='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domestic violence protection...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '230 P.3d 233': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 44, 'citation_start': 696, 'citation_end': 708}}
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '230 P.3d 233'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evid...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '230 P.3d 233': isolated_context='matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domestic violence protection...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '230 P.3d 233': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 44, 'citation_start': 696, 'citation_end': 708}}
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '230 P.3d 233'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=252, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '178 Wn. App. 929': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '178 Wn. App. 929': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 252, 'citation_start': 253, 'citation_end': 269}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '178 Wn. App. 929'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=252, content='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the tri...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '178 Wn. App. 929': isolated_context='We review a trial court’s findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the ev...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '178 Wn. App. 929': {'case_name': '', 'date': '2014', 'year': '2014', 'confidence': 0.0, 'method': 'none', 'debug_info': {'context_length': 252, 'citation_start': 253, 'citation_end': 269}}
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 0 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - [UNIFIED] Extracted case name: '' (confidence: 0.00, method: none)
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ❌ [UNIFIED] No case name found for citation: '178 Wn. App. 929'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '155 Wn. App. 715': isolated_context='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domes...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '155 Wn. App. 715': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 21, 'citation_start': 673, 'citation_end': 689}}
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '155 Wn. App. 715'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - WARNING - DEPRECATED: _normalize_to_bluebook_format called. Use _normalize_citation_comprehensive instead.
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] extract_case_names = True
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONFIG] Case name extraction is ENABLED
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context extracted: length=299, content='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+...'
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [CONTEXT] Context is valid, proceeding to unified extractor
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name extraction for '155 Wn. App. 715': isolated_context='n of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). “Competent evidence sufficient to support the trial court’s decision to 
+grant . . . a domes...'
+2025-08-22 16:22:18 - src.unified_case_name_extractor - DEBUG - [PERF] Using 3 patterns for matching
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - 🔍 [UNIFIED] Case name result for '155 Wn. App. 715': {'case_name': 'Blackmon v. Blackmon', 'date': '2010', 'year': '2010', 'confidence': 1.0, 'method': 'standard_v_precise', 'debug_info': {'context_length': 21, 'citation_start': 673, 'citation_end': 689}}
+2025-08-22 16:22:18 - src.unified_citation_processor_v2 - DEBUG - ✅ [UNIFIED] Extracted case name: 'Blackmon v. Blackmon' (confidence: 1.00, method: standard_v_precise) for citation: '155 Wn. App. 715'
+2025-08-22 16:22:18 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Standard extraction found 6 citations
+2025-08-22 16:22:18 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Washington citations detected - ensuring proper parallel detection
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Starting unified clustering for 6 citations
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Batch verifying 6 citations with CourtListener API
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Processing batch 1/1 (6 citations)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ API verified: 178 Wn. App. 929 -> Knight v. Knight (2014)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ API verified: 317 P.3d 1068 -> Knight v. Knight (2014)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ API verified: 392 P.3d 1041 -> Alsager v. Bd. of Osteopathic Med. & Surgery (2017)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ API verified: 155 Wn. App. 715 -> Blackmon v. Blackmon (2010)
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ API verified: 230 P.3d 233 -> Blackmon v. Blackmon (2010)
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING - ✗ Name mismatch: 178 Wn. App. 929
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Canonical: 'Knight v. Knight'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Extracted: 'In re Vulnerable Adult Petition 
+for Knight'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Similarity: 0.12 - rejecting verification
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✗ Failed validation: 178 Wn. App. 929
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING - ✗ Name mismatch: 317 P.3d 1068
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Canonical: 'Knight v. Knight'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Extracted: 'In re Vulnerable Adult Petition 
+for Knight'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Similarity: 0.12 - rejecting verification
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✗ Failed validation: 317 P.3d 1068
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✗ Unverified: 188 Wn.2d 114 - No clusters found in API response
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING - ✗ Name mismatch: 392 P.3d 1041
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Canonical: 'Alsager v. Bd. of Osteopathic Med. & Surgery'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Extracted: 'In re Marriage of Black'
+2025-08-22 16:22:18 - src.unified_citation_clustering - WARNING -   Similarity: 0.08 - rejecting verification
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✗ Failed validation: 392 P.3d 1041
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ Verified: 155 Wn. App. 715 -> Blackmon v. Blackmon
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - ✓ Verified: 230 P.3d 233 -> Blackmon v. Blackmon
+2025-08-22 16:22:18 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 4 unverified citations
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 4 unverified citations
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 178 Wn. App. 929
+2025-08-22 16:22:19 - asyncio - DEBUG - Using selector: EpollSelector
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - 🚀 HYBRID VERIFICATION CALLED for 178 Wn. App. 929
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - DEBUG - Attempting CourtListener verification for: 178 Wn. App. 929
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - ✓ CourtListener verification successful for: 178 Wn. App. 929
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - ✅ CourtListener verified: 178 Wn. App. 929 -> Gillian Timaeus, V Chris Timaeus in 0.5s
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - ✓ Enhanced fallback verified: 178 Wn. App. 929 -> Gillian Timaeus, V Chris Timaeus (via CourtListener)
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 317 P.3d 1068
+2025-08-22 16:22:19 - asyncio - DEBUG - Using selector: EpollSelector
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - 🚀 HYBRID VERIFICATION CALLED for 317 P.3d 1068
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - DEBUG - Attempting CourtListener verification for: 317 P.3d 1068
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - ✓ CourtListener verification successful for: 317 P.3d 1068
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - ✅ CourtListener verified: 317 P.3d 1068 -> Gillian Timaeus, V Chris Timaeus in 0.4s
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - ✓ Enhanced fallback verified: 317 P.3d 1068 -> Gillian Timaeus, V Chris Timaeus (via CourtListener)
+2025-08-22 16:22:19 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 188 Wn.2d 114
+2025-08-22 16:22:19 - asyncio - DEBUG - Using selector: EpollSelector
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - INFO - 🚀 HYBRID VERIFICATION CALLED for 188 Wn.2d 114
+2025-08-22 16:22:19 - src.enhanced_fallback_verifier - DEBUG - Attempting CourtListener verification for: 188 Wn.2d 114
+2025-08-22 16:22:20 - src.enhanced_fallback_verifier - INFO - ✓ CourtListener verification successful for: 188 Wn.2d 114
+2025-08-22 16:22:20 - src.enhanced_fallback_verifier - INFO - ✅ CourtListener verified: 188 Wn.2d 114 -> In re Marriage of Black in 0.8s
+2025-08-22 16:22:20 - src.unified_citation_clustering - INFO - ✓ Enhanced fallback verified: 188 Wn.2d 114 -> In re Marriage of Black (via CourtListener)
+2025-08-22 16:22:20 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 392 P.3d 1041
+2025-08-22 16:22:20 - asyncio - DEBUG - Using selector: EpollSelector
+2025-08-22 16:22:20 - src.enhanced_fallback_verifier - INFO - 🚀 HYBRID VERIFICATION CALLED for 392 P.3d 1041
+2025-08-22 16:22:20 - src.enhanced_fallback_verifier - DEBUG - Attempting CourtListener verification for: 392 P.3d 1041
+2025-08-22 16:22:21 - src.enhanced_fallback_verifier - INFO - ✓ CourtListener verification successful for: 392 P.3d 1041
+2025-08-22 16:22:21 - src.enhanced_fallback_verifier - INFO - ✅ CourtListener verified: 392 P.3d 1041 -> In re Marriage of Black in 1.1s
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - ✓ Enhanced fallback verified: 392 P.3d 1041 -> In re Marriage of Black (via CourtListener)
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-08-22 16:22:21 - src.unified_citation_clustering - DEBUG - Preserving parallel cluster 'In_re_Vulnerable_Adult_Petition_
+for_Knight_2014' with reporters: {'wash', 'p3d'}
+2025-08-22 16:22:21 - src.unified_citation_clustering - DEBUG - Preserving parallel cluster 'In_re_Marriage_of_Black_2017' with reporters: {'wash2d', 'p3d'}
+2025-08-22 16:22:21 - src.unified_citation_clustering - DEBUG - Preserving parallel cluster 'Blackmon_v__Blackmon_2010' with reporters: {'wash', 'p3d'}
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Merged 3 initial clusters into 3 final clusters (preserving parallel relationships)
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Propagating verification status across 3 clusters
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-08-22 16:22:21 - src.unified_citation_clustering - INFO - Unified clustering completed: 3 clusters created
+2025-08-22 16:22:21 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Clustering completed with 3 clusters
+2025-08-22 16:22:21 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Cached result for text pattern
+2025-08-22 16:22:21 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1755879731137] Processing completed in 10.827s
+2025-08-22 16:22:21 - src.api.services.citation_service - INFO - [CitationService] Immediate processing completed via UnifiedSyncProcessor in 10.827s
+2025-08-22 16:22:21 - src.vue_api_endpoints_updated - INFO - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Request completed successfully in 10901ms
+2025-08-22 16:22:21 - src.vue_api_endpoints_updated - DEBUG - [Request b0a6d1f8-c215-4afb-934e-826931098b05] Response data: {'result': {'citations': '[list of 6 citations]', 'clusters': [{'cluster_id': 'In_re_Vulnerable_Adult_Petition_\nfor_Knight_2014', 'citations': ['178 Wn. App. 929', '317 P.3d 1068'], 'citation_objects': [{'citation': '317 P.3d 1068', 'extracted_case_name': 'In re Vulnerable Adult Petition \nfor Knight', 'canonical_name': 'Gillian Timaeus, V Chris Timaeus', 'extracted_date': '2014', 'canonical_date': '2025-08-11', 'canonical_url': '/opinion/10652291/gillian-timaeus-v-chris-timaeus/', 'verified': 'True', 'confidence': '0.9', 'method': 'regex', 'context': '-37, 317 P.3d 1068 (2014)', 'is_parallel': 'False'}, {'citation': '178 Wn. App. 929', 'extracted_case_name': 'In re Vulnerable Adult Petition \nfor Knight', 'canonical_name': 'Gillian Timaeus, V Chris Timaeus', 'extracted_date': '2014', 'canonical_date': '2025-08-11', 'canonical_url': '/opinion/10652291/gillian-timaeus-v-chris-timaeus/', 'verified': 'True', 'confidence': '1.0', 'method': 'regex', 'context': 'of fact on questions of witness credibility, conflicting \ntestimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition \nfor Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014)', 'is_parallel': 'False'}], 'extracted_case_name': 'In re Vulnerable Adult Petition \nfor Knight', 'extracted_date': '2014', 'canonical_name': 'Gillian Timaeus, V Chris Timaeus', 'canonical_date': '2025-08-11', 'canonical_url': '/opinion/10652291/gillian-timaeus-v-chris-timaeus/', 'verification_status': 'verified', 'confidence': '1.0', 'size': '2', 'cluster_type': 'unified_extracted'}, {'cluster_id': 'In_re_Marriage_of_Black_2017', 'citations': ['188 Wn.2d 114', '392 P.3d 1041'], 'citation_objects': [{'citation': '188 Wn.2d 114', 'extracted_case_name': 'In re Marriage of Black', 'canonical_name': 'In re Marriage of Black', 'extracted_date': '2017', 'canonical_date': '2017-04-06', 'canonical_url': '/opinion/4381265/in-re-marriage-of-black/', 'verified': 'True', 'confidence': '1.0', 'method': 'regex', 'context': '1068 (2014). Evidence is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)', 'is_parallel': 'False'}, {'citation': '392 P.3d 1041', 'extracted_case_name': 'In re Marriage of Black', 'canonical_name': 'In re Marriage of Black', 'extracted_date': '2017', 'canonical_date': '2017-04-06', 'canonical_url': '/opinion/4381265/in-re-marriage-of-black/', 'verified': 'True', 'confidence': '1.0', 'method': 'regex', 'context': 'e is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)', 'is_parallel': 'False'}], 'extracted_case_name': 'In re Marriage of Black', 'extracted_date': '2017', 'canonical_name': 'In re Marriage of Black', 'canonical_date': '2017-04-06', 'canonical_url': '/opinion/4381265/in-re-marriage-of-black/', 'verification_status': 'verified', 'confidence': '1.0', 'size': '2', 'cluster_type': 'unified_extracted'}, {'cluster_id': 'Blackmon_v__Blackmon_2010', 'citations': ['155 Wn. App. 715', '230 P.3d 233'], 'citation_objects': [{'citation': '230 P.3d 233', 'extracted_case_name': 'Blackmon v. Blackmon', 'canonical_name': 'Blackmon v. Blackmon', 'extracted_date': '2010', 'canonical_date': '2010', 'canonical_url': 'https://www.courtlistener.com/opinion/2626076/blackmon-v-blackmon/', 'verified': 'True', 'confidence': '1.0', 'method': 'regex', 'context': 'ion to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.” Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)', 'is_parallel': 'False'}, {'citation': '155 Wn. App. 715', 'extracted_case_name': 'Blackmon v. Blackmon', 'canonical_name': 'Blackmon v. Blackmon', 'extracted_date': '2010', 'canonical_date': '2010', 'canonical_url': 'https://www.courtlistener.com/opinion/4948151/blackmon-v-blackmon/', 'verified': 'True', 'confidence': '1.0', 'method': 'regex', 'context': 'the trial court’s decision to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.” Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)', 'is_parallel': 'False'}], 'extracted_case_name': 'Blackmon v. Blackmon', 'extracted_date': '2010', 'canonical_name': 'Blackmon v. Blackmon', 'canonical_date': '2010', 'canonical_url': 'https://www.courtlistener.com/opinion/4948151/blackmon-v-blackmon/', 'verification_status': 'verified', 'confidence': '1.0', 'size': '2', 'cluster_type': 'unified_extracted'}], 'statistics': {}}, 'request_id': 'b0a6d1f8-c215-4afb-934e-826931098b05', 'success': True, 'status': 'completed', 'metadata': {'processing_mode': 'immediate', 'input_type': 'unknown', 'text_length': 717, 'request_id': 'b0a6d1f8-c215-4afb-934e-826931098b05', 'endpoint': '/analyze', 'timestamp': '2025-08-22T16:22:11.071211', 'input_size': 759, 'content_type': 'application/json', 'processing_time_ms': 10901, 'status': 'completed', 'success': True, 'progress_data': {'current_step': 100, 'total_steps': 5, 'current_message': 'Processing completed successfully', 'start_time': 1755879731.1372848, 'steps': [{'name': 'Initializing...', 'progress': 100, 'status': 'completed', 'message': 'Started unified processing'}, {'name': 'Extract', 'progress': 100, 'status': 'completed', 'message': 'Citations extracted successfully'}, {'name': 'Analyze', 'progress': 100, 'status': 'completed', 'message': 'Citations analyzed and normalized'}, {'name': 'Extract Names', 'progress': 100, 'status': 'completed', 'message': 'Case names and years extracted'}, {'name': 'Cluster', 'progress': 100, 'status': 'completed', 'message': 'Citations clustered successfully'}, {'name': 'Verify', 'progress': 100, 'status': 'completed', 'message': 'Verification completed'}]}}}
+2025-08-22 16:22:21 - src.app_final_vue - INFO - [RESPONSE #8] POST vue_api.analyze -> 200 (8899 chars)
+2025-08-22 16:22:40 - src.app_final_vue - INFO - [RESPONSE #9] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:23:10 - src.app_final_vue - INFO - [RESPONSE #10] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:23:40 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.health_check -> 200 (449 chars)

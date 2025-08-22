@@ -123,7 +123,7 @@ class EnhancedCourtListenerVerifier:
                     result.update({
                         "canonical_name": best_result.get('caseName', ''),
                         "canonical_date": best_result.get('dateFiled', ''),
-                        "url": best_result.get('absolute_url', ''),
+                        "url": self._normalize_url(best_result.get('absolute_url', '')),
                         "verified": True,
                         "source": "CourtListener Search API"
                     })
@@ -214,7 +214,7 @@ class EnhancedCourtListenerVerifier:
                         result.update({
                             "canonical_name": best_result.get('caseName', ''),
                             "canonical_date": best_result.get('dateFiled', ''),
-                            "url": best_result.get('absolute_url', ''),
+                            "url": self._normalize_url(best_result.get('absolute_url', '')),
                             "verified": True,
                             "source": "CourtListener Citation-Lookup API"
                         })
@@ -531,6 +531,22 @@ class EnhancedCourtListenerVerifier:
                 return True
         
         return False
+
+    def _normalize_url(self, url: str) -> str:
+        """
+        Normalize a CourtListener URL to ensure it's absolute.
+        CourtListener URLs are often relative, but the API expects absolute.
+        """
+        if url and not url.startswith('http://') and not url.startswith('https://'):
+            # Attempt to prepend https:// if it's a relative path
+            if url.startswith('/'):
+                return f"https://www.courtlistener.com{url}"
+            # If it's a subdomain path, prepend https://
+            if url.startswith('api/'):
+                return f"https://www.courtlistener.com{url}"
+            # If it's a direct path, prepend https://
+            return f"https://www.courtlistener.com{url}"
+        return url
 
 # Backward compatibility function
 def verify_with_courtlistener_enhanced(courtlistener_api_key: str, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
