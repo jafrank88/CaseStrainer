@@ -834,6 +834,13 @@ class UnifiedCitationClusterer:
                     # Use the enhanced fallback verifier (now includes CourtListener first)
                     result = verifier.verify_citation_sync(citation_text, extracted_case_name, extracted_date)
                     
+                    # Debug logging to see what's returned
+                    logger.info(f"DEBUG: Verification result for {citation_text}: {result}")
+                    if result:
+                        logger.info(f"DEBUG: Result keys: {list(result.keys())}")
+                        logger.info(f"DEBUG: Source field: {result.get('source', 'MISSING')}")
+                        logger.info(f"DEBUG: Verified field: {result.get('verified', 'MISSING')}")
+                    
                     if result and result.get('verified', False):
                         # Update citation with verification results
                         citation.verified = True

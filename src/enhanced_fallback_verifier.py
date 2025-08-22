@@ -1066,7 +1066,7 @@ class EnhancedFallbackVerifier:
             try:
                 # Run the async verification
                 result = loop.run_until_complete(
-                    self.verify_citation(citation_text, extracted_case_name)
+                    self.verify_citation(citation_text, extracted_case_name, extracted_date, has_courtlistener_data=False)
                 )
                 return result
             finally:

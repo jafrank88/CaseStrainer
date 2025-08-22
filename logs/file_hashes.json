@@ -160,6 +160,6 @@
     "src/async_verification_worker.py":  "35CB6B6C799896B0942692D5BB7F6557",
     "src/unified_sync_processor.py":  "7377966165944D7BAA9FED4B3D20C368",
     "src/unified_citation_clustering.py":  "4F921841ACFFC45899F518A0DEE5561F",
-    "src/enhanced_fallback_verifier.py":  "FF964001FC02C538E6A2CCFD79E8543F",
-    "src/enhanced_courtlistener_verification.py":  "B4D0F0BC0FADFF0D96BCB6C14DDC70D8"
+    "src/enhanced_courtlistener_verification.py":  "B4D0F0BC0FADFF0D96BCB6C14DDC70D8",
+    "src/enhanced_fallback_verifier.py":  "E285A678B0788E2172EC55793CD557E0"
 }
