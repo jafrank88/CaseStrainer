@@ -181,7 +181,7 @@ class EnhancedCourtListenerVerifier:
         return result
     
     def _verify_with_citation_lookup(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
-        """Verify using citation-lookup API with fuzzy case name matching"""
+        """Verify using citation-lookup API with citation-first search strategy"""
         
         result = {
             "canonical_name": None,
@@ -192,6 +192,8 @@ class EnhancedCourtListenerVerifier:
         }
         
         try:
+            # Citation-lookup API is designed to find cases by citation
+            # This should be more reliable for finding the primary case
             url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
             data = {"text": citation}
             
@@ -206,6 +208,7 @@ class EnhancedCourtListenerVerifier:
                 
                 if found_results:
                     # Use enhanced matching to find the PRIMARY case
+                    # Citation-lookup should find the case that IS the citation
                     best_result = self._find_primary_case_with_enhanced_matching(
                         found_results, extracted_case_name, citation, citation
                     )
@@ -288,9 +291,9 @@ class EnhancedCourtListenerVerifier:
         """
         Use multiple search strategies to find the primary case.
         
-        Strategy 1: Search by exact case name
-        Strategy 2: Search by case name + citation
-        Strategy 3: Search by citation only (fallback)
+        Strategy 1: Search by citation (highest priority) - FIND THE ACTUAL CASE
+        Strategy 2: Search by citation + case name (medium priority)
+        Strategy 3: Search by case name only (lower priority) - FALLBACK
         
         Args:
             extracted_case_name: Case name extracted from document
@@ -302,8 +305,54 @@ class EnhancedCourtListenerVerifier:
         """
         url = f"https://www.courtlistener.com/api/rest/v4/search/"
         
-        # Strategy 1: Search by exact case name (highest priority)
-        print(f"[ENHANCED] Strategy 1: Searching by exact case name: '{extracted_case_name}'")
+        # Strategy 1: Search by citation (highest priority) - FIND THE ACTUAL CASE
+        print(f"[ENHANCED] Strategy 1: Searching by citation: '{citation}'")
+        params = {
+            'q': citation,
+            'format': 'json',
+            'stat_Precedential': 'on',
+            'type': 'o',
+            'order_by': 'dateFiled desc'
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params, timeout=30)
+        if response.status_code == 200:
+            api_results = response.json()
+            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+            
+            if found_results:
+                best_result = self._find_primary_case_with_enhanced_matching(
+                    found_results, extracted_case_name, citation, citation_filter
+                )
+                if best_result:
+                    print(f"[ENHANCED] Strategy 1 successful: Found primary case by citation")
+                    return best_result
+        
+        # Strategy 2: Search by citation + case name (medium priority)
+        print(f"[ENHANCED] Strategy 2: Searching by citation + case name")
+        params = {
+            'q': f'{citation} {extracted_case_name}',
+            'format': 'json',
+            'stat_Precedential': 'on',
+            'type': 'o',
+            'order_by': 'dateFiled desc'
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params, timeout=30)
+        if response.status_code == 200:
+            api_results = response.json()
+            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+            
+            if found_results:
+                best_result = self._find_primary_case_with_enhanced_matching(
+                    found_results, extracted_case_name, citation, citation_filter
+                )
+                if best_result:
+                    print(f"[ENHANCED] Strategy 2 successful: Found primary case by citation + name")
+                    return best_result
+        
+        # Strategy 3: Search by exact case name (lower priority) - FALLBACK
+        print(f"[ENHANCED] Strategy 3: Searching by exact case name (fallback)")
         params = {
             'q': f'"{extracted_case_name}"',  # Exact phrase match
             'format': 'json',
@@ -322,53 +371,7 @@ class EnhancedCourtListenerVerifier:
                     found_results, extracted_case_name, citation, citation_filter
                 )
                 if best_result:
-                    print(f"[ENHANCED] Strategy 1 successful: Found primary case")
-                    return best_result
-        
-        # Strategy 2: Search by case name + citation (medium priority)
-        print(f"[ENHANCED] Strategy 2: Searching by case name + citation")
-        params = {
-            'q': f'{extracted_case_name} {citation}',
-            'format': 'json',
-            'stat_Precedential': 'on',
-            'type': 'o',
-            'order_by': 'dateFiled desc'
-        }
-        
-        response = requests.get(url, headers=self.headers, params=params, timeout=30)
-        if response.status_code == 200:
-            api_results = response.json()
-            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
-            
-            if found_results:
-                best_result = self._find_primary_case_with_enhanced_matching(
-                    found_results, extracted_case_name, citation, citation_filter
-                )
-                if best_result:
-                    print(f"[ENHANCED] Strategy 2 successful: Found primary case")
-                    return best_result
-        
-        # Strategy 3: Search by case name only (lower priority)
-        print(f"[ENHANCED] Strategy 3: Searching by case name only")
-        params = {
-            'q': extracted_case_name,
-            'format': 'json',
-            'stat_Precedential': 'on',
-            'type': 'o',
-            'order_by': 'dateFiled desc'
-        }
-        
-        response = requests.get(url, headers=self.headers, params=params, timeout=30)
-        if response.status_code == 200:
-            api_results = response.json()
-            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
-            
-            if found_results:
-                best_result = self._find_primary_case_with_enhanced_matching(
-                    found_results, extracted_case_name, citation, citation_filter
-                )
-                if best_result:
-                    print(f"[ENHANCED] Strategy 3 successful: Found primary case")
+                    print(f"[ENHANCED] Strategy 3 successful: Found primary case by name (fallback)")
                     return best_result
         
         print(f"[ENHANCED] All search strategies failed to find primary case")
@@ -427,12 +430,13 @@ class EnhancedCourtListenerVerifier:
                 
                 # Additional check: Look for citation patterns in the case text
                 # If the case text contains the exact citation pattern, it might be citing the target
+                citation_penalty = 0.0
                 if self._case_appears_to_cite_target(result, citation, extracted_case_name):
                     print(f"[ENHANCED] Case appears to cite target, reducing score: {api_case_name}")
-                    score -= 0.2
+                    citation_penalty = 0.2
                 
                 # Score based on similarity and other factors
-                score = similarity
+                score = similarity - citation_penalty
                 
                 # Bonus for exact case name match
                 if extracted_case_name.lower() == api_case_name.lower():
@@ -447,6 +451,20 @@ class EnhancedCourtListenerVerifier:
                 # Penalty for very low similarity
                 if similarity < 0.4:
                     score -= 0.3
+                
+                # Additional bonus for citation-based matches
+                # If we found this case by searching the citation, it's more likely to be the primary case
+                if citation_filter and citation_filter in api_case_name:
+                    score += 0.2
+                    print(f"[ENHANCED] Citation found in case name - bonus applied: {api_case_name}")
+                
+                # Penalty for cases that appear to be citing the target
+                # This helps eliminate cases that just mention the target case
+                if extracted_case_name and extracted_case_name.lower() in api_case_name.lower() and similarity < 0.7:
+                    # This case name contains the extracted case name but similarity is low
+                    # It might be a different case that just mentions the target
+                    score -= 0.3
+                    print(f"[ENHANCED] Case name contains target but low similarity - penalty applied: {api_case_name}")
                 
                 print(f"[ENHANCED] Case '{api_case_name}' scored: {score:.3f}")
                 
