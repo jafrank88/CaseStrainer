@@ -810,7 +810,8 @@ class UnifiedCitationClusterer:
             # Create the enhanced fallback verifier
             verifier = EnhancedFallbackVerifier()
             
-            # Process each unverified citation
+            # Process each unverified citation - no time budget constraint
+            # The enhanced fallback verifier has its own 10-second timeout per citation
             for citation in citations:
                 try:
                     citation_text = citation.citation
@@ -819,8 +820,29 @@ class UnifiedCitationClusterer:
                     
                     logger.info(f"Attempting enhanced fallback verification for: {citation_text}")
                     
-                    # Use the sync method since we're in a sync context
-                    result = verifier.verify_citation_sync(citation_text, extracted_case_name, extracted_date)
+                    # Use the async method and run it in a new event loop to avoid blocking
+                    # This allows the main thread to continue processing while verification runs
+                    import asyncio
+                    import concurrent.futures
+                    
+                    # Create a new event loop for this thread
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    
+                    try:
+                        # Check if citation already has CourtListener data to avoid unnecessary fallback verification
+                        has_courtlistener_data = (
+                            hasattr(citation, 'canonical_name') and citation.canonical_name and
+                            hasattr(citation, 'canonical_date') and citation.canonical_date and
+                            hasattr(citation, 'canonical_url') and citation.canonical_url
+                        )
+                        
+                        # Run the async verification in the new event loop
+                        result = loop.run_until_complete(
+                            verifier.verify_citation(citation_text, extracted_case_name, extracted_date, has_courtlistener_data)
+                        )
+                    finally:
+                        loop.close()
                     
                     if result and result.get('verified', False):
                         # Update citation with verification results
