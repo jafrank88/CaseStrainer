@@ -872,9 +872,9 @@ function handleNewAnalysis() {
                 <div class="citation-row flex-names-row">
                   <span class="row-label">Verifying Source:</span>
                   <span>
-                    <template v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'">
-                      {{ getCanonicalCaseName(cluster.citations[0]) }}
-                      <span v-if="getCanonicalDate(cluster.citations[0])"> ({{ formatYear(getCanonicalDate(cluster.citations[0])) }})</span>
+                    <template v-if="cluster.canonical_name && cluster.canonical_name !== 'N/A'">
+                      {{ cluster.canonical_name }}
+                      <span v-if="cluster.canonical_date"> ({{ formatYear(cluster.canonical_date) }})</span>
                       <span v-else> (N/A)</span>
                     </template>
                     <template v-else>
@@ -886,9 +886,9 @@ function handleNewAnalysis() {
                 <div class="citation-row flex-names-row">
                   <span class="row-label">From Document:</span>
                   <span>
-                    <template v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'">
-                      {{ getExtractedCaseName(cluster.citations[0]) }}
-                      <span v-if="getExtractedDate(cluster.citations[0])"> ({{ formatYear(getExtractedDate(cluster.citations[0])) }})</span>
+                    <template v-if="cluster.extracted_case_name && cluster.extracted_case_name !== 'N/A'">
+                      {{ cluster.extracted_case_name }}
+                      <span v-if="cluster.extracted_date"> ({{ formatYear(cluster.extracted_date) }})</span>
                       <span v-else> (N/A)</span>
                     </template>
                     <template v-else>
@@ -992,11 +992,11 @@ function handleNewAnalysis() {
               <!-- First line: Verified name and date -->
               <div class="canonical-line">
                 <span class="canonical-label">Verifying Source:</span>
-                <span v-if="getCanonicalCaseName(cluster.citations[0]) && getCanonicalCaseName(cluster.citations[0]) !== 'N/A'" 
-                      :class="['canonical-name', getCaseNameClass(cluster.citations[0])]">
-                  {{ getCanonicalCaseName(cluster.citations[0]) }}
-                  <span v-if="getCanonicalDate(cluster.citations[0])" :class="['canonical-date', getDateClass(cluster.citations[0])]">
-                    ({{ formatYear(getCanonicalDate(cluster.citations[0])) }})
+                <span v-if="cluster.canonical_name && cluster.canonical_name !== 'N/A'" 
+                      :class="['canonical-name', getCaseNameClass(cluster)]">
+                  {{ cluster.canonical_name }}
+                  <span v-if="cluster.canonical_date" :class="['canonical-date', getDateClass(cluster)]">
+                    ({{ formatYear(cluster.canonical_date) }})
                   </span>
                   <span v-else class="canonical-date missing">(no date)</span>
                 </span>
@@ -1006,11 +1006,11 @@ function handleNewAnalysis() {
               <!-- Second line: From Document name and date -->
               <div class="extracted-line">
                 <span class="extracted-label">From Document:</span>
-                <span v-if="getExtractedCaseName(cluster.citations[0]) && getExtractedCaseName(cluster.citations[0]) !== 'N/A'" 
-                      :class="['extracted-name', getCaseNameClass(cluster.citations[0])]">
-                  {{ getExtractedCaseName(cluster.citations[0]) }}
-                  <span v-if="getExtractedDate(cluster.citations[0])" :class="['extracted-date', getDateClass(cluster.citations[0])]">
-                    ({{ formatYear(getExtractedDate(cluster.citations[0])) }})
+                <span v-if="cluster.extracted_case_name && cluster.extracted_case_name !== 'N/A'" 
+                      :class="['extracted-name', getCaseNameClass(cluster)]">
+                  {{ cluster.extracted_case_name }}
+                  <span v-if="cluster.extracted_date" :class="['extracted-date', getDateClass(cluster)]">
+                    ({{ formatYear(cluster.extracted_date) }})
                   </span>
                   <span v-else class="extracted-date missing">(no date)</span>
                 </span>

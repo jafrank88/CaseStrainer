@@ -470,46 +470,126 @@ def _is_enhanced_verification_available() -> bool:
         return False
 
 def _verify_with_enhanced_verification(citations: List, text: str, request_id: str) -> List[Dict[str, Any]]:
-    """Use enhanced verification with cross-validation if available."""
+    """Use hybrid verification: CourtListener first, then enhanced fallback if needed."""
     try:
         from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
+        from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
         
         courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
         if not courtlistener_api_key:
             raise ValueError("CourtListener API key not available")
         
-        verifier = EnhancedCourtListenerVerifier(courtlistener_api_key)
+        # Create both verifiers
+        courtlistener_verifier = EnhancedCourtListenerVerifier(courtlistener_api_key)
+        fallback_verifier = EnhancedFallbackVerifier()
+        
         enhanced_results = []
         
         for citation in citations:
             citation_text = citation.get('citation', str(citation))
             extracted_case_name = citation.get('extracted_case_name')
+            extracted_date = citation.get('extracted_date')
             
-            # Enhanced verification with cross-validation
-            verification_result = verifier.verify_citation_enhanced(citation_text, extracted_case_name)
+            logger.info(f"[AsyncVerificationWorker {request_id}] Starting hybrid verification for: {citation_text}")
             
-            # Create enhanced result
-            enhanced_result = {
-                'citation': citation_text,
-                'extracted_case_name': extracted_case_name,
-                'extracted_date': citation.get('extracted_date'),
-                'verified': verification_result.get('verified', False),
-                'canonical_name': verification_result.get('canonical_name'),
-                'canonical_date': verification_result.get('canonical_date'),
-                'url': verification_result.get('url'),
-                'source': verification_result.get('source', 'enhanced_courtlistener'),
-                'validation_method': verification_result.get('validation_method', 'enhanced_cross_validation'),
-                'confidence': verification_result.get('confidence', 0.0),
-                'verification_timestamp': time.time()
-            }
+            # Step 1: Try CourtListener first (fast, reliable, official)
+            courtlistener_result = courtlistener_verifier.verify_citation_enhanced(citation_text, extracted_case_name)
+            
+            if courtlistener_result.get('verified', False):
+                # CourtListener succeeded - use this result
+                logger.info(f"[AsyncVerificationWorker {request_id}] CourtListener verified: {citation_text}")
+                enhanced_result = {
+                    'citation': citation_text,
+                    'extracted_case_name': extracted_case_name,
+                    'extracted_date': extracted_date,
+                    'verified': True,
+                    'canonical_name': courtlistener_result.get('canonical_name'),
+                    'canonical_date': courtlistener_result.get('canonical_date'),
+                    'url': courtlistener_result.get('url'),
+                    'source': 'courtlistener',
+                    'validation_method': courtlistener_result.get('validation_method', 'enhanced_cross_validation'),
+                    'confidence': courtlistener_result.get('confidence', 0.0),
+                    'verification_timestamp': time.time(),
+                    'verification_strategy': 'courtlistener_only'
+                }
+            else:
+                # CourtListener failed - try enhanced fallback with 10 sources
+                logger.info(f"[AsyncVerificationWorker {request_id}] CourtListener failed, trying enhanced fallback for: {citation_text}")
+                
+                try:
+                    # Use async fallback verification
+                    import asyncio
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    
+                    try:
+                        fallback_result = loop.run_until_complete(
+                            fallback_verifier.verify_citation(citation_text, extracted_case_name, extracted_date, False)
+                        )
+                    finally:
+                        loop.close()
+                        asyncio.set_event_loop(None)
+                    
+                    if fallback_result and fallback_result.get('verified', False):
+                        # Fallback succeeded - use this result
+                        logger.info(f"[AsyncVerificationWorker {request_id}] Enhanced fallback verified: {citation_text} via {fallback_result.get('source', 'unknown')}")
+                        enhanced_result = {
+                            'citation': citation_text,
+                            'extracted_case_name': extracted_case_name,
+                            'extracted_date': extracted_date,
+                            'verified': True,
+                            'canonical_name': fallback_result.get('canonical_name'),
+                            'canonical_date': fallback_result.get('canonical_date'),
+                            'url': fallback_result.get('url'),
+                            'source': fallback_result.get('source', 'enhanced_fallback'),
+                            'validation_method': 'enhanced_fallback_verification',
+                            'confidence': fallback_result.get('confidence', 0.0),
+                            'verification_timestamp': time.time(),
+                            'verification_strategy': 'fallback_only'
+                        }
+                    else:
+                        # Both failed - use CourtListener result as fallback
+                        logger.warning(f"[AsyncVerificationWorker {request_id}] Both CourtListener and fallback failed for: {citation_text}")
+                        enhanced_result = {
+                            'citation': citation_text,
+                            'extracted_case_name': extracted_case_name,
+                            'extracted_date': extracted_date,
+                            'verified': False,
+                            'canonical_name': None,
+                            'canonical_date': None,
+                            'url': None,
+                            'source': 'verification_failed',
+                            'validation_method': 'both_failed',
+                            'confidence': 0.0,
+                            'verification_timestamp': time.time(),
+                            'verification_strategy': 'both_failed'
+                        }
+                        
+                except Exception as e:
+                    logger.error(f"[AsyncVerificationWorker {request_id}] Fallback verification error for {citation_text}: {e}")
+                    # Use CourtListener result as fallback
+                    enhanced_result = {
+                        'citation': citation_text,
+                        'extracted_case_name': extracted_case_name,
+                        'extracted_date': extracted_date,
+                        'verified': False,
+                        'canonical_name': None,
+                        'canonical_date': None,
+                        'url': None,
+                        'source': 'fallback_error',
+                        'validation_method': 'fallback_error',
+                        'confidence': 0.0,
+                        'verification_timestamp': time.time(),
+                        'verification_strategy': 'fallback_error'
+                    }
             
             enhanced_results.append(enhanced_result)
         
-        logger.info(f"[AsyncVerificationWorker {request_id}] Enhanced verification completed for {len(enhanced_results)} citations")
+        logger.info(f"[AsyncVerificationWorker {request_id}] Hybrid verification completed for {len(enhanced_results)} citations")
         return enhanced_results
         
     except Exception as e:
-        logger.error(f"[AsyncVerificationWorker {request_id}] Enhanced verification failed: {e}")
+        logger.error(f"[AsyncVerificationWorker {request_id}] Hybrid verification failed: {e}")
         raise
 
 def _assess_overall_quality(verification_results: List[Dict], text: str, request_id: str) -> Dict[str, Any]:

@@ -60,6 +60,7 @@ class CitationExtractor:
             r'\b\d+\s+Cal\.\d*d?\s+\d+\b',
             r'\b\d+\s+Wash\.\d*d?\s+\d+\b',
             r'\b\d+\s+Wn\.\d*d?\s+\d+\b',
+            r'\b\d+\s+Wn\.\s*App\.\s*\d+\b',  # Washington Court of Appeals
             
             # Regional patterns
             r'\b\d+\s+WL\s+\d+\b',
@@ -129,11 +130,15 @@ class CitationExtractor:
                 if case_name:
                     citation.extracted_case_name = case_name
                 
-                # Extract year from citation text only (most reliable)
+                # Extract year from citation text first (most reliable)
                 citation_year = self._extract_year_from_citation(citation_text)
                 if citation_year:
                     citation.extracted_date = citation_year
-                # No fallback to context - let CourtListener provide canonical year
+                else:
+                    # Fallback: extract year from context if not found in citation text
+                    context_year = self._extract_date_from_context(context)
+                    if context_year:
+                        citation.extracted_date = context_year
                 
                 citations.append(citation)
         

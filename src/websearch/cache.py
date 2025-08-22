@@ -6,6 +6,7 @@ Handles SQLite-based caching with TTL support for web search operations.
 import hashlib
 import logging
 import sqlite3
+# WARNING: Pickle security - Only use with trusted data sources
 import pickle
 from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
@@ -51,7 +52,7 @@ class CacheManager:
     def _generate_key(self, *args) -> str:
         """Generate cache key from arguments."""
         key_string = "|".join(str(arg) for arg in args)
-        return hashlib.md5(key_string.encode('utf-8'), usedforsecurity=False).hexdigest()
+        return hashlib.sha256(key_string.encode('utf-8')).hexdigest()
     
     def get(self, *args) -> Optional[Any]:
         """Get cached value."""

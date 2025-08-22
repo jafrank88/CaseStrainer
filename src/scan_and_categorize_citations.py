@@ -6,6 +6,7 @@ based on their format and likelihood of being valid, and enhances the database
 with additional metadata for the Citation Tester tool.
 """
 
+import secrets
 import json
 import re
 import random
@@ -270,7 +271,7 @@ def categorize_citation(citation):
         likelihood = random.uniform(0.1, 0.2)  # Very low likelihood for invalid formats
 
     # Assign a legal topic
-    topic = random.choice(LEGAL_TOPICS)
+    topic = secrets.choice(LEGAL_TOPICS)
 
     # Assign a jurisdiction
     if "U.S." in citation_text:

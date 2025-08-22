@@ -24,6 +24,7 @@ import asyncio
 from typing import Optional, Dict, List, Tuple, Any
 from concurrent.futures import ThreadPoolExecutor
 import json
+# WARNING: Pickle security - Only use with trusted data sources
 import pickle
 from dataclasses import dataclass, asdict
 import sys
@@ -120,9 +121,9 @@ class RedisDistributedPDFSystem:
             # Use file path + modification time + size for hash
             stat = os.stat(file_path)
             hash_input = f"{file_path}_{stat.st_mtime}_{stat.st_size}"
-            return hashlib.md5(hash_input.encode('utf-8'), usedforsecurity=False).hexdigest()
+            return hashlib.sha256(hash_input.encode('utf-8')).hexdigest()
         except Exception:
-            return hashlib.md5(file_path.encode('utf-8'), usedforsecurity=False).hexdigest()
+            return hashlib.sha256(file_path.encode('utf-8')).hexdigest()
     
     def _cache_get(self, key: str) -> Optional[Any]:
         """Get item from Redis cache."""
@@ -134,9 +135,16 @@ class RedisDistributedPDFSystem:
             if cached:
                 # Redis returns bytes, need to decode if it's a string or use directly for pickle
                 if isinstance(cached, bytes):
-                    return pickle.loads(cached)  # type: ignore
+                    try:
+                        return pickle.loads(cached)  # type: ignore
+                    except Exception:
+                        return None
                 else:
-                    return pickle.loads(cached.encode('utf-8') if isinstance(cached, str) else cached)  # type: ignore
+                    try:
+                        data_bytes = cached.encode('utf-8') if isinstance(cached, str) else cached
+                        return pickle.loads(data_bytes)  # type: ignore
+                    except Exception:
+                        return None
         except Exception as e:
             logger.warning(f"Cache get failed: {e}")
         

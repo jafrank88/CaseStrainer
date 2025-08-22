@@ -55,4 +55,4 @@ def create_debug_app():
 if __name__ == "__main__":
     # Create and run the debug application
     debug_app = create_debug_app()
-    debug_app.run(host='0.0.0.0', port=5001, debug=True)
+    debug_app.run(host='0.0.0.0', port=5001, debug=os.getenv("FLASK_DEBUG", "False").lower() == "true")

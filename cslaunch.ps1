@@ -8,7 +8,9 @@ param(
     [switch]$Direct,
     [switch]$AutoFixDocker,
     [switch]$Prevent,
-    [switch]$NuclearDocker
+    [switch]$NuclearDocker,
+    [switch]$ResetFrontend,
+    [switch]$ForceFrontend
 )
 
 function Test-DockerComprehensiveHealth {
@@ -876,6 +878,341 @@ function Test-CaseStrainerHealth {
     }
 }
 
+# Intelligent Code Change Detection Functions
+function Get-StoredHash {
+    param([string]$FilePath)
+    
+    $hashFile = "logs\file_hashes.json"
+    if (Test-Path $hashFile) {
+        try {
+            $hashes = Get-Content $hashFile | ConvertFrom-Json
+            if ($hashes.PSObject.Properties.Name -contains $FilePath) {
+                return $hashes.$FilePath
+            }
+        } catch {
+            Write-Warning "Could not read stored hash for $FilePath"
+        }
+    }
+    return $null
+}
+
+function Set-StoredHash {
+    param([string]$FilePath, [string]$Hash)
+    
+    $hashFile = "logs\file_hashes.json"
+    $hashDir = Split-Path $hashFile -Parent
+    
+    if (-not (Test-Path $hashDir)) {
+        New-Item -ItemType Directory -Path $hashDir -Force | Out-Null
+    }
+    
+    try {
+        if (Test-Path $hashFile) {
+            $hashes = Get-Content $hashFile | ConvertFrom-Json
+        } else {
+            $hashes = @{}
+        }
+        
+        $hashes | Add-Member -MemberType NoteProperty -Name $FilePath -Value $Hash -Force
+        
+        $hashes | ConvertTo-Json | Set-Content $hashFile -Encoding UTF8
+    } catch {
+        Write-Warning "Could not store hash for $FilePath"
+    }
+}
+
+function Test-SmartCodeChange {
+    Write-Host "   Analyzing code changes using intelligent file detection..." -ForegroundColor Gray
+    Write-Host "   Strategy: Frontend changes = Frontend Rebuild, Python source changes = Fast Start, Dependency changes = Full Rebuild" -ForegroundColor Gray
+    
+    # 1. Check key files first (most accurate for dependency/config changes)
+    Write-Host "     Checking dependency and config files..." -ForegroundColor Cyan
+    $fileResult = Test-KeyFileChanges
+    if ($fileResult -eq "full") {
+        Write-Host "     [FILES] Dependency/config changes detected - Full Rebuild needed" -ForegroundColor Yellow
+        return "full"
+    } elseif ($fileResult -eq "frontend") {
+        Write-Host "     [FILES] Frontend changes detected - Frontend Rebuild needed" -ForegroundColor Magenta
+        return "frontend"
+    } elseif ($fileResult -eq "fast") {
+        Write-Host "     [FILES] Code changes detected - Fast Start needed" -ForegroundColor Cyan
+        return "fast"
+    }
+    
+    # 2. Check directory timestamp (fallback for any source changes, but ONLY if no frontend changes detected)
+    # This prevents timestamp detection from overriding frontend changes
+    Write-Host "     Checking source directory timestamps..." -ForegroundColor Cyan
+    $timestampResult = Test-SrcDirectoryChanged
+    if ($timestampResult -eq "fast") {
+        Write-Host "     [TIMESTAMP] Python source files modified - Fast Start needed" -ForegroundColor Cyan
+        return "fast"
+    }
+    
+    # No changes detected
+    Write-Host "     [OK] No code changes detected via file analysis" -ForegroundColor Green
+    return "quick"
+}
+
+function Test-FrontendChanges {
+    Write-Host "       Checking frontend files for changes..." -ForegroundColor Magenta
+    
+    # Check if frontend monitoring was recently reset
+    $frontendResetFlag = Get-StoredValue "frontend_monitoring_reset"
+    $wasReset = $frontendResetFlag -eq "true"
+    
+    if ($wasReset) {
+        Write-Host "         [INFO] Frontend monitoring was recently reset - treating all files as changed" -ForegroundColor Cyan
+        # Clear the reset flag
+        Set-StoredValue "frontend_monitoring_reset" "false"
+    }
+    
+    $frontendFiles = @(
+        "casestrainer-vue-new\src\stores\progressStore.js",
+        "casestrainer-vue-new\src\views\HomeView.vue",
+        "casestrainer-vue-new\src\components\CitationResults.vue",
+        "casestrainer-vue-new\src\components\ProcessingProgress.vue",
+        "casestrainer-vue-new\src\main.js",
+        "casestrainer-vue-new\src\App.vue",
+        "casestrainer-vue-new\src\router\index.js",
+        "casestrainer-vue-new\package.json",
+        "casestrainer-vue-new\vite.config.js"
+    )
+    
+    $frontendChanged = $false
+    $changedFiles = @()
+    
+    foreach ($file in $frontendFiles) {
+        if (Test-Path $file) {
+            $currentHash = Get-FileHash $file -Algorithm MD5
+            $storedHash = Get-StoredHash $file
+            
+            Write-Host "         [DEBUG] $file" -ForegroundColor Gray
+            Write-Host "           Current: $($currentHash.Hash)" -ForegroundColor Gray
+            Write-Host "           Stored:  $storedHash" -ForegroundColor Gray
+            
+            if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                Write-Host "           [CHANGED] Hash mismatch - Frontend Rebuild needed" -ForegroundColor Magenta
+                Set-StoredHash $file $currentHash.Hash
+                $frontendChanged = $true
+                $changedFiles += $file
+            } elseif (-not $storedHash -or $wasReset) {
+                # First time seeing this file OR monitoring was reset - treat as a change
+                $reason = if ($wasReset) { "monitoring reset" } else { "first time seeing" }
+                Write-Host "           [NEW] $reason - marking for Frontend Rebuild" -ForegroundColor Magenta
+                Set-StoredHash $file $currentHash.Hash
+                $frontendChanged = $true
+                $changedFiles += $file
+            } else {
+                Write-Host "           [OK] No changes" -ForegroundColor Green
+            }
+        } else {
+            Write-Host "         [MISSING] $file not found" -ForegroundColor Yellow
+        }
+    }
+    
+    if ($frontendChanged) {
+        Write-Host "       [FRONTEND] Changes detected in: $($changedFiles -join ', ')" -ForegroundColor Magenta
+        return $true
+    }
+    
+    Write-Host "       [FRONTEND] No frontend changes detected" -ForegroundColor Green
+    return $false
+}
+
+function Test-KeyFileChanges {
+    # Define key files that indicate different types of changes
+    $dependencyFiles = @(
+        "requirements.txt",
+        "Dockerfile",
+        "docker-compose.prod.yml",
+        "docker-compose.yml"
+    )
+    
+    # Core code files that require Fast Start (restart containers)
+    # These are Python files in the src directory that are mounted as volumes
+    $coreCodeFiles = @(
+        "src/__init__.py",
+        "src/app_final_vue.py",
+        "src/api/blueprints.py",
+        "src/services/citation_service.py",
+        "src/unified_citation_processor_v2.py",
+        "src/unified_citation_clustering.py",
+        "src/enhanced_fallback_verifier.py",
+        "src/fallback_integration.py",
+        "src/async_verification_worker.py",
+        "src/enhanced_sync_processor.py"
+    )
+    
+    $configFiles = @(
+        "config/config_prod.py",
+        "config/config_dev.py",
+        "nginx/conf.d/default.conf"
+    )
+    
+    # Check for dependency/config changes (requires Full Rebuild)
+    foreach ($file in ($dependencyFiles + $configFiles)) {
+        if (Test-Path $file) {
+            $currentHash = Get-FileHash $file -Algorithm MD5
+            $storedHash = Get-StoredHash $file
+            
+            if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                Write-Host "       [FILES] $file modified - Full Rebuild needed" -ForegroundColor Yellow
+                Set-StoredHash $file $currentHash.Hash
+                return "full"
+            } elseif (-not $storedHash) {
+                # First time seeing this file, store its hash
+                Set-StoredHash $file $currentHash.Hash
+            }
+        }
+    }
+    
+    # Check for frontend changes FIRST (highest priority)
+    Write-Host "       Checking frontend files..." -ForegroundColor Magenta
+    if (Test-FrontendChanges) {
+        return "frontend"
+    }
+    
+    # Check for core code changes (requires Fast Start)
+    $codeChanged = $false
+    
+    # First check the specific core files
+    foreach ($file in $coreCodeFiles) {
+        if (Test-Path $file) {
+            $currentHash = Get-FileHash $file -Algorithm MD5
+            $storedHash = Get-StoredHash $file
+            
+            if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                Write-Host "       [FILES] $file modified - Fast Start needed" -ForegroundColor Cyan
+                Set-StoredHash $file $currentHash.Hash
+                $codeChanged = $true
+            } elseif (-not $storedHash) {
+                # First time seeing this file, store its hash
+                Set-StoredHash $file $currentHash.Hash
+            }
+        }
+    }
+    
+    # Also check for any Python file changes in the src directory (comprehensive detection)
+    if (-not $codeChanged) {
+        $srcDir = "src"
+        if (Test-Path $srcDir) {
+            $pythonFiles = Get-ChildItem $srcDir -Recurse -Filter "*.py" | Where-Object { $_.FullName -notlike "*__pycache__*" }
+            
+            foreach ($file in $pythonFiles) {
+                $relativePath = $file.FullName.Replace((Get-Location).Path + "\", "").Replace("\", "/")
+                $currentHash = Get-FileHash $file.FullName -Algorithm MD5
+                $storedHash = Get-StoredHash $relativePath
+                
+                if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                    Write-Host "       [FILES] $relativePath modified - Fast Start needed" -ForegroundColor Cyan
+                    Set-StoredHash $relativePath $currentHash.Hash
+                    $codeChanged = $true
+                    break  # Found a change, no need to check more files
+                } elseif (-not $storedHash) {
+                    # First time seeing this file, store its hash
+                    Set-StoredHash $relativePath $currentHash.Hash
+                }
+            }
+        }
+    }
+    
+    if ($codeChanged) {
+        return "fast"
+    }
+    
+    Write-Host "       [FILES] No file changes detected" -ForegroundColor Green
+    return "quick"
+}
+
+function Test-SrcDirectoryChanged {
+    try {
+        $srcDir = "src"
+        if (-not (Test-Path $srcDir)) {
+            Write-Host "       [TIMESTAMP] src directory not found, skipping" -ForegroundColor Gray
+            return "quick"
+        }
+        
+        # Get the most recent modification time from Python files in src (excluding cache)
+        $pythonFiles = Get-ChildItem $srcDir -Recurse -Filter "*.py" | Where-Object { $_.FullName -notlike "*__pycache__*" }
+        
+        if ($pythonFiles.Count -eq 0) {
+            Write-Host "       [TIMESTAMP] No Python files found in src directory" -ForegroundColor Gray
+            return "quick"
+        }
+        
+        $lastModified = ($pythonFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+        $storedTime = Get-StoredValue "src_directory_last_modified"
+        
+        if ($storedTime -and $lastModified -gt $storedTime) {
+            Write-Host "       [TIMESTAMP] Python source files modified since last build - Fast Start needed" -ForegroundColor Cyan
+            Set-StoredValue "src_directory_last_modified" $lastModified
+            return "fast"
+        } elseif (-not $storedTime) {
+            # First time checking, store the timestamp
+            Set-StoredValue "src_directory_last_modified" $lastModified
+            Write-Host "       [TIMESTAMP] First run - storing baseline timestamp for src directory" -ForegroundColor Gray
+        }
+        
+        Write-Host "       [TIMESTAMP] No Python source file changes detected" -ForegroundColor Green
+        return "quick"
+        
+    } catch {
+        Write-Host "       [WARNING] Directory timestamp check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        return "quick"  # Default to quick on error
+    }
+}
+
+function Get-StoredValue {
+    param([string]$Key)
+    
+    $valueFile = "logs\build_state.json"
+    $valueDir = Split-Path $valueFile -Parent
+    
+    # Ensure logs directory exists
+    if (-not (Test-Path $valueDir)) {
+        New-Item -ItemType Directory -Path $valueDir -Force | Out-Null
+    }
+    
+    if (Test-Path $valueFile) {
+        try {
+            $values = Get-Content $valueFile | ConvertFrom-Json
+            if ($values.PSObject.Properties.Name -contains $Key) {
+                return $values.$Key
+            }
+        } catch {
+            Write-Warning "Could not read stored value for $Key"
+        }
+    }
+    return $null
+}
+
+function Set-StoredValue {
+    param([string]$Key, [string]$Value)
+    
+    $valueFile = "logs\build_state.json"
+    $valueDir = Split-Path $valueFile -Parent
+    
+    # Ensure logs directory exists
+    if (-not (Test-Path $valueDir)) {
+        New-Item -ItemType Directory -Path $valueDir -Force | Out-Null
+    }
+    
+    try {
+        if (Test-Path $valueFile) {
+            $values = Get-Content $valueFile | ConvertFrom-Json
+        } else {
+            $values = @{}
+        }
+        
+        $values | Add-Member -MemberType NoteProperty -Name $Key -Value $Value -Force
+        
+        $values | ConvertTo-Json | Set-Content $valueFile -Encoding UTF8
+        Write-Host "         [STORED] $Key = $Value" -ForegroundColor Gray
+    } catch {
+        Write-Warning "Could not store value for $Key`: $($_.Exception.Message)"
+    }
+}
+
 function Start-DirectMode {
     Write-Host "Starting CaseStrainer directly on Windows..." -ForegroundColor Green
     
@@ -928,10 +1265,18 @@ if ($Help) {
     Write-Host "CaseStrainer Enhanced Launcher with Auto-Docker Management" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Basic Commands:" -ForegroundColor White
-    Write-Host "  .\cslaunch.ps1              # Smart auto-detect with Docker auto-fix" -ForegroundColor Green
+    Write-Host "  .\cslaunch.ps1              # Smart auto-detect with intelligent rebuild detection" -ForegroundColor Green
     Write-Host "  .\cslaunch.ps1 -Quick       # Quick Start (when code unchanged)" -ForegroundColor Green
     Write-Host "  .\cslaunch.ps1 -Fast        # Fast Start (restart containers)" -ForegroundColor Cyan
     Write-Host "  .\cslaunch.ps1 -Full        # Force Full Rebuild (ignore checksums)" -ForegroundColor Yellow
+    Write-Host "  .\cslaunch.ps1 -ResetFrontend # Reset frontend monitoring (catch up on missed changes)" -ForegroundColor Magenta
+    Write-Host "  .\cslaunch.ps1 -ForceFrontend # Force frontend rebuild (rebuild frontend image)" -ForegroundColor Magenta
+    Write-Host ""
+    Write-Host "Smart Detection Features:" -ForegroundColor White
+    Write-Host "  • Frontend changes automatically trigger Frontend Rebuild" -ForegroundColor Cyan
+    Write-Host "  • Python changes trigger Fast Start (container restart)" -ForegroundColor Cyan
+    Write-Host "  • Dependency changes trigger Full Rebuild" -ForegroundColor Cyan
+    Write-Host "  • Frontend monitoring reset for catching up on missed changes" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Docker Management:" -ForegroundColor White
     Write-Host "  .\cslaunch.ps1 -AutoFixDocker # Force Docker restart with aggressive fallbacks" -ForegroundColor Magenta
@@ -967,6 +1312,84 @@ elseif ($NuclearDocker) {
         Write-Host "Or restart your computer and try again" -ForegroundColor Yellow
     }
 }
+elseif ($ResetFrontend) {
+    Write-Host "Resetting Frontend Monitoring..." -ForegroundColor Magenta
+    Write-Host "This will clear stored hashes for frontend files and force detection on next run" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Clear frontend file hashes
+    $hashFile = "logs\file_hashes.json"
+    if (Test-Path $hashFile) {
+        try {
+            $hashes = Get-Content $hashFile | ConvertFrom-Json
+            
+            # Remove all frontend file entries
+            $frontendPatterns = @(
+                "*casestrainer-vue-new*",
+                "*progressStore.js*",
+                "*HomeView.vue*",
+                "*CitationResults.vue*",
+                "*ProcessingProgress.vue*"
+            )
+            
+            $removedCount = 0
+            foreach ($pattern in $frontendPatterns) {
+                $keysToRemove = @()
+                foreach ($key in $hashes.PSObject.Properties.Name) {
+                    if ($key -like $pattern) {
+                        $keysToRemove += $key
+                    }
+                }
+                
+                foreach ($key in $keysToRemove) {
+                    $hashes.PSObject.Properties.Remove($key)
+                    $removedCount++
+                }
+            }
+            
+            # Save updated hashes
+            $hashes | ConvertTo-Json | Set-Content $hashFile -Encoding UTF8
+            Write-Host "Removed $removedCount frontend file hashes from monitoring" -ForegroundColor Green
+            Write-Host "Frontend monitoring has been reset!" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "Next time you run .\cslaunch.ps1, it will detect frontend changes and rebuild automatically" -ForegroundColor Cyan
+            
+        } catch {
+            Write-Host "Error resetting frontend monitoring: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "You may need to manually delete the logs\file_hashes.json file" -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "No hash file found - frontend monitoring is already clean" -ForegroundColor Green
+    }
+    
+    # Set the flag to indicate frontend monitoring has been reset
+    Set-StoredValue "frontend_monitoring_reset" "true"
+    
+    Write-Host ""
+    Write-Host "Frontend monitoring reset completed!" -ForegroundColor Green
+}
+elseif ($ForceFrontend) {
+    Write-Host "Force Frontend Rebuild..." -ForegroundColor Magenta
+    Write-Host "This will rebuild the frontend container with the latest code" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Check Docker health first
+    $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
+    if (-not $dockerHealthy) {
+        Write-Host "Docker is not healthy. Attempting auto-fix..." -ForegroundColor Yellow
+        if (Restart-DockerComprehensive) {
+            Write-Host "Docker fixed! Continuing with Frontend Rebuild..." -ForegroundColor Green
+        } else {
+            Write-Host "Docker fix failed. Cannot proceed with frontend rebuild." -ForegroundColor Red
+            return
+        }
+    }
+    
+    docker compose -f docker-compose.prod.yml down
+    docker compose -f docker-compose.prod.yml build frontend-prod --no-cache
+    docker compose -f docker-compose.prod.yml up -d
+    Write-Host "Force Frontend Rebuild completed!" -ForegroundColor Green
+}
 elseif ($HealthCheck) {
     Write-Host "Running Comprehensive Docker Health Check with Auto-Recovery..." -ForegroundColor Magenta
     
@@ -978,9 +1401,9 @@ elseif ($HealthCheck) {
         Write-Host "Docker is fully operational and ready to use!" -ForegroundColor Green
         Write-Host ""
         Write-Host "You can now run:" -ForegroundColor Cyan
-        Write-Host "  .\cslaunch.ps1              # Smart auto-detect" -ForegroundColor White
-        Write-Host "  .\cslaunch.ps1 -Quick       # Quick start" -ForegroundColor White
-        Write-Host "  .\cslaunch.ps1 -Fast        # Fast restart" -ForegroundColor White
+        Write-Host "  .\cslaunch.ps1              # Smart auto-detect with intelligent rebuild detection" -ForegroundColor White
+        Write-Host "  .\cslaunch.ps1 -Quick       # Quick start (when code unchanged)" -ForegroundColor White
+        Write-Host "  .\cslaunch.ps1 -Fast        # Fast restart (when code changed)" -ForegroundColor White
     } else {
         Write-Host ""
         Write-Host "=== DOCKER STATUS: UNHEALTHY ===" -ForegroundColor Red
@@ -1096,23 +1519,35 @@ elseif ($Full) {
     Write-Host "Full Rebuild completed!" -ForegroundColor Green
 }
 else {
-    Write-Host "Smart Auto-Detection with Comprehensive Docker Health Check..." -ForegroundColor Magenta
+    Write-Host "Smart Auto-Detection with Intelligent Rebuild Detection..." -ForegroundColor Magenta
     
-    # First, verify Docker is healthy before proceeding
+    # Always run health check first to ensure Docker is ready
     Write-Host ""
+    Write-Host "Running default health check to ensure Docker is ready..." -ForegroundColor Cyan
     $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
     
     if (-not $dockerHealthy) {
         Write-Host ""
-        Write-Host "Docker is not ready. Recommendations:" -ForegroundColor Red
-        Write-Host "  1. Run comprehensive health check: .\cslaunch.ps1 -HealthCheck" -ForegroundColor Yellow
-        Write-Host "  2. Or try Windows Direct Mode: .\cslaunch.ps1 -Windows" -ForegroundColor Yellow
-        Write-Host "  3. Or try Direct Mode with all components: .\cslaunch.ps1 -Direct" -ForegroundColor Yellow
-        exit 1
+        Write-Host "Docker health check failed. Attempting auto-recovery..." -ForegroundColor Yellow
+        Write-Host "This may take 2-3 minutes for a complete Docker restart..." -ForegroundColor Cyan
+        
+        # Try to auto-fix Docker
+        $recoveryResult = Restart-DockerComprehensive -Verbose
+        if ($recoveryResult) {
+            Write-Host ""
+            Write-Host "Docker recovery successful! Continuing with intelligent container management..." -ForegroundColor Green
+        } else {
+            Write-Host ""
+            Write-Host "Docker recovery failed. Recommendations:" -ForegroundColor Red
+            Write-Host "  1. Run comprehensive health check: .\cslaunch.ps1 -HealthCheck" -ForegroundColor Yellow
+            Write-Host "  2. Or try Windows Direct Mode: .\cslaunch.ps1 -Windows" -ForegroundColor Yellow
+            Write-Host "  3. Or try Direct Mode with all components: .\cslaunch.ps1 -Direct" -ForegroundColor Yellow
+            exit 1
+        }
+    } else {
+        Write-Host ""
+        Write-Host "Docker health check passed - proceeding with intelligent container management..." -ForegroundColor Green
     }
-    
-    Write-Host ""
-    Write-Host "Docker is healthy - proceeding with container management..." -ForegroundColor Green
     
     # Check if Docker is running
     $dockerVersion = docker --version 2>$null
@@ -1122,22 +1557,47 @@ else {
         exit 1
     }
     
-    # Simple container check
-    try {
-        $containers = docker ps --filter "name=casestrainer" --format "table" 2>$null
-        if ($containers) {
-            Write-Host "Containers running - performing Quick Start..." -ForegroundColor Green
+    # Intelligent rebuild detection using key file monitoring
+    Write-Host "Analyzing code changes to determine optimal rebuild strategy..." -ForegroundColor Cyan
+    
+    $rebuildType = Test-SmartCodeChange
+    Write-Host "Detected rebuild type: $rebuildType" -ForegroundColor Yellow
+    
+    switch ($rebuildType) {
+        "quick" {
+            Write-Host "No code changes detected - performing Quick Start..." -ForegroundColor Green
             docker compose -f docker-compose.prod.yml up -d
-        } else {
-            Write-Host "No containers running - performing Fast Start..." -ForegroundColor Cyan
+            Write-Host "Quick Start completed!" -ForegroundColor Green
+        }
+        "fast" {
+            Write-Host "Code changes detected - performing Fast Start..." -ForegroundColor Cyan
+            Write-Host "This ensures containers have the latest code changes" -ForegroundColor Gray
             docker compose -f docker-compose.prod.yml down
             docker compose -f docker-compose.prod.yml up -d
+            Write-Host "Fast Start completed!" -ForegroundColor Green
         }
-    } catch {
-        Write-Host "Error checking containers, performing Full Rebuild..." -ForegroundColor Yellow
-        docker compose -f docker-compose.prod.yml down
-        docker compose -f docker-compose.prod.yml build --no-cache
-        docker compose -f docker-compose.prod.yml up -d
+        "full" {
+            Write-Host "Significant changes detected - performing Full Rebuild..." -ForegroundColor Yellow
+            Write-Host "This ensures all dependencies and configurations are up to date" -ForegroundColor Gray
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml build --no-cache
+            docker compose -f docker-compose.prod.yml up -d
+            Write-Host "Full Rebuild completed!" -ForegroundColor Green
+        }
+        "frontend" {
+            Write-Host "Frontend file changes detected - performing Frontend Rebuild..." -ForegroundColor Magenta
+            Write-Host "This ensures the frontend application is up to date" -ForegroundColor Gray
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml build frontend-prod --no-cache
+            docker compose -f docker-compose.prod.yml up -d
+            Write-Host "Frontend Rebuild completed!" -ForegroundColor Green
+        }
+        default {
+            Write-Host "Unknown rebuild type, defaulting to Fast Start..." -ForegroundColor Yellow
+            docker compose -f docker-compose.prod.yml down
+            docker compose -f docker-compose.prod.yml up -d
+            Write-Host "Fast Start completed!" -ForegroundColor Green
+        }
     }
     
     Write-Host "CaseStrainer is ready!" -ForegroundColor Green

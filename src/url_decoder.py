@@ -106,6 +106,116 @@ class URLDecoder:
             return None
     
     @staticmethod
+    def decode_duckduckgo_url(url: str) -> Optional[str]:
+        """
+        Decode DuckDuckGo redirect URLs to extract the underlying website URL.
+        
+        DuckDuckGo URLs have formats like:
+        https://duckduckgo.com/l/?uddg=https%3A%2F%2Fcase-law.vlex.com%2F...&rut=...
+        
+        Args:
+            url: The DuckDuckGo redirect URL
+            
+        Returns:
+            The decoded underlying URL if successful, None otherwise
+        """
+        try:
+            # Pattern for DuckDuckGo redirect URLs
+            patterns = [
+                r'https://duckduckgo\.com/l/\?uddg=([^&]+)',
+                r'https://duckduckgo\.com//duckduckgo\.com/l/\?uddg=([^&]+)',  # Double slash format
+                r'https://[^/]*duckduckgo[^/]*/l/\?uddg=([^&]+)',  # Generic DuckDuckGo format
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, url)
+                if match:
+                    encoded_url = match.group(1)
+                    decoded_url = urllib.parse.unquote(encoded_url)
+                    logger.info(f"Successfully decoded DuckDuckGo URL: {url[:100]}... -> {decoded_url[:100]}...")
+                    return decoded_url
+            return None
+        except Exception as e:
+            logger.error(f"Error processing DuckDuckGo URL: {e}")
+            return None
+    
+    @staticmethod
+    def decode_bing_url(url: str) -> Optional[str]:
+        """
+        Decode Bing redirect URLs to extract the underlying website URL.
+        
+        Bing URLs often have formats like:
+        https://www.bing.com/ck/a?!&&p=...&u=a1aHR0cHM6Ly93d3cuZXhhbXBsZS5jb20%3d
+        
+        Args:
+            url: The Bing redirect URL
+            
+        Returns:
+            The decoded underlying URL if successful, None otherwise
+        """
+        try:
+            # Pattern for Bing redirect URLs
+            patterns = [
+                r'https://[^/]*bing[^/]*/ck/a\?[^&]*&u=([^&]+)',
+                r'https://[^/]*bing[^/]*/[^?]*\?[^&]*&u=([^&]+)',
+                r'https://[^/]*bing[^/]*/[^?]*\?[^&]*url=([^&]+)',
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, url)
+                if match:
+                    encoded_url = match.group(1)
+                    # Bing often uses base64 encoding
+                    try:
+                        import base64
+                        decoded_bytes = base64.b64decode(encoded_url + '==')  # Add padding if needed
+                        decoded_url = decoded_bytes.decode('utf-8')
+                        logger.info(f"Successfully decoded Bing URL: {url[:100]}... -> {decoded_url[:100]}...")
+                        return decoded_url
+                    except:
+                        # Fall back to URL decoding
+                        decoded_url = urllib.parse.unquote(encoded_url)
+                        logger.info(f"Successfully decoded Bing URL (fallback): {url[:100]}... -> {decoded_url[:100]}...")
+                        return decoded_url
+            return None
+        except Exception as e:
+            logger.error(f"Error processing Bing URL: {e}")
+            return None
+    
+    @staticmethod
+    def decode_google_redirect_url(url: str) -> Optional[str]:
+        """
+        Decode Google redirect URLs to extract the underlying website URL.
+        
+        Google URLs often have formats like:
+        https://www.google.com/url?q=https://example.com&sa=U&ved=...
+        
+        Args:
+            url: The Google redirect URL
+            
+        Returns:
+            The decoded underlying URL if successful, None otherwise
+        """
+        try:
+            # Pattern for Google redirect URLs
+            patterns = [
+                r'https://[^/]*google[^/]*/url\?[^&]*q=([^&]+)',
+                r'https://[^/]*google[^/]*/[^?]*\?[^&]*url=([^&]+)',
+            ]
+            
+            for pattern in patterns:
+                match = re.search(pattern, url)
+                if match:
+                    encoded_url = match.group(1)
+                    decoded_url = urllib.parse.unquote(encoded_url)
+                    logger.info(f"Successfully decoded Google redirect URL: {url[:100]}... -> {decoded_url[:100]}...")
+                    return decoded_url
+            return None
+        except Exception as e:
+            logger.error(f"Error processing Google redirect URL: {e}")
+            return None
+    
+    @staticmethod
     def decode_url(url: str) -> Tuple[str, bool]:
         """
         Attempt to decode various types of encoded URLs.
@@ -117,6 +227,21 @@ class URLDecoder:
             Tuple of (decoded_url, was_decoded)
         """
         original_url = url.strip()
+        
+        # Try DuckDuckGo redirect decoding first (most common in search results)
+        decoded = URLDecoder.decode_duckduckgo_url(original_url)
+        if decoded:
+            return decoded, True
+        
+        # Try Google redirect decoding
+        decoded = URLDecoder.decode_google_redirect_url(original_url)
+        if decoded:
+            return decoded, True
+        
+        # Try Bing redirect decoding
+        decoded = URLDecoder.decode_bing_url(original_url)
+        if decoded:
+            return decoded, True
         
         # Try Microsoft Defender decoding
         decoded = URLDecoder.decode_microsoft_defender_url(original_url)
@@ -139,7 +264,7 @@ class URLDecoder:
     @staticmethod
     def is_encoded_url(url: str) -> bool:
         """
-        Check if a URL appears to be encoded by security services.
+        Check if a URL appears to be encoded by security services or search engine redirects.
         
         Args:
             url: The URL string to check
@@ -149,16 +274,20 @@ class URLDecoder:
         """
         url_lower = url.lower()
         
-        # Check for common security service domains
-        security_domains = [
+        # Check for common security service domains and search engine redirects
+        redirect_patterns = [
             'urldefense.com',
             'safebrowsing.google.com',
             'safelinks.protection.outlook.com',
             'protection.outlook.com',
-            'safelinks.protection.office.com'
+            'safelinks.protection.office.com',
+            'duckduckgo.com/l/',
+            'duckduckgo.com//duckduckgo.com/l/',
+            'google.com/url?',
+            'bing.com/ck/a?'
         ]
         
-        return any(domain in url_lower for domain in security_domains)
+        return any(pattern in url_lower for pattern in redirect_patterns)
     
     @staticmethod
     def clean_url(url: str) -> str:

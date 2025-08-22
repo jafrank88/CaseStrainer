@@ -31,7 +31,7 @@ export default {
   name: 'AppErrorHandler',
   
   setup() {
-    const errors = computed(() => globalProgress.progressState.error ? [globalProgress.progressState.error] : []);
+    const errors = computed(() => globalProgress.progressState.processingError ? [globalProgress.progressState.processingError] : []);
     const clearErrors = () => globalProgress.clearError();
     
     const hasErrors = computed(() => errors.value.length > 0);

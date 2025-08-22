@@ -803,11 +803,11 @@ class UnifiedCitationClusterer:
             logger.warning("EnhancedFallbackVerifier module not available - skipping fallback")
             return
         
-        # Use EnhancedFallbackVerifier for comprehensive verification
+        # Use EnhancedFallbackVerifier for comprehensive verification (now with hybrid system)
         try:
             logger.info(f"Applying enhanced fallback verification to {len(citations)} unverified citations")
             
-            # Create the enhanced fallback verifier
+            # Create the enhanced fallback verifier (now includes CourtListener first)
             verifier = EnhancedFallbackVerifier()
             
             # Process each unverified citation - no time budget constraint
@@ -820,36 +820,28 @@ class UnifiedCitationClusterer:
                     
                     logger.info(f"Attempting enhanced fallback verification for: {citation_text}")
                     
-                    # Use the async method and run it in a new event loop to avoid blocking
-                    # This allows the main thread to continue processing while verification runs
-                    import asyncio
-                    import concurrent.futures
+                    # Check if citation already has CourtListener data to avoid unnecessary fallback verification
+                    has_courtlistener_data = (
+                        hasattr(citation, 'canonical_name') and citation.canonical_name and
+                        hasattr(citation, 'canonical_date') and citation.canonical_date and
+                        hasattr(citation, 'canonical_url') and citation.canonical_url
+                    )
                     
-                    # Create a new event loop for this thread
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    
-                    try:
-                        # Check if citation already has CourtListener data to avoid unnecessary fallback verification
-                        has_courtlistener_data = (
-                            hasattr(citation, 'canonical_name') and citation.canonical_name and
-                            hasattr(citation, 'canonical_date') and citation.canonical_date and
-                            hasattr(citation, 'canonical_url') and citation.canonical_url
-                        )
-                        
-                        # Run the async verification in the new event loop
-                        result = loop.run_until_complete(
-                            verifier.verify_citation(citation_text, extracted_case_name, extracted_date, has_courtlistener_data)
-                        )
-                    finally:
-                        loop.close()
+                    # Use the enhanced fallback verifier (now includes CourtListener first)
+                    result = verifier.verify_citation_sync(citation_text, extracted_case_name, extracted_date)
                     
                     if result and result.get('verified', False):
                         # Update citation with verification results
                         citation.verified = True
                         citation.is_verified = True
-                        citation.source = f"fallback_{result.get('source', 'enhanced_fallback')}"
+                        citation.source = result.get('source', 'enhanced_fallback')  # Use user-friendly source directly
                         citation.url = result.get('url')
+                        # Ensure canonical URL is set for linking name/year in UI
+                        if hasattr(citation, 'canonical_url'):
+                            if not getattr(citation, 'canonical_url'):
+                                citation.canonical_url = result.get('canonical_url') or result.get('url')
+                        else:
+                            citation.canonical_url = result.get('canonical_url') or result.get('url')
                         
                         # Update canonical data if available
                         if result.get('canonical_name'):

@@ -1004,6 +1004,9 @@ const analyzeContent = async () => {
     try {
       globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
       
+      // Ensure progress state is properly initialized before proceeding
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
       // Set up processing steps for text analysis
       if (activeTab.value === 'text') {
         globalProgress.setSteps([
@@ -1059,6 +1062,35 @@ const analyzeContent = async () => {
         citations: cluster.citation_objects || cluster.citations || []
       }));
       
+      // Extract and use progress data from backend response
+      if (response.metadata && response.metadata.progress_data) {
+        const progressData = response.metadata.progress_data;
+        console.log('📊 Backend progress data received:', progressData);
+        
+        // Update global progress with backend data
+        if (progressData.steps && progressData.steps.length > 0) {
+          // Set up processing steps from backend
+          const backendSteps = progressData.steps.map(step => ({
+            step: step.name,
+            estimated_time: step.status === 'completed' ? 1 : 5, // Completed steps are fast
+            startTime: step.status === 'completed' ? 0 : null
+          }));
+          
+          globalProgress.setSteps(backendSteps);
+          
+          // Update progress for each completed step
+          progressData.steps.forEach(step => {
+            if (step.status === 'completed') {
+              globalProgress.updateProgress({ 
+                step: step.name, 
+                progress: step.progress || 100,
+                total_progress: step.progress || 100 
+              });
+            }
+          });
+        }
+      }
+      
       analysisResults.value = {
         clusters: mappedClusters,
         citations: response.result.citations || [],
@@ -1085,6 +1117,35 @@ const analyzeContent = async () => {
     // Handle async task with task_id
     if (response && response.task_id) {
       console.log('🔄 Async task started with task_id:', response.task_id);
+      
+      // Extract and use progress data from backend response for async tasks
+      if (response.metadata && response.metadata.progress_data) {
+        const progressData = response.metadata.progress_data;
+        console.log('📊 Backend progress data for async task:', progressData);
+        
+        // Update global progress with backend data
+        if (progressData.steps && progressData.steps.length > 0) {
+          // Set up processing steps from backend
+          const backendSteps = progressData.steps.map(step => ({
+            step: step.name,
+            estimated_time: step.status === 'completed' ? 1 : 5,
+            startTime: step.status === 'completed' ? 0 : null
+          }));
+          
+          globalProgress.setSteps(backendSteps);
+          
+          // Update progress for each completed step
+          progressData.steps.forEach(step => {
+            if (step.status === 'completed') {
+              globalProgress.updateProgress({ 
+                step: step.name, 
+                progress: step.progress || 100,
+                total_progress: step.progress || 100 
+              });
+            }
+          });
+        }
+      }
       
       // Set up async task progress tracking
       activeAsyncTask.value = response.task_id;

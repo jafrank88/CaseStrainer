@@ -11,22 +11,22 @@ from typing import List, Dict, Any, Optional
 
 logger = logging.getLogger(__name__)
 
-def enhance_citations_with_fallback_verification(citations_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+async def enhance_citations_with_fallback_verification(citations_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Enhance citation data by adding fallback verification for unverified citations.
+    Enhance citations with fallback verification results.
     
     Args:
-        citations_data: List of citation dictionaries from CaseStrainer API
+        citations_data: List of citation dictionaries
         
     Returns:
-        Enhanced citation data with fallback verification results
+        Enhanced citations with fallback verification data
     """
     try:
         import sys
         import os
         sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-        from src.fallback_verifier import FallbackVerifier
-        verifier = FallbackVerifier()
+        from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        verifier = EnhancedFallbackVerifier()
         
         enhanced_citations = []
         verified_count = 0
@@ -48,7 +48,7 @@ def enhance_citations_with_fallback_verification(citations_data: List[Dict[str, 
                 if citation_text:
                     logger.info(f"Attempting fallback verification for: {citation_text}")
                     
-                    result = verifier.verify_citation(
+                    result = await verifier.verify_citation(
                         citation_text, 
                         extracted_case_name if extracted_case_name else None,
                         extracted_date if extracted_date else None
@@ -83,7 +83,7 @@ def enhance_citations_with_fallback_verification(citations_data: List[Dict[str, 
         # Return original data if fallback verification fails
         return citations_data
 
-def verify_single_citation_with_fallback(citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict[str, Any]:
+async def verify_single_citation_with_fallback(citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict[str, Any]:
     """
     Verify a single citation using fallback sources.
     
@@ -99,10 +99,10 @@ def verify_single_citation_with_fallback(citation_text: str, extracted_case_name
         import sys
         import os
         sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-        from src.fallback_verifier import FallbackVerifier
-        verifier = FallbackVerifier()
+        from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        verifier = EnhancedFallbackVerifier()
         
-        result = verifier.verify_citation(citation_text, extracted_case_name, extracted_date)
+        result = await verifier.verify_citation(citation_text, extracted_case_name, extracted_date)
         
         # Format result for CaseStrainer compatibility
         if result['verified']:
@@ -134,31 +134,37 @@ def verify_single_citation_with_fallback(citation_text: str, extracted_case_name
 
 if __name__ == "__main__":
     # Test the integration
-    test_citations = [
-        {
-            'citation_text': '385 U.S. 493',
-            'extracted_case_name': 'Davis v. Alaska',
-            'extracted_date': '1967',
-            'verified': 'false',
-            'canonical_name': None,
-            'canonical_date': None
-        },
-        {
-            'citation_text': '123 F.2d 456',
-            'extracted_case_name': 'Test Case',
-            'extracted_date': '1999',
-            'verified': 'false',
-            'canonical_name': None,
-            'canonical_date': None
-        }
-    ]
+    import asyncio
     
-    print("Testing fallback integration...")
-    enhanced = enhance_citations_with_fallback_verification(test_citations)
+    async def test_integration():
+        test_citations = [
+            {
+                'citation_text': '385 U.S. 493',
+                'extracted_case_name': 'Davis v. Alaska',
+                'extracted_date': '1967',
+                'verified': 'false',
+                'canonical_name': None,
+                'canonical_date': None
+            },
+            {
+                'citation_text': '123 F.2d 456',
+                'extracted_case_name': 'Test Case',
+                'extracted_date': '1999',
+                'verified': 'false',
+                'canonical_name': None,
+                'canonical_date': None
+            }
+        ]
+        
+        print("Testing fallback integration...")
+        enhanced = await enhance_citations_with_fallback_verification(test_citations)
+        
+        for citation in enhanced:
+            print(f"Citation: {citation['citation_text']}")
+            print(f"  Verified: {citation.get('verified', 'false')}")
+            print(f"  Source: {citation.get('source', 'none')}")
+            print(f"  Canonical Name: {citation.get('canonical_name', 'none')}")
+            print()
     
-    for citation in enhanced:
-        print(f"Citation: {citation['citation_text']}")
-        print(f"  Verified: {citation.get('verified', 'false')}")
-        print(f"  Source: {citation.get('source', 'none')}")
-        print(f"  Canonical Name: {citation.get('canonical_name', 'none')}")
-        print()
+    # Run the async test
+    asyncio.run(test_integration())

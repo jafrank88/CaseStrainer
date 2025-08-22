@@ -45,142 +45,92 @@ class CitationService:
         return False
     
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
-        """Process input immediately using direct citation processing (no circular dependency)."""
+        """Process input immediately using the unified sync processor."""
+        try:
+            # Use the new UnifiedSyncProcessor for all immediate processing
+            from src.unified_sync_processor import UnifiedSyncProcessor
+            
+            processor = UnifiedSyncProcessor()
+            result = processor.process_text_unified(input_data.get('text', ''), {})
+            
+            # Update processing mode to maintain backward compatibility
+            result['processing_mode'] = 'immediate'
+            
+            # Ensure progress_data is included in the result
+            if 'progress_data' not in result:
+                # Add default progress data if not present
+                result['progress_data'] = {
+                    'current_step': 100,
+                    'total_steps': 5,
+                    'current_message': 'Processing completed successfully',
+                    'start_time': time.time(),
+                    'steps': [
+                        {'name': 'Initializing...', 'progress': 100, 'status': 'completed', 'message': 'Started immediate processing'},
+                        {'name': 'Extract', 'progress': 100, 'status': 'completed', 'message': 'Citations extracted successfully'},
+                        {'name': 'Analyze', 'progress': 100, 'status': 'completed', 'message': 'Citations analyzed and normalized'},
+                        {'name': 'Extract Names', 'progress': 100, 'status': 'completed', 'message': 'Case names and years extracted'},
+                        {'name': 'Cluster', 'progress': 100, 'status': 'completed', 'message': 'Citations clustered successfully'},
+                        {'name': 'Verify', 'progress': 100, 'status': 'completed', 'message': 'Verification completed'}
+                    ]
+                }
+            
+            logger.info(f"[CitationService] Immediate processing completed via UnifiedSyncProcessor in {result.get('processing_time', 0):.3f}s")
+            return result
+            
+        except Exception as e:
+            logger.error(f"[CitationService] Error in immediate processing: {str(e)}", exc_info=True)
+            # Fall back to basic processing if UnifiedSyncProcessor fails
+            return self._fallback_immediate_processing(input_data)
+    
+    def _fallback_immediate_processing(self, input_data: Dict) -> Dict[str, Any]:
+        """Fallback processing when UnifiedSyncProcessor fails."""
         start_time = time.time()
         
         try:
             if input_data.get('type') == 'text':
                 text = input_data.get('text', '')
                 
-                # PERFORMANCE OPTIMIZATION: Check cache first for repeated text patterns
-                cache_key = f"text_{hash(text)}"
-                if hasattr(self, '_cache') and cache_key in self._cache:
-                    cached_result = self._cache[cache_key]
-                    if time.time() - cached_result.get('cache_time', 0) < self.cache_ttl:
-                        logger.info(f"[CitationService] Cache hit for text pattern, returning cached result in {time.time() - start_time:.3f}s")
-                        return cached_result['result']
+                # Basic citation extraction as fallback
+                from src.citation_extractor import CitationExtractor
+                extractor = CitationExtractor()
+                citations = extractor.extract_citations(text)
                 
-                logger.info(f"[CitationService] Processing text immediately: {text[:100]}...")
-                
-                # PERFORMANCE OPTIMIZATION: Use faster processing for short text
-                if len(text) < 500:  # Very short text - use ultra-fast path
-                    logger.info(f"[CitationService] Using ultra-fast path for {len(text)} characters")
-                    citations = self._extract_citations_fast(text)
-                else:
-                    # Standard processing for medium text
-                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                    processor = UnifiedCitationProcessorV2()
-                    citations = processor._extract_with_regex(text)
-                
-                # Citations are already CitationResult objects from extract_with_regex
-                citation_results = citations
-                
-                # PERFORMANCE OPTIMIZATION: Skip clustering for very short text with few citations
-                if len(text) < 300 and len(citations) <= 3:
-                    logger.info(f"[CitationService] Skipping clustering for short text with few citations")
-                    clusters = []
-                else:
-                    # Apply clustering with verification
-                    from src.unified_citation_clustering import cluster_citations_unified
-                    
-                    # PERFORMANCE OPTIMIZATION: Skip verification for immediate processing of short text
-                    # This reduces processing time from 79+ seconds to under 1 second
-                    enable_verification = len(text) > 500  # Lowered from 1000 to 500 for better coverage
-                    
-                    # ENHANCED: Special handling for Washington citations to ensure proper clustering
-                    if any('Wn.' in str(c) for c in citation_results):
-                        logger.info(f"[CitationService] Washington citations detected - ensuring proper parallel detection")
-                        # Force clustering even for short text to get proper parallel citation grouping
-                        # BUT allow verification to get canonical data (names, years, URLs)
-                        enable_verification = True  # Changed from False to True
-                        logger.info(f"[CitationService] Enabling verification for Washington citations to get canonical data")
-                    
-                    clustering_result = cluster_citations_unified(citation_results, text, enable_verification=enable_verification)
-                    
-                    # Handle clustering result (can be list or dict)
-                    if isinstance(clustering_result, dict):
-                        clusters = clustering_result.get('clusters', [])
-                    else:
-                        # clustering_result is a list of clusters
-                        clusters = clustering_result if isinstance(clustering_result, list) else []
-                
-                # Convert citation objects to dictionaries for API response
+                # Convert to basic format
                 citations_list = []
-                if citation_results:
-                    for citation in citation_results:
-                        citation_dict = {
-                            'citation': getattr(citation, 'citation', str(citation)),
-                            'case_name': getattr(citation, 'extracted_case_name', None) or getattr(citation, 'case_name', None),
-                            'extracted_case_name': getattr(citation, 'extracted_case_name', None),
-                            'canonical_name': getattr(citation, 'canonical_name', None),
-                            'extracted_date': getattr(citation, 'extracted_date', None),
-                            'canonical_date': getattr(citation, 'canonical_date', None),
-                            'canonical_url': getattr(citation, 'canonical_url', None) or getattr(citation, 'url', None),
-                            'year': getattr(citation, 'year', None),
-                            'verified': getattr(citation, 'verified', False) or getattr(citation, 'is_verified', False),
-                            'court': getattr(citation, 'court', None),
-                            'confidence': getattr(citation, 'confidence', 0.0),
-                            'method': getattr(citation, 'method', 'direct'),
-                            'context': getattr(citation, 'context', ''),
-                            'is_parallel': getattr(citation, 'is_parallel', False)
-                        }
-                        citations_list.append(citation_dict)
-                
-                # Convert clusters to dictionaries
-                clusters_list = []
-                if clusters:
-                    for cluster in clusters:
-                        if isinstance(cluster, dict):
-                            clusters_list.append(cluster)
-                        else:
-                            # Convert cluster object to dict if needed
-                            cluster_dict = {
-                                'case_name': getattr(cluster, 'case_name', None),
-                                'year': getattr(cluster, 'year', None),
-                                'citations': getattr(cluster, 'citations', [])
-                            }
-                            clusters_list.append(cluster_dict)
+                for citation in citations:
+                    citation_dict = {
+                        'citation': str(citation),
+                        'extracted_case_name': None,
+                        'extracted_date': None,
+                        'verified': False,
+                        'method': 'fallback'
+                    }
+                    citations_list.append(citation_dict)
                 
                 processing_time = time.time() - start_time
-                logger.info(f"[CitationService] Found {len(citations_list)} citations, {len(clusters_list)} clusters in {processing_time:.3f}s")
+                logger.warning(f"[CitationService] Fallback processing completed in {processing_time:.3f}s")
                 
-                result = {
+                return {
                     'citations': citations_list,
-                    'clusters': clusters_list,
+                    'clusters': [],
                     'status': 'completed',
-                    'message': f"Found {len(citations_list)} citations in {len(clusters_list)} clusters",
+                    'message': f"Fallback processing found {len(citations_list)} citations",
                     'processing_time': processing_time,
-                    'processing_mode': 'immediate',
+                    'processing_mode': 'immediate_fallback',
                     'text_length': len(text)
                 }
-                
-                # PERFORMANCE OPTIMIZATION: Cache the result for future use
-                if not hasattr(self, '_cache'):
-                    self._cache = {}
-                self._cache[cache_key] = {
-                    'result': result,
-                    'cache_time': time.time()
-                }
-                
-                # PERFORMANCE OPTIMIZATION: Periodic cache cleanup
-                current_time = time.time()
-                if current_time - self._last_cache_cleanup > self._cache_cleanup_interval:
-                    self._clear_old_cache()
-                    self._last_cache_cleanup = current_time
-                
-                return result
             
             return {'status': 'error', 'message': 'Invalid input type for immediate processing'}
-        
+            
         except Exception as e:
             processing_time = time.time() - start_time
-            error_msg = f"Error in immediate processing: {str(e)}"
+            error_msg = f"Error in fallback processing: {str(e)}"
             logger.error(f"[CitationService] {error_msg}", exc_info=True)
             return {
                 'status': 'error',
                 'message': error_msg,
                 'processing_time': processing_time,
-                'processing_mode': 'immediate'
+                'processing_mode': 'immediate_fallback_error'
             }
     
     def _extract_citations_fast(self, text: str) -> List:
@@ -198,11 +148,11 @@ class CitationService:
             return citations
             
         except Exception as e:
-            logger.warning(f"[CitationService] Fast extraction failed, falling back to standard: {e}")
-            # Fall back to standard extraction
+            logger.warning(f"[CitationService] Fast extraction failed, falling back to unified extraction: {e}")
+            # Fall back to unified extraction (non-deprecated)
             from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
             processor = UnifiedCitationProcessorV2()
-            return processor._extract_with_regex(text)
+            return processor._extract_citations_unified(text)
     
     def _clear_old_cache(self):
         """Clear old cache entries to prevent memory bloat."""
@@ -485,7 +435,7 @@ class CitationService:
         try:
             # Process citations from text using async/await
             logger.info(f"[TEXT_PROCESSING] Starting text processing for task {task_id}")
-            result = await self.process_citations_from_text(text)
+            result = await self.process_citations_from_text(input_data)
             
             if not result or 'citations' not in result:
                 logger.error(f"[TEXT_PROCESSING] No citations found in result for task {task_id}")
@@ -510,111 +460,195 @@ class CitationService:
             logger.error(f"[TEXT_PROCESSING] Error processing text for task {task_id}: {str(e)}", exc_info=True)
             raise
     
-    async def process_citations_from_text(self, text: str) -> Dict[str, Any]:
+    async def process_citations_from_text(self, input_data):
         """
-        Process text to extract and analyze citations with optimized performance.
+        Process citations from text input with progress tracking.
         
         Args:
-            text: The input text to process for citations
+            input_data (dict): Input data containing text and type
             
         Returns:
-            Dict containing:
-                - citations: List of extracted and processed citations
-                - clusters: List of citation clusters
-                - processing_time: Total processing time in seconds
-                - status: Processing status ('completed' or 'error')
-                - error: Error message if processing failed
+            dict: Processing results with citations and clusters
         """
-        request_id = str(uuid.uuid4())
         start_time = time.time()
+        logger.info(f"[CitationService] Starting citation processing for text input")
         
-        def log(level: str, message: str) -> None:
-            """Helper function for consistent logging with request ID."""
-            getattr(logger, level)(f"[REQ:{request_id}] {message}")
+        # Initialize progress tracking
+        try:
+            from src.vue_api_endpoints import update_sync_progress, complete_sync_progress
+            has_progress_tracking = True
+        except ImportError:
+            has_progress_tracking = False
+            logger.warning("[CitationService] Progress tracking not available")
         
-        log('info', f"Starting citation processing for text (length: {len(text)})")
-        
-        # Initialize result dict with default values
-        result = {
-            'citations': [],
-            'clusters': [],
-            'status': 'completed',
-            'processing_time': 0.0
-        }
+        if has_progress_tracking:
+            update_sync_progress('extracting_citations', 10, 'Extracting citations from text...')
         
         try:
-            # Import required modules
-            log('debug', 'Importing required modules')
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-            from src.services.citation_clusterer import CitationClusterer
-            
-            # Initialize processor with optimized settings
-            log('debug', 'Initializing processor')
-            processor = UnifiedCitationProcessorV2()
-            
-            # Process text with timeout protection
-            log('debug', 'Starting text processing')
-            process_start = time.time()
-            process_result = await processor.process_text(text)
-            process_time = time.time() - process_start
-            
-            # Validate and normalize result
-            if not isinstance(process_result, dict):
-                raise ValueError(f"Expected dict from process_text, got {type(process_result).__name__}")
+            if input_data.get('type') == 'text':
+                text = input_data.get('text', '')
                 
-            # Get citations and ensure it's a list
-            citations = process_result.get('citations', [])
-            if not isinstance(citations, list):
-                raise ValueError(f"Expected citations to be a list, got {type(citations).__name__}")
+                # PERFORMANCE OPTIMIZATION: Check cache first for repeated text patterns
+                cache_key = f"text_{hash(text)}"
+                if hasattr(self, '_cache') and cache_key in self._cache:
+                    cached_result = self._cache[cache_key]
+                    if time.time() - cached_result.get('cache_time', 0) < self.cache_ttl:
+                        logger.info(f"[CitationService] Cache hit for text pattern, returning cached result in {time.time() - start_time:.3f}s")
+                        if has_progress_tracking:
+                            complete_sync_progress()
+                        return cached_result['result']
                 
-            log('info', f"Extracted {len(citations)} citations in {process_time:.2f}s")
-            
-            # Run clustering if needed
-            clusters = process_result.get('clusters', [])
-            if not clusters and citations:
-                log('debug', 'No clusters found, running clustering')
-                cluster_start = time.time()
-                clusterer = CitationClusterer()
-                clusters = clusterer.cluster_citations(citations)
-                log('debug', f"Clustered {len(citations)} citations into {len(clusters)} clusters in {time.time() - cluster_start:.2f}s")
-            
-            # Convert citations to serializable format
-            converted_citations = self._convert_citations_to_dicts(citations, request_id)
-            
-            # Prepare final result
-            result.update({
-                'citations': converted_citations,
-                'clusters': clusters,
-                'processing_time': time.time() - start_time,
-                'metadata': {
-                    'request_id': request_id,
-                    'text_length': len(text),
-                    'citation_count': len(converted_citations),
-                    'cluster_count': len(clusters)
+                logger.info(f"[CitationService] Processing text immediately: {text[:100]}...")
+                
+                if has_progress_tracking:
+                    update_sync_progress('extracting_citations', 25, f'Processing {len(text)} characters...')
+                
+                # PERFORMANCE OPTIMIZATION: Use faster processing for short text
+                if len(text) < 500:  # Very short text - use ultra-fast path
+                    logger.info(f"[CitationService] Using ultra-fast path for {len(text)} characters")
+                    citations = self._extract_citations_fast(text)
+                else:
+                    # Standard processing for medium text
+                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                    processor = UnifiedCitationProcessorV2()
+                    citations = processor._extract_citations_unified(text)
+                
+                # Citations are already CitationResult objects from extract_with_regex
+                citation_results = citations
+                
+                if has_progress_tracking:
+                    update_sync_progress('verifying_citations', 50, f'Found {len(citations)} citations, starting verification...')
+                
+                # PERFORMANCE OPTIMIZATION: Skip clustering for very short text with few citations
+                # BUT always cluster Washington citations for proper parallel detection
+                clusters = []  # Initialize clusters
+                has_washington_citations = any('Wn.' in str(c) for c in citation_results)
+                
+                if len(text) < 300 and len(citations) <= 3 and not has_washington_citations:
+                    logger.info(f"[CitationService] Skipping clustering for short text with few citations (no Washington citations)")
+                    # clusters already initialized to empty list
+                else:
+                    # Apply clustering with verification
+                    from src.unified_citation_clustering import cluster_citations_unified
+                    
+                    # PERFORMANCE OPTIMIZATION: Smart verification strategy
+                    # For Washington citations, ALWAYS enable verification regardless of text length
+                    enable_verification = len(text) > 500  # Default threshold
+                    
+                    # ENHANCED: Special handling for Washington citations to ensure proper clustering
+                    if any('Wn.' in str(c) for c in citation_results):
+                        logger.info(f"[CitationService] Washington citations detected - ALWAYS enabling verification and clustering")
+                        # Force verification and clustering for Washington citations regardless of text length
+                        enable_verification = True
+                        logger.info(f"[CitationService] Washington citations: verification={enable_verification}, clustering=enabled")
+                    
+                                    # Only do clustering if we haven't already set clusters
+                if not clusters:
+                    clustering_result = cluster_citations_unified(
+                        citation_results, 
+                        text, 
+                        enable_verification=enable_verification
+                    )
+                    
+                    # Handle clustering result (can be list or dict)
+                    if isinstance(clustering_result, dict):
+                        clusters = clustering_result.get('clusters', [])
+                    else:
+                        # clustering_result is a list of clusters
+                        clusters = clustering_result if isinstance(clustering_result, list) else []
+                
+                # POST-CLUSTERING: Propagate verification status to parallel citations
+                if clusters and citation_results:
+                    logger.info(f"[CitationService] Propagating verification to {len(clusters)} clusters with {len(citation_results)} citations")
+                    self._propagate_verification_to_parallels(citation_results, clusters)
+                    logger.info(f"[CitationService] Verification propagation completed")
+                
+                if has_progress_tracking:
+                    update_sync_progress('finalizing_results', 90, 'Finalizing results...')
+                
+                # Convert citation objects to dictionaries for API response
+                citations_list = []
+                if citation_results:
+                    for citation in citation_results:
+                        citation_dict = {
+                            'citation': getattr(citation, 'citation', str(citation)),
+                            'case_name': getattr(citation, 'extracted_case_name', None) or getattr(citation, 'case_name', None),
+                            'extracted_case_name': getattr(citation, 'extracted_case_name', None),
+                            'canonical_name': getattr(citation, 'canonical_name', None),
+                            'extracted_date': getattr(citation, 'extracted_date', None),
+                            'canonical_date': getattr(citation, 'canonical_date', None),
+                            'canonical_url': getattr(citation, 'canonical_url', None) or getattr(citation, 'url', None),
+                            'year': getattr(citation, 'year', None),
+                            'verified': getattr(citation, 'verified', False) or getattr(citation, 'is_verified', False),
+                            'verification_status': self._get_verification_status(citation),
+                            'true_by_parallel': getattr(citation, 'true_by_parallel', False),
+                            'court': getattr(citation, 'court', None),
+                            'confidence': getattr(citation, 'confidence', 0.0),
+                            'method': getattr(citation, 'method', 'direct'),
+                            'context': getattr(citation, 'context', ''),
+                            'is_parallel': getattr(citation, 'is_parallel', False)
+                        }
+                        citations_list.append(citation_dict)
+                
+                # Convert clusters to dictionaries
+                clusters_list = []
+                if clusters:
+                    for cluster in clusters:
+                        if isinstance(cluster, dict):
+                            clusters_list.append(cluster)
+                        else:
+                            # Convert cluster object to dict if needed
+                            cluster_dict = {
+                                'case_name': getattr(cluster, 'case_name', None),
+                                'year': getattr(cluster, 'year', None),
+                                'citations': getattr(cluster, 'citations', [])
+                            }
+                            clusters_list.append(cluster_dict)
+                
+                processing_time = time.time() - start_time
+                logger.info(f"[CitationService] Found {len(citations_list)} citations, {len(clusters_list)} clusters in {processing_time:.3f}s")
+                
+                if has_progress_tracking:
+                    complete_sync_progress()
+                
+                result = {
+                    'citations': citations_list,
+                    'clusters': clusters_list,
+                    'status': 'completed',
+                    'message': f"Found {len(citations_list)} citations in {len(clusters_list)} clusters",
+                    'processing_time': processing_time,
+                    'processing_mode': 'immediate',
+                    'text_length': len(text)
                 }
-            })
+                
+                # PERFORMANCE OPTIMIZATION: Cache the result for future use
+                if not hasattr(self, '_cache'):
+                    self._cache = {}
+                self._cache[cache_key] = {
+                    'result': result,
+                    'cache_time': time.time()
+                }
+                
+                # PERFORMANCE OPTIMIZATION: Periodic cache cleanup
+                current_time = time.time()
+                if current_time - self._last_cache_cleanup > self._cache_cleanup_interval:
+                    self._clear_old_cache()
+                    self._last_cache_cleanup = current_time
+                
+                return result
             
-            log('info', 
-                f"Processed text: {len(converted_citations)} citations, "
-                f"{len(clusters)} clusters in {result['processing_time']:.2f}s"
-            )
-            
-            return result
-            
-        except asyncio.CancelledError:
-            log('warning', 'Processing was cancelled')
-            raise
-            
+            return {'status': 'error', 'message': 'Invalid input type for immediate processing'}
+        
         except Exception as e:
-            error_msg = f"Error processing citations: {str(e)}"
-            log('error', error_msg)
-            
-            result.update({
+            processing_time = time.time() - start_time
+            error_msg = f"Error in immediate processing: {str(e)}"
+            logger.error(f"[CitationService] {error_msg}", exc_info=True)
+            return {
                 'status': 'error',
-                'error': error_msg,
-                'processing_time': time.time() - start_time
-            })
-            return result
+                'message': error_msg,
+                'processing_time': processing_time,
+                'processing_mode': 'immediate'
+            }
     
     def _convert_citations_to_dicts(self, citations: List[Any], request_id: str) -> List[Dict[str, Any]]:
         """Convert CitationResult objects to serializable dictionaries."""
@@ -638,6 +672,8 @@ class CitationService:
                     'extracted_date': citation.extracted_date,
                     'canonical_date': citation.canonical_date,
                     'verified': self._get_verified_status(citation),
+                    'verification_status': self._get_verification_status(citation),
+                    'true_by_parallel': getattr(citation, 'true_by_parallel', False),
                     'court': citation.court,
                     'confidence': citation.confidence,
                     'method': citation.method,
@@ -700,8 +736,140 @@ class CitationService:
         if isinstance(verified, bool):
             return verified
         return verified in ("true_by_parallel", True)
+    
+    def _get_verification_status(self, citation) -> str:
+        """Determine the verification status of a citation."""
+        # Check if verified is true (direct verification)
+        if getattr(citation, 'verified', False):
+            return 'verified'
+        
+        # Check if true_by_parallel is true
+        if getattr(citation, 'true_by_parallel', False):
+            return 'true_by_parallel'
+        
+        # Check if metadata contains true_by_parallel flag
+        if hasattr(citation, 'metadata') and citation.metadata:
+            if citation.metadata.get('true_by_parallel', False):
+                return 'true_by_parallel'
+        
+        return 'unverified'
+    
+    def _propagate_verification_to_parallels(self, citations: List[Any], clusters: List[Dict[str, Any]]) -> None:
+        """
+        Post-clustering step: Propagate verification status to parallel citations.
+        This ensures that unverified citations in verified clusters are marked as true_by_parallel.
+        """
+        try:
+            # Create a lookup for citations by citation text
+            citation_lookup = {getattr(c, 'citation', str(c)): c for c in citations}
+            logger.info(f"[VERIFICATION] Created citation lookup with {len(citation_lookup)} citations")
             
-            # This block intentionally left blank - duplicate code removed
+            # Process each cluster
+            for i, cluster in enumerate(clusters):
+                logger.info(f"[VERIFICATION] Processing cluster {i+1}: {cluster}")
+                
+                if not isinstance(cluster, dict):
+                    logger.warning(f"[VERIFICATION] Cluster {i+1} is not a dict: {type(cluster)}")
+                    continue
+                
+                # Handle both cluster formats: 'citations' list or 'citation_objects' list
+                cluster_citations = cluster.get('citations', [])
+                citation_objects = cluster.get('citation_objects', [])
+                
+                if not cluster_citations and not citation_objects:
+                    logger.warning(f"[VERIFICATION] Cluster {i+1} has no citations or citation_objects")
+                    continue
+                
+                # Use citation_objects if available, otherwise fall back to citations list
+                if citation_objects:
+                    # Direct access to citation objects
+                    logger.info(f"[VERIFICATION] Cluster {i+1} using citation_objects: {len(citation_objects)} objects")
+                    
+                    # Check if any citation in the cluster is verified
+                    any_verified = False
+                    verified_citation = None
+                    
+                    for citation_obj in citation_objects:
+                        if getattr(citation_obj, 'verified', False):
+                            any_verified = True
+                            verified_citation = citation_obj
+                            logger.info(f"[VERIFICATION] Found verified citation in cluster {i+1}: {getattr(citation_obj, 'citation', 'unknown')}")
+                            break
+                    
+                    # If cluster has verified citations, propagate to unverified ones
+                    if any_verified and verified_citation:
+                        for citation_obj in citation_objects:
+                            if not getattr(citation_obj, 'verified', False):
+                                # Mark as true_by_parallel
+                                citation_obj.true_by_parallel = True
+                                
+                                # Ensure metadata exists
+                                if not hasattr(citation_obj, 'metadata'):
+                                    citation_obj.metadata = {}
+                                citation_obj.metadata['true_by_parallel'] = True
+                                
+                                # Propagate canonical information from verified citation
+                                if hasattr(verified_citation, 'canonical_name') and verified_citation.canonical_name:
+                                    citation_obj.canonical_name = verified_citation.canonical_name
+                                if hasattr(verified_citation, 'canonical_date') and verified_citation.canonical_date:
+                                    citation_obj.canonical_date = verified_citation.canonical_date
+                                if hasattr(verified_citation, 'canonical_url') and verified_citation.canonical_url:
+                                    citation_obj.canonical_url = verified_citation.canonical_url
+                                elif hasattr(verified_citation, 'url') and verified_citation.url:
+                                    citation_obj.url = verified_citation.url
+                                if hasattr(verified_citation, 'source') and verified_citation.source:
+                                    citation_obj.source = verified_citation.source
+                                
+                                logger.info(f"[VERIFICATION] Marked citation as true_by_parallel: {getattr(citation_obj, 'citation', 'unknown')}")
+                else:
+                    # Fallback: use citations list and lookup
+                    logger.info(f"[VERIFICATION] Cluster {i+1} using citations list: {cluster_citations}")
+                    
+                    if len(cluster_citations) < 2:
+                        continue
+                    
+                    # Check if any citation in the cluster is verified
+                    any_verified = False
+                    verified_citation = None
+                    
+                    for citation_text in cluster_citations:
+                        citation_obj = citation_lookup.get(citation_text)
+                        if citation_obj and getattr(citation_obj, 'verified', False):
+                            any_verified = True
+                            verified_citation = citation_obj
+                            break
+                    
+                    # If cluster has verified citations, propagate to unverified ones
+                    if any_verified and verified_citation:
+                        for citation_text in cluster_citations:
+                            citation_obj = citation_lookup.get(citation_text)
+                            if citation_obj and not getattr(citation_obj, 'verified', False):
+                                # Mark as true_by_parallel
+                                citation_obj.true_by_parallel = True
+                                
+                                # Ensure metadata exists
+                                if not hasattr(citation_obj, 'metadata'):
+                                    citation_obj.metadata = {}
+                                citation_obj.metadata['true_by_parallel'] = True
+                                
+                                # Propagate canonical information from verified citation
+                                if hasattr(verified_citation, 'canonical_name') and verified_citation.canonical_name:
+                                    citation_obj.canonical_name = verified_citation.canonical_name
+                                if hasattr(verified_citation, 'canonical_date') and verified_citation.canonical_date:
+                                    citation_obj.canonical_date = verified_citation.canonical_date
+                                if hasattr(verified_citation, 'canonical_url') and verified_citation.canonical_url:
+                                    citation_obj.canonical_url = verified_citation.canonical_url
+                                elif hasattr(verified_citation, 'url') and verified_citation.url:
+                                    citation_obj.url = verified_citation.url
+                                if hasattr(verified_citation, 'source') and verified_citation.source:
+                                    citation_obj.source = verified_citation.source
+                                
+                                logger.info(f"[VERIFICATION] Marked citation as true_by_parallel: {citation_text}")
+            
+            logger.info(f"[VERIFICATION] Completed verification propagation for {len(clusters)} clusters")
+            
+        except Exception as e:
+            logger.error(f"[VERIFICATION] Error in verification propagation: {e}", exc_info=True)
 
     async def process_citations_from_url(self, url: str) -> Dict[str, Any]:
         """

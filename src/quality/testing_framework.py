@@ -4,6 +4,7 @@ Comprehensive testing framework for citation processing.
 This module provides testing utilities, mock data generation, and quality metrics.
 """
 
+import secrets
 import unittest
 import asyncio
 import time
@@ -112,8 +113,8 @@ class TestDataGenerator:
         plaintiffs = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Garcia", "Miller", "Davis"]
         defendants = ["State", "City", "County", "United States", "Department", "Board", "Corporation"]
         
-        plaintiff = random.choice(plaintiffs)
-        defendant = random.choice(defendants)
+        plaintiff = secrets.choice(plaintiffs)
+        defendant = secrets.choice(defendants)
         
         return f"{plaintiff} v. {defendant}"
     
@@ -129,9 +130,9 @@ class TestDataGenerator:
             else:
                 # Generate random citations
                 case_name = self.generate_random_case_name()
-                volume = random.randint(100, 999)
-                page = random.randint(1, 999)
-                year = random.randint(1950, 2023)
+                volume = secrets.randbelow(100, 999)
+                page = secrets.randbelow(1, 999)
+                year = secrets.randbelow(1950, 2023)
                 full_citation = f"{case_name}, {volume} U.S. {page} ({year})"
             
             citation = CitationResult(
@@ -142,7 +143,7 @@ class TestDataGenerator:
                 confidence=random.uniform(0.7, 1.0),
                 extracted_case_name=case_name,
                 extracted_date=str(year) if isinstance(year, (int, str)) else None,
-                verified=random.choice([True, False])
+                verified=secrets.choice([True, False])
             )
             citations.append(citation)
         

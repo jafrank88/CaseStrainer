@@ -71,7 +71,7 @@ class CitationCache(ABC):
             'kwargs': sorted(kwargs.items()) if kwargs else {}
         }
         key_string = json.dumps(key_data, sort_keys=True, default=str)
-        return hashlib.md5(key_string.encode()).hexdigest()
+        return hashlib.sha256(key_string.encode('utf-8')).hexdigest()
 
 
 class MemoryCache(CitationCache):

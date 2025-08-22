@@ -1,0 +1,433 @@
+"""
+Citation Verifier Service
+
+This service handles all citation verification logic, including:
+- CourtListener API integration
+- Web search verification
+- Landmark case verification
+- Canonical name/date resolution
+"""
+
+import asyncio
+import logging
+import requests
+from typing import List, Dict, Any, Optional
+import time
+from dataclasses import asdict
+
+from .interfaces import ICitationVerifier
+from src.models import CitationResult, ProcessingConfig
+from src.config import get_config_value
+
+logger = logging.getLogger(__name__)
+
+
+class CitationVerifier(ICitationVerifier):
+    """
+    Citation verification service using external APIs and databases.
+    
+    This service is responsible for:
+    - CourtListener API verification
+    - Web search verification
+    - Canonical name and date resolution
+    - Verification result caching
+    """
+    
+    def __init__(self, config: Optional[ProcessingConfig] = None):
+        """Initialize the citation verifier with configuration."""
+        self.config = config or ProcessingConfig()
+        
+        # API configuration
+        self.courtlistener_api_key = get_config_value("COURTLISTENER_API_KEY")
+        self.courtlistener_base_url = "https://www.courtlistener.com/api/rest/v4/"
+        
+        # Rate limiting
+        self.last_api_call = 0
+        self.min_api_interval = 1.0  # Minimum seconds between API calls
+        
+        # Verification cache
+        self._verification_cache = {}
+        
+        # Initialize landmark cases database
+        self._init_landmark_cases()
+        
+        if self.config.debug_mode:
+            logger.info(f"CitationVerifier initialized with CourtListener API: {bool(self.courtlistener_api_key)}")
+    
+    def _init_landmark_cases(self) -> None:
+        """Initialize database of landmark cases for quick verification."""
+        self.landmark_cases = {
+            # Supreme Court landmark cases
+            "brown v. board of education": {
+                "canonical_name": "Brown v. Board of Education",
+                "canonical_date": "1954",
+                "citations": ["347 U.S. 483", "74 S. Ct. 686", "98 L. Ed. 873"]
+            },
+            "gideon v. wainwright": {
+                "canonical_name": "Gideon v. Wainwright", 
+                "canonical_date": "1963",
+                "citations": ["372 U.S. 335", "83 S. Ct. 792", "9 L. Ed. 2d 799"]
+            },
+            "miranda v. arizona": {
+                "canonical_name": "Miranda v. Arizona",
+                "canonical_date": "1966", 
+                "citations": ["384 U.S. 436", "86 S. Ct. 1602", "16 L. Ed. 2d 694"]
+            },
+            "roe v. wade": {
+                "canonical_name": "Roe v. Wade",
+                "canonical_date": "1973",
+                "citations": ["410 U.S. 113", "93 S. Ct. 705", "35 L. Ed. 2d 147"]
+            },
+            "marbury v. madison": {
+                "canonical_name": "Marbury v. Madison",
+                "canonical_date": "1803",
+                "citations": ["5 U.S. 137", "1 Cranch 137", "2 L. Ed. 60"]
+            }
+        }
+    
+    async def verify_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
+        """
+        DEPRECATED: Use cluster_citations_unified() with enable_verification=True instead.
+        
+        This individual verification approach is deprecated in favor of the unified
+        clustering and batch verification system which provides:
+        - Better batch processing with rate limiting (180/minute)
+        - Integrated clustering and verification
+        - More efficient API usage
+        
+        Example:
+            from src.unified_citation_clustering import cluster_citations_unified
+            clusters = cluster_citations_unified(citations, text, enable_verification=True)
+        
+        Args:
+            citations: List of citations to verify
+            
+        Returns:
+            Updated citations with verification results
+        """
+        import warnings
+        warnings.warn(
+            "CitationVerifier.verify_citations is deprecated. "
+            "Use cluster_citations_unified() with enable_verification=True for batch verification.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        verified_citations = []
+        
+        for citation in citations:
+            try:
+                verified_citation = await self.verify_single_citation(citation)
+                verified_citations.append(verified_citation)
+                
+                # Rate limiting for API calls
+                await asyncio.sleep(0.1)
+                
+            except Exception as e:
+                logger.warning(f"Error verifying citation {citation.citation}: {e}")
+                verified_citations.append(citation)  # Return unmodified if error
+        
+        if self.config.debug_mode:
+            verified_count = sum(1 for c in verified_citations if c.verified)
+            logger.info(f"CitationVerifier verified {verified_count}/{len(citations)} citations")
+        
+        return verified_citations
+    
+    async def verify_single_citation(self, citation: CitationResult) -> CitationResult:
+        """
+        Verify a single citation using multiple verification methods.
+        
+        Args:
+            citation: Citation to verify
+            
+        Returns:
+            Updated citation with verification results
+        """
+        # Check cache first
+        cache_key = self._get_cache_key(citation)
+        if cache_key in self._verification_cache:
+            cached_result = self._verification_cache[cache_key]
+            return self._apply_cached_result(citation, cached_result)
+        
+        # Method 1: Landmark case verification (fastest)
+        landmark_result = self._verify_with_landmark_cases(citation)
+        if landmark_result.get('verified'):
+            self._apply_verification_result(citation, landmark_result, "landmark")
+            self._cache_result(cache_key, landmark_result)
+            return citation
+        
+        # Method 2: CourtListener API verification
+        if self.courtlistener_api_key:
+            try:
+                # DEPRECATED: Use cluster_citations_unified instead
+                import warnings
+                warnings.warn(
+                    "_verify_with_courtlistener is deprecated. Use cluster_citations_unified instead.",
+                    DeprecationWarning,
+                    stacklevel=2
+                )
+                courtlistener_result = {"verified": False, "error": "Deprecated function"}
+                if courtlistener_result.get('verified'):
+                    self._apply_verification_result(citation, courtlistener_result, "CourtListener")
+                    self._cache_result(cache_key, courtlistener_result)
+                    return citation
+            except Exception as e:
+                logger.warning(f"CourtListener verification failed for {citation.citation}: {e}")
+        
+        # Method 3: Web search verification (fallback)
+        try:
+            web_result = await self._verify_with_web_search(citation)
+            if web_result.get('verified'):
+                self._apply_verification_result(citation, web_result, "web_search")
+                self._cache_result(cache_key, web_result)
+                return citation
+        except Exception as e:
+            logger.warning(f"Web search verification failed for {citation.citation}: {e}")
+        
+        # If no verification succeeded, mark as unverified
+        citation.verified = False
+        return citation
+    
+    def _verify_with_landmark_cases(self, citation: CitationResult) -> Dict[str, Any]:
+        """Verify citation against known landmark cases."""
+        citation_text = citation.citation.lower().strip()
+        extracted_name = (citation.extracted_case_name or "").lower().strip()
+        
+        # Check if citation matches any landmark case
+        for case_name, case_data in self.landmark_cases.items():
+            # Check by case name
+            if extracted_name and case_name in extracted_name:
+                return {
+                    'verified': True,
+                    'canonical_name': case_data['canonical_name'],
+                    'canonical_date': case_data['canonical_date'],
+                    'confidence': 0.95
+                }
+            
+            # Check by citation text
+            for known_citation in case_data['citations']:
+                if self._citations_match(citation_text, known_citation.lower()):
+                    return {
+                        'verified': True,
+                        'canonical_name': case_data['canonical_name'],
+                        'canonical_date': case_data['canonical_date'],
+                        'confidence': 0.95
+                    }
+        
+        return {'verified': False}
+    
+    async def _verify_with_courtlistener(self, citation: CitationResult) -> Dict[str, Any]:
+        """DEPRECATED: Use cluster_citations_unified with enable_verification=True instead."""
+        import warnings
+        warnings.warn(
+            "_verify_with_courtlistener is deprecated. Use cluster_citations_unified instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return {"verified": False, "error": "Deprecated function - use unified clustering"}
+        if not self.courtlistener_api_key:
+            return {'verified': False}
+        
+        # Rate limiting
+        await self._rate_limit()
+        
+        try:
+            # Normalize citation for API call
+            normalized_citation = self._normalize_citation_for_api(citation.citation)
+            
+            # Search for citation
+            search_url = f"{self.courtlistener_base_url}search/"
+            params = {
+                'q': normalized_citation,
+                'type': 'o',  # Opinions
+                'format': 'json'
+            }
+            
+            headers = {
+                'Authorization': f'Token {self.courtlistener_api_key}',
+                'User-Agent': 'CaseStrainer/1.0'
+            }
+            
+            response = requests.get(search_url, params=params, headers=headers, timeout=10)
+            
+            if response.status_code == 200:
+                data = response.json()
+                results = data.get('results', [])
+                
+                if results:
+                    # Take the first result (most relevant)
+                    result = results[0]
+                    
+                    return {
+                        'verified': True,
+                        'canonical_name': result.get('caseName', ''),
+                        'canonical_date': result.get('dateFiled', ''),
+                        'court': result.get('court', ''),
+                        'docket_number': result.get('docketNumber', ''),
+                        'url': result.get('absolute_url', ''),
+                        'confidence': 0.9
+                    }
+            
+            elif response.status_code == 429:
+                # Rate limited - deprecated function, return failure
+                logger.warning("Rate limited on deprecated function - use unified clustering instead")
+                return {'verified': False, 'error': 'Rate limited on deprecated function'}
+            
+        except Exception as e:
+            logger.warning(f"CourtListener API error: {e}")
+        
+        return {'verified': False}
+    
+    async def _verify_with_web_search(self, citation: CitationResult) -> Dict[str, Any]:
+        """Verify citation using web search (placeholder for now)."""
+        # This would integrate with the comprehensive web search engine
+        # For now, return unverified to avoid false positives
+        return {'verified': False}
+    
+    async def _rate_limit(self) -> None:
+        """Implement rate limiting for API calls."""
+        current_time = time.time()
+        time_since_last_call = current_time - self.last_api_call
+        
+        if time_since_last_call < self.min_api_interval:
+            sleep_time = self.min_api_interval - time_since_last_call
+            await asyncio.sleep(sleep_time)
+        
+        self.last_api_call = time.time()
+    
+    def _normalize_citation_for_api(self, citation: str) -> str:
+        """Normalize citation for API calls."""
+        # Remove extra whitespace
+        normalized = ' '.join(citation.split())
+        
+        # Convert common abbreviations to standard forms
+        replacements = {
+            'Wn.': 'Wash.',
+            'Wn. 2d': 'Wash. 2d',
+            'Wn. App.': 'Wash. App.',
+            'S. Ct.': 'S.Ct.',
+            'L. Ed.': 'L.Ed.'
+        }
+        
+        for old, new in replacements.items():
+            normalized = normalized.replace(old, new)
+        
+        return normalized
+    
+    def _citations_match(self, citation1: str, citation2: str) -> bool:
+        """Check if two citations refer to the same case."""
+        # Normalize both citations
+        norm1 = self._normalize_citation_for_comparison(citation1)
+        norm2 = self._normalize_citation_for_comparison(citation2)
+        
+        # Direct match
+        if norm1 == norm2:
+            return True
+        
+        # Extract volume, reporter, page for comparison
+        parts1 = self._extract_citation_parts(norm1)
+        parts2 = self._extract_citation_parts(norm2)
+        
+        if parts1 and parts2:
+            # Same volume and page, compatible reporters
+            return (parts1['volume'] == parts2['volume'] and 
+                    parts1['page'] == parts2['page'] and
+                    self._reporters_compatible(parts1['reporter'], parts2['reporter']))
+        
+        return False
+    
+    def _normalize_citation_for_comparison(self, citation: str) -> str:
+        """Normalize citation for comparison."""
+        import re
+        # Remove extra whitespace and punctuation
+        normalized = re.sub(r'\s+', ' ', citation.strip().lower())
+        normalized = re.sub(r'[^\w\s\.]', '', normalized)
+        return normalized
+    
+    def _extract_citation_parts(self, citation: str) -> Optional[Dict[str, str]]:
+        """Extract volume, reporter, and page from citation."""
+        import re
+        
+        # Pattern to match volume reporter page
+        pattern = r'(\d+)\s+([a-z\.\s]+?)\s+(\d+)'
+        match = re.search(pattern, citation.lower())
+        
+        if match:
+            return {
+                'volume': match.group(1),
+                'reporter': match.group(2).strip(),
+                'page': match.group(3)
+            }
+        
+        return None
+    
+    def _reporters_compatible(self, reporter1: str, reporter2: str) -> bool:
+        """Check if two reporters are compatible (e.g., Wn. and Wash.)."""
+        # Normalize reporters
+        r1 = reporter1.replace('.', '').replace(' ', '').lower()
+        r2 = reporter2.replace('.', '').replace(' ', '').lower()
+        
+        # Direct match
+        if r1 == r2:
+            return True
+        
+        # Known compatible reporters
+        compatible_sets = [
+            {'wn', 'wash', 'washington'},
+            {'sct', 'sct', 'supremecourt'},
+            {'led', 'led', 'lawyersedition'},
+            {'fsupp', 'fsupplement'}
+        ]
+        
+        for compatible_set in compatible_sets:
+            if r1 in compatible_set and r2 in compatible_set:
+                return True
+        
+        return False
+    
+    def _apply_verification_result(self, citation: CitationResult, result: Dict[str, Any], source: str) -> None:
+        """Apply verification result to citation."""
+        citation.verified = result.get('verified', False)
+        
+        if result.get('canonical_name'):
+            citation.canonical_name = result['canonical_name']
+        
+        if result.get('canonical_date'):
+            citation.canonical_date = result['canonical_date']
+        
+        if result.get('court'):
+            citation.court = result['court']
+        
+        if result.get('docket_number'):
+            citation.docket_number = result['docket_number']
+        
+        if result.get('url'):
+            citation.url = result['url']
+        
+        if result.get('confidence'):
+            citation.confidence = max(citation.confidence, result['confidence'])
+        
+        # Update metadata
+        citation.metadata = citation.metadata or {}
+        citation.metadata['verification_source'] = source
+        citation.metadata['verification_timestamp'] = time.time()
+    
+    def _get_cache_key(self, citation: CitationResult) -> str:
+        """Generate cache key for citation."""
+        normalized = self._normalize_citation_for_comparison(citation.citation)
+        return f"verify_{normalized}"
+    
+    def _cache_result(self, cache_key: str, result: Dict[str, Any]) -> None:
+        """Cache verification result."""
+        self._verification_cache[cache_key] = result
+        
+        # Simple cache size management
+        if len(self._verification_cache) > 1000:
+            # Remove oldest entries (simple FIFO)
+            keys_to_remove = list(self._verification_cache.keys())[:100]
+            for key in keys_to_remove:
+                del self._verification_cache[key]
+    
+    def _apply_cached_result(self, citation: CitationResult, cached_result: Dict[str, Any]) -> CitationResult:
+        """Apply cached verification result to citation."""
+        self._apply_verification_result(citation, cached_result, "cache")
+        return citation

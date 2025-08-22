@@ -5,6 +5,7 @@ This script generates sample citation data for the CaseStrainer application
 to demonstrate the functionality of the Multitool and Unconfirmed citations tabs.
 """
 
+import secrets
 import os
 import json
 import sqlite3
@@ -133,7 +134,7 @@ def generate_context(citation, case_name):
         f"The dissent in {case_name} ({citation}) provides a compelling alternative analysis.",
         f"The concurrence in {case_name} ({citation}) offers additional insights.",
     ]
-    return random.choice(contexts)
+    return secrets.choice(contexts)
 
 
 def generate_multitool_citations(num_citations=15):
@@ -143,7 +144,7 @@ def generate_multitool_citations(num_citations=15):
 
     for i in range(num_citations):
         # Select a random real case
-        case = random.choice(WA_CASES)
+        case = secrets.choice(WA_CASES)
 
         # Generate a citation record
         citation = {
@@ -152,12 +153,12 @@ def generate_multitool_citations(num_citations=15):
             "confidence": round(random.uniform(0.6, 0.95), 2),
             "found": True,
             "explanation": "Citation found in alternative source but not in CourtListener.",
-            "source": random.choice(sources),
-            "source_document": random.choice(WA_BRIEFS),
+            "source": secrets.choice(sources),
+            "source_document": secrets.choice(WA_BRIEFS),
             "url": f"https://example.com/case/{case['year']}/{case['case_name'].replace(' ', '-').lower()}",
             "context": generate_context(case["citation"], case["case_name"]),
             "date_added": (
-                datetime.now() - timedelta(days=random.randint(0, 30))
+                datetime.now() - timedelta(days=secrets.randbelow(0, 30))
             ).isoformat(),
         }
 
@@ -172,7 +173,7 @@ def generate_unconfirmed_citations(num_citations=15):
 
     for i in range(num_citations):
         # Select a random fictional case
-        case = random.choice(FICTIONAL_CASES)
+        case = secrets.choice(FICTIONAL_CASES)
 
         # Generate a citation record
         citation = {
@@ -182,11 +183,11 @@ def generate_unconfirmed_citations(num_citations=15):
             "found": False,
             "explanation": f"Citation not found in any legal database. The Washington Reports volume {case['citation'].split(' ')[0]} does not exist.",
             "source": "None",
-            "source_document": random.choice(WA_BRIEFS),
+            "source_document": secrets.choice(WA_BRIEFS),
             "url": "",
             "context": generate_context(case["citation"], case["case_name"]),
             "date_added": (
-                datetime.now() - timedelta(days=random.randint(0, 30))
+                datetime.now() - timedelta(days=secrets.randbelow(0, 30))
             ).isoformat(),
         }
 

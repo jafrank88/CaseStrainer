@@ -1,13 +1,10 @@
 # CaseStrainer API Endpoints
 
-This document lists all active API endpoints in the CaseStrainer application after the cleanup of duplicate endpoints.
+This document lists all active API endpoints in the CaseStrainer application after the cleanup and consolidation.
 
-## ⚠️ **IMPORTANT: Canonical vs Deprecated Endpoints**
+## ✅ **Canonical Endpoints (Use These)**
 
-**Canonical Endpoints (Use These):**
-
-- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis (async)
-- `POST /casestrainer/api/analyze_enhanced` - Enhanced synchronous endpoint (text only)
+- `POST /casestrainer/api/analyze` - **Unified endpoint for all document analysis** (text, files, URLs)
 - `GET /casestrainer/api/health` - Health check
 - `GET /casestrainer/api/version` - Version information
 - `GET /casestrainer/api/task_status/<task_id>` - Task status
@@ -16,6 +13,7 @@ This document lists all active API endpoints in the CaseStrainer application aft
 
 **Deprecated Endpoints (Do NOT Use):**
 
+- `POST /casestrainer/api/analyze_enhanced` - **REMOVED** (consolidated into `/analyze`)
 - `POST /casestrainer/api/process-text` - Deprecated, forwards to `/analyze`
 - `POST /casestrainer/api/analyze-document` - Deprecated, forwards to `/analyze`
 - All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
@@ -24,45 +22,32 @@ This document lists all active API endpoints in the CaseStrainer application aft
 
 All API endpoints are prefixed with `/casestrainer/api/`
 
-## ✅ **Canonical Endpoints**
+## 🚀 **Unified `/analyze` Endpoint**
 
-### `/analyze` (POST)
+**Single endpoint for all document analysis with enhanced processing**
 
-**Unified endpoint for all document analysis (async)**
-
-- **Purpose**: Main endpoint for analyzing documents, text, and URLs with async processing
+- **Purpose**: Unified endpoint for analyzing documents, text, and URLs with hybrid sync/async processing
 - **Input Types**:
   - File upload (multipart/form-data)
   - Text input (JSON or form data)
   - URL input (JSON)
 - **Features**:
-  - PDF text extraction using pdfminer.six
-  - Citation extraction and verification
-  - Case name extraction
-  - Canonical date extraction
-  - Batch CourtListener verification
-  - Async processing with progress tracking
-  - Task ID for status monitoring
-- **Response**: JSON with task ID for status tracking
-
-### `/analyze_enhanced` (POST)
-
-**Enhanced synchronous endpoint for text analysis**
-
-- **Purpose**: Immediate text analysis without file upload support
-- **Input Types**:
-  - Text input only (JSON)
-- **Features**:
-  - Citation extraction and verification
-  - Case name extraction
-  - Canonical date extraction
-  - Immediate results (no task ID)
-  - Enhanced citation processing
-- **Limitations**:
-  - No file uploads (returns 501 error)
-  - No URL processing
-  - No progress tracking
-- **Response**: JSON with immediate results
+  - **EnhancedSyncProcessor** for all input types
+  - **Immediate results** for documents up to 15KB
+  - **Background verification** using fallback verifier
+  - **Smart processing** based on content length
+  - **PDF text extraction** using pdfminer.six
+  - **Citation extraction** and clustering
+  - **Case name extraction**
+  - **Canonical date extraction**
+  - **Async processing** with progress tracking for long documents
+  - **Task ID** for status monitoring
+- **Response**: JSON with immediate results or task ID for status tracking
+- **Processing Strategy**:
+  - Text < 15KB: Immediate results + async verification
+  - Text > 15KB: Quick redirect + full async processing
+  - Files: Same processing logic as text
+  - URLs: Same processing logic as text
 
 ### `/health` (GET)
 

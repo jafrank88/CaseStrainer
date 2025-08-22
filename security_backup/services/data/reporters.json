@@ -1,0 +1,92 @@
+{
+  "reporters": [
+    {
+      "name": "United States Reports",
+      "abbreviation": "U.S.",
+      "patterns": ["\\b\\d+\\s+U\\.\\s*S\\.\\s+\\d+"],
+      "jurisdiction": "federal",
+      "priority": 10
+    },
+    {
+      "name": "Supreme Court Reporter",
+      "abbreviation": "S. Ct.",
+      "patterns": ["\\b\\d+\\s+S\\.\\s*Ct\\.\\s+\\d+"],
+      "jurisdiction": "federal",
+      "priority": 10
+    },
+    {
+      "name": "Federal Reporter",
+      "abbreviation": "F.",
+      "patterns": [
+        "\\b\\d+\\s+F\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+F\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+F\\.\\s+\\d+"
+      ],
+      "jurisdiction": "federal",
+      "priority": 9
+    },
+    {
+      "name": "Federal Supplement",
+      "abbreviation": "F. Supp.",
+      "patterns": [
+        "\\b\\d+\\s+F\\.\\s*Supp\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+F\\.\\s*Supp\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+F\\.\\s*Supp\\.\\s+\\d+"
+      ],
+      "jurisdiction": "federal",
+      "priority": 9
+    },
+    {
+      "name": "Washington Reports",
+      "abbreviation": "Wash.",
+      "patterns": [
+        "\\b\\d+\\s+Wn\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+Wn\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+Wn\\.\\s*App\\.\\s+\\d+",
+        "\\b\\d+\\s+Wn\\.\\s+\\d+",
+        "\\b\\d+\\s+Wash\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+Wash\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+Wash\\.\\s*App\\.\\s+\\d+",
+        "\\b\\d+\\s+Wash\\.\\s+\\d+"
+      ],
+      "jurisdiction": "washington",
+      "priority": 5
+    },
+    {
+      "name": "Regional Reporters",
+      "abbreviation": "Regional",
+      "patterns": [
+        "\\b\\d+\\s+P\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+P\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+A\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+A\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+N\\.\\s*E\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+N\\.\\s*E\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+N\\.\\s*W\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+S\\.\\s*E\\.\\s*2d\\s+\\d+",
+        "\\b\\d+\\s+S\\.\\s*W\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+S\\.\\s*W\\.\\s*2d\\s+\\d+"
+      ],
+      "jurisdiction": "regional",
+      "priority": 6
+    },
+    {
+      "name": "State Reporters",
+      "abbreviation": "State",
+      "patterns": [
+        "\\b\\d+\\s+Cal\\.\\s*Rptr\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+N\\.\\s*Y\\.\\s*S\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+A\\.\\s*D\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+Tex\\.\\s*App\\.\\s+\\d+",
+        "\\b\\d+\\s+Fla\\.\\s*Supp\\.\\s+\\d+",
+        "\\b\\d+\\s+Ill\\.\\s*App\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+Pa\\.\\s+\\d+",
+        "\\b\\d+\\s+N\\.\\s*J\\.\\s*Super\\.\\s+\\d+",
+        "\\b\\d+\\s+Ohio\\s+St\\.\\s*3d\\s+\\d+",
+        "\\b\\d+\\s+Ga\\.\\s+\\d+"
+      ],
+      "jurisdiction": "state",
+      "priority": 5
+    }
+  ]
+}

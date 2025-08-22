@@ -58,22 +58,30 @@
         </div>
 
         <!-- Main Progress Bar -->
-        <div class="main-progress-section">
+        <div v-if="isProgressValid" class="main-progress-section">
           <div class="progress-bar-container">
             <div class="progress" style="height: 1.5rem; border-radius: 0.75rem;">
               <div 
                 class="progress-bar progress-bar-striped"
                 :class="[progressBarClass, { 'progress-bar-animated': progressState.isActive }]"
                 role="progressbar"
-                :style="{ width: progressPercent + '%' }" 
-                :aria-valuenow="progressPercent" 
+                :style="{ width: (isNaN(progressPercent) ? 0 : progressPercent) + '%' }" 
+                :aria-valuenow="isNaN(progressPercent) ? 0 : progressPercent" 
                 aria-valuemin="0" 
                 aria-valuemax="100"
               >
-                <span class="progress-text">{{ Math.round(progressPercent) }}%</span>
+                <span class="progress-text">{{ isNaN(progressPercent) ? '0' : Math.round(progressPercent) }}%</span>
               </div>
             </div>
           </div>
+        </div>
+        
+        <!-- Loading indicator when progress is not yet valid -->
+        <div v-else class="loading-indicator">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Initializing...</span>
+          </div>
+          <p class="text-muted mt-2">Initializing progress tracking...</p>
         </div>
 
         <!-- Step Progress -->
@@ -176,6 +184,13 @@ export default {
       }
     };
 
+    const isProgressValid = computed(() => {
+      return progressState.startTime && 
+             progressState.estimatedTotalTime > 0 && 
+             !isNaN(progressPercent.value) && 
+             progressPercent.value >= 0;
+    });
+
     const handleRetry = () => {
       const success = retryProgress();
       if (success) {
@@ -201,7 +216,8 @@ export default {
       formatTime,
       getUploadTypeLabel,
       handleRetry,
-      handleReset
+      handleReset,
+      isProgressValid
     };
   }
 };
@@ -436,3 +452,4 @@ export default {
   }
 }
 </style>
+

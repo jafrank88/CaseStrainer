@@ -5,6 +5,7 @@ Name similarity matching utility for selecting the best CourtListener result
 when multiple cases are returned for the same citation.
 """
 
+import os
 import re
 from difflib import SequenceMatcher
 from typing import List, Dict, Any, Optional
@@ -179,7 +180,7 @@ def test_name_similarity():
         }
     ]
     
-    best_result = select_best_courtlistener_result(mock_results, extracted_name, debug=True)
+    best_result = select_best_courtlistener_result(mock_results, extracted_name, debug=os.getenv("FLASK_DEBUG", "False").lower() == "true")
     if best_result:
         best_case_name = best_result['clusters'][0]['case_name']
         print(f"\nBest result: '{best_case_name}'")

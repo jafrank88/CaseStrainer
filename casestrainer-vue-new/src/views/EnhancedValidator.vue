@@ -21,9 +21,9 @@
           <p class="timeout-info">This may take up to 30 seconds. Please don't close this page.</p>
           <div class="progress-indicator">
             <div class="progress-bar">
-              <div class="progress-fill" :style="{ width: globalProgress.progressState.percentage + '%' }"></div>
+              <div class="progress-fill" :style="{ width: globalProgress.progressPercent + '%' }"></div>
             </div>
-            <span class="progress-text">{{ globalProgress.progressState.statusText }}</span>
+            <span class="progress-text">{{ globalProgress.progressState.currentStep || 'Processing...' }}</span>
           </div>
         </div>
       </div>
@@ -119,6 +119,46 @@ export default {
         // Start global progress tracking
         globalProgress.startProgress('document', {});
 
+        // Start progress polling for synchronous processing
+        let progressPollingInterval;
+        const startProgressPolling = () => {
+          progressPollingInterval = setInterval(async () => {
+            try {
+              const progressResponse = await axios.get('/casestrainer/api/processing_progress');
+              if (progressResponse.data) {
+                const progressData = progressResponse.data;
+                console.log('Progress update:', progressData);
+                
+                // Update global progress state
+                if (progressData.status === 'processing') {
+                  globalProgress.updateProgress(progressData.current_step, progressData.progress, progressData.message);
+                } else if (progressData.status === 'waiting') {
+                  globalProgress.updateProgress('waiting', progressData.progress, progressData.message);
+                }
+                
+                // Stop polling if complete
+                if (progressData.is_complete) {
+                  clearInterval(progressPollingInterval);
+                  globalProgress.completeProgress();
+                }
+              }
+            } catch (error) {
+              console.warn('Progress polling error:', error);
+            }
+          }, 1000); // Poll every second
+        };
+
+        // Start polling immediately
+        startProgressPolling();
+
+        // Cleanup function to stop polling
+        const cleanupProgressPolling = () => {
+          if (progressPollingInterval) {
+            clearInterval(progressPollingInterval);
+            progressPollingInterval = null;
+          }
+        };
+
         let response;
         let formData = new FormData();
         let endpoint = '';
@@ -149,7 +189,7 @@ export default {
         // Use axios instead of fetch to leverage the configured base URL
         try {
           response = await axios.post(endpoint, formData, {
-            timeout: 300000, // 5 minute timeout
+            timeout: 600000, // 10 minute timeout for complex citation processing
             headers: {
               'X-Requested-With': 'XMLHttpRequest',
               // Let axios set the Content-Type for FormData with boundary
@@ -246,6 +286,8 @@ export default {
         // Reset loading state
         simpleLoading.value = false;
         hasActiveRequest.value = false;
+        // Stop progress polling
+        cleanupProgressPolling();
         // Stop global progress tracking
         // globalProgress tracking is handled by the API response
       }

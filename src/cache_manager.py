@@ -2,6 +2,7 @@ import json
 import redis
 import sqlite3
 import gzip
+# WARNING: Pickle security - Only use with trusted data sources
 import pickle
 import time
 import os
@@ -229,10 +230,16 @@ class UnifiedCacheManager:
         """Decompress data using gzip."""
         try:
             decompressed = gzip.decompress(data)
-            return pickle.loads(decompressed)
+            try:
+                return pickle.loads(decompressed)
+            except Exception:
+                return None
         except Exception:
             # Fallback to direct pickle if not compressed
-            return pickle.loads(data)
+            try:
+                return pickle.loads(data)
+            except Exception:
+                return None
     
     def _get_redis_key(self, cache_type: str, key: str) -> str:
         """Generate Redis key with namespace."""

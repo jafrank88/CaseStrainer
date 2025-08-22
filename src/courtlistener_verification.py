@@ -1,3 +1,4 @@
+import os
 import requests
 import logging
 import sys
@@ -188,7 +189,7 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                             best_result = select_best_courtlistener_result(
                                 found_results, 
                                 extracted_case_name or "", 
-                                debug=True
+                                debug=os.getenv("FLASK_DEBUG", "False").lower() == "true"
                             )
                             cluster = best_result['clusters'][0] if best_result and best_result.get('clusters') else None
                         else:
@@ -197,7 +198,7 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                             cluster = select_best_cluster_from_result(
                                 best_result,
                                 extracted_case_name,
-                                debug=True
+                                debug=os.getenv("FLASK_DEBUG", "False").lower() == "true"
                             )
                     else:
                         print(f"[DEBUG PRINT] Using first cluster from first result")

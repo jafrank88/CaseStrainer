@@ -60,7 +60,7 @@ except Exception as e:
     logger.warning(f"Eyecite import failed with unexpected error: {e}")
 
 # UNIFIED case name extraction functions (replaces all others)
-from src.unified_case_name_extractor import extract_case_name_and_date_unified, extract_case_name_only_unified, extract_year_only_unified
+from src.case_name_extraction_core import extract_case_name_and_date, extract_case_name_only, extract_year_only
 
 # Legal web search engine
 from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources

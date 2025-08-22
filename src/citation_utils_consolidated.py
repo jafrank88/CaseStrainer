@@ -627,7 +627,7 @@ def get_cache_key(text, start, end, context_window=300):
     # Create a hash of the relevant text portion
     text_portion = text[max(0, start-context_window):min(len(text), end+context_window)]
     key_data = f"{start}:{end}:{text_portion}"
-    return hashlib.md5(key_data.encode()).hexdigest()
+    return hashlib.sha256(key_data.encode('utf-8')).hexdigest()
 
 
 def clear_extraction_cache():

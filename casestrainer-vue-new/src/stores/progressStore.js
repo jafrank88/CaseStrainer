@@ -1,4 +1,4 @@
-import { ref, computed, reactive } from 'vue';
+import { ref, computed, reactive, watch } from 'vue';
 
 // Global progress state that persists across components and navigation
 const progressState = reactive({
@@ -35,8 +35,8 @@ const progressState = reactive({
 export function useUnifiedProgress() {
   // Computed properties
   const elapsedTime = computed(() => {
-    if (!progressState.startTime) {
-      console.log('Progress debug: No startTime, returning 0');
+    if (!progressState.startTime || typeof progressState.startTime !== 'number') {
+      console.log('Progress debug: Invalid startTime, returning 0:', progressState.startTime);
       return 0;
     }
     const elapsed = (Date.now() - progressState.startTime) / 1000;
@@ -46,7 +46,7 @@ export function useUnifiedProgress() {
   });
 
   const remainingTime = computed(() => {
-    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
+    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0 || typeof progressState.estimatedTotalTime !== 'number') {
       console.log('Progress debug: Invalid estimatedTotalTime, returning 0:', progressState.estimatedTotalTime);
       return 0;
     }
@@ -57,13 +57,25 @@ export function useUnifiedProgress() {
   });
 
   const progressPercent = computed(() => {
-    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
-      console.log('Progress debug: Invalid estimatedTotalTime for progress, returning 0:', progressState.estimatedTotalTime);
+    // Additional safety check for startTime
+    if (!progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
+      console.log('Progress debug: Invalid progress state, returning 0:', { 
+        startTime: progressState.startTime, 
+        estimatedTotalTime: progressState.estimatedTotalTime 
+      });
       return 0;
     }
     const percent = (elapsedTime.value / progressState.estimatedTotalTime) * 100;
     const result = isNaN(percent) ? 0 : Math.min(100, Math.max(0, percent));
-    console.log('Progress debug: progressPercent computed:', { estimatedTotalTime: progressState.estimatedTotalTime, elapsedTime: elapsedTime.value, percent, result });
+    console.log('Progress debug: progressPercent computed:', { 
+      startTime: progressState.startTime,
+      estimatedTotalTime: progressState.estimatedTotalTime, 
+      elapsedTime: elapsedTime.value, 
+      percent, 
+      result,
+      startTimeType: typeof progressState.startTime,
+      estimatedTimeType: typeof progressState.estimatedTotalTime
+    });
     return result;
   });
 
@@ -132,10 +144,26 @@ export function useUnifiedProgress() {
       resultData: null
     });
     
+    // Ensure the state is properly set before proceeding
+    if (!progressState.startTime || !progressState.estimatedTotalTime) {
+      console.error('Progress state initialization failed');
+      throw new Error('Failed to initialize progress state');
+    }
+    
     console.log('Progress state initialized:', {
       startTime: progressState.startTime,
       estimatedTotalTime: progressState.estimatedTotalTime,
-      uploadType: progressState.uploadType
+      uploadType: progressState.uploadType,
+      startTimeType: typeof progressState.startTime,
+      estimatedTimeType: typeof progressState.estimatedTotalTime
+    });
+    
+    // Additional validation
+    console.log('Progress validation check:', {
+      hasStartTime: !!progressState.startTime,
+      startTimeValid: progressState.startTime && typeof progressState.startTime === 'number',
+      hasEstimatedTime: !!progressState.estimatedTotalTime,
+      estimatedTimeValid: progressState.estimatedTotalTime && progressState.estimatedTotalTime > 0 && typeof progressState.estimatedTotalTime === 'number'
     });
   };
 
@@ -148,7 +176,7 @@ export function useUnifiedProgress() {
     progressState.processingSteps = steps.map((step, index) => ({
       ...step,
       index,
-      startTime: null,
+      startTime: progressState.startTime || Date.now() / 1000, // Use current time if startTime is not set
       completed: false
     }));
     console.log('Progress steps set:', progressState.processingSteps);
@@ -187,6 +215,13 @@ export function useUnifiedProgress() {
     
     if (update.estimated_total_time) {
       progressState.estimatedTotalTime = update.estimated_total_time;
+      
+      // Debug: Check if estimatedTotalTime is being modified
+      console.log('Progress debug: estimatedTotalTime updated:', {
+        oldValue: progressState.estimatedTotalTime,
+        newValue: update.estimated_total_time,
+        type: typeof update.estimated_total_time
+      });
     }
   };
 
@@ -195,6 +230,12 @@ export function useUnifiedProgress() {
     progressState.processingError = error;
     progressState.canRetry = true;
     progressState.isActive = false;
+  };
+  
+  const clearError = () => {
+    console.log('Clearing progress error');
+    progressState.processingError = null;
+    progressState.canRetry = false;
   };
 
   const completeProgress = (resultData = null) => {
@@ -252,7 +293,7 @@ export function useUnifiedProgress() {
 
   // Navigation helpers
   const shouldShowProgress = computed(() => {
-    return progressState.isActive || progressState.processingError;
+    return progressState.isActive && !progressState.processingError && progressState.startTime && progressState.estimatedTotalTime > 0;
   });
 
   const getProgressSummary = computed(() => {
@@ -283,6 +324,19 @@ export function useUnifiedProgress() {
       isProgressValid: !isNaN(progressPercent.value)
     };
   });
+  
+  // Watch for unexpected changes to progress state
+  watch(() => progressState.startTime, (newVal, oldVal) => {
+    if (oldVal !== null && newVal !== oldVal) {
+      console.log('Progress debug: startTime changed unexpectedly:', { oldVal, newVal, stack: new Error().stack });
+    }
+  });
+  
+  watch(() => progressState.estimatedTotalTime, (newVal, oldVal) => {
+    if (oldVal !== 0 && newVal !== oldVal) {
+      console.log('Progress debug: estimatedTotalTime changed unexpectedly:', { oldVal, newVal, stack: new Error().stack });
+    }
+  });
 
   return {
     // State (reactive)
@@ -305,6 +359,7 @@ export function useUnifiedProgress() {
     setSteps,
     updateProgress,
     setError,
+    clearError,
     completeProgress,
     resetProgress,
     retryProgress
