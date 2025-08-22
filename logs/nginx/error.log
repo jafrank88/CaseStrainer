@@ -12911,3 +12911,105 @@
 2025/08/22 16:33:11 [notice] 1#1: start worker process 22
 2025/08/22 16:33:11 [notice] 1#1: start worker process 23
 2025/08/22 16:33:11 [notice] 1#1: start worker process 24
+2025/08/22 16:36:00 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/22 16:36:00 [notice] 9#9: gracefully shutting down
+2025/08/22 16:36:00 [notice] 9#9: exiting
+2025/08/22 16:36:00 [notice] 19#19: gracefully shutting down
+2025/08/22 16:36:00 [notice] 20#20: gracefully shutting down
+2025/08/22 16:36:00 [notice] 11#11: gracefully shutting down
+2025/08/22 16:36:00 [notice] 12#12: gracefully shutting down
+2025/08/22 16:36:00 [notice] 11#11: exiting
+2025/08/22 16:36:00 [notice] 13#13: gracefully shutting down
+2025/08/22 16:36:00 [notice] 13#13: exiting
+2025/08/22 16:36:00 [notice] 14#14: gracefully shutting down
+2025/08/22 16:36:00 [notice] 15#15: gracefully shutting down
+2025/08/22 16:36:00 [notice] 16#16: gracefully shutting down
+2025/08/22 16:36:00 [notice] 16#16: exiting
+2025/08/22 16:36:00 [notice] 17#17: gracefully shutting down
+2025/08/22 16:36:00 [notice] 18#18: gracefully shutting down
+2025/08/22 16:36:00 [notice] 21#21: gracefully shutting down
+2025/08/22 16:36:00 [notice] 16#16: exit
+2025/08/22 16:36:00 [notice] 22#22: gracefully shutting down
+2025/08/22 16:36:00 [notice] 22#22: exiting
+2025/08/22 16:36:00 [notice] 23#23: gracefully shutting down
+2025/08/22 16:36:00 [notice] 24#24: gracefully shutting down
+2025/08/22 16:36:00 [notice] 10#10: gracefully shutting down
+2025/08/22 16:36:00 [notice] 20#20: exiting
+2025/08/22 16:36:00 [notice] 19#19: exiting
+2025/08/22 16:36:00 [notice] 9#9: exit
+2025/08/22 16:36:00 [notice] 12#12: exiting
+2025/08/22 16:36:00 [notice] 11#11: exit
+2025/08/22 16:36:00 [notice] 14#14: exiting
+2025/08/22 16:36:00 [notice] 15#15: exiting
+2025/08/22 16:36:00 [notice] 13#13: exit
+2025/08/22 16:36:00 [notice] 17#17: exiting
+2025/08/22 16:36:00 [notice] 18#18: exiting
+2025/08/22 16:36:00 [notice] 21#21: exiting
+2025/08/22 16:36:00 [notice] 23#23: exiting
+2025/08/22 16:36:00 [notice] 24#24: exiting
+2025/08/22 16:36:00 [notice] 22#22: exit
+2025/08/22 16:36:00 [notice] 10#10: exiting
+2025/08/22 16:36:00 [notice] 20#20: exit
+2025/08/22 16:36:00 [notice] 19#19: exit
+2025/08/22 16:36:00 [notice] 12#12: exit
+2025/08/22 16:36:00 [notice] 14#14: exit
+2025/08/22 16:36:00 [notice] 15#15: exit
+2025/08/22 16:36:00 [notice] 17#17: exit
+2025/08/22 16:36:00 [notice] 18#18: exit
+2025/08/22 16:36:00 [notice] 21#21: exit
+2025/08/22 16:36:00 [notice] 23#23: exit
+2025/08/22 16:36:00 [notice] 24#24: exit
+2025/08/22 16:36:00 [notice] 10#10: exit
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/22 16:36:00 [notice] 1#1: worker process 16 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 20
+2025/08/22 16:36:00 [notice] 1#1: worker process 9 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 11 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 13 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 17 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 20 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 22 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 19
+2025/08/22 16:36:00 [notice] 1#1: worker process 19 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/08/22 16:36:00 [notice] 1#1: worker process 12 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/22 16:36:00 [notice] 1#1: worker process 23 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 24 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/22 16:36:00 [notice] 1#1: signal 17 (SIGCHLD) received from 21
+2025/08/22 16:36:00 [notice] 1#1: worker process 10 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 14 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 15 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 18 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: worker process 21 exited with code 0
+2025/08/22 16:36:00 [notice] 1#1: exit
+2025/08/22 16:36:19 [notice] 1#1: using the "epoll" event method
+2025/08/22 16:36:19 [notice] 1#1: nginx/1.29.1
+2025/08/22 16:36:19 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/22 16:36:19 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/22 16:36:19 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/22 16:36:19 [notice] 1#1: start worker processes
+2025/08/22 16:36:19 [notice] 1#1: start worker process 9
+2025/08/22 16:36:19 [notice] 1#1: start worker process 10
+2025/08/22 16:36:19 [notice] 1#1: start worker process 11
+2025/08/22 16:36:19 [notice] 1#1: start worker process 12
+2025/08/22 16:36:19 [notice] 1#1: start worker process 13
+2025/08/22 16:36:19 [notice] 1#1: start worker process 14
+2025/08/22 16:36:19 [notice] 1#1: start worker process 15
+2025/08/22 16:36:19 [notice] 1#1: start worker process 16
+2025/08/22 16:36:19 [notice] 1#1: start worker process 17
+2025/08/22 16:36:19 [notice] 1#1: start worker process 18
+2025/08/22 16:36:19 [notice] 1#1: start worker process 19
+2025/08/22 16:36:19 [notice] 1#1: start worker process 20
+2025/08/22 16:36:19 [notice] 1#1: start worker process 21
+2025/08/22 16:36:19 [notice] 1#1: start worker process 22
+2025/08/22 16:36:19 [notice] 1#1: start worker process 23
+2025/08/22 16:36:19 [notice] 1#1: start worker process 24
+2025/08/22 16:46:24 [error] 19#19: *50 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"

@@ -755,10 +755,15 @@ class EnhancedFallbackVerifier:
                         best_result = result
             
             if best_result and best_score >= 1.5:  # Require minimum score for verification
-                # Update source to be user-friendly based on URL
-                source_url = best_result.get('canonical_url') or best_result.get('url')
-                if source_url:
-                    best_result['source'] = self._extract_source_from_url(source_url)
+                # Preserve CourtListener source if it was set
+                if best_result.get('source') == 'CourtListener':
+                    # Keep CourtListener source - don't overwrite
+                    logger.info(f"Preserving CourtListener source for {citation_text}")
+                else:
+                    # Update source to be user-friendly based on URL for fallback sources
+                    source_url = best_result.get('canonical_url') or best_result.get('url')
+                    if source_url:
+                        best_result['source'] = self._extract_source_from_url(source_url)
                 
                 # Ensure canonical_url is set for UI linking
                 if not best_result.get('canonical_url') and best_result.get('url'):
@@ -960,22 +965,30 @@ class EnhancedFallbackVerifier:
         if result.get('confidence'):
             score += min(result['confidence'], 1.0)
         
-        # Fuzzy name similarity (expected vs canonical) - ADJUSTED FOR WASHINGTON CASES
+        # Fuzzy name similarity (expected vs canonical) - MORE LENIENT FOR WASHINGTON CASES
         if expected_name and canonical_name:
             sim = self._token_jaccard(self._normalize_case_name(expected_name), self._normalize_case_name(canonical_name))
             
+            # Special handling for Washington "In re" cases - be much more lenient
+            if ('in re' in expected_name.lower() or 'in re' in canonical_name.lower()):
+                if sim >= 0.2:  # Very low threshold for Washington "In re" cases
+                    score += sim * 2.0  # High bonus for any similarity in "In re" cases
+                elif sim < 0.1:  # Still require minimal similarity
+                    score -= 0.5  # Very light penalty for very low similarity
+                else:
+                    score += sim * 1.0  # Partial credit
             # Special handling for "In re Marriage of" cases - be more lenient
-            if 'marriage' in expected_name.lower() and 'marriage' in canonical_name.lower():
-                if sim >= 0.4:  # Lower threshold for marriage cases
+            elif 'marriage' in expected_name.lower() and 'marriage' in canonical_name.lower():
+                if sim >= 0.3:  # Lower threshold for marriage cases
                     score += sim * 1.5  # Bonus for marriage case similarity
-                elif sim < 0.3:  # Still require some similarity
-                    score -= 1.5  # Reduced penalty for marriage cases
+                elif sim < 0.2:  # Still require some similarity
+                    score -= 1.0  # Reduced penalty for marriage cases
                 else:
                     score += sim * 0.5  # Partial credit
             else:
                 # Standard similarity threshold for other cases
-                if sim < 0.6:  # Require 60% similarity minimum
-                    score -= 2.0  # Heavy penalty for low similarity
+                if sim < 0.5:  # Reduced from 0.6 to 0.5 for Washington cases
+                    score -= 1.5  # Reduced penalty from 2.0 to 1.5
                 else:
                     score += sim  # Bonus for high similarity
         else:
