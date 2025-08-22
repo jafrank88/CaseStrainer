@@ -754,7 +754,7 @@ class EnhancedFallbackVerifier:
                         best_score = score
                         best_result = result
             
-            if best_result:
+            if best_result and best_score >= 1.5:  # Require minimum score for verification
                 # Update source to be user-friendly based on URL
                 source_url = best_result.get('canonical_url') or best_result.get('url')
                 if source_url:
@@ -763,6 +763,11 @@ class EnhancedFallbackVerifier:
                 elapsed = time.time() - start_time
                 logger.info(f"✅ Enhanced fallback verified: {citation_text} -> {best_result.get('canonical_name', 'N/A')} (via {best_result.get('source', 'unknown')}) in {elapsed:.1f}s")
                 return best_result
+            elif best_result:
+                # Score too low - log and return failure
+                elapsed = time.time() - start_time
+                logger.warning(f"❌ Verification score too low ({best_score:.2f}) for {citation_text} -> {best_result.get('canonical_name', 'N/A')} in {elapsed:.1f}s")
+                return self._create_fallback_result(citation_text, "low_confidence", extracted_case_name)
             
             # No verification found
             elapsed = time.time() - start_time
@@ -939,21 +944,27 @@ class EnhancedFallbackVerifier:
         if result.get('confidence'):
             score += min(result['confidence'], 1.0)
         
-        # Fuzzy name similarity (expected vs canonical)
+        # Fuzzy name similarity (expected vs canonical) - STRICT THRESHOLD
         if expected_name and canonical_name:
             sim = self._token_jaccard(self._normalize_case_name(expected_name), self._normalize_case_name(canonical_name))
-            # Scale similarity contribution
-            score += sim  # up to +1.0
+            # Require minimum similarity threshold for verification
+            if sim < 0.6:  # Require 60% similarity minimum
+                score -= 2.0  # Heavy penalty for low similarity
+            else:
+                score += sim  # Bonus for high similarity
+        else:
+            # No expected name - penalize
+            score -= 1.0
         
-        # Year alignment bonus/penalty
+        # Year alignment bonus/penalty - STRICT
         exp_year = self._year_from_any(expected_year)
         can_year = self._year_from_any(canonical_date)
         if exp_year and can_year:
             if exp_year == can_year:
-                score += 0.5
+                score += 1.0  # Strong bonus for matching year
             else:
-                # Penalize mismatched year
-                score -= 0.5
+                # Heavy penalty for mismatched year
+                score -= 2.0
         
         return score
     

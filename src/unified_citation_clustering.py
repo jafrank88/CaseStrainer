@@ -85,7 +85,11 @@ class UnifiedCitationClusterer:
         logger.info("Step 4: Merging clusters based on propagated extracted case names and years")
         merged_clusters = self._merge_clusters_by_extracted_metadata(clusters)
         
-        # Step 5: Format clusters for output
+        # Step 5: Propagate verification status to parallel citations
+        logger.info("Step 5: Propagating verification status to parallel citations")
+        self._propagate_verification_to_parallels(merged_clusters)
+        
+        # Step 6: Format clusters for output
         formatted_clusters = self._format_clusters_for_output(merged_clusters)
         
         logger.info(f"Unified clustering completed: {len(formatted_clusters)} clusters created")
@@ -1268,12 +1272,29 @@ class UnifiedCitationClusterer:
                 'year': year or "Unknown Year",
                 'size': len(citations),
                 'citations': [c.citation for c in citations],
-                'citation_objects': citations,
+                'citation_objects': [self._serialize_citation_object(c) for c in citations],
                 'cluster_type': 'unified_extracted'
             }
             
-            # Check if any citation in the cluster is verified
-            any_verified = any(getattr(c, 'verified', False) for c in citations)
+            # Check if any citation in the cluster is verified and find the best verified citation
+            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            any_verified = len(verified_citations) > 0
+            
+            # Find the best verified citation to propagate from (prefer CourtListener)
+            best_verified_citation = None
+            if verified_citations:
+                # Sort by source priority: CourtListener first, then others
+                def source_priority(c):
+                    source = getattr(c, 'source', '').lower()
+                    if 'courtlistener' in source:
+                        return 0  # Highest priority
+                    elif 'casemine' in source or 'descrybe' in source:
+                        return 1  # Medium priority
+                    else:
+                        return 2  # Lower priority
+                
+                verified_citations.sort(key=source_priority)
+                best_verified_citation = verified_citations[0]
             
             # Add cluster metadata to each citation and set true_by_parallel status
             for citation in citations:
@@ -1288,16 +1309,124 @@ class UnifiedCitationClusterer:
                 })
                 
                 # Set true_by_parallel for unverified citations in clusters with verified citations
-                if any_verified and not getattr(citation, 'verified', False):
+                if any_verified and not getattr(citation, 'verified', False) and best_verified_citation:
                     # This citation is not verified, but another in the cluster is
                     citation.true_by_parallel = True
-                    if not hasattr(citation, 'metadata'):
-                        citation.metadata = {}
                     citation.metadata['true_by_parallel'] = True
+                    
+                    # Propagate verification data from the best verified citation
+                    citation.canonical_name = getattr(best_verified_citation, 'canonical_name', None)
+                    citation.canonical_date = getattr(best_verified_citation, 'canonical_date', None)
+                    citation.canonical_url = getattr(best_verified_citation, 'canonical_url', None)
+                    citation.url = getattr(best_verified_citation, 'url', None)
+                    citation.source = getattr(best_verified_citation, 'source', None)
+                    citation.confidence = getattr(best_verified_citation, 'confidence', None)
+                    
+                    # Mark as verified via parallel
+                    citation.verified = 'true_by_parallel'
+                    
+                    logger.info(f"✓ Propagated verification from {best_verified_citation.citation} to {citation.citation} (true_by_parallel)")
             
             formatted_clusters.append(cluster_dict)
         
         return formatted_clusters
+    
+    def _propagate_verification_to_parallels(self, clusters: Dict[str, List[Any]]) -> None:
+        """
+        Propagate verification status from verified citations to unverified citations in the same cluster.
+        This ensures that parallel citations inherit verification data.
+        """
+        logger.info(f"Propagating verification status across {len(clusters)} clusters")
+        
+        for cluster_id, citations in clusters.items():
+            if len(citations) < 2:
+                continue  # Single citations don't need propagation
+            
+            # Find verified citations in this cluster
+            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            
+            if not verified_citations:
+                continue  # No verified citations to propagate from
+            
+            # Find the best verified citation to propagate from (prefer CourtListener)
+            def source_priority(c):
+                source = getattr(c, 'source', '').lower()
+                if 'courtlistener' in source:
+                    return 0  # Highest priority
+                elif 'casemine' in source or 'descrybe' in source:
+                    return 1  # Medium priority
+                else:
+                    return 2  # Lower priority
+            
+            verified_citations.sort(key=source_priority)
+            best_verified_citation = verified_citations[0]
+            
+            # Propagate to unverified citations
+            for citation in citations:
+                if not getattr(citation, 'verified', False):
+                    # Mark as true_by_parallel
+                    citation.true_by_parallel = True
+                    citation.verified = 'true_by_parallel'
+                    
+                    # Ensure metadata exists
+                    if not hasattr(citation, 'metadata'):
+                        citation.metadata = {}
+                    citation.metadata['true_by_parallel'] = True
+                    
+                    # Propagate verification data
+                    citation.canonical_name = getattr(best_verified_citation, 'canonical_name', None)
+                    citation.canonical_date = getattr(best_verified_citation, 'canonical_date', None)
+                    citation.canonical_url = getattr(best_verified_citation, 'canonical_url', None)
+                    citation.url = getattr(best_verified_citation, 'url', None)
+                    citation.source = getattr(best_verified_citation, 'source', None)
+                    citation.confidence = getattr(best_verified_citation, 'confidence', None)
+                    
+                    logger.info(f"✓ Propagated verification from {best_verified_citation.citation} to {citation.citation} (true_by_parallel)")
+        
+        logger.info("Verification propagation completed")
+    
+    def _serialize_citation_object(self, citation: Any) -> Dict[str, Any]:
+        """Serialize a citation object to a dictionary with all relevant fields."""
+        try:
+            # Handle verified status properly
+            verified_status = getattr(citation, 'verified', False)
+            true_by_parallel = getattr(citation, 'true_by_parallel', False)
+            
+            # If verified is 'true_by_parallel', ensure true_by_parallel is True
+            if verified_status == 'true_by_parallel':
+                true_by_parallel = True
+            
+            citation_dict = {
+                'citation': citation.citation,
+                'extracted_case_name': getattr(citation, 'extracted_case_name', None),
+                'canonical_name': getattr(citation, 'canonical_name', None),
+                'extracted_date': getattr(citation, 'extracted_date', None),
+                'canonical_date': getattr(citation, 'canonical_date', None),
+                'canonical_url': getattr(citation, 'canonical_url', None),
+                'verified': verified_status,
+                'confidence': getattr(citation, 'confidence', None),
+                'method': getattr(citation, 'method', None),
+                'context': getattr(citation, 'context', ''),
+                'is_parallel': getattr(citation, 'is_parallel', False),
+                'true_by_parallel': true_by_parallel,
+                'url': getattr(citation, 'url', None),
+                'source': getattr(citation, 'source', None),  # Include source field
+                'error': getattr(citation, 'error', None)
+            }
+            
+            # Add metadata if available
+            if hasattr(citation, 'metadata') and citation.metadata:
+                citation_dict['metadata'] = citation.metadata.copy()
+            
+            return citation_dict
+            
+        except Exception as e:
+            logger.warning(f"Error serializing citation object: {str(e)}")
+            # Fallback to basic serialization
+            return {
+                'citation': str(citation),
+                'error': f'Serialization error: {str(e)}'
+            }
 
 
 # Deprecated function wrappers for backward compatibility

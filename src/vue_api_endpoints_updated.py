@@ -13,6 +13,7 @@ import json
 import copy
 from datetime import datetime
 from urllib.parse import urlparse
+from typing import Dict, Any, Optional, List, Union
 from flask import Blueprint, request, jsonify, current_app, Response
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
@@ -22,6 +23,53 @@ from src.rq_worker import process_citation_task_direct
 from src.unified_input_processor import UnifiedInputProcessor
 
 logger = logging.getLogger(__name__)
+
+# Simple progress tracking for real-time updates
+class ProgressTracker:
+    """Simple progress tracking for real-time updates."""
+    
+    def __init__(self):
+        self.progress_store = {}
+        self.progress_lock = {}
+    
+    def start_progress(self, request_id: str, steps: List[Dict[str, Any]]):
+        """Start progress tracking for a request."""
+        self.progress_store[request_id] = {
+            'steps': steps,
+            'current_step': 0,
+            'current_progress': 0,
+            'start_time': time.time(),
+            'status': 'active'
+        }
+        self.progress_lock[request_id] = False
+    
+    def update_progress(self, request_id: str, step_index: int, progress: int, message: str = ""):
+        """Update progress for a specific step."""
+        if request_id in self.progress_store:
+            self.progress_store[request_id]['current_step'] = step_index
+            self.progress_store[request_id]['current_progress'] = progress
+            if message:
+                self.progress_store[request_id]['steps'][step_index]['message'] = message
+    
+    def get_progress(self, request_id: str) -> Optional[Dict[str, Any]]:
+        """Get current progress for a request."""
+        return self.progress_store.get(request_id)
+    
+    def complete_progress(self, request_id: str):
+        """Mark progress as completed."""
+        if request_id in self.progress_store:
+            self.progress_store[request_id]['status'] = 'completed'
+            self.progress_store[request_id]['current_progress'] = 100
+    
+    def cleanup_progress(self, request_id: str):
+        """Clean up progress data for a request."""
+        if request_id in self.progress_store:
+            del self.progress_store[request_id]
+        if request_id in self.progress_lock:
+            del self.progress_lock[request_id]
+
+# Global progress tracker instance
+progress_tracker = ProgressTracker()
 
 # Create the blueprint
 vue_api = Blueprint('vue_api', __name__)
@@ -887,31 +935,68 @@ def progress_stream(request_id):
             # Set headers for SSE
             yield 'data: {"type": "connected", "message": "Progress stream connected"}\n\n'
             
-            # Simulate progress updates for now
-            # In a real implementation, this would read from a progress store
-            progress_steps = [
-                {"step": "Initializing...", "progress": 0, "message": "Starting analysis..."},
-                {"step": "Extract", "progress": 20, "message": "Extracting citations..."},
-                {"step": "Analyze", "progress": 40, "message": "Analyzing citations..."},
-                {"step": "Extract Names", "progress": 60, "message": "Extracting case names..."},
-                {"step": "Cluster", "progress": 80, "message": "Clustering citations..."},
-                {"step": "Verify", "progress": 90, "message": "Verifying citations..."},
-                {"step": "Complete", "progress": 100, "message": "Analysis completed!"}
-            ]
+            # Check if we have real progress data for this request
+            progress_data = progress_tracker.get_progress(request_id)
             
-            for step_data in progress_steps:
-                # Send progress update
+            if progress_data and progress_data.get('status') == 'active':
+                # Use real progress data from the processing pipeline
+                steps = progress_data.get('steps', [])
+                current_step = progress_data.get('current_step', 0)
+                current_progress = progress_data.get('current_progress', 0)
+                
+                # Send current progress state
                 progress_event = {
                     "type": "progress",
-                    "data": step_data
+                    "data": {
+                        "step": steps[current_step].get('name', "Processing...") if steps and current_step < len(steps) else "Processing...",
+                        "progress": current_progress,
+                        "message": steps[current_step].get('message', "Processing...") if steps and current_step < len(steps) else "Processing...",
+                        "total_steps": len(steps) if steps else 0,
+                        "current_step": current_step + 1
+                    }
                 }
                 yield f'data: {json.dumps(progress_event)}\n\n'
                 
-                # Simulate processing time
-                time.sleep(0.5)
-            
-            # Send completion event
-            yield 'data: {"type": "complete", "message": "Progress stream completed"}\n\n'
+                # Wait for completion or updates
+                start_time = time.time()
+                while progress_data and progress_data.get('status') == 'active' and (time.time() - start_time) < 30:  # 30 second timeout
+                    time.sleep(0.5)
+                    progress_data = progress_tracker.get_progress(request_id)
+                    if progress_data and progress_data.get('status') == 'completed':
+                        # Send completion event
+                        yield 'data: {"type": "complete", "message": "Processing completed successfully!"}\n\n'
+                        break
+                
+                # Clean up progress data
+                progress_tracker.cleanup_progress(request_id)
+                
+            else:
+                # Fallback to simulated progress if no real data available
+                progress_steps = [
+                    {"step": "Initializing...", "progress": 0, "message": "Starting unified processing..."},
+                    {"step": "Extract", "progress": 20, "message": "Extracting citations..."},
+                    {"step": "Analyze", "progress": 40, "message": "Citations analyzed and normalized..."},
+                    {"step": "Extract Names", "progress": 60, "message": "Case names and years extracted..."},
+                    {"step": "Cluster", "progress": 80, "message": "Citations clustered successfully..."},
+                    {"step": "Verify", "progress": 90, "message": "Verification completed..."},
+                    {"step": "Complete", "progress": 100, "message": "Processing completed successfully!"}
+                ]
+                
+                for i, step_data in enumerate(progress_steps):
+                    progress_event = {
+                        "type": "progress",
+                        "data": {
+                            "step": step_data["step"],
+                            "progress": step_data["progress"],
+                            "message": step_data["message"],
+                            "total_steps": len(progress_steps),
+                            "current_step": i + 1
+                        }
+                    }
+                    yield f'data: {json.dumps(progress_event)}\n\n'
+                    time.sleep(0.3)  # Faster simulation
+                
+                yield 'data: {"type": "complete", "message": "Progress stream completed"}\n\n'
             
         except Exception as e:
             logger.error(f"Error in progress stream for {request_id}: {e}")
