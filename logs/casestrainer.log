@@ -12741,3 +12741,122 @@ for_Knight_2014' with reporters: {'wash', 'p3d'}
 2025-08-22 16:07:10 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.health_check -> 200 (449 chars)
 2025-08-22 16:07:40 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.health_check -> 200 (449 chars)
 2025-08-22 16:08:10 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:08:40 - src.app_final_vue - INFO - [RESPONSE #16] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:09:10 - src.app_final_vue - INFO - [RESPONSE #17] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:09:31 - src.app_final_vue - INFO - [RESPONSE #18] GET vue_api.health_check -> 200 (450 chars)
+2025-08-22 16:09:33 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
+2025-08-22 16:09:46 - root - INFO - Configured case_name_extraction logger to level: INFO (20)
+2025-08-22 16:09:46 - src.app_final_vue - INFO - === Logging Configuration ===
+2025-08-22 16:09:46 - src.app_final_vue - INFO - Python version: 3.10.18 (main, Aug 12 2025, 22:44:19) [GCC 14.2.0]
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Working directory: /app
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Configuration loaded successfully
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Creating new Flask application instance
+2025-08-22 16:09:47 - src.app_final_vue - INFO - üîç Starting memory monitoring...
+2025-08-22 16:09:47 - src.memory_monitor - INFO - Memory monitoring started (threshold: 1024MB, interval: 60s)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - ‚úÖ Memory monitoring started
+2025-08-22 16:09:47 - src.app_final_vue - INFO - === STARTING BLUEPRINT REGISTRATION ===
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Current working directory: /app
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:09:47 - src.api.blueprints - INFO - === REGISTERING BLUEPRINTS ===
+2025-08-22 16:09:47 - src.api.blueprints - INFO - Current working directory: /app
+2025-08-22 16:09:47 - src.api.blueprints - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:09:47 - src.api.blueprints - INFO - Attempting to import Vue API blueprint...
+2025-08-22 16:09:47 - root - WARNING - [DEBUG] sys.executable: /usr/local/bin/python3.10
+2025-08-22 16:09:47 - root - WARNING - [DEBUG] sys.path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-08-22 16:09:47 - src.redis_distributed_processor - INFO - Redis connection established
+2025-08-22 16:09:47 - src.api.blueprints - INFO - ‚úÖ Successfully imported Vue API blueprint (updated) using absolute import
+2025-08-22 16:09:47 - src.api.blueprints - INFO - Blueprint details: <Blueprint 'vue_api'>
+2025-08-22 16:09:47 - src.api.blueprints - INFO - - Name: vue_api
+2025-08-22 16:09:47 - src.api.blueprints - INFO - - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:09:47 - src.api.blueprints - INFO - Registering Vue API blueprint...
+2025-08-22 16:09:47 - src.api.blueprints - INFO - ‚úÖ Vue API blueprint registered successfully
+2025-08-22 16:09:47 - src.api.blueprints - INFO - 
+=== CURRENTLY REGISTERED BLUEPRINTS ===
+2025-08-22 16:09:47 - src.api.blueprints - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-08-22 16:09:47 - src.api.blueprints - INFO -   - URL Prefix: None
+2025-08-22 16:09:47 - src.api.blueprints - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:09:47 - src.app_final_vue - INFO - ‚úÖ Successfully registered all blueprints
+2025-08-22 16:09:47 - src.app_final_vue - INFO - ‚úÖ Vue API blueprint registered successfully
+2025-08-22 16:09:47 - src.app_final_vue - INFO - === REGISTERED BLUEPRINTS ===
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-08-22 16:09:47 - src.app_final_vue - INFO -   - URL Prefix: None
+2025-08-22 16:09:47 - src.app_final_vue - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-08-22 16:09:47 - src.app_final_vue - INFO - 
+=== REGISTERED ROUTES ===
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - static: /casestrainer/<path:filename> (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.analyze: /casestrainer/api/analyze (POST, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.progress_stream: /casestrainer/api/analyze/progress-stream/<request_id> (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.health_check_alias: /casestrainer/api/casestrainer/api/health (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.db_stats: /casestrainer/api/db_stats (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.processing_progress: /casestrainer/api/processing_progress (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - - vue_api.task_status: /casestrainer/api/task_status/<task_id> (GET, HEAD, OPTIONS)
+2025-08-22 16:09:47 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu', 'http://localhost:5000', 'http://localhost:8080']
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Upload directory ready: /app/uploads
+2025-08-22 16:09:47 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/temp
+2025-08-22 16:09:47 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/processed
+2025-08-22 16:09:47 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/rejected
+2025-08-22 16:09:47 - src.app_final_vue - DEBUG - Created subdirectory: /app/uploads/quarantine
+2025-08-22 16:09:47 - src.app_final_vue - DEBUG - Directory write permissions verified
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Secure upload directory setup completed: /app/uploads
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Importing progress manager components...
+2025-08-22 16:09:47 - src.app_final_vue - INFO - ‚úÖ Progress manager routes registered successfully
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Application routes registered
+2025-08-22 16:09:47 - src.app_final_vue - INFO - === REGISTERED ROUTES ===
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/<path:filename> -> Endpoint: static
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/health -> Endpoint: vue_api.health_check
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health -> vue_api.health_check (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/casestrainer/api/health -> Endpoint: vue_api.health_check_alias
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/casestrainer/api/health -> vue_api.health_check_alias (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/db_stats -> Endpoint: vue_api.db_stats
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/db_stats -> vue_api.db_stats (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: vue_api.analyze
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> vue_api.analyze (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/task_status/<task_id> -> Endpoint: vue_api.task_status
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/task_status/<task_id> -> vue_api.task_status (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/processing_progress -> Endpoint: vue_api.processing_progress
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/processing_progress -> vue_api.processing_progress (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<request_id> -> Endpoint: vue_api.progress_stream
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<request_id> -> vue_api.progress_stream (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/ -> Endpoint: serve_vue_app
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/<path:path> -> Endpoint: serve_vue_app
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /test -> Endpoint: test
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/routes -> Endpoint: list_routes
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/routes -> list_routes (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: start_citation_analysis
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> start_citation_analysis (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress/<task_id> -> Endpoint: get_progress
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress/<task_id> -> get_progress (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/results/<task_id> -> Endpoint: get_results
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/results/<task_id> -> get_results (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<task_id> -> Endpoint: progress_stream
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<task_id> -> progress_stream (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/memory -> Endpoint: memory_status
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory -> memory_status (methods: {'GET', 'HEAD', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Route: /casestrainer/api/memory/force-gc -> Endpoint: force_garbage_collection
+2025-08-22 16:09:47 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory/force-gc -> force_garbage_collection (methods: {'POST', 'OPTIONS'})
+2025-08-22 16:09:47 - src.app_final_vue - INFO - Flask application created successfully
+2025-08-22 16:09:47 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-08-22 16:09:51 - src.database_manager - INFO - Updated existing citations table schema
+2025-08-22 16:09:51 - src.database_manager - INFO - Database indexes created/verified
+2025-08-22 16:09:51 - src.database_manager - INFO - Database initialized with optimizations: /app/data/citations.db
+2025-08-22 16:09:51 - src.app_final_vue - INFO - [RESPONSE #1] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:10:21 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:10:51 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:11:21 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:11:52 - src.app_final_vue - INFO - [RESPONSE #5] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 09:11:53 - __main__ - WARNING - [RESPONSE #104] GET None -> 404 (22 chars)
+2025-08-22 09:11:53 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:11:53] "[33mGET / HTTP/1.1[0m" 404 -
+2025-08-22 16:12:22 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:12:52 - src.app_final_vue - INFO - [RESPONSE #7] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:13:22 - src.app_final_vue - INFO - [RESPONSE #8] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:13:52 - src.app_final_vue - INFO - [RESPONSE #9] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 09:14:15 - __main__ - WARNING - [RESPONSE #105] GET None -> 404 (22 chars)
+2025-08-22 09:14:15 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:14:15] "[33mGET / HTTP/1.1[0m" 404 -
+2025-08-22 16:14:23 - src.app_final_vue - INFO - [RESPONSE #10] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:14:53 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:15:23 - src.app_final_vue - INFO - [RESPONSE #12] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 16:15:53 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.health_check -> 200 (449 chars)
+2025-08-22 09:16:13 - werkzeug - ERROR - 3.132.23.201 - - [22/Aug/2025 09:16:13] code 400, message Bad request version ('¿\x14¿')
+2025-08-22 09:16:13 - werkzeug - INFO - 3.132.23.201 - - [22/Aug/2025 09:16:13] "[31m[1m\x16\x03\x01\x00{\x01\x00\x00w\x03\x03\x88I\x00ydHBVJ\x16¯˙r›}7≤\x0czﬁwH\x94\x9c,\x10\x9c.]ÈŸ\x83\x00\x00\x1a¿/¿+¿\x11¿\x07¿\x13¿\x09¿\x14¿[0m" 400 -
+2025-08-22 16:16:23 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.health_check -> 200 (449 chars)

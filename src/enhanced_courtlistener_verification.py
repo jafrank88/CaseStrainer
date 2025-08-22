@@ -94,7 +94,7 @@ class EnhancedCourtListenerVerifier:
         return result
     
     def _verify_with_search_api(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
-        """Verify using search API with fuzzy case name matching"""
+        """Verify using search API with fuzzy case name matching - focus on PRIMARY cases"""
         
         result = {
             "canonical_name": None,
@@ -105,52 +105,73 @@ class EnhancedCourtListenerVerifier:
         }
         
         try:
-            # Build search query
-            search_query = citation
+            # Strategy: Search for the PRIMARY case, not cases that cite it
+            # Use extracted case name as primary search term, citation as secondary
+            
             if extracted_case_name:
-                # Add case name to search query for better results
-                search_query = f"{extracted_case_name} {citation}"
-            
-            url = f"https://www.courtlistener.com/api/rest/v4/search/"
-            params = {
-                'q': search_query,
-                'format': 'json',
-                'stat_Precedential': 'on',  # Only published opinions
-                'type': 'o'  # Opinions only
-            }
-            
-            response = requests.get(url, headers=self.headers, params=params, timeout=30)
-            
-            if response.status_code == 200:
-                api_results = response.json()
-                result['raw'] = response.text
+                # Search by case name first (more likely to find the primary case)
+                search_query = extracted_case_name
+                # Add citation as a filter to narrow down results
+                citation_filter = citation
                 
-                # Find valid results
-                found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+                # Try multiple search strategies to find the primary case
+                best_result = self._search_for_primary_case_multiple_strategies(
+                    extracted_case_name, citation, citation_filter
+                )
                 
-                if found_results:
-                    # Use fuzzy matching to find the best result
-                    best_result = self._find_best_match_with_fuzzy_matching(
-                        found_results, extracted_case_name, citation
-                    )
+                if best_result:
+                    result.update({
+                        "canonical_name": best_result.get('caseName', ''),
+                        "canonical_date": best_result.get('dateFiled', ''),
+                        "url": best_result.get('absolute_url', ''),
+                        "verified": True,
+                        "source": "CourtListener Search API"
+                    })
                     
-                    if best_result:
-                        result.update({
-                            "canonical_name": best_result.get('caseName', ''),
-                            "canonical_date": best_result.get('dateFiled', ''),
-                            "url": best_result.get('absolute_url', ''),
-                            "verified": True,
-                            "source": "CourtListener Search API"
-                        })
+                    # Adjust confidence based on case name match quality
+                    similarity = enhanced_matcher.calculate_similarity(
+                        extracted_case_name, 
+                        best_result.get('caseName', '')
+                    )
+                    result['confidence'] = min(0.9, 0.6 + similarity * 0.3)
+            else:
+                # No case name - search by citation but be more restrictive
+                search_query = citation
+                citation_filter = None
+                
+                url = f"https://www.courtlistener.com/api/rest/v4/search/"
+                params = {
+                    'q': search_query,
+                    'format': 'json',
+                    'stat_Precedential': 'on',  # Only published opinions
+                    'type': 'o',  # Opinions only
+                    'order_by': 'dateFiled desc'  # Most recent first
+                }
+                
+                response = requests.get(url, headers=self.headers, params=params, timeout=30)
+                
+                if response.status_code == 200:
+                    api_results = response.json()
+                    result['raw'] = response.text
+                    
+                    # Find valid results
+                    found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+                    
+                    if found_results:
+                        # Use enhanced matching to find the PRIMARY case
+                        best_result = self._find_primary_case_with_enhanced_matching(
+                            found_results, extracted_case_name, citation, citation_filter
+                        )
                         
-                        # Adjust confidence based on case name match quality
-                        if extracted_case_name:
-                            similarity = enhanced_matcher.calculate_similarity(
-                                extracted_case_name, 
-                                best_result.get('caseName', '')
-                            )
-                            result['confidence'] = min(0.9, 0.6 + similarity * 0.3)
-                        else:
+                        if best_result:
+                            result.update({
+                                "canonical_name": best_result.get('caseName', ''),
+                                "canonical_date": best_result.get('dateFiled', ''),
+                                "url": best_result.get('absolute_url', ''),
+                                "verified": True,
+                                "source": "CourtListener Search API"
+                            })
+                            
                             result['confidence'] = 0.7
                 
         except Exception as e:
@@ -184,9 +205,9 @@ class EnhancedCourtListenerVerifier:
                 found_results = [r for r in api_results if r.get('status') != 404 and r.get('clusters')]
                 
                 if found_results:
-                    # Use fuzzy matching to find the best result
-                    best_result = self._find_best_match_with_fuzzy_matching(
-                        found_results, extracted_case_name, citation
+                    # Use enhanced matching to find the PRIMARY case
+                    best_result = self._find_primary_case_with_enhanced_matching(
+                        found_results, extracted_case_name, citation, citation
                     )
                     
                     if best_result:
@@ -262,6 +283,236 @@ class EnhancedCourtListenerVerifier:
                 return result
         
         return None
+    
+    def _search_for_primary_case_multiple_strategies(self, extracted_case_name: str, citation: str, citation_filter: str) -> Optional[Dict]:
+        """
+        Use multiple search strategies to find the primary case.
+        
+        Strategy 1: Search by exact case name
+        Strategy 2: Search by case name + citation
+        Strategy 3: Search by citation only (fallback)
+        
+        Args:
+            extracted_case_name: Case name extracted from document
+            citation: Citation text
+            citation_filter: Citation to use as filter
+            
+        Returns:
+            Best matching primary case result or None
+        """
+        url = f"https://www.courtlistener.com/api/rest/v4/search/"
+        
+        # Strategy 1: Search by exact case name (highest priority)
+        print(f"[ENHANCED] Strategy 1: Searching by exact case name: '{extracted_case_name}'")
+        params = {
+            'q': f'"{extracted_case_name}"',  # Exact phrase match
+            'format': 'json',
+            'stat_Precedential': 'on',
+            'type': 'o',
+            'order_by': 'dateFiled desc'
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params, timeout=30)
+        if response.status_code == 200:
+            api_results = response.json()
+            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+            
+            if found_results:
+                best_result = self._find_primary_case_with_enhanced_matching(
+                    found_results, extracted_case_name, citation, citation_filter
+                )
+                if best_result:
+                    print(f"[ENHANCED] Strategy 1 successful: Found primary case")
+                    return best_result
+        
+        # Strategy 2: Search by case name + citation (medium priority)
+        print(f"[ENHANCED] Strategy 2: Searching by case name + citation")
+        params = {
+            'q': f'{extracted_case_name} {citation}',
+            'format': 'json',
+            'stat_Precedential': 'on',
+            'type': 'o',
+            'order_by': 'dateFiled desc'
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params, timeout=30)
+        if response.status_code == 200:
+            api_results = response.json()
+            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+            
+            if found_results:
+                best_result = self._find_primary_case_with_enhanced_matching(
+                    found_results, extracted_case_name, citation, citation_filter
+                )
+                if best_result:
+                    print(f"[ENHANCED] Strategy 2 successful: Found primary case")
+                    return best_result
+        
+        # Strategy 3: Search by case name only (lower priority)
+        print(f"[ENHANCED] Strategy 3: Searching by case name only")
+        params = {
+            'q': extracted_case_name,
+            'format': 'json',
+            'stat_Precedential': 'on',
+            'type': 'o',
+            'order_by': 'dateFiled desc'
+        }
+        
+        response = requests.get(url, headers=self.headers, params=params, timeout=30)
+        if response.status_code == 200:
+            api_results = response.json()
+            found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+            
+            if found_results:
+                best_result = self._find_primary_case_with_enhanced_matching(
+                    found_results, extracted_case_name, citation, citation_filter
+                )
+                if best_result:
+                    print(f"[ENHANCED] Strategy 3 successful: Found primary case")
+                    return best_result
+        
+        print(f"[ENHANCED] All search strategies failed to find primary case")
+        return None
+    
+    def _find_primary_case_with_enhanced_matching(self, api_results: List[Dict], 
+                                                extracted_case_name: Optional[str], 
+                                                citation: str,
+                                                citation_filter: Optional[str] = None) -> Optional[Dict]:
+        """
+        Find the PRIMARY case (the one in header/metadata) rather than cases that just cite it.
+        
+        Strategy:
+        1. Prioritize exact case name matches
+        2. Use citation as a filter to eliminate cases that just cite the target
+        3. Focus on finding the case that IS the citation, not cases that CONTAIN the citation
+        
+        Args:
+            api_results: List of results from CourtListener API
+            extracted_case_name: Case name extracted from document
+            citation: Citation text
+            citation_filter: Citation to use as a filter
+            
+        Returns:
+            Primary case result or None
+        """
+        if not api_results:
+            return None
+        
+        # If we have an extracted case name, use enhanced matching
+        if extracted_case_name:
+            best_match = None
+            best_score = 0.0
+            
+            for result in api_results:
+                api_case_name = result.get('caseName', '')
+                if not api_case_name:
+                    continue
+                
+                # Calculate similarity using enhanced matcher
+                similarity = enhanced_matcher.calculate_similarity(
+                    extracted_case_name, api_case_name
+                )
+                
+                # Log similarity for debugging
+                print(f"[ENHANCED] Primary case similarity: '{extracted_case_name}' vs '{api_case_name}' = {similarity:.3f}")
+                
+                # Use citation filter to eliminate cases that just cite the target
+                if citation_filter:
+                    # Check if this result's text contains the citation (indicating it's NOT the primary case)
+                    result_text = result.get('plain_text', '') or result.get('html', '') or ''
+                    if citation_filter in result_text and similarity < 0.8:
+                        # This case cites the target - likely NOT the primary case
+                        print(f"[ENHANCED] Skipping case that cites target: {api_case_name}")
+                        continue
+                
+                # Additional check: Look for citation patterns in the case text
+                # If the case text contains the exact citation pattern, it might be citing the target
+                if self._case_appears_to_cite_target(result, citation, extracted_case_name):
+                    print(f"[ENHANCED] Case appears to cite target, reducing score: {api_case_name}")
+                    score -= 0.2
+                
+                # Score based on similarity and other factors
+                score = similarity
+                
+                # Bonus for exact case name match
+                if extracted_case_name.lower() == api_case_name.lower():
+                    score += 0.3
+                
+                # Bonus for high similarity
+                if similarity >= 0.8:
+                    score += 0.2
+                elif similarity >= 0.6:
+                    score += 0.1
+                
+                # Penalty for very low similarity
+                if similarity < 0.4:
+                    score -= 0.3
+                
+                print(f"[ENHANCED] Case '{api_case_name}' scored: {score:.3f}")
+                
+                if score > best_score:
+                    best_score = score
+                    best_match = result
+            
+            if best_match and best_score >= 0.5:  # Require minimum score for primary case
+                print(f"[ENHANCED] Primary case found with score {best_score:.3f}: {best_match.get('caseName')}")
+                return best_match
+        
+        # Fallback: return first valid result if no enhanced match found
+        for result in api_results:
+            if result.get('caseName') and result.get('absolute_url'):
+                return result
+        
+        return None
+    
+    def _case_appears_to_cite_target(self, result: Dict, citation: str, extracted_case_name: Optional[str] = None) -> bool:
+        """
+        Check if a case result appears to be citing the target case rather than being the target.
+        
+        Args:
+            result: Case result from CourtListener API
+            citation: Citation text we're looking for
+            extracted_case_name: Extracted case name
+            
+        Returns:
+            True if the case appears to cite the target, False otherwise
+        """
+        # Get case text content
+        case_text = result.get('plain_text', '') or result.get('html', '') or ''
+        if not case_text:
+            return False
+        
+        # Look for citation patterns that suggest this case is citing the target
+        citation_patterns = [
+            # Pattern: "See" or "citing" followed by citation
+            rf'(?:see|citing|cited)\s+{re.escape(citation)}',
+            # Pattern: Citation in parentheses (common citation format)
+            rf'\({re.escape(citation)}\)',
+            # Pattern: Citation after "In" or "See"
+            rf'(?:in|see)\s+{re.escape(citation)}',
+        ]
+        
+        for pattern in citation_patterns:
+            if re.search(pattern, case_text, re.IGNORECASE):
+                print(f"[ENHANCED] Found citation pattern '{pattern}' in case text")
+                return True
+        
+        # Look for case name patterns that suggest this case is citing the target
+        if extracted_case_name:
+            # If the case text contains the extracted case name in a citation context
+            # but the case name doesn't match the result's case name, it's likely citing
+            case_name_patterns = [
+                rf'(?:see|citing|cited)\s+{re.escape(extracted_case_name)}',
+                rf'\({re.escape(extracted_case_name)}\)',
+                rf'(?:in|see)\s+{re.escape(extracted_case_name)}',
+            ]
+            
+            for pattern in case_name_patterns:
+                if re.search(pattern, case_text, re.IGNORECASE):
+                    print(f"[ENHANCED] Found case name citation pattern '{pattern}' in case text")
+                    return True
+        
+        return False
     
     def _is_test_citation(self, citation: str) -> bool:
         """Check if citation is a known test citation."""

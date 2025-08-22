@@ -159,7 +159,7 @@
     "src/citation_extractor.py":  "515228476AB9E0DE223E986531F7D32F",
     "src/enhanced_citation_utilities.py":  "B1B0B3942C15D18A272B6F3BFC0156C5",
     "src/async_verification_worker.py":  "35CB6B6C799896B0942692D5BB7F6557",
-    "src/enhanced_fallback_verifier.py":  "2E2DB89F172F9DCECF7A5EE51BBA0B77",
-    "src/unified_citation_clustering.py":  "D2F784AD99F34CBCC7DB333D357BC162",
-    "src/unified_sync_processor.py":  "7377966165944D7BAA9FED4B3D20C368"
+    "src/unified_sync_processor.py":  "7377966165944D7BAA9FED4B3D20C368",
+    "src/unified_citation_clustering.py":  "4F921841ACFFC45899F518A0DEE5561F",
+    "src/enhanced_fallback_verifier.py":  "FF964001FC02C538E6A2CCFD79E8543F"
 }
