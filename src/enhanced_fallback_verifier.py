@@ -2168,6 +2168,166 @@ class EnhancedFallbackVerifier:
             logger.warning(f"ScrapingBee verification failed for {citation_text}: {e}")
             return None
 
+    async def verify_citations_batch(self, citations: List[str], extracted_case_names: Optional[List[str]] = None, extracted_dates: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Verify multiple citations using CourtListener batch API first, then enhanced fallback.
+        
+        Args:
+            citations: List of citation texts to verify
+            extracted_case_names: Optional list of extracted case names
+            extracted_dates: Optional list of extracted dates
+            
+        Returns:
+            List of verification results for each citation
+        """
+        if not citations:
+            return []
+        
+        logger.info(f"🚀 BATCH VERIFICATION CALLED for {len(citations)} citations")
+        
+        # Ensure extracted data arrays match citations length
+        if extracted_case_names and len(extracted_case_names) != len(citations):
+            logger.warning("extracted_case_names length doesn't match citations length")
+            extracted_case_names = None
+        
+        if extracted_dates and len(extracted_dates) != len(citations):
+            logger.warning("extracted_dates length doesn't match citations length")
+            extracted_dates = None
+        
+        results = []
+        
+        try:
+            # STEP 1: Try CourtListener batch API first (fast, reliable, official)
+            courtlistener_results = await self._try_courtlistener_batch_first(citations, extracted_case_names)
+            
+            # STEP 2: Process results and identify which citations need fallback verification
+            citations_needing_fallback = []
+            fallback_indices = []
+            
+            for i, (citation, courtlistener_result) in enumerate(zip(citations, courtlistener_results)):
+                if courtlistener_result and courtlistener_result.get('verified', False):
+                    # CourtListener succeeded - use this result
+                    results.append(courtlistener_result)
+                    logger.info(f"✅ CourtListener batch verified: {citation} -> {courtlistener_result.get('canonical_name', 'N/A')}")
+                else:
+                    # CourtListener failed - need fallback verification
+                    citations_needing_fallback.append(citation)
+                    fallback_indices.append(i)
+                    # Add placeholder result for now
+                    results.append({
+                        'verified': False,
+                        'source': 'pending_fallback',
+                        'canonical_name': None,
+                        'canonical_date': None,
+                        'url': None,
+                        'canonical_url': None,
+                        'confidence': 0.0,
+                        'error': 'CourtListener failed, pending fallback'
+                    })
+            
+            # STEP 3: If any citations need fallback, process them individually
+            if citations_needing_fallback:
+                logger.info(f"Processing {len(citations_needing_fallback)} citations with enhanced fallback verification")
+                
+                # Process fallback citations individually (since they failed batch verification)
+                for i, citation in enumerate(citations_needing_fallback):
+                    original_index = fallback_indices[i]
+                    extracted_case_name = extracted_case_names[original_index] if extracted_case_names and original_index < len(extracted_case_names) else None
+                    extracted_date = extracted_dates[original_index] if extracted_dates and original_index < len(extracted_dates) else None
+                    
+                    # Use individual fallback verification
+                    fallback_result = await self.verify_citation(citation, extracted_case_name, extracted_date, has_courtlistener_data=False)
+                    
+                    # Update the result at the original index
+                    results[original_index] = fallback_result
+                    
+                    if fallback_result.get('verified', False):
+                        logger.info(f"✅ Fallback verified: {citation} -> {fallback_result.get('canonical_name', 'N/A')} (via {fallback_result.get('source', 'unknown')})")
+                    else:
+                        logger.debug(f"Fallback verification failed for {citation}")
+            
+            logger.info(f"Batch verification completed: {len([r for r in results if r.get('verified', False)])}/{len(citations)} verified")
+            return results
+            
+        except Exception as e:
+            logger.error(f"Batch verification error: {e}")
+            # Return failed results for all citations
+            return [self._create_fallback_result(citation, "batch_error") for citation in citations]
+    
+    async def _try_courtlistener_batch_first(self, citations: List[str], extracted_case_names: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+        """
+        Try CourtListener batch verification first for fast, reliable results.
+        
+        Args:
+            citations: List of citations to verify
+            extracted_case_names: Optional list of extracted case names
+            
+        Returns:
+            List of CourtListener verification results
+        """
+        try:
+            # Check if CourtListener API key is available
+            courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
+            if not courtlistener_api_key:
+                logger.debug("CourtListener API key not available - skipping batch verification")
+                return [self._create_fallback_result(citation, "no_api_key") for citation in citations]
+            
+            # Import CourtListener verifier
+            try:
+                from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
+            except ImportError:
+                logger.debug("CourtListener verifier not available - skipping batch verification")
+                return [self._create_fallback_result(citation, "verifier_unavailable") for citation in citations]
+            
+            # Create CourtListener verifier
+            courtlistener_verifier = EnhancedCourtListenerVerifier(courtlistener_api_key)
+            
+            # Try CourtListener batch verification
+            logger.info(f"Attempting CourtListener batch verification for {len(citations)} citations")
+            batch_results = courtlistener_verifier.verify_citations_batch(citations, extracted_case_names)
+            
+            if batch_results and len(batch_results) == len(citations):
+                logger.info(f"✓ CourtListener batch verification successful for {len(citations)} citations")
+                
+                # Process results to ensure URLs are absolute and add source info
+                processed_results = []
+                for result in batch_results:
+                    if result and result.get('verified', False):
+                        # Ensure URLs are absolute
+                        url = result.get('url', '')
+                        canonical_url = result.get('canonical_url') or result.get('url', '')
+                        
+                        # Convert relative URLs to absolute
+                        if url and url.startswith('/'):
+                            url = f"https://www.courtlistener.com{url}"
+                        if canonical_url and canonical_url.startswith('/'):
+                            canonical_url = f"https://www.courtlistener.com{canonical_url}"
+                        
+                        processed_result = {
+                            'verified': True,
+                            'canonical_name': result.get('canonical_name'),
+                            'canonical_date': result.get('canonical_date'),
+                            'url': url,
+                            'canonical_url': canonical_url,
+                            'source': 'CourtListener',
+                            'validation_method': result.get('validation_method', 'batch_citation_lookup'),
+                            'confidence': result.get('confidence', 0.9),
+                            'verification_strategy': 'courtlistener_batch'
+                        }
+                        processed_results.append(processed_result)
+                    else:
+                        # Create a failed result for this citation
+                        processed_results.append(self._create_fallback_result(citations[len(processed_results)], "batch_failed"))
+                
+                return processed_results
+            else:
+                logger.debug(f"CourtListener batch verification failed for {len(citations)} citations")
+                return [self._create_fallback_result(citation, "batch_failed") for citation in citations]
+                
+        except Exception as e:
+            logger.warning(f"CourtListener batch verification error: {str(e)}")
+            return [self._create_fallback_result(citation, "batch_error") for citation in citations]
+
 # Convenience function for easy integration
 async def verify_citation_with_enhanced_fallback(citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:
     """

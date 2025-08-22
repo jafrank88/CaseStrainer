@@ -24,17 +24,15 @@ class EnhancedCourtListenerVerifier:
     
     def verify_citation_enhanced(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """
-        Enhanced verification with cross-validation to prevent false positives
+        Enhanced verification using citation-lookup API v4 as primary method.
         
         Strategy:
-        1. Filter out test citations
-        2. Try search API first (more reliable, broader coverage)
-        3. Cross-validate with citation-lookup if needed
-        4. Use fuzzy matching for case name verification
-        5. Only mark as verified if validation passes strict criteria
+        1. Use citation-lookup API v4 (fast, reliable, designed for citations)
+        2. Only use search API if we need additional metadata not in citation-lookup
+        3. Apply strict matching criteria: same year, citation, and meaningful words in common
         """
         
-        print(f"[ENHANCED] Starting enhanced verification for: {citation}")
+        print(f"[ENHANCED] Starting citation-lookup API v4 verification for: {citation}")
         
         # CRITICAL: Filter out known test citations
         if self._is_test_citation(citation):
@@ -58,40 +56,314 @@ class EnhancedCourtListenerVerifier:
             "raw": None,
             "source": None,
             "confidence": 0.0,
-            "validation_method": "enhanced_cross_validation"
+            "validation_method": "citation_lookup_v4"
         }
         
-        # Step 1: Try search API first (more reliable)
-        search_result = self._verify_with_search_api(citation, extracted_case_name)
+        # STEP 1: Try citation-lookup API v4 first (primary method)
+        lookup_result = self._verify_with_citation_lookup_v4(citation, extracted_case_name)
         
-        if search_result['verified']:
-            # Cross-validate with citation-lookup if we have extracted case name
-            if extracted_case_name:
-                lookup_result = self._verify_with_citation_lookup(citation, extracted_case_name)
-                if lookup_result['verified']:
-                    # Both APIs agree - high confidence
+        if lookup_result['verified']:
+            # Citation-lookup succeeded - use this result
+            result.update(lookup_result)
+            result['validation_method'] = "citation_lookup_v4_success"
+            result['confidence'] = 0.95  # High confidence for citation-lookup matches
+            
+            # Only use search API if we need additional metadata
+            if self._needs_additional_metadata(lookup_result):
+                print(f"[ENHANCED] Citation-lookup succeeded but need additional metadata, trying search API")
+                search_result = self._verify_with_search_api_for_metadata(citation, extracted_case_name, lookup_result)
+                if search_result and search_result.get('verified', False):
+                    # Merge additional metadata from search API
                     result.update(search_result)
-                    result['confidence'] = 0.95
-                    result['validation_method'] = "dual_api_cross_validation"
-                else:
-                    # Search API found it but lookup didn't - moderate confidence
-                    result.update(search_result)
-                    result['confidence'] = 0.8
-                    result['validation_method'] = "search_api_only"
-            else:
-                # No extracted case name for cross-validation - moderate confidence
-                result.update(search_result)
-                result['confidence'] = 0.8
-                result['validation_method'] = "search_api_only"
+                    result['validation_method'] = "citation_lookup_v4_plus_search_metadata"
+                    result['confidence'] = 0.98  # Very high confidence with dual verification
         else:
-            # Search API failed, try citation-lookup
-            lookup_result = self._verify_with_citation_lookup(citation, extracted_case_name)
-            if lookup_result['verified']:
-                result.update(lookup_result)
-                result['confidence'] = 0.7
-                result['validation_method'] = "citation_lookup_only"
+            # Citation-lookup failed - try search API as fallback
+            print(f"[ENHANCED] Citation-lookup failed, trying search API as fallback")
+            search_result = self._verify_with_search_api(citation, extracted_case_name)
+            if search_result['verified']:
+                result.update(search_result)
+                result['validation_method'] = "search_api_fallback"
+                result['confidence'] = 0.7  # Lower confidence for search API fallback
         
         return result
+    
+    def verify_citations_batch(self, citations: List[str], extracted_case_names: Optional[List[str]] = None) -> List[Dict]:
+        """
+        Verify multiple citations using CourtListener citation-lookup API v4 batch processing.
+        
+        Args:
+            citations: List of citation strings to verify
+            extracted_case_names: Optional list of extracted case names (must match citations length)
+            
+        Returns:
+            List of verification results for each citation
+        """
+        if not citations:
+            return []
+        
+        # Ensure extracted_case_names matches citations length
+        if extracted_case_names and len(extracted_case_names) != len(citations):
+            logger.warning("extracted_case_names length doesn't match citations length")
+            extracted_case_names = None
+        
+        results = []
+        
+        try:
+            # Use citation-lookup API v4 for batch processing
+            url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+            
+            # Process citations in batches of 60 (API limit)
+            batch_size = 60
+            for i in range(0, len(citations), batch_size):
+                batch_citations = citations[i:i + batch_size]
+                batch_names = extracted_case_names[i:i + batch_size] if extracted_case_names else [None] * len(batch_citations)
+                
+                # Create batch request
+                batch_data = {"text": batch_citations}
+                
+                logger.info(f"Processing CourtListener batch {i//batch_size + 1}: {len(batch_citations)} citations")
+                
+                response = requests.post(url, headers=self.headers, json=batch_data, timeout=30)
+                
+                if response.status_code == 200:
+                    batch_results = response.json()
+                    
+                    # Process each citation result
+                    for j, citation in enumerate(batch_citations):
+                        citation_result = self._process_batch_citation_result(
+                            citation, 
+                            batch_names[j] if batch_names else None,
+                            batch_results[j] if j < len(batch_results) else None
+                        )
+                        results.append(citation_result)
+                else:
+                    logger.warning(f"CourtListener batch API error: {response.status_code}")
+                    # Add failed results for this batch
+                    for citation in batch_citations:
+                        results.append(self._create_failed_batch_result(citation))
+            
+        except Exception as e:
+            logger.error(f"CourtListener batch verification error: {e}")
+            # Return failed results for all citations
+            for citation in citations:
+                results.append(self._create_failed_batch_result(citation))
+        
+        return results
+    
+    def _process_batch_citation_result(self, citation: str, extracted_case_name: Optional[str], api_result: Optional[Dict]) -> Dict:
+        """Process a single citation result from batch API response."""
+        
+        result = {
+            "canonical_name": None,
+            "canonical_date": None,
+            "url": None,
+            "verified": False,
+            "raw": api_result,
+            "source": "CourtListener Batch API",
+            "confidence": 0.0,
+            "validation_method": "batch_citation_lookup"
+        }
+        
+        if not api_result or api_result.get('status') == 404:
+            return result
+        
+        # Extract case data from API result
+        clusters = api_result.get('clusters', [])
+        if not clusters:
+            return result
+        
+        # Find the best matching case using strict criteria
+        best_case = self._find_best_case_with_strict_criteria(
+            clusters, citation, extracted_case_name
+        )
+        
+        if best_case:
+            result.update({
+                "canonical_name": best_case.get('caseName', ''),
+                "canonical_date": best_case.get('dateFiled', ''),
+                "url": self._normalize_url(best_case.get('absolute_url', '')),
+                "verified": True,
+                "confidence": 0.9
+            })
+        
+        return result
+    
+    def _find_best_case_with_strict_criteria(self, clusters: List[Dict], citation: str, extracted_case_name: Optional[str]) -> Optional[Dict]:
+        """
+        Find the best case using strict criteria:
+        1. Same year and citation
+        2. At least one non-stopword in common between extracted and canonical names
+        
+        Args:
+            clusters: List of case clusters from CourtListener API
+            citation: Citation text to match
+            extracted_case_name: Extracted case name from document
+            
+        Returns:
+            Best matching case or None
+        """
+        if not clusters:
+            return None
+        
+        best_match = None
+        best_score = 0.0
+        
+        for cluster in clusters:
+            cases = cluster.get('cases', [])
+            for case in cases:
+                score = self._calculate_strict_match_score(case, citation, extracted_case_name)
+                if score > best_score:
+                    best_score = score
+                    best_match = case
+        
+        # Only return if we meet strict criteria
+        if best_match and best_score >= 2.0:  # Require strict criteria to be met
+            return best_match
+        
+        return None
+    
+    def _calculate_strict_match_score(self, case: Dict, citation: str, extracted_case_name: Optional[str]) -> float:
+        """
+        Calculate match score using strict criteria.
+        
+        Returns:
+            Score >= 2.0 if strict criteria are met, lower score otherwise
+        """
+        score = 0.0
+        
+        # CRITICAL: Must have same year and citation
+        case_citation = case.get('citation', '')
+        case_date = case.get('dateFiled', '')
+        
+        # Extract year from citation (e.g., "188 Wn.2d 114" -> extract year if present)
+        citation_year = self._extract_year_from_citation(citation)
+        case_year = self._extract_year_from_date(case_date)
+        
+        # Year must match exactly
+        if citation_year and case_year and citation_year == case_year:
+            score += 1.0
+        else:
+            return 0.0  # Year mismatch = no match
+        
+        # Citation must match (allowing for reporter variations)
+        if self._citations_match(citation, case_citation):
+            score += 1.0
+        else:
+            return 0.0  # Citation mismatch = no match
+        
+        # Case name must have at least one non-stopword in common
+        if extracted_case_name:
+            extracted_name = extracted_case_name
+            canonical_name = case.get('caseName', '')
+            
+            if self._has_meaningful_words_in_common(extracted_name, canonical_name):
+                score += 1.0
+            else:
+                return 0.0  # No meaningful words in common = no match
+        
+        return score
+    
+    def _extract_year_from_citation(self, citation: str) -> Optional[str]:
+        """Extract year from citation text."""
+        # Look for 4-digit year in citation
+        import re
+        year_match = re.search(r'(19|20)\d{2}', citation)
+        return year_match.group(0) if year_match else None
+    
+    def _extract_year_from_date(self, date_str: str) -> Optional[str]:
+        """Extract year from date string."""
+        if not date_str:
+            return None
+        
+        # Handle various date formats
+        import re
+        year_match = re.search(r'(19|20)\d{2}', str(date_str))
+        return year_match.group(0) if year_match else None
+    
+    def _citations_match(self, citation1: str, citation2: str) -> bool:
+        """Check if two citations match (allowing for reporter variations)."""
+        if not citation1 or not citation2:
+            return False
+        
+        # Normalize citations for comparison
+        norm1 = self._normalize_citation(citation1)
+        norm2 = self._normalize_citation(citation2)
+        
+        return norm1 == norm2
+    
+    def _normalize_citation(self, citation: str) -> str:
+        """Normalize citation for comparison."""
+        # Remove spaces and convert to lowercase
+        norm = citation.replace(' ', '').lower()
+        
+        # Handle Washington reporter variations
+        norm = norm.replace('wn.', 'wn').replace('wash.', 'wn')
+        norm = norm.replace('wn2d', 'wn2d').replace('wash2d', 'wn2d')
+        norm = norm.replace('wnapp', 'wnapp').replace('washapp', 'wnapp')
+        
+        # Handle Pacific reporter variations
+        norm = norm.replace('p.', 'p').replace('pac.', 'p')
+        norm = norm.replace('p2d', 'p2d').replace('pac2d', 'p2d')
+        norm = norm.replace('p3d', 'p3d').replace('pac3d', 'p3d')
+        
+        return norm
+    
+    def _has_meaningful_words_in_common(self, name1: str, name2: str) -> bool:
+        """
+        Check if two case names have at least one meaningful (non-stopword) word in common.
+        
+        Args:
+            name1: First case name
+            name2: Second case name
+            
+        Returns:
+            True if they share at least one meaningful word
+        """
+        if not name1 or not name2:
+            return False
+        
+        # Define stopwords (common legal terms that don't distinguish cases)
+        stopwords = {
+            'in', 're', 'of', 'the', 'and', 'or', 'for', 'to', 'a', 'an', 'v', 'vs', 'versus',
+            'petition', 'petitioner', 'respondent', 'appellant', 'appellee', 'plaintiff', 'defendant',
+            'state', 'united', 'states', 'county', 'city', 'town', 'village', 'corporation',
+            'inc', 'llc', 'ltd', 'co', 'company', 'association', 'foundation', 'trust'
+        }
+        
+        # Extract meaningful words from each name
+        words1 = set(self._extract_meaningful_words(name1, stopwords))
+        words2 = set(self._extract_meaningful_words(name2, stopwords))
+        
+        # Check for intersection
+        common_words = words1.intersection(words2)
+        
+        return len(common_words) > 0
+    
+    def _extract_meaningful_words(self, name: str, stopwords: set) -> List[str]:
+        """Extract meaningful (non-stopword) words from a case name."""
+        if not name:
+            return []
+        
+        # Split into words and filter out stopwords
+        words = re.findall(r'\b[a-zA-Z]+\b', name.lower())
+        meaningful_words = [word for word in words if word not in stopwords and len(word) > 2]
+        
+        return meaningful_words
+    
+    def _create_failed_batch_result(self, citation: str) -> Dict:
+        """Create a result for a failed batch verification."""
+        return {
+            "canonical_name": None,
+            "canonical_date": None,
+            "url": None,
+            "verified": False,
+            "raw": None,
+            "source": "CourtListener Batch API",
+            "confidence": 0.0,
+            "validation_method": "batch_failed",
+            "error": "Batch verification failed"
+        }
     
     def _verify_with_search_api(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """Verify using search API with fuzzy case name matching - focus on PRIMARY cases"""
@@ -565,6 +837,125 @@ class EnhancedCourtListenerVerifier:
             # If it's a direct path, prepend https://
             return f"https://www.courtlistener.com{url}"
         return url
+
+    def _verify_with_citation_lookup_v4(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
+        """Verify using citation-lookup API v4 with strict matching criteria."""
+        
+        result = {
+            "canonical_name": None,
+            "canonical_date": None,
+            "url": None,
+            "verified": False,
+            "raw": None,
+            "source": "CourtListener Citation-Lookup API v4"
+        }
+        
+        try:
+            # Use citation-lookup API v4
+            url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+            data = {"text": citation}
+            
+            response = requests.post(url, headers=self.headers, json=data, timeout=30)
+            
+            if response.status_code == 200:
+                api_results = response.json()
+                result['raw'] = response.text
+                
+                # Find valid results
+                found_results = [r for r in api_results if r.get('status') != 404 and r.get('clusters')]
+                
+                if found_results:
+                    # Use strict criteria to find the PRIMARY case
+                    best_case = self._find_best_case_with_strict_criteria(
+                        found_results, citation, extracted_case_name
+                    )
+                    
+                    if best_case:
+                        result.update({
+                            "canonical_name": best_case.get('caseName', ''),
+                            "canonical_date": best_case.get('dateFiled', ''),
+                            "url": self._normalize_url(best_case.get('absolute_url', '')),
+                            "verified": True,
+                            "confidence": 0.9
+                        })
+                
+        except Exception as e:
+            print(f"[ENHANCED] Citation-lookup API v4 error: {e}")
+            logger.error(f"Citation-lookup API v4 error: {e}")
+        
+        return result
+    
+    def _needs_additional_metadata(self, lookup_result: Dict) -> bool:
+        """Check if we need additional metadata from search API."""
+        # Check if we have all essential metadata
+        has_name = bool(lookup_result.get('canonical_name'))
+        has_date = bool(lookup_result.get('canonical_date'))
+        has_url = bool(lookup_result.get('url'))
+        
+        # We might need search API if:
+        # 1. Missing case name (need to find the actual case)
+        # 2. Missing date (need filing date)
+        # 3. Missing URL (need case link)
+        # 4. Need additional context (docket info, judge, etc.)
+        
+        return not (has_name and has_date and has_url)
+    
+    def _verify_with_search_api_for_metadata(self, citation: str, extracted_case_name: Optional[str], existing_result: Dict) -> Optional[Dict]:
+        """Use search API only to get additional metadata not available in citation-lookup."""
+        
+        try:
+            # Only search if we need specific metadata
+            if not existing_result.get('canonical_name'):
+                # Need case name - search by citation
+                search_query = citation
+            elif not existing_result.get('canonical_date'):
+                # Need date - search by case name + citation
+                search_query = f"{existing_result.get('canonical_name')} {citation}"
+            else:
+                # Have all essential metadata - no need for search
+                return None
+            
+            url = f"https://www.courtlistener.com/api/rest/v4/search/"
+            params = {
+                'q': search_query,
+                'format': 'json',
+                'stat_Precedential': 'on',
+                'type': 'o',
+                'order_by': 'dateFiled desc'
+            }
+            
+            response = requests.get(url, headers=self.headers, params=params, timeout=30)
+            if response.status_code == 200:
+                api_results = response.json()
+                found_results = [r for r in api_results.get('results', []) if r.get('status') != 404]
+                
+                if found_results:
+                    # Find the best match for additional metadata
+                    best_result = self._find_primary_case_with_enhanced_matching(
+                        found_results, extracted_case_name, citation, citation
+                    )
+                    
+                    if best_result:
+                        # Only return metadata that we don't already have
+                        metadata_result = {}
+                        if not existing_result.get('canonical_name') and best_result.get('caseName'):
+                            metadata_result['canonical_name'] = best_result.get('caseName')
+                        if not existing_result.get('canonical_date') and best_result.get('dateFiled'):
+                            metadata_result['canonical_date'] = best_result.get('dateFiled')
+                        if not existing_result.get('url') and best_result.get('absolute_url'):
+                            url = best_result.get('absolute_url')
+                            if url:
+                                metadata_result['url'] = self._normalize_url(url)
+                        
+                        if metadata_result:
+                            metadata_result['verified'] = True
+                            metadata_result['source'] = 'CourtListener Search API (Metadata)'
+                            return metadata_result
+            
+        except Exception as e:
+            logger.warning(f"Search API metadata lookup error: {e}")
+        
+        return None
 
 # Backward compatibility function
 def verify_with_courtlistener_enhanced(courtlistener_api_key: str, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
