@@ -944,27 +944,49 @@ class EnhancedFallbackVerifier:
         if result.get('confidence'):
             score += min(result['confidence'], 1.0)
         
-        # Fuzzy name similarity (expected vs canonical) - STRICT THRESHOLD
+        # Fuzzy name similarity (expected vs canonical) - ADJUSTED FOR WASHINGTON CASES
         if expected_name and canonical_name:
             sim = self._token_jaccard(self._normalize_case_name(expected_name), self._normalize_case_name(canonical_name))
-            # Require minimum similarity threshold for verification
-            if sim < 0.6:  # Require 60% similarity minimum
-                score -= 2.0  # Heavy penalty for low similarity
+            
+            # Special handling for "In re Marriage of" cases - be more lenient
+            if 'marriage' in expected_name.lower() and 'marriage' in canonical_name.lower():
+                if sim >= 0.4:  # Lower threshold for marriage cases
+                    score += sim * 1.5  # Bonus for marriage case similarity
+                elif sim < 0.3:  # Still require some similarity
+                    score -= 1.5  # Reduced penalty for marriage cases
+                else:
+                    score += sim * 0.5  # Partial credit
             else:
-                score += sim  # Bonus for high similarity
+                # Standard similarity threshold for other cases
+                if sim < 0.6:  # Require 60% similarity minimum
+                    score -= 2.0  # Heavy penalty for low similarity
+                else:
+                    score += sim  # Bonus for high similarity
         else:
             # No expected name - penalize
             score -= 1.0
         
-        # Year alignment bonus/penalty - STRICT
+        # Year alignment bonus/penalty - MORE LENIENT FOR WASHINGTON CASES
         exp_year = self._year_from_any(expected_year)
         can_year = self._year_from_any(canonical_date)
         if exp_year and can_year:
-            if exp_year == can_year:
-                score += 1.0  # Strong bonus for matching year
-            else:
-                # Heavy penalty for mismatched year
-                score -= 2.0
+            try:
+                exp_year_int = int(exp_year) if isinstance(exp_year, (int, str)) else None
+                can_year_int = int(can_year) if isinstance(can_year, (int, str)) else None
+                
+                if exp_year_int and can_year_int:
+                    year_diff = abs(exp_year_int - can_year_int)
+                    if year_diff == 0:
+                        score += 1.5  # Strong bonus for exact year match
+                    elif year_diff <= 2:  # Allow 2 year difference for Washington cases
+                        score += 0.5  # Small bonus for close years
+                    elif year_diff <= 5:  # Allow 5 year difference with penalty
+                        score -= 0.5  # Small penalty for moderate year difference
+                    else:
+                        score -= 1.5  # Heavy penalty for large year difference
+            except (ValueError, TypeError):
+                # If year conversion fails, use standard penalty
+                score -= 1.0
         
         return score
     

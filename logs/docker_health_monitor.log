@@ -7377,3 +7377,1220 @@
 [2025-08-21 23:52:06] [INFO] Docker daemon test passed in < 15 seconds
 [2025-08-21 23:52:07] [SUCCESS] === HEALTH CHECK PASSED ===
 [2025-08-21 23:52:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-21 23:57:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-21 23:57:05] [INFO] Auto-restart enabled: True
+[2025-08-21 23:57:05] [INFO] Max CPU threshold: 320%
+[2025-08-21 23:57:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-21 23:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-21 23:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-21 23:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-21 23:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-21 23:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-21 23:57:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-21 23:57:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:02:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:02:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:02:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:02:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:02:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:02:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:02:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:02:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:07:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:07:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:07:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:07:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:07:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:07:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:07:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:07:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:12:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:12:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:12:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:12:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:12:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:12:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:12:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:12:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:17:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:17:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:17:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:17:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:17:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:17:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:17:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:17:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:22:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:22:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:22:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:22:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:22:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:22:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:22:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:22:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:27:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:27:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:27:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:27:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:32:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:32:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:32:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:37:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:37:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:37:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:37:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:37:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:37:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:37:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:42:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:42:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:42:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:42:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:42:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:42:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:47:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:47:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:47:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:47:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:47:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:47:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:47:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:47:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:52:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:52:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:52:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:52:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:52:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 00:57:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 00:57:05] [INFO] Auto-restart enabled: True
+[2025-08-22 00:57:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 00:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 00:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 00:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 00:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 00:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 00:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 00:57:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 00:57:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:02:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:02:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:02:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:07:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:07:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:07:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:07:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:07:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:12:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:12:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:12:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:17:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:17:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:17:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:17:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:22:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:22:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:22:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:22:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:22:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:27:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:27:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:27:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:27:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:32:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:32:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:32:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:37:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:37:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:37:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:42:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:42:06] [INFO] Auto-restart enabled: True
+[2025-08-22 01:42:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:47:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:47:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:47:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:52:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:52:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:52:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 01:57:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 01:57:05] [INFO] Auto-restart enabled: True
+[2025-08-22 01:57:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 01:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 01:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 01:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 01:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 01:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 01:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 01:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 01:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:02:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:02:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:02:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:07:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:07:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:07:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:12:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:12:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:12:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:12:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:17:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:17:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:17:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:17:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:22:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:22:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:22:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:22:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:22:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:27:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:27:06] [INFO] Auto-restart enabled: True
+[2025-08-22 02:27:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:32:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:32:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:32:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:37:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:37:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:37:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:42:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:42:05] [INFO] Auto-restart enabled: True
+[2025-08-22 02:42:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:47:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:47:06] [INFO] Auto-restart enabled: True
+[2025-08-22 02:47:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:52:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:52:06] [INFO] Auto-restart enabled: True
+[2025-08-22 02:52:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 02:57:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 02:57:06] [INFO] Auto-restart enabled: True
+[2025-08-22 02:57:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 02:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 02:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 02:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 02:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 02:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 02:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 02:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 02:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:02:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:02:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:02:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:07:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:07:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:07:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:12:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:12:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:12:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:17:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:17:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:17:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:17:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:22:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:22:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:22:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:22:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:22:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:27:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:27:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:27:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:32:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:32:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:32:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:37:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:37:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:37:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:42:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:42:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:42:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:47:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:47:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:47:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:52:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:52:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:52:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 03:57:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 03:57:06] [INFO] Auto-restart enabled: True
+[2025-08-22 03:57:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 03:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 03:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 03:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 03:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 03:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 03:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 03:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 03:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:02:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:02:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:02:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:07:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:07:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:07:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:12:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:12:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:12:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:17:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:17:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:17:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:17:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:22:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:22:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:22:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:22:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:22:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:27:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:27:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:27:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:32:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:32:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:32:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:37:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:37:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:37:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:42:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:42:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:42:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:47:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:47:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:47:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:52:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:52:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:52:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 04:57:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 04:57:06] [INFO] Auto-restart enabled: True
+[2025-08-22 04:57:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 04:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 04:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 04:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 04:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 04:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 04:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 04:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 04:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:02:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:02:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:02:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:07:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:07:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:07:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:12:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:12:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:12:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:17:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:17:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:17:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:17:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:22:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:22:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:22:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:22:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:22:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:27:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:27:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:27:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:32:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:32:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:32:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:37:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:37:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:37:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:37:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:37:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:37:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:42:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:42:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:42:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:42:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:42:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:42:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:47:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:47:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:47:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:52:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:52:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:52:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:52:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:52:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:52:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 05:57:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 05:57:06] [INFO] Auto-restart enabled: True
+[2025-08-22 05:57:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 05:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 05:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 05:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 05:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 05:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 05:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 05:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 05:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:02:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:02:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:02:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:02:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:02:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:02:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:07:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:07:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:07:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:07:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:07:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:07:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:12:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:12:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:12:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:12:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:12:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:12:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:17:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:17:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:17:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:17:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:17:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:17:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:17:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:17:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:17:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:17:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:17:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:22:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:22:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:22:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:22:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:22:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:22:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:22:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:22:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:22:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:22:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:22:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:27:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:27:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:27:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:27:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:27:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:27:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:27:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:27:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:27:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:27:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:27:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:32:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:32:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:32:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:32:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:32:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:32:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:32:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:32:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:32:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:37:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:37:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:37:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:37:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:37:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:37:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:37:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:42:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:42:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:42:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:42:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:42:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:42:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:42:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:42:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:42:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:42:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:42:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:47:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:47:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:47:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:47:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:47:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:47:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:47:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:47:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:47:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:47:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:47:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:52:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:52:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:52:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:52:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:52:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:52:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:52:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 06:57:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 06:57:06] [INFO] Auto-restart enabled: True
+[2025-08-22 06:57:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 06:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 06:57:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 06:57:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 06:57:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 06:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 06:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 06:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 06:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:02:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:02:06] [INFO] Auto-restart enabled: True
+[2025-08-22 07:02:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:02:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:02:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:02:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:02:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:02:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:07:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:07:06] [INFO] Auto-restart enabled: True
+[2025-08-22 07:07:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:07:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:07:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:07:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:12:06] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:12:06] [INFO] Auto-restart enabled: True
+[2025-08-22 07:12:06] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:12:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:12:07] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:12:07] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:12:07] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:12:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:12:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:12:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:12:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:17:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:17:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:17:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:17:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:17:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:17:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:17:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:17:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:22:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:22:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:22:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:22:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:22:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:22:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:22:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:22:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:27:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:27:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:27:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:27:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:27:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:27:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:27:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:27:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:32:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:32:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:32:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:32:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:32:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:32:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:32:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:32:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:37:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:37:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:37:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:37:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:37:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:37:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:37:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:37:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:42:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:42:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:42:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:42:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:42:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:42:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:42:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:42:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:47:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:47:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:47:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:47:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:47:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:47:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:47:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:47:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:52:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:52:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:52:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:52:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:52:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:52:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:52:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:52:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 07:57:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 07:57:05] [INFO] Auto-restart enabled: True
+[2025-08-22 07:57:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 07:57:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 07:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 07:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 07:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 07:57:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 07:57:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 07:57:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 07:57:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:02:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:02:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:02:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:02:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:02:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:02:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:02:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:02:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:07:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:07:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:07:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:07:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:07:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:07:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:07:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:12:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:12:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:12:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:12:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:12:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:12:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:12:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:12:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:12:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:12:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:12:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:17:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:17:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:17:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:17:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:17:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:17:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:17:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:17:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:17:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:17:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:17:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:22:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:22:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:22:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:22:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:22:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:22:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:22:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:22:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:22:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:22:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:22:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:27:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:27:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:27:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:27:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:27:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:27:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:27:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:27:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:27:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:27:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:27:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:32:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:32:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:32:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:32:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:32:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:32:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:32:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:32:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:32:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:37:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:37:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:37:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:37:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:37:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:37:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:37:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:37:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:37:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:37:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:37:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:42:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:42:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:42:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:42:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:42:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:42:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:42:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:42:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:42:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:42:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:42:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:47:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:47:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:47:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:47:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:47:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:47:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:47:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:47:06] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:47:06] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:47:07] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:47:07] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:52:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:52:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:52:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:52:05] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:52:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:52:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:52:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:52:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:52:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:52:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:52:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 08:57:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 08:57:05] [INFO] Auto-restart enabled: True
+[2025-08-22 08:57:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 08:57:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 08:57:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 08:57:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 08:57:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 08:57:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 08:57:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 08:57:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 08:57:08] [SUCCESS] All tests passed - Docker is healthy
+[2025-08-22 09:02:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 09:02:05] [INFO] Auto-restart enabled: True
+[2025-08-22 09:02:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 09:02:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 09:02:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 09:02:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 09:02:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 09:02:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 09:02:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 09:07:05] [INFO] === HEALTH CHECK STARTED ===
+[2025-08-22 09:07:05] [INFO] Auto-restart enabled: True
+[2025-08-22 09:07:05] [INFO] Max CPU threshold: 320%
+[2025-08-22 09:07:06] [INFO] Testing for freeze conditions: Docker CLI Version Check
+[2025-08-22 09:07:06] [INFO] Test 'Docker CLI Version Check' completed successfully
+[2025-08-22 09:07:06] [INFO] Docker CLI test passed in < 10 seconds
+[2025-08-22 09:07:06] [INFO] Testing for freeze conditions: Docker Daemon Info
+[2025-08-22 09:07:07] [INFO] Test 'Docker Daemon Info' completed successfully
+[2025-08-22 09:07:07] [INFO] Docker daemon test passed in < 15 seconds
+[2025-08-22 09:07:08] [SUCCESS] === HEALTH CHECK PASSED ===
+[2025-08-22 09:07:08] [SUCCESS] All tests passed - Docker is healthy

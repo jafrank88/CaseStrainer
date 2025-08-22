@@ -105,7 +105,6 @@
     "src/unified_citation_processor_v2_optimized.py":  "040CA4BA60D0C3428BFCC4992AA954F4",
     "src/unified_citation_processor_v2_refactored.py":  "33FE7232A5822C2D095A79CDAA404CB3",
     "src/unified_input_processor.py":  "8A4D1553DBD2088F39212A5C1C90378E",
-    "src/unified_sync_processor.py":  "46C45815FDC7A7AAD39728FF3B9C1D5A",
     "src/update_datetime.py":  "54CC45ED7E819DA716DB1CF2EF634EFC",
     "src/url_decoder.py":  "E3EE6D7A0E2A2BACDCF9E4E7FFBDD600",
     "src/vue_api.py":  "93EE3340A047402C59F4D31E14041961",
@@ -159,7 +158,8 @@
     "casestrainer-vue-new\\src\\stores\\progressStore.js":  "05A9453DC17F7C1CDCA41303EB0F0CEF",
     "src/citation_extractor.py":  "515228476AB9E0DE223E986531F7D32F",
     "src/enhanced_citation_utilities.py":  "B1B0B3942C15D18A272B6F3BFC0156C5",
-    "src/unified_citation_clustering.py":  "327B961791F5ED0ABBF1EA45A30FF381",
-    "src/enhanced_fallback_verifier.py":  "D19B5DD59387D4A710433C6A0D5847E4",
-    "src/async_verification_worker.py":  "35CB6B6C799896B0942692D5BB7F6557"
+    "src/async_verification_worker.py":  "35CB6B6C799896B0942692D5BB7F6557",
+    "src/enhanced_fallback_verifier.py":  "2E2DB89F172F9DCECF7A5EE51BBA0B77",
+    "src/unified_citation_clustering.py":  "D2F784AD99F34CBCC7DB333D357BC162",
+    "src/unified_sync_processor.py":  "7377966165944D7BAA9FED4B3D20C368"
 }

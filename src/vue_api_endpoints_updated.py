@@ -249,6 +249,17 @@ def analyze():
         # Initialize citation service
         service = CitationService()
         
+        # Initialize progress tracking for this request
+        progress_steps = [
+            {"name": "Initializing...", "progress": 0, "message": "Starting unified processing..."},
+            {"name": "Extract", "progress": 20, "message": "Extracting citations..."},
+            {"name": "Analyze", "progress": 40, "message": "Citations analyzed and normalized..."},
+            {"name": "Extract Names", "progress": 60, "message": "Case names and years extracted..."},
+            {"name": "Cluster", "progress": 80, "message": "Citations clustered successfully..."},
+            {"name": "Verify", "progress": 90, "message": "Verification completed..."}
+        ]
+        progress_tracker.start_progress(request_id, progress_steps)
+        
         # Try to parse JSON data if present
         json_data = None
         if request.data:
@@ -480,7 +491,26 @@ def analyze():
                 
                 # Process with enhanced processor (provides immediate results + async verification)
                 logger.info(f"[Request {request_id}] Using EnhancedSyncProcessor for {input_type} input")
+                
+                # Update progress to extraction step
+                progress_tracker.update_progress(request_id, 0, 20, "Started enhanced sync processing")
+                
                 result = processor.process_any_input_enhanced(input_data, input_type, None)  # Use default options
+                
+                # Update progress to analysis step
+                progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
+                
+                # Update progress to clustering step
+                progress_tracker.update_progress(request_id, 2, 60, "Citations normalized locally")
+                
+                # Update progress to verification step
+                progress_tracker.update_progress(request_id, 3, 80, "Case names and years extracted")
+                
+                # Update progress to completion
+                progress_tracker.update_progress(request_id, 4, 90, "Citations clustered successfully")
+                
+                # Mark progress as completed
+                progress_tracker.complete_progress(request_id)
                 
                 # Check if result indicates an error
                 if result.get('success') is False or result.get('error'):

@@ -853,6 +853,10 @@ class UnifiedCitationClusterer:
                         if result.get('canonical_date'):
                             citation.canonical_date = result['canonical_date']
                         
+                        # Ensure source is explicitly set for serialization
+                        if not hasattr(citation, 'source') or not citation.source:
+                            citation.source = result.get('source', 'enhanced_fallback')
+                        
                         # Update metadata
                         if not hasattr(citation, 'metadata'):
                             citation.metadata = {}
@@ -1325,6 +1329,10 @@ class UnifiedCitationClusterer:
                     # Mark as verified via parallel
                     citation.verified = 'true_by_parallel'
                     
+                    # Ensure source is explicitly set for serialization
+                    if not hasattr(citation, 'source') or not citation.source:
+                        citation.source = getattr(best_verified_citation, 'source', 'true_by_parallel')
+                    
                     logger.info(f"✓ Propagated verification from {best_verified_citation.citation} to {citation.citation} (true_by_parallel)")
             
             formatted_clusters.append(cluster_dict)
@@ -1380,6 +1388,10 @@ class UnifiedCitationClusterer:
                     citation.url = getattr(best_verified_citation, 'url', None)
                     citation.source = getattr(best_verified_citation, 'source', None)
                     citation.confidence = getattr(best_verified_citation, 'confidence', None)
+                    
+                    # Ensure source is explicitly set for serialization
+                    if not hasattr(citation, 'source') or not citation.source:
+                        citation.source = getattr(best_verified_citation, 'source', 'true_by_parallel')
                     
                     logger.info(f"✓ Propagated verification from {best_verified_citation.citation} to {citation.citation} (true_by_parallel)")
         
