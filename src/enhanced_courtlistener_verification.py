@@ -218,7 +218,8 @@ class EnhancedCourtListenerVerifier:
                     best_match = case
         
         # Only return if we meet strict criteria
-        if best_match and best_score >= 2.0:  # Require strict criteria to be met
+        if best_match and best_score >= 1.5:  # Reduced from 2.0 to 1.5 for more reasonable matching
+            print(f"[ENHANCED] Primary case found with score {best_score:.3f}: {best_match.get('caseName')}")
             return best_match
         
         return None
@@ -232,25 +233,35 @@ class EnhancedCourtListenerVerifier:
         """
         score = 0.0
         
-        # CRITICAL: Must have same year and citation
+        # CRITICAL: Must have same citation (allowing for reporter variations)
         case_citation = case.get('citation', '')
-        case_date = case.get('dateFiled', '')
+        if not self._citations_match(citation, case_citation):
+            print(f"[ENHANCED] Citation mismatch: '{citation}' vs '{case_citation}'")
+            return 0.0  # Citation mismatch = no match
+        else:
+            score += 1.0
+            print(f"[ENHANCED] Citation match: '{citation}' = '{case_citation}' (+1.0)")
         
-        # Extract year from citation (e.g., "188 Wn.2d 114" -> extract year if present)
+        # YEAR MATCHING: More lenient - allow reasonable year differences
+        case_date = case.get('dateFiled', '')
         citation_year = self._extract_year_from_citation(citation)
         case_year = self._extract_year_from_date(case_date)
         
-        # Year must match exactly
-        if citation_year and case_year and citation_year == case_year:
-            score += 1.0
+        if citation_year and case_year:
+            year_diff = abs(int(citation_year) - int(case_year))
+            if year_diff == 0:
+                score += 1.0
+                print(f"[ENHANCED] Exact year match: {citation_year} = {case_year} (+1.0)")
+            elif year_diff <= 3:  # Allow 3 year difference for citation-lookup
+                score += 0.5
+                print(f"[ENHANCED] Close year match: {citation_year} vs {case_year} (diff: {year_diff}) (+0.5)")
+            else:
+                print(f"[ENHANCED] Year mismatch: {citation_year} vs {case_year} (diff: {year_diff})")
+                return 0.0  # Year too different = no match
         else:
-            return 0.0  # Year mismatch = no match
-        
-        # Citation must match (allowing for reporter variations)
-        if self._citations_match(citation, case_citation):
-            score += 1.0
-        else:
-            return 0.0  # Citation mismatch = no match
+            # No year info - still allow match but with lower score
+            print(f"[ENHANCED] No year info available - proceeding with caution")
+            score += 0.3
         
         # Case name must have at least one non-stopword in common
         if extracted_case_name:
@@ -259,9 +270,16 @@ class EnhancedCourtListenerVerifier:
             
             if self._has_meaningful_words_in_common(extracted_name, canonical_name):
                 score += 1.0
+                print(f"[ENHANCED] Meaningful words in common: '{extracted_name}' vs '{canonical_name}' (+1.0)")
             else:
+                print(f"[ENHANCED] No meaningful words in common: '{extracted_name}' vs '{canonical_name}'")
                 return 0.0  # No meaningful words in common = no match
+        else:
+            # No extracted case name - still allow match but with lower score
+            print(f"[ENHANCED] No extracted case name - proceeding with caution")
+            score += 0.3
         
+        print(f"[ENHANCED] Total strict match score: {score}")
         return score
     
     def _extract_year_from_citation(self, citation: str) -> Optional[str]:
@@ -855,14 +873,23 @@ class EnhancedCourtListenerVerifier:
             url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
             data = {"text": citation}
             
+            print(f"[ENHANCED] Citation-lookup API v4 request: {url}")
+            print(f"[ENHANCED] Citation-lookup API v4 data: {data}")
+            
             response = requests.post(url, headers=self.headers, json=data, timeout=30)
+            
+            print(f"[ENHANCED] Citation-lookup API v4 response status: {response.status_code}")
             
             if response.status_code == 200:
                 api_results = response.json()
                 result['raw'] = response.text
                 
+                print(f"[ENHANCED] Citation-lookup API v4 raw response: {api_results}")
+                
                 # Find valid results
                 found_results = [r for r in api_results if r.get('status') != 404 and r.get('clusters')]
+                
+                print(f"[ENHANCED] Citation-lookup API v4 found {len(found_results)} valid results")
                 
                 if found_results:
                     # Use strict criteria to find the PRIMARY case
@@ -871,6 +898,7 @@ class EnhancedCourtListenerVerifier:
                     )
                     
                     if best_case:
+                        print(f"[ENHANCED] Citation-lookup API v4 found best case: {best_case.get('caseName', 'N/A')}")
                         result.update({
                             "canonical_name": best_case.get('caseName', ''),
                             "canonical_date": best_case.get('dateFiled', ''),
@@ -878,6 +906,13 @@ class EnhancedCourtListenerVerifier:
                             "verified": True,
                             "confidence": 0.9
                         })
+                    else:
+                        print(f"[ENHANCED] Citation-lookup API v4 found results but strict criteria failed")
+                else:
+                    print(f"[ENHANCED] Citation-lookup API v4 found no valid results")
+            else:
+                print(f"[ENHANCED] Citation-lookup API v4 failed with status: {response.status_code}")
+                print(f"[ENHANCED] Citation-lookup API v4 error response: {response.text}")
                 
         except Exception as e:
             print(f"[ENHANCED] Citation-lookup API v4 error: {e}")

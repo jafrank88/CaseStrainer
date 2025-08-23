@@ -13112,3 +13112,138 @@
 2025/08/22 16:59:11 [notice] 1#1: start worker process 23
 2025/08/22 16:59:11 [notice] 1#1: start worker process 24
 2025/08/22 17:01:03 [error] 9#9: *4 open() "/usr/share/nginx/html/owa/auth/logon.aspx" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/logon.aspx HTTP/1.1", host: "128.208.154.3"
+2025/08/22 17:13:15 [error] 11#11: *32 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/22 17:13:28 [error] 17#17: *40 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/22 17:13:33 [error] 19#19: *43 open() "/usr/share/nginx/html/sitemap.xml" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /sitemap.xml HTTP/1.1", host: "128.208.154.3"
+2025/08/22 18:11:44 [error] 9#9: *189 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/22 18:28:53 [crit] 19#19: *400 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:53 [crit] 19#19: *401 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:53 [crit] 20#20: *402 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *403 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *404 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *405 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *406 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *407 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *408 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:54 [crit] 20#20: *409 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:55 [crit] 20#20: *413 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:55 [crit] 20#20: *416 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:55 [crit] 21#21: *420 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:56 [crit] 21#21: *423 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:28:56 [crit] 21#21: *427 SSL_do_handshake() failed (SSL: error:1C800066:Provider routines::cipher operation failed error:0A000119:SSL routines::decryption failed or bad record mac error:0A000139:SSL routines::record layer failure) while SSL handshaking, client: 172.18.0.1, server: 0.0.0.0:443
+2025/08/22 18:49:13 [error] 15#15: *878 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/22 19:21:20 [error] 15#15: *955 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/actuator/gateway/routes"
+2025/08/22 19:35:00 [error] 15#15: *986 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/22 20:23:15 [error] 16#16: *1090 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/22 21:41:55 [error] 16#16: *1265 open() "/usr/share/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/08/22 22:15:01 [error] 16#16: *1339 open() "/usr/share/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/2.0", host: "wolf.law.uw.edu"
+2025/08/23 00:29:20 [error] 17#17: *1634 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/08/23 01:02:40 [error] 17#17: *1707 open() "/usr/share/nginx/html/connector.sds" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /connector.sds HTTP/1.1", host: "128.208.154.3"
+2025/08/23 01:33:17 [error] 18#18: *1782 open() "/usr/share/nginx/html/.env" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/08/23 01:47:24 [error] 18#18: *1813 open() "/usr/share/nginx/html/remote/logincheck" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "POST /remote/logincheck HTTP/1.1", host: "128.208.154.3"
+2025/08/23 02:10:41 [error] 19#19: *1865 "/usr/share/nginx/html/webui/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /webui/ HTTP/1.1", host: "128.208.154.3"
+2025/08/23 02:13:51 [error] 19#19: *1884 open() "/usr/share/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/08/23 02:26:53 [error] 19#19: *1913 "/usr/share/nginx/html/geoserver/web/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /geoserver/web/ HTTP/1.1", host: "128.208.154.3"
+2025/08/23 02:31:14 [error] 19#19: *1924 open() "/usr/share/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/08/23 02:59:21 [error] 20#20: *1986 open() "/usr/share/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/08/23 03:04:43 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/08/23 03:04:43 [notice] 10#10: gracefully shutting down
+2025/08/23 03:04:43 [notice] 9#9: gracefully shutting down
+2025/08/23 03:04:43 [notice] 11#11: gracefully shutting down
+2025/08/23 03:04:43 [notice] 13#13: gracefully shutting down
+2025/08/23 03:04:43 [notice] 12#12: gracefully shutting down
+2025/08/23 03:04:43 [notice] 15#15: gracefully shutting down
+2025/08/23 03:04:43 [notice] 16#16: gracefully shutting down
+2025/08/23 03:04:43 [notice] 21#21: gracefully shutting down
+2025/08/23 03:04:43 [notice] 23#23: gracefully shutting down
+2025/08/23 03:04:43 [notice] 14#14: gracefully shutting down
+2025/08/23 03:04:43 [notice] 23#23: exiting
+2025/08/23 03:04:43 [notice] 18#18: gracefully shutting down
+2025/08/23 03:04:43 [notice] 17#17: gracefully shutting down
+2025/08/23 03:04:43 [notice] 19#19: gracefully shutting down
+2025/08/23 03:04:43 [notice] 20#20: gracefully shutting down
+2025/08/23 03:04:43 [notice] 22#22: gracefully shutting down
+2025/08/23 03:04:43 [notice] 24#24: gracefully shutting down
+2025/08/23 03:04:43 [notice] 10#10: exiting
+2025/08/23 03:04:43 [notice] 9#9: exiting
+2025/08/23 03:04:43 [notice] 11#11: exiting
+2025/08/23 03:04:43 [notice] 13#13: exiting
+2025/08/23 03:04:43 [notice] 12#12: exiting
+2025/08/23 03:04:43 [notice] 16#16: exiting
+2025/08/23 03:04:43 [notice] 15#15: exiting
+2025/08/23 03:04:43 [notice] 21#21: exiting
+2025/08/23 03:04:43 [notice] 13#13: exit
+2025/08/23 03:04:43 [notice] 18#18: exiting
+2025/08/23 03:04:43 [notice] 17#17: exiting
+2025/08/23 03:04:43 [notice] 12#12: exit
+2025/08/23 03:04:43 [notice] 19#19: exiting
+2025/08/23 03:04:43 [notice] 14#14: exiting
+2025/08/23 03:04:43 [notice] 20#20: exiting
+2025/08/23 03:04:43 [notice] 22#22: exiting
+2025/08/23 03:04:43 [notice] 23#23: exit
+2025/08/23 03:04:43 [notice] 24#24: exiting
+2025/08/23 03:04:43 [notice] 11#11: exit
+2025/08/23 03:04:43 [notice] 10#10: exit
+2025/08/23 03:04:43 [notice] 9#9: exit
+2025/08/23 03:04:43 [notice] 16#16: exit
+2025/08/23 03:04:43 [notice] 21#21: exit
+2025/08/23 03:04:43 [notice] 15#15: exit
+2025/08/23 03:04:43 [notice] 18#18: exit
+2025/08/23 03:04:43 [notice] 19#19: exit
+2025/08/23 03:04:43 [notice] 17#17: exit
+2025/08/23 03:04:43 [notice] 20#20: exit
+2025/08/23 03:04:43 [notice] 14#14: exit
+2025/08/23 03:04:43 [notice] 22#22: exit
+2025/08/23 03:04:43 [notice] 24#24: exit
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/08/23 03:04:43 [notice] 1#1: worker process 23 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 16
+2025/08/23 03:04:43 [notice] 1#1: worker process 16 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 13
+2025/08/23 03:04:43 [notice] 1#1: worker process 12 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 13 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 22
+2025/08/23 03:04:43 [notice] 1#1: worker process 18 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 22 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 18
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 19
+2025/08/23 03:04:43 [notice] 1#1: worker process 9 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 10 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 11 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 14 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 15 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 17 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 19 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 20 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: worker process 21 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: signal 29 (SIGIO) received
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/08/23 03:04:43 [notice] 1#1: signal 17 (SIGCHLD) received from 24
+2025/08/23 03:04:43 [notice] 1#1: worker process 24 exited with code 0
+2025/08/23 03:04:43 [notice] 1#1: exit
+2025/08/23 03:05:01 [notice] 1#1: using the "epoll" event method
+2025/08/23 03:05:01 [notice] 1#1: nginx/1.29.1
+2025/08/23 03:05:01 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/08/23 03:05:01 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/08/23 03:05:01 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/08/23 03:05:01 [notice] 1#1: start worker processes
+2025/08/23 03:05:01 [notice] 1#1: start worker process 9
+2025/08/23 03:05:01 [notice] 1#1: start worker process 10
+2025/08/23 03:05:01 [notice] 1#1: start worker process 11
+2025/08/23 03:05:01 [notice] 1#1: start worker process 12
+2025/08/23 03:05:01 [notice] 1#1: start worker process 13
+2025/08/23 03:05:01 [notice] 1#1: start worker process 14
+2025/08/23 03:05:01 [notice] 1#1: start worker process 15
+2025/08/23 03:05:01 [notice] 1#1: start worker process 16
+2025/08/23 03:05:01 [notice] 1#1: start worker process 17
+2025/08/23 03:05:01 [notice] 1#1: start worker process 18
+2025/08/23 03:05:01 [notice] 1#1: start worker process 19
+2025/08/23 03:05:01 [notice] 1#1: start worker process 20
+2025/08/23 03:05:01 [notice] 1#1: start worker process 21
+2025/08/23 03:05:01 [notice] 1#1: start worker process 22
+2025/08/23 03:05:01 [notice] 1#1: start worker process 23
+2025/08/23 03:05:01 [notice] 1#1: start worker process 24
