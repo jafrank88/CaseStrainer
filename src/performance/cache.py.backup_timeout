@@ -1,0 +1,418 @@
+"""
+Caching system for citation processing performance optimization.
+
+This module provides various caching strategies to improve citation processing performance.
+"""
+
+import time
+import json
+import hashlib
+import logging
+from typing import Any, Optional, Dict, List
+from abc import ABC, abstractmethod
+from dataclasses import dataclass
+import threading
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class CacheEntry:
+    """Cache entry with metadata."""
+    value: Any
+    timestamp: float
+    ttl: Optional[float] = None
+    hit_count: int = 0
+    
+    def is_expired(self) -> bool:
+        """Check if cache entry is expired."""
+        if self.ttl is None:
+            return False
+        return time.time() - self.timestamp > self.ttl
+    
+    def increment_hit(self):
+        """Increment hit counter."""
+        self.hit_count += 1
+
+
+class CitationCache(ABC):
+    """Abstract base class for citation caches."""
+    
+    @abstractmethod
+    def get(self, key: str) -> Optional[Any]:
+        """Get value from cache."""
+        pass
+    
+    @abstractmethod
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        """Set value in cache."""
+        pass
+    
+    @abstractmethod
+    def delete(self, key: str) -> bool:
+        """Delete key from cache."""
+        pass
+    
+    @abstractmethod
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        pass
+    
+    @abstractmethod
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        pass
+    
+    def generate_key(self, *args, **kwargs) -> str:
+        """Generate cache key from arguments."""
+        key_data = {
+            'args': args,
+            'kwargs': sorted(kwargs.items()) if kwargs else {}
+        }
+        key_string = json.dumps(key_data, sort_keys=True, default=str)
+        return hashlib.sha256(key_string.encode('utf-8')).hexdigest()
+
+
+class MemoryCache(CitationCache):
+    """In-memory cache implementation with LRU eviction."""
+    
+    def __init__(self, max_size: int = 1000, default_ttl: Optional[float] = 3600):
+        """
+        Initialize memory cache.
+        
+        Args:
+            max_size: Maximum number of entries
+            default_ttl: Default time-to-live in seconds
+        """
+        self.max_size = max_size
+        self.default_ttl = default_ttl
+        self._cache: Dict[str, CacheEntry] = {}
+        self._access_order: List[str] = []
+        self._lock = threading.RLock()
+        self._stats = {
+            'hits': 0,
+            'misses': 0,
+            'sets': 0,
+            'evictions': 0
+        }
+    
+    def get(self, key: str) -> Optional[Any]:
+        """Get value from cache."""
+        with self._lock:
+            if key not in self._cache:
+                self._stats['misses'] += 1
+                return None
+            
+            entry = self._cache[key]
+            
+            if entry.is_expired():
+                del self._cache[key]
+                if key in self._access_order:
+                    self._access_order.remove(key)
+                self._stats['misses'] += 1
+                return None
+            
+            if key in self._access_order:
+                self._access_order.remove(key)
+            self._access_order.append(key)
+            
+            entry.increment_hit()
+            self._stats['hits'] += 1
+            return entry.value
+    
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        """Set value in cache."""
+        with self._lock:
+            if ttl is None:
+                ttl = self.default_ttl
+            
+            entry = CacheEntry(
+                value=value,
+                timestamp=time.time(),
+                ttl=ttl
+            )
+            
+            if len(self._cache) >= self.max_size and key not in self._cache:
+                self._evict_lru()
+            
+            self._cache[key] = entry
+            
+            if key in self._access_order:
+                self._access_order.remove(key)
+            self._access_order.append(key)
+            
+            self._stats['sets'] += 1
+    
+    def delete(self, key: str) -> bool:
+        """Delete key from cache."""
+        with self._lock:
+            if key in self._cache:
+                del self._cache[key]
+                if key in self._access_order:
+                    self._access_order.remove(key)
+                return True
+            return False
+    
+    def clear(self) -> None:
+        """Clear all cache entries."""
+        with self._lock:
+            self._cache.clear()
+            self._access_order.clear()
+    
+    def _evict_lru(self) -> None:
+        """Evict least recently used entry."""
+        if self._access_order:
+            lru_key = self._access_order.pop(0)
+            if lru_key in self._cache:
+                del self._cache[lru_key]
+                self._stats['evictions'] += 1
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        with self._lock:
+            total_requests = self._stats['hits'] + self._stats['misses']
+            hit_rate = self._stats['hits'] / total_requests if total_requests > 0 else 0
+            
+            return {
+                'type': 'MemoryCache',
+                'size': len(self._cache),
+                'max_size': self.max_size,
+                'hit_rate': hit_rate,
+                'hits': self._stats['hits'],
+                'misses': self._stats['misses'],
+                'sets': self._stats['sets'],
+                'evictions': self._stats['evictions']
+            }
+
+
+class RedisCache(CitationCache):
+    """Redis-based cache implementation."""
+    
+    def __init__(self, redis_client=None, key_prefix: str = "casestrainer:", default_ttl: Optional[float] = 3600):
+        """
+        Initialize Redis cache.
+        
+        Args:
+            redis_client: Redis client instance
+            key_prefix: Prefix for all cache keys
+            default_ttl: Default time-to-live in seconds
+        """
+        self.redis_client = redis_client
+        self.key_prefix = key_prefix
+        self.default_ttl = default_ttl
+        self._stats = {
+            'hits': 0,
+            'misses': 0,
+            'sets': 0,
+            'errors': 0
+        }
+        
+        try:
+            import redis
+            if self.redis_client is None:
+                self.redis_client = redis.Redis(host='localhost', port=6379, db=0, decode_responses=True)
+        except ImportError:
+            logger.warning("Redis not available, falling back to memory cache")
+            self._fallback_cache = MemoryCache()
+    
+    def _get_full_key(self, key: str) -> str:
+        """Get full key with prefix."""
+        return f"{self.key_prefix}{key}"
+    
+    def get(self, key: str) -> Optional[Any]:
+        """Get value from cache."""
+        if not self.redis_client:
+            return self._fallback_cache.get(key) if hasattr(self, '_fallback_cache') else None
+        
+        try:
+            full_key = self._get_full_key(key)
+            value = self.redis_client.get(full_key)
+            
+            if value is None:
+                self._stats['misses'] += 1
+                return None
+            
+            try:
+                deserialized = json.loads(value)  # type: ignore
+                self._stats['hits'] += 1
+                return deserialized
+            except json.JSONDecodeError:
+                self._stats['hits'] += 1
+                return value
+                
+        except Exception as e:
+            logger.error(f"Redis cache get error: {e}")
+            self._stats['errors'] += 1
+            return None
+    
+    def set(self, key: str, value: Any, ttl: Optional[float] = None) -> None:
+        """Set value in cache."""
+        if not self.redis_client:
+            if hasattr(self, '_fallback_cache'):
+                self._fallback_cache.set(key, value, ttl)
+            return
+        
+        try:
+            full_key = self._get_full_key(key)
+            
+            if isinstance(value, (dict, list)):
+                serialized = json.dumps(value)
+            else:
+                serialized = str(value)
+            
+            if ttl is None:
+                ttl = self.default_ttl
+            
+            if ttl:
+                self.redis_client.setex(full_key, int(ttl), serialized)
+            else:
+                self.redis_client.set(full_key, serialized)
+            
+            self._stats['sets'] += 1
+            
+        except Exception as e:
+            logger.error(f"Redis cache set error: {e}")
+            self._stats['errors'] += 1
+    
+    def delete(self, key: str) -> bool:
+        """Delete key from cache."""
+        if not self.redis_client:
+            return self._fallback_cache.delete(key) if hasattr(self, '_fallback_cache') else False
+        
+        try:
+            full_key = self._get_full_key(key)
+            result = self.redis_client.delete(full_key)  # type: ignore
+            return result > 0  # type: ignore
+        except Exception as e:
+            logger.error(f"Redis cache delete error: {e}")
+            self._stats['errors'] += 1
+            return False
+    
+    def clear(self) -> None:
+        """Clear all cache entries with our prefix."""
+        if not self.redis_client:
+            if hasattr(self, '_fallback_cache'):
+                self._fallback_cache.clear()
+            return
+        
+        try:
+            pattern = f"{self.key_prefix}*"
+            keys = self.redis_client.keys(pattern)
+            
+            if keys:
+                self.redis_client.delete(*keys)  # type: ignore
+                
+        except Exception as e:
+            logger.error(f"Redis cache clear error: {e}")
+            self._stats['errors'] += 1
+    
+    def get_stats(self) -> Dict[str, Any]:
+        """Get cache statistics."""
+        total_requests = self._stats['hits'] + self._stats['misses']
+        hit_rate = self._stats['hits'] / total_requests if total_requests > 0 else 0
+        
+        stats = {
+            'type': 'RedisCache',
+            'hit_rate': hit_rate,
+            'hits': self._stats['hits'],
+            'misses': self._stats['misses'],
+            'sets': self._stats['sets'],
+            'errors': self._stats['errors']
+        }
+        
+        if self.redis_client:
+            try:
+                info = self.redis_client.info('memory')  # type: ignore
+                stats['redis_memory_used'] = info.get('used_memory_human', 'N/A')  # type: ignore
+                stats['redis_connected'] = True
+            except Exception:
+                stats['redis_connected'] = False
+        else:
+            stats['redis_connected'] = False
+        
+        return stats
+
+
+class CacheManager:
+    """Manager for multiple cache instances."""
+    
+    def __init__(self):
+        self.caches: Dict[str, CitationCache] = {}
+        self.default_cache = MemoryCache()
+    
+    def register_cache(self, name: str, cache: CitationCache):
+        """Register a named cache."""
+        self.caches[name] = cache
+    
+    def get_cache(self, name: str = 'default') -> CitationCache:
+        """Get cache by name."""
+        if name == 'default':
+            return self.default_cache
+        return self.caches.get(name, self.default_cache)
+    
+    def get_all_stats(self) -> Dict[str, Dict[str, Any]]:
+        """Get statistics for all caches."""
+        stats = {'default': self.default_cache.get_stats()}
+        for name, cache in self.caches.items():
+            stats[name] = cache.get_stats()
+        return stats
+
+
+cache_manager = CacheManager()
+
+
+def cached(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):  # type: ignore
+    """
+    Decorator for caching function results.
+    
+    Args:
+        cache_name: Name of cache to use
+        ttl: Time-to-live for cache entry
+        key_func: Function to generate cache key (default uses args/kwargs)
+    """
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            cache = cache_manager.get_cache(cache_name)
+            
+            if key_func:
+                cache_key = key_func(*args, **kwargs)
+            else:
+                cache_key = cache.generate_key(func.__name__, *args, **kwargs)
+            
+            result = cache.get(cache_key)
+            if result is not None:
+                return result
+            
+            result = func(*args, **kwargs)
+            cache.set(cache_key, result, ttl)
+            
+            return result
+        
+        return wrapper
+    return decorator
+
+
+async def cached_async(cache_name: str = 'default', ttl: Optional[float] = None, key_func: Optional[callable] = None):  # type: ignore
+    """
+    Decorator for caching async function results.
+    """
+    def decorator(func):
+        async def wrapper(*args, **kwargs):
+            cache = cache_manager.get_cache(cache_name)
+            
+            if key_func:
+                cache_key = key_func(*args, **kwargs)
+            else:
+                cache_key = cache.generate_key(func.__name__, *args, **kwargs)
+            
+            result = cache.get(cache_key)
+            if result is not None:
+                return result
+            
+            result = await func(*args, **kwargs)
+            cache.set(cache_key, result, ttl)
+            
+            return result
+        
+        return wrapper
+    return decorator

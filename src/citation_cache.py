@@ -1,5 +1,6 @@
-# LangSearch persistent cache (for future use)
 import shelve
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import threading
 
 _langsearch_cache_lock = threading.Lock()

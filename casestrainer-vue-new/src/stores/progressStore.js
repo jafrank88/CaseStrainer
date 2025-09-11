@@ -29,7 +29,25 @@ const progressState = reactive({
   
   // Results tracking
   hasResults: false,
-  resultData: null
+  resultData: null,
+  
+  // Route-based scoping
+  activeRoute: null,
+  routeResults: {}, // Store results per route
+  
+  // Verification tracking
+  verificationStatus: {
+    isVerifying: false,
+    progress: 0,
+    currentMethod: '',
+    citationsProcessed: 0,
+    citationsCount: 0,
+    status: 'idle' // idle, queued, running, completed, failed
+  },
+  
+  // Real-time verification updates
+  verificationStream: null,
+  verificationResults: null
 });
 
 export function useUnifiedProgress() {
@@ -238,13 +256,23 @@ export function useUnifiedProgress() {
     progressState.canRetry = false;
   };
 
-  const completeProgress = (resultData = null) => {
-    console.log('Progress completed:', resultData);
+  const completeProgress = (resultData = null, route = null) => {
+    console.log('Progress completed:', resultData, 'for route:', route);
     progressState.isActive = false;
     progressState.currentStep = 'Completed';
     progressState.totalProgress = 100;
-    progressState.hasResults = !!resultData;
-    progressState.resultData = resultData;
+    
+    // Scope results by route if provided
+    if (route) {
+      progressState.activeRoute = route;
+      progressState.routeResults[route] = resultData;
+      progressState.hasResults = !!resultData;
+      progressState.resultData = resultData;
+    } else {
+      // Global results (for backward compatibility)
+      progressState.hasResults = !!resultData;
+      progressState.resultData = resultData;
+    }
     
     // Mark all steps as completed
     progressState.processingSteps.forEach(step => {
@@ -309,6 +337,17 @@ export function useUnifiedProgress() {
     };
   });
 
+  const getResultsForRoute = (route) => {
+    if (route === progressState.activeRoute) {
+      return progressState.resultData;
+    }
+    return progressState.routeResults[route] || null;
+  };
+
+  const hasResultsForRoute = (route) => {
+    return route === progressState.activeRoute && !!progressState.resultData;
+  };
+
   // Debug helper to check progress state validity
   const isProgressStateValid = computed(() => {
     return {
@@ -338,6 +377,105 @@ export function useUnifiedProgress() {
     }
   });
 
+  // Verification management methods
+  const startVerificationStream = (requestId) => {
+    if (progressState.verificationStream) {
+      progressState.verificationStream.close();
+    }
+    
+    try {
+      const eventSource = new EventSource(`/casestrainer/api/analyze/verification-stream/${requestId}`);
+      
+      eventSource.onopen = () => {
+        console.log('Verification stream connected');
+        progressState.verificationStatus.status = 'queued';
+      };
+      
+      eventSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data);
+          console.log('Verification stream event:', data);
+          
+          switch (data.type) {
+            case 'connection_established':
+              progressState.verificationStatus.status = 'queued';
+              break;
+              
+            case 'verification_status':
+              progressState.verificationStatus.status = data.status;
+              progressState.verificationStatus.progress = data.progress || 0;
+              progressState.verificationStatus.currentMethod = data.current_method || '';
+              progressState.verificationStatus.citationsProcessed = data.citations_processed || 0;
+              progressState.verificationStatus.citationsCount = data.citations_count || 0;
+              progressState.verificationStatus.isVerifying = data.status === 'running';
+              break;
+              
+            case 'verification_complete':
+              progressState.verificationStatus.status = 'completed';
+              progressState.verificationStatus.progress = 100;
+              progressState.verificationStatus.isVerifying = false;
+              progressState.verificationResults = data.results;
+              
+              // Update the main results with verification data
+              if (progressState.resultData && data.results) {
+                progressState.resultData.clusters = data.results.clusters || progressState.resultData.clusters;
+                progressState.resultData.citations = data.results.citations || progressState.resultData.citations;
+              }
+              
+              eventSource.close();
+              break;
+              
+            case 'verification_failed':
+              progressState.verificationStatus.status = 'failed';
+              progressState.verificationStatus.isVerifying = false;
+              console.error('Verification failed:', data.error_message);
+              eventSource.close();
+              break;
+              
+            case 'stream_end':
+            case 'error':
+            case 'fatal_error':
+              console.log('Verification stream ended:', data.type);
+              eventSource.close();
+              break;
+          }
+        } catch (e) {
+          console.error('Error parsing verification stream event:', e);
+        }
+      };
+      
+      eventSource.onerror = (error) => {
+        console.error('Verification stream error:', error);
+        progressState.verificationStatus.status = 'failed';
+        progressState.verificationStatus.isVerifying = false;
+        eventSource.close();
+      };
+      
+      progressState.verificationStream = eventSource;
+      
+    } catch (error) {
+      console.error('Failed to start verification stream:', error);
+      progressState.verificationStatus.status = 'failed';
+    }
+  };
+  
+  const stopVerificationStream = () => {
+    if (progressState.verificationStream) {
+      progressState.verificationStream.close();
+      progressState.verificationStream = null;
+    }
+    progressState.verificationStatus.status = 'idle';
+    progressState.verificationStatus.isVerifying = false;
+  };
+  
+  const updateVerificationStatus = (status) => {
+    Object.assign(progressState.verificationStatus, status);
+  };
+  
+  const getVerificationResults = () => {
+    return progressState.verificationResults;
+  };
+
   return {
     // State (reactive)
     progressState,
@@ -362,7 +500,17 @@ export function useUnifiedProgress() {
     clearError,
     completeProgress,
     resetProgress,
-    retryProgress
+    retryProgress,
+    
+      // Route-scoped results
+  getResultsForRoute,
+  hasResultsForRoute,
+  
+  // Verification management
+  startVerificationStream,
+  stopVerificationStream,
+  updateVerificationStatus,
+  getVerificationResults
   };
 }
 

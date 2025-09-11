@@ -2,6 +2,8 @@
 Rate limiting utility for external API calls.
 """
 import time
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 from functools import wraps
 from typing import Callable, Any, Optional
@@ -43,21 +45,15 @@ class RateLimiter:
         """
         now = time.time()
         
-        # Remove calls older than the period
         self.calls = [t for t in self.calls if now - t < self.period]
         
-        # If we've reached the limit, wait until the oldest call falls outside the window
         if len(self.calls) >= self.max_calls:
             sleep_time = self.period - (now - self.calls[0])
             if sleep_time > 0:
-                logger.debug(f"Rate limit reached. Sleeping for {sleep_time:.2f} seconds.")
                 time.sleep(sleep_time)
         
-        # Add this call to the list
         self.calls.append(time.time())
 
-# Create a rate limiter for CourtListener API (180 calls per minute)
-# Using 175 as a safety buffer to stay under the limit (increased from 170)
 courtlistener_limiter = RateLimiter(max_calls=175, period=60)  # 175 calls per minute to be safe
 
 def rate_limited(max_calls: int, period: float) -> Callable:

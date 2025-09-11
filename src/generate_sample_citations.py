@@ -6,6 +6,8 @@ to demonstrate the functionality of the Multitool and Unconfirmed citations tabs
 """
 
 import secrets
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import os
 import json
 import sqlite3
@@ -14,7 +16,6 @@ from datetime import datetime, timedelta
 import logging
 from .config import get_database_path
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -22,10 +23,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger("sample_citation_generator")
 
-# Database path - using the canonical path from config
 DATABASE_FILE = get_database_path()
 
-# Sample Washington State court cases
 WA_CASES = [
     {"citation": "198 Wash.2d 492", "case_name": "State v. Johnson", "year": 2021},
     {
@@ -51,7 +50,6 @@ WA_CASES = [
     },
 ]
 
-# Sample fictional cases (for unconfirmed citations)
 FICTIONAL_CASES = [
     {"citation": "999 Wash.2d 123", "case_name": "State v. Fictional", "year": 2022},
     {
@@ -73,7 +71,6 @@ FICTIONAL_CASES = [
     {"citation": "000 Wash.2d 864", "case_name": "Nowhere v. Nothing", "year": 2013},
 ]
 
-# Sample Washington State court briefs
 WA_BRIEFS = [
     "State v. Johnson - Appellant's Opening Brief",
     "In re Marriage of Black - Respondent's Brief",
@@ -96,7 +93,6 @@ def init_db():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Create tables for citations
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS citations (
@@ -143,10 +139,8 @@ def generate_multitool_citations(num_citations=15):
     sources = ["Google Scholar", "Justia", "FindLaw", "HeinOnline"]
 
     for i in range(num_citations):
-        # Select a random real case
         case = secrets.choice(WA_CASES)
 
-        # Generate a citation record
         citation = {
             "citation_text": case["citation"],
             "case_name": case["case_name"],
@@ -158,7 +152,7 @@ def generate_multitool_citations(num_citations=15):
             "url": f"https://example.com/case/{case['year']}/{case['case_name'].replace(' ', '-').lower()}",
             "context": generate_context(case["citation"], case["case_name"]),
             "date_added": (
-                datetime.now() - timedelta(days=secrets.randbelow(0, 30))
+                datetime.now() - timedelta(days=secrets.randbelow(30))
             ).isoformat(),
         }
 
@@ -172,10 +166,8 @@ def generate_unconfirmed_citations(num_citations=15):
     unconfirmed_citations = []
 
     for i in range(num_citations):
-        # Select a random fictional case
         case = secrets.choice(FICTIONAL_CASES)
 
-        # Generate a citation record
         citation = {
             "citation_text": case["citation"],
             "case_name": case["case_name"],
@@ -187,7 +179,7 @@ def generate_unconfirmed_citations(num_citations=15):
             "url": "",
             "context": generate_context(case["citation"], case["case_name"]),
             "date_added": (
-                datetime.now() - timedelta(days=secrets.randbelow(0, 30))
+                datetime.now() - timedelta(days=secrets.randbelow(30))
             ).isoformat(),
         }
 
@@ -202,7 +194,6 @@ def save_citation_to_db(citation):
         conn = sqlite3.connect(DATABASE_FILE)
         cursor = conn.cursor()
 
-        # Check if citation already exists
         cursor.execute(
             "SELECT id FROM citations WHERE citation_text = ?",
             (citation["citation_text"],),
@@ -210,7 +201,6 @@ def save_citation_to_db(citation):
         existing = cursor.fetchone()
 
         if existing:
-            # Update existing citation
             cursor.execute(
                 """
             UPDATE citations SET
@@ -238,7 +228,6 @@ def save_citation_to_db(citation):
                 ),
             )
         else:
-            # Insert new citation
             cursor.execute(
                 """
             INSERT INTO citations (
@@ -269,7 +258,6 @@ def save_citation_to_db(citation):
 
 def update_citation_json_files(multitool_citations, unconfirmed_citations):
     """Update the citation verification results JSON files."""
-    # Update citation_verification_results.json
     citation_file = os.path.join(
         os.path.dirname(__file__), "citation_verification_results.json"
     )
@@ -282,7 +270,6 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
         except Exception as e:
             logger.error(f"Error reading citation_verification_results.json: {e}")
 
-    # Add unconfirmed citations
     for citation in unconfirmed_citations:
         citation_data["still_unconfirmed"].append(
             {
@@ -293,11 +280,9 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
             }
         )
 
-    # Write updated data
     with open(citation_file, "w") as f:
         json.dump(citation_data, f, indent=2)
 
-    # Update database_verification_results.json
     database_file = os.path.join(
         os.path.dirname(__file__), "database_verification_results.json"
     )
@@ -310,7 +295,6 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
         except Exception as e:
             logger.error(f"Error reading database_verification_results.json: {e}")
 
-    # Add multitool citations
     for citation in multitool_citations:
         database_data.append(
             {
@@ -323,7 +307,6 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
             }
         )
 
-    # Write updated data
     with open(database_file, "w") as f:
         json.dump(database_data, f, indent=2)
 
@@ -331,17 +314,14 @@ def update_citation_json_files(multitool_citations, unconfirmed_citations):
 
 
 def main():
-    # Initialize the database
     init_db()
 
-    # Generate sample citations
     logger.info("Generating sample multitool citations...")
     multitool_citations = generate_multitool_citations(15)
 
     logger.info("Generating sample unconfirmed citations...")
     unconfirmed_citations = generate_unconfirmed_citations(15)
 
-    # Save citations to database
     logger.info("Saving citations to database...")
     for citation in multitool_citations:
         save_citation_to_db(citation)
@@ -349,7 +329,6 @@ def main():
     for citation in unconfirmed_citations:
         save_citation_to_db(citation)
 
-    # Update JSON files
     logger.info("Updating citation JSON files...")
     update_citation_json_files(multitool_citations, unconfirmed_citations)
 

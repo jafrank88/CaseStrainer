@@ -1,0 +1,202 @@
+{
+  "metadata": {
+    "content_type": "application/json",
+    "endpoint": "/analyze",
+    "extraction_method": "direct",
+    "input_size": 833,
+    "input_type": "unknown",
+    "processing_mode": "immediate",
+    "processing_time_ms": 2296,
+    "progress_data": {
+      "current_message": "Processing completed successfully",
+      "current_step": 100,
+      "start_time": 1756080133.7225678,
+      "steps": [
+        {
+          "message": "Started immediate processing",
+          "name": "Initializing...",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations extracted successfully",
+          "name": "Extract",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations analyzed and normalized",
+          "name": "Analyze",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Case names and years extracted",
+          "name": "Extract Names",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations clustered successfully",
+          "name": "Cluster",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Verification completed",
+          "name": "Verify",
+          "progress": 100,
+          "status": "completed"
+        }
+      ],
+      "total_steps": 5
+    },
+    "request_id": "35c853c7-2c7b-4684-a884-ff7f873463be",
+    "status": "completed",
+    "success": true,
+    "text_length": 717,
+    "timestamp": "2025-08-25T00:02:11.427923"
+  },
+  "request_id": "35c853c7-2c7b-4684-a884-ff7f873463be",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": "2014-01-14",
+        "canonical_name": "Knight v. Knight",
+        "citation": "317 P.3d 1068",
+        "confidence_score": 0.7,
+        "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "extracted_date": "2014-01-14",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "CourtListener Citation-Lookup API v4",
+        "url": null,
+        "validation_method": "citation_lookup_v4_only",
+        "verification_confidence": 0.7,
+        "verified": true
+      },
+      {
+        "canonical_date": "2017-03-29",
+        "canonical_name": "Alsager v. Bd. of Osteopathic Med. & Surgery",
+        "citation": "392 P.3d 1041",
+        "confidence_score": 0.7,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2017-03-29",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "CourtListener Citation-Lookup API v4",
+        "url": null,
+        "validation_method": "citation_lookup_v4_only",
+        "verification_confidence": 0.7,
+        "verified": true
+      },
+      {
+        "canonical_date": "2010-04-27",
+        "canonical_name": "Blackmon v. Blackmon",
+        "citation": "230 P.3d 233",
+        "confidence_score": 0.7,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2010-04-27",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "CourtListener Citation-Lookup API v4",
+        "url": null,
+        "validation_method": "citation_lookup_v4_only",
+        "verification_confidence": 0.7,
+        "verified": true
+      },
+      {
+        "canonical_date": "2014",
+        "canonical_name": "In re Marriage of Black",
+        "citation": "188 Wn.2d 114",
+        "confidence_score": 0.7,
+        "extracted_case_name": "In re Marriage of Black",
+        "extracted_date": "2014",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "citation_object",
+        "url": null,
+        "validation_method": "object_extraction",
+        "verification_confidence": 0.7,
+        "verified": false
+      },
+      {
+        "canonical_date": "2014-01-14",
+        "canonical_name": "Knight v. Knight",
+        "citation": "178 Wn. App. 929",
+        "confidence_score": 0.7,
+        "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "extracted_date": "2014-01-14",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "CourtListener Citation-Lookup API v4",
+        "url": null,
+        "validation_method": "citation_lookup_v4_only",
+        "verification_confidence": 0.7,
+        "verified": true
+      },
+      {
+        "canonical_date": "2010-04-27",
+        "canonical_name": "Blackmon v. Blackmon",
+        "citation": "155 Wn. App. 715",
+        "confidence_score": 0.7,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2010-04-27",
+        "extraction_method": "unified_processor",
+        "false_positive_filtered": false,
+        "source": "CourtListener Citation-Lookup API v4",
+        "url": null,
+        "validation_method": "citation_lookup_v4_only",
+        "verification_confidence": 0.7,
+        "verified": true
+      }
+    ],
+    "clusters": [
+      {
+        "case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "citations": [
+          "317 P.3d 1068",
+          "178 Wn. App. 929"
+        ],
+        "cluster_id": "In_re_Vulnerable_Adult_Petition_\nfor_Knight_2014-01-14",
+        "cluster_type": "case_name_year",
+        "size": 2,
+        "year": "2014-01-14"
+      },
+      {
+        "case_name": "Blackmon v. Blackmon",
+        "citations": [
+          "392 P.3d 1041"
+        ],
+        "cluster_id": "Blackmon_v._Blackmon_2017-03-29",
+        "cluster_type": "case_name_year",
+        "size": 1,
+        "year": "2017-03-29"
+      },
+      {
+        "case_name": "Blackmon v. Blackmon",
+        "citations": [
+          "230 P.3d 233",
+          "155 Wn. App. 715"
+        ],
+        "cluster_id": "Blackmon_v._Blackmon_2010-04-27",
+        "cluster_type": "case_name_year",
+        "size": 2,
+        "year": "2010-04-27"
+      },
+      {
+        "case_name": "In re Marriage of Black",
+        "citations": [
+          "188 Wn.2d 114"
+        ],
+        "cluster_id": "In_re_Marriage_of_Black_2014",
+        "cluster_type": "case_name_year",
+        "size": 1,
+        "year": "2014"
+      }
+    ],
+    "statistics": {}
+  },
+  "status": "completed",
+  "success": true
+}

@@ -3,8 +3,9 @@ Web Search Package
 Refactored from comprehensive_websearch_engine.py for better maintainability.
 """
 
-# Import all classes for backward compatibility
 from .citation_normalizer import EnhancedCitationNormalizer
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from .metadata import SearchEngineMetadata
 from .cache import CacheManager
 from .predictor import SourcePredictor
@@ -18,7 +19,6 @@ from .extractor import ComprehensiveWebExtractor
 from .engine import ComprehensiveWebSearchEngine
 from .utils import search_cluster_for_canonical_sources, search_all_engines, test_comprehensive_web_search
 
-# Main class for easy access
 __all__ = [
     'EnhancedCitationNormalizer',
     'SearchEngineMetadata',

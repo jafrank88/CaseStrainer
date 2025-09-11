@@ -4,14 +4,14 @@ A simpler approach that focuses on working with the streamlined case name extrac
 """
 
 import re
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 from typing import List, Dict, Optional
 from dataclasses import dataclass
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Import the streamlined extractor
 from case_name_extraction_core import extract_case_name_and_date
 
 @dataclass
@@ -37,7 +37,6 @@ class SimpleLegalCaseExtractor:
     """
     
     def __init__(self):
-        # Simple citation pattern: volume reporter page (year)
         self.citation_pattern = re.compile(
             r'(\d+)\s+([A-Z]+\.?\d*[a-z]*)\s+(\d+).*?\((\d{4})\)',
             re.IGNORECASE
@@ -47,7 +46,6 @@ class SimpleLegalCaseExtractor:
         """Extract all legal cases from text"""
         extractions = []
         
-        # Find all citation patterns
         matches = self.citation_pattern.finditer(text)
         
         for match in matches:
@@ -56,10 +54,8 @@ class SimpleLegalCaseExtractor:
             page = match.group(3)
             year = match.group(4)
             
-            # Build citation string
             citation = f"{volume} {reporter} {page}"
             
-            # Use streamlined case name extraction
             case_extraction = extract_case_name_and_date(text, citation)
             
             extraction = SimpleCaseExtraction(

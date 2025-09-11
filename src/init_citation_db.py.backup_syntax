@@ -1,0 +1,72 @@
+"""
+Initialize the citation database for the citation correction engine.
+"""
+
+import osfrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
+import sqlite3
+import logging
+
+logger = logging.getLogger(__name__)
+
+db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")
+
+
+def init_database():
+    """Initialize the citation database with the required tables."""
+    try:
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+
+        cursor.execute(
+            """
+        CREATE TABLE IF NOT EXISTS citations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            volume TEXT,
+            reporter TEXT,
+            page TEXT,
+            case_name TEXT,
+            court TEXT,
+            year INTEGER,
+            normalized_citation TEXT UNIQUE,
+            is_verified BOOLEAN DEFAULT 1,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+        """
+        )
+
+        conn.commit()
+
+        cursor.execute("PRAGMA table_info(citations)")
+        columns = [col[1] for col in cursor.fetchall()]
+
+        if "normalized_citation" not in columns:
+            cursor.execute(
+                """
+            ALTER TABLE citations
+            ADD COLUMN normalized_citation TEXT UNIQUE
+            """
+            )
+
+        cursor.execute(
+            """
+        CREATE INDEX IF NOT EXISTS idx_normalized_citation 
+        ON citations(normalized_citation)
+        """
+        )
+
+        conn.commit()
+        logger.info(f"Successfully initialized citation database at {db_path}")
+
+    except Exception as e:
+        logger.error(f"Error initializing database: {e}")
+        raise
+    finally:
+        if conn:
+            conn.close()
+
+
+if __name__ == "__main__":
+    logger.info("Initializing citation database...")
+    init_database()
+    logger.info("Done.")

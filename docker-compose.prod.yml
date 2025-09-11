@@ -52,11 +52,16 @@ services:
       test: ["CMD", "curl", "-f", "http://localhost:5000/casestrainer/api/health"]
       interval: 30s
       timeout: 15s
-      retries: 5
+      retries: 3
       start_period: 120s
     networks:
       - app-network
     deploy:
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
       resources:
         limits:
           memory: 4G
@@ -192,17 +197,24 @@ services:
           memory: 1G
           cpus: '0.5'
 
-  # Frontend Production Build
+  # Frontend Development Mode (Live Code)
   frontend-prod:
     build: 
       context: ./casestrainer-vue-new
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
     container_name: casestrainer-frontend-prod
     ports:
       - "8080:80"
     environment:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
+      - NODE_ENV=development
+    volumes:
+      # Mount development source code for live updates
+      - ./casestrainer-vue-new/src:/app/src:ro
+      - ./casestrainer-vue-new/public:/app/public:ro
+      - ./casestrainer-vue-new/package.json:/app/package.json:ro
+      - ./casestrainer-vue-new/vite.config.js:/app/vite.config.js:ro
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
@@ -225,17 +237,16 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/conf:/etc/nginx/conf:ro
-      - ./nginx/clean-wolf.conf:/etc/nginx/conf.d/wolf.conf:ro
+      - ./nginx/conf.d/casestrainer.conf:/etc/nginx/conf.d/default.conf:ro
       - ./ssl:/etc/nginx/ssl:ro
       - ./logs/nginx:/var/log/nginx
     environment:
       - NGINX_HOST=wolf.law.uw.edu
       - NGINX_PORT=80
       - NGINX_ENTRYPOINT_QUIET_LOGS=1
-    # Remove default config and start Nginx with our config
+    # Start Nginx with our config
     command: >
-      sh -c "rm -f /etc/nginx/conf.d/default.conf &&
-             nginx -t &&
+      sh -c "nginx -t &&
              nginx -g 'daemon off;'"
     depends_on:
       backend:

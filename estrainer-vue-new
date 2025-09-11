@@ -1,0 +1,20 @@
+9efffaeb 10 days ago Add debug logging and fix strict matching criteria for citation-lookup API v4
+d011b8eb 11 days ago Implement CourtListener citation-lookup API v4 as primary method with strict matching criteria
+6d6bd3dd 11 days ago Fix source field preservation and improve fuzzy matching for Washington cases
+c89a09d9 11 days ago Fix search strategy to prioritize citation-first search for better primary case detection
+ab8edc71 11 days ago Fix sync verification to properly call CourtListener and include source field
+7168daa8 11 days ago Fix source field propagation and URL normalization for user accessibility
+0d8b7064 11 days ago Fix CourtListener verification to find PRIMARY cases not cases that cite them
+b7622278 11 days ago Fix source field propagation, progress tracking, and fuzzy matching for Washington cases
+c9feea7b 11 days ago Fix all three core issues: fuzzy matching, true_by_parallel logic, and progress bar/spinner
+51215b7f 11 days ago Enhanced citation verification system with hybrid CourtListener-first approach
+555583e2 11 days ago Major enhancement: State-agnostic citation verification system
+2001da3f 13 days ago Fix PowerShell script analyzer warnings and enhance fallback verification
+6b3c0bee 2 weeks ago Fix Vue.js frontend asset loading and Nginx configuration
+271c97ff 2 weeks ago Replace old fallback verifier with comprehensive legal web search verification system
+03d7970e 3 weeks ago Fix linter error in vue_api_endpoints_updated.py: correct metadata.update usage and len() on FileStorage
+e46b2929 3 weeks ago Fix Pylance linter errors and add popup debugging for frontend URL processing
+904150a2 3 weeks ago Fix Pylance linter errors in rq_worker.py: Properly handle platform-specific signal attributes
+321b8d63 3 weeks ago Fix Pylance linter errors in citation services: Remove duplicate code, fix undefined variables, add missing methods
+9a1555ab 3 weeks ago Replace cslaunch.ps1 with production-ready launcher
+a144556d 3 weeks ago Fix Docker network issues and Vue text input bug

@@ -1,0 +1,297 @@
+{
+  "metadata": {
+    "content_type": "application/json",
+    "endpoint": "/analyze",
+    "input_size": 833,
+    "input_type": "unknown",
+    "processing_mode": "immediate",
+    "processing_time_ms": 6491,
+    "progress_data": {
+      "current_message": "Processing completed successfully",
+      "current_step": 100,
+      "start_time": 1755920383.953881,
+      "steps": [
+        {
+          "message": "Started unified processing",
+          "name": "Initializing...",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations extracted successfully",
+          "name": "Extract",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations analyzed and normalized",
+          "name": "Analyze",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Case names and years extracted",
+          "name": "Extract Names",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Citations clustered successfully",
+          "name": "Cluster",
+          "progress": 100,
+          "status": "completed"
+        },
+        {
+          "message": "Verification completed",
+          "name": "Verify",
+          "progress": 100,
+          "status": "completed"
+        }
+      ],
+      "total_steps": 5
+    },
+    "request_id": "20c52cf6-ef59-410b-b2d4-cdf6f0c7b078",
+    "status": "completed",
+    "success": true,
+    "text_length": 717,
+    "timestamp": "2025-08-23T03:39:43.895770"
+  },
+  "request_id": "20c52cf6-ef59-410b-b2d4-cdf6f0c7b078",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": "2025-08-11",
+        "canonical_name": "Gillian Timaeus, V Chris Timaeus",
+        "canonical_url": "https://www.courtlistener.com/opinion/10652291/gillian-timaeus-v-chris-timaeus/",
+        "case_name": "In re Marriage of Black",
+        "citation": "188 Wn.2d 114",
+        "confidence": 1.0,
+        "context": "1068 (2014). Evidence is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)",
+        "court": null,
+        "extracted_case_name": "In re Marriage of Black",
+        "extracted_date": "2017",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      },
+      {
+        "canonical_date": "2014-01-14",
+        "canonical_name": "Knight v. Knight",
+        "canonical_url": "https://www.courtlistener.com/opinion/4954243/knight-v-knight/",
+        "case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "citation": "317 P.3d 1068",
+        "confidence": 0.9,
+        "context": "-37, 317 P.3d 1068 (2014)",
+        "court": null,
+        "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "extracted_date": "2014",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      },
+      {
+        "canonical_date": "2017-03-29",
+        "canonical_name": "Alsager v. Bd. of Osteopathic Med. & Surgery",
+        "canonical_url": "https://www.courtlistener.com/opinion/4910996/alsager-v-bd-of-osteopathic-med-surgery/",
+        "case_name": "In re Marriage of Black",
+        "citation": "392 P.3d 1041",
+        "confidence": 1.0,
+        "context": "e is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)",
+        "court": null,
+        "extracted_case_name": "In re Marriage of Black",
+        "extracted_date": "2017",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      },
+      {
+        "canonical_date": "2010",
+        "canonical_name": "Blackmon v. Blackmon",
+        "canonical_url": "https://www.courtlistener.com/opinion/2626076/blackmon-v-blackmon/",
+        "case_name": "Blackmon v. Blackmon",
+        "citation": "230 P.3d 233",
+        "confidence": 1.0,
+        "context": "ion to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.\" Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)",
+        "court": null,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2010",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      },
+      {
+        "canonical_date": "2014-01-14",
+        "canonical_name": "Knight v. Knight",
+        "canonical_url": "https://www.courtlistener.com/opinion/4954243/knight-v-knight/",
+        "case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "citation": "178 Wn. App. 929",
+        "confidence": 1.0,
+        "context": "of fact on questions of witness credibility, conflicting \ntestimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition \nfor Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014)",
+        "court": null,
+        "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "extracted_date": "2014",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      },
+      {
+        "canonical_date": "2010",
+        "canonical_name": "Blackmon v. Blackmon",
+        "canonical_url": "https://www.courtlistener.com/opinion/4948151/blackmon-v-blackmon/",
+        "case_name": "Blackmon v. Blackmon",
+        "citation": "155 Wn. App. 715",
+        "confidence": 1.0,
+        "context": "the trial court's decision to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.\" Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)",
+        "court": null,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2010",
+        "is_parallel": false,
+        "method": "regex",
+        "verified": true,
+        "year": null
+      }
+    ],
+    "clusters": [
+      {
+        "canonical_date": "2014-01-14",
+        "canonical_name": "Knight v. Knight",
+        "canonical_url": "https://www.courtlistener.com/opinion/4954243/knight-v-knight/",
+        "citation_objects": [
+          {
+            "canonical_date": "2014-01-14",
+            "canonical_name": "Knight v. Knight",
+            "canonical_url": "https://www.courtlistener.com/opinion/4954243/knight-v-knight/",
+            "citation": "317 P.3d 1068",
+            "confidence": 0.9,
+            "context": "-37, 317 P.3d 1068 (2014)",
+            "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+            "extracted_date": "2014",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          },
+          {
+            "canonical_date": "2014-01-14",
+            "canonical_name": "Knight v. Knight",
+            "canonical_url": "https://www.courtlistener.com/opinion/4954243/knight-v-knight/",
+            "citation": "178 Wn. App. 929",
+            "confidence": 1.0,
+            "context": "of fact on questions of witness credibility, conflicting \ntestimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition \nfor Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014)",
+            "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+            "extracted_date": "2014",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          }
+        ],
+        "citations": [
+          "178 Wn. App. 929",
+          "317 P.3d 1068"
+        ],
+        "cluster_id": "In_re_Vulnerable_Adult_Petition_\nfor_Knight_2014",
+        "cluster_type": "unified_extracted",
+        "confidence": 1.0,
+        "extracted_case_name": "In re Vulnerable Adult Petition \nfor Knight",
+        "extracted_date": "2014",
+        "size": 2,
+        "verification_status": "verified"
+      },
+      {
+        "canonical_date": "2017-03-29",
+        "canonical_name": "Alsager v. Bd. of Osteopathic Med. & Surgery",
+        "canonical_url": "https://www.courtlistener.com/opinion/4910996/alsager-v-bd-of-osteopathic-med-surgery/",
+        "citation_objects": [
+          {
+            "canonical_date": "2025-08-11",
+            "canonical_name": "Gillian Timaeus, V Chris Timaeus",
+            "canonical_url": "https://www.courtlistener.com/opinion/10652291/gillian-timaeus-v-chris-timaeus/",
+            "citation": "188 Wn.2d 114",
+            "confidence": 1.0,
+            "context": "1068 (2014). Evidence is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)",
+            "extracted_case_name": "In re Marriage of Black",
+            "extracted_date": "2017",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          },
+          {
+            "canonical_date": "2017-03-29",
+            "canonical_name": "Alsager v. Bd. of Osteopathic Med. & Surgery",
+            "canonical_url": "https://www.courtlistener.com/opinion/4910996/alsager-v-bd-of-osteopathic-med-surgery/",
+            "citation": "392 P.3d 1041",
+            "confidence": 1.0,
+            "context": "e is \nsubstantial when sufficient to persuade a fair-minded person of the truth of the \nmatter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 \n(2017)",
+            "extracted_case_name": "In re Marriage of Black",
+            "extracted_date": "2017",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          }
+        ],
+        "citations": [
+          "188 Wn.2d 114",
+          "392 P.3d 1041"
+        ],
+        "cluster_id": "In_re_Marriage_of_Black_2017",
+        "cluster_type": "unified_extracted",
+        "confidence": 1.0,
+        "extracted_case_name": "In re Marriage of Black",
+        "extracted_date": "2017",
+        "size": 2,
+        "verification_status": "verified"
+      },
+      {
+        "canonical_date": "2010",
+        "canonical_name": "Blackmon v. Blackmon",
+        "canonical_url": "https://www.courtlistener.com/opinion/4948151/blackmon-v-blackmon/",
+        "citation_objects": [
+          {
+            "canonical_date": "2010",
+            "canonical_name": "Blackmon v. Blackmon",
+            "canonical_url": "https://www.courtlistener.com/opinion/2626076/blackmon-v-blackmon/",
+            "citation": "230 P.3d 233",
+            "confidence": 1.0,
+            "context": "ion to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.\" Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)",
+            "extracted_case_name": "Blackmon v. Blackmon",
+            "extracted_date": "2010",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          },
+          {
+            "canonical_date": "2010",
+            "canonical_name": "Blackmon v. Blackmon",
+            "canonical_url": "https://www.courtlistener.com/opinion/4948151/blackmon-v-blackmon/",
+            "citation": "155 Wn. App. 715",
+            "confidence": 1.0,
+            "context": "the trial court's decision to \ngrant . . . a domestic violence protection order may contain hearsay or be wholly \ndocumentary.\" Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 \n(2010)",
+            "extracted_case_name": "Blackmon v. Blackmon",
+            "extracted_date": "2010",
+            "is_parallel": false,
+            "method": "regex",
+            "verified": true
+          }
+        ],
+        "citations": [
+          "155 Wn. App. 715",
+          "230 P.3d 233"
+        ],
+        "cluster_id": "Blackmon_v__Blackmon_2010",
+        "cluster_type": "unified_extracted",
+        "confidence": 1.0,
+        "extracted_case_name": "Blackmon v. Blackmon",
+        "extracted_date": "2010",
+        "size": 2,
+        "verification_status": "verified"
+      }
+    ],
+    "statistics": {}
+  },
+  "status": "completed",
+  "success": true
+}

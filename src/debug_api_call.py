@@ -1,21 +1,20 @@
-#!/usr/bin/env python3
 """
 Debug script to test CourtListener API call directly.
 """
 
 import json
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import requests
 import logging
 import sys
 
-# Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 def test_courtlistener_api():
     """Test the CourtListener API call directly."""
     
-    # Load config
     try:
         with open('config.json', 'r') as f:
             config = json.load(f)
@@ -29,23 +28,19 @@ def test_courtlistener_api():
         logger.info("No API key available")
         return
     
-    # Test citations - one that should be found, one that might not be
     test_citations = [
         "347 U.S. 483",  # Brown v. Board of Education - should be found
         "399 P.3d 1195",  # Washington citation - might not be found
         "199 Wn. App. 280"  # Washington citation - might be found
     ]
     
-    # Set up headers
     headers = {
         "Authorization": f"Token {api_key}",
         "Content-Type": "application/json"
     }
     
-    # API endpoint
     endpoint = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
     
-    # Prevent use of v3 CourtListener API endpoints
     if 'v3' in endpoint:
         print("ERROR: v3 CourtListener API endpoint detected. Please use v4 only.")
         sys.exit(1)
@@ -56,12 +51,11 @@ def test_courtlistener_api():
         logger.info(f"Endpoint: {endpoint}")
         
         try:
-            # Make the API request
             response = requests.post(
                 endpoint,
                 headers=headers,
                 json={"text": test_citation},
-                timeout=15
+                timeout=SCRAPINGBEE_TIMEOUT
             )
             
             logger.info(f"Response status: {response.status_code}")

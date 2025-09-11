@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Machine Learning Citation Classifier
@@ -10,6 +8,8 @@ content, and context. This reduces the need for API calls to verify citations.
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import re
 import json
 import pickle
@@ -23,7 +23,6 @@ from sklearn.metrics import classification_report, accuracy_score
 
 logger = logging.getLogger(__name__)
 
-# Path to the citation database and model files
 DOWNLOAD_DIR = "downloaded_briefs"
 UNCONFIRMED_CITATIONS_FILE = os.path.join(
     DOWNLOAD_DIR, "unconfirmed_citations_flat.json"
@@ -32,12 +31,10 @@ MODEL_FILE = os.path.join(DOWNLOAD_DIR, "citation_classifier_model.pkl")
 VECTORIZER_FILE = os.path.join(DOWNLOAD_DIR, "citation_vectorizer.pkl")
 
 
-# Features to extract from citations
 def extract_features_from_citation(citation_text, canonical_name=None):
     """Extract features from citation text for classification."""
     features = {}
     
-    # Basic citation features
     features["length"] = len(citation_text)
     features["has_case_name"] = 1 if canonical_name and len(canonical_name) > 0 else 0
     if canonical_name:
@@ -45,7 +42,6 @@ def extract_features_from_citation(citation_text, canonical_name=None):
     else:
         features["canonical_name_length"] = 0
 
-    # Check for common citation patterns
     features["has_volume_reporter_page"] = (
         1 if re.search(r"\d+\s+[A-Za-z\.]+\s+\d+", citation_text) else 0
     )
@@ -60,12 +56,10 @@ def extract_features_from_citation(citation_text, canonical_name=None):
         else 0
     )
 
-    # Check for WL citation format
     features["is_wl_citation"] = (
         1 if re.search(r"\d{4}\s+WL\s+\d+", citation_text) else 0
     )
 
-    # Check for common unreliable patterns
     features["has_unusual_characters"] = (
         1 if re.search(r"[^\w\s\.,;\(\)\[\]\-]", citation_text) else 0
     )
@@ -73,13 +67,11 @@ def extract_features_from_citation(citation_text, canonical_name=None):
         1 if len(re.findall(r"\d+", citation_text)) > 5 else 0
     )
 
-    # Extract reporter information
     reporter_match = re.search(r"([A-Za-z]+\.(?:\s*\d+)?[A-Za-z]*)", citation_text)
     features["has_valid_reporter"] = 0
 
     if reporter_match:
         reporter = reporter_match.group(1).lower()
-        # Check for common reporters
         common_reporters = [
             "f.",
             "f.2d",
@@ -111,20 +103,15 @@ def prepare_citation_data(citations):
     texts = []
 
     for citation in citations:
-        # Skip citations without confidence scores
         if "confidence" not in citation:
             continue
 
-        # Extract features
         features = extract_features_from_citation(
             citation.get("citation_text", ""), citation.get("canonical_name", "")
         )
 
-        # Create label (1 for reliable, 0 for unreliable)
-        # Citations with confidence >= 0.7 are considered reliable
         label = 1 if citation.get("confidence", 0) >= 0.7 else 0
 
-        # Add to datasets
         data.append(features)
         labels.append(label)
         texts.append(citation.get("citation_text", ""))
@@ -142,7 +129,6 @@ def train_citation_classifier():
         logger.error(f"Error loading citation data: {e}")
         return None, None
 
-    # Check if we have enough data
     if len(citations) < 50:
         logger.info(f"Not enough citation data to train a model. Found only {len(citations)} citations."
         )
@@ -151,37 +137,30 @@ def train_citation_classifier():
     logger.info(f"Preparing data from {len(citations)} citations...")
     features_df, labels, texts = prepare_citation_data(citations)
 
-    # Create text features using TF-IDF
     logger.info("Creating text features...")
     vectorizer = TfidfVectorizer(
         analyzer="char_wb", ngram_range=(2, 5), max_features=200
     )
     vectorizer.fit_transform(texts)
 
-    # Convert DataFrame to numpy array
     feature_array = features_df.to_numpy()
 
-    # Split data into training and testing sets
     X_train, X_test, y_train, y_test, texts_train, texts_test = train_test_split(
         feature_array, labels, texts, test_size=0.2, random_state=42
     )
 
-    # Create text features for training and testing
     X_text_train = vectorizer.transform(texts_train)
     X_text_test = vectorizer.transform(texts_test)
 
-    # Train the model
     logger.info("Training the classifier...")
     model = RandomForestClassifier(n_estimators=100, random_state=42)
     model.fit(X_text_train, y_train)
 
-    # Evaluate the model
     y_pred = model.predict(X_text_test)
     accuracy = accuracy_score(y_test, y_pred)
     logger.info(f"Model accuracy: {accuracy:.2f}")
     logger.info(classification_report(y_test, y_pred))
 
-    # Save the model and vectorizer
     logger.info("Saving model and vectorizer...")
     with open(MODEL_FILE, "wb") as f:
         pickle.dump(model, f)
@@ -196,12 +175,10 @@ def train_citation_classifier():
 def load_citation_classifier():
     """Load the trained citation classifier model."""
     try:
-        # Check if model and vectorizer files exist
         if not os.path.exists(MODEL_FILE) or not os.path.exists(VECTORIZER_FILE):
             logger.info("Model or vectorizer file not found. Training new model...")
             return train_citation_classifier()
 
-        # Load model and vectorizer
         with open(MODEL_FILE, "rb") as f:
             model = pickle.load(f)
 
@@ -220,7 +197,6 @@ def classify_citation(citation_text, canonical_name=None):
     Classify a citation as reliable or unreliable using the trained model.
     Returns a confidence score between 0.0 and 1.0.
     """
-    # Load the model and vectorizer
     model, vectorizer = load_citation_classifier()
 
     if model is None or vectorizer is None:
@@ -228,43 +204,31 @@ def classify_citation(citation_text, canonical_name=None):
         return 0.5  # Return neutral confidence if model is unavailable
 
     try:
-        # Extract features
         features = extract_features_from_citation(citation_text, canonical_name)
 
-        # Create text features
         text_features = vectorizer.transform([citation_text])
 
-        # Get prediction probability
         try:
             proba = model.predict_proba(text_features)
 
-            # Initialize default confidence
             confidence = 0.5
 
-            # Handle different shapes of predict_proba output
             if hasattr(proba, "shape"):
                 if len(proba.shape) > 1 and proba.shape[0] > 0:
                     if proba.shape[1] > 1:
-                        # Standard case: 2D array with probabilities for each class
                         confidence = float(
                             proba[0, 1]
                         )  # Probability of reliable class (index 1)
                     else:
-                        # Single class probability
                         confidence = float(proba[0, 0])
                 elif len(proba.shape) == 1 and len(proba) > 0:
-                    # Case: 1D array (binary classification with shape [n_samples])
                     confidence = float(proba[0])
             elif isinstance(proba, (list, np.ndarray)) and len(proba) > 0:
-                # Handle list or array input
                 if len(proba) > 1:
-                    # Multiple classes - take the last probability if more than one class
                     confidence = float(proba[-1])
                 else:
-                    # Single probability
                     confidence = float(proba[0])
             else:
-                # Fallback to prediction if proba is in an unexpected format
                 prediction = model.predict(text_features)
                 confidence = (
                     float(prediction[0])
@@ -274,7 +238,6 @@ def classify_citation(citation_text, canonical_name=None):
         except (IndexError, TypeError, AttributeError) as e:
             logger.error(f"Error processing prediction probabilities: {e}")
             try:
-                # Fallback to prediction if proba fails
                 prediction = model.predict(text_features)
                 confidence = (
                     float(prediction[0])
@@ -285,7 +248,6 @@ def classify_citation(citation_text, canonical_name=None):
                 logger.error(f"Fallback prediction also failed: {e2}")
                 confidence = 0.5
 
-        # Adjust confidence based on feature heuristics
         if features["has_valid_reporter"] == 0:
             confidence *= 0.8  # Reduce confidence if no valid reporter
 
@@ -305,7 +267,6 @@ def batch_classify_citations(citations):
     """
     Classify multiple citations and return confidence scores.
     """
-    # Load the model and vectorizer
     model, vectorizer = load_citation_classifier()
 
     if model is None or vectorizer is None:
@@ -313,48 +274,37 @@ def batch_classify_citations(citations):
         return [0.5] * len(citations)  # Return neutral confidence for all
 
     try:
-        # Extract text and features
         texts = [c.get("citation_text", "") for c in citations]
         if not texts:  # Handle empty input
             return []
 
-        # Create text features
         text_features = vectorizer.transform(texts)
 
-        # Get prediction probabilities
         try:
             probas = model.predict_proba(text_features)
 
-            # Initialize confidences with default value
             confidences = [0.5] * len(texts)
 
-            # Process probabilities based on their shape
             confidences = [0.5] * len(texts)  # Initialize with default confidence
 
             try:
                 if hasattr(probas, "shape"):
                     if len(probas.shape) == 2 and probas.shape[0] > 0:
                         if probas.shape[1] > 1:
-                            # Standard case: 2D array with probabilities for each class
                             confidences = [
                                 float(p[-1]) for p in probas
                             ]  # Take last probability
                         else:
-                            # Single class probability
                             confidences = [float(p[0]) for p in probas]
                     elif len(probas.shape) == 1:
-                        # 1D array of probabilities
                         confidences = [float(p) for p in probas]
                 elif isinstance(probas, (list, np.ndarray)) and len(probas) > 0:
-                    # Handle list or array input
                     confidences = []
                     for p in probas:
                         try:
                             if hasattr(p, "__len__") and len(p) > 1:
-                                # Take the last probability if multiple classes
                                 confidences.append(float(p[-1]))
                             else:
-                                # Single probability or empty array
                                 confidences.append(
                                     float(p[0])
                                     if hasattr(p, "__len__") and len(p) > 0
@@ -365,7 +315,6 @@ def batch_classify_citations(citations):
                             confidences.append(0.5)
             except Exception as e:
                 logger.error(f"Error processing batch probabilities: {e}")
-                # Fallback to prediction if proba fails
                 try:
                     predictions = model.predict(text_features)
                     confidences = (
@@ -380,7 +329,6 @@ def batch_classify_citations(citations):
             logger.error(f"Error in batch prediction: {e}")
             confidences = [0.5] * len(texts)
 
-        # Adjust confidence based on feature heuristics
         for i, citation in enumerate(citations):
             try:
                 features = extract_features_from_citation(
@@ -405,11 +353,9 @@ def batch_classify_citations(citations):
 
 
 if __name__ == "__main__":
-    # Train the citation classifier
     logger.info("Training citation classifier...")
     train_citation_classifier()
 
-    # Test the classifier on a few examples
     test_citations = [
         "550 U.S. 544 (2007)",  # Should be high confidence
         "123 Fake Reporter 456",  # Should be low confidence

@@ -459,13 +459,28 @@ export default {
           const words = textValue.split(/\s+/).filter(word => word.length > 0);
           const wordCount = words.length;
           
-          // Estimate citations with better pattern matching
+          // Enhanced citation patterns that match our backend extraction logic
           const citationPatterns = [
-            /\b\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+\b/g,  // Matches: 123 Wash. 2d 456
-            /\b\d+\s+U\.?\s*S\.?\s+\d+\b/gi,                   // Matches: 123 US 456 or 123 U.S. 456
-            /\b\d+\s+F\.?\s*(?:2d|3d)?\s+\d+\b/gi,             // Matches: 123 F.2d 456
-            /\b\d+\s+[A-Z]{2,}\.?\s+\d+\b/g,                   // Matches: 123 F.Supp. 456
-            /\b\d+\s+[A-Z][a-z]+\s+\d+\b/g                     // Matches: 123 Wash. 456
+            // Washington State patterns (most common)
+            /\b\d+\s+Wn\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,           // 123 Wn.2d 456, 123 Wn App 456
+            /\b\d+\s+Wash\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,          // 123 Wash.2d 456, 123 Wash App 456
+            
+            // Federal patterns
+            /\b\d+\s+U\.?\s*S\.?\s+\d+\b/gi,                          // 123 US 456, 123 U.S. 456
+            /\b\d+\s+F\.?\s*(?:2d|3d|Supp\.?|Supp\.?2d)?\s+\d+\b/gi, // 123 F.2d 456, 123 F.Supp. 456
+            
+            // State patterns (general)
+            /\b\d+\s+[A-Z][a-z]+\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,   // 123 Cal.2d 456, 123 Tex.App 456
+            
+            // Reporter patterns
+            /\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b/g,                    // 123 P.2d 456, 123 P.3d 456
+            /\b\d+\s+N\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b/g,             // 123 N.W.2d 456
+            
+            // Appellate patterns
+            /\b\d+\s+[A-Z][a-z]*\.?\s*App\.?\s+\d+\b/g,              // 123 Wash.App 456
+            
+            // Supreme Court patterns
+            /\b\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+\b/g           // 123 Wash.2d 456
           ];
           
           // Use a Set to avoid duplicate matches
@@ -476,9 +491,28 @@ export default {
             matches.forEach(match => citationMatches.add(match));
           });
           
-          // Count unique years (more precise year matching)
-          const yearMatches = textValue.match(/\b(19|20)\d{2}\b/g) || [];
-          const uniqueYears = new Set(yearMatches).size;
+          // Enhanced year detection that looks for years in legal citations and context
+          const yearPatterns = [
+            /\b(19|20)\d{2}\b/g,                    // Standard years: 2010, 2023
+            /\(\s*(19|20)\d{2}\s*\)/g,              // Years in parentheses: (2010), (2023)
+            /\b(19|20)\d{2}\s*[A-Z][a-z]*\b/g,     // Years followed by month: 2010 January
+            /\b[A-Z][a-z]*\s+(19|20)\d{2}\b/g      // Month followed by year: January 2010
+          ];
+          
+          const allYears = new Set();
+          
+          yearPatterns.forEach(pattern => {
+            const matches = textValue.match(pattern) || [];
+            matches.forEach(match => {
+              // Extract just the year from the match
+              const yearMatch = match.match(/\b(19|20)\d{2}\b/);
+              if (yearMatch) {
+                allYears.add(yearMatch[0]);
+              }
+            });
+          });
+          
+          const uniqueYears = allYears.size;
           
           // Update stats in a single operation
           textStats.value = {

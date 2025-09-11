@@ -4,6 +4,8 @@ Controls which performance optimizations are enabled.
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from typing import Dict, Any
 
 class OptimizationConfig:
@@ -12,22 +14,18 @@ class OptimizationConfig:
     """
     
     def __init__(self):
-        # PDF Extraction Optimizations
         self.USE_ULTRA_FAST_PDF_EXTRACTION: bool = True
         self.SKIP_OCR_DETECTION: bool = True
         self.MINIMAL_TEXT_CLEANING: bool = True
         
-        # Citation Verification Optimizations
         self.SKIP_CITATION_VERIFICATION: bool = True
         self.REDUCE_API_TIMEOUTS: bool = True
         self.USE_LOCAL_CITATION_EXTRACTION: bool = True
         
-        # Processing Optimizations
         self.USE_FAST_PROCESSING_PIPELINE: bool = True
         self.SKIP_COMPREHENSIVE_CLEANING: bool = True
         self.ENABLE_PROGRESSIVE_CLEANING: bool = True
         
-        # Load from environment variables if available
         self._load_from_env()
     
     def _load_from_env(self):
@@ -47,7 +45,6 @@ class OptimizationConfig:
         for attr, env_var in env_mappings.items():
             env_value = os.getenv(env_var)
             if env_value is not None:
-                # Convert string to boolean
                 if env_value.lower() in ['true', '1', 'yes', 'on']:
                     setattr(self, attr, True)
                 elif env_value.lower() in ['false', '0', 'no', 'off']:
@@ -80,7 +77,6 @@ class OptimizationConfig:
                 self.USE_FAST_PROCESSING_PIPELINE)
 
 
-# Global configuration instance
 config = OptimizationConfig()
 
 
@@ -111,7 +107,6 @@ def disable_optimized_mode():
 
 
 if __name__ == "__main__":
-    # Print current optimization settings
     print("=== Optimization Configuration ===")
     summary = config.get_optimization_summary()
     
@@ -123,7 +118,6 @@ if __name__ == "__main__":
     
     print(f"\nOptimized Mode: {'✅ ENABLED' if config.is_optimized_mode() else '❌ DISABLED'}")
     
-    # Show environment variable usage
     print(f"\nEnvironment Variables:")
     print("  CASE_TRAINER_ULTRA_FAST_PDF=true")
     print("  CASE_TRAINER_SKIP_VERIFICATION=true")

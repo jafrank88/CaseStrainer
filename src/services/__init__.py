@@ -11,7 +11,8 @@ Architecture:
 - CitationProcessor: Orchestrator that coordinates all services
 """
 
-from .interfaces import (
+from .interfaces import (from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
     ICitationExtractor,
     ICitationVerifier, 
     ICitationClusterer,

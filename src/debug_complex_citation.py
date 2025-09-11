@@ -1,22 +1,20 @@
-#!/usr/bin/env python3
 """
 Debug script to test complex citation processing.
 """
 
 import sys
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import os
 import logging
 from typing import Any
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Add the parent directory to the path so we can import from src
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.insert(0, parent_dir)
 
-# Try to import the modules, with fallbacks if they don't exist
 try:
     from .enhanced_multi_source_verifier import EnhancedMultiSourceVerifier as ImportedVerifier
     EnhancedMultiSourceVerifier = ImportedVerifier  # type: ignore
@@ -26,7 +24,6 @@ except ImportError:
         def __init__(self):
             pass
 
-# Fallback for complex citation processing since the module doesn't exist
 def process_text_with_complex_citations(text: str, verifier: Any) -> list:
     """Fallback function for complex citation processing."""
     logger.warning("complex_citation_integration module not available - using fallback")
@@ -37,10 +34,8 @@ ComplexCitationIntegrator = None
 def test_complex_citation():
     """Test the complex citation processing."""
     
-    # Initialize the verifier
     verifier = EnhancedMultiSourceVerifier()
     
-    # Use the provided sample text
     test_text = (
         "Zink filed her first appeal after the trial court granted summary judgment to "
         "the Does. While the appeal was pending, this court decided John Doe A v. "
@@ -58,7 +53,6 @@ def test_complex_citation():
     logger.info(test_text)
     logger.info("=" * 60)
     
-    # Process with the full pipeline
     logger.info("\nProcessing with full pipeline:")
     logger.info("-" * 40)
     

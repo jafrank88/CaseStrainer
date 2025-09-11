@@ -49,10 +49,20 @@
 
       <!-- Results Section -->
       <div v-if="results" class="results-section">
+        <!-- EnhancedValidator Results Section -->
+        <div class="results-section-header">
+          <h2 class="results-title">
+            <i class="bi bi-shield-check me-2"></i>
+            EnhancedValidator Citation Analysis Results
+          </h2>
+          <p class="results-subtitle">Results from EnhancedValidator analysis interface</p>
+        </div>
+        
         <CitationResults 
           :results="results"
           :show-loading="showLoading"
           :error="error"
+          component-id="enhanced-validator"
           @copy-results="copyResults"
           @download-results="downloadResults"
           @toast="showToast"
@@ -139,7 +149,7 @@ export default {
                 // Stop polling if complete
                 if (progressData.is_complete) {
                   clearInterval(progressPollingInterval);
-                  globalProgress.completeProgress();
+                  globalProgress.completeProgress(null, 'enhanced-validator');
                 }
               }
             } catch (error) {

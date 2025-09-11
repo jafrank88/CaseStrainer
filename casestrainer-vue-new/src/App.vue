@@ -132,7 +132,8 @@ export default {
       appVersion: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0',
       currentYear: new Date().getFullYear()
     }
-  }
+  },
+
 }
 </script>
 
@@ -399,5 +400,54 @@ main {
   font-weight: 700;
   color: #fff !important;
   background: rgba(255,255,255,0.12);
+}
+
+/* Results Section Headers */
+.results-section-header {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 0.75rem;
+  border-left: 4px solid #4b2e83;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.results-title {
+  color: #4b2e83;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.results-subtitle {
+  color: #6c757d;
+  font-size: 1rem;
+  margin-bottom: 0;
+  font-style: italic;
+}
+
+.results-section-header .bi {
+  color: #6a4c93;
+}
+
+/* Route mismatch message */
+.route-mismatch {
+  padding: 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 0.75rem;
+  border: 2px dashed #dee2e6;
+}
+
+.route-mismatch-message {
+  color: #6c757d;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.route-mismatch .bi {
+  color: #ffc107;
 }
 </style>

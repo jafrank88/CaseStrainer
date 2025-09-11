@@ -5,6 +5,8 @@ This completes the feature extraction from the unified_citation_processor.py and
 """
 
 import re
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import time
 import logging
 from typing import List, Dict, Any, Optional
@@ -23,22 +25,18 @@ class StatuteFilter:
     def _init_statute_patterns(self) -> List[str]:
         """Initialize patterns for statute identification."""
         return [
-            # Federal statutes
             r'\b\d+\s+U\.?S\.?C\.?\s+§?\s*\d+',
             r'\b\d+\s+USC\s+§?\s*\d+',
             
-            # State statutes
             r'\bRCW\s+\d+\.\d+\.\d+',
             r'\bWAC\s+\d+\-\d+\-\d+',
             r'\bCal\.?\s+Code\s+§?\s*\d+',
             r'\bTex\.?\s+Code\s+§?\s*\d+',
             r'\bN\.?Y\.?\s+[A-Z]+\.?\s+Law\s+§?\s*\d+',
             
-            # CFR and regulations
             r'\b\d+\s+C\.?F\.?R\.?\s+§?\s*\d+',
             r'\b\d+\s+CFR\s+§?\s*\d+',
             
-            # Common statute formats
             r'\b§\s*\d+[\.\-]\d+',
             r'\bSection\s+\d+[\.\-]\d+',
             r'\bSec\.\s+\d+[\.\-]\d+',
@@ -67,7 +65,6 @@ class StatuteFilter:
                 filtered.append(citation)
             else:
                 logger = logging.getLogger(__name__)
-                logger.debug(f"Filtered out statute: {citation_text}")
         
         return filtered
     
@@ -117,7 +114,6 @@ class ExtractionDebugger:
         }
         
         self.extraction_steps.append(step_info)
-        logger.debug(f"[EXTRACTION_DEBUG] {step_name}: {step_info}")
     
     def log_citation_processing(self, citation: Dict[str, Any], stage: str, result: Any):
         """Log citation processing details."""
@@ -135,7 +131,6 @@ class ExtractionDebugger:
         }
         
         self.trace_logs.append(log_entry)
-        logger.debug(f"[CITATION_DEBUG] {stage}: {citation.get('citation', '')} -> {type(result).__name__}")
     
     def get_debug_summary(self) -> Dict[str, Any]:
         """Get a summary of debug information."""
@@ -170,24 +165,19 @@ class ExtractionDebugger:
         }
         
         try:
-            # Step 1: Analyze input text
             self.log_step('analyze_input', text, {'length': len(text)})
             debug_info['steps'].append('analyze_input')
             
-            # Step 2: Process each citation
             for i, citation in enumerate(citations):
                 try:
                     self.log_citation_processing(citation, 'initial_processing', citation)
                     
-                    # Extract case name
                     case_name = citation.get('case_name', citation.get('extracted_case_name'))
                     self.log_citation_processing(citation, 'case_name_extraction', case_name)
                     
-                    # Extract date
                     date = citation.get('date', citation.get('extracted_date'))
                     self.log_citation_processing(citation, 'date_extraction', date)
                     
-                    # Validate citation (import here to avoid circular imports)
                     try:
                         from src.citation_utils_consolidated import validate_extraction_quality
                         validation = validate_extraction_quality(citation)
@@ -202,7 +192,6 @@ class ExtractionDebugger:
             
             debug_info['steps'].append('citation_processing')
             
-            # Step 3: Final analysis
             final_stats = {
                 'processed_citations': len(citations),
                 'extraction_steps': len(self.extraction_steps),
@@ -220,18 +209,15 @@ class ExtractionDebugger:
         return debug_info
 
 
-# Date tracing utilities (extracted from unified_citation_processor.py)
 
 def setup_date_tracing():
     """
     Set up date tracing for debugging date extraction.
     Extracted from unified_citation_processor.py.
     """
-    # Create a specialized logger for date tracing
     date_logger = logging.getLogger('date_tracing')
     date_logger.setLevel(logging.DEBUG)
     
-    # Create handler if it doesn't exist
     if not date_logger.handlers:
         handler = logging.StreamHandler()
         formatter = logging.Formatter('[DATE_TRACE] %(asctime)s - %(message)s')
@@ -266,7 +252,6 @@ def extract_year_from_multiple_sources(citation: Dict[str, Any], context: str) -
     
     citation_text = citation.get('citation', '')
     
-    # Strategy 1: Look for year in parentheses after citation
     year_patterns = [
         r'\(\s*(\d{4})\s*\)',  # (2023)
         r'\(\s*[A-Za-z\s,]+(\d{4})\s*\)',  # (Wash. 2023)
@@ -281,7 +266,6 @@ def extract_year_from_multiple_sources(citation: Dict[str, Any], context: str) -
                 trace_date_extraction(citation, context, year, f"parentheses_pattern: {pattern}")
                 return year
     
-    # Strategy 2: Look for year in citation text itself
     citation_year_match = re.search(r'(\d{4})', citation_text)
     if citation_year_match:
         year = citation_year_match.group(1)
@@ -289,7 +273,6 @@ def extract_year_from_multiple_sources(citation: Dict[str, Any], context: str) -
             trace_date_extraction(citation, context, year, "citation_text")
             return year
     
-    # Strategy 3: Look for year in surrounding context
     context_year_match = re.search(r'\b(\d{4})\b', context)
     if context_year_match:
         year = context_year_match.group(1)
@@ -312,7 +295,6 @@ def time_function(func):
         end_time = time.time()
         
         logger = logging.getLogger(__name__)
-        logger.debug(f"Function {func.__name__} took {end_time - start_time:.4f} seconds")
         
         return result
     
@@ -330,11 +312,9 @@ def extract_case_info_comprehensive(text: str, start: int, end: int,
     """
     logger = logging.getLogger(__name__)
     
-    # Initialize components
     statute_filter = StatuteFilter() if enable_statute_filtering else None
     debugger = ExtractionDebugger() if enable_debug else None
     
-    # Import other components to avoid circular imports
     try:
         from src.citation_utils_consolidated import (
             OCRCorrector, ConfidenceScorer, extract_case_info_enhanced_with_position, 
@@ -352,38 +332,30 @@ def extract_case_info_comprehensive(text: str, start: int, end: int,
         debugger.log_step('start_comprehensive_extraction', {'start': start, 'end': end})
     
     try:
-        # Extract basic citation info
         citation_text = text[start:end]
         
-        # Apply OCR correction if enabled
         if ocr_corrector:
             corrected_text = ocr_corrector.correct_text(citation_text)
             if corrected_text != citation_text:
-                logger.debug(f"OCR correction: '{citation_text}' -> '{corrected_text}'")
                 citation_text = corrected_text
         
-        # Check if it's a statute (filter if enabled)
         if statute_filter and statute_filter.is_statute(citation_text):
             if enable_debug and debugger:
                 debugger.log_step('statute_filtered', citation_text)
             return {'filtered': True, 'reason': 'statute', 'citation_text': citation_text}
         
-        # Create basic citation dict
         citation = {'citation': citation_text}
         
-        # Use enhanced position-aware extraction if available
         if 'extract_case_info_enhanced_with_position' in locals():
             enhanced_result = extract_case_info_enhanced_with_position(text, start, end)
         else:
             enhanced_result = {'citation_text': citation_text}
         
-        # Calculate comprehensive confidence if available
         final_confidence = 0.5  # Default confidence
         if confidence_scorer and 'get_adaptive_context' in locals():
             context = get_adaptive_context(text, start, end)
             final_confidence = confidence_scorer.calculate_citation_confidence(enhanced_result, context)
         
-        # Combine all results
         final_result = {
             **enhanced_result,
             'comprehensive_confidence': final_confidence,
@@ -406,7 +378,6 @@ def extract_case_info_comprehensive(text: str, start: int, end: int,
 if __name__ == "__main__":
     print("=== Enhanced Citation Utilities Test ===")
     
-    # Test StatuteFilter
     statute_filter = StatuteFilter()
     test_statutes = [
         "RCW 2.60.020",
@@ -420,7 +391,6 @@ if __name__ == "__main__":
         is_statute = statute_filter.is_statute(test)
         print(f"'{test}' -> {'STATUTE' if is_statute else 'CASE LAW'}")
     
-    # Test ExtractionDebugger
     debugger = ExtractionDebugger()
     debugger.enable_debug()
     
@@ -435,5 +405,19 @@ if __name__ == "__main__":
     print(f"Processed citations: {debug_result['final_stats']['processed_citations']}")
     
     print("\n=== Feature Extraction Complete ===")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 

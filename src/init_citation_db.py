@@ -3,24 +3,22 @@ Initialize the citation database for the citation correction engine.
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import sqlite3
 import logging
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Database file path
 db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")
 
 
 def init_database():
     """Initialize the citation database with the required tables."""
     try:
-        # Connect to the SQLite database (creates it if it doesn't exist)
         conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
-        # Create the citations table
         cursor.execute(
             """
         CREATE TABLE IF NOT EXISTS citations (
@@ -38,10 +36,8 @@ def init_database():
         """
         )
 
-        # Commit the table creation first
         conn.commit()
 
-        # Check if the normalized_citation column exists, if not, add it
         cursor.execute("PRAGMA table_info(citations)")
         columns = [col[1] for col in cursor.fetchall()]
 
@@ -53,7 +49,6 @@ def init_database():
             """
             )
 
-        # Create an index for faster lookups
         cursor.execute(
             """
         CREATE INDEX IF NOT EXISTS idx_normalized_citation 
@@ -61,7 +56,6 @@ def init_database():
         """
         )
 
-        # Commit changes and close the connection
         conn.commit()
         logger.info(f"Successfully initialized citation database at {db_path}")
 

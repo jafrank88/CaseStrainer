@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Data Processing Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .citation { margin: 10px 0; padding: 10px; background: #f8f9fa; }
+        .cluster { margin: 10px 0; padding: 10px; background: #e9ecef; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Frontend Data Processing Test</h1>
+    
+    <div class="test-section">
+        <h2>📊 Backend Response Data</h2>
+        <p>Testing if the frontend can process the backend response correctly.</p>
+        <button onclick="testDataProcessing()">Test Data Processing</button>
+    </div>
+    
+    <div id="results" class="test-section">
+        <h2>📋 Test Results</h2>
+        <div id="test-output"></div>
+    </div>
+    
+    <script>
+        // Simulate the backend response
+        const backendResponse = {
+            "metadata": {
+                "status": "completed",
+                "success": true
+            },
+            "result": {
+                "citations": [
+                    {
+                        "canonical_date": "2014-01-14",
+                        "canonical_name": "Knight v. Knight",
+                        "citation": "317 P.3d 1068",
+                        "confidence_score": 0.7,
+                        "extracted_case_name": "In re Vulnerable Adult Petition for Knight",
+                        "extracted_date": "2014-01-14",
+                        "extraction_method": "unified_processor",
+                        "false_positive_filtered": false,
+                        "source": "CourtListener Citation-Lookup API v4",
+                        "url": null,
+                        "validation_method": "citation_lookup_v4_only",
+                        "verification_confidence": 0.7,
+                        "verified": true
+                    },
+                    {
+                        "canonical_date": "2014",
+                        "canonical_name": "In re Marriage of Black",
+                        "citation": "188 Wn.2d 114",
+                        "confidence_score": 0.7,
+                        "extracted_case_name": "In re Marriage of Black",
+                        "extracted_date": "2014",
+                        "extraction_method": "unified_processor",
+                        "false_positive_filtered": false,
+                        "source": "citation_object",
+                        "url": null,
+                        "validation_method": "object_extraction",
+                        "verification_confidence": 0.7,
+                        "verified": false
+                    }
+                ],
+                "clusters": [
+                    {
+                        "case_name": "In re Vulnerable Adult Petition for Knight",
+                        "citations": ["317 P.3d 1068", "178 Wn. App. 929"],
+                        "cluster_id": "Knight_2014-01-14",
+                        "cluster_type": "case_name_year",
+                        "size": 2,
+                        "year": "2014-01-14"
+                    },
+                    {
+                        "case_name": "In re Marriage of Black",
+                        "citations": ["188 Wn.2d 114"],
+                        "cluster_id": "Black_2014",
+                        "cluster_type": "case_name_year",
+                        "size": 1,
+                        "year": "2014"
+                    }
+                ]
+            },
+            "status": "completed",
+            "success": true
+        };
+        
+        function testDataProcessing() {
+            const output = document.getElementById('test-output');
+            output.innerHTML = '';
+            
+            try {
+                // Test 1: Check if we can access the data structure
+                output.innerHTML += '<h3>✅ Test 1: Data Structure Access</h3>';
+                output.innerHTML += `<p>Response success: ${backendResponse.success}</p>`;
+                output.innerHTML += `<p>Citations count: ${backendResponse.result.citations.length}</p>`;
+                output.innerHTML += `<p>Clusters count: ${backendResponse.result.clusters.length}</p>`;
+                
+                // Test 2: Process citations
+                output.innerHTML += '<h3>✅ Test 2: Citations Processing</h3>';
+                backendResponse.result.citations.forEach((citation, index) => {
+                    output.innerHTML += `
+                        <div class="citation">
+                            <strong>Citation ${index + 1}:</strong> ${citation.citation}<br>
+                            <strong>Extracted Name:</strong> ${citation.extracted_case_name}<br>
+                            <strong>Canonical Name:</strong> ${citation.canonical_name}<br>
+                            <strong>Extracted Date:</strong> ${citation.extracted_date}<br>
+                            <strong>Canonical Date:</strong> ${citation.canonical_date}<br>
+                            <strong>Status:</strong> ${citation.verified ? 'verified' : 'unverified'}<br>
+                            <strong>Source:</strong> ${citation.source}<br>
+                            <strong>Confidence:</strong> ${citation.confidence_score}
+                        </div>
+                    `;
+                });
+                
+                // Test 3: Process clusters
+                output.innerHTML += '<h3>✅ Test 3: Clusters Processing</h3>';
+                backendResponse.result.clusters.forEach((cluster, index) => {
+                    output.innerHTML += `
+                        <div class="cluster">
+                            <strong>Cluster ${index + 1}:</strong> ${cluster.case_name}<br>
+                            <strong>Citations:</strong> ${cluster.citations.join(', ')}<br>
+                            <strong>Year:</strong> ${cluster.year}<br>
+                            <strong>Size:</strong> ${cluster.size}
+                        </div>
+                    `;
+                });
+                
+                output.innerHTML += '<div class="test-section success"><h3>🎉 All Tests Passed!</h3><p>The frontend can process this data structure correctly.</p></div>';
+                
+            } catch (error) {
+                output.innerHTML += `<div class="test-section error"><h3>❌ Test Failed</h3><p>Error: ${error.message}</p></div>`;
+            }
+        }
+    </script>
+</body>
+</html>

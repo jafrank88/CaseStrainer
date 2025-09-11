@@ -6,6 +6,8 @@ that can identify valid citations with high accuracy without requiring API calls
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 import sqlite3
 import re
@@ -17,7 +19,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report, accuracy_score
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -45,11 +46,9 @@ class CitationClassifier:
         self.vectorizer = None
         self.model = None
 
-        # Create model directory if it doesn't exist
         if not os.path.exists(self.model_dir):
             os.makedirs(self.model_dir)
 
-        # Load the model if it exists
         self._load_model()
 
     def _load_model(self):
@@ -90,16 +89,13 @@ class CitationClassifier:
         """Extract features from a citation for classification."""
         features = {}
 
-        # Basic length features
         features["length"] = len(citation)
         features["word_count"] = len(citation.split())
 
-        # Check for common patterns
         features["has_v"] = 1 if " v. " in citation else 0
         features["has_digits"] = 1 if re.search(r"\d", citation) else 0
         features["has_reporter"] = 0
 
-        # Check for common reporters
         reporters = [
             "U.S.",
             "S.Ct.",
@@ -123,7 +119,6 @@ class CitationClassifier:
             else:
                 features[f"reporter_{reporter.replace('.', '')}"] = 0
 
-        # Check for volume and page pattern
         vol_page_pattern = re.search(r"(\d+)\s+[A-Za-z\.\s]+\s+(\d+)", citation)
         if vol_page_pattern:
             features["has_vol_page"] = 1
@@ -134,7 +129,6 @@ class CitationClassifier:
             features["volume"] = 0
             features["page"] = 0
 
-        # Check for year pattern
         year_pattern = re.search(r"\((\d{4})\)", citation)
         if year_pattern:
             features["has_year"] = 1
@@ -148,22 +142,18 @@ class CitationClassifier:
     def _get_training_data(self):
         """Get training data from the database."""
         try:
-            # Connect to the database
             conn = sqlite3.connect(self.db_path)
             cursor = conn.cursor()
 
-            # Get all citations
             cursor.execute("SELECT citation_text, found FROM citations")
             rows = cursor.fetchall()
 
-            # Close the connection
             conn.close()
 
             if not rows:
                 logger.error("No citations found in the database")
                 return None, None
 
-            # Prepare training data
             citations = []
             labels = []
 
@@ -185,12 +175,10 @@ class CitationClassifier:
 
     def train(self, force=False):
         """Train the classifier on the citation database."""
-        # Check if model already exists and force is False
         if self.model is not None and not force:
             logger.info("Model already exists. Use force=True to retrain.")
             return True
 
-        # Get training data
         citations, labels = self._get_training_data()
 
         if not citations or not labels:
@@ -198,7 +186,6 @@ class CitationClassifier:
             return False
 
         try:
-            # Create feature vectors
             logger.info("Creating feature vectors...")
             self.vectorizer = TfidfVectorizer(
                 analyzer="char_wb", ngram_range=(2, 5), max_features=5000
@@ -206,7 +193,6 @@ class CitationClassifier:
 
             X_text = self.vectorizer.fit_transform(citations)
 
-            # Extract additional features
             logger.info("Extracting additional features...")
             additional_features = []
 
@@ -227,16 +213,13 @@ class CitationClassifier:
                     ]
                 )
 
-            # Combine text features with additional features
             X_additional = np.array(additional_features)
             X_combined = np.hstack((X_text.toarray(), X_additional))  # type: ignore
 
-            # Split into training and testing sets
             X_train, X_test, y_train, y_test = train_test_split(
                 X_combined, labels, test_size=0.2, random_state=42
             )
 
-            # Train the model
             logger.info("Training the model...")
             self.model = RandomForestClassifier(
                 n_estimators=100, max_depth=10, random_state=42
@@ -244,7 +227,6 @@ class CitationClassifier:
 
             self.model.fit(X_train, y_train)
 
-            # Evaluate the model
             y_pred = self.model.predict(X_test)
             accuracy = accuracy_score(y_test, y_pred)
 
@@ -253,7 +235,6 @@ class CitationClassifier:
                 "\nClassification Report:\n" + str(classification_report(y_test, y_pred))
             )
 
-            # Save the model
             self._save_model()
 
             return True
@@ -272,10 +253,8 @@ class CitationClassifier:
             return 0.0
 
         try:
-            # Create feature vector
             X_text = self.vectorizer.transform([citation])
 
-            # Extract additional features
             features = self._extract_features(citation)
             X_additional = np.array(
                 [
@@ -292,21 +271,14 @@ class CitationClassifier:
                 ]
             ).reshape(1, -1)
 
-            # Combine text features with additional features
             X_combined = np.hstack((X_text.toarray(), X_additional))  # type: ignore
 
-            # Make prediction
             prediction = self.model.predict_proba(X_combined)[0]
 
-            # Handle case where model was trained on only one class
             if len(prediction) == 1:
-                # If we only have one class, return 1.0 if the model is confident
                 # in that class, otherwise 0.0
                 return 1.0 if prediction[0] > 0.5 else 0.0
 
-            # For binary classification, return the probability of the positive class
-            # The positive class is usually at index 1, but verify this with your model
-            # You can check with: model.classes_ to see the order of classes
             return prediction[1] if len(prediction) > 1 else prediction[0]
 
         except Exception as e:
@@ -320,13 +292,10 @@ class CitationClassifier:
         try:
             confidence = self.predict(citation)
 
-            # Extract features for explanation
             features = self._extract_features(citation)
 
-            # Determine classification
             is_valid = confidence >= 0.7  # Threshold can be adjusted
 
-            # Create explanation
             explanation = []
 
             if features["has_reporter"]:
@@ -351,7 +320,6 @@ class CitationClassifier:
             else:
                 explanation.append("Missing 'v.' (versus) in case name")
 
-            # Return classification result
             return {
                 "citation": citation,
                 "is_valid": is_valid,
@@ -385,14 +353,11 @@ class CitationClassifier:
         return results
 
 
-# Example usage
 if __name__ == "__main__":
     classifier = CitationClassifier()
 
-    # Train the model
     classifier.train()
 
-    # Example citations
     citations = [
         "410 U.S. 113",  # Roe v. Wade
         "347 U.S. 483",  # Brown v. Board of Education
@@ -402,7 +367,6 @@ if __name__ == "__main__":
         "Smith v. Jones, 123 Invalid 456",  # Invalid citation
     ]
 
-    # Classify each citation
     for citation in citations:
         result = classifier.classify_citation(citation)
         logger.info(f"Citation: {citation}")

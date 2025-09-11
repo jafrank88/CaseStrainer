@@ -1,0 +1,26 @@
+# Development Override for docker-compose.prod.yml
+# This enables live code development without rebuilding containers
+
+services:
+  # Frontend Development Mode (Live Code)
+  frontend-prod:
+    build: 
+      context: ./casestrainer-vue-new
+      dockerfile: Dockerfile.dev
+    volumes:
+      # Mount development source code for live updates
+      - ./casestrainer-vue-new/src:/app/src:ro
+      - ./casestrainer-vue-new/public:/app/public:ro
+      - ./casestrainer-vue-new/package.json:/app/package.json:ro
+      - ./casestrainer-vue-new/vite.config.js:/app/vite.config.js:ro
+      - ./casestrainer-vue-new/dist:/app/dist:rw
+    environment:
+      - NODE_ENV=production
+      - WATCH_MODE=true
+    command: >
+      sh -c "
+        echo 'Starting development frontend with live code updates...' &&
+        npm run build &&
+        echo 'Frontend built successfully. Starting static server...' &&
+        npx serve -s dist -l 80
+      "

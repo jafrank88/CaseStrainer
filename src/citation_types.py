@@ -6,10 +6,14 @@ used across the citation processing system.
 """
 
 from typing import List, Dict, Any, Optional, Union, Tuple
+
+
+
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from dataclasses import dataclass
 from src.models import CitationResult, ProcessingConfig
 
-# Type aliases for better readability
 CitationList = List[CitationResult]
 CitationDict = Dict[str, Any]
 VerificationResult = Dict[str, Any]
@@ -48,12 +52,10 @@ class VerificationContext:
         if self.metadata is None:
             self.metadata = {}
 
-# Common constants
 DEFAULT_CONTEXT_WINDOW = 200
 DEFAULT_CONTEXT_AFTER = 100
 DEFAULT_CONFIDENCE_THRESHOLD = 0.5
 
-# Citation patterns
 CITATION_PATTERNS = {
     'federal': [
         r'\b\d+\s+U\.S\.\s+\d+\b',
@@ -72,7 +74,6 @@ CITATION_PATTERNS = {
     ]
 }
 
-# Reporter mappings
 REPORTER_STATE_MAPPING = {
     'P.': ['California', 'Pennsylvania'],
     'N.W.': ['Iowa', 'Michigan', 'Minnesota', 'Nebraska', 'North Dakota', 'South Dakota', 'Wisconsin'],

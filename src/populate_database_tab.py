@@ -6,11 +6,12 @@ and adds them to the Unconfirmed Citations Database tab for verification.
 """
 
 import sqlite3
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from datetime import datetime
 import logging
 from .config import get_database_path
 
-# Constants
 DATABASE_FILE = get_database_path()
 
 logger = logging.getLogger(__name__)
@@ -21,7 +22,6 @@ def setup_database_tables():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Create unconfirmed_citations table if it doesn't exist
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS unconfirmed_citations (
@@ -38,7 +38,6 @@ def setup_database_tables():
     """
     )
 
-    # Create unconfirmed_database_citations table if it doesn't exist
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS unconfirmed_database_citations (
@@ -67,7 +66,6 @@ def get_unverified_citations():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Get all unverified citations from the unconfirmed_citations table
     cursor.execute(
         "SELECT * FROM unconfirmed_citations WHERE verification_status IS NULL OR verification_status = 'UNVERIFIED'"
     )
@@ -84,10 +82,8 @@ def add_to_database_tab(citations):
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Clear existing citations in the database tab
     cursor.execute("DELETE FROM unconfirmed_database_citations")
 
-    # Add each citation to the database tab
     count = 0
     for citation in citations:
         citation_text = citation["citation_text"]
@@ -110,17 +106,14 @@ def main():
     """Main function to populate the Unconfirmed Citations Database tab."""
     logger.info("Starting population of the Unconfirmed Citations Database tab...")
 
-    # Set up database tables
     setup_database_tables()
 
-    # Get unverified citations
     citations = get_unverified_citations()
 
     if not citations:
         logger.info("No unverified citations found in the main database.")
         return
 
-    # Add to database tab
     add_to_database_tab(citations)
 
     logger.info("\nPopulation complete")

@@ -4,6 +4,11 @@ Standalone utility functions for web search operations.
 """
 
 from typing import Dict, List, Optional
+
+
+
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import asyncio
 
 
@@ -34,7 +39,6 @@ async def test_comprehensive_web_search():
     """Test the comprehensive web search engine."""
     print("=== Testing Comprehensive Web Search Engine ===\n")
     
-    # Test cluster
     test_cluster = {
         'citations': [
             {'citation': '200 Wn.2d 72'},

@@ -1,127 +1,101 @@
+#!/usr/bin/env python3
 """
-Debug script to understand why all citations are getting the same name/year.
+Debug script to test the exact API processing path and see where clustering is going wrong.
 """
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
-from src.unified_citation_clustering import UnifiedCitationClusterer
-from src.models import CitationResult
+from enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
 
-def debug_clustering_step_by_step():
-    """Debug the clustering process step by step."""
+def debug_api_processing():
+    """Debug the exact API processing path."""
     
-    citations = [
-        # Miranda v. Arizona parallel citations
-        CitationResult(
-            citation="384 U.S. 436",
-            start_index=50,
-            end_index=62,
-            extracted_case_name="Miranda v. Arizona",
-            extracted_date=None,
-            parallel_citations=["86 S. Ct. 1602", "16 L. Ed. 2d 694"],
-            metadata={}
-        ),
-        CitationResult(
-            citation="86 S. Ct. 1602", 
-            start_index=64,
-            end_index=78,
-            extracted_case_name=None,
-            extracted_date=None,
-            parallel_citations=["384 U.S. 436", "16 L. Ed. 2d 694"],
-            metadata={}
-        ),
-        CitationResult(
-            citation="16 L. Ed. 2d 694",
-            start_index=80,
-            end_index=97,
-            extracted_case_name=None,
-            extracted_date="1966",
-            parallel_citations=["384 U.S. 436", "86 S. Ct. 1602"],
-            metadata={}
-        ),
+    # The test text
+    test_text = """We review a trial court's findings of fact for substantial evidence, generally 
+deferring to the trier of fact on questions of witness credibility, conflicting 
+testimony, and persuasiveness of the evidence. In re Vulnerable Adult Petition 
+for Knight, 178 Wn. App. 929, 936-37, 317 P.3d 1068 (2014). Evidence is 
+substantial when sufficient to persuade a fair-minded person of the truth of the 
+matter asserted. In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 
+(2017). "Competent evidence sufficient to support the trial court's decision to 
+grant . . . a domestic violence protection order may contain hearsay or be wholly 
+documentary." Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233 
+(2010)."""
+    
+    print("=== Debugging API Processing Path ===")
+    print(f"Test text length: {len(test_text)} characters")
+    print()
+    
+    # Create processor with same options as API
+    options = ProcessingOptions(
+        enable_async_verification=True,
+        enable_enhanced_verification=True,
+        enable_confidence_scoring=True
+    )
+    processor = EnhancedSyncProcessor(options)
+    
+    # Test each step of the API processing
+    print("=== Step 1: Citation Extraction ===")
+    citations = processor._extract_citations_fast(test_text)
+    print(f"Found {len(citations)} citations")
+    
+    for i, citation in enumerate(citations):
+        print(f"Citation {i+1}: {citation}")
+        if hasattr(citation, 'extracted_case_name'):
+            print(f"  Case Name: {getattr(citation, 'extracted_case_name', 'None')}")
+        if hasattr(citation, 'extracted_date'):
+            print(f"  Date: {getattr(citation, 'extracted_date', 'None')}")
+        print()
+    
+    print("=== Step 2: Citation Normalization ===")
+    normalized_citations = processor._normalize_citations_local(citations, test_text)
+    print(f"Normalized {len(normalized_citations)} citations")
+    
+    print("=== Step 3: Name/Year Extraction ===")
+    enhanced_citations = processor._extract_names_years_local(normalized_citations, test_text)
+    print(f"Enhanced {len(enhanced_citations)} citations")
+    
+    for i, citation in enumerate(enhanced_citations):
+        print(f"Enhanced Citation {i+1}: {citation}")
+        if isinstance(citation, dict):
+            print(f"  Case Name: {citation.get('extracted_case_name', 'None')}")
+            print(f"  Date: {citation.get('extracted_date', 'None')}")
+        else:
+            print(f"  Case Name: {getattr(citation, 'extracted_case_name', 'None')}")
+            print(f"  Date: {getattr(citation, 'extracted_date', 'None')}")
+        print()
+    
+    print("=== Step 4: Clustering ===")
+    clusters = processor._cluster_citations_local(enhanced_citations, test_text, "debug")
+    print(f"Created {len(clusters)} clusters")
+    
+    for i, cluster in enumerate(clusters):
+        print(f"Cluster {i+1}: {cluster.get('case_name', 'Unknown')} ({cluster.get('year', 'Unknown')})")
+        print(f"  Size: {cluster.get('size', 0)} citations")
+        print(f"  Citations: {cluster.get('citations', [])}")
+        print()
+    
+    print("=== Step 5: Full Processing ===")
+    result = processor.process_any_input_enhanced(test_text, 'text', {})
+    
+    if result.get('success'):
+        citations_list = result.get('citations', [])
+        clusters_list = result.get('clusters', [])
         
-        # Gideon v. Wainwright (single citation)
-        CitationResult(
-            citation="372 U.S. 335",
-            start_index=200,
-            end_index=212,
-            extracted_case_name="Gideon v. Wainwright",
-            extracted_date="1963",
-            parallel_citations=[],  # No parallel citations
-            metadata={}
-        ),
+        print(f"✅ Full processing successful")
+        print(f"📊 Found {len(citations_list)} citations")
+        print(f"📊 Created {len(clusters_list)} clusters")
         
-        # Brown v. Board parallel citations
-        CitationResult(
-            citation="347 U.S. 483",
-            start_index=300,
-            end_index=312,
-            extracted_case_name="Brown v. Board of Education",
-            extracted_date=None,
-            parallel_citations=["74 S. Ct. 686", "98 L. Ed. 873"],
-            metadata={}
-        ),
-        CitationResult(
-            citation="74 S. Ct. 686",
-            start_index=314,
-            end_index=327,
-            extracted_case_name=None,
-            extracted_date=None,
-            parallel_citations=["347 U.S. 483", "98 L. Ed. 873"],
-            metadata={}
-        ),
-        CitationResult(
-            citation="98 L. Ed. 873",
-            start_index=329,
-            end_index=342,
-            extracted_case_name=None,
-            extracted_date="1954",
-            parallel_citations=["347 U.S. 483", "74 S. Ct. 686"],
-            metadata={}
-        ),
-    ]
-    
-    print("DEBUG: Step-by-step clustering analysis")
-    print("=" * 50)
-    
-    clusterer = UnifiedCitationClusterer(config={'debug_mode': True})
-    
-    # Debug step 1: Check parallel grouping
-    print("Step 1: Parallel relationship grouping")
-    parallel_groups = clusterer._group_by_parallel_relationships(citations)
-    print(f"Found {len(parallel_groups)} parallel groups:")
-    for i, group in enumerate(parallel_groups):
-        print(f"  Group {i+1}: {[c.citation for c in group]}")
-        for citation in group:
-            name = getattr(citation, 'extracted_case_name', 'None')
-            year = getattr(citation, 'extracted_date', 'None')
-            print(f"    {citation.citation}: name='{name}', year='{year}'")
-    print()
-    
-    # Debug step 2: Check what happens during clustering
-    print("Step 2: Before clustering - original data:")
-    for citation in citations:
-        name = getattr(citation, 'extracted_case_name', 'None')
-        year = getattr(citation, 'extracted_date', 'None')
-        print(f"  {citation.citation}: name='{name}', year='{year}'")
-    print()
-    
-    # Apply clustering
-    clusters = clusterer.cluster_citations(citations)
-    
-    print("Step 3: After clustering - final data:")
-    for citation in citations:
-        name = getattr(citation, 'extracted_case_name', 'None')
-        year = getattr(citation, 'extracted_date', 'None')
-        cluster_id = getattr(citation, 'metadata', {}).get('cluster_id', 'None')
-        print(f"  {citation.citation}: name='{name}', year='{year}', cluster='{cluster_id}'")
-    print()
-    
-    print(f"Final result: {len(clusters)} clusters")
-    for cluster in clusters:
-        print(f"  Cluster: {cluster['case_name']} ({cluster['year']}) - {cluster['citations']}")
+        print("\n=== Final Clusters ===")
+        for i, cluster in enumerate(clusters_list):
+            print(f"Final Cluster {i+1}: {cluster.get('case_name', 'Unknown')} ({cluster.get('year', 'Unknown')})")
+            print(f"  Size: {cluster.get('size', 0)} citations")
+            print(f"  Citations: {cluster.get('citations', [])}")
+            print()
+    else:
+        print(f"❌ Full processing failed: {result.get('error')}")
 
 if __name__ == "__main__":
-    debug_clustering_step_by_step()
+    debug_api_processing()

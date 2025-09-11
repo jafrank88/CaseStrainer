@@ -1,6 +1,7 @@
 import sqlite3
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
-# Sample citation data for 33 citations
+
 sample_citations = [
     {
         "citation_text": "Brown v. Board of Education, 347 U.S. 483 (1954)",
@@ -173,16 +174,13 @@ sample_citations = [
 def populate_multitool_data():
     """Populate the multitool_confirmed_citations table with 33 sample citations."""
     try:
-        # Connect to the database
         conn = sqlite3.connect("citations.db")
         cursor = conn.cursor()
 
-        # Check if the table exists
         cursor.execute(
             "SELECT name FROM sqlite_master WHERE type='table' AND name='multitool_confirmed_citations'"
         )
         if cursor.fetchone() is None:
-            # Create the table if it doesn't exist
             cursor.execute(
                 """
             CREATE TABLE multitool_confirmed_citations (
@@ -199,11 +197,9 @@ def populate_multitool_data():
             )
             logger.info("Created multitool_confirmed_citations table")
 
-        # Clear existing data
         cursor.execute("DELETE FROM multitool_confirmed_citations")
         logger.info("Cleared existing data from multitool_confirmed_citations table")
 
-        # Insert 33 sample citations
         for i, citation in enumerate(sample_citations):
             brief_url = f"https://example.com/brief{i+1}"
             context = f"Context for {citation['citation_text']}"
@@ -227,7 +223,6 @@ def populate_multitool_data():
 
         conn.commit()
 
-        # Verify the data was added
         cursor.execute("SELECT COUNT(*) FROM multitool_confirmed_citations")
         count = cursor.fetchone()[0]
         logger.info(f"Added {count} citations to multitool_confirmed_citations table")

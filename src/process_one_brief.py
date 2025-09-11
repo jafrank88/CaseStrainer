@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
 """
 Process one brief and generate a report showing ToA vs main body differences.
 """
 
 import re
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from toa_parser import ToAParser
 
 def main():
@@ -11,7 +12,6 @@ def main():
     print("PROCESSING ONE BRIEF: ToA vs Main Body Comparison")
     print("=" * 60)
     
-    # Step 1: Read the brief
     print("\n1. READING BRIEF FILE...")
     brief_file = "../wa_briefs_text/004_COA Respondent Brief.txt"
     try:
@@ -22,7 +22,6 @@ def main():
         print(f"   ✗ Error reading file: {e}")
         return
     
-    # Step 2: Find ToA section
     print("\n2. FINDING TABLE OF AUTHORITIES...")
     lines = text.splitlines()
     toa_start = None
@@ -37,20 +36,17 @@ def main():
     
     print(f"   ✓ Found ToA at line {toa_start}")
     
-    # Step 3: Extract ToA section (next 100 lines)
     print("\n3. EXTRACTING ToA SECTION...")
     toa_end = min(toa_start + 100, len(lines))
     toa_lines = lines[toa_start:toa_end]
     toa_section = '\n'.join(toa_lines)
     print(f"   ✓ Extracted {len(toa_lines)} lines ({len(toa_section):,} characters)")
     
-    # Step 4: Parse ToA entries
     print("\n4. PARSING ToA ENTRIES...")
     toa_parser = ToAParser()
     toa_entries = toa_parser.parse_toa_section(toa_section)
     print(f"   ✓ Parsed {len(toa_entries)} ToA entries")
     
-    # Step 5: Show ToA results
     print("\n5. ToA EXTRACTION RESULTS:")
     print("-" * 40)
     
@@ -73,11 +69,9 @@ def main():
     if len(toa_entries) > 10:
         print(f"     ... and {len(toa_entries) - 10} more entries")
     
-    # Step 6: Simple main body extraction (just count citations)
     print("\n6. ANALYZING MAIN BODY...")
     main_body = text.replace(toa_section, "")
     
-    # Simple citation counting in main body
     citation_patterns = [
         r'\d+\s+Wn\.2d\s+\d+',  # 123 Wn.2d 456
         r'\d+\s+P\.\d+d\s+\d+',  # 123 P.3d 456
@@ -91,7 +85,6 @@ def main():
     
     print(f"   ✓ Found {len(body_citations)} citation patterns in main body")
     
-    # Step 7: Generate comparison report
     print("\n" + "=" * 60)
     print("FINAL REPORT")
     print("=" * 60)

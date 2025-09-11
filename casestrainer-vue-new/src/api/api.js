@@ -2,8 +2,8 @@ import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 
 // Get base URL from environment variables
-// For local development, use localhost:5000 where our backend is running
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/casestrainer/api';
+// For production, use relative path to work with any domain
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
 
 // Create axios instance with default config
 const api = axios.create({

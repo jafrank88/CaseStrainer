@@ -1,0 +1,10 @@
+2025-08-31 14:35:07,431 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-08-31 14:35:07,433 - __main__ - INFO - Starting test_extracted_data
+2025-08-31 14:35:07,570 - __main__ - ERROR - Failed to import UnifiedCitationProcessorV2: expected 'except' or 'finally' block (unified_citation_processor_v2.py, line 3280)
+2025-08-31 14:35:07,571 - __main__ - ERROR - Test failed with exception
+Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_extracted_data_debug.py", line 26, in test_extracted_data
+    from unified_citation_processor_v2 import UnifiedCitationProcessorV2
+  File "D:\dev\casestrainer\src\unified_citation_processor_v2.py", line 3280
+    def cluster_to_dict(cluster):
+SyntaxError: expected 'except' or 'finally' block

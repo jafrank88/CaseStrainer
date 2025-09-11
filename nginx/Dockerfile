@@ -11,7 +11,7 @@ RUN mkdir -p /etc/nginx/ssl
 COPY nginx.conf /etc/nginx/nginx.conf
 
 # Copy the site configuration
-COPY conf.d/default.conf /etc/nginx/conf.d/default.conf
+COPY conf.d/casestrainer.conf /etc/nginx/conf.d/default.conf
 
 # Set permissions
 RUN chown -R nginx:nginx /usr/share/nginx/html

@@ -1,0 +1,80 @@
+"""
+Citation Types and Data Structures
+
+This module contains type definitions, data structures, and type aliases
+used across the citation processing system.
+"""
+
+from typing import List, Dict, Any, Optional, Union, Tuple
+from dataclasses import dataclass
+from src.models import CitationResult, ProcessingConfig
+
+CitationList = List[CitationResult]
+CitationDict = Dict[str, Any]
+VerificationResult = Dict[str, Any]
+ContextRange = Tuple[Optional[int], Optional[int]]
+
+@dataclass
+class CitationMatch:
+    """Represents a citation match with position information."""
+    citation: str
+    start: int
+    end: int
+    confidence: float = 0.0
+    source: str = "regex"
+
+@dataclass
+class CitationContext:
+    """Represents context around a citation."""
+    text: str
+    start: int
+    end: int
+    citation_start: int
+    citation_end: int
+    context_before: str = ""
+    context_after: str = ""
+
+@dataclass
+class VerificationContext:
+    """Context for citation verification."""
+    citation: CitationResult
+    original_text: str
+    api_key: Optional[str] = None
+    source: str = "unknown"
+    metadata: Optional[Dict[str, Any]] = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
+
+DEFAULT_CONTEXT_WINDOW = 200
+DEFAULT_CONTEXT_AFTER = 100
+DEFAULT_CONFIDENCE_THRESHOLD = 0.5
+
+CITATION_PATTERNS = {
+    'federal': [
+        r'\b\d+\s+U\.S\.\s+\d+\b',
+        r'\b\d+\s+S\.Ct\.\s+\d+\b',
+        r'\b\d+\s+F\.\d*d?\b',
+        r'\b\d+\s+F\.Supp\.\d*d?\b',
+    ],
+    'state': [
+        r'\b\d+\s+P\.\d*d?\b',
+        r'\b\d+\s+N\.W\.\d*d?\b',
+        r'\b\d+\s+S\.W\.\d*d?\b',
+        r'\b\d+\s+N\.E\.\d*d?\b',
+        r'\b\d+\s+S\.E\.\d*d?\b',
+        r'\b\d+\s+A\.\d*d?\b',
+        r'\b\d+\s+So\.\d*d?\b',
+    ]
+}
+
+REPORTER_STATE_MAPPING = {
+    'P.': ['California', 'Pennsylvania'],
+    'N.W.': ['Iowa', 'Michigan', 'Minnesota', 'Nebraska', 'North Dakota', 'South Dakota', 'Wisconsin'],
+    'S.W.': ['Arkansas', 'Kentucky', 'Missouri', 'Tennessee', 'Texas'],
+    'N.E.': ['Illinois', 'Indiana', 'Massachusetts', 'New York', 'Ohio'],
+    'S.E.': ['Georgia', 'North Carolina', 'South Carolina', 'Virginia', 'West Virginia'],
+    'A.': ['Alaska', 'Arizona', 'Colorado', 'Connecticut', 'Delaware', 'Hawaii', 'Idaho', 'Kansas', 'Maine', 'Maryland', 'Montana', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'Oklahoma', 'Oregon', 'Rhode Island', 'Utah', 'Vermont', 'Washington', 'Wyoming'],
+    'So.': ['Alabama', 'Florida', 'Louisiana', 'Mississippi'],
+} 

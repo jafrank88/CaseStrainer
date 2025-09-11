@@ -5,6 +5,8 @@ This module provides testing utilities, mock data generation, and quality metric
 """
 
 import secrets
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import unittest
 import asyncio
 import time
@@ -53,7 +55,6 @@ class CitationTestCase(unittest.TestCase):
         self.assertGreaterEqual(citation.confidence, 0.0, msg)
         self.assertLessEqual(citation.confidence, 1.0, msg)
         
-        # Check that start_index and end_index are not None and are valid
         self.assertIsNotNone(citation.start_index, msg)
         self.assertIsNotNone(citation.end_index, msg)
         start_index: int = citation.start_index  # type: ignore
@@ -124,15 +125,13 @@ class TestDataGenerator:
         
         for i in range(count):
             if i < len(self.landmark_cases):
-                # Use landmark cases first
                 case_name, citation_text, year = self.landmark_cases[i]
                 full_citation = f"{case_name}, {citation_text} ({year})"
             else:
-                # Generate random citations
                 case_name = self.generate_random_case_name()
-                volume = secrets.randbelow(100, 999)
-                page = secrets.randbelow(1, 999)
-                year = secrets.randbelow(1950, 2023)
+                volume = secrets.randbelow(999) + 100  # 100-998
+                page = secrets.randbelow(999) + 1      # 1-999
+                year = secrets.randbelow(74) + 1950    # 1950-2023
                 full_citation = f"{case_name}, {volume} U.S. {page} ({year})"
             
             citation = CitationResult(
@@ -163,14 +162,12 @@ class TestDataGenerator:
                 full_citation = f"{case_name}, {citation_text} ({year})"
                 citations.append(full_citation)
                 
-                # Add parallel citations if requested
                 if include_parallels and case_name == "Gideon v. Wainwright":
                     citations.extend([
                         "Gideon v. Wainwright, 83 S. Ct. 792 (1963)",
                         "9 L. Ed. 2d 799 (1963)"
                     ])
         
-        # Integrate citations into document
         for citation in citations:
             sentence = f"In {citation}, the Court established important precedent."
             document_parts.append(sentence)
@@ -183,12 +180,10 @@ class TestDataGenerator:
         """Generate a large document for performance testing."""
         base_text = self.generate_test_document(citation_count=10, include_parallels=True)
         
-        # Repeat and vary the text to reach desired size
         target_size = size_kb * 1024
         current_text = base_text
         
         while len(current_text) < target_size:
-            # Add some variation
             additional_text = f"\n\nSection {len(current_text) // 1000}:\n"
             additional_text += base_text.replace("This is a legal document", 
                                                f"This is section {len(current_text) // 1000} of the legal document")
@@ -228,7 +223,6 @@ class TestRunner:
         """Run citation extraction tests."""
         results = []
         
-        # Test 1: Basic extraction
         test_text = "Brown v. Board of Education, 347 U.S. 483 (1954) was important."
         start_time = time.time()
         
@@ -251,7 +245,6 @@ class TestRunner:
                 error_message=str(e)
             ))
         
-        # Test 2: Multiple citations
         test_text = self.test_data_generator.generate_test_document(citation_count=5)
         start_time = time.time()
         
@@ -274,7 +267,6 @@ class TestRunner:
                 error_message=str(e)
             ))
         
-        # Test 3: Large document performance
         large_text = self.test_data_generator.generate_large_document(size_kb=100)
         start_time = time.time()
         
@@ -282,7 +274,6 @@ class TestRunner:
             citations = extractor.extract_citations(large_text)
             execution_time = time.time() - start_time
             
-            # Performance threshold: should complete within 10 seconds
             passed = execution_time < 10.0 and len(citations) > 0
             results.append(TestResult(
                 test_name="large_document_performance",
@@ -308,10 +299,8 @@ class TestRunner:
         """Run citation verification tests."""
         results = []
         
-        # Generate test citations
         test_citations = self.test_data_generator.generate_test_citations(count=3)
         
-        # Test 1: Basic verification
         start_time = time.time()
         
         try:
@@ -333,7 +322,6 @@ class TestRunner:
                 error_message=str(e)
             ))
         
-        # Test 2: Batch verification
         start_time = time.time()
         
         try:
@@ -365,11 +353,9 @@ class TestRunner:
         """Run citation clustering tests."""
         results = []
         
-        # Generate test citations with known parallels
         test_text = self.test_data_generator.generate_test_document(include_parallels=True)
         test_citations = self.test_data_generator.generate_test_citations(count=5)
         
-        # Test 1: Parallel detection
         start_time = time.time()
         
         try:
@@ -397,7 +383,6 @@ class TestRunner:
                 error_message=str(e)
             ))
         
-        # Test 2: Clustering
         start_time = time.time()
         
         try:
@@ -462,14 +447,12 @@ class PerformanceTestSuite:
         """Run performance benchmarks on all services."""
         results = {}
         
-        # Test different document sizes
         sizes = [1, 10, 50, 100]  # KB
         
         for size_kb in sizes:
             test_text = self.test_data_generator.generate_large_document(size_kb)
             size_results = {}
             
-            # Test extraction performance
             if 'extractor' in services:
                 start_time = time.time()
                 citations = services['extractor'].extract_citations(test_text)
@@ -481,7 +464,6 @@ class PerformanceTestSuite:
                     'throughput_kb_per_sec': size_kb / extraction_time if extraction_time > 0 else 0
                 }
             
-            # Test verification performance (limited to avoid API rate limits)
             if 'verifier' in services and size_kb <= 10:  # Only test small documents
                 test_citations = citations[:3] if 'citations' in locals() else []
                 if test_citations:
@@ -495,7 +477,6 @@ class PerformanceTestSuite:
                         'throughput_citations_per_sec': len(test_citations) / verification_time if verification_time > 0 else 0
                     }
             
-            # Test clustering performance
             if 'clusterer' in services and 'citations' in locals():
                 start_time = time.time()
                 clusters = services['clusterer'].cluster_citations(citations)
@@ -523,10 +504,8 @@ class QualityMetrics:
         total_tests = len(test_results)
         passed_tests = sum(1 for r in test_results if r.passed)
         
-        # Calculate average execution time
         avg_execution_time = sum(r.execution_time for r in test_results) / total_tests if total_tests > 0 else 0
         
-        # Find slowest tests
         slowest_tests = sorted(test_results, key=lambda x: x.execution_time, reverse=True)[:3]
         
         return {
@@ -583,7 +562,6 @@ class CodeCoverageAnalyzer:
         }
 
 
-# Export main components
 __all__ = [
     'TestResult', 'CitationTestCase', 'TestDataGenerator', 'MockAPIResponse',
     'TestRunner', 'PerformanceTestSuite', 'QualityMetrics', 'CodeCoverageAnalyzer'

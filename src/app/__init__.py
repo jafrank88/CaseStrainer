@@ -1,4 +1,3 @@
-# Start centralized background maintenance system
 try:
     from ..background_tasks import start_background_maintenance
     start_background_maintenance()

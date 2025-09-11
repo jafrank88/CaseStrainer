@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 """
 Simple Reverse Proxy for CaseStrainer
@@ -9,20 +7,19 @@ application running on port 5000. This allows the application to be accessed fro
 if port 5000 is blocked by firewalls or other network restrictions.
 """
 
-import http.server
+import http.serverfrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import socketserver
 import urllib.request
 import urllib.error
 import urllib.parse
 import logging
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger("reverse_proxy")
 
-# Constants
 TARGET_HOST = "localhost"
 TARGET_PORT = 5000
 PROXY_PORT = 8080
@@ -42,34 +39,27 @@ class ReverseProxyHandler(http.server.BaseHTTPRequestHandler):
         target_url = f"http://{TARGET_HOST}:{TARGET_PORT}{self.path}"
         logger.info(f"Proxying {method} request to {target_url}")
 
-        # Get request headers
         headers = {}
         for header in self.headers:
             headers[header] = self.headers[header]
 
-        # Get request body for POST requests
         body = None
         if method == "POST":
             content_length = int(self.headers.get("Content-Length", 0))
             body = self.rfile.read(content_length) if content_length > 0 else None
 
         try:
-            # Create request
             req = urllib.request.Request(
                 url=target_url, data=body, headers=headers, method=method
             )
 
-            # Send request to target server
             with urllib.request.urlopen(req) as response:
-                # Set response status code
                 self.send_response(response.status)
 
-                # Set response headers
                 for header in response.headers:
                     if header.lower() != "transfer-encoding":
                         self.send_header(header, response.headers[header])
 
-                # Add CORS headers
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
                 self.send_header(
@@ -78,7 +68,6 @@ class ReverseProxyHandler(http.server.BaseHTTPRequestHandler):
 
                 self.end_headers()
 
-                # Send response body
                 self.wfile.write(response.read())
 
         except urllib.error.HTTPError as e:
@@ -125,7 +114,6 @@ def run_proxy_server():
 
 
 if __name__ == "__main__":
-    # Get command line arguments
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a reverse proxy for CaseStrainer")
@@ -146,10 +134,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    # Update constants with command line arguments
     TARGET_HOST = args.target_host
     TARGET_PORT = args.target_port
     PROXY_PORT = args.proxy_port
 
-    # Run the proxy server
     run_proxy_server()

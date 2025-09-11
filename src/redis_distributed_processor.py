@@ -16,6 +16,8 @@ Key benefits:
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import re
 import time
 import logging
@@ -24,13 +26,10 @@ import asyncio
 from typing import Optional, Dict, List, Tuple, Any
 from concurrent.futures import ThreadPoolExecutor
 import json
-# WARNING: Pickle security - Only use with trusted data sources
 import pickle
 from dataclasses import dataclass, asdict
 import sys
 
-print("[DEBUG] sys.executable:", sys.executable)
-print("[DEBUG] sys.path:", sys.path)
 logging.warning(f"[DEBUG] sys.executable: {sys.executable}")
 logging.warning(f"[DEBUG] sys.path: {sys.path}")
 
@@ -80,14 +79,12 @@ class RedisDistributedPDFSystem:
         self.max_workers = max_workers
         self.chunk_size = chunk_size
         
-        # Initialize Redis connection
         if REDIS_AVAILABLE:
             try:
                 self.redis_client = redis.from_url(redis_url)
                 self.queue = Queue('casestrainer', connection=self.redis_client)
                 self.redis_available = True
                 
-                # Test connection
                 self.redis_client.ping()
                 logger.info("Redis connection established")
                 
@@ -97,10 +94,8 @@ class RedisDistributedPDFSystem:
         else:
             self.redis_available = False
         
-        # Pre-compiled patterns for speed
         self._compile_patterns()
         
-        # Worker identification for debugging
         self.worker_id = os.getenv('WORKER_ID', f'worker_{os.getpid()}')
     
     def _compile_patterns(self):
@@ -118,7 +113,6 @@ class RedisDistributedPDFSystem:
     def _get_file_hash(self, file_path: str) -> str:
         """Generate file hash for caching."""
         try:
-            # Use file path + modification time + size for hash
             stat = os.stat(file_path)
             hash_input = f"{file_path}_{stat.st_mtime}_{stat.st_size}"
             return hashlib.sha256(hash_input.encode('utf-8')).hexdigest()
@@ -133,7 +127,6 @@ class RedisDistributedPDFSystem:
         try:
             cached = self.redis_client.get(key)
             if cached:
-                # Redis returns bytes, need to decode if it's a string or use directly for pickle
                 if isinstance(cached, bytes):
                     try:
                         return pickle.loads(cached)  # type: ignore
@@ -172,7 +165,6 @@ class RedisDistributedPDFSystem:
         start_time = time.time()
         file_hash = self._get_file_hash(file_path)
         
-        # Check cache first
         cache_key = f"extracted_text:{file_hash}"
         cached_result = self._cache_get(cache_key)
         
@@ -181,23 +173,18 @@ class RedisDistributedPDFSystem:
             cached_result.cache_hit = True
             return cached_result
         
-        # Determine processing strategy
         file_size = os.path.getsize(file_path)
         
         if file_size > 100 * 1024 * 1024:  # 100MB+
-            # Large file - use distributed processing
             result = await self._extract_large_file_distributed(file_path, file_hash)
         elif file_size > 10 * 1024 * 1024:  # 10MB+
-            # Medium file - use worker queue
             result = await self._extract_medium_file_worker(file_path, file_hash)
         else:
-            # Small file - process locally
             result = await self._extract_small_file_local(file_path, file_hash)
         
         result.processing_time = time.time() - start_time
         result.worker_id = self.worker_id
         
-        # Cache the result
         self._cache_set(cache_key, result)
         
         logger.info(f"Extraction completed in {result.processing_time:.3f}s using {result.processor_used}")
@@ -211,25 +198,20 @@ class RedisDistributedPDFSystem:
         logger.info(f"Processing large file with distributed workers: {file_path}")
         
         if not self.redis_available:
-            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
         
         try:
-            # For very large PDFs, we can split page-by-page
             from pdfminer.high_level import extract_text_to_fp
             from pdfminer.pdfpage import PDFPage
             import io
             
-            # Get page count quickly
             with open(file_path, 'rb') as file:
                 pages = list(PDFPage.get_pages(file))
                 total_pages = len(pages)
             
-            # Split into chunks of pages
             pages_per_chunk = max(1, total_pages // self.max_workers)
             chunk_jobs = []
             
-            # Submit page chunks to workers
             for i in range(0, total_pages, pages_per_chunk):
                 end_page = min(i + pages_per_chunk, total_pages)
                 job = self.queue.enqueue(
@@ -239,7 +221,6 @@ class RedisDistributedPDFSystem:
                 )
                 chunk_jobs.append(job)
             
-            # Wait for all chunks to complete
             chunk_results = []
             for job in chunk_jobs:
                 try:
@@ -247,10 +228,8 @@ class RedisDistributedPDFSystem:
                     chunk_results.append(result)
                 except Exception as e:
                     logger.error(f"Chunk job failed: {e}")
-                    # Fallback to local processing for failed chunks
                     chunk_results.append("")
             
-            # Combine results
             combined_text = "\n".join(chunk_results)
             
             return ProcessingResult(
@@ -262,7 +241,6 @@ class RedisDistributedPDFSystem:
             
         except Exception as e:
             logger.error(f"Distributed processing failed: {e}")
-            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
     
     async def _extract_medium_file_worker(self, file_path: str, file_hash: str) -> ProcessingResult:
@@ -272,18 +250,15 @@ class RedisDistributedPDFSystem:
         logger.info(f"Processing medium file with worker queue: {file_path}")
         
         if not self.redis_available:
-            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
         
         try:
-            # Submit to worker queue
             job = self.queue.enqueue(
                 'extract_pdf_optimized',
                 file_path, file_hash,
                 timeout=300  # 5 minute timeout
             )
             
-            # Wait for result
             result = job.result(timeout=600)  # 10 minute total timeout
             
             return ProcessingResult(
@@ -295,7 +270,6 @@ class RedisDistributedPDFSystem:
             
         except Exception as e:
             logger.error(f"Worker queue processing failed: {e}")
-            # Fallback to local processing
             return await self._extract_small_file_local(file_path, file_hash)
     
     async def _extract_small_file_local(self, file_path: str, file_hash: str) -> ProcessingResult:
@@ -318,17 +292,14 @@ class RedisDistributedPDFSystem:
         Smart file extraction strategy using the new optimized PDF processor.
         Handles both PDF and text files appropriately.
         """
-        # Check file extension to determine type
         file_ext = file_path.lower().split('.')[-1] if '.' in file_path else ''
         
-        # Handle text files
         if file_ext in ['txt', 'text', 'md', 'rtf', 'html', 'htm', 'xhtml', 'xml']:
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
                     text = f.read()
                 return text, "TextFileProcessor"
             except UnicodeDecodeError:
-                # Try with different encoding
                 try:
                     with open(file_path, 'r', encoding='latin-1') as f:
                         text = f.read()
@@ -340,14 +311,12 @@ class RedisDistributedPDFSystem:
                 logger.warning(f"Text file reading failed: {e}")
                 return "", "TextFileProcessor"
         
-        # Handle PDF files using the new optimized processor
         try:
             from src.optimized_pdf_processor import extract_pdf_optimized_v2
             result = extract_pdf_optimized_v2(file_path)
             
             if result.get('error'):
                 logger.warning(f"Optimized PDF extraction failed: {result['error']}")
-                # Fallback to old methods
                 text = self._extract_with_pdfplumber(file_path)
                 if text:
                     return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
@@ -355,14 +324,11 @@ class RedisDistributedPDFSystem:
                 text = self._extract_with_pdfminer_fast(file_path)
                 return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
             
-            # Success with optimized processor
             text = result.get('text', '')
             processor = result.get('processor', 'unknown')
             return str(text), f"OptimizedProcessor({processor})"
             
         except ImportError:
-            logger.debug("Optimized PDF processor not available - using fallback methods")
-            # Fallback to old methods
             text = self._extract_with_pdfplumber(file_path)
             if text:
                 return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
@@ -371,7 +337,6 @@ class RedisDistributedPDFSystem:
             return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
         except Exception as e:
             logger.warning(f"Optimized PDF extraction failed: {e}")
-            # Fallback to old methods
             text = self._extract_with_pdfplumber(file_path)
             if text:
                 return self._apply_ocr_fixes(text), "PdfPlumberProcessor"
@@ -379,7 +344,6 @@ class RedisDistributedPDFSystem:
             text = self._extract_with_pdfminer_fast(file_path)
             return self._minimal_cleaning(text or ""), "PdfMinerProcessor"
     
-    # Note: _quick_ocr_detection method removed - pdfplumber is now used for all PDFs
     
     def _extract_with_pdfplumber(self, file_path: str) -> Optional[str]:
         """
@@ -393,7 +357,6 @@ class RedisDistributedPDFSystem:
             with pdfplumber.open(file_path) as pdf:
                 return "\n".join(page.extract_text() or "" for page in pdf.pages[:50])  # Limit pages
         except ImportError as e:
-            logger.debug(f"pdfplumber not available - skipping pdfplumber extraction: {e}")
             return None
         except Exception as e:
             logger.warning(f"pdfplumber extraction failed: {e}")
@@ -442,7 +405,6 @@ class RedisDistributedPDFSystem:
         return self._whitespace.sub(' ', text).strip() if text else ""
 
 
-# Integration with your existing system
 class DockerOptimizedProcessor:
     """
     Drop-in replacement for your UnifiedDocumentProcessor.
@@ -450,7 +412,6 @@ class DockerOptimizedProcessor:
     """
     
     def __init__(self, redis_url: Optional[str] = None):
-        # Default to using the production Redis with authentication if not specified
         default_redis_url = 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0'
         redis_url = redis_url or os.getenv('REDIS_URL', default_redis_url)
         self.system = RedisDistributedPDFSystem(redis_url=redis_url)
@@ -470,39 +431,29 @@ class DockerOptimizedProcessor:
             loop.close()
     
     async def process_document(self, file_path: str, **kwargs) -> Dict[str, Any]:
-        print(f"[DEBUG PRINT] ENTERED process_document for file_path={file_path}")
         import logging
         logging.info(f"[DEBUG] ENTERED process_document for file_path={file_path}")
         start_time = time.time()
         
-        # Extract options from kwargs
         options = kwargs.get('options', {})
         enable_verification = options.get('enable_verification', True)  # Default to True for backward compatibility
         
-        # Extract text
-        print(f"[DEBUG PRINT] About to call extract_text_distributed for file_path={file_path}")
         logging.info(f"[DEBUG] About to call extract_text_distributed for file_path={file_path}")
         extraction_result = await self.system.extract_text_distributed(file_path)
-        print(f"[DEBUG PRINT] Returned from extract_text_distributed for file_path={file_path}, processor_used={getattr(extraction_result, 'processor_used', None)}")
         logging.info(f"[DEBUG] Returned from extract_text_distributed for file_path={file_path}, processor_used={getattr(extraction_result, 'processor_used', None)}")
         text = extraction_result.text
         if text.startswith('Error:'):
-            print(f"[DEBUG PRINT] Extraction error for file_path={file_path}: {text}")
             logging.error(f"[DEBUG] Extraction error for file_path={file_path}: {text}")
             return {
                 'success': False,
                 'error': text,
                 'processing_time': time.time() - start_time
             }
-        # Process citations using existing citation service with verification setting from options
-        print(f"[DEBUG PRINT] About to import and call CitationService for file_path={file_path}")
         logging.info(f"[DEBUG] About to import and call CitationService for file_path={file_path}")
         from src.api.services.citation_service import CitationService
         from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
         from src.models import ProcessingConfig
         
-        # Use verification setting from options
-        print(f"[DEBUG PRINT] Creating citation processor with verification={'enabled' if enable_verification else 'disabled'} for async processing")
         logging.info(f"[DEBUG] Creating citation processor with verification={'enabled' if enable_verification else 'disabled'} for async processing")
         config = ProcessingConfig(
             enable_verification=enable_verification,
@@ -510,10 +461,8 @@ class DockerOptimizedProcessor:
         )
         
         try:
-            # Create processor and process citations asynchronously
             processor = UnifiedCitationProcessorV2(config)
             
-            # Use the async process_document_citations method
             citation_result = await processor.process_document_citations(text)
             
             result = {
@@ -529,26 +478,20 @@ class DockerOptimizedProcessor:
                 'processing_time': time.time() - start_time
             }
             
-            print(f"[DEBUG PRINT] Successfully processed citations for file_path={file_path}, "
-                  f"citations_count={len(citation_result.get('citations', []))}")
             logging.info(f"[DEBUG] Successfully processed citations for file_path={file_path}, "
                        f"citations_count={len(citation_result.get('citations', []))}")
             
-            # Test serialization
             try:
                 import json
                 json.dumps(result)
-                print(f"[DEBUG PRINT] Result is JSON serializable")
                 logging.info(f"[DEBUG] Result is JSON serializable")
             except Exception as e:
-                print(f"[DEBUG PRINT] Result is NOT JSON serializable: {e}")
                 logging.error(f"[DEBUG] Result is NOT JSON serializable: {e}")
             
             return result
             
         except Exception as e:
             error_msg = f"Error processing citations: {str(e)}"
-            print(f"[DEBUG PRINT] {error_msg}")
             logging.error(error_msg, exc_info=True)
             return {
                 'success': False,
@@ -557,7 +500,6 @@ class DockerOptimizedProcessor:
             }
 
 
-# Worker functions (these run in Redis workers)
 def extract_pdf_pages(file_path: str, start_page: int, end_page: int, file_hash: str) -> str:
     """
     Worker function to extract specific pages from PDF.
@@ -566,7 +508,6 @@ def extract_pdf_pages(file_path: str, start_page: int, end_page: int, file_hash:
     try:
         from pdfminer.high_level import extract_text
         
-        # Extract specific page range
         text = extract_text(
             file_path,
             page_numbers=list(range(start_page, end_page))

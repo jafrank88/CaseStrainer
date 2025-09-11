@@ -9,7 +9,7 @@ export default defineConfig({
   ],
   
   // Base public path when served in production
-  base: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/',
+  base: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/casestrainer/',
   
   // Development server configuration
   server: {

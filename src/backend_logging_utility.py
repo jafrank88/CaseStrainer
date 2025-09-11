@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Backend Logging Utility Module
 
@@ -7,8 +6,9 @@ Currently a placeholder for future logging enhancements.
 """
 
 import logging
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
-# Configure basic logging
+
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 

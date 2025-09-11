@@ -20,8 +20,9 @@ MIGRATION PATH:
 This file will be removed in a future version.
 """
 
-# Re-export the original module for backward compatibility during transition
 import warnings
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from src.scotus_pdf_citation_extractor import *
 
 warnings.warn(

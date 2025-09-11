@@ -25,8 +25,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlForm = document.getElementById('urlInputForm');
     
     // Function to create and update progress bar
-    function setupProgressTracking(form) {
-        console.log('Setting up progress tracking');
+    function setupProgressTracking(form, requestId = null) {
+        console.log('Setting up progress tracking for request:', requestId);
         
         // Create progress UI
         const progressContainer = document.createElement('div');
@@ -49,55 +49,97 @@ document.addEventListener('DOMContentLoaded', function() {
         window.citationProcessing = {
             isProcessing: true,
             startTime: new Date(),
-            totalCitations: 100, // Default estimate
+            totalCitations: 5, // Default estimate
             processedCitations: 0,
-            progressInterval: null
+            progressInterval: null,
+            requestId: requestId
         };
         
-        console.log('Starting progress polling');
+        // Return the progress container and bar for external updates
+        return { container: progressContainer, bar: progressBar };
+    }
+    
+    // Function to update progress bar with data from analyze response
+    function updateProgressFromResponse(progressData, progressBar) {
+        if (!progressData || !progressBar) return;
         
-        // Start progress polling
-        window.citationProcessing.progressInterval = setInterval(() => {
-            console.log('Checking progress...');
-            fetch(apiUrl('/processing_progress'), {
-                method: 'GET'
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Progress response:', data);
-                if (data.status === 'success') {
-                    window.citationProcessing.processedCitations = data.processed_citations;
-                    
-                    // Calculate progress percentage
-                    const progress = data.total_citations > 0 ? 
-                        Math.min(Math.round((data.processed_citations / data.total_citations) * 100), 100) : 0;
-                    
-                    console.log(`Progress: ${progress}% (${data.processed_citations}/${data.total_citations})`);
-                    
-                    // Update progress bar
-                    progressBar.style.width = `${progress}%`;
-                    progressBar.setAttribute('aria-valuenow', progress);
-                    progressBar.textContent = `${progress}% (${data.processed_citations}/${data.total_citations})`;
-                    
-                    // Check if processing is complete
-                    if (data.is_complete) {
-                        console.log('Processing complete');
-                        clearInterval(window.citationProcessing.progressInterval);
-                        window.citationProcessing.isProcessing = false;
-                        progressBar.textContent = 'Complete!';
-                        progressBar.className = 'progress-bar bg-success';
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error checking progress:', error);
-                clearInterval(window.citationProcessing.progressInterval);
-                progressBar.textContent = 'Error tracking progress';
-                progressBar.className = 'progress-bar bg-danger';
-            });
-        }, 1000);
+        try {
+            const currentStep = progressData.current_step || 0;
+            const totalSteps = progressData.total_steps || 5;
+            const currentMessage = progressData.current_message || 'Processing...';
+            
+            // Calculate progress percentage
+            const progress = totalSteps > 0 ? Math.round((currentStep / totalSteps) * 100) : 0;
+            
+            console.log(`Progress: ${progress}% (Step ${currentStep}/${totalSteps}) - ${currentMessage}`);
+            
+            // Update progress bar
+            progressBar.style.width = `${progress}%`;
+            progressBar.setAttribute('aria-valuenow', progress);
+            progressBar.textContent = `${progress}% - ${currentMessage}`;
+            
+            // Check if processing is complete
+            if (currentStep >= totalSteps || progress >= 100) {
+                console.log('Processing complete');
+                progressBar.textContent = 'Complete!';
+                progressBar.className = 'progress-bar bg-success';
+                window.citationProcessing.isProcessing = false;
+            }
+        } catch (error) {
+            console.error('Error updating progress:', error);
+            progressBar.textContent = 'Error updating progress';
+            progressBar.className = 'progress-bar bg-danger';
+        }
+    }
+    
+    // Function to display citation results
+    function displayCitationResults(data) {
+        console.log('Displaying citation results:', data);
         
-        return progressContainer;
+        // Find or create results container
+        let resultsContainer = document.getElementById('citationResults');
+        if (!resultsContainer) {
+            resultsContainer = document.createElement('div');
+            resultsContainer.id = 'citationResults';
+            resultsContainer.className = 'mt-4';
+            document.body.appendChild(resultsContainer);
+        }
+        
+        if (!data.result || !data.result.citations || data.result.citations.length === 0) {
+            resultsContainer.innerHTML = '<div class="alert alert-info">No citations found.</div>';
+            return;
+        }
+        
+        // Build results HTML
+        let resultsHTML = '<div class="card"><div class="card-header"><h4>Citation Analysis Results</h4></div><div class="card-body">';
+        
+        data.result.citations.forEach((citation, index) => {
+            const status = citation.verified ? 'verified' : 'unverified';
+            const statusClass = citation.verified ? 'success' : 'warning';
+            
+            resultsHTML += `
+                <div class="border-bottom pb-3 mb-3">
+                    <h5>Citation ${index + 1}: ${citation.citation}</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <strong>Extracted Name:</strong> ${citation.extracted_case_name || 'N/A'}<br>
+                            <strong>Canonical Name:</strong> ${citation.canonical_name || 'N/A'}<br>
+                            <strong>Extracted Date:</strong> ${citation.extracted_date || 'N/A'}<br>
+                            <strong>Canonical Date:</strong> ${citation.canonical_date || 'N/A'}<br>
+                        </div>
+                        <div class="col-md-6">
+                            <strong>Status:</strong> <span class="badge bg-${statusClass}">${status}</span><br>
+                            <strong>Source:</strong> ${citation.source || 'Unknown'}<br>
+                            <strong>Confidence:</strong> ${citation.confidence_score || 'N/A'}<br>
+                            <strong>Method:</strong> ${citation.validation_method || 'N/A'}<br>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        resultsHTML += '</div></div>';
+        resultsContainer.innerHTML = resultsHTML;
     }
     
     // Handle file upload form submission
@@ -113,7 +155,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData(this);
             
             // Setup progress tracking
-            const progressContainer = setupProgressTracking(this);
+            const progressTracker = setupProgressTracking(this);
+            const progressContainer = progressTracker.container;
+            const progressBar = progressTracker.bar;
             
             fetch(apiUrl('/analyze'), {
                 method: 'POST',
@@ -128,33 +172,22 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Analysis results:', data);
                 
-                // Defensive checks for expected properties
-                if (!data || typeof data !== 'object') {
-                    alert('Unexpected API response: no data returned.');
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Analyze Citations';
-                    return;
+                // Update progress bar with data from response
+                if (data.progress_data) {
+                    updateProgressFromResponse(data.progress_data, progressBar);
                 }
-                if (!Array.isArray(data.citations)) {
-                    alert('No citations found in the API response.');
-                    submitButton.disabled = false;
-                    submitButton.textContent = 'Analyze Citations';
-                    return;
-                }
+                
                 // Store the analysis results
                 window.analysisResults = data;
+                
                 // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
+                if (data.result && data.result.citations) {
+                    window.citationProcessing.totalCitations = data.result.citations.length;
                 }
-                // Reset button
-                submitButton.disabled = false;
-                submitButton.textContent = 'Analyze Citations';
-                // Switch to the Multitool tab to show results
-                const multitoolTab = document.getElementById('multitool-tab');
-                if (multitoolTab) {
-                    multitoolTab.click();
-                }
+                
+                // Display the citation results
+                displayCitationResults(data);
+                
                 // Reset button
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
@@ -214,14 +247,16 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Setup progress tracking
-            const progressContainer = setupProgressTracking(this);
+            const progressTracker = setupProgressTracking(this);
+            const progressContainer = progressTracker.container;
+            const progressBar = progressTracker.bar;
             
             fetch(apiUrl('/analyze'), {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ text: text })
+                body: JSON.stringify({ type: 'text', text: text })
             })
             .then(response => {
                 if (!response.ok) {
@@ -232,13 +267,21 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 console.log('Analysis results:', data);
                 
+                // Update progress bar with data from response
+                if (data.progress_data) {
+                    updateProgressFromResponse(data.progress_data, progressBar);
+                }
+                
                 // Store the analysis results
                 window.analysisResults = data;
                 
                 // Update citation count for progress tracking
-                if (data.citations_count) {
-                    window.citationProcessing.totalCitations = data.citations_count;
+                if (data.result && data.result.citations) {
+                    window.citationProcessing.totalCitations = data.result.citations.length;
                 }
+                
+                // Display the citation results
+                displayCitationResults(data);
                 
                 // Reset button
                 submitButton.innerHTML = originalButtonText;
@@ -314,7 +357,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify({ text: data.text })
+                        body: JSON.stringify({ type: 'text', text: data.text })
                     });
                 } else {
                     throw new Error(data.message || 'Failed to fetch URL content');
@@ -322,6 +365,34 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(response => {
                 console.log('Analyze response status:', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Analysis results:', data);
+                
+                // Extract request_id for progress tracking
+                const requestId = data.request_id;
+                if (requestId) {
+                    console.log('Got request_id:', requestId);
+                    // Update progress tracking with the actual request_id
+                    window.citationProcessing.requestId = requestId;
+                }
+                
+                // Store the analysis results
+                window.analysisResults = data;
+                
+                // Reset button
+                submitButton.innerHTML = originalButtonText;
+                submitButton.disabled = false;
+            })
+            .catch(error => {
+                console.error('Error analyzing URL:', error);
+                alert('Error analyzing URL: ' + error.message);
+                
+                // Reset button
                 submitButton.innerHTML = originalButtonText;
                 submitButton.disabled = false;
                 

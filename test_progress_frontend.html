@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frontend Progress Tracking Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-container {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .progress-container {
+            margin: 20px 0;
+            display: none;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: #007bff;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .progress-text {
+            text-align: center;
+            margin: 10px 0;
+            font-weight: bold;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.info { background-color: #d1ecf1; color: #0c5460; }
+        .status.success { background-color: #d4edda; color: #155724; }
+        .status.error { background-color: #f8d7da; color: #721c24; }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        .log {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin: 10px 0;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frontend Progress Tracking Test</h1>
+    
+    <div class="form-container">
+        <h3>Test Text Analysis with Progress Tracking</h3>
+        <textarea id="textInput" placeholder="Enter text to analyze...">In re Marriage of Black, 188 Wn.2d 114, 127, 392 P.3d 1041 (2017). In re Vulnerable Adult Petition for Knight, 317 P.3d 1068, 178 Wn. App. 929 (2014).</textarea>
+        <br>
+        <button id="analyzeBtn" onclick="startAnalysis()">Analyze Text</button>
+        <button id="clearLogBtn" onclick="clearLog()">Clear Log</button>
+        
+        <div class="status info" id="status">Ready to test</div>
+        
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-text" id="progressText">0% - Starting...</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="progress-text" id="stepText">Step 0/5</div>
+        </div>
+        
+        <div class="log" id="log"></div>
+    </div>
+
+    <script>
+        // Global state
+        let currentRequestId = null;
+        let progressInterval = null;
+        
+        // Helper function to build API URLs
+        function apiUrl(path) {
+            const prefix = '/casestrainer';
+            let cleanPath = path;
+            if (cleanPath.startsWith(prefix)) {
+                cleanPath = cleanPath.slice(prefix.length);
+            }
+            if (!cleanPath.startsWith('/api/')) {
+                if (cleanPath.startsWith('/')) {
+                    cleanPath = '/api' + cleanPath;
+                } else {
+                    cleanPath = '/api/' + cleanPath;
+                }
+            }
+            return prefix + cleanPath;
+        }
+        
+        // Logging function
+        function addLog(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            const log = document.getElementById('log');
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Update status
+        function updateStatus(message, type = 'info') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+        
+        // Update progress
+        function updateProgress(percent, message, currentStep, totalSteps) {
+            const progressFill = document.getElementById('progressFill');
+            const progressText = document.getElementById('progressText');
+            const stepText = document.getElementById('stepText');
+            
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `${percent}% - ${message}`;
+            stepText.textContent = `Step ${currentStep}/${totalSteps}`;
+        }
+        
+        // Show progress container
+        function showProgress() {
+            document.getElementById('progressContainer').style.display = 'block';
+        }
+        
+        // Hide progress container
+        function hideProgress() {
+            document.getElementById('progressContainer').style.display = 'none';
+        }
+        
+        // Start analysis
+        async function startAnalysis() {
+            try {
+                const text = document.getElementById('textInput').value.trim();
+                if (!text) {
+                    alert('Please enter some text to analyze');
+                    return;
+                }
+                
+                // Reset UI
+                updateStatus('Starting analysis...', 'info');
+                showProgress();
+                updateProgress(0, 'Starting...', 0, 5);
+                addLog('Starting text analysis...');
+                
+                // Disable analyze button
+                const analyzeBtn = document.getElementById('analyzeBtn');
+                analyzeBtn.disabled = true;
+                analyzeBtn.textContent = 'Analyzing...';
+                
+                // Submit analysis request
+                const response = await fetch(apiUrl('/analyze'), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        type: 'text',
+                        text: text
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                addLog(`Analysis response received: ${JSON.stringify(data, null, 2)}`);
+                
+                // Extract request_id
+                const requestId = data.request_id;
+                if (requestId) {
+                    addLog(`Got request_id: ${requestId}`);
+                    currentRequestId = requestId;
+                    
+                    // Start progress polling
+                    startProgressPolling(requestId);
+                } else {
+                    addLog('No request_id in response, analysis completed immediately');
+                    updateStatus('Analysis completed immediately', 'success');
+                    hideProgress();
+                }
+                
+                // Re-enable analyze button
+                analyzeBtn.disabled = false;
+                analyzeBtn.textContent = 'Analyze Text';
+                
+            } catch (error) {
+                addLog(`Error: ${error.message}`);
+                updateStatus(`Error: ${error.message}`, 'error');
+                hideProgress();
+                
+                // Re-enable analyze button
+                document.getElementById('analyzeBtn').disabled = false;
+                document.getElementById('analyzeBtn').textContent = 'Analyze Text';
+            }
+        }
+        
+        // Start progress polling
+        function startProgressPolling(requestId) {
+            if (progressInterval) {
+                clearInterval(progressInterval);
+            }
+            
+            addLog(`Starting progress polling for request: ${requestId}`);
+            
+            progressInterval = setInterval(async () => {
+                try {
+                    const response = await fetch(apiUrl(`/processing_progress?request_id=${requestId}`));
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    addLog(`Progress response: ${JSON.stringify(data, null, 2)}`);
+                    
+                    if (data.status === 'success') {
+                        // Update progress
+                        const progress = data.progress_percent || 0;
+                        const currentStep = data.current_step || 0;
+                        const totalSteps = data.total_steps || 5;
+                        const currentMessage = data.current_message || 'Processing...';
+                        
+                        updateProgress(progress, currentMessage, currentStep, totalSteps);
+                        addLog(`Progress: ${progress}% - ${currentMessage} (Step ${currentStep}/${totalSteps})`);
+                        
+                        // Check if complete
+                        if (data.is_complete) {
+                            addLog('Processing completed!');
+                            updateStatus('Analysis completed successfully!', 'success');
+                            clearInterval(progressInterval);
+                            progressInterval = null;
+                        }
+                    } else {
+                        addLog(`Progress status not success: ${data.status}`);
+                    }
+                    
+                } catch (error) {
+                    addLog(`Progress polling error: ${error.message}`);
+                    clearInterval(progressInterval);
+                    progressInterval = null;
+                    updateStatus(`Progress tracking error: ${error.message}`, 'error');
+                }
+            }, 1000); // Poll every second
+        }
+        
+        // Clear log
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+        
+        // Initialize
+        addLog('Frontend progress tracking test page loaded');
+        addLog(`API base URL: ${apiUrl('/analyze')}`);
+    </script>
+</body>
+</html>

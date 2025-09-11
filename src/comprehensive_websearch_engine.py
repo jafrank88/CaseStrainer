@@ -4,8 +4,8 @@ This module has been refactored into smaller, focused modules in the websearch p
 For backward compatibility, all classes and functions are imported from the new structure.
 """
 
-# Import all classes and functions from the new modular structure
-from .websearch import (
+from .websearch import (from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
     EnhancedCitationNormalizer,
     SearchEngineMetadata,
     CacheManager,
@@ -23,7 +23,6 @@ from .websearch import (
     test_comprehensive_web_search
 )
 
-# Export all for backward compatibility
 __all__ = [
     'EnhancedCitationNormalizer',
     'SearchEngineMetadata',

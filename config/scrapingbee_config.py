@@ -3,7 +3,7 @@
 
 # ScrapingBee API Key
 # Set this to your actual API key or set environment variable SCRAPINGBEE_API_KEY
-SCRAPINGBEE_API_KEY = None  # Will fall back to environment variable
+SCRAPINGBEE_API_KEY = "VNT9JT6M34R7ZPJTXVUJJAN8SI43JOZY5MPQ4EQFE5L9MIIAN8SI43JOZY5MPQ4EQFE5L9MIIAN6RSNG3D5ARB5QPZM7WH73Z2G08K7ZOS"  # Your API key
 
 # ScrapingBee API Settings
 SCRAPINGBEE_BASE_URL = "https://app.scrapingbee.com/api/v1/"

@@ -2,3 +2,59 @@
 [2025-08-19 15:51:37] [RESTART] Restart ID: f944bb44
 [2025-08-19 15:51:37] [RESTART] Reason: Health check failed: Docker CLI unresponsive
 [2025-08-19 15:51:37] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-08-29 14:27:26] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-08-29 14:27:26] [RESTART] Restart ID: d0dff10b
+[2025-08-29 14:27:26] [RESTART] Reason: Health check failed: No Docker processes running, Docker API not accessible
+[2025-08-29 14:27:26] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-08-29 14:28:27] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-08-29 14:28:27] [SUCCESS] Restart ID: d0dff10b
+[2025-08-29 14:28:27] [SUCCESS] Recovery completed in 55 seconds
+[2025-08-29 14:28:27] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-08-29 14:32:09] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-08-29 14:32:09] [RESTART] Restart ID: 843ec157
+[2025-08-29 14:32:09] [RESTART] Reason: Health check failed: Docker API not accessible
+[2025-08-29 14:32:09] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-08-29 14:33:10] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-08-29 14:33:10] [SUCCESS] Restart ID: 843ec157
+[2025-08-29 14:33:10] [SUCCESS] Recovery completed in 55 seconds
+[2025-08-29 14:33:10] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-08-29 14:37:17] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-08-29 14:37:17] [RESTART] Restart ID: e15e6f77
+[2025-08-29 14:37:17] [RESTART] Reason: Health check failed: No Docker processes running, Docker API not accessible
+[2025-08-29 14:37:17] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-08-29 14:38:17] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-08-29 14:38:17] [SUCCESS] Restart ID: e15e6f77
+[2025-08-29 14:38:17] [SUCCESS] Recovery completed in 55 seconds
+[2025-08-29 14:38:17] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-07 11:52:10] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-07 11:52:10] [RESTART] Restart ID: 5143b33f
+[2025-09-07 11:52:10] [RESTART] Reason: Health check failed: No Docker processes running, Docker API not accessible
+[2025-09-07 11:52:10] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-07 11:53:10] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-07 11:53:10] [SUCCESS] Restart ID: 5143b33f
+[2025-09-07 11:53:10] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-07 11:53:10] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-08 08:12:12] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-08 08:12:12] [RESTART] Restart ID: f99284c3
+[2025-09-08 08:12:12] [RESTART] Reason: Health check failed: No Docker processes running, Docker API not accessible
+[2025-09-08 08:12:12] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-08 08:13:12] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-08 08:13:12] [SUCCESS] Restart ID: f99284c3
+[2025-09-08 08:13:12] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-08 08:13:12] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-10 10:27:09] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-10 10:27:09] [RESTART] Restart ID: 56cd08a4
+[2025-09-10 10:27:09] [RESTART] Reason: Health check failed: Docker API not accessible
+[2025-09-10 10:27:09] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-10 10:28:10] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-10 10:28:10] [SUCCESS] Restart ID: 56cd08a4
+[2025-09-10 10:28:10] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-10 10:28:10] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-10 10:32:16] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-10 10:32:16] [RESTART] Restart ID: aa18d2ce
+[2025-09-10 10:32:16] [RESTART] Reason: Health check failed: No Docker processes running, Docker API not accessible
+[2025-09-10 10:32:16] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-10 10:33:17] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-10 10:33:17] [SUCCESS] Restart ID: aa18d2ce
+[2025-09-10 10:33:17] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-10 10:33:17] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856

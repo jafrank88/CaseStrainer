@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
 """
 Health check script for RQ worker
 Checks if the worker is connected to Redis and can process jobs
 """
 
 import sys
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import os
 from redis import Redis
 

@@ -1,37 +1,31 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 class ValidationTimeoutError(Exception):
     """Exception raised when validation operation times out."""
     pass
 
 import logging
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import os
 import time
 import warnings
 from typing import Optional, Dict, Any
 
-# Configure logging first
 logger = logging.getLogger(__name__)
 
-# Markdown and eyecite imports removed as they are not used
 
 import sys
 import flask
 from flask import jsonify
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Add the project root to the Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if project_root not in sys.path:
     sys.path.insert(0, project_root)
 
-# Now import the modules
 from .config import configure_logging
 
-# Configure logging if not already configured
 if not logging.getLogger().hasHandlers():
     configure_logging()
 
@@ -85,5 +79,3 @@ def make_error_response(error_type: str, message: str, details: Optional[str] = 
     response.status_code = status_code
     return response
 
-# Note: The enhanced validator functionality is now integrated into the main /api/analyze endpoint
-# All blueprint-related code and deprecated endpoints have been removed

@@ -10,7 +10,8 @@ param(
     [switch]$Prevent,
     [switch]$NuclearDocker,
     [switch]$ResetFrontend,
-    [switch]$ForceFrontend
+    [switch]$ForceFrontend,
+    [switch]$LiveCode
 )
 
 function Test-DockerComprehensiveHealth {
@@ -1271,12 +1272,14 @@ if ($Help) {
     Write-Host "  .\cslaunch.ps1 -Full        # Force Full Rebuild (ignore checksums)" -ForegroundColor Yellow
     Write-Host "  .\cslaunch.ps1 -ResetFrontend # Reset frontend monitoring (catch up on missed changes)" -ForegroundColor Magenta
     Write-Host "  .\cslaunch.ps1 -ForceFrontend # Force frontend rebuild (rebuild frontend image)" -ForegroundColor Magenta
+    Write-Host "  .\cslaunch.ps1 -LiveCode      # Live code development mode (no rebuilds needed)" -ForegroundColor Green
     Write-Host ""
     Write-Host "Smart Detection Features:" -ForegroundColor White
     Write-Host "  • Frontend changes automatically trigger Frontend Rebuild" -ForegroundColor Cyan
     Write-Host "  • Python changes trigger Fast Start (container restart)" -ForegroundColor Cyan
     Write-Host "  • Dependency changes trigger Full Rebuild" -ForegroundColor Cyan
     Write-Host "  • Frontend monitoring reset for catching up on missed changes" -ForegroundColor Cyan
+    Write-Host "  • Live Code mode for instant frontend updates without rebuilding" -ForegroundColor Green
     Write-Host ""
     Write-Host "Docker Management:" -ForegroundColor White
     Write-Host "  .\cslaunch.ps1 -AutoFixDocker # Force Docker restart with aggressive fallbacks" -ForegroundColor Magenta
@@ -1385,9 +1388,26 @@ elseif ($ForceFrontend) {
         }
     }
     
+    # Ensure Vue build is up to date before container rebuild
+    Write-Host "Building Vue application..." -ForegroundColor Cyan
+    Push-Location "casestrainer-vue-new"
+    npm run build
+    Pop-Location
+    
     docker compose -f docker-compose.prod.yml down
     docker compose -f docker-compose.prod.yml build frontend-prod --no-cache
     docker compose -f docker-compose.prod.yml up -d
+    
+    # Also update static files for the backend container
+    Write-Host "Updating static files for backend container..." -ForegroundColor Cyan
+    if (Test-Path "casestrainer-vue-new\dist\index.html") {
+        Copy-Item "casestrainer-vue-new\dist\index.html" "static\index.html" -Force
+        if (Test-Path "casestrainer-vue-new\dist\assets") {
+            Copy-Item "casestrainer-vue-new\dist\assets\*" "static\assets\" -Force -Recurse
+            Write-Host "Static files updated successfully!" -ForegroundColor Green
+        }
+    }
+    
     Write-Host "Force Frontend Rebuild completed!" -ForegroundColor Green
 }
 elseif ($HealthCheck) {
@@ -1518,6 +1538,38 @@ elseif ($Full) {
     docker compose -f docker-compose.prod.yml up -d
     Write-Host "Full Rebuild completed!" -ForegroundColor Green
 }
+elseif ($LiveCode) {
+    Write-Host "Live Code Development Mode - Always Using Latest Code..." -ForegroundColor Magenta
+    Write-Host "This mode mounts development source code directly into containers for live updates" -ForegroundColor Cyan
+    
+    # Check Docker health first
+    $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
+    if (-not $dockerHealthy) {
+        Write-Host "Docker is not healthy. Attempting auto-fix..." -ForegroundColor Yellow
+        if (Restart-DockerComprehensive) {
+            Write-Host "Docker fixed! Continuing with Live Code mode..." -ForegroundColor Green
+        } else {
+            Write-Host "Docker fix failed. Cannot proceed with live code mode." -ForegroundColor Red
+            return
+        }
+    }
+    
+    # Check if development override file exists
+    if (-not (Test-Path "docker-compose.dev-override.yml")) {
+        Write-Host "Error: docker-compose.dev-override.yml not found!" -ForegroundColor Red
+        Write-Host "This file is required for live code development mode." -ForegroundColor Yellow
+        return
+    }
+    
+    Write-Host "Starting CaseStrainer with live code development..." -ForegroundColor Green
+    docker compose -f docker-compose.prod.yml -f docker-compose.dev-override.yml down
+    docker compose -f docker-compose.prod.yml -f docker-compose.dev-override.yml up -d
+    
+    Write-Host "Live Code Development Mode started!" -ForegroundColor Green
+    Write-Host "Frontend code changes will now be automatically reflected without rebuilding!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Note: This mode is for development only. Use regular mode for production." -ForegroundColor Yellow
+}
 else {
     Write-Host "Smart Auto-Detection with Intelligent Rebuild Detection..." -ForegroundColor Magenta
     
@@ -1587,9 +1639,27 @@ else {
         "frontend" {
             Write-Host "Frontend file changes detected - performing Frontend Rebuild..." -ForegroundColor Magenta
             Write-Host "This ensures the frontend application is up to date" -ForegroundColor Gray
+            
+            # Ensure Vue build is up to date before container rebuild
+            Write-Host "Building Vue application..." -ForegroundColor Cyan
+            Push-Location "casestrainer-vue-new"
+            npm run build
+            Pop-Location
+            
             docker compose -f docker-compose.prod.yml down
             docker compose -f docker-compose.prod.yml build frontend-prod --no-cache
             docker compose -f docker-compose.prod.yml up -d
+            
+            # Also update static files for the backend container
+            Write-Host "Updating static files for backend container..." -ForegroundColor Cyan
+            if (Test-Path "casestrainer-vue-new\dist\index.html") {
+                Copy-Item "casestrainer-vue-new\dist\index.html" "static\index.html" -Force
+                if (Test-Path "casestrainer-vue-new\dist\assets") {
+                    Copy-Item "casestrainer-vue-new\dist\assets\*" "static\assets\" -Force -Recurse
+                    Write-Host "Static files updated successfully!" -ForegroundColor Green
+                }
+            }
+            
             Write-Host "Frontend Rebuild completed!" -ForegroundColor Green
         }
         default {

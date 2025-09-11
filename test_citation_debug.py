@@ -20,8 +20,8 @@ def debug_citation_objects():
         """
         
         options = ProcessingOptions(
-            enable_enhanced_verification=False,  # Disable to avoid API calls
-            enable_cross_validation=False,
+                    enable_enhanced_verification=True,  # Re-enabled for full testing
+        enable_cross_validation=True,
             enable_false_positive_prevention=False,  # Disable to see all citations
             enable_confidence_scoring=False
         )

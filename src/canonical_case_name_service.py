@@ -4,6 +4,8 @@ Provides authoritative case information from multiple legal databases
 """
 
 import re
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 import requests
 import time
@@ -23,13 +25,10 @@ import sys
 
 logger = logging.getLogger(__name__)
 
-# Dedicated fallback logger
 fallback_logger = logging.getLogger('fallback_usage')
 fallback_logger.setLevel(logging.INFO)
 
-# Create fallback log file handler
 try:
-    # Ensure logs directory exists
     logs_dir = 'logs'
     if not os.path.exists(logs_dir):
         os.makedirs(logs_dir, exist_ok=True)
@@ -80,22 +79,18 @@ class CanonicalCaseNameService:
     """
     
     def __init__(self):
-        # API configuration - get from environment or config
         self.courtlistener_api_key = self._get_config_value("COURTLISTENER_API_KEY")
         self.caselaw_api_key = self._get_config_value("CASELAW_API_KEY")
         self.westlaw_api_key = self._get_config_value("WESTLAW_API_KEY")
         
-        # Rate limiting
         self.last_request_time = {}
         self.min_request_interval = 1.0  # seconds between requests
         
-        # Session for connection pooling
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'CaseStrainer/2.0 Legal Citation Processor'
         })
         
-        # Citation normalization patterns
         self.citation_patterns = {
             'wn2d': r'(\d+)\s+Wn\.2d\s+(\d+)',
             'wn_app': r'(\d+)\s+Wn\.\s*App\.\s+(\d+)', 
@@ -106,22 +101,18 @@ class CanonicalCaseNameService:
             'f2d': r'(\d+)\s+F\.2d\s+(\d+)',
         }
         
-        # Clear cache to ensure fresh lookups with new service order
         self._cached_lookup.cache_clear()
     
     def _get_config_value(self, key: str) -> Optional[str]:
         """Get configuration value from environment or config file"""
         import os
         try:
-            # Try environment variable first
             value = os.environ.get(key)
             if value:
                 return value
             
-            # Try config file
             return get_config_value(key)
         except ImportError:
-            # Fallback to environment only
             return os.environ.get(key)
     
     def _normalize_citation_comprehensive(self, citation: str, purpose: str = "verification") -> str:
@@ -138,14 +129,11 @@ class CanonicalCaseNameService:
         if not citation:
             return ""
         
-        # Remove extra whitespace
         normalized = re.sub(r'\s+', ' ', citation.strip())
         
-        # Standardize Washington citations
         normalized = re.sub(r'Wash\.\s*2d', 'Wn.2d', normalized)
         normalized = re.sub(r'Wash\.\s*App\.', 'Wn. App.', normalized)
         
-        # Standardize Pacific Reporter
         normalized = re.sub(r'P\.\s*3d', 'P.3d', normalized)
         normalized = re.sub(r'P\.\s*2d', 'P.2d', normalized)
         
@@ -155,14 +143,12 @@ class CanonicalCaseNameService:
         """Extract volume, reporter, and page from citation"""
         components = {'volume': '', 'reporter': '', 'page': ''}
         
-        # Try each pattern
         for pattern_name, pattern in self.citation_patterns.items():
             match = re.search(pattern, citation)
             if match:
                 components['volume'] = match.group(1)
                 components['page'] = match.group(2)
                 
-                # Map pattern to reporter
                 reporter_map = {
                     'wn2d': 'Wn.2d',
                     'wn_app': 'Wn. App.',
@@ -197,7 +183,6 @@ class CanonicalCaseNameService:
     def _perform_lookup(self, citation: str) -> Optional[CanonicalResult]:
         """Perform the actual lookup across multiple services"""
         
-        # Try services in order of preference
         services = [
             ('courtlistener', self._lookup_courtlistener),
             ('web_sources', self._lookup_web_sources)   # Web search (can target CAP, Westlaw, etc.)
@@ -208,7 +193,6 @@ class CanonicalCaseNameService:
             try:
                 self._rate_limit(service_name)
                 result = lookup_func(citation)
-                # HARDFILTER: Only return if case_name is valid
                 from src.canonical_case_name_service import is_valid_case_name
                 if result and result.case_name:
                     if not is_valid_case_name(result.case_name):
@@ -218,7 +202,6 @@ class CanonicalCaseNameService:
                         logger.info(f"[HARDFILTER] Accepted result from {service_name} for '{citation or ''}': '{result.case_name}' is a valid case name (hard filter)")
                 if result and result.case_name:
                     logger.info(f"Found canonical result via {service_name}: {result.case_name}")
-                    # Log if fallback was used (web_sources only)
                     if service_name == 'web_sources':
                         log_fallback_usage(
                             citation=citation,
@@ -226,7 +209,6 @@ class CanonicalCaseNameService:
                             reason=f"Primary service (courtlistener) failed, using {service_name}",
                             context={'result_case_name': result.case_name, 'result_source': result.source}
                         )
-                        # Ensure source field includes 'fallback' for test detection
                         result.source = f"fallback: {result.source}"
                     return result
                 else:
@@ -236,7 +218,6 @@ class CanonicalCaseNameService:
                 logger.warning(f"Lookup failed for {service_name}: {e}")
                 continue
         
-        # If we get here, all services failed
         log_fallback_usage(
             citation=citation,
             fallback_type='canonical_lookup',
@@ -255,7 +236,6 @@ class CanonicalCaseNameService:
             if not all(components.values()):
                 return None
             
-            # Build search query - use exact citation format
             citation_text = f'{components["volume"]} {components["reporter"]} {components["page"]}'
             query = f'citation:"{citation_text}"'  # Search specifically in citation field
             
@@ -269,19 +249,17 @@ class CanonicalCaseNameService:
                 "order_by": "score desc"
             }
             
-            response = self.session.get(url, headers=headers, params=params, timeout=5)
+            response = self.session.get(url, headers=headers, params=params, timeout=WEBSEARCH_TIMEOUT)
             response.raise_for_status()
             
             data = response.json()
             results = data.get('results', [])
             
             for result in results:
-                # Look for exact citation match
                 citation_string = result.get('citation', [])
                 if isinstance(citation_string, list):
                     citation_string = ' '.join(citation_string)
                 
-                # Check for exact match of the full citation
                 if citation.lower() in str(citation_string).lower():
                     return CanonicalResult(
                         case_name=result.get('caseName', ''),
@@ -295,7 +273,6 @@ class CanonicalCaseNameService:
                         parallel_citations=result.get('citation', [])
                     )
                 
-                # Also check for exact component match as fallback
                 if (components['volume'] in str(citation_string) and 
                     components['page'] in str(citation_string) and
                     components['reporter'] in str(citation_string)):
@@ -321,7 +298,6 @@ class CanonicalCaseNameService:
     def _lookup_caselaw_access(self, citation: str) -> Optional[CanonicalResult]:
         """Lookup using Caselaw Access Project API"""
         try:
-            # CAP API endpoint
             url = "https://api.case.law/v1/cases/"
             params = {
                 "cite": citation,
@@ -334,7 +310,7 @@ class CanonicalCaseNameService:
             else:
                 headers = {}
             
-            response = self.session.get(url, headers=headers, params=params, timeout=10)
+            response = self.session.get(url, headers=headers, params=params, timeout=COURTLISTENER_TIMEOUT)
             response.raise_for_status()
             
             data = response.json()
@@ -343,10 +319,8 @@ class CanonicalCaseNameService:
             if results:
                 result = results[0]  # Take first result
                 
-                # Extract date from decision_date
                 date = result.get('decision_date', '')
                 if date:
-                    # Convert YYYY-MM-DD to just year if needed
                     year_match = re.search(r'(\d{4})', date)
                     if year_match:
                         date = year_match.group(1)
@@ -372,7 +346,6 @@ class CanonicalCaseNameService:
     def _lookup_westlaw(self, citation: str) -> Optional[CanonicalResult]:
         """Lookup using Westlaw API or fallback to canonical verification."""
         try:
-            # First try the canonical verification workflow as primary method
             try:
                 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
                 PROCESSOR_AVAILABLE = True
@@ -382,14 +355,14 @@ class CanonicalCaseNameService:
                 
             if PROCESSOR_AVAILABLE:
                 processor = UnifiedCitationProcessorV2()
-                # Use available verification method instead of non-existent one
                 try:
                     from src.models import CitationResult
                     citation_result = CitationResult(citation=citation)
-                    verified = processor._verify_citation_with_courtlistener(citation_result)
+                    # Use modern unified clustering for verification
+                    verified = hasattr(citation_result, 'verified') and citation_result.verified
                     if verified:
                         return CanonicalResult(
-                            case_name=citation_result.canonical_name or citation_result.extracted_case_name,
+                            case_name=citation_result.canonical_name,
                             date=citation_result.canonical_date,
                             url=citation_result.url,
                             source="Westlaw (via UnifiedProcessor)",
@@ -398,11 +371,9 @@ class CanonicalCaseNameService:
                 except Exception as e:
                     logger.warning(f"Failed to verify citation {citation or ''}: {e}")
             
-            # If no Westlaw API key, return None
             if not self.westlaw_api_key:
                 return None
             
-            # Try actual Westlaw API if available (placeholder for future implementation)
             url = "https://api.westlaw.com/v1/cases"
             headers = {
                 "Authorization": f"Bearer {self.westlaw_api_key}",
@@ -410,12 +381,10 @@ class CanonicalCaseNameService:
             }
             params = {"q": citation}
             
-            response = self.session.get(url, headers=headers, params=params, timeout=10)
+            response = self.session.get(url, headers=headers, params=params, timeout=COURTLISTENER_TIMEOUT)
             response.raise_for_status()
             
             data = response.json()
-            # Process Westlaw response format
-            # This would need to be implemented based on actual Westlaw API
             
             return None
             
@@ -432,23 +401,17 @@ class CanonicalCaseNameService:
             from src.enhanced_legal_search_engine import EnhancedLegalSearchEngine
             from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
             logger = logging.getLogger(__name__)
-            print(f"[DEBUG] [WEBSEARCH] Attempting enhanced websearch for citation: {citation} and variants")
 
-            # --- Playwright Justia search (before other site-specific engines) ---
             import subprocess
             import sys
             try:
-                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Attempting Playwright Justia search for: {citation}")
                 result = subprocess.run([
                     sys.executable, "playwright_search_justia.py", citation
                 ], capture_output=True, text=True, timeout=12)
                 output = result.stdout.strip()
-                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Output: {output}")
-                # Parse output for case name
                 if "Case name:" in output:
                     case_name = output.split("Case name:")[-1].strip()
                     if case_name and case_name.lower() != 'none':
-                        print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Found case name: {case_name}")
                         return CanonicalResult(
                             case_name=case_name,
                             date=None,
@@ -458,8 +421,6 @@ class CanonicalCaseNameService:
                             verified=True
                         )
             except Exception as e:
-                print(f"[DEBUG] [PLAYWRIGHT][JUSTIA] Exception: {e}")
-            # --- End Playwright Justia search ---
 
             enhanced_engine = EnhancedLegalSearchEngine()
             web_engine = ComprehensiveWebSearchEngine()
@@ -471,7 +432,6 @@ class CanonicalCaseNameService:
             query_limit = 3
             global_timeout = 15  # seconds
 
-            # --- Clustered search: batch queries for parallel citations ---
             cluster_citations = [citation]
             all_variants = set()
             for cit in cluster_citations:
@@ -483,30 +443,23 @@ class CanonicalCaseNameService:
             batched_queries = [{'query': or_query, 'priority': 0, 'type': 'batched_cluster', 'citation': citation}]
             queries = batched_queries + queries
 
-            # Phase 1: Site-specific legal database searches
             site_specific_engines = ['casetext', 'leagle', 'casemine', 'justia', 'findlaw', 'openjurist', 'vlex']
             error_counts = {engine: 0 for engine in site_specific_engines}
             found_valid_result = None
             def run_site_query(engine_name, query):
                 if error_counts[engine_name] >= error_threshold:
-                    print(f"[DEBUG] [WEBSEARCH] Skipping {engine_name} due to repeated errors.")
                     return []
                 try:
-                    # Use the async search_* methods for site-specific engines
                     search_method = getattr(web_engine, f'search_{engine_name}', None)
                     if search_method is None:
-                        print(f"[DEBUG] [WEBSEARCH] No search method for {engine_name}")
                         return []
-                    # Run the async method using asyncio.run()
                     import asyncio
                     results = asyncio.run(search_method(query, None))
                     time.sleep(1.5)
-                    # If the result is a dict, wrap in a list for uniformity
                     if isinstance(results, dict):
                         results = [results]
                     return results
                 except Exception as e:
-                    print(f"[DEBUG] [WEBSEARCH] {engine_name} search error: {e}")
                     error_counts[engine_name] += 1
                     return []
             with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
@@ -523,7 +476,6 @@ class CanonicalCaseNameService:
                         engine_name, query = future_to_info[future]
                         results = future.result()
                         if not results:
-                            print(f"[DEBUG] [WEBSEARCH] No results from {engine_name} for query: {query}")
                             continue
                         for result in results:
                             url = result.get('url')
@@ -536,7 +488,6 @@ class CanonicalCaseNameService:
                                     candidate_name = best.get('title')
                                     is_valid = candidate_name and is_valid_case_name(candidate_name)
                                     if is_valid:
-                                        print(f"[DEBUG] [WEBSEARCH] Found valid canonical result (site-specific): {candidate_name} | URL: {best.get('url')}")
                                         found_valid_result = best
                                         break
                             if len(all_results) >= max_results or found_valid_result:
@@ -544,11 +495,9 @@ class CanonicalCaseNameService:
                         if len(all_results) >= max_results or found_valid_result:
                             break
                         if time.time() - start_time > global_timeout:
-                            print(f"[DEBUG] [WEBSEARCH] Timeout reached, stopping websearch early (site-specific phase).")
                     if found_valid_result:
                         pass
                 except concurrent.futures.TimeoutError:
-                    print(f"[DEBUG] [WEBSEARCH] Global websearch timeout ({global_timeout}s) reached (site-specific phase).")
                 finally:
                     pass
             if found_valid_result:
@@ -571,20 +520,17 @@ class CanonicalCaseNameService:
                     verified=found_valid_result.get('legal_relevance_score', 0) >= 70
                 )
 
-            # Phase 2: General search engines (Google, Bing, DDG)
             engines = ['google', 'bing', 'ddg']
             error_counts = {engine: 0 for engine in engines}
             found_valid_result = None
             def run_query(engine_name, query):
                 if error_counts[engine_name] >= error_threshold:
-                    print(f"[DEBUG] [WEBSEARCH] Skipping {engine_name} due to repeated errors.")
                     return []
                 try:
                     results = web_engine.search_with_engine(query, engine_name, num_results=20)
                     time.sleep(1.5)
                     return results
                 except Exception as e:
-                    print(f"[DEBUG] [WEBSEARCH] {engine_name} search error: {e}")
                     error_counts[engine_name] += 1
                     return []
             with concurrent.futures.ThreadPoolExecutor(max_workers=6) as executor:
@@ -601,7 +547,6 @@ class CanonicalCaseNameService:
                         engine_name, query = future_to_info[future]
                         results = future.result()
                         if not results:
-                            print(f"[DEBUG] [WEBSEARCH] No results from {engine_name} for query: {query}")
                             continue
                         for result in results:
                             url = result.get('url')
@@ -614,7 +559,6 @@ class CanonicalCaseNameService:
                                     candidate_name = best.get('title')
                                     is_valid = candidate_name and is_valid_case_name(candidate_name)
                                     if is_valid:
-                                        print(f"[DEBUG] [WEBSEARCH] Found valid canonical result: {candidate_name} | URL: {best.get('url')}")
                                         found_valid_result = best
                                         break
                             if len(all_results) >= max_results or found_valid_result:
@@ -622,11 +566,9 @@ class CanonicalCaseNameService:
                         if len(all_results) >= max_results or found_valid_result:
                             break
                         if time.time() - start_time > global_timeout:
-                            print(f"[DEBUG] [WEBSEARCH] Timeout reached, stopping websearch early.")
                     if found_valid_result:
                         pass
                 except concurrent.futures.TimeoutError:
-                    print(f"[DEBUG] [WEBSEARCH] Global websearch timeout ({global_timeout}s) reached.")
                 finally:
                     pass
             if found_valid_result:
@@ -651,31 +593,22 @@ class CanonicalCaseNameService:
 
             # TODO: Integrate Google Custom Search API here if/when available
 
-            # Filter and score results
             legal_results = enhanced_engine.filter_legal_results(all_results)
-            print(f"[DEBUG] [WEBSEARCH] Top filtered legal results:")
             for res in legal_results[:5]:
                 print(f"  Score: {res.get('legal_relevance_score', 0)} | Title: {res.get('title')} | URL: {res.get('url')}")
 
-            # Use the best result for canonical extraction
             if legal_results:
-                # If we have multiple results, try to find the best match using fuzzy matching
                 best = legal_results[0]
                 
-                # If we have multiple high-scoring results, use fuzzy matching to find the best case name
                 if len(legal_results) > 1 and legal_results[0].get('legal_relevance_score', 0) >= 80:
                     try:
                         from src.enhanced_case_name_matcher import enhanced_matcher
                         
-                        # Get all candidate names from high-scoring results
                         candidate_names = [res.get('title', '') for res in legal_results[:3] if res.get('title')]
                         
-                        # Try to find the best match if we have a citation context
                         if citation:
-                            # Extract potential case name from citation context
                             citation_words = citation.split()
                             if len(citation_words) >= 3:
-                                # Look for patterns that might indicate case names
                                 potential_case_name = ' '.join(citation_words[:3])  # Simple heuristic
                                 
                                 best_match = enhanced_matcher.find_best_match(
@@ -683,23 +616,17 @@ class CanonicalCaseNameService:
                                 )
                                 if best_match:
                                     best_candidate = best_match[0]
-                                    # Find the result with this candidate name
                                     for res in legal_results:
                                         if res.get('title') == best_candidate:
                                             best = res
-                                            print(f"[DEBUG] [WEBSEARCH] Fuzzy matched best case name: '{best_candidate}' (similarity: {best_match[1]:.3f})")
                                             break
                     except ImportError:
-                        # Enhanced matcher not available, use first result
                         pass
                 
                 candidate_name = best.get('title')
                 is_valid = candidate_name and is_valid_case_name(candidate_name)
-                print(f"[DEBUG] [WEBSEARCH] Candidate name: {candidate_name}, is_valid: {is_valid}")
                 if not is_valid:
-                    print(f"[DEBUG] [WEBSEARCH] Rejected candidate name: {candidate_name}")
                     return None
-                print(f"[DEBUG] [WEBSEARCH] Accepted candidate name: {candidate_name}")
                 url = best.get('url')
                 domain = None
                 if url:
@@ -707,8 +634,6 @@ class CanonicalCaseNameService:
                     domain = urlparse(url).netloc.lower()
                 if not domain:
                     domain = best.get('source', 'Web Search')
-                # Note: We're not requiring the exact citation to be in the snippet
-                # The source document (CaseMine, vLex, etc.) contains the case, and we're verifying
                 # that this citation belongs to that case based on case name matching
                 
                 return CanonicalResult(
@@ -722,12 +647,10 @@ class CanonicalCaseNameService:
                     verified=best.get('legal_relevance_score', 0) >= 70
                 )
             else:
-                print(f"[DEBUG] [WEBSEARCH] No legal results returned for citation: {citation}")
         except Exception as e:
             logger.error(f"Web search lookup failed: {e}")
             import traceback
             logger.error(f"Exception traceback: {traceback.format_exc()}")
-            print(f"[DEBUG] [WEBSEARCH] Exception occurred: {e}")
         return None
 
 def is_valid_case_name(name: Optional[str]) -> bool:
@@ -735,18 +658,14 @@ def is_valid_case_name(name: Optional[str]) -> bool:
     if not name or not isinstance(name, str):
         return False
     import re
-    # Require ' v. ' or ' vs. ' with spaces (case-insensitive)
     if not re.search(r"\s(v\.|vs\.|v|vs)\s", name, re.IGNORECASE):
         return False
-    # Exclude domains, URLs, or generic titles
     if re.search(r"(\.com|\.net|\.org|https?://|store|watch|eventify|app|allareacodes|youtube|steampowered|outlook)", name, re.IGNORECASE):
         return False
-    # Exclude names that are too short or generic
     if len(name.strip()) < 7:
         return False
     return True
 
-# Global service instance
 _canonical_service = None
 
 def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional[str] = None) -> Optional[Dict[str, Any]]:
@@ -762,7 +681,6 @@ def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional
     """
     global _canonical_service
     
-    # Handle None case before passing to _normalize_citation
     if citation is None:
         citation = ""
     
@@ -770,17 +688,13 @@ def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional
         _canonical_service = CanonicalCaseNameService()
     
     try:
-        # Normalize citation for lookup
-        # At this point, citation is guaranteed to be a string
         citation_str: str = citation
         normalized_citation = _canonical_service._normalize_citation_comprehensive(str(citation_str), purpose="verification")
         logger.info(f"get_canonical_case_name_with_date called for: {citation_str} (normalized: {normalized_citation})")
         
-        # Perform cached lookup
         result = _canonical_service._cached_lookup(normalized_citation)
         logger.info(f"get_canonical_case_name_with_date result: {result}")
         
-        # TOP-LEVEL HARDFILTER: Only return if case_name is valid (applies to all results, even from cache)
         from src.canonical_case_name_service import is_valid_case_name
         if result and result.case_name is not None:
             if not is_valid_case_name(result.case_name):
@@ -790,7 +704,6 @@ def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional
                 logger.info(f"[TOP-HARDFILTER] Accepted result for '{citation_str}': '{result.case_name}' is a valid case name (top-level hard filter)")
         
         if result:
-            # Convert to dictionary for backward compatibility
             return {
                 'case_name': result.case_name,
                 'date': result.date,
@@ -821,10 +734,8 @@ def get_canonical_case_name(citation: Optional[str], api_key: Optional[str] = No
     Returns:
         Case name string or None if not found
     """
-    # Handle None case before passing to get_canonical_case_name_with_date
     if citation is None:
         citation = ""
-    # At this point, citation is guaranteed to be a string
     citation_str: str = citation
     result = get_canonical_case_name_with_date(citation_str, api_key)
     return result.get('case_name') if result else None

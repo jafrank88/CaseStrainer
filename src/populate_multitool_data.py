@@ -1,9 +1,10 @@
 import sqlite3
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 
 logger = logging.getLogger(__name__)
 
-# Sample citation data
 sample_citations = [
     {
         "citation_text": "Brown v. Board of Education, 347 U.S. 483 (1954)",
@@ -72,10 +73,8 @@ def populate_sample_data(conn):
     """Populate the table with sample citation data."""
     cursor = conn.cursor()
 
-    # Clear existing data
     cursor.execute("DELETE FROM multitool_confirmed_citations")
 
-    # Insert sample data
     for citation in sample_citations:
         cursor.execute(
             """
@@ -101,22 +100,17 @@ def populate_sample_data(conn):
 def main():
     """Main function to create and populate the multitool_confirmed_citations table."""
     try:
-        # Connect to the database
         conn = sqlite3.connect("citations.db")
 
-        # Create table if it doesn't exist
         create_table_if_not_exists(conn)
 
-        # Populate with sample data
         populate_sample_data(conn)
 
-        # Verify the data was added
         cursor = conn.cursor()
         cursor.execute("SELECT COUNT(*) FROM multitool_confirmed_citations")
         count = cursor.fetchone()[0]
         logger.info(f"Total records in multitool_confirmed_citations: {count}")
 
-        # Close the connection
         conn.close()
 
         logger.info("Sample data successfully added to the database.")

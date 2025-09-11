@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Performance Optimizations for CaseStrainer
 
@@ -7,6 +6,8 @@ Currently a placeholder for future performance enhancements.
 """
 
 import time
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,7 +18,6 @@ def measure_performance(func):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
-        logger.debug(f"{func.__name__} took {end_time - start_time:.4f} seconds")
         return result
     return wrapper
 

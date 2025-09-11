@@ -11,17 +11,14 @@ import sqlite3
 import logging
 from datetime import datetime
 
-# Set up logging
 logger = logging.getLogger(__name__)
 
-# Try to import get_database_path, fallback to default if not available
 try:
     from src.config import get_database_path
 except ImportError:
     def get_database_path() -> str:
         return "citations.db"
 
-# Constants
 DATABASE_FILE = get_database_path()
 VERIFICATION_RESULTS_FILE = "verification_results.json"
 
@@ -31,7 +28,6 @@ def setup_multitool_confirmed_table():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Create multitool_confirmed_citations table if it doesn't exist
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS multitool_confirmed_citations (
@@ -59,7 +55,6 @@ def get_multitool_confirmed_citations():
     conn.row_factory = sqlite3.Row
     cursor = conn.cursor()
 
-    # Get citations with the MULTI_SOURCE_ONLY tag
     cursor.execute(
         """
     SELECT * FROM unconfirmed_citations 
@@ -92,17 +87,14 @@ def populate_multitool_confirmed_tab(citations, verification_results):
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Clear existing entries
     cursor.execute("DELETE FROM multitool_confirmed_citations")
 
-    # Create a lookup dictionary for verification results
     results_lookup = {}
     for result in verification_results:
         citation_id = result.get("citation_id")
         if citation_id:
             results_lookup[citation_id] = result.get("verification_result", {})
 
-    # Add each citation to the table
     count = 0
     for citation in citations:
         citation_id = citation["id"]
@@ -110,7 +102,6 @@ def populate_multitool_confirmed_tab(citations, verification_results):
         brief_url = citation.get("brief_url", "")
         context = citation.get("context", "")
 
-        # Get additional verification details from results
         verification_result = results_lookup.get(citation_id, {})
         verification_source = verification_result.get(
             "source", citation.get("verification_source", "Unknown")
@@ -151,7 +142,6 @@ def export_to_tab_delimited(citations, verification_results):
     """Export the multitool confirmed citations to a tab-delimited file for easy import."""
     output_file = "Multitool_Confirmed_Citations_Tab.txt"
 
-    # Create a lookup dictionary for verification results
     results_lookup = {}
     for result in verification_results:
         citation_id = result.get("citation_id")
@@ -160,19 +150,16 @@ def export_to_tab_delimited(citations, verification_results):
 
     try:
         with open(output_file, "w", encoding="utf-8") as f:
-            # Write header
             f.write(
                 "Citation\tBrief URL\tContext\tVerification Source\tConfidence\tExplanation\n"
             )
 
-            # Write each citation
             for citation in citations:
                 citation_id = citation["id"]
                 citation_text = citation["citation_text"]
                 brief_url = citation.get("brief_url", "")
                 context = citation.get("context", "")
 
-                # Get additional verification details from results
                 verification_result = results_lookup.get(citation_id, {})
                 verification_source = verification_result.get(
                     "source", citation.get("verification_source", "Unknown")
@@ -184,7 +171,6 @@ def export_to_tab_delimited(citations, verification_results):
                     "explanation", "No explanation available"
                 )
 
-                # Write tab-delimited line
                 f.write(
                     f"{citation_text}\t{brief_url}\t{context}\t{verification_source}\t{verification_confidence}\t{verification_explanation}\n"
                 )
@@ -198,14 +184,12 @@ def export_to_tab_delimited(citations, verification_results):
 
 def generate_summary_report(citations, verification_results):
     """Generate a summary report of the multitool confirmed citations."""
-    # Create a lookup dictionary for verification results
     results_lookup = {}
     for result in verification_results:
         citation_id = result.get("citation_id")
         if citation_id:
             results_lookup[citation_id] = result.get("verification_result", {})
 
-    # Count by verification source
     sources = {}
     for citation in citations:
         citation_id = citation["id"]
@@ -218,7 +202,6 @@ def generate_summary_report(citations, verification_results):
             sources[source] = 0
         sources[source] += 1
 
-    # Count by confidence range
     confidence_ranges = {
         "0.0-0.2": 0,
         "0.2-0.4": 0,
@@ -245,7 +228,6 @@ def generate_summary_report(citations, verification_results):
         elif 0.8 <= confidence <= 1.0:
             confidence_ranges["0.8-1.0"] += 1
 
-    # Generate report
     report_file = "Multitool_Confirmed_Citations_Report.txt"
 
     try:
@@ -301,18 +283,15 @@ def update_app_to_include_new_tab():
         with open(app_file, "r", encoding="utf-8") as f:
             app_code = f.read()
 
-        # Check if the tab already exists
         if "Confirmed with Multitool" in app_code:
             logger.info("The Confirmed with Multitool tab already exists in the app.")
             return True
 
-        # Find the tabs definition section
         tabs_section = "@app.route('/tabs')"
         if tabs_section not in app_code:
             logger.info("Could not find tabs section in app_final.py")
             return False
 
-        # Add the new tab to the tabs list
         tabs_code = """@app.route('/tabs')
 def tabs():
     return render_template('tabs.html', tabs=[
@@ -324,12 +303,10 @@ def tabs():
         'Citation Database'
     ])"""
 
-        # Replace the existing tabs section
         app_code = app_code.replace(
             app_code[app_code.find(tabs_section) : app_code.find("])") + 2], tabs_code
         )
 
-        # Add route for the new tab
         new_tab_route = """
 @app.route('/confirmed_with_multitool')
 def confirmed_with_multitool():
@@ -339,18 +316,15 @@ def confirmed_with_multitool():
     return render_template('confirmed_with_multitool.html', citations=citations)
 """
 
-        # Add the new route before the main function
         if "if __name__ == '__main__':" in app_code:
             insert_point = app_code.find("if __name__ == '__main__':")
             app_code = app_code[:insert_point] + new_tab_route + app_code[insert_point:]
 
-        # Write the updated code back to the file
         with open(app_file, "w", encoding="utf-8") as f:
             f.write(app_code)
 
         logger.info(f"Updated {app_file} to include the Confirmed with Multitool tab")
 
-        # Create the template file for the new tab
         templates_dir = "templates"
         if not os.path.exists(templates_dir):
             os.makedirs(templates_dir)
@@ -421,29 +395,22 @@ def main():
     """Main function to create the Confirmed with Multitool tab."""
     logger.info("Creating Confirmed with Multitool tab...")
 
-    # Set up the multitool_confirmed_citations table
     setup_multitool_confirmed_table()
 
-    # Get citations that were confirmed with the multi-source tool but not with CourtListener
     citations = get_multitool_confirmed_citations()
 
     if not citations:
         logger.info("No citations found that were confirmed only by the multi-source tool.")
         return
 
-    # Load verification results for additional context
     verification_results = load_verification_results()
 
-    # Populate the Confirmed with Multitool tab
     populate_multitool_confirmed_tab(citations, verification_results)
 
-    # Export to tab-delimited file
     export_to_tab_delimited(citations, verification_results)
 
-    # Generate summary report
     generate_summary_report(citations, verification_results)
 
-    # Update app to include the new tab
     update_app_to_include_new_tab()
 
     logger.info("\nConfirmed with Multitool tab creation complete")

@@ -304,3 +304,11 @@ src/types
 
 # Cypress test artifacts
 cypress/
+
+# Prevent duplicate endpoint files
+*_updated.py
+*_backup.py
+*_old.py
+*_new.py
+*_simple.py
+

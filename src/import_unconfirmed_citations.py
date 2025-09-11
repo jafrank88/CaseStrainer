@@ -6,16 +6,16 @@ into CaseStrainer's database for display in the Unconfirmed Citations tab.
 """
 
 import os
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import sqlite3
 import csv
 import logging
 from datetime import datetime
 from .config import get_database_path
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
-# Constants
 UNCONFIRMED_CITATIONS_FILE = "Unconfirmed_Citations_Tab.txt"
 DATABASE_FILE = get_database_path()
 
@@ -25,7 +25,6 @@ def create_database_if_not_exists():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Create unconfirmed_citations table if it doesn't exist
     cursor.execute(
         """
     CREATE TABLE IF NOT EXISTS unconfirmed_citations (
@@ -66,7 +65,6 @@ def import_citations():
     conn = sqlite3.connect(DATABASE_FILE)
     cursor = conn.cursor()
 
-    # Read the tab-delimited file
     with open(UNCONFIRMED_CITATIONS_FILE, "r", encoding="utf-8") as f:
         reader = csv.reader(f, delimiter="\t")
         next(reader)  # Skip header row
@@ -78,7 +76,6 @@ def import_citations():
                 brief_url = row[1]
                 context = row[2]
 
-                # Insert into database
                 cursor.execute(
                     "INSERT INTO unconfirmed_citations (citation_text, brief_url, context, date_added) VALUES (?, ?, ?, ?)",
                     (citation_text, brief_url, context, datetime.now()),
@@ -95,13 +92,10 @@ def main():
     """Main function to import unconfirmed citations."""
     logger.info("Starting import of unconfirmed citations to CaseStrainer...")
 
-    # Create database if it doesn't exist
     create_database_if_not_exists()
 
-    # Clear existing citations
     clear_existing_citations()
 
-    # Import citations
     import_citations()
 
     logger.info("Import complete. You can now view the unconfirmed citations in CaseStrainer's Unconfirmed Citations tab.")

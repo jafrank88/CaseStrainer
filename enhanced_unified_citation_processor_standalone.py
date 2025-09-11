@@ -109,7 +109,7 @@ class ProcessingConfig:
     extract_dates: bool = True
     
     # Enhanced features
-    enable_verification: bool = False  # Disabled by default due to API requirements
+    enable_verification: bool = True  # Re-enabled for full functionality
     enable_bluebook_formatting: bool = True
     enable_confidence_breakdown: bool = True
     enable_validation: bool = True
@@ -542,7 +542,7 @@ if __name__ == "__main__":
         test_text = """A federal court may ask this court to answer a question of Washington law when a resolution of that question is necessary to resolve a case before the federal court. RCW 2.60.020; Convoyant, LLC v. DeepThink, LLC, 200 Wn.2d 72, 73, 514 P.3d 643 (2022). Certified questions are questions of law we review de novo. Carlsen v. Glob. Client Sols., LLC, 171 Wn.2d 486, 493, 256 P.3d 321 (2011)."""
         # Enhanced extraction
         config = ProcessingConfig(
-            enable_verification=False,  # Disabled for testing
+            enable_verification=True,  # Re-enabled for full testing
             enable_bluebook_formatting=True,
             enable_confidence_breakdown=True
         )

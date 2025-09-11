@@ -3,6 +3,8 @@ API wrapper for integrating enhanced citation processing with Flask routes
 """
 
 import logging
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 from flask import Blueprint, request, jsonify, current_app
 from typing import Dict, Any, Optional
 import asyncio
@@ -12,15 +14,12 @@ from unified_citation_processor_v2 import UnifiedCitationProcessorV2 as UnifiedC
 
 logger = logging.getLogger(__name__)
 
-# Create Blueprint for citation API
 citation_api = Blueprint('citation_api', __name__)
 
-# Simple config class for extraction
 @dataclass
 class ExtractionConfig:
     min_confidence_threshold: float = 0.5
 
-# Global processor instance
 _processor = None
 
 def get_citation_processor() -> UnifiedCitationProcessor:
@@ -45,13 +44,12 @@ def analyze_document_citations():
         if not document_text:
             return jsonify({'error': 'No document text provided'}), 400
         
-        # Get processor and run analysis
         processor = get_citation_processor()
         
-        # Extract citations and process
-        citations = processor.extract_citations_from_text(document_text)
+        # Use modern process_text instead of deprecated extract_citations_from_text
+        result = processor.process_text(document_text)
+        citations = result.get('citations', [])
         
-        # Convert to serializable format
         results = {
             'citations': [citation.__dict__ for citation in citations] if citations else [],
             'total_count': len(citations) if citations else 0,
@@ -77,16 +75,15 @@ def validate_single_citation():
         if not citation_text:
             return jsonify({'error': 'No citation provided'}), 400
         
-        # Get processor and validate citation
         processor = get_citation_processor()
         
-        # Extract and validate single citation
-        citations = processor.extract_citations_from_text(citation_text)
+        # Use modern process_text instead of deprecated extract_citations_from_text
+        result = processor.process_text(citation_text)
+        citations = result.get('citations', [])
         
         if citations:
             citation = citations[0]
             
-            # Run async validation
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
@@ -136,14 +133,13 @@ def extract_citations():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
         
-        # Create extraction config
         config = ExtractionConfig(**config_data) if config_data else ExtractionConfig()
         
-        # Extract citations
         processor = get_citation_processor()
-        citations = processor.extract_citations_from_text(text)
+        # Use modern process_text instead of deprecated extract_citations_from_text
+        result = processor.process_text(text)
+        citations = result.get('citations', [])
         
-        # Convert to serializable format
         citation_data = []
         for citation in citations:
             citation_data.append({
@@ -182,11 +178,11 @@ def get_citation_statistics():
         if not text:
             return jsonify({'error': 'No text provided'}), 400
         
-        # Extract citations and get statistics
         processor = get_citation_processor()
-        citations = processor.extract_citations_from_text(text)
+        # Use modern process_text instead of deprecated extract_citations_from_text
+        result = processor.process_text(text)
+        citations = result.get('citations', [])
         
-        # Calculate basic statistics
         stats = {
             'total_citations': len(citations) if citations else 0,
             'citations_by_type': {},
@@ -196,15 +192,12 @@ def get_citation_statistics():
         
         if citations:
             for citation in citations:
-                # Count by type
                 citation_type = getattr(citation, 'citation_type', 'unknown')
                 stats['citations_by_type'][citation_type] = stats['citations_by_type'].get(citation_type, 0) + 1
                 
-                # Count by court
                 court = getattr(citation, 'court', 'unknown')
                 stats['citations_by_court'][court] = stats['citations_by_court'].get(court, 0) + 1
                 
-                # Count by year
                 year = getattr(citation, 'year', 'unknown')
                 stats['citations_by_year'][year] = stats['citations_by_year'].get(year, 0) + 1
         
@@ -223,9 +216,10 @@ def citation_health_check():
     try:
         processor = get_citation_processor()
         
-        # Test basic functionality
         test_text = "See Brown v. Board of Education, 347 U.S. 483 (1954)."
-        test_citations = processor.extract_citations_from_text(test_text)
+        # Use modern process_text instead of deprecated extract_citations_from_text
+        result = processor.process_text(test_text)
+        test_citations = result.get('citations', [])
         
         health_status = {
             'status': 'healthy',
@@ -237,7 +231,6 @@ def citation_health_check():
             'test_citation_count': len(test_citations)
         }
         
-        # Check if all services are working
         if all(health_status['services'].values()):
             return jsonify(health_status), 200
         else:
@@ -251,59 +244,30 @@ def citation_health_check():
             'error': str(e)
         }), 503
 
-# Legacy compatibility endpoint - DISABLED due to missing method
-# @citation_api.route('/analyze_enhanced', methods=['POST'])
 # def enhanced_analyze():
-#     """Enhanced analyze endpoint with better citation extraction (legacy compatibility)"""
 #     try:
 #         data = request.get_json()
 #         if not data:
 #             return jsonify({'error': 'No JSON data provided'}), 400
-#         
 #         input_type = data.get('type', 'text')
-#         
 #         if input_type == 'text':
 #             text = data.get('text', '')
 #             document_type = data.get('document_type', 'legal_brief')
-#             
 #             if not text:
 #                 return jsonify({'error': 'No text provided'}), 400
-#             
-#             # Use the enhanced citation processor
 #             processor = get_citation_processor()
-#             
-#             # Run async processing
 #             loop = asyncio.new_event_loop()
 #             asyncio.set_event_loop(loop)
 #             try:
 #                 citation_results = loop.run_until_complete(
 #                     processor.process_document_citations(text, document_type)
-#                 )
 #             finally:
 #                 loop.close()
-#             
-#             # Maintain compatibility with existing response format
 #             legacy_format = {
-#                 'success': citation_results['success'],
-#                 'citations': [
-#                     {
-#                         'text': c['raw_text'],
-#                         'case_name': c['case_name'],
-#                         'year': c['year'],
-#                         'validation_status': c['validation_status'],
-#                         'confidence': c['confidence_score']
-#                     }
 #                     for c in citation_results['citations']
-#                 ],
-#                 'analysis': citation_results['analysis'],
-#                 'recommendations': citation_results['recommendations']
-#             }
-#             
 #             return jsonify(legacy_format)
-#         
 #         else:
 #             return jsonify({'error': 'File upload processing not implemented in this endpoint'}), 501
-#             
 #     except Exception as e:
 #         logger.error(f"Error in enhanced analyze endpoint: {e}", exc_info=True)
 #         return jsonify({'error': 'Analysis failed', 'details': str(e)}), 500

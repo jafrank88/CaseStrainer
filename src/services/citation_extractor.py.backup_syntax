@@ -1,0 +1,592 @@
+"""
+DEPRECATED: Use `src.citation_extractor.CitationExtractor` instead.
+
+This module previously provided a separate citation extractor service. The project now
+standardizes on `src.citation_extractor.CitationExtractor` and `EnhancedSyncProcessor`
+for extraction + propagation + clustering. Keep this module only for historical
+reference; new code should not import from `src.services.citation_extractor`.
+"""
+
+import refrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
+import json
+import os
+import logging
+from typing import List, Dict, Any, Optional, Tuple
+
+try:
+    import warnings as _warnings
+    _warnings.warn(
+        "src.services.citation_extractor is deprecated; use src.citation_extractor.CitationExtractor",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+except Exception:
+    pass
+from dataclasses import dataclass
+import unicodedata
+from pathlib import Path
+
+from .interfaces import ICitationExtractor, CitationResult, ProcessingConfig
+
+logger = logging.getLogger(__name__)
+
+try:
+    from eyecite import get_citations
+    from eyecite.tokenizers import AhocorasickTokenizer
+    EYECITE_AVAILABLE = True
+    logger.info("Eyecite successfully imported for CitationExtractor")
+except ImportError as e:
+    EYECITE_AVAILABLE = False
+    logger.warning(f"Eyecite not available - install with: pip install eyecite. Error: {e}")
+
+ADAPTIVE_LEARNING_AVAILABLE = False
+AdaptiveLearningService = None  # type: ignore
+create_adaptive_learning_service = None  # type: ignore
+
+try:
+    from .adaptive_learning_service import AdaptiveLearningService as ImportedAdaptiveLearningService, create_adaptive_learning_service as imported_create_service
+    ADAPTIVE_LEARNING_AVAILABLE = True
+    AdaptiveLearningService = ImportedAdaptiveLearningService  # type: ignore
+    create_adaptive_learning_service = imported_create_service  # type: ignore
+    logger.info("Adaptive learning service available for CitationExtractor")
+except ImportError as e:
+    logger.info("Adaptive learning service not available - using basic extraction only")
+    class AdaptiveLearningService:  # type: ignore
+        def __init__(self, *args, **kwargs):
+            pass
+        def is_enabled(self):
+            return False
+        def enhance_citation_extraction(self, *args, **kwargs):  # type: ignore
+            from dataclasses import dataclass
+            @dataclass
+            class DummyResult:
+                improved_citations: Optional[List[Any]] = None
+                learned_patterns: Optional[List[Any]] = None
+                confidence_adjustments: Optional[Dict[str, Any]] = None
+                case_name_mappings: Optional[Dict[str, Any]] = None
+                performance_metrics: Optional[Dict[str, Any]] = None
+                
+                def __post_init__(self):
+                    if self.improved_citations is None:
+                        self.improved_citations = []
+                    if self.learned_patterns is None:
+                        self.learned_patterns = []
+                    if self.confidence_adjustments is None:
+                        self.confidence_adjustments = {}
+                    if self.case_name_mappings is None:
+                        self.case_name_mappings = {}
+                    if self.performance_metrics is None:
+                        self.performance_metrics = {}
+            return DummyResult(improved_citations=[], learned_patterns=[], confidence_adjustments={}, case_name_mappings={}, performance_metrics={})
+    
+    def create_adaptive_learning_service(*args, **kwargs):  # type: ignore
+        return AdaptiveLearningService()
+
+
+class CitationExtractor(ICitationExtractor):
+    """
+    Pure citation extraction service using regex and eyecite methods.
+    
+    This service is responsible for:
+    - Finding citation patterns in text
+    - Extracting basic citation metadata
+    - Normalizing citation formats
+    - Context extraction for case names and dates
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
+        """Initialize the citation extractor with optional configuration."""
+        self.config = config or {}
+        self.logger = logging.getLogger(__name__)
+        self.reporters = self._load_reporters()
+        self.citation_pattern = None  # Will be initialized in _init_patterns
+        self._init_patterns()
+        self._init_case_name_patterns()
+        self._init_date_patterns()
+        
+        self.adaptive_learning = None
+        if ADAPTIVE_LEARNING_AVAILABLE and self.config.get('enable_adaptive_learning', True):
+            try:
+                self.adaptive_learning = create_adaptive_learning_service()
+                if self.config.get('debug_mode', False):
+                    logger.info(f"Adaptive learning enabled: {self.adaptive_learning.is_enabled()}")
+            except Exception as e:
+                logger.warning(f"Failed to initialize adaptive learning: {e}")
+                self.adaptive_learning = None
+        
+        if self.config.get('debug_mode', False):
+            logger.info(f"CitationExtractor initialized with eyecite: {EYECITE_AVAILABLE}, adaptive learning: {self.adaptive_learning is not None}")
+    
+    def _load_reporters(self) -> List[Dict[str, Any]]:
+        """Load reporter patterns from the data file."""
+        try:
+            reporters_file = Path(__file__).parent / "data" / "reporters.json"
+            if reporters_file.exists():
+                with open(reporters_file, 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    reporters = data.get('reporters', [])
+                self.logger.info(f"Loaded {len(reporters)} reporter patterns")
+                return reporters
+            else:
+                self.logger.warning(f"Reporters file not found: {reporters_file}")
+                return []
+        except Exception as e:
+            self.logger.error(f"Error loading reporters: {e}")
+            return []
+    
+    def _init_patterns(self) -> None:
+        """Initialize citation patterns from loaded reporter data."""
+        if not self.reporters:
+            self.logger.warning("No reporter patterns loaded, using fallback patterns")
+            self._init_fallback_patterns()
+            return
+            
+        jurisdiction_patterns = {}
+        
+        for reporter in self.reporters:
+            jurisdiction = reporter.get('jurisdiction', 'other')
+            if jurisdiction not in jurisdiction_patterns:
+                jurisdiction_patterns[jurisdiction] = []
+                
+            jurisdiction_patterns[jurisdiction].extend(reporter.get('patterns', []))
+        
+        self.patterns = {}
+        
+        for jurisdiction, patterns in jurisdiction_patterns.items():
+            if patterns:
+                try:
+                    self.patterns[jurisdiction] = re.compile(
+                        '|'.join(patterns),
+                        re.IGNORECASE
+                    )
+                    self.logger.debug(f"Compiled {len(patterns)} patterns for {jurisdiction}")
+                except re.error as e:
+                    self.logger.error(f"Error compiling {jurisdiction} patterns: {str(e)}")
+        
+        all_patterns = []
+        for patterns in jurisdiction_patterns.values():
+            all_patterns.extend(patterns)
+            
+        if all_patterns:
+            try:
+                self.patterns['all'] = re.compile(
+                    '|'.join(all_patterns),
+                    re.IGNORECASE
+                )
+                self.logger.info(f"Compiled {len(all_patterns)} total patterns")
+            except re.error as e:
+                self.logger.error(f"Error compiling combined patterns: {str(e)}")
+                self._init_fallback_patterns()
+        else:
+            self._init_fallback_patterns()
+    
+    def _init_fallback_patterns(self) -> None:
+        """Initialize fallback patterns when reporter data is not available."""
+        self.logger.warning("Initializing fallback citation patterns")
+        
+        federal_patterns = [
+            r'\b\d+\s+U\.\s+S\.\s+\d+',           # U.S. Reports
+            r'\b\d+\s+S\.\s*Ct\.\s+\d+',       # Supreme Court Reporter
+            r'\b\d+\s+L\.\s*Ed\.\s*2d\s+\d+',  # Lawyers' Edition
+            r'\b\d+\s+F\.\s*3d\s+\d+',         # Federal Reporter 3d
+            r'\b\d+\s+F\.\s*2d\s+\d+',         # Federal Reporter 2d
+            r'\b\d+\s+F\.\s+\d+',              # Federal Reporter
+            r'\b\d+\s+F\.\s*Supp\.\s*3d\s+\d+', # Federal Supplement 3d
+            r'\b\d+\s+F\.\s*Supp\.\s*2d\s+\d+', # Federal Supplement 2d
+            r'\b\d+\s+F\.\s*Supp\.\s+\d+'      # Federal Supplement
+        ]
+        
+        state_patterns = [
+            r'\b(\d+)\s+Wn\.3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+2d\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+App\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+3d\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+2d\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+App\.\s+(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s+(\d+)\b',
+            
+            r'\b\d+\s+A\.\s*3d\s+\d+',
+            r'\b\d+\s+A\.\s*2d\s+\d+',
+            r'\b\d+\s+P\.\s*3d\s+\d+',
+            r'\b\d+\s+P\.\s*2d\s+\d+',
+            r'\b\d+\s+N\.E\.\s*3d\s+\d+',
+            r'\b\d+\s+N\.E\.\s*2d\s+\d+',
+            r'\b\d+\s+N\.W\.\s*2d\s+\d+',
+            r'\b\d+\s+S\.E\.\s*2d\s+\d+',
+            r'\b\d+\s+S\.W\.\s*3d\s+\d+',
+            r'\b\d+\s+S\.W\.\s*2d\s+\d+'
+        ]
+        
+        all_patterns = federal_patterns + state_patterns
+        
+        try:
+            self.patterns = {
+                'federal': re.compile('|'.join(federal_patterns), re.IGNORECASE),
+                'state': re.compile('|'.join(state_patterns), re.IGNORECASE),
+                'all': re.compile('|'.join(all_patterns), re.IGNORECASE)
+            }
+            self.logger.info("Initialized fallback patterns")
+        except re.error as e:
+            self.logger.error(f"Failed to initialize fallback patterns: {str(e)}")
+            raise
+    
+    def _init_case_name_patterns(self) -> None:
+        """Initialize case name extraction patterns."""
+        self.case_name_patterns = [
+            re.compile(r'\b([A-Z][a-zA-Z\s&,\.]+?)\s+v\.\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            
+            re.compile(r'\bIn\s+re\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            
+            re.compile(r'\bEx\s+parte\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            
+            re.compile(r'\bMatter\s+of\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE)
+        ]
+    
+    def _init_date_patterns(self) -> None:
+        """Initialize date extraction patterns."""
+        self.date_patterns = [
+            re.compile(r'\((\d{4})\)'),
+            
+            re.compile(r'\b(\d{4})\b'),
+            
+            re.compile(r'\b(\d{1,2}/\d{1,2}/\d{4})\b'),
+            re.compile(r'\b(\d{4}-\d{2}-\d{2})\b')
+        ]
+    
+    def extract_citations(self, text: str, document_name: str = "") -> List[CitationResult]:
+        """
+        Extract citations from text using regex, eyecite, and adaptive learning methods.
+        
+        Args:
+            text: The text to extract citations from
+            document_name: Optional document identifier for adaptive learning
+            
+        Returns:
+            List of CitationResult objects with enhanced extraction data
+        """
+        citations = []
+        
+        regex_citations = self._extract_with_regex(text)
+        citations.extend(regex_citations)
+        
+        if EYECITE_AVAILABLE and self.config.get('use_eyecite', True):
+            eyecite_citations = self._extract_with_eyecite(text)
+            citations.extend(eyecite_citations)
+        
+        citations = self._deduplicate_citations(citations)
+        
+        for citation in citations:
+            citation = self.extract_metadata(citation, text)
+        
+        if self.adaptive_learning and self.adaptive_learning.is_enabled():
+            try:
+                adaptive_result = self.adaptive_learning.enhance_citation_extraction(
+                    text, document_name, citations
+                )
+                
+                improved_citations = adaptive_result.improved_citations
+                if improved_citations is not None:
+                    citations = improved_citations
+                
+                if self.config.get('debug_mode', False):
+                    learned_patterns = adaptive_result.learned_patterns or []
+                    confidence_adjustments = adaptive_result.confidence_adjustments or {}
+                    logger.info(f"Adaptive learning found {len(learned_patterns)} new patterns")
+                    logger.info(f"Confidence adjustments: {len(confidence_adjustments)}")
+                    
+            except Exception as e:
+                logger.warning(f"Error in adaptive learning enhancement: {e}")
+        
+        if self.config.get('debug_mode', False):
+            logger.info(f"CitationExtractor found {len(citations)} citations (with adaptive learning: {self.adaptive_learning is not None})")
+        
+        return citations
+    
+    def extract_metadata(self, citation: CitationResult, text: str) -> CitationResult:
+        """
+        Extract metadata (case name, date, context) for a citation.
+        
+        Args:
+            citation: Citation to extract metadata for
+            text: Full text for context extraction
+            
+        Returns:
+            Updated CitationResult with metadata
+        """
+        try:
+            case_name = self._extract_case_name_from_context(text, citation)
+            if case_name:
+                citation.extracted_case_name = case_name
+            
+            date = self._extract_date_from_context(text, citation)
+            if date:
+                citation.extracted_date = date
+            
+            context = self._extract_context(text, citation.start_index or 0, citation.end_index or 0)
+            if context:
+                citation.context = context
+            
+            citation.confidence = self._calculate_confidence(citation, text)
+            
+        except Exception as e:
+            logger.warning(f"Error extracting metadata for citation {citation.citation}: {e}")
+        
+        return citation
+    
+    def _extract_with_regex(self, text: str) -> List[CitationResult]:
+        """Extract citations using regex patterns."""
+        citations = []
+        
+        if self.config.get('debug_mode', False):
+            logger.info(f"Extracting citations from text with length: {len(text)}")
+        
+        for match in self.patterns['all'].finditer(text):
+            citation_text = match.group(0).strip()
+            start_index = match.start(0)
+            end_index = match.end(0)
+            
+            if self.config.get('debug_mode', False):
+                logger.info(f"Found citation: {citation_text} at position {start_index}-{end_index}")
+            
+            citation = CitationResult(
+                citation=citation_text,
+                start_index=start_index,
+                end_index=end_index,
+                method="regex",
+                pattern=self._get_matching_pattern(citation_text),
+                confidence=0.8  # Base confidence for regex matches
+            )
+            
+            citations.append(citation)
+        
+        if self.config.get('debug_mode', False):
+            logger.info(f"Extracted {len(citations)} citations using regex")
+        
+        return citations
+    
+    def _extract_with_eyecite(self, text: str) -> List[CitationResult]:
+        """Extract citations using eyecite library."""
+        if not EYECITE_AVAILABLE:
+            return []
+        
+        citations = []
+        
+        try:
+            found_citations = get_citations(text)
+            
+            for eyecite_citation in found_citations:
+                citation_text = self._extract_citation_text_from_eyecite(eyecite_citation)
+                
+                start_index = text.find(citation_text)
+                end_index = start_index + len(citation_text) if start_index != -1 else 0
+                
+                citation = CitationResult(
+                    citation=citation_text,
+                    start_index=start_index,
+                    end_index=end_index,
+                    method="eyecite",
+                    confidence=0.9  # Higher confidence for eyecite
+                )
+                
+                self._extract_eyecite_metadata(citation, eyecite_citation)
+                
+                citations.append(citation)
+                
+        except Exception as e:
+            logger.warning(f"Error in eyecite extraction: {e}")
+        
+        return citations
+    
+    def _extract_citation_text_from_eyecite(self, citation_obj) -> str:
+        """Extract citation text from eyecite object."""
+        try:
+            if hasattr(citation_obj, 'corrected_citation_full'):
+                return citation_obj.corrected_citation_full
+            elif hasattr(citation_obj, 'corrected_citation'):
+                return citation_obj.corrected_citation
+            elif hasattr(citation_obj, 'cite'):
+                return citation_obj.cite
+            elif hasattr(citation_obj, 'text'):
+                return citation_obj.text
+            else:
+                if hasattr(citation_obj, 'groups') and citation_obj.groups:
+                    groups = citation_obj.groups()
+                    if len(groups) >= 3:  # volume, reporter, page
+                        return f"{groups[0]} {groups[1]} {groups[2]}"
+                text = str(citation_obj)
+                if not text.startswith(('FullCaseCitation(', 'ShortCaseCitation(', 'SupraCitation(')):
+                    return text
+                return ''
+        except Exception as e:
+            logger.warning(f"Error extracting citation text from eyecite object: {e}")
+            return ''
+    
+    def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj) -> None:
+        """Extract metadata from eyecite citation object."""
+        try:
+            if hasattr(citation_obj, 'court'):
+                citation.court = str(citation_obj.court)
+            
+            if hasattr(citation_obj, 'year') and citation_obj.year:
+                citation.extracted_date = str(citation_obj.year)
+            
+            if hasattr(citation_obj, 'reporter'):
+                citation.metadata = citation.metadata or {}
+                citation.metadata['reporter'] = str(citation_obj.reporter)
+                
+        except Exception as e:
+            logger.warning(f"Error extracting eyecite metadata: {e}")
+    
+    def _extract_case_name_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
+        """Extract case name from the context around a citation."""
+        if not citation.start_index:
+            return None
+        
+        start_search = max(0, citation.start_index - 200)
+        search_text = text[start_search:citation.start_index]
+        
+        for pattern in self.case_name_patterns:
+            matches = pattern.findall(search_text)
+            if matches:
+                match = matches[-1]
+                if isinstance(match, tuple):
+                    return f"{match[0].strip()} v. {match[1].strip()}"
+                else:
+                    return match.strip()
+        
+        return None
+    
+    def _extract_date_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
+        """Extract date from the context around a citation."""
+        if not citation.start_index:
+            return None
+        
+        start_search = citation.start_index
+        end_search = min(len(text), start_search + 300)
+        search_text = text[start_search:end_search]
+        
+        
+        for pattern in self.date_patterns:
+            match = pattern.search(search_text)
+            if match:
+                return match.group(1)
+        
+        return None
+    
+    def _extract_context(self, text: str, start: int, end: int) -> str:
+        """Extract context around a citation."""
+        context_start = max(0, start - 100)
+        context_end = min(len(text), end + 100)
+        return text[context_start:context_end].strip()
+    
+    def _calculate_confidence(self, citation: CitationResult, text: str) -> float:
+        """Calculate confidence score for a citation."""
+        confidence = 0.5  # Base confidence
+        
+        if citation.method == "eyecite":
+            confidence += 0.3
+        elif citation.method == "regex":
+            confidence += 0.2
+        
+        if citation.extracted_case_name:
+            confidence += 0.2
+        
+        if citation.extracted_date:
+            confidence += 0.1
+        
+        return min(confidence, 1.0)
+    
+    def _get_matching_pattern(self, citation: str) -> str:
+        """Get the pattern type that matched a citation."""
+        if self.patterns['federal'].match(citation):
+            return "federal"
+        elif self.patterns['state'].match(citation):
+            return "state"
+        else:
+            return "unknown"
+    
+    def _deduplicate_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
+        """Remove duplicate citations while preserving the best quality ones."""
+        seen = {}
+        deduplicated = []
+        
+        for citation in citations:
+            normalized = self._normalize_citation_comprehensive(citation.citation, purpose="comparison")
+            
+            if normalized not in seen:
+                seen[normalized] = citation
+                deduplicated.append(citation)
+            else:
+                existing = seen[normalized]
+                if citation.confidence > existing.confidence:
+                    seen[normalized] = citation
+                    deduplicated[deduplicated.index(existing)] = citation
+        
+        return deduplicated
+    
+    def _normalize_citation(self, citation: str) -> str:
+        """Normalize citation for comparison."""
+        normalized = re.sub(r'\s+', ' ', citation.strip().lower())
+        
+        replacements = {
+            'wash.': 'wn.',
+            'wash. 2d': 'wn. 2d',
+            'wash. app.': 'wn. app.',
+            's. ct.': 's.ct.',
+            'l. ed.': 'l.ed.',
+            'f. supp.': 'f.supp.'
+        }
+        
+        for old, new in replacements.items():
+            normalized = normalized.replace(old, new)
+        
+        return normalized
+    
+    def _normalize_citation_comprehensive(self, citation: str, purpose: str = "comparison") -> str:
+        """
+        Comprehensive citation normalization for different purposes.
+        
+        Args:
+            citation: The citation string to normalize
+            purpose: The purpose of normalization ("comparison", "similarity", "extraction")
+            
+        Returns:
+            Normalized citation string
+        """
+        if not citation:
+            return ""
+        
+        normalized = re.sub(r'\s+', ' ', citation.strip().lower())
+        
+        if purpose == "similarity":
+            normalized = re.sub(r'[^\w\s]', '', normalized)
+        elif purpose == "extraction":
+            # but normalize common variations
+            normalized = re.sub(r'[^\w\s\.]', '', normalized)
+        else:  # comparison (default)
+            pass
+        
+        replacements = {
+            'wash.': 'wn.',
+            'wash. 2d': 'wn. 2d',
+            'wash. app.': 'wn. app.',
+            's. ct.': 's.ct.',
+            'l. ed.': 'l.ed.',
+            'f. supp.': 'f.supp.',
+            'p.': 'p',
+            'p2d': 'p2d',
+            'p3d': 'p3d',
+            'f.': 'f',
+            'f2d': 'f2d',
+            'f3d': 'f3d',
+            'u.s.': 'us',
+            'sup. ct.': 'supct'
+        }
+        
+        for old, new in replacements.items():
+            normalized = normalized.replace(old, new)
+        
+        return normalized

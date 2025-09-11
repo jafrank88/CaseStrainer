@@ -6,6 +6,8 @@ async improvements, and algorithmic optimizations.
 """
 
 import asyncio
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
 import re
 import time
 import logging
@@ -31,19 +33,15 @@ class OptimizedCitationExtractor(ICitationExtractor):
     
     def __init__(self, config: ProcessingConfig):
         self.config = config
-        # Convert ProcessingConfig to dict for base extractor
         config_dict = config.__dict__ if hasattr(config, '__dict__') else {}
         self.base_extractor = CitationExtractor(config_dict)
         
-        # Performance optimizations
         self._compiled_patterns = {}
         self._compile_patterns()
         
-        # Caching
         self.cache = MemoryCache(max_size=500, default_ttl=1800)  # 30 minutes
         cache_manager.register_cache('extractor', self.cache)
         
-        # Thread pool for parallel processing
         self._thread_pool = ThreadPoolExecutor(max_workers=4)
         
         if config.debug_mode:
@@ -51,7 +49,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
     
     def _compile_patterns(self):
         """Pre-compile regex patterns for better performance."""
-        # Common citation patterns - compiled once for reuse
         self._compiled_patterns = {
             'us_supreme_court': re.compile(
                 r'\b(\d+)\s+U\.S\.\s+(\d+)\s*\((\d{4})\)',
@@ -78,21 +75,17 @@ class OptimizedCitationExtractor(ICitationExtractor):
     @profiler.profile_sync("extract_citations_optimized")
     def extract_citations(self, text: str) -> List[CitationResult]:
         """Extract citations with performance optimizations."""
-        # Check cache first
         cache_key = self.cache.generate_key("extract", text[:1000])  # Use first 1000 chars for key
         cached_result = self.cache.get(cache_key)
         if cached_result is not None:
             if self.config.debug_mode:
-                logger.debug("Cache hit for citation extraction")
-            return cached_result
+                return cached_result
         
-        # Split large texts for parallel processing
         if len(text) > 10000:  # 10KB threshold
             result = self._extract_parallel(text)
         else:
             result = self._extract_single(text)
         
-        # Cache the result
         self.cache.set(cache_key, result)
         
         return result
@@ -101,7 +94,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
         """Extract citations from a single text block."""
         citations = []
         
-        # Use compiled patterns for faster matching
         for pattern_name, pattern in self._compiled_patterns.items():
             if pattern_name == 'case_name':
                 continue  # Handle case names separately
@@ -111,7 +103,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
                 start_pos = match.start()
                 end_pos = match.end()
                 
-                # Extract metadata using compiled patterns
                 metadata = self._extract_metadata_fast(citation_text, text, start_pos)
                 
                 citation = CitationResult(
@@ -126,13 +117,11 @@ class OptimizedCitationExtractor(ICitationExtractor):
                 )
                 citations.append(citation)
         
-        # Deduplicate and sort
         citations = self._deduplicate_fast(citations)
         return sorted(citations, key=lambda x: x.start_index or 0)
     
     def _extract_parallel(self, text: str) -> List[CitationResult]:
         """Extract citations using parallel processing for large texts."""
-        # Split text into chunks
         chunk_size = 5000  # 5KB chunks with overlap
         overlap = 500      # 500 char overlap to catch citations spanning chunks
         
@@ -141,7 +130,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
             chunk = text[i:i + chunk_size]
             chunks.append((chunk, i))
         
-        # Process chunks in parallel
         all_citations = []
         futures = []
         
@@ -149,7 +137,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
             future = self._thread_pool.submit(self._extract_chunk, chunk, offset)
             futures.append(future)
         
-        # Collect results
         for future in as_completed(futures):
             try:
                 chunk_citations = future.result()
@@ -157,7 +144,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
             except Exception as e:
                 logger.error(f"Error processing chunk: {e}")
         
-        # Deduplicate across chunks
         all_citations = self._deduplicate_fast(all_citations)
         return sorted(all_citations, key=lambda x: x.start_index or 0)
     
@@ -165,7 +151,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
         """Extract citations from a text chunk."""
         citations = self._extract_single(chunk)
         
-        # Adjust positions for offset
         for citation in citations:
             if citation.start_index is not None:
                 citation.start_index += offset
@@ -178,7 +163,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
         """Fast metadata extraction using compiled patterns."""
         metadata = {}
         
-        # Look for case name near the citation
         context_start = max(0, start_pos - 200)
         context_end = min(len(full_text), start_pos + len(citation_text) + 200)
         context = full_text[context_start:context_end]
@@ -187,7 +171,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
         if case_match:
             metadata['extracted_case_name'] = case_match.group(0)
         
-        # Extract year from citation
         year_match = re.search(r'\((\d{4})\)', citation_text)
         if year_match:
             metadata['extracted_date'] = year_match.group(1)
@@ -200,7 +183,6 @@ class OptimizedCitationExtractor(ICitationExtractor):
         unique_citations = []
         
         for citation in citations:
-            # Create a simple key for deduplication
             key = (citation.citation.strip().lower(), citation.start_index)
             if key not in seen:
                 seen.add(key)
@@ -210,11 +192,9 @@ class OptimizedCitationExtractor(ICitationExtractor):
     
     def extract_metadata(self, citation: CitationResult, text: str) -> CitationResult:
         """Extract metadata for a citation using optimized methods."""
-        # Use the fast metadata extraction method
         start_pos = citation.start_index or 0
         metadata = self._extract_metadata_fast(citation.citation, text, start_pos)
         
-        # Update citation with metadata
         if 'extracted_case_name' in metadata:
             citation.extracted_case_name = metadata['extracted_case_name']
         if 'extracted_date' in metadata:
@@ -232,14 +212,12 @@ class OptimizedCitationVerifier(ICitationVerifier):
         self.config = config
         self.base_verifier = CitationVerifier(config)
         
-        # Multi-level caching
         self.verification_cache = MemoryCache(max_size=1000, default_ttl=3600)  # 1 hour
         self.landmark_cache = MemoryCache(max_size=200, default_ttl=86400)     # 24 hours
         
         cache_manager.register_cache('verifier', self.verification_cache)
         cache_manager.register_cache('landmark', self.landmark_cache)
         
-        # Rate limiting
         self._last_api_call = 0
         self._min_api_interval = 0.1  # 100ms between API calls
         self._api_lock = threading.Lock()
@@ -253,7 +231,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
         if not citations:
             return citations
         
-        # Separate cached and uncached citations
         cached_citations = []
         uncached_citations = []
         
@@ -262,7 +239,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
             cached_result = self.verification_cache.get(cache_key)
             
             if cached_result is not None:
-                # Apply cached verification data
                 citation.verified = cached_result.get('verified', False)
                 citation.canonical_name = cached_result.get('canonical_name')
                 citation.canonical_date = cached_result.get('canonical_date')
@@ -272,15 +248,12 @@ class OptimizedCitationVerifier(ICitationVerifier):
                 cached_citations.append(citation)
                 
                 if self.config.debug_mode:
-                    logger.debug(f"Cache hit for verification: {citation.citation}")
             else:
                 uncached_citations.append(citation)
         
-        # Verify uncached citations in batches
         if uncached_citations:
             verified_citations = await self._verify_batch(uncached_citations)
             
-            # Cache the results
             for citation in verified_citations:
                 cache_key = self._get_verification_cache_key(citation)
                 cache_data = {
@@ -299,7 +272,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
     
     async def _verify_batch(self, citations: List[CitationResult]) -> List[CitationResult]:
         """Verify citations in optimized batches."""
-        # Check landmark cases first (fast)
         landmark_verified = []
         api_needed = []
         
@@ -316,7 +288,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
             else:
                 api_needed.append(citation)
         
-        # Process API verifications with rate limiting
         if api_needed:
             api_verified = await self._verify_with_rate_limiting(api_needed)
             landmark_verified.extend(api_verified)
@@ -328,7 +299,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
         verified = []
         
         for citation in citations:
-            # Rate limiting
             with self._api_lock:
                 now = time.time()
                 time_since_last = now - self._last_api_call
@@ -336,12 +306,10 @@ class OptimizedCitationVerifier(ICitationVerifier):
                     await asyncio.sleep(self._min_api_interval - time_since_last)
                 self._last_api_call = time.time()
             
-            # Use base verifier for actual API call
             try:
                 verified_citation = await self.base_verifier.verify_single_citation(citation)
                 verified.append(verified_citation)
                 
-                # Cache landmark cases for future use
                 if verified_citation.verified:
                     landmark_key = self._get_landmark_cache_key(verified_citation)
                     landmark_data = {
@@ -362,7 +330,6 @@ class OptimizedCitationVerifier(ICitationVerifier):
     
     def _get_landmark_cache_key(self, citation: CitationResult) -> str:
         """Generate cache key for landmark cases."""
-        # Use case name if available, otherwise citation text
         key_text = citation.extracted_case_name or citation.citation
         return self.landmark_cache.generate_key("landmark", key_text.strip().lower())
 
@@ -376,11 +343,9 @@ class OptimizedCitationClusterer(ICitationClusterer):
         self.config = config
         self.base_clusterer = CitationClusterer(config)
         
-        # Caching for parallel citation detection
         self.parallel_cache = MemoryCache(max_size=300, default_ttl=1800)  # 30 minutes
         cache_manager.register_cache('clusterer', self.parallel_cache)
         
-        # Pre-compiled patterns for parallel detection
         self._parallel_patterns = self._compile_parallel_patterns()
         
         if config.debug_mode:
@@ -401,31 +366,24 @@ class OptimizedCitationClusterer(ICitationClusterer):
         if len(citations) <= 1:
             return citations
         
-        # Check cache for parallel detection results
         cache_key = self._get_parallel_cache_key(citations)
         cached_result = self.parallel_cache.get(cache_key)
         if cached_result is not None:
             if self.config.debug_mode:
-                logger.debug("Cache hit for parallel detection")
-            return cached_result
+                return cached_result
         
-        # Use optimized parallel detection
         result = self._detect_parallel_optimized(citations, text)
         
-        # Cache the result
         self.parallel_cache.set(cache_key, result)
         
         return result
     
     def _detect_parallel_optimized(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
         """Optimized parallel citation detection."""
-        # Sort citations by position
         sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         
-        # Group by proximity
         groups = self._group_by_proximity(sorted_citations, max_distance=100)
         
-        # Detect parallels in each group
         for group in groups:
             self._detect_parallels_in_group(group, text)
         
@@ -436,7 +394,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
         if not citations:
             return []
         
-        # Sort by position
         sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         
         groups = []
@@ -446,7 +403,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
             current_citation = sorted_citations[i]
             last_citation = current_group[-1]
             
-            # Check if citations are within proximity
             current_start = current_citation.start_index or 0
             last_end = last_citation.end_index or 0
             distance = current_start - last_end
@@ -462,7 +418,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
     
     def _detect_parallels_in_group(self, group: List[CitationResult], text: str) -> None:
         """Detect parallel citations within a proximity group."""
-        # Get text range for this group
         start_positions = [c.start_index for c in group if c.start_index is not None]
         end_positions = [c.end_index for c in group if c.end_index is not None]
         
@@ -473,7 +428,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
         end_pos = max(end_positions) + 50
         group_text = text[max(0, start_pos):min(len(text), end_pos)]
         
-        # Look for patterns indicating parallel citations
         parallel_indicators = [
             r'\b(?:see\s+also|also|accord|cf\.?|compare)\b',
             r'\b(?:citing|quoting|overruled\s+by|reversed\s+by)\b',
@@ -486,7 +440,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
         )
         
         if has_parallel_indicators or len(group) >= 3:
-            # Mark citations as parallel to each other
             for i, citation1 in enumerate(group):
                 parallels = []
                 for j, citation2 in enumerate(group):
@@ -498,17 +451,14 @@ class OptimizedCitationClusterer(ICitationClusterer):
     
     def _are_likely_parallel(self, citation1: CitationResult, citation2: CitationResult) -> bool:
         """Check if two citations are likely parallel citations."""
-        # Same case name
         if (citation1.extracted_case_name and citation2.extracted_case_name and
             citation1.extracted_case_name.lower() == citation2.extracted_case_name.lower()):
             return True
         
-        # Same year
         if (citation1.extracted_date and citation2.extracted_date and
             citation1.extracted_date == citation2.extracted_date):
             return True
         
-        # Different reporter types (strong indicator)
         patterns1 = set()
         patterns2 = set()
         
@@ -518,7 +468,6 @@ class OptimizedCitationClusterer(ICitationClusterer):
             if pattern.search(citation2.citation):
                 patterns2.add(pattern_name)
         
-        # Different patterns but both valid = likely parallel
         return len(patterns1) > 0 and len(patterns2) > 0 and patterns1 != patterns2
     
     @profiler.profile_sync("cluster_citations_optimized")
@@ -527,17 +476,14 @@ class OptimizedCitationClusterer(ICitationClusterer):
         if not citations:
             return []
         
-        # Use base clusterer but with optimized pre-processing
         return self.base_clusterer.cluster_citations(citations)
     
     def _get_parallel_cache_key(self, citations: List[CitationResult]) -> str:
         """Generate cache key for parallel detection."""
-        # Use citation positions and text as key
         key_data = [(c.citation, c.start_index, c.end_index) for c in citations[:10]]  # Limit for performance
         return self.parallel_cache.generate_key("parallel", str(key_data))
 
 
-# Performance monitoring utilities
 class PerformanceMonitor:
     """Monitor performance of optimized services."""
     
@@ -558,7 +504,6 @@ class PerformanceMonitor:
         print("PERFORMANCE OPTIMIZATION REPORT")
         print("="*60)
         
-        # Cache statistics
         print("\nCACHE STATISTICS:")
         print("-"*30)
         cache_stats = self.get_cache_stats()
@@ -570,7 +515,6 @@ class PerformanceMonitor:
             print(f"  Misses: {stats.get('misses', 0)}")
             print()
         
-        # Profiler statistics
         print("EXECUTION STATISTICS:")
         print("-"*30)
         profiler_stats = self.get_profiler_summary()
@@ -584,5 +528,4 @@ class PerformanceMonitor:
         print("="*60)
 
 
-# Global performance monitor
 performance_monitor = PerformanceMonitor()

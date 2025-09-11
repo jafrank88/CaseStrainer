@@ -1,6 +1,7 @@
 import logging
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
-# Setup logging
+
 logger = logging.getLogger(__name__)
 
 from src.app_final_vue import app

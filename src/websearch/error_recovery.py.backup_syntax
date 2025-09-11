@@ -1,0 +1,227 @@
+"""
+Error Recovery Module
+Advanced error recovery strategies for web search operations.
+"""
+
+import loggingfrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
+import asyncio
+from typing import Any, Dict, List, Optional
+from datetime import datetime, timedelta
+
+from .cache import CacheManager
+from .ml_predictor import AdvancedMLPredictor
+
+logger = logging.getLogger(__name__)
+
+
+class AdvancedErrorRecovery:
+    """Advanced error recovery strategies for web search operations."""
+    
+    def __init__(self, cache_manager: CacheManager, ml_predictor: AdvancedMLPredictor):
+        self.cache = cache_manager
+        self.ml_predictor = ml_predictor
+        self.error_counts = {}
+        self.recovery_strategies = {
+            'rate_limit': self._handle_rate_limit,
+            'timeout': self._handle_timeout,
+            'not_found': self._handle_not_found,
+            'server_error': self._handle_server_error,
+            'access_denied': self._handle_access_denied,
+            'network_error': self._handle_network_error,
+            'unknown': self._handle_unknown_error
+        }
+    
+    def classify_error(self, error: Exception) -> str:
+        """Classify the type of error for appropriate recovery strategy."""
+        error_str = str(error).lower()
+        
+        if any(term in error_str for term in ['rate limit', '429', 'too many requests']):
+            return 'rate_limit'
+        elif any(term in error_str for term in ['timeout', 'timed out', 'connection timeout']):
+            return 'timeout'
+        elif any(term in error_str for term in ['404', 'not found', 'no results']):
+            return 'not_found'
+        elif any(term in error_str for term in ['500', '502', '503', '504', 'server error']):
+            return 'server_error'
+        elif any(term in error_str for term in ['403', '401', 'access denied', 'forbidden']):
+            return 'access_denied'
+        elif any(term in error_str for term in ['connection', 'network', 'dns']):
+            return 'network_error'
+        else:
+            return 'unknown'
+    
+    async def handle_error(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle an error with appropriate recovery strategy."""
+        error_type = self.classify_error(error)
+        
+        self.error_counts[error_type] = self.error_counts.get(error_type, 0) + 1
+        
+        logger.warning(f"Handling {error_type} error: {error}")
+        
+        strategy = self.recovery_strategies.get(error_type, self._handle_unknown_error)
+        
+        try:
+            result = await strategy(error, context)
+            result['error_type'] = error_type
+            result['recovery_attempted'] = True
+            return result
+        except Exception as recovery_error:
+            logger.error(f"Error recovery failed: {recovery_error}")
+            return {
+                'error': str(error),
+                'recovery_error': str(recovery_error),
+                'error_type': error_type,
+                'recovery_attempted': True,
+                'recovery_failed': True
+            }
+    
+    async def _handle_rate_limit(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle rate limit errors with exponential backoff."""
+        source = context.get('source', 'unknown')
+        citation = context.get('citation', '')
+        case_name = context.get('case_name', '')
+        
+        alternative_sources = self._get_alternative_sources(source)
+        
+        for alt_source in alternative_sources[:2]:  # Limit to 2 alternatives
+            try:
+                logger.info(f"Trying alternative source {alt_source} due to rate limit on {source}")
+                
+                await asyncio.sleep(2)  # Brief delay
+                
+                return {
+                    'status': 'recovered',
+                    'alternative_source': alt_source,
+                    'original_error': str(error),
+                    'strategy': 'alternative_source'
+                }
+                
+            except Exception as alt_error:
+                continue
+        
+        return {
+            'status': 'failed',
+            'error': str(error),
+            'strategy': 'alternative_source_exhausted'
+        }
+    
+    async def _handle_timeout(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle timeout errors with retry logic."""
+        source = context.get('source', 'unknown')
+        
+        logger.info(f"Retrying {source} with increased timeout")
+        
+        try:
+            await asyncio.sleep(1)  # Brief delay before retry
+            
+            return {
+                'status': 'retry_suggested',
+                'strategy': 'increased_timeout',
+                'original_error': str(error)
+            }
+            
+        except Exception as retry_error:
+            return {
+                'status': 'failed',
+                'error': str(error),
+                'retry_error': str(retry_error),
+                'strategy': 'timeout_retry_failed'
+            }
+    
+    async def _handle_not_found(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle not found errors with citation variant generation."""
+        citation = context.get('citation', '')
+        case_name = context.get('case_name', '')
+        
+        if citation:
+            logger.info(f"Trying citation variants for: {citation}")
+            
+            return {
+                'status': 'suggestion',
+                'strategy': 'citation_variants',
+                'suggestion': 'Try citation variants or different formatting',
+                'original_error': str(error)
+            }
+        
+        return {
+            'status': 'failed',
+            'error': str(error),
+            'strategy': 'no_citation_variants'
+        }
+    
+    async def _handle_server_error(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle server errors with fallback sources."""
+        source = context.get('source', 'unknown')
+        citation = context.get('citation', '')
+        case_name = context.get('case_name', '')
+        
+        if citation and case_name:
+            fallback_sources = self.ml_predictor.predict_optimal_sources(citation, case_name)
+            fallback_sources = [source for source, _ in fallback_sources if source != source][:3]
+        else:
+            fallback_sources = self._get_alternative_sources(source)
+        
+        logger.info(f"Trying fallback sources for server error: {fallback_sources}")
+        
+        return {
+            'status': 'fallback_suggested',
+            'strategy': 'ml_predicted_fallback',
+            'fallback_sources': fallback_sources,
+            'original_error': str(error)
+        }
+    
+    async def _handle_access_denied(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle access denied errors with alternative approaches."""
+        source = context.get('source', 'unknown')
+        
+        logger.info(f"Access denied for {source}, trying alternative approach")
+        
+        return {
+            'status': 'alternative_approach',
+            'strategy': 'different_user_agent',
+            'suggestion': 'Try with different headers or user agent',
+            'original_error': str(error)
+        }
+    
+    async def _handle_network_error(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle network errors with retry logic."""
+        source = context.get('source', 'unknown')
+        
+        logger.info(f"Network error for {source}, suggesting retry")
+        
+        return {
+            'status': 'retry_suggested',
+            'strategy': 'network_retry',
+            'suggestion': 'Retry after network stabilization',
+            'original_error': str(error)
+        }
+    
+    async def _handle_unknown_error(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
+        """Handle unknown errors with generic recovery."""
+        source = context.get('source', 'unknown')
+        
+        logger.warning(f"Unknown error for {source}: {error}")
+        
+        return {
+            'status': 'unknown_error',
+            'strategy': 'generic_recovery',
+            'suggestion': 'Check logs and try again later',
+            'original_error': str(error)
+        }
+    
+    def _get_alternative_sources(self, current_source: str) -> List[str]:
+        """Get alternative sources for a given source."""
+        source_alternatives = {
+            'justia': ['findlaw', 'courtlistener_web', 'leagle'],
+            'findlaw': ['justia', 'courtlistener_web', 'leagle'],
+            'courtlistener_web': ['justia', 'findlaw', 'leagle'],
+            'leagle': ['justia', 'findlaw', 'courtlistener_web'],
+            'casetext': ['justia', 'findlaw', 'leagle'],
+            'vlex': ['justia', 'findlaw', 'courtlistener_web'],
+            'google_scholar': ['bing', 'duckduckgo', 'justia'],
+            'bing': ['google_scholar', 'duckduckgo', 'justia'],
+            'duckduckgo': ['google_scholar', 'bing', 'justia']
+        }
+        
+        return source_alternatives.get(current_source, ['justia', 'findlaw', 'courtlistener_web']) 

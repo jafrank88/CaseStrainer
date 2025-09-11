@@ -1,0 +1,539 @@
+"""
+IMPROVED Table of Authorities (ToA) Parser
+Extracts citations, case names, and years from Table of Authorities sections.
+
+SAFETY IMPROVEMENTS:
+- Timeout protection on regex operations
+- Chunk size limits
+- Progress tracking
+- Error recovery
+- Memory-efficient processing
+"""
+
+import refrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+
+import logging
+import time
+import threading
+from typing import List, Dict, Optional, Tuple, Any
+from dataclasses import dataclass
+from functools import wraps
+
+logger = logging.getLogger(__name__)
+
+MAX_CHUNK_SIZE = 5000      # 5KB per chunk
+MAX_CHUNKS = 200           # Maximum chunks to process
+MAX_PATTERN_TIME = 5       # 5 seconds per pattern
+MAX_TOTAL_TIME = 120       # 2 minutes total
+
+def timeout(seconds):
+    """Cross-platform timeout decorator using threading."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            result: List[Any] = [None]
+            exception: List[Optional[Exception]] = [None]
+            
+            def target():
+                try:
+                    result[0] = func(*args, **kwargs)
+                except Exception as e:
+                    exception[0] = e
+            
+            thread = threading.Thread(target=target)
+            thread.daemon = True
+            thread.start()
+            thread.join(seconds)
+            
+            if thread.is_alive():
+                logger.info(f"[TIMEOUT] Function {func.__name__} timed out after {seconds} seconds")
+                raise TimeoutError(f"Function {func.__name__} timed out after {seconds} seconds")
+            
+            if exception[0]:
+                raise exception[0]  # type: ignore[misc]
+            
+            return result[0]
+        return wrapper
+    return decorator
+
+@dataclass
+class ToAEntry:
+    """Represents a single entry in a Table of Authorities."""
+    case_name: str
+    citations: List[str]
+    years: List[str]
+    page_numbers: List[str]
+    confidence: float
+    source_line: str
+
+class ImprovedToAParser:
+    """
+    IMPROVED Parser for Table of Authorities sections with safety measures.
+    """
+    
+    def __init__(self):
+        super().__init__()
+        logger.info("[TOA PARSER] Initializing improved ToA parser...")
+        
+        self.toa_section_patterns = [
+            r'TABLE\s+OF\s+AUTHORITIES',
+            r'AUTHORITIES?\s+CITED',
+            r'CITED\s+AUTHORITIES?',
+            r'Cases\s+Cited',
+            r'Legal\s+Authorities?',
+            r'State\s+Cases',  # Common in Washington briefs
+            r'Federal\s+Cases',  # Common in Washington briefs
+        ]
+        
+        self.toa_entry_patterns = [
+            r'([A-Z][A-Za-z\'\-\s\.]+? v\.? [A-Z][A-Za-z\'\-\s\.]+?),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            r'(In\s+re\s+[A-Z][A-Za-z\'\-\s\.]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            r'(Dep[\'`]t of [A-Za-z0-9&.,\'\s\-]+ v\. [A-Z][A-Za-z0-9&.,\'\s\-]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            r'([A-Z][A-Za-z\'\-\s\.]+? v\.? [A-Z][A-Za-z\'\-\s\.]+?)(?:,|\s+)([\dA-Za-z\.\s]+\(\d{4}\))',
+            r'(State\s+v\.\s+[A-Z][A-Za-z\'\-\s\.]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+            r'([A-Z][A-Za-z\'\-\s\.]+),?\s+([\dA-Za-z\.\s]+\(\d{4}\))',
+        ]
+        
+        self.year_patterns = [
+            r'\((\d{4})\)',
+            r'\b(\d{4})\b',
+        ]
+        
+        self.citation_patterns = [
+            r'\d+\s+[A-Za-z\.\s]+\d+\s*\(\d{4}\)',
+            r'\d+\s+[A-Za-z\.\s]+\d+',
+        ]
+        
+        logger.info("[TOA PARSER] Initialization complete")
+    
+    @timeout(30)
+    def detect_toa_section(self, text: str) -> Optional[Tuple[int, int]]:
+        """Safely detect ToA section with timeout protection."""
+        logger.info(f"[TOA DETECT] Searching for ToA in {len(text):,} characters...")
+        
+        all_matches = list(re.finditer(r'TABLE\s+OF\s+AUTHORITIES', text, re.IGNORECASE))
+        
+        if not all_matches:
+            logger.info("[TOA DETECT] No 'TABLE OF AUTHORITIES' found")
+            return None
+        
+        for match in all_matches:
+            start = match.start()
+            
+            next_section = text[start:start + 200]
+            
+            if re.search(r'(In\s+re|State\s+v\.|Federal\s+Cases)', next_section, re.IGNORECASE):
+                logger.info(f"[TOA DETECT] Found real TOA at position {start}")
+                
+                end = self._find_toa_end_safe(text, start)
+                logger.info(f"[TOA DETECT] ToA boundaries: {start} to {end}")
+                return (start, end)
+        
+        logger.info("[TOA DETECT] Trying fallback detection...")
+        search_text = text[:50000] if len(text) > 50000 else text
+        
+        for i, pattern in enumerate(self.toa_section_patterns):
+            try:
+                match = re.search(pattern, search_text, re.IGNORECASE | re.MULTILINE)
+                if match:
+                    start = match.start()
+                    logger.info(f"[TOA DETECT] Found ToA at position {start} with pattern {i}")
+                    
+                    end = self._find_toa_end_safe(text, start)
+                    logger.info(f"[TOA DETECT] ToA boundaries: {start} to {end}")
+                    return (start, end)
+                    
+            except Exception as e:
+                logger.error(f"[TOA DETECT] Error with pattern {i}: {e}")
+                continue
+        
+        logger.info("[TOA DETECT] No ToA section found")
+        return None
+    
+    def _find_toa_end_safe(self, text: str, start: int) -> int:
+        """Safely find ToA end with limits."""
+        end_patterns = [
+            r'\n\s*(?:ARGUMENT|DISCUSSION|CONCLUSION)\s*\n',
+            r'\n\s*(?:I\.|II\.|III\.)\s+[A-Z]',
+            r'\n\s*\d+\.\s+[A-Z]',
+        ]
+        
+        search_range = min(20000, len(text) - start)  # Max 20KB search
+        search_text = text[start:start + search_range]
+        
+        for pattern in end_patterns:
+            try:
+                match = re.search(pattern, search_text, re.IGNORECASE | re.MULTILINE)
+                if match:
+                    return start + match.start()
+            except Exception as e:
+                logger.error(f"[TOA END] Error with pattern: {e}")
+                continue
+        
+        return start + min(15000, len(text) - start)
+    
+    @timeout(MAX_TOTAL_TIME)
+    def parse_toa_section(self, text: str) -> List[ToAEntry]:
+        """Safely parse ToA section with comprehensive protection, handling multiple citations per line."""
+        logger.info(f"[TOA PARSE] Starting parse of {len(text):,} characters...")
+        start_time = time.time()
+        entries = []
+        processed_chunks = 0
+        try:
+            chunks = self._safe_chunk_text(text)
+            logger.info(f"[TOA PARSE] Created {len(chunks)} chunks")
+            for i, chunk in enumerate(chunks):
+                if processed_chunks >= MAX_CHUNKS:
+                    logger.info(f"[TOA PARSE] Reached max chunks limit ({MAX_CHUNKS})")
+                    break
+                if i % 10 == 0:
+                    elapsed = time.time() - start_time
+                    logger.info(f"[TOA PARSE] Processing chunk {i+1}/{len(chunks)} (elapsed: {elapsed:.1f}s)")
+                try:
+                    chunk_stripped = chunk.lstrip()
+                    if re.match(r'^(v\.?|vs\.?|versus)\b', chunk_stripped, re.IGNORECASE):
+                        chunk_pos = text.find(chunk)
+                        if chunk_pos > 0:
+                            before = text[:chunk_pos].rstrip('\n')
+                            prev_line = before.split('\n')[-1].strip()
+                            if prev_line:
+                                chunk = prev_line + ' ' + chunk_stripped
+                    sub_chunks = re.split(r'(?<=[A-Za-z\.])\s+v\.\s+', chunk)
+                    if len(sub_chunks) > 1:
+                        for idx, sub in enumerate(sub_chunks):
+                            if idx == 0:
+                                sub_chunk = sub
+                            else:
+                                sub_chunk = 'v. ' + sub
+                            entry = self._parse_chunk_safe(sub_chunk, i)
+                            if entry:
+                                entries.append(entry)
+                    else:
+                        entry = self._parse_chunk_safe(chunk, i)
+                        if entry:
+                            entries.append(entry)
+                    processed_chunks += 1
+                    if len(entries) >= 100:
+                        break
+                except Exception as e:
+                    logger.error(f"[TOA PARSE] Error processing chunk {i}: {e}")
+                    continue
+        except Exception as e:
+            logger.error(f"[TOA PARSE] Error in parse_toa_section: {e}")
+        return entries
+    
+    def _safe_chunk_text(self, text: str) -> List[str]:
+        """Split text into safe chunks for processing."""
+        entry_start_pattern = r'(?:^|\n)\s*[A-Z][A-Za-z\'\-&\. ]{1,80}?\s+v\.'
+        
+        chunks = []
+        current_pos = 0
+        
+        try:
+            matches = list(re.finditer(entry_start_pattern, text, re.MULTILINE))
+            
+            if not matches:
+                for i in range(0, len(text), MAX_CHUNK_SIZE):
+                    chunks.append(text[i:i + MAX_CHUNK_SIZE])
+                return chunks
+            
+            for i, match in enumerate(matches):
+                if i == 0:
+                    continue  # Skip first match
+                
+                chunk_start = current_pos
+                chunk_end = match.start()
+                
+                chunk = text[chunk_start:chunk_end].strip()
+                if chunk and len(chunk) > 10:
+                    chunks.append(chunk)
+                
+                current_pos = match.start()
+                
+                if len(chunks) >= MAX_CHUNKS:
+                    break
+            
+            if current_pos < len(text):
+                final_chunk = text[current_pos:].strip()
+                if final_chunk and len(final_chunk) > 10:
+                    chunks.append(final_chunk)
+            
+        except Exception as e:
+            logger.error(f"[TOA CHUNK] Error creating chunks: {e}")
+            for i in range(0, len(text), MAX_CHUNK_SIZE):
+                chunks.append(text[i:i + MAX_CHUNK_SIZE])
+        
+        logger.info(f"[TOA CHUNK] Created {len(chunks)} chunks")
+        return chunks
+    
+    @timeout(MAX_PATTERN_TIME)
+    def _parse_chunk_safe(self, chunk: str, chunk_index: int) -> Optional[ToAEntry]:
+        """Safely parse a single chunk."""
+        chunk = chunk.strip()
+        
+        chunk = re.sub(r'[ \t\u2022\u00b7]*[.·•]+[ \t]*\d+\s*$', '', chunk)
+        
+        for i, pattern in enumerate(self.toa_entry_patterns):
+            try:
+                match = re.search(pattern, chunk, re.MULTILINE)
+                if match:
+                    return self._extract_entry_from_match_safe(match, chunk)
+            except Exception as e:
+                logger.error(f"[TOA CHUNK] Pattern {i} failed on chunk {chunk_index}: {e}")
+                continue
+        
+        return self._parse_chunk_flexible(chunk)
+    
+    def _extract_entry_from_match_safe(self, match: re.Match, chunk: str) -> Optional[ToAEntry]:
+        """Safely extract entry from regex match."""
+        try:
+            groups = match.groups()
+            
+            case_name = groups[0].strip() if groups[0] else ""
+            
+            case_name = fix_case_name_default(case_name, chunk)
+            
+            citations_text = groups[1].strip() if len(groups) > 1 and groups[1] else ""
+            citations = self._extract_citations_safe(citations_text)
+            
+            years = self._extract_years_safe(citations_text + " " + chunk)
+            
+            page_numbers = []
+            if len(groups) > 2 and groups[2]:
+                page_numbers = [groups[2]]
+            
+            if case_name and citations:
+                return ToAEntry(
+                    case_name=case_name,
+                    citations=citations,
+                    years=years,
+                    page_numbers=page_numbers,
+                    confidence=0.8,
+                    source_line=chunk[:200]  # Limit source line length
+                )
+                
+        except Exception as e:
+            logger.error(f"[TOA EXTRACT] Error extracting from match: {e}")
+        
+        return None
+    
+    def _parse_chunk_flexible(self, chunk: str) -> Optional[ToAEntry]:
+        """Flexible parsing for chunks that don't match standard patterns."""
+        try:
+            pattern = r'^([^,]+),\s*([^,]+\(\d{4}\))'
+            match = re.search(pattern, chunk)
+            
+            if match:
+                case_name = match.group(1).strip()
+                citations_text = match.group(2).strip()
+                
+                case_name = re.sub(r'\s+', ' ', case_name)
+                
+                citations = self._extract_citations_safe(citations_text)
+                years = self._extract_years_safe(citations_text)
+                
+                if case_name and citations:
+                    return ToAEntry(
+                        case_name=case_name,
+                        citations=citations,
+                        years=years,
+                        page_numbers=[],
+                        confidence=0.6,
+                        source_line=chunk[:200]
+                    )
+        except Exception as e:
+            logger.error(f"[TOA FLEXIBLE] Error in flexible parsing: {e}")
+        
+        return None
+    
+    def _extract_citations_safe(self, text: str) -> List[str]:
+        """Safely extract citations with timeout protection."""
+        citations = set()  # Use set to avoid duplicates
+        
+        for pattern in self.citation_patterns:
+            try:
+                matches = re.findall(pattern, text)
+                citations.update(matches)
+                
+                if len(citations) >= 10:
+                    break
+                    
+            except Exception as e:
+                logger.error(f"[TOA CITATIONS] Error with pattern: {e}")
+                continue
+        
+        return list(citations)
+    
+    def _extract_years_safe(self, text: str) -> List[str]:
+        """Safely extract years with validation."""
+        years = set()
+        
+        for pattern in self.year_patterns:
+            try:
+                matches = re.findall(pattern, text)
+                for year in matches:
+                    year_int = int(year)
+                    if 1900 <= year_int <= 2030:  # Reasonable year range
+                        years.add(year)
+                        
+                if len(years) >= 3:
+                    break
+                    
+            except Exception as e:
+                logger.error(f"[TOA YEARS] Error with pattern: {e}")
+                continue
+        
+        return list(years)
+    
+    @timeout(60)
+    def extract_years_from_toa(self, text: str) -> List[str]:
+        """Extract all years from ToA sections safely."""
+        years = []
+        
+        try:
+            toa_section = self.detect_toa_section(text)
+            if not toa_section:
+                return years
+            
+            start, end = toa_section
+            toa_text = text[start:end]
+            
+            entries = self.parse_toa_section(toa_text)
+            
+            for entry in entries:
+                years.extend(entry.years)
+            
+            years = sorted(list(set(years)))
+            
+        except Exception as e:
+            logger.error(f"[TOA YEARS] Error extracting years: {e}")
+        
+        return years
+    
+    @timeout(60)
+    def get_toa_citation_map(self, text: str) -> Dict[str, List[str]]:
+        """Create citation-to-year mapping safely."""
+        citation_year_map = {}
+        
+        try:
+            toa_section = self.detect_toa_section(text)
+            if not toa_section:
+                return citation_year_map
+            
+            start, end = toa_section
+            toa_text = text[start:end]
+            
+            entries = self.parse_toa_section(toa_text)
+            
+            for entry in entries:
+                for citation in entry.citations:
+                    if citation not in citation_year_map:
+                        citation_year_map[citation] = []
+                    citation_year_map[citation].extend(entry.years)
+            
+            for citation in citation_year_map:
+                citation_year_map[citation] = list(set(citation_year_map[citation]))
+            
+        except Exception as e:
+            logger.error(f"[TOA MAP] Error creating citation map: {e}")
+        
+        return citation_year_map
+
+    def parse_toa_section_simple(self, text: str) -> List[ToAEntry]:
+        """Parse ToA section using citation-first approach: find citations, then extract case names backwards and years forwards."""
+        logger.info(f"[TOA SIMPLE] Starting citation-first parse of {len(text):,} characters...")
+        entries = []
+        
+        toa_bounds = self.detect_toa_section(text)
+        if not toa_bounds:
+            return entries
+            
+        start, end = toa_bounds
+        toa_section = text[start:end]
+        
+        citation_patterns = [
+            r'\d+\s+Wn\.\s*\d+\s*[A-Za-z]+\s*\d+[^)]*\(\d{4}\)',  # 168 Wn.2d 382,229 P.3d 678 (2010)
+            r'\d+\s+Wn\.\s*App\.\s*\d+[^)]*\(\d{4}\)',              # 127 Wn. App. 511, 111 P.3d 899 (2005)
+            r'\d+\s+P\.\s*\d+\s*\d+[^)]*\(\d{4}\)',                 # 229 P.3d 678 (2010)
+            r'\d+\s+[A-Za-z\.]+\s+\d+[^)]*\(\d{4}\)',               # General pattern for other reporters
+        ]
+        
+        for pattern in citation_patterns:
+            matches = re.finditer(pattern, toa_section)
+            for match in matches:
+                citation_text = match.group(0)
+                citation_pos = match.start()
+                
+                year_match = re.search(r'\((\d{4})\)', citation_text)
+                if not year_match:
+                    continue
+                year = year_match.group(1)
+                
+                line_start = max(0, citation_pos - 200)
+                line_text = toa_section[line_start:citation_pos]
+                
+                case_name = None
+                case_patterns = [
+                    r'(In\s+re\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',           # In re Det. of Pouncy - only capitalized
+                    r'(State\s+v\.\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',        # State v. Smith - only capitalized
+                    r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)\s+v\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',  # Jones v. Hogan - only capitalized
+                ]
+                
+                for idx, pattern in enumerate(case_patterns):
+                    case_match = re.search(pattern, line_text)
+                    if case_match:
+                        if len(case_match.groups()) >= 2 and idx == 2:  # Two-party case (third pattern)
+                            case_name = f"{case_match.group(1).strip()} v. {case_match.group(2).strip()}"
+                        else:  # Single-party case
+                            case_name = case_match.group(1).strip()
+                        break
+                
+                if case_name and len(case_name) > 5:
+                    citation_without_year = re.sub(r'\s*\(\d{4}\)$', '', citation_text).strip()
+                    
+                    entry = ToAEntry(
+                        case_name=case_name,
+                        citations=[citation_without_year],
+                        years=[year],
+                        page_numbers=[],
+                        confidence=0.9,
+                        source_line=citation_text
+                    )
+                    entries.append(entry)
+                    logger.info(f"[TOA SIMPLE] Found: {case_name} - {citation_without_year} - {year}")
+        
+        logger.info(f"[TOA SIMPLE] Found {len(entries)} entries")
+        return entries
+
+
+def extract_years_from_toa_enhanced(text: str, citation: Optional[str] = None) -> List[str]:
+    """Enhanced year extraction using improved parser."""
+    parser = ImprovedToAParser()
+    return parser.extract_years_from_toa(text)
+
+def get_citation_year_from_toa(text: str, citation: str) -> Optional[str]:
+    """Get year for specific citation using improved parser."""
+    parser = ImprovedToAParser()
+    citation_year_map = parser.get_toa_citation_map(text)
+    
+    if citation in citation_year_map and citation_year_map[citation]:
+        return citation_year_map[citation][0]
+    
+    citation_no_year = re.sub(r'\s*\(\d{4}\)', '', citation).strip()
+    for toa_citation, years in citation_year_map.items():
+        toa_citation_no_year = re.sub(r'\s*\(\d{4}\)', '', toa_citation).strip()
+        if citation_no_year == toa_citation_no_year and years:
+            return years[0]
+    
+    return None
+
+ToAParser = ImprovedToAParser 
+
+
+def fix_case_name_default(case_name: str, line: str) -> str:
+    if re.match(r'^(v\.?|vs\.?|versus)\b', case_name, re.IGNORECASE):
+        match = re.search(r'(\b\w+)\s+(v\.?|vs\.?|versus)\b', line, re.IGNORECASE)
+        if match:
+            first_party = match.group(1)
+            return f'{first_party} {case_name}'
+    return case_name 

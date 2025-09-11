@@ -302,7 +302,7 @@
                     'overflow-hidden',
                     { 
                       'btn-primary': canAnalyze && !isAnalyzing,
-                      'btn-secondary': !canAnalyze,
+                      'btn-secondary': !canAnalyze && !isAnalyzing,
                       'btn-success': isAnalyzing,
                       'pe-none': !canAnalyze
                     }
@@ -317,7 +317,6 @@
                     v-if="isAnalyzing"
                     class="position-absolute top-0 start-0 h-100 bg-white bg-opacity-25"
                     :style="{ 
-                      width: '0%',
                       animation: 'progressBar 2s linear infinite',
                       'animation-play-state': isAnalyzing ? 'running' : 'paused'
                     }"
@@ -377,48 +376,7 @@
                   </template>
                 </div>
                 
-                <!-- Debug info - can be removed in production -->
-                <div v-if="false" class="debug-info mt-3 p-2 bg-light rounded" style="font-size: 0.8em; color: #666; max-width: 100%; overflow-x: auto;">
-                  <div><strong>Debug Info</strong></div>
-                  <div class="d-flex flex-wrap gap-4">
-                    <div>Active Tab: <span class="badge bg-secondary">{{ activeTab }}</span></div>
-                    <div>Has Text: <span class="badge" :class="{ 'bg-success': textContent, 'bg-secondary': !textContent }">{{ !!textContent }}</span></div>
-                    <div>Has File: <span class="badge" :class="{ 'bg-success': selectedFile, 'bg-secondary': !selectedFile }">{{ !!selectedFile }}</span></div>
-                    <div>Has URL: <span class="badge" :class="{ 'bg-success': urlContent, 'bg-secondary': !urlContent }">{{ !!urlContent }}</span></div>
-                    <div>Can Analyze: <span class="badge" :class="{ 'bg-success': canAnalyze, 'bg-secondary': !canAnalyze }">{{ canAnalyze }}</span></div>
-                    <div>Is Analyzing: <span class="badge" :class="{ 'bg-info': isAnalyzing, 'bg-secondary': !isAnalyzing }">{{ isAnalyzing }}</span></div>
-                  </div>
-                </div>
               </div>
-              
-              <style>
-                @keyframes progressBar {
-                  0% { width: 0%; left: 0; right: auto; }
-                  50% { width: 100%; left: 0; right: auto; }
-                  51% { left: auto; right: 0; }
-                  100% { width: 0%; left: auto; right: 0; }
-                }
-                
-                .analyze-btn {
-                  transition: all 0.3s ease, transform 0.1s ease;
-                  transform-origin: center;
-                }
-                
-                .analyze-btn:not(:disabled):hover {
-                  transform: translateY(-2px);
-                  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-                }
-                
-                .analyze-btn:not(:disabled):active {
-                  transform: translateY(0);
-                  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-                }
-                
-                .analyze-btn:disabled {
-                  opacity: 0.7;
-                  cursor: not-allowed;
-                }
-              </style>
             </div>
 
             <!-- Enhanced Progress Bar (shown during analysis) -->
@@ -510,7 +468,8 @@
           <div class="results-header">
             <h2 class="results-title">
               <i class="bi bi-shield-check me-2"></i>
-              Citation Analysis Results
+              <!-- 🚨 NUCLEAR OPTION: Disabled Citation Analysis Results header -->
+              <!-- Citation Analysis Results -->
             </h2>
             <button 
               @click="handleNewAnalysis" 
@@ -521,13 +480,22 @@
             </button>
           </div>
           
+          <!-- HomeView Results Section -->
+          
+
+          
+          
+          <!-- CitationResults Component -->
           <CitationResults
-            :results="analysisResults"
+            :results="analysisResults?.result || analysisResults"
             :error="analysisError"
+            component-id="home"
             @new-analysis="handleNewAnalysis"
             @copy-results="handleCopyResults"
             @download-results="handleDownloadResults"
           />
+          
+
         </div>
       </div>
     </div>
@@ -654,25 +622,72 @@ const getAnalyzeButtonTooltip = computed(() => {
 
 const estimatedCitations = computed(() => {
   if (!textContent.value) return 0;
+  
+  // Enhanced citation patterns that match our backend extraction logic
   const citationPatterns = [
-    /\d+\s+[Uu]\.?[Ss]\.?\s+\d+/g,
-    /\d+\s+[Ff]\.?\d*\s+\d+/g,
-    /\d+\s+[Ss]\.?\s+\d+/g,
-    /\d+\s+[Aa]pp\.?\s+\d+/g,
-    /\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+/g
+    // Washington State patterns (most common)
+    /\b\d+\s+Wn\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,           // 123 Wn.2d 456, 123 Wn App 456
+    /\b\d+\s+Wash\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,          // 123 Wash.2d 456, 123 Wash App 456
+    
+    // Federal patterns
+    /\b\d+\s+U\.?\s*S\.?\s+\d+\b/gi,                          // 123 US 456, 123 U.S. 456
+    /\b\d+\s+F\.?\s*(?:2d|3d|Supp\.?|Supp\.?2d)?\s+\d+\b/gi, // 123 F.2d 456, 123 F.Supp. 456
+    
+    // State patterns (general)
+    /\b\d+\s+[A-Z][a-z]+\.?\s*(?:2d|3d|App\.?)?\s+\d+\b/g,   // 123 Cal.2d 456, 123 Tex.App 456
+    
+    // Reporter patterns
+    /\b\d+\s+P\.?\s*(?:2d|3d)?\s+\d+\b/g,                    // 123 P.2d 456, 123 P.3d 456
+    /\b\d+\s+N\.?\s*W\.?\s*(?:2d|3d)?\s+\d+\b/g,             // 123 N.W.2d 456
+    
+    // Appellate patterns
+    /\b\d+\s+[A-Z][a-z]*\.?\s*App\.?\s+\d+\b/g,              // 123 Wash.App 456
+    
+    // Supreme Court patterns
+    /\b\d+\s+[A-Z][a-z]*\.?\s*(?:2d|3d)?\s+\d+\b/g           // 123 Wash.2d 456
   ];
+  
   let count = 0;
+  const uniqueMatches = new Set();
+  
   citationPatterns.forEach(pattern => {
     const matches = textContent.value.match(pattern);
-    if (matches) count += matches.length;
+    if (matches) {
+      matches.forEach(match => uniqueMatches.add(match.trim()));
+    }
   });
-  return Math.max(count, Math.floor(wordCount.value / 100));
+  
+  // Use the actual count of unique citations found
+  return uniqueMatches.size;
 });
 
 const yearCount = computed(() => {
   if (!textContent.value) return 0;
-  const yearMatches = textContent.value.match(/\b(19|20)\d{2}\b/g);
-  return yearMatches ? new Set(yearMatches).size : 0;
+  
+  // Enhanced year detection that looks for years in legal citations and context
+  const yearPatterns = [
+    /\b(19|20)\d{2}\b/g,                    // Standard years: 2010, 2023
+    /\(\s*(19|20)\d{2}\s*\)/g,              // Years in parentheses: (2010), (2023)
+    /\b(19|20)\d{2}\s*[A-Z][a-z]*\b/g,     // Years followed by month: 2010 January
+    /\b[A-Z][a-z]*\s+(19|20)\d{2}\b/g      // Month followed by year: January 2010
+  ];
+  
+  const allYears = new Set();
+  
+  yearPatterns.forEach(pattern => {
+    const matches = textContent.value.match(pattern);
+    if (matches) {
+      matches.forEach(match => {
+        // Extract just the year from the match
+        const yearMatch = match.match(/\b(19|20)\d{2}\b/);
+        if (yearMatch) {
+          allYears.add(yearMatch[0]);
+        }
+      });
+    }
+  });
+  
+  return allYears.size;
 });
 
 // Remove Quality Score label and badge
@@ -1092,6 +1107,10 @@ const analyzeContent = async () => {
       }
       
       analysisResults.value = {
+        result: {
+          citations: response.result.citations || [],
+          clusters: response.result.clusters || []
+        },
         clusters: mappedClusters,
         citations: response.result.citations || [],
         message: response.message,
@@ -1101,8 +1120,8 @@ const analyzeContent = async () => {
       };
       analysisError.value = '';
       
-      // Complete progress tracking
-      globalProgress.completeProgress(analysisResults.value);
+      // Complete progress tracking with route scoping
+      globalProgress.completeProgress(analysisResults.value, 'home');
       
       console.log('Results stored for display:', {
         citations: response.result?.citations?.length || 0,
@@ -1207,6 +1226,10 @@ const analyzeContent = async () => {
             }));
             
             analysisResults.value = {
+              result: {
+                citations: result.result.citations || [],
+                clusters: result.result.clusters || []
+              },
               clusters: mappedClusters,
               citations: result.result.citations || [],
               message: result.message || 'Analysis completed successfully',
@@ -1229,8 +1252,8 @@ const analyzeContent = async () => {
           activeAsyncTask.value = null;
           asyncTaskProgress.value = null;
           
-          // Complete progress tracking
-          globalProgress.completeProgress(analysisResults.value);
+          // Complete progress tracking with route scoping
+          globalProgress.completeProgress(analysisResults.value, 'home');
           
           console.log('Async task results stored:', analysisResults.value);
         },
@@ -1261,6 +1284,10 @@ const analyzeContent = async () => {
         }));
         
         analysisResults.value = {
+          result: {
+            citations: response.result.citations || [],
+            clusters: response.result.clusters || []
+          },
           clusters: mappedClusters,
           citations: response.result.citations || [],
           message: response.message,
@@ -1273,8 +1300,8 @@ const analyzeContent = async () => {
       }
       analysisError.value = '';
       
-      // Complete progress tracking
-      globalProgress.completeProgress(analysisResults.value);
+      // Complete progress tracking with route scoping
+      globalProgress.completeProgress(analysisResults.value, 'home');
     } else {
       console.log('No response received');
       analysisError.value = 'No response received from server';
@@ -2142,5 +2169,41 @@ const handleAsyncTaskError = (errorMessage) => {
     width: 100%;
     padding: 1rem;
   }
+}
+
+/* Progress bar and button animations */
+@keyframes progressBar {
+  0% { 
+    width: 0%; 
+    transform: translateX(0); 
+  }
+  50% { 
+    width: 100%; 
+    transform: translateX(0); 
+  }
+  100% { 
+    width: 0%; 
+    transform: translateX(100%); 
+  }
+}
+
+.analyze-btn {
+  transition: all 0.3s ease, transform 0.1s ease;
+  transform-origin: center;
+}
+
+.analyze-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.analyze-btn:not(:disabled):active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.analyze-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 </style>
