@@ -459,7 +459,9 @@ class EnhancedCitationClusterer:
                 
                 if cluster_has_verified:
                     for citation in citations:
-                        citation['true_by_parallel'] = True
+                        # Only set true_by_parallel for unverified citations
+                        if not citation.get('verified', False):
+                            citation['true_by_parallel'] = True
                 
                 cluster = {
                     'cluster_id': f"{case_name.replace(' ', '_')}_{year}",

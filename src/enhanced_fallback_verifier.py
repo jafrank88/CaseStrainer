@@ -2030,6 +2030,7 @@ class EnhancedFallbackVerifier:
                     if fallback_result.get('verified', False):
                         logger.info(f"✅ Fallback verified: {citation} -> {fallback_result.get('canonical_name', 'N/A')} (via {fallback_result.get('source', 'unknown')})")
                     else:
+                        logger.info(f"❌ Fallback failed: {citation}")
             
             logger.info(f"Batch verification completed: {len([r for r in results if r.get('verified', False)])}/{len(citations)} verified")
             return results
@@ -2254,6 +2255,7 @@ class EnhancedFallbackVerifier:
                                         canonical_date = m.group(1)
                                     
                     except Exception as ex:
+                        logger.debug(f"Error extracting canonical date from CaseMine: {ex}")
                     
                     if case_name and case_name != "Unknown Case":
                         if self._are_case_names_too_similar(case_name, extracted_case_name):

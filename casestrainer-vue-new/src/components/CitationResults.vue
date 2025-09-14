@@ -135,6 +135,19 @@ export default {
     })
     
     const clusters = computed(() => {
+      console.log('🔍 CitationResults DEBUG - props.results:', props.results)
+      console.log('🔍 CitationResults DEBUG - clusters data:', props.results?.clusters)
+      if (props.results?.clusters) {
+        props.results.clusters.forEach((cluster, index) => {
+          console.log(`🔍 Cluster ${index}:`, {
+            cluster_id: cluster.cluster_id,
+            extracted_case_name: cluster.extracted_case_name,
+            extracted_date: cluster.extracted_date,
+            canonical_name: cluster.canonical_name,
+            canonical_date: cluster.canonical_date
+          })
+        })
+      }
       return props.results?.clusters || []
     })
     

@@ -50,6 +50,11 @@ class ExtractionResult:
 
 class UnifiedExtractionService:
     """
+    DEPRECATED: Use extract_case_name_and_date_master() instead.
+    
+    This class is deprecated and will be removed in v3.0.0.
+    Use extract_case_name_and_date_master() for consistent extraction results.
+    
     Single authoritative service for citation extraction.
     
     This replaces all duplicate _extract_citation_blocks functions
@@ -222,28 +227,17 @@ class UnifiedExtractionService:
         return year_match.group(1) if year_match else None
     
     def _clean_case_name(self, case_name: str) -> str:
-        """Clean extracted case name to remove contamination"""
-        if not case_name:
-            return case_name
-        
-        original_name = case_name
-        
-        for pattern in self.compiled_cleanup_patterns:
-            case_name = pattern.sub('', case_name)
-        
-        case_name = re.sub(r'\s+', ' ', case_name).strip()
-        
-        case_name = re.sub(r'^[,;:\-\s]+|[,;:\-\s]+$', '', case_name)
-        
-        if len(case_name) < 10 and ' v. ' not in case_name:
-            case_match = re.search(
-                r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)',
-                original_name
-            )
-            if case_match:
-                case_name = f"{case_match.group(1).strip()} v. {case_match.group(2).strip()}"
-        
-        return case_name
+        """LEGACY cleaner wrapper (deprecated). Uses shared cleaner."""
+        try:
+            from src.utils.deprecation import deprecated
+            from src.utils.case_name_cleaner import clean_extracted_case_name
+            @deprecated(replacement='src.utils.case_name_cleaner.clean_extracted_case_name')
+            def _proxy(val: str) -> str:
+                return clean_extracted_case_name(val)
+            return _proxy(case_name)
+        except Exception:
+            from src.utils.case_name_cleaner import clean_extracted_case_name
+            return clean_extracted_case_name(case_name)
     
     def validate_extraction_integrity(self, extracted_name: str, canonical_name: str) -> bool:
         """

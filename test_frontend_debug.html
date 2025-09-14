@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Frontend Debug Test</title>
+</head>
+<body>
+    <h1>Frontend Debug Test</h1>
+    <button onclick="testAPI()">Test API Call</button>
+    <div id="results"></div>
+
+    <script>
+        async function testAPI() {
+            const testText = 'Certified questions are questions of law that this court reviews de novo and in light of the record certified by the federal court. Lopez Demetrio v. Sakuma Bros. Farms, 183 Wn.2d 649, 655, 355 P.3d 258 (2015). Statutory interpretation is also an issue of law we review de novo. Spokane County v. Dep\'t of Fish & Wildlife, 192 Wn.2d 453, 457, 430 P.3d 655 (2018).';
+            
+            const requestBody = {
+                text: testText,
+                type: 'text'
+            };
+            
+            console.log('Sending request:', requestBody);
+            
+            try {
+                const response = await fetch('/casestrainer/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Cache-Control': 'no-cache',
+                        'Pragma': 'no-cache'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                const data = await response.json();
+                console.log('Response:', data);
+                
+                document.getElementById('results').innerHTML = `
+                    <h2>Results:</h2>
+                    <p><strong>Request ID:</strong> ${data.request_id}</p>
+                    <p><strong>Citations Found:</strong> ${data.result.citations_found}</p>
+                    <p><strong>Clusters Created:</strong> ${data.result.clusters_created}</p>
+                    <p><strong>Processing Mode:</strong> ${data.result.processing_mode}</p>
+                    
+                    <h3>Spokane Citations:</h3>
+                    ${data.result.citations.filter(c => c.extracted_case_name && c.extracted_case_name.includes('Spokane')).map(c => `
+                        <p><strong>Citation:</strong> ${c.citation}</p>
+                        <p><strong>Extracted Name:</strong> "${c.extracted_case_name}"</p>
+                        <p><strong>Extracted Date:</strong> "${c.extracted_date}"</p>
+                        <p><strong>Verified:</strong> ${c.verified}</p>
+                        <hr>
+                    `).join('')}
+                    
+                    <h3>Clusters:</h3>
+                    ${data.result.clusters.map(cluster => `
+                        <p><strong>Cluster ID:</strong> ${cluster.cluster_id}</p>
+                        <p><strong>Case Name:</strong> "${cluster.extracted_case_name}"</p>
+                        <p><strong>Citations:</strong> ${cluster.citations.join(', ')}</p>
+                        <p><strong>Size:</strong> ${cluster.size}</p>
+                        <hr>
+                    `).join('')}
+                `;
+                
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('results').innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>

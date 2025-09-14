@@ -31,7 +31,7 @@ from collections import defaultdict, deque
 
 from src.unified_case_name_extractor_v2 import (
     get_unified_extractor,
-    extract_case_name_and_date_unified,
+    extract_case_name_and_date_master,
     extract_case_name_only_unified
 )
 
@@ -1035,7 +1035,7 @@ class UnifiedCitationProcessorV2:
                     
                     
                     
-                        unified_result = extract_case_name_and_date_unified(
+                        unified_result = extract_case_name_and_date_master(
                             text=text,
                             citation=citation.citation,
                             citation_start=citation.start_index,
@@ -1068,7 +1068,9 @@ class UnifiedCitationProcessorV2:
                             citation.extracted_case_name = "N/A"
                             citation.case_name = "N/A"
                 except Exception as e:
-                    citation.extracted_case_name = None
+                    # Don't overwrite existing extracted case name on exception
+                    if not citation.extracted_case_name:
+                        citation.extracted_case_name = "N/A"
             if self.config.extract_dates:
                 try:
                     if not citation.extracted_date:
@@ -1414,7 +1416,7 @@ class UnifiedCitationProcessorV2:
                 logger.debug(f"Error processing case name extraction: {e}")
         
         try:
-            result = extract_case_name_and_date_unified(
+            result = extract_case_name_and_date_master(
                 text=text, 
                 citation=citation_text,
                 citation_start=start,
@@ -1496,7 +1498,7 @@ class UnifiedCitationProcessorV2:
         if not citation.start_index or not citation.end_index:
             return None
         
-        result = extract_case_name_and_date_unified(
+        result = extract_case_name_and_date_master(
             text=text, 
             citation=citation.citation,
             citation_start=citation.start_index,
@@ -2903,6 +2905,45 @@ class UnifiedCitationProcessorV2:
         citations = self._extract_citations_unified(text)
         logger.info(f"[UNIFIED_PIPELINE] Phase 1 complete: {len(citations)} citations extracted")
         
+        # Align with Enhanced Sync: upgrade truncated names using master extractor
+        try:
+            from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+            master_tokens = ["dep't", "department", "dept", "fish", "wildlife", "bros.", "farms", "inc", "llc", "corp", "ltd", "co."]
+            for c in citations:
+                try:
+                    current_name = getattr(c, 'extracted_case_name', None) or ''
+                    citation_text = getattr(c, 'citation', '')
+                    start_index = getattr(c, 'start_index', None)
+                    end_index = getattr(c, 'end_index', None)
+                    res = extract_case_name_and_date_master(
+                        text=text,
+                        citation=citation_text,
+                        citation_start=start_index if start_index != -1 else None,
+                        citation_end=end_index,
+                        debug=False
+                    )
+                    full_name = (res or {}).get('case_name') or ''
+                    if full_name and full_name != 'N/A' and full_name != current_name:
+                        current_lower = current_name.lower()
+                        full_lower = full_name.lower()
+                        is_truncated = current_lower.endswith(' v. dep') or current_lower.endswith(" v. dep't") or current_lower.endswith(' v. dept')
+                        contains_key_tokens = any(t in full_lower for t in master_tokens)
+                        is_clearly_longer = len(full_name) >= len(current_name) + 4
+                        names_share_prefix = (current_name.split(' v.')[0] if current_name else '') == (full_name.split(' v.')[0] if full_name else '')
+                        should_replace = (not current_name) or (names_share_prefix and (is_truncated or contains_key_tokens or is_clearly_longer))
+                        if should_replace:
+                            setattr(c, 'extracted_case_name', full_name)
+                            try:
+                                if hasattr(self, '_clean_extracted_case_name'):
+                                    cleaned = self._clean_extracted_case_name(full_name)
+                                    setattr(c, 'extracted_case_name', cleaned)
+                            except Exception:
+                                pass
+                except Exception:
+                    continue
+        except Exception:
+            pass
+        
         logger.info("[UNIFIED_PIPELINE] Phase 2: Detecting parallel citations")
         citations = self._detect_parallel_citations(citations, text)
         logger.info(f"[UNIFIED_PIPELINE] After parallel detection: {len(citations)} citations")
@@ -2988,6 +3029,13 @@ class UnifiedCitationProcessorV2:
                 'metadata': citation.metadata or {},
                 'extraction_method': getattr(citation, 'extraction_method', None),
             }
+            # Align with Enhanced Sync: enforce data separation on output
+            try:
+                from src.data_separation_validator import enforce_data_separation, restore_extracted_name_if_contaminated
+                citation_dict = enforce_data_separation(citation_dict)
+                citation_dict = restore_extracted_name_if_contaminated(citation_dict)
+            except Exception:
+                pass
             if citation.metadata:
                 citation_dict['metadata'].update({
                     'cluster_extracted_case_name': citation.metadata.get('cluster_extracted_case_name'),

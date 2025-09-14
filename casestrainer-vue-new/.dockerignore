@@ -7,7 +7,7 @@ yarn-error.log*
 .yarn-integrity
 
 # Build outputs
-dist/
+# dist/  # Commented out to allow copying local dist files
 build/
 .cache/
 .parcel-cache/

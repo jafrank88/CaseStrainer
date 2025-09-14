@@ -1,4 +1,4 @@
-"""
+﻿"""
 Unified Extraction Architecture
 ==============================
 
@@ -50,21 +50,44 @@ class UnifiedExtractionArchitecture:
         logger.info("UnifiedExtractionArchitecture initialized")
     
     def _setup_patterns(self):
-        """Setup standardized, accurate regex patterns."""
+        """Setup standardized, accurate regex patterns with comprehensive Unicode support."""
+        
+        # Define comprehensive character classes for common Unicode issues
+        # Apostrophes and quotes (straight, curly, smart quotes, primes, etc.)
+        apostrophe_chars = r'[\'\u2019\u2018\u201A\u201B\u2032\u2035\u201C\u201D\u201E\u201F\u2033\u2034\u2036\u2037\u2039\u203A\u00B4\u0060\u02B9\u02BB\u02BC\u02BD\u02BE\u02BF\u055A\u055B\u055C\u055D\u055E\u055F\u05F3]'
+        
+        # Ampersand variations (straight, curly, ligatures)
+        ampersand_chars = r'[&\u0026\uFF06\u204A\u214B]'
+        
+        # Hyphen and dash variations (hyphen, en-dash, em-dash, minus, etc.)
+        hyphen_chars = r'[-\u002D\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D]'
+        
+        # Period variations (period, full stop, bullet, etc.)
+        period_chars = r'[.\u002E\u2024\u2025\u2026\u2027]'
+        
+        # Space variations (regular space, non-breaking space, en space, em space, etc.)
+        space_chars = r'[\s\u0020\u00A0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200A\u200B\u200C\u200D\u200E\u200F\u2028\u2029\u202A\u202B\u202C\u202D\u202E\u202F]'
+        
+        # Comprehensive character class for legal text (letters, spaces, apostrophes, ampersands, hyphens, periods)
+        legal_chars = r'[A-Za-z\s\'\u2019\u2018\u201A\u201B\u2032\u2035\u201C\u201D\u201E\u201F\u2033\u2034\u2036\u2037\u2039\u203A\u00B4\u0060\u02B9\u02BB\u02BC\u02BD\u02BE\u02BF\u055A\u055B\u055C\u055D\u055E\u055F\u05F3&\u0026\uFF06\u204A\u214B-\u002D\u2010\u2011\u2012\u2013\u2014\u2015\u2212\uFE58\uFE63\uFF0D.\u002E\u2024\u2025\u2026\u2027]'
+        
+        # "v." variations (v., vs., versus, etc.)
+        versus_chars = r'[vV]\s*[.\u002E\u2024\u2025\u2026\u2027]'
+        
         self.context_patterns = [
-            r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+)*)\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+)*),\s*(\d+)\s+Wn\.',
-            r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+)*)\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+)*),\s*(\d+)\s+P\.',
-            r'([A-Z][^,]+?)\s+v\.\s+([A-Z][^,]+?),\s*(\d+)\s+Wn\.',
-            r'([A-Z][^,]+?)\s+v\.\s+([A-Z][^,]+?),\s*(\d+)\s+P\.',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-            r'(State(?:\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
+            # SPECIFIC patterns first to avoid truncation - more precise after text normalization
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\s\'&\-\.]{1,50})',
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{1,50})(?:LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?)',
+            # GENERAL pattern with length limits to avoid over-matching
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{1,50})',
         ]
         
         self.fallback_patterns = [
-            r'([A-Z][a-zA-Z\',\.\&]*(?:\s+[A-Z][a-zA-Z\',\.\&]*)*)\s+v\.\s+([A-Z][a-zA-Z\',\.\&]*(?:\s+[A-Z][a-zA-Z\',\.\&]*)*(?:LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?))',
-            r'([A-Z][a-zA-Z\',\.\&]*(?:\s+[A-Z][a-zA-Z\',\.\&]*)*)\s+v\.\s+([A-Z][a-zA-Z\',\.\&]*(?:\s+[A-Z][a-zA-Z\',\.\&]*)*)',
+            # SPECIFIC patterns first to avoid truncation - more precise after text normalization
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\s\'&\-\.]{1,50})',
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{1,50})(?:LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?)',
+            # GENERAL pattern last to avoid early truncation - more precise after normalization
+            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{1,50})',
         ]
         
         self.year_patterns = [
@@ -115,18 +138,33 @@ class UnifiedExtractionArchitecture:
             ExtractionResult with standardized case name and year
         """
         if debug:
-            logger.warning(f"🎯 UNIFIED_EXTRACT: Starting extraction for citation '{citation}' at position {start_index}-{end_index}")
+            logger.warning(f"ðŸŽ¯ UNIFIED_EXTRACT: Starting extraction for citation '{citation}' at position {start_index}-{end_index}")
+        
+        # Normalize text early to handle Unicode character issues
+        from src.utils.text_normalizer import normalize_text
+        normalized_text = normalize_text(text)
         
         if start_index is not None and end_index is not None:
-            result = self._extract_with_context(text, citation, start_index, end_index, debug)
+            result = self._extract_with_context(normalized_text, citation, start_index, end_index, debug)
             if result and result.case_name and result.case_name != 'N/A':
+                # Clean up the extracted case name to remove leading text that doesn't belong
+                from src.utils.text_normalizer import clean_extracted_case_name
+                cleaned_case_name = clean_extracted_case_name(result.case_name)
+                result.case_name = cleaned_case_name
                 if debug:
-                    logger.warning(f"✅ UNIFIED_EXTRACT: Context extraction successful: '{result.case_name}'")
+                    logger.warning(f"âœ… UNIFIED_EXTRACT: Context extraction successful: '{result.case_name}'")
                 return result
         
-        result = self._extract_with_patterns(text, citation, start_index or 0, end_index or len(text), debug)
+        result = self._extract_with_patterns(normalized_text, citation, start_index or 0, end_index or len(normalized_text), debug)
+        
+        # Clean up the extracted case name to remove leading text that doesn't belong
+        if result and result.case_name and result.case_name != 'N/A':
+            from src.utils.text_normalizer import clean_extracted_case_name
+            cleaned_case_name = clean_extracted_case_name(result.case_name)
+            result.case_name = cleaned_case_name
+        
         if debug:
-            logger.warning(f"✅ UNIFIED_EXTRACT: Pattern extraction result: '{result.case_name}'")
+            logger.warning(f"âœ… UNIFIED_EXTRACT: Pattern extraction result: '{result.case_name}'")
         
         return result
     
@@ -140,17 +178,23 @@ class UnifiedExtractionArchitecture:
     ) -> Optional[ExtractionResult]:
         """Extract case name using context window around citation position."""
         try:
-            context_start = max(0, start_index - 200)
-            context_end = min(len(text), end_index + 50)
+            context_start = max(0, start_index - 500)  # Increased from 200 to 500 to capture full case names
+            context_end = min(len(text), end_index + 100)  # Increased from 50 to 100
             context = text[context_start:context_end]
             
             if debug:
-                logger.warning(f"🔍 UNIFIED_EXTRACT: Context window: '{context}'")
+                logger.warning(f"ðŸ” UNIFIED_EXTRACT: Context window: '{context}'")
             
             for i, pattern in enumerate(self.context_patterns):
+                if debug:
+                    logger.warning(f"ðŸ” UNIFIED_EXTRACT: Testing pattern {i+1}: {pattern}")
                 matches = list(re.finditer(pattern, context, re.IGNORECASE))
                 if debug:
-                    logger.warning(f"🔍 UNIFIED_EXTRACT: Pattern {i+1} found {len(matches)} matches in context")
+                    logger.warning(f"ðŸ” UNIFIED_EXTRACT: Pattern {i+1} found {len(matches)} matches in context")
+                    if matches:
+                        for j, match in enumerate(matches):
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Match {j+1}: groups={match.groups()}")
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Match {j+1}: full match='{match.group(0)}'")
                 
                 if matches:
                     best_match = None
@@ -172,7 +216,7 @@ class UnifiedExtractionArchitecture:
                         distance = abs(match_end_in_context - citation_start_in_context)
                         
                         if debug:
-                            logger.warning(f"🔍 UNIFIED_EXTRACT: Match '{match.group(0)}' at distance {distance}")
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Match '{match.group(0)}' at distance {distance}")
                         
                         volume_match = False
                         if i < 2 and len(match.groups()) >= 3:  # Patterns 1 and 2 have volume as group 3
@@ -180,20 +224,21 @@ class UnifiedExtractionArchitecture:
                             if citation_volume and match_volume == citation_volume:
                                 volume_match = True
                                 if debug:
-                                    logger.warning(f"🔍 UNIFIED_EXTRACT: Volume match! Citation: {citation_volume}, Match: {match_volume}")
+                                    logger.warning(f"ðŸ” UNIFIED_EXTRACT: Volume match! Citation: {citation_volume}, Match: {match_volume}")
                         
                         if distance < 100:  # Within 100 characters
                             match_text = match.group(0)
-                            contamination_indicators = ['are', 'ions', 'eview', 'questions', 'we', 'the', 'this', 'also', 'meaning', 'certified', 'review']
+                            # IMPROVED: More specific contamination detection that only rejects obvious non-case names
+                            contamination_indicators = ['statutory interpretation', 'questions of law', 'certified questions', 'this court reviews', 'we review', 'also an issue', 'meaning of a statute']
                             
-                            has_contamination = any(match_text.lower().startswith(contam.lower()) for contam in contamination_indicators)
+                            has_contamination = any(contam.lower() in match_text.lower() for contam in contamination_indicators)
                             
                             if not has_contamination:
                                 if i < 2 and volume_match:
                                     best_match = match
                                     min_distance = distance
                                     if debug:
-                                        logger.warning(f"🔍 UNIFIED_EXTRACT: Volume-matched case name: '{match_text}' at distance {distance}")
+                                        logger.warning(f"ðŸ” UNIFIED_EXTRACT: Volume-matched case name: '{match_text}' at distance {distance}")
                                     break  # Found exact volume match, use it
                                 elif i >= 2 or not citation_volume:  # For other patterns or if no volume available
                                     case_name_quality = self._assess_case_name_quality(match_text)
@@ -202,17 +247,24 @@ class UnifiedExtractionArchitecture:
                                             min_distance = distance
                                             best_match = match
                                             if debug:
-                                                logger.warning(f"🔍 UNIFIED_EXTRACT: New best match: '{match_text}' at distance {distance} (quality: {case_name_quality})")
+                                                logger.warning(f"ðŸ” UNIFIED_EXTRACT: New best match: '{match_text}' at distance {distance} (quality: {case_name_quality})")
                             elif debug:
-                                logger.warning(f"🔍 UNIFIED_EXTRACT: Match rejected due to contamination: '{match_text}'")
+                                logger.warning(f"ðŸ” UNIFIED_EXTRACT: Match rejected due to contamination: '{match_text}'")
                     
                     if best_match:
-                        plaintiff = self._clean_case_name(best_match.group(1))
-                        defendant = self._clean_case_name(best_match.group(2))
+                        raw_plaintiff = best_match.group(1)
+                        raw_defendant = best_match.group(2)
+                        logger.warning(f"ðŸ” DEBUG_TRUNCATION: Raw plaintiff: '{raw_plaintiff}', Raw defendant: '{raw_defendant}'")
+                        
+                        from src.utils.text_normalizer import clean_extracted_case_name
+                        plaintiff = clean_extracted_case_name(raw_plaintiff)
+                        defendant = clean_extracted_case_name(raw_defendant)
+                        logger.warning(f"ðŸ” DEBUG_TRUNCATION: Cleaned plaintiff: '{plaintiff}', Cleaned defendant: '{defendant}'")
+                        
                         case_name = f"{plaintiff} v. {defendant}"
                         
                         if debug:
-                            logger.warning(f"🔍 UNIFIED_EXTRACT: Extracted case name: '{case_name}'")
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Extracted case name: '{case_name}'")
                         
                         if self._is_valid_case_name(case_name):
                             year = self._extract_year_from_context(context, citation)
@@ -228,32 +280,77 @@ class UnifiedExtractionArchitecture:
                                 debug_info={'pattern_used': pattern, 'match_distance': min_distance}
                             )
                         elif debug:
-                            logger.warning(f"🔍 UNIFIED_EXTRACT: Case name failed validation: '{case_name}'")
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Case name failed validation: '{case_name}'")
                     
                     continue
             
             if debug:
-                logger.warning(f"🔍 UNIFIED_EXTRACT: No patterns worked, trying targeted approach")
+                logger.warning(f"ðŸ” UNIFIED_EXTRACT: No patterns worked, trying targeted approach")
             
+            # NEW APPROACH: Look for case names immediately before the citation
             citation_pos_in_context = start_index - context_start
-            search_start = max(0, citation_pos_in_context - 150)  # Increased search radius to look before citation
-            search_end = min(len(context), citation_pos_in_context + 50)  # Less after citation
+            # Look for case names in the 100 characters immediately before the citation
+            search_start = max(0, citation_pos_in_context - 100)
+            search_end = citation_pos_in_context
             targeted_context = context[search_start:search_end]
             
             if debug:
-                logger.warning(f"🔍 UNIFIED_EXTRACT: Targeted context: '{targeted_context}'")
+                logger.warning(f"ðŸ” UNIFIED_EXTRACT: Pre-citation context: '{targeted_context}'")
+            
+            # Try to find case names that end just before the citation
+            pre_citation_patterns = [
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s*,\s*\d+\s+Wn\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s*,\s*\d+\s+P\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})(?=\s*,\s*\d+\s+Wn\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})(?=\s*,\s*\d+\s+P\.\d+)',
+            ]
+            
+            for i, pattern in enumerate(pre_citation_patterns):
+                matches = list(re.finditer(pattern, targeted_context, re.IGNORECASE))
+                if matches:
+                    # Take the last match (closest to citation)
+                    match = matches[-1]
+                    from src.utils.case_name_cleaner import clean_extracted_case_name
+                    plaintiff = clean_extracted_case_name(match.group(1))
+                    defendant = clean_extracted_case_name(match.group(2))
+                    case_name = f"{plaintiff} v. {defendant}"
+                    
+                    if debug:
+                        logger.warning(f"ðŸ” UNIFIED_EXTRACT: Pre-citation match: '{case_name}'")
+                    
+                    if self._is_valid_case_name(case_name):
+                        year = self._extract_year_from_context(context, citation)
+                        
+                        return ExtractionResult(
+                            case_name=case_name,
+                            year=year,
+                            confidence=0.95,
+                            method=f"pre_citation_pattern_{i+1}",
+                            start_index=start_index,
+                            end_index=end_index,
+                            context=context,
+                            debug_info={'pattern_used': pattern, 'match_position': 'pre_citation'}
+                        )
+            
+            # Fallback to original targeted approach
+            citation_pos_in_context = start_index - context_start
+            search_start = max(0, citation_pos_in_context - 50)  # Reduced from 150 to 50
+            search_end = min(len(context), citation_pos_in_context + 30)  # Reduced from 50 to 30
+            targeted_context = context[search_start:search_end]
+            
+            if debug:
+                logger.warning(f"ðŸ” UNIFIED_EXTRACT: Targeted context: '{targeted_context}'")
             
             targeted_patterns = [
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s+\d+\s+Wn\.)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s+\d+\s+P\.)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*$)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+Wn\.)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+P\.)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+Wn\.\d+)',
-                r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+P\.\d+)',
+                # ULTRA-PRECISE: Look for case names immediately before the citation
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s*,\s*\d+\s+Wn\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s*,\s*\d+\s+P\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})(?=\s*,\s*\d+\s+Wn\.\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})(?=\s*,\s*\d+\s+P\.\d+)',
+                # Fallback patterns for cases without volume numbers
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s*,\s*\d+)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s+\d+\s+Wn\.)',
+                r'([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,2})\s+v\.\s+([A-Z][a-zA-Z\',\.\&]+(?:\s+[A-Z][a-zA-Z\',\.\&]+){0,3})(?=\s+\d+\s+P\.)',
             ]
             
             for i, pattern in enumerate(targeted_patterns):
@@ -273,12 +370,13 @@ class UnifiedExtractionArchitecture:
                             best_match = match
                     
                     if best_match:
-                        plaintiff = self._clean_case_name(best_match.group(1))
-                        defendant = self._clean_case_name(best_match.group(2))
+                        from src.utils.text_normalizer import clean_extracted_case_name
+                        plaintiff = clean_extracted_case_name(best_match.group(1))
+                        defendant = clean_extracted_case_name(best_match.group(2))
                         case_name = f"{plaintiff} v. {defendant}"
                         
                         if debug:
-                            logger.warning(f"🔍 UNIFIED_EXTRACT: Targeted extraction: '{case_name}'")
+                            logger.warning(f"ðŸ” UNIFIED_EXTRACT: Targeted extraction: '{case_name}'")
                         
                         if case_name and case_name != "N/A v. N/A" and len(case_name) > 5:
                             case_name = self._clean_case_name(case_name)
@@ -286,7 +384,7 @@ class UnifiedExtractionArchitecture:
                             year = self._extract_year_from_context(context, citation)
                             
                             if debug:
-                                logger.warning(f"✅ UNIFIED_EXTRACT: Targeted extraction successful: '{case_name}'")
+                                logger.warning(f"âœ… UNIFIED_EXTRACT: Targeted extraction successful: '{case_name}'")
                             
                             return ExtractionResult(
                                 case_name=case_name,
@@ -303,7 +401,7 @@ class UnifiedExtractionArchitecture:
             
         except Exception as e:
             if debug:
-                logger.warning(f"⚠️ UNIFIED_EXTRACT: Context extraction failed: {e}")
+                logger.warning(f"âš ï¸ UNIFIED_EXTRACT: Context extraction failed: {e}")
             return None
     
     def _extract_with_patterns(
@@ -339,8 +437,15 @@ class UnifiedExtractionArchitecture:
                             best_match = match
                     
                     if best_match:
-                        plaintiff = self._clean_case_name(best_match.group(1))
-                        defendant = self._clean_case_name(best_match.group(2))
+                        raw_plaintiff = best_match.group(1)
+                        raw_defendant = best_match.group(2)
+                        logger.warning(f"ðŸ” DEBUG_TRUNCATION_FALLBACK: Raw plaintiff: '{raw_plaintiff}', Raw defendant: '{raw_defendant}'")
+                        
+                        from src.utils.text_normalizer import clean_extracted_case_name
+                        plaintiff = clean_extracted_case_name(raw_plaintiff)
+                        defendant = clean_extracted_case_name(raw_defendant)
+                        logger.warning(f"ðŸ” DEBUG_TRUNCATION_FALLBACK: Cleaned plaintiff: '{plaintiff}', Cleaned defendant: '{defendant}'")
+                        
                         case_name = f"{plaintiff} v. {defendant}"
                         
                         if self._is_valid_case_name(case_name):
@@ -370,7 +475,7 @@ class UnifiedExtractionArchitecture:
             
         except Exception as e:
             if debug:
-                logger.warning(f"⚠️ UNIFIED_EXTRACT: Pattern extraction failed: {e}")
+                logger.warning(f"âš ï¸ UNIFIED_EXTRACT: Pattern extraction failed: {e}")
             return ExtractionResult(
                 case_name="N/A",
                 year="",
@@ -401,7 +506,7 @@ class UnifiedExtractionArchitecture:
         if re.search(r'\(\d{4}\)', match_text):
             score -= 0.2
         
-        if len(match_text) > 100:
+        if len(match_text) > 200:  # Increased threshold to be less strict
             score -= 0.3
         
         if match_text[0].islower() or match_text[0].isdigit():
@@ -566,3 +671,4 @@ def extract_case_name_and_year_unified(
         'method': result.method,
         'debug_info': result.debug_info or {}
     }
+

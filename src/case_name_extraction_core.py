@@ -1,12 +1,12 @@
 """
-Case Name Extraction Core - Now Powered by UnifiedCaseNameExtractorV2
+Case Name Extraction Core - Now Powered by Master Extraction Function
 ====================================================================
 
 This module now serves as a compatibility layer that redirects all extraction calls
-to the new UnifiedCaseNameExtractorV2, which consolidates all the best practices
-from the previous 47+ extraction functions.
+to the master extraction function (extract_case_name_and_date_master), which provides
+the single source of truth for case name extraction.
 
-IMPORTANT: All extraction now goes through UnifiedCaseNameExtractorV2
+IMPORTANT: All extraction now goes through extract_case_name_and_date_master()
 
 DEPRECATION NOTICE:
 ==================
@@ -27,7 +27,7 @@ from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_
 import warnings
 from src.unified_case_name_extractor_v2 import (
     get_unified_extractor,
-    extract_case_name_and_date_unified,
+    extract_case_name_and_date_master,
     extract_case_name_only_unified
 )
 
@@ -68,7 +68,7 @@ def extract_case_name_and_date(
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_unified(
+    return extract_case_name_and_date_master(
         text, citation, citation_start, citation_end, debug
     )
 
@@ -107,7 +107,7 @@ def extract_case_name_from_citation(
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_unified(text, citation, debug=debug)
+    return extract_case_name_and_date_master(text, citation, debug=debug)
 
 def extract_case_name_with_context(
     text: str, 
@@ -127,7 +127,7 @@ def extract_case_name_with_context(
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_unified(text, citation, debug=debug)
+    return extract_case_name_and_date_master(text, citation, debug=debug)
 
 def extract_case_name_volume_based(
     text: str, 
@@ -145,7 +145,7 @@ def extract_case_name_volume_based(
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_unified(text, citation, debug=debug)
+    return extract_case_name_and_date_master(text, citation, debug=debug)
 
 
 def extract_case_names_batch(
@@ -166,7 +166,7 @@ def extract_case_names_batch(
     """
     results = []
     for citation in citations:
-        result = extract_case_name_and_date_unified(text, citation, debug=debug)
+        result = extract_case_name_and_date_master(text, citation, debug=debug)
         results.append(result)
     return results
 
@@ -249,7 +249,7 @@ def extract_case_name_triple_comprehensive(text: str, citation: Optional[str] = 
     """
     _show_deprecation_warning('extract_case_name_triple_comprehensive')
     
-    result = extract_case_name_and_date_unified(text, citation)
+    result = extract_case_name_and_date_master(text, citation)
     
     return (
         result.get('case_name', ''),
@@ -416,7 +416,7 @@ def extract_case_name_triple(text: str, citation: Optional[str] = None) -> Tuple
     """
     _show_deprecation_warning('extract_case_name_triple')
     
-    result = extract_case_name_and_date_unified(text, citation)
+    result = extract_case_name_and_date_master(text, citation)
     
     return (
         result.get('case_name', ''),

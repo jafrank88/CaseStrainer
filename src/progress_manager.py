@@ -620,8 +620,9 @@ def create_progress_routes(app: Flask, progress_manager: SSEProgressManager,
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
-    @app.route('/casestrainer/api/analyze', methods=['POST'])
-    async def start_citation_analysis():
+    # DISABLED: Duplicate route conflicts with vue_api_endpoints.py
+    # @app.route('/casestrainer/api/analyze', methods=['POST'])
+    async def start_citation_analysis_disabled():
         """Start citation analysis and return task ID
         
         Supports multiple input types:

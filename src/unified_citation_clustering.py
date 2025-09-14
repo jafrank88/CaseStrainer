@@ -187,7 +187,9 @@ class UnifiedCitationClusterer:
                 citation_list = [c.citation for c in sorted_group]
             
             for citation in sorted_group:
-                citation.extracted_case_name = case_name or "N/A"
+                # Only overwrite if the citation doesn't already have a valid extracted case name
+                if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                    citation.extracted_case_name = case_name or "N/A"
                 citation.extracted_date = year or "N/A"
                 if True:
 
@@ -460,8 +462,8 @@ class UnifiedCitationClusterer:
         
         if extracted_name and extracted_name != "N/A":
             if hasattr(citation, 'start_index') and citation.start_index is not None:
-                search_start = max(0, citation.start_index - 200)
-                search_end = min(len(text), citation.start_index + 50)
+                search_start = max(0, citation.start_index - 500)
+                search_end = min(len(text), citation.start_index + 100)
                 search_text = text[search_start:search_end]
                 
                 if extracted_name.lower() not in search_text.lower():
@@ -849,7 +851,7 @@ class UnifiedCitationClusterer:
                 return case_name
         except Exception as e:
         
-        start_pos = max(0, citation.start_index - 200)
+        start_pos = max(0, citation.start_index - 500)
         end_pos = citation.start_index
         context = text[start_pos:end_pos]
         
@@ -901,32 +903,17 @@ class UnifiedCitationClusterer:
         return "N/A"
     
     def _clean_case_name(self, case_name: str) -> str:
-        """Clean extracted case name to remove contamination while preserving legitimate parts."""
-        if not case_name:
-            return ""
-        
-        contamination_phrases = [
-            r'\b(de\s+novo)\b', r'\b(questions?\s+of\s+law)\b', r'\b(statutory\s+interpretation)\b',
-            r'\b(in\s+light\s+of)\b', r'\b(the\s+record\s+certified)\b', r'\b(federal\s+court)\b',
-            r'\b(this\s+court\s+reviews?)\b', r'\b(we\s+review)\b', r'\b(certified\s+questions?)\b',
-            r'\b(issue\s+of\s+law)\b', r'\b(also\s+an?\s+issue)\b'
-        ]
-        
-        cleaned = case_name
-        for phrase_pattern in contamination_phrases:
-            cleaned = re.sub(phrase_pattern, '', cleaned, flags=re.IGNORECASE)
-        
-        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-        
-        cleaned = re.sub(r'[,;:]+$', '', cleaned)
-        
-        if len(cleaned) < 5 or len(cleaned) > 100:
-            return ""
-        
-        if not ((' v. ' in cleaned) or cleaned.startswith(('In re ', 'Ex parte '))):
-            return ""
-        
-        return cleaned
+        """LEGACY cleaner wrapper (deprecated). Uses shared cleaner."""
+        try:
+            from src.utils.deprecation import deprecated
+            from src.utils.case_name_cleaner import clean_extracted_case_name
+            @deprecated(replacement='src.utils.case_name_cleaner.clean_extracted_case_name')
+            def _proxy(val: str) -> str:
+                return clean_extracted_case_name(val)
+            return _proxy(case_name)
+        except Exception:
+            from src.utils.case_name_cleaner import clean_extracted_case_name
+            return clean_extracted_case_name(case_name)
     
     def _extract_date_for_citation(self, citation: Any, text: str) -> str:
         """Extract date/year for a single citation from the surrounding text."""
@@ -1048,7 +1035,10 @@ class UnifiedCitationClusterer:
                     case_name.strip().upper() != 'N/A' and 
                     year.strip().upper() != 'N/A'):
                     
-                    cluster_key = f"{case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
+                    # Clean case name before creating cluster key
+                    from src.utils.case_name_cleaner import clean_extracted_case_name
+                    cleaned_case_name = clean_extracted_case_name(case_name)
+                    cluster_key = f"{cleaned_case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
                     if cluster_key not in clusters:
                         clusters[cluster_key] = []
                     clusters[cluster_key].append(citation)

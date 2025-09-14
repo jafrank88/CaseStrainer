@@ -200,6 +200,9 @@ class EnhancedSyncProcessor:
                                     logger.info(f"[EnhancedSyncProcessor {request_id}] Citation '{citation_text}' - Extracted: '{citation.get('extracted_case_name')}' ({citation.get('extracted_date')}), Canonical: '{verif_result.get('canonical_name')}' ({verif_result.get('canonical_date')})")
                                     break
                         
+                        # CRITICAL: Update cluster verification status after individual citations are verified
+                        self._update_cluster_verification_status(result.get('clusters', []), result.get('citations', []))
+                        
                         logger.info(f"[EnhancedSyncProcessor {request_id}] Citations updated with verification data")
                         
                         if result.get('clusters'):
@@ -443,6 +446,11 @@ class EnhancedSyncProcessor:
                 r'\b\d+\s+P\.?\s*\d*d\s+\d+\b',   # Pacific reports (single line)
                 r'\b\d+\s*\n\s*P\.?\s*\d*d\s+\d+\b',  # Pacific reports (with newline)
                 r'\b\d+\s+[A-Z]+\.?\s+\d+\b',     # General format
+                # Unicode-aware patterns for corrupted text
+                r'\b\d+\s+Wn\.\s*2d\s+\d+\b',  # Handle corrupted apostrophes in case names
+                r'\b\d+\s+Wn\.\s*3d\s+\d+\b',  # Handle corrupted apostrophes in case names
+                r'\b\d+\s+P\.\s*3d\s+\d+\b',   # Handle corrupted apostrophes in case names
+                r'\b\d+\s+P\.\s*2d\s+\d+\b',   # Handle corrupted apostrophes in case names
             ]
             
             processed_citations = set()
@@ -463,11 +471,12 @@ class EnhancedSyncProcessor:
                     
                     processed_citations.add(citation_key)
                     
-                    result = extractor.extract_case_name_and_year(
+                    from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+                    result = extract_case_name_and_date_master(
                         text=text,
                         citation=citation_text,
-                        start_index=start_pos,
-                        end_index=end_pos,
+                        citation_start=start_pos,
+                        citation_end=end_pos,
                         debug=False
                     )
                     
@@ -475,18 +484,18 @@ class EnhancedSyncProcessor:
                         citation=cleaned_citation_text,  # Use cleaned citation text
                         start_index=start_pos,
                         end_index=end_pos,
-                        extracted_case_name=result.case_name,
-                        extracted_date=result.year,
+                        extracted_case_name=result.get('case_name', ''),
+                        extracted_date=result.get('year', ''),
                         canonical_name=None,
                         canonical_date=None,
                         url=None,
                         verified=False,
                         source="unified_architecture",
-                        confidence=result.confidence,
+                        confidence=result.get('confidence', 0.0),
                         metadata={
                             'extraction_method': 'unified_architecture',
-                            'method': result.method,
-                            'debug_info': result.debug_info
+                            'method': result.get('method', 'unknown'),
+                            'debug_info': result.get('debug_info', {})
                         }
                     )
                     
@@ -572,6 +581,11 @@ class EnhancedSyncProcessor:
             r'\b\d+\s+Wn\.\d+\s+\d+',  # 200 Wn.2d 72
             r'\b\d+\s+P\.\d+\s+\d+',   # 514 P.3d 643
             r'\b\d+\s+Wn\.\s*App\.\s*\d+',  # 136 Wn. App. 104
+            # Unicode-aware patterns for corrupted text
+            r'\b\d+\s+Wn\.\s*2d\s+\d+',  # Handle corrupted apostrophes in case names
+            r'\b\d+\s+Wn\.\s*3d\s+\d+',  # Handle corrupted apostrophes in case names
+            r'\b\d+\s+P\.\s*3d\s+\d+',   # Handle corrupted apostrophes in case names
+            r'\b\d+\s+P\.\s*2d\s+\d+',   # Handle corrupted apostrophes in case names
         ]
         
         citations = []
@@ -788,8 +802,10 @@ class EnhancedSyncProcessor:
                 else:
                     continue
                 
-                if "Farms" in current_name or "Fish & Wildlife" in current_name:
-                    continue
+                # Remove the problematic filter that was skipping cases with "Fish & Wildlife"
+                # This was preventing proper case name extraction for Spokane County cases
+                # if "Farms" in current_name or "Fish & Wildlife" in current_name:
+                #     continue
                 
                 try:
                     citation_start = None
@@ -813,13 +829,37 @@ class EnhancedSyncProcessor:
                     
                     full_name = result.get('case_name', '')
                     if full_name and full_name != 'N/A' and full_name != current_name:
+                        # Decide if master name is clearly better than current
+                        master_tokens = ["dep't", "department", "dept", "fish", "wildlife", "bros.", "farms", "inc", "llc", "corp", "ltd", "co."]
+                        current_lower = (current_name or '').lower()
+                        full_lower = full_name.lower()
+                        is_truncated = current_lower.endswith(' v. dep') or current_lower.endswith(" v. dep't") or current_lower.endswith(' v. dept')
+                        contains_key_tokens = any(t in full_lower for t in master_tokens)
+                        is_clearly_longer = len(full_name) >= len(current_name or '') + 4
+                        names_share_prefix = (current_name or '').split(' v.')[0] == full_name.split(' v.')[0]
+
+                        should_replace = False
                         if not current_name or current_name == 'N/A':
+                            should_replace = True
+                        elif names_share_prefix and (is_truncated or contains_key_tokens or is_clearly_longer):
+                            should_replace = True
+
+                        if should_replace:
+                            # Normalize via shared cleaner for consistency with V2
+                            try:
+                                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                                cleaner = getattr(UnifiedCitationProcessorV2, '_clean_extracted_case_name', None)
+                                if callable(cleaner):
+                                    full_name = cleaner(self=None, case_name=full_name)  # static-like usage
+                            except Exception:
+                                pass
+
                             if isinstance(citation, dict):
                                 citation['extracted_case_name'] = full_name
                             elif hasattr(citation, 'extracted_case_name'):
                                 setattr(citation, 'extracted_case_name', full_name)
                         else:
-                            pass  # No case name found
+                            pass  # Keep existing name
                         
                 except Exception as e:
                     continue
@@ -1007,7 +1047,8 @@ class EnhancedSyncProcessor:
                 logger.info(f"[EnhancedSyncProcessor {request_id}]   Cluster citations: {cluster_citations}")
                 logger.info(f"[EnhancedSyncProcessor {request_id}]   Cluster has verified: {cluster_has_verified}")
                 
-                if cluster_has_verified:
+                # ALWAYS process clusters to propagate extracted case names - verification is independent
+                if cluster_citations:  # Process any cluster that has citations
                     for citation in citations:
                         citation_text = None
                         if isinstance(citation, dict):
@@ -1017,18 +1058,45 @@ class EnhancedSyncProcessor:
                         
                         if citation_text in cluster_citations:
                             logger.info(f"[EnhancedSyncProcessor {request_id}] Found citation '{citation_text}' in cluster")
-                            if isinstance(citation, dict):
-                                verified_status = citation.get('verified', False)
-                                logger.info(f"[EnhancedSyncProcessor {request_id}]   Citation is dict, verified: {verified_status}")
-                                if not verified_status:
-                                    citation['true_by_parallel'] = True
-                                    logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=True for unverified citation '{citation_text}'")
-                            elif hasattr(citation, 'verified'):
-                                verified_status = getattr(citation, 'verified', False)
-                                logger.info(f"[EnhancedSyncProcessor {request_id}]   Citation is object, verified: {verified_status}")
-                                if not verified_status:
-                                    setattr(citation, 'true_by_parallel', True)
-                                    logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=True for unverified CitationResult '{citation_text}'")
+                            
+                            # Propagate extracted case name from cluster to individual citation
+                            cluster_case_name = cluster.get('case_name') or cluster.get('extracted_case_name')
+                            if cluster_case_name and cluster_case_name != 'N/A':
+                                # Clean the case name to remove trailing punctuation
+                                from src.utils.case_name_cleaner import clean_extracted_case_name
+                                cleaned_case_name = clean_extracted_case_name(cluster_case_name)
+                                
+                                if isinstance(citation, dict):
+                                    if not citation.get('extracted_case_name') or citation.get('extracted_case_name') == 'N/A':
+                                        citation['extracted_case_name'] = cleaned_case_name
+                                        logger.info(f"[EnhancedSyncProcessor {request_id}] Propagated cleaned case name '{cleaned_case_name}' to citation '{citation_text}'")
+                                elif hasattr(citation, 'extracted_case_name'):
+                                    if not getattr(citation, 'extracted_case_name', None) or getattr(citation, 'extracted_case_name', None) == 'N/A':
+                                        setattr(citation, 'extracted_case_name', cleaned_case_name)
+                                        logger.info(f"[EnhancedSyncProcessor {request_id}] Propagated cleaned case name '{cleaned_case_name}' to CitationResult '{citation_text}'")
+                            
+                            # Set true_by_parallel for unverified citations ONLY if cluster has verified citations
+                            if cluster_has_verified:  # Only if cluster has at least one verified citation
+                                if isinstance(citation, dict):
+                                    verified_status = citation.get('verified', False)
+                                    logger.info(f"[EnhancedSyncProcessor {request_id}]   Citation is dict, verified: {verified_status}")
+                                    if not verified_status:
+                                        citation['true_by_parallel'] = True
+                                        logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=True for unverified citation '{citation_text}' in verified cluster")
+                                elif hasattr(citation, 'verified'):
+                                    verified_status = getattr(citation, 'verified', False)
+                                    logger.info(f"[EnhancedSyncProcessor {request_id}]   Citation is object, verified: {verified_status}")
+                                    if not verified_status:
+                                        setattr(citation, 'true_by_parallel', True)
+                                        logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=True for unverified CitationResult '{citation_text}' in verified cluster")
+                            else:
+                                # Cluster has no verified citations, so no citations should be true_by_parallel
+                                if isinstance(citation, dict):
+                                    citation['true_by_parallel'] = False
+                                    logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=False for citation '{citation_text}' in unverified cluster")
+                                elif hasattr(citation, 'true_by_parallel'):
+                                    setattr(citation, 'true_by_parallel', False)
+                                    logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=False for CitationResult '{citation_text}' in unverified cluster")
         
         except Exception as e:
             logger.error(f"[EnhancedSyncProcessor {request_id}] Error in _propagate_true_by_parallel_only: {e}")
@@ -1725,6 +1793,7 @@ class EnhancedSyncProcessor:
                                     'extracted_case_name': citation_obj.get('extracted_case_name'),
                                     'extracted_date': citation_obj.get('extracted_date'),
                                     'verified': citation_obj.get('verified', False),
+                                    'true_by_parallel': citation_obj.get('true_by_parallel', False),
                                     'canonical_name': None,  # Will be populated by verification services
                                     'canonical_date': None,  # Will be populated by verification services
                                     'source': citation_obj.get('source', 'local_extraction'),
@@ -1737,6 +1806,7 @@ class EnhancedSyncProcessor:
                                     'extracted_case_name': getattr(citation_obj, 'extracted_case_name', None),
                                     'extracted_date': getattr(citation_obj, 'extracted_date', None),
                                     'verified': getattr(citation_obj, 'verified', False),
+                                    'true_by_parallel': getattr(citation_obj, 'true_by_parallel', False),
                                     'canonical_name': None,  # Will be populated by verification services
                                     'canonical_date': None,  # Will be populated by verification services
                                     'source': getattr(citation_obj, 'source', 'local_extraction'),
@@ -1746,6 +1816,7 @@ class EnhancedSyncProcessor:
                             detailed_citations.append(citation_detail)
                         
                         cluster_dict['detailed_citations'] = detailed_citations
+                        cluster_dict['citation_objects'] = detailed_citations  # Copy to citation_objects for frontend compatibility
                 else:
                     case_name = getattr(cluster, 'case_name', None)
                     year = getattr(cluster, 'year', None)
@@ -1932,8 +2003,8 @@ class EnhancedSyncProcessor:
                         best_canonical_name = canonical_name
                         # best_case_name should only come from extracted_case_name
                         # canonical_name and extracted_case_name must remain completely separate
-                        if not best_case_name and hasattr(citation, 'extracted_case_name'):
-                            best_case_name = citation.extracted_case_name
+                        if not best_case_name and isinstance(citation_obj, dict) and citation_obj.get('extracted_case_name'):
+                            best_case_name = citation_obj.get('extracted_case_name')
                         elif not best_case_name:
                             pass  # No extracted case name available
                         
@@ -1982,6 +2053,95 @@ class EnhancedSyncProcessor:
                         break
         
         return best_case_name, best_canonical_name, best_canonical_date
+    
+    def _update_cluster_verification_status(self, clusters: List[Dict[str, Any]], citations: List[Dict[str, Any]]) -> None:
+        """Update cluster verification status based on individual citation verification status."""
+        try:
+            if not clusters or not citations:
+                return
+            
+            # Create lookup for quick citation verification status check
+            citation_verification_lookup = {}
+            for citation in citations:
+                citation_text = citation.get('citation', '')
+                if citation_text:
+                    citation_verification_lookup[citation_text] = citation.get('verified', False)
+            
+            logger.info(f"[CLUSTER_VERIFICATION] Updating verification status for {len(clusters)} clusters based on {len(citations)} citations")
+            
+            # Update each cluster's verification status
+            for cluster in clusters:
+                if not isinstance(cluster, dict):
+                    continue
+                
+                cluster_citations = cluster.get('citations', [])
+                if not cluster_citations:
+                    continue
+                
+                # Count verified citations in this cluster
+                verified_count = 0
+                total_count = len(cluster_citations)
+                
+                for citation_text in cluster_citations:
+                    if citation_verification_lookup.get(citation_text, False):
+                        verified_count += 1
+                
+                # Update cluster verification status
+                cluster_has_verified = verified_count > 0
+                cluster['verified'] = cluster_has_verified
+                cluster['cluster_has_verified'] = cluster_has_verified
+                cluster['verified_citations'] = verified_count
+                cluster['total_citations'] = total_count
+                
+                # Update canonical data from first verified citation if available
+                if cluster_has_verified and not cluster.get('canonical_name'):
+                    for citation_text in cluster_citations:
+                        for citation in citations:
+                            if (citation.get('citation') == citation_text and 
+                                citation.get('verified', False) and 
+                                citation.get('canonical_name')):
+                                cluster['canonical_name'] = citation.get('canonical_name')
+                                cluster['canonical_date'] = citation.get('canonical_date')
+                                cluster['canonical_url'] = citation.get('canonical_url')
+                                break
+                        if cluster.get('canonical_name'):
+                            break
+                
+                # Update detailed_citations verification status and apply true_by_parallel logic
+                if 'detailed_citations' in cluster:
+                    for detailed_citation in cluster['detailed_citations']:
+                        citation_text = detailed_citation.get('citation', '')
+                        if citation_text in citation_verification_lookup:
+                            is_verified = citation_verification_lookup[citation_text]
+                            detailed_citation['verified'] = is_verified
+                            
+                            if is_verified:
+                                # Find the corresponding full citation data
+                                for citation in citations:
+                                    if citation.get('citation') == citation_text:
+                                        detailed_citation['canonical_name'] = citation.get('canonical_name')
+                                        detailed_citation['canonical_date'] = citation.get('canonical_date')
+                                        detailed_citation['canonical_url'] = citation.get('canonical_url')
+                                        break
+                            elif cluster_has_verified:
+                                # Mark unverified citations as true_by_parallel if cluster has verified citations
+                                detailed_citation['true_by_parallel'] = True
+                                logger.info(f"[CLUSTER_VERIFICATION] Citation '{citation_text}' marked as true_by_parallel in verified cluster")
+                
+                # CRITICAL: Apply true_by_parallel to individual citation objects as well
+                if cluster_has_verified:
+                    for citation_text in cluster_citations:
+                        for citation in citations:
+                            if (citation.get('citation') == citation_text and 
+                                not citation.get('verified', False)):
+                                citation['true_by_parallel'] = True
+                                logger.info(f"[CLUSTER_VERIFICATION] Individual citation '{citation_text}' marked as true_by_parallel")
+                                break
+                
+                logger.info(f"[CLUSTER_VERIFICATION] Cluster '{cluster.get('cluster_id', 'unknown')}': {verified_count}/{total_count} citations verified -> cluster verified: {cluster_has_verified}")
+            
+        except Exception as e:
+            logger.error(f"[CLUSTER_VERIFICATION] Error updating cluster verification status: {e}")
     
     def _apply_canonical_names_to_objects(self, citations: List) -> None:
         """
@@ -2561,6 +2721,19 @@ class EnhancedSyncProcessor:
                     cluster_citations = cluster.get('citations', [])
                     logger.info(f"[EnhancedSyncProcessor {request_id}] Cluster citations: {cluster_citations}")
                     
+                    # Check if cluster has any verified citations
+                    cluster_has_verified = False
+                    for citation_text in cluster_citations:
+                        for verif_result in verification_results:
+                            if verif_result.get('citation', '').replace('\n', ' ').replace('\r', ' ').strip() == citation_text:
+                                if verif_result.get('verified', False):
+                                    cluster_has_verified = True
+                                    break
+                        if cluster_has_verified:
+                            break
+                    
+                    logger.info(f"[EnhancedSyncProcessor {request_id}] Cluster has verified citations: {cluster_has_verified}")
+                    
                     for citation_text in cluster_citations:
                         citation_verified = False
                         for verif_result in verification_results:
@@ -2568,8 +2741,9 @@ class EnhancedSyncProcessor:
                                 citation_verified = verif_result.get('verified', False)
                                 break
                         
-                        if not citation_verified:
-                            logger.info(f"[EnhancedSyncProcessor {request_id}] Setting true_by_parallel=True for unverified citation '{citation_text}' in cluster")
+                        # Only set true_by_parallel for unverified citations if cluster has verified citations
+                        if not citation_verified and cluster_has_verified:
+                            logger.info(f"[EnhancedSyncProcessor {request_id}] Setting true_by_parallel=True for unverified citation '{citation_text}' in verified cluster")
                             if citations:
                                 for citation in citations:
                                     if isinstance(citation, dict):
@@ -2581,6 +2755,21 @@ class EnhancedSyncProcessor:
                                         if getattr(citation, 'citation') == citation_text:
                                             setattr(citation, 'true_by_parallel', True)
                                             logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=True for CitationResult '{citation_text}'")
+                                            break
+                        elif citation_verified:
+                            # Verified citations should NOT have true_by_parallel
+                            logger.info(f"[EnhancedSyncProcessor {request_id}] Citation '{citation_text}' is verified, setting true_by_parallel=False")
+                            if citations:
+                                for citation in citations:
+                                    if isinstance(citation, dict):
+                                        if citation.get('citation') == citation_text:
+                                            citation['true_by_parallel'] = False
+                                            logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=False for verified citation '{citation_text}'")
+                                            break
+                                    elif hasattr(citation, 'citation'):
+                                        if getattr(citation, 'citation') == citation_text:
+                                            setattr(citation, 'true_by_parallel', False)
+                                            logger.info(f"[EnhancedSyncProcessor {request_id}] Set true_by_parallel=False for verified CitationResult '{citation_text}'")
                                             break
                 
                 if cluster_has_verified:

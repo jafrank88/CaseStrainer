@@ -11,8 +11,62 @@ param(
     [switch]$NuclearDocker,
     [switch]$ResetFrontend,
     [switch]$ForceFrontend,
-    [switch]$LiveCode
+    [switch]$LiveCode,
+    [switch]$RestartBackend,
+    [switch]$VerifyCode,
+    [switch]$UpdateFrontend,
+    [switch]$NuclearFrontend
 )
+
+function Test-CodeChanges {
+    param(
+        [switch]$Verbose
+    )
+    
+    Write-Host "Checking for code changes..." -ForegroundColor Cyan
+    
+    # Check if there are uncommitted changes
+    $gitStatus = git status --porcelain 2>$null
+    if ($gitStatus) {
+        Write-Host "⚠️  Uncommitted changes detected:" -ForegroundColor Yellow
+        if ($Verbose) {
+            Write-Host $gitStatus -ForegroundColor Gray
+        }
+        return $true
+    }
+    
+    # Check if backend files changed
+    $backendChanged = $false
+    $backendFiles = @("src/", "requirements.txt", "Dockerfile", "docker-compose.prod.yml")
+    foreach ($pattern in $backendFiles) {
+        if (git diff --name-only HEAD~1 HEAD 2>$null | Where-Object { $_ -like "$pattern*" }) {
+            $backendChanged = $true
+            break
+        }
+    }
+    
+    # Check if frontend files changed
+    $frontendChanged = $false
+    $frontendFiles = @("casestrainer-vue-new/", "nginx.conf")
+    foreach ($pattern in $frontendFiles) {
+        if (git diff --name-only HEAD~1 HEAD 2>$null | Where-Object { $_ -like "$pattern*" }) {
+            $frontendChanged = $true
+            break
+        }
+    }
+    
+    if ($backendChanged) {
+        Write-Host "🔄 Backend changes detected" -ForegroundColor Green
+    }
+    if ($frontendChanged) {
+        Write-Host "🔄 Frontend changes detected" -ForegroundColor Green
+    }
+    if (-not $backendChanged -and -not $frontendChanged) {
+        Write-Host "✅ No code changes detected" -ForegroundColor Green
+    }
+    
+    return $backendChanged -or $frontendChanged
+}
 
 function Test-DockerComprehensiveHealth {
     param(
@@ -879,6 +933,146 @@ function Test-CaseStrainerHealth {
     }
 }
 
+# Smart Frontend Health Check Function
+function Test-FrontendHealth {
+    Write-Host "   Checking frontend health..." -ForegroundColor Cyan
+    
+    # Step 0: Ensure latest JavaScript files are available
+    try {
+        Write-Host "   [HEALTH] Ensuring latest JavaScript files are available..." -ForegroundColor Cyan
+        
+        # Check if dist directory exists and has files
+        $distDir = "casestrainer-vue-new\dist"
+        $distAssetsDir = "$distDir\assets"
+        
+        if (-not (Test-Path $distAssetsDir)) {
+            Write-Host "   [HEALTH] No dist/assets directory - building frontend..." -ForegroundColor Yellow
+            Push-Location "casestrainer-vue-new"
+            npm run build
+            Pop-Location
+        } else {
+            # Check if dist files are newer than source files
+            $sourceFiles = Get-ChildItem "casestrainer-vue-new\src" -Recurse -File | Where-Object { 
+                $_.Extension -in @('.vue', '.js', '.ts', '.css', '.html', '.json') 
+            }
+            $distFiles = Get-ChildItem $distAssetsDir -File
+            
+            if ($sourceFiles.Count -gt 0 -and $distFiles.Count -gt 0) {
+                $latestSourceTime = ($sourceFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+                $latestDistTime = ($distFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+                
+                if ($latestSourceTime -gt $latestDistTime) {
+                    Write-Host "   [HEALTH] Source files newer than dist - rebuilding frontend..." -ForegroundColor Yellow
+                    Push-Location "casestrainer-vue-new"
+                    npm run build
+                    Pop-Location
+                }
+            }
+        }
+        
+        # Copy latest files to static directory for backend container
+        if (Test-Path "$distDir\index.html") {
+            Copy-Item "$distDir\index.html" "static\index.html" -Force
+            if (Test-Path $distAssetsDir) {
+                if (-not (Test-Path "static\assets")) {
+                    New-Item -ItemType Directory -Path "static\assets" -Force
+                }
+                Copy-Item "$distAssetsDir\*" "static\assets\" -Force -Recurse
+                Write-Host "   [HEALTH] Latest JavaScript files copied to static directory" -ForegroundColor Green
+            }
+        }
+        
+    } catch {
+        Write-Host "   [HEALTH] Error ensuring latest files - rebuild needed" -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Step 1: Get container build time (2-3 seconds)
+    try {
+        $containerTime = docker inspect casestrainer-frontend-prod --format='{{.Created}}' 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "   [HEALTH] Frontend container not found - rebuild needed" -ForegroundColor Yellow
+            return $false
+        }
+    } catch {
+        Write-Host "   [HEALTH] Error checking container - rebuild needed" -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Step 2: Check if backend changes require frontend rebuild
+    try {
+        $backendFiles = @(
+            "src\unified_extraction_architecture.py",
+            "src\unified_case_name_extractor_v2.py", 
+            "src\enhanced_sync_processor.py",
+            "src\unified_citation_clustering.py",
+            "src\utils\case_name_cleaner.py"
+        )
+        
+        $backendChanged = $false
+        foreach ($file in $backendFiles) {
+            if (Test-Path $file) {
+                $currentHash = Get-FileHash $file -Algorithm MD5
+                $storedHash = Get-StoredHash $file
+                
+                if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                    Write-Host "   [HEALTH] Backend extraction/clustering logic changed ($file) - frontend rebuild needed" -ForegroundColor Yellow
+                    $backendChanged = $true
+                    break
+                }
+            }
+        }
+        
+        if ($backendChanged) {
+            return $false
+        }
+    } catch {
+        Write-Host "   [HEALTH] Error checking backend dependencies - rebuild needed" -ForegroundColor Yellow
+        return $false
+    }
+
+    # Step 3: Get latest frontend file modification time (1-2 seconds)
+    try {
+        $frontendDir = "casestrainer-vue-new\src"
+        if (-not (Test-Path $frontendDir)) {
+            Write-Host "   [HEALTH] Frontend source directory not found - rebuild needed" -ForegroundColor Yellow
+            return $false
+        }
+        
+        $frontendFiles = Get-ChildItem $frontendDir -Recurse -File | Where-Object { 
+            $_.Extension -in @('.vue', '.js', '.ts', '.css', '.html', '.json') 
+        }
+        
+        if ($frontendFiles.Count -eq 0) {
+            Write-Host "   [HEALTH] No frontend source files found - rebuild needed" -ForegroundColor Yellow
+            return $false
+        }
+        
+        $latestFileTime = ($frontendFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+    } catch {
+        Write-Host "   [HEALTH] Error checking frontend files - rebuild needed" -ForegroundColor Yellow
+        return $false
+    }
+    
+    # Step 4: Compare timestamps (instant)
+    try {
+        $containerDateTime = [DateTime]::Parse($containerTime)
+        
+        if ($latestFileTime -gt $containerDateTime) {
+            Write-Host "   [HEALTH] Frontend files newer than container ($latestFileTime > $containerDateTime) - rebuild needed" -ForegroundColor Yellow
+            return $false
+        }
+        
+        Write-Host "   [HEALTH] Frontend health check passed - no rebuild needed" -ForegroundColor Green
+        Write-Host "   [HEALTH] Container: $containerDateTime, Latest file: $latestFileTime" -ForegroundColor Gray
+        return $true
+        
+    } catch {
+        Write-Host "   [HEALTH] Error comparing timestamps - rebuild needed" -ForegroundColor Yellow
+        return $false
+    }
+}
+
 # Intelligent Code Change Detection Functions
 function Get-StoredHash {
     param([string]$FilePath)
@@ -922,9 +1116,112 @@ function Set-StoredHash {
     }
 }
 
+function Clear-PythonCache {
+    Write-Host "   Clearing Python cache files (.pyc and __pycache__)..." -ForegroundColor Cyan
+    
+    try {
+        # Remove all .pyc files
+        $pycFiles = Get-ChildItem -Path "src" -Recurse -Filter "*.pyc" -ErrorAction SilentlyContinue
+        if ($pycFiles) {
+            Write-Host "   Removing $($pycFiles.Count) .pyc files..." -ForegroundColor Yellow
+            $pycFiles | Remove-Item -Force -ErrorAction SilentlyContinue
+        }
+        
+        # Remove all __pycache__ directories
+        $pycacheDirs = Get-ChildItem -Path "src" -Recurse -Directory -Name "__pycache__" -ErrorAction SilentlyContinue
+        if ($pycacheDirs) {
+            Write-Host "   Removing $($pycacheDirs.Count) __pycache__ directories..." -ForegroundColor Yellow
+            foreach ($dir in $pycacheDirs) {
+                Remove-Item -Path "src\$dir" -Recurse -Force -ErrorAction SilentlyContinue
+            }
+        }
+        
+        Write-Host "   ✅ Python cache cleared successfully" -ForegroundColor Green
+        return $true
+    } catch {
+        Write-Host "   ⚠️  Warning: Could not clear all Python cache files: $($_.Exception.Message)" -ForegroundColor Yellow
+        return $false
+    }
+}
+
+function Test-BackendCodeFreshness {
+    Write-Host "   Verifying backend is running latest code..." -ForegroundColor Cyan
+    $testPayload = @{ type = "text"; text = "Spokane County v. Dep`'t of Fish & Wildlife, 192 Wn.2d 453, 457, 430 P.3d 655 (2018)." } | ConvertTo-Json
+    Write-Host "   Testing API with Spokane County citation..." -ForegroundColor Yellow
+    $response = Invoke-RestMethod -Uri "https://wolf.law.uw.edu/casestrainer/api/analyze" -Method POST -Body $testPayload -ContentType "application/json" -TimeoutSec 30
+    $spokaneCitation = $response.result.citations | Where-Object { $_.citation -eq "192 Wn.2d 453" }
+    if ($spokaneCitation -and $spokaneCitation.extracted_case_name -eq "Spokane County v. Dep`'t of Fish & Wildlife") {
+        Write-Host "   [OK] Backend is running latest code - Spokane County extraction works" -ForegroundColor Green
+        return $true
+    } elseif ($spokaneCitation -and $spokaneCitation.extracted_case_name -eq "N/A") {
+        Write-Host "   [ERROR] Backend is running old code - Spokane County extraction fails" -ForegroundColor Red
+        Write-Host "   [FIX] Backend restart with cache clear needed" -ForegroundColor Yellow
+        return $false
+    } else {
+        Write-Host "   [WARNING] Unexpected response - cannot determine code freshness" -ForegroundColor Yellow
+        return $false
+    }
+}
+
+function Test-BackendCacheClear {
+    Write-Host "   Checking if backend cache clear is needed..." -ForegroundColor Cyan
+    
+    # Always clear backend cache to prevent Python bytecode caching issues
+    # This ensures the backend always runs the latest code from bind mounts
+    # Python .pyc files and __pycache__ directories can persist even with bind mounts
+    Write-Host "   [CACHE] Backend cache clear recommended to prevent Python bytecode caching issues" -ForegroundColor Yellow
+    return $true
+}
+
+function Test-BackendFrontendDependency {
+    Write-Host "       Checking backend-frontend dependencies..." -ForegroundColor Magenta
+    
+    $backendFiles = @(
+        "src\unified_extraction_architecture.py",
+        "src\unified_case_name_extractor_v2.py", 
+        "src\enhanced_sync_processor.py",
+        "src\unified_citation_clustering.py",
+        "src\utils\case_name_cleaner.py"
+    )
+    
+    $backendChanged = $false
+    $changedFiles = @()
+    
+    foreach ($file in $backendFiles) {
+        if (Test-Path $file) {
+            $currentHash = Get-FileHash $file -Algorithm MD5
+            $storedHash = Get-StoredHash $file
+            
+            if ($storedHash -and $currentHash.Hash -ne $storedHash) {
+                Write-Host "           [CHANGED] Backend extraction/clustering logic changed - Frontend Rebuild needed" -ForegroundColor Magenta
+                Set-StoredHash $file $currentHash.Hash
+                $backendChanged = $true
+                $changedFiles += $file
+            } elseif (-not $storedHash) {
+                # First time seeing this file - treat as a change
+                Write-Host "           [NEW] Backend file first time seen - marking for Frontend Rebuild" -ForegroundColor Magenta
+                Set-StoredHash $file $currentHash.Hash
+                $backendChanged = $true
+                $changedFiles += $file
+            } else {
+                Write-Host "           [OK] $file" -ForegroundColor Green
+            }
+        }
+    }
+    
+    if ($backendChanged) {
+        Write-Host "       [BACKEND-FRONTEND] Changes detected in: $($changedFiles -join ', ')" -ForegroundColor Magenta
+        return $true
+    }
+    
+    Write-Host "       [BACKEND-FRONTEND] No backend-frontend dependency changes detected" -ForegroundColor Green
+    return $false
+}
+
 function Test-SmartCodeChange {
     Write-Host "   Analyzing code changes using intelligent file detection..." -ForegroundColor Gray
-    Write-Host "   Strategy: Frontend changes = Frontend Rebuild, Python source changes = Fast Start, Dependency changes = Full Rebuild" -ForegroundColor Gray
+    Write-Host "   Strategy: Frontend changes = Frontend Rebuild, Backend-frontend dependencies = Frontend Rebuild, Python source changes = Fast Start, Dependency changes = Full Rebuild" -ForegroundColor Gray
+    Write-Host "   Strategy: Backend cache clear = Backend Restart (prevents Python module caching)" -ForegroundColor Gray
     
     # 1. Check key files first (most accurate for dependency/config changes)
     Write-Host "     Checking dependency and config files..." -ForegroundColor Cyan
@@ -949,8 +1246,15 @@ function Test-SmartCodeChange {
         return "fast"
     }
     
-    # No changes detected
+    # No changes detected, but check if backend cache clear is needed
     Write-Host "     [OK] No code changes detected via file analysis" -ForegroundColor Green
+    
+    # Always check if backend cache clear is needed to prevent Python module caching
+    if (Test-BackendCacheClear) {
+        Write-Host "     [CACHE] Backend cache clear needed - Backend Restart required" -ForegroundColor Yellow
+        return "backend-restart"
+    }
+    
     return "quick"
 }
 
@@ -1070,6 +1374,12 @@ function Test-KeyFileChanges {
     # Check for frontend changes FIRST (highest priority)
     Write-Host "       Checking frontend files..." -ForegroundColor Magenta
     if (Test-FrontendChanges) {
+        return "frontend"
+    }
+    
+    # Check for backend-frontend dependencies SECOND (high priority)
+    Write-Host "       Checking backend-frontend dependencies..." -ForegroundColor Magenta
+    if (Test-BackendFrontendDependency) {
         return "frontend"
     }
     
@@ -1272,12 +1582,18 @@ if ($Help) {
     Write-Host "  .\cslaunch.ps1 -Full        # Force Full Rebuild (ignore checksums)" -ForegroundColor Yellow
     Write-Host "  .\cslaunch.ps1 -ResetFrontend # Reset frontend monitoring (catch up on missed changes)" -ForegroundColor Magenta
     Write-Host "  .\cslaunch.ps1 -ForceFrontend # Force frontend rebuild (rebuild frontend image)" -ForegroundColor Magenta
+    Write-Host "  .\cslaunch.ps1 -RestartBackend # Force backend restart (clear Python cache + module cache)" -ForegroundColor Yellow
+    Write-Host "  .\cslaunch.ps1 -VerifyCode     # Test if backend is running latest code" -ForegroundColor Cyan
+    Write-Host "  .\cslaunch.ps1 -UpdateFrontend # Smart frontend update (only rebuilds if needed)" -ForegroundColor Magenta
+    Write-Host "  .\cslaunch.ps1 -NuclearFrontend # Nuclear frontend reset (clears all caches)" -ForegroundColor Red
     Write-Host "  .\cslaunch.ps1 -LiveCode      # Live code development mode (no rebuilds needed)" -ForegroundColor Green
     Write-Host ""
     Write-Host "Smart Detection Features:" -ForegroundColor White
     Write-Host "  • Frontend changes automatically trigger Frontend Rebuild" -ForegroundColor Cyan
+    Write-Host "  • Backend extraction/clustering changes trigger Frontend Rebuild" -ForegroundColor Magenta
     Write-Host "  • Python changes trigger Fast Start (container restart)" -ForegroundColor Cyan
     Write-Host "  • Dependency changes trigger Full Rebuild" -ForegroundColor Cyan
+    Write-Host "  • Backend cache clear prevents Python module caching issues" -ForegroundColor Yellow
     Write-Host "  • Frontend monitoring reset for catching up on missed changes" -ForegroundColor Cyan
     Write-Host "  • Live Code mode for instant frontend updates without rebuilding" -ForegroundColor Green
     Write-Host ""
@@ -1371,6 +1687,73 @@ elseif ($ResetFrontend) {
     Write-Host ""
     Write-Host "Frontend monitoring reset completed!" -ForegroundColor Green
 }
+elseif ($RestartBackend) {
+    Write-Host "Backend Restart" -ForegroundColor Yellow
+    Write-Host "This clears Python module cache to ensure latest code is loaded" -ForegroundColor Gray
+    
+    # Check Docker health first
+    $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
+    if (-not $dockerHealthy) {
+        Write-Host "Docker is not healthy. Attempting auto-fix..." -ForegroundColor Yellow
+        if (Restart-DockerComprehensive) {
+            Write-Host "Docker fixed! Continuing with Backend Restart..." -ForegroundColor Green
+        } else {
+            Write-Host "Docker fix failed. Switching to Windows Direct Mode..." -ForegroundColor Yellow
+            Start-DirectMode
+            return
+        }
+    }
+    
+    # Clear Python cache files to prevent bytecode caching issues
+    Write-Host "Clearing Python cache files..." -ForegroundColor Cyan
+    Clear-PythonCache
+    
+    # Stop and start backend container to clear Python module cache
+    Write-Host "Stopping backend container to clear Python module cache..." -ForegroundColor Cyan
+    docker compose -f docker-compose.prod.yml stop backend
+    
+    Write-Host "Starting backend container with fresh Python modules..." -ForegroundColor Cyan
+    docker compose -f docker-compose.prod.yml up -d backend
+    
+    # Wait for backend to be ready
+    Write-Host "Waiting for backend to be ready..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 10
+    
+    Write-Host "Backend Restart completed!" -ForegroundColor Green
+}
+elseif ($VerifyCode) {
+    Write-Host "Backend Code Verification" -ForegroundColor Yellow
+    Write-Host "This tests if the backend is running the latest code" -ForegroundColor Gray
+    
+    # Check Docker health first
+    $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
+    if (-not $dockerHealthy) {
+        Write-Host "Docker is not healthy. Attempting auto-fix..." -ForegroundColor Yellow
+        if (Restart-DockerComprehensive) {
+            Write-Host "Docker fixed! Continuing with code verification..." -ForegroundColor Green
+        } else {
+            Write-Host "Docker fix failed. Cannot verify code freshness." -ForegroundColor Red
+            return
+        }
+    }
+    
+    # Test backend code freshness
+    Write-Host "Testing backend code freshness..." -ForegroundColor Cyan
+    $codeIsFresh = Test-BackendCodeFreshness
+    
+    if ($codeIsFresh) {
+        Write-Host ""
+        Write-Host "✅ VERIFICATION PASSED: Backend is running the latest code!" -ForegroundColor Green
+        Write-Host "   The Spokane County citation extraction is working correctly." -ForegroundColor Green
+    } else {
+        Write-Host ""
+        Write-Host "❌ VERIFICATION FAILED: Backend is running old code!" -ForegroundColor Red
+        Write-Host "   The Spokane County citation extraction is failing." -ForegroundColor Red
+        Write-Host ""
+        Write-Host "🔧 RECOMMENDED ACTION: Run backend restart to fix this:" -ForegroundColor Yellow
+        Write-Host "   .\cslaunch.ps1 -RestartBackend" -ForegroundColor Cyan
+    }
+}
 elseif ($ForceFrontend) {
     Write-Host "Force Frontend Rebuild..." -ForegroundColor Magenta
     Write-Host "This will rebuild the frontend container with the latest code" -ForegroundColor Cyan
@@ -1419,11 +1802,25 @@ elseif ($HealthCheck) {
         Write-Host ""
         Write-Host "=== DOCKER STATUS: HEALTHY ===" -ForegroundColor Green
         Write-Host "Docker is fully operational and ready to use!" -ForegroundColor Green
+        
+        # Also verify backend code freshness
+        Write-Host ""
+        Write-Host "=== BACKEND CODE VERIFICATION ===" -ForegroundColor Cyan
+        $codeIsFresh = Test-BackendCodeFreshness
+        
+        if ($codeIsFresh) {
+            Write-Host "✅ Backend is running latest code!" -ForegroundColor Green
+        } else {
+            Write-Host "❌ Backend needs restart to load latest code!" -ForegroundColor Red
+            Write-Host "Run: .\cslaunch.ps1 -RestartBackend" -ForegroundColor Yellow
+        }
+        
         Write-Host ""
         Write-Host "You can now run:" -ForegroundColor Cyan
         Write-Host "  .\cslaunch.ps1              # Smart auto-detect with intelligent rebuild detection" -ForegroundColor White
         Write-Host "  .\cslaunch.ps1 -Quick       # Quick start (when code unchanged)" -ForegroundColor White
         Write-Host "  .\cslaunch.ps1 -Fast        # Fast restart (when code changed)" -ForegroundColor White
+        Write-Host "  .\cslaunch.ps1 -VerifyCode  # Test if backend is running latest code" -ForegroundColor White
     } else {
         Write-Host ""
         Write-Host "=== DOCKER STATUS: UNHEALTHY ===" -ForegroundColor Red
@@ -1493,7 +1890,11 @@ elseif ($Quick) {
         }
     }
     
-    docker compose -f docker-compose.prod.yml up -d
+    # Stop and start backend to ensure latest code (since backend uses volume mounts)
+    Write-Host "Stopping backend to clear Python module cache..." -ForegroundColor Cyan
+    docker compose -f docker-compose.prod.yml stop backend
+    Write-Host "Starting backend with fresh Python modules..." -ForegroundColor Cyan
+    docker compose -f docker-compose.prod.yml up -d backend
     Write-Host "Quick Start completed!" -ForegroundColor Green
 }
 elseif ($Fast) { 
@@ -1570,6 +1971,193 @@ elseif ($LiveCode) {
     Write-Host ""
     Write-Host "Note: This mode is for development only. Use regular mode for production." -ForegroundColor Yellow
 }
+elseif ($UpdateFrontend) {
+    Write-Host "Update Frontend Files..." -ForegroundColor Magenta
+    Write-Host "This will ensure the latest JavaScript files are available and rebuild the frontend container if needed" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Check Docker health first
+    $dockerHealthy = Test-DockerComprehensiveHealth -Timeout 15
+    if (-not $dockerHealthy) {
+        Write-Host "Docker is not healthy. Attempting auto-fix..." -ForegroundColor Yellow
+        if (Restart-DockerComprehensive) {
+            Write-Host "Docker fixed! Continuing with Frontend Update..." -ForegroundColor Green
+        } else {
+            Write-Host "Docker fix failed. Cannot proceed with frontend update." -ForegroundColor Red
+            return
+        }
+    }
+    
+    # Check if frontend rebuild is actually needed
+    Write-Host "Checking if frontend rebuild is needed..." -ForegroundColor Cyan
+    
+    $needsRebuild = $false
+    $needsBuild = $false
+    
+    # Check if dist directory exists and has files
+    $distDir = "casestrainer-vue-new\dist"
+    $distAssetsDir = "$distDir\assets"
+    
+    if (-not (Test-Path $distAssetsDir)) {
+        Write-Host "   [REBUILD NEEDED] No dist/assets directory found" -ForegroundColor Yellow
+        $needsBuild = $true
+        $needsRebuild = $true
+    } else {
+        # Check if dist files are newer than source files
+        $sourceFiles = Get-ChildItem "casestrainer-vue-new\src" -Recurse -File | Where-Object { 
+            $_.Extension -in @('.vue', '.js', '.ts', '.css', '.html', '.json') 
+        }
+        $distFiles = Get-ChildItem $distAssetsDir -File
+        
+        if ($sourceFiles.Count -gt 0 -and $distFiles.Count -gt 0) {
+            $latestSourceTime = ($sourceFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+            $latestDistTime = ($distFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+            
+            if ($latestSourceTime -gt $latestDistTime) {
+                Write-Host "   [REBUILD NEEDED] Source files newer than dist files" -ForegroundColor Yellow
+                Write-Host "   [INFO] Latest source: $latestSourceTime, Latest dist: $latestDistTime" -ForegroundColor Gray
+                $needsBuild = $true
+                $needsRebuild = $true
+            } else {
+                Write-Host "   [NO REBUILD NEEDED] Dist files are up to date" -ForegroundColor Green
+            }
+        }
+        
+        # Check if container needs rebuild (compare container build time with dist files)
+        if (-not $needsRebuild) {
+            try {
+                $containerTime = docker inspect casestrainer-frontend-prod --format='{{.Created}}' 2>$null
+                if ($LASTEXITCODE -eq 0) {
+                    $containerDateTime = [DateTime]::Parse($containerTime)
+                    $latestDistTime = ($distFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime
+                    
+                    if ($latestDistTime -gt $containerDateTime) {
+                        Write-Host "   [REBUILD NEEDED] Dist files newer than container" -ForegroundColor Yellow
+                        Write-Host "   [INFO] Latest dist: $latestDistTime, Container: $containerDateTime" -ForegroundColor Gray
+                        $needsRebuild = $true
+                    } else {
+                        Write-Host "   [NO REBUILD NEEDED] Container is up to date" -ForegroundColor Green
+                    }
+                } else {
+                    Write-Host "   [REBUILD NEEDED] Container not found" -ForegroundColor Yellow
+                    $needsRebuild = $true
+                }
+            } catch {
+                Write-Host "   [REBUILD NEEDED] Error checking container" -ForegroundColor Yellow
+                $needsRebuild = $true
+            }
+        }
+    }
+    
+    if (-not $needsRebuild) {
+        Write-Host ""
+        Write-Host "✅ No frontend update needed!" -ForegroundColor Green
+        Write-Host "   Frontend files and container are already up to date." -ForegroundColor Green
+        return
+    }
+    
+    if ($needsBuild) {
+        Write-Host ""
+        Write-Host "Step 1: Building latest frontend files..." -ForegroundColor Cyan
+        Push-Location "casestrainer-vue-new"
+        npm run build
+        Pop-Location
+    }
+    
+    Write-Host ""
+    Write-Host "Step 2: Copying files to static directory..." -ForegroundColor Cyan
+    if (Test-Path "casestrainer-vue-new\dist\index.html") {
+        Copy-Item "casestrainer-vue-new\dist\index.html" "static\index.html" -Force
+        if (Test-Path "casestrainer-vue-new\dist\assets") {
+            if (-not (Test-Path "static\assets")) {
+                New-Item -ItemType Directory -Path "static\assets" -Force
+            }
+            Copy-Item "casestrainer-vue-new\dist\assets\*" "static\assets\" -Force -Recurse
+            Write-Host "✅ Latest JavaScript files copied to static directory" -ForegroundColor Green
+        }
+    }
+    
+    Write-Host ""
+    Write-Host "Step 3: Rebuilding frontend container with latest files..." -ForegroundColor Cyan
+    docker compose -f docker-compose.prod.yml stop frontend-prod
+    docker compose -f docker-compose.prod.yml build --no-cache frontend-prod
+    docker compose -f docker-compose.prod.yml up -d frontend-prod
+    
+    Write-Host ""
+    Write-Host "Step 4: Waiting for container to be ready..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 15
+    
+    Write-Host ""
+    Write-Host "✅ Frontend Update completed!" -ForegroundColor Green
+    Write-Host "   Latest JavaScript files are now being served by the container." -ForegroundColor Green
+}
+elseif ($NuclearFrontend) {
+    Write-Host "NUCLEAR FRONTEND RESET - Clearing all caches and rebuilding..." -ForegroundColor Red
+    Write-Host "This will completely reset the frontend and clear all caches." -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Stop all containers
+    Write-Host "Stopping all containers..." -ForegroundColor Yellow
+    docker compose -f docker-compose.prod.yml down
+    
+    # Clear all frontend caches
+    Write-Host "Clearing frontend caches..." -ForegroundColor Yellow
+    Set-Location "casestrainer-vue-new"
+    
+    # Remove node_modules and package-lock.json
+    if (Test-Path "node_modules") {
+        Remove-Item "node_modules" -Recurse -Force
+        Write-Host "Removed node_modules" -ForegroundColor Yellow
+    }
+    if (Test-Path "package-lock.json") {
+        Remove-Item "package-lock.json" -Force
+        Write-Host "Removed package-lock.json" -ForegroundColor Yellow
+    }
+    
+    # Remove dist directory
+    if (Test-Path "dist") {
+        Remove-Item "dist" -Recurse -Force
+        Write-Host "Removed dist directory" -ForegroundColor Yellow
+    }
+    
+    # Remove static/assets
+    if (Test-Path "static/assets") {
+        Remove-Item "static/assets" -Recurse -Force
+        Write-Host "Removed static/assets" -ForegroundColor Yellow
+    }
+    
+    Set-Location ".."
+    
+    # Reinstall dependencies
+    Write-Host "Reinstalling dependencies..." -ForegroundColor Yellow
+    Set-Location "casestrainer-vue-new"
+    npm install
+    Set-Location ".."
+    
+    # Build frontend
+    Write-Host "Building frontend..." -ForegroundColor Yellow
+    Set-Location "casestrainer-vue-new"
+    npm run build
+    Set-Location ".."
+    
+    # Copy dist files
+    Write-Host "Copying dist files to static/assets..." -ForegroundColor Yellow
+    if (Test-Path "casestrainer-vue-new/dist/assets") {
+        Copy-Item "casestrainer-vue-new/dist/assets/*" "casestrainer-vue-new/static/assets/" -Force -Recurse
+        Write-Host "Dist files copied to static/assets" -ForegroundColor Green
+    }
+    
+    # Rebuild all containers
+    Write-Host "Rebuilding all containers..." -ForegroundColor Yellow
+    docker compose -f docker-compose.prod.yml build --no-cache
+    docker compose -f docker-compose.prod.yml up -d
+    
+    Write-Host ""
+    Write-Host "NUCLEAR FRONTEND RESET COMPLETED!" -ForegroundColor Green
+    Write-Host "Application should now be available at https://wolf.law.uw.edu/casestrainer/" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "IMPORTANT: Clear your browser cache (Ctrl+Shift+Delete) to ensure you get the latest files!" -ForegroundColor Yellow
+}
 else {
     Write-Host "Smart Auto-Detection with Intelligent Rebuild Detection..." -ForegroundColor Magenta
     
@@ -1616,10 +2204,65 @@ else {
     Write-Host "Detected rebuild type: $rebuildType" -ForegroundColor Yellow
     
     switch ($rebuildType) {
+        "backend-restart" {
+            Write-Host "Backend cache clear needed - performing Backend Restart..." -ForegroundColor Yellow
+            Write-Host "This prevents Python module caching issues with bind mounts" -ForegroundColor Gray
+            
+            # Clear Python cache files to prevent bytecode caching issues
+            Write-Host "Clearing Python cache files..." -ForegroundColor Cyan
+            Clear-PythonCache
+            
+            # Stop and start backend container to clear Python module cache
+            Write-Host "Stopping backend container to clear Python module cache..." -ForegroundColor Cyan
+            docker compose -f docker-compose.prod.yml stop backend
+            
+            Write-Host "Starting backend container with fresh Python modules..." -ForegroundColor Cyan
+            docker compose -f docker-compose.prod.yml up -d backend
+            
+            # Wait for backend to be ready
+            Write-Host "Waiting for backend to be ready..." -ForegroundColor Cyan
+            Start-Sleep -Seconds 10
+            
+            Write-Host "Backend Restart completed!" -ForegroundColor Green
+        }
         "quick" {
             Write-Host "No code changes detected - performing Quick Start..." -ForegroundColor Green
-            docker compose -f docker-compose.prod.yml up -d
-            Write-Host "Quick Start completed!" -ForegroundColor Green
+            
+            # Smart Frontend Health Check - always verify frontend is up-to-date
+            Write-Host "Running smart frontend health check..." -ForegroundColor Cyan
+            if (-not (Test-FrontendHealth)) {
+                Write-Host "Frontend health check failed - triggering frontend rebuild..." -ForegroundColor Yellow
+                Write-Host "This ensures frontend is up-to-date with any local changes from other developers" -ForegroundColor Gray
+                
+                # Ensure Vue build is up to date before container rebuild
+                Write-Host "Building Vue application..." -ForegroundColor Cyan
+                Push-Location "casestrainer-vue-new"
+                npm run build
+                Pop-Location
+                
+                docker compose -f docker-compose.prod.yml down
+                docker compose -f docker-compose.prod.yml build frontend-prod --no-cache
+                docker compose -f docker-compose.prod.yml up -d
+                
+                # Also update static files for the backend container
+                Write-Host "Updating static files for backend container..." -ForegroundColor Cyan
+                if (Test-Path "casestrainer-vue-new\dist\index.html") {
+                    Copy-Item "casestrainer-vue-new\dist\index.html" "static\index.html" -Force
+                    if (Test-Path "casestrainer-vue-new\dist\assets") {
+                        Copy-Item "casestrainer-vue-new\dist\assets\*" "static\assets\" -Force -Recurse
+                        Write-Host "Static files updated successfully!" -ForegroundColor Green
+                    }
+                }
+                
+                Write-Host "Frontend rebuild completed after health check!" -ForegroundColor Green
+            } else {
+                # Health check passed - stop and start backend to ensure latest code, then start containers
+                Write-Host "Stopping backend to clear Python module cache..." -ForegroundColor Cyan
+                docker compose -f docker-compose.prod.yml stop backend
+                Write-Host "Starting backend with fresh Python modules..." -ForegroundColor Cyan
+                docker compose -f docker-compose.prod.yml up -d backend
+                Write-Host "Quick Start completed!" -ForegroundColor Green
+            }
         }
         "fast" {
             Write-Host "Code changes detected - performing Fast Start..." -ForegroundColor Cyan

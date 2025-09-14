@@ -10,7 +10,7 @@ ANALYSIS OF EXISTING FUNCTIONS:
 
 1. PROBLEMS IDENTIFIED:
    - 47+ different extraction functions doing similar work
-   - Inconsistent regex patterns causing case name truncation
+   - Inconsistent regex patterns causing case name truncation exact same codepunctuationass that to the 
    - Multiple extraction attempts overriding each other
    - Performance issues from redundant processing
    - Maintenance nightmare with scattered logic
@@ -87,6 +87,11 @@ class ExtractionResult:
 
 class UnifiedCaseNameExtractorV2:
     """
+    DEPRECATED: Use extract_case_name_and_date_master() instead.
+    
+    This class is deprecated and will be removed in v3.0.0.
+    Use extract_case_name_and_date_master() for consistent extraction results.
+    
     The ONE and ONLY case name extraction function that should be used.
     
     This consolidates all the best practices from:
@@ -790,9 +795,20 @@ def extract_case_name_and_date_unified(
     all_citations: Optional[List] = None
 ) -> Dict[str, Any]:
     """
+    DEPRECATED: Use extract_case_name_and_date_master() instead.
+    
+    This function is deprecated and will be removed in v3.0.0.
+    Use extract_case_name_and_date_master() for consistent extraction results.
+    
     Convenience function for backward compatibility.
     UPDATED: Use context window approach that works correctly.
     """
+    import warnings
+    warnings.warn(
+        "extract_case_name_and_date_unified() is deprecated. Use extract_case_name_and_date_master() instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
     logger.info(f"[DEBUG] citation_start parameter: {citation_start}, citation: '{citation}'")
     if citation_start is not None:
         context_size = context_window or 150
@@ -806,12 +822,15 @@ def extract_case_name_and_date_unified(
             logger.info(f"[CONTEXT_EXTRACT] Full context: '{context}'")
         
         patterns = [
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+Wn\.|\s+\d+\s+Wn\.)',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+P\.|\s+\d+\s+P\.)',
+            # Fixed: Handle Washington citation format with .2d, .3d, etc.
+            # Also handle multiple citations after case name (e.g., "Case v. Name, 123 Wn.2d 456, 789 P.3d 101")
+            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+Wn\.\d+|\s+\d+\s+Wn\.\d+)',
+            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+P\.\d+|\s+\d+\s+P\.\d+)',
             r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+)',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-            r'(State(?:\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
-            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.|\s+\d+\s+P\.|$)',
+            # Special pattern for "Dep't of" cases with multiple citations
+            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+\s+Wn\.\d+.*?,\s*\d+\s+P\.\d+|$)',
+            r'(State(?:\s+of\s+[A-Z][a-zA-Z\',\.\&\s]+?)?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.\d+|\s+\d+\s+P\.\d+|$)',
+            r'([A-Z][a-zA-Z\',\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\&\s]+?)(?=\s*,\s*\d+|\s+\d+\s+Wn\.\d+|\s+\d+\s+P\.\d+|$)',
         ]
         
         all_matches = []
@@ -891,8 +910,12 @@ def extract_case_name_and_date_unified(
             if debug:
                 logger.info(f"[CONTEXT_EXTRACT] Extracted: '{case_name}' (year: {year})")
             
+            # Clean the case name to remove trailing punctuation
+            from src.utils.case_name_cleaner import clean_extracted_case_name
+            cleaned_case_name = clean_extracted_case_name(case_name) if case_name else case_name
+            
             return {
-                'case_name': case_name,
+                'case_name': cleaned_case_name,
                 'date': year,
                 'year': year,
                 'confidence': 0.95,
@@ -903,8 +926,12 @@ def extract_case_name_and_date_unified(
     extractor = get_unified_extractor()
     result = extractor.extract_case_name_and_date(text, citation, citation_start, citation_end, debug=debug)
     
+    # Clean the case name to remove trailing punctuation
+    from src.utils.case_name_cleaner import clean_extracted_case_name
+    cleaned_case_name = clean_extracted_case_name(result.case_name) if result.case_name else result.case_name
+    
     return {
-        'case_name': result.case_name,
+        'case_name': cleaned_case_name,
         'date': result.date,
         'year': result.year,
         'confidence': result.confidence,
@@ -953,22 +980,59 @@ def extract_case_name_and_date_master(
     logger.warning(f"🎯 MASTER_EXTRACT: Starting extraction for citation '{citation}' at position {citation_start} (called from {caller_info.filename}:{caller_info.lineno})")
     
     try:
-        from src.unified_extraction_architecture import extract_case_name_and_year_unified
-        
-        result = extract_case_name_and_year_unified(
-            text=text,
-            citation=citation or "",
-            start_index=citation_start,
-            end_index=citation_end,
-            debug=debug
-        )
-        
-        if result and result.get('case_name') and result['case_name'] != 'N/A':
-            logger.warning(f"✅ MASTER_EXTRACT: Successfully extracted '{result['case_name']}' for citation '{citation}'")
+        # NEW APPROACH: Extract focused context around the citation
+        if citation_start is not None and citation_end is not None:
+            # Extract context window around the citation
+            context_start = max(0, citation_start - 500)  # 500 chars before citation
+            context_end = min(len(text), citation_end + 100)   # 100 chars after citation
+            context_text = text[context_start:context_end]
+            
+            # Adjust citation position within the context
+            citation_start_in_context = citation_start - context_start
+            citation_end_in_context = citation_end - context_start
+            
+            logger.warning(f"🔍 MASTER_EXTRACT: Text length: {len(text)}, Citation position: {citation_start}-{citation_end}")
+            logger.warning(f"🔍 MASTER_EXTRACT: Context calculation: start={context_start}, end={context_end}")
+            logger.warning(f"🔍 MASTER_EXTRACT: Extracted context length: {len(context_text)}")
+            logger.warning(f"🔍 MASTER_EXTRACT: Extracted context: '{context_text}'")
+            logger.warning(f"🔍 MASTER_EXTRACT: Citation position in context: {citation_start_in_context}-{citation_end_in_context}")
+            logger.warning(f"🔍 MASTER_EXTRACT: Citation text: '{citation}'")
+            
+            # Use the unified architecture with the focused context
+            from src.unified_extraction_architecture import extract_case_name_and_year_unified
+            
+            result = extract_case_name_and_year_unified(
+                text=context_text,  # Use focused context instead of full text
+                citation=citation or "",
+                start_index=citation_start_in_context,
+                end_index=citation_end_in_context,
+                debug=debug
+            )
+            
+            if result and result.get('case_name') and result['case_name'] != 'N/A':
+                logger.warning(f"✅ MASTER_EXTRACT: Successfully extracted '{result['case_name']}' for citation '{citation}' using context approach")
+            else:
+                logger.warning(f"⚠️ MASTER_EXTRACT: No case name extracted for citation '{citation}' using context approach")
+            
+            return result
         else:
-            logger.warning(f"⚠️ MASTER_EXTRACT: No case name extracted for citation '{citation}'")
-        
-        return result
+            # Fallback to original approach if no position info
+            from src.unified_extraction_architecture import extract_case_name_and_year_unified
+            
+            result = extract_case_name_and_year_unified(
+                text=text,
+                citation=citation or "",
+                start_index=citation_start,
+                end_index=citation_end,
+                debug=debug
+            )
+            
+            if result and result.get('case_name') and result['case_name'] != 'N/A':
+                logger.warning(f"✅ MASTER_EXTRACT: Successfully extracted '{result['case_name']}' for citation '{citation}'")
+            else:
+                logger.warning(f"⚠️ MASTER_EXTRACT: No case name extracted for citation '{citation}'")
+            
+            return result
         
     except Exception as e:
         logger.error(f"❌ MASTER_EXTRACT: Unified architecture failed: {e}")

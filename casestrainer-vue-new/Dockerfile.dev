@@ -19,8 +19,8 @@ ENV NODE_ENV=development
 # Copy source code
 COPY . .
 
-# Build the application during image creation
-RUN npm run build
+# Build the application during image creation (fallback if dist doesn't exist)
+RUN if [ ! -d "dist" ] || [ ! "$(ls -A dist)" ]; then npm run build; fi
 
 # Copy built assets to nginx directory
 RUN mkdir -p /usr/share/nginx/html/casestrainer && \
