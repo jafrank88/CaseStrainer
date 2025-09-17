@@ -429,6 +429,7 @@ def get_verification_status(request_id):
 def get_verification_results(request_id):
     """
     Get the verification results for a completed request.
+    Handles both VerificationManager results and Redis-based async task results.
     
     Args:
         request_id: The request ID to get results for
@@ -439,19 +440,31 @@ def get_verification_results(request_id):
     logger.info(f"[Request {request_id}] Getting verification results")
     
     try:
-        from verification_manager import VerificationManager
+        # First, try to get results from Redis (for async tasks)
+        redis_results = _get_redis_task_results(request_id)
+        if redis_results:
+            logger.info(f"[Request {request_id}] Found results in Redis")
+            return jsonify(redis_results)
         
-        verification_manager = VerificationManager()
+        # Fallback to VerificationManager (for legacy verification workflow)
+        try:
+            from verification_manager import VerificationManager
+            
+            verification_manager = VerificationManager()
+            results = verification_manager.get_verification_results(request_id)
+            
+            if results:
+                logger.info(f"[Request {request_id}] Found results in VerificationManager")
+                return jsonify(results)
+        except Exception as vm_error:
+            logger.warning(f"[Request {request_id}] VerificationManager error: {vm_error}")
         
-        results = verification_manager.get_verification_results(request_id)
-        
-        if results:
-            return jsonify(results)
-        else:
-            return jsonify({
-                'error': 'Verification results not found or not completed',
-                'request_id': request_id
-            }), 404
+        # No results found in either location
+        return jsonify({
+            'error': 'Verification results not found or not completed',
+            'request_id': request_id,
+            'status': 'not_found'
+        }), 404
             
     except Exception as e:
         logger.error(f"[Request {request_id}] Exception getting verification results: {str(e)}", exc_info=True)
@@ -460,6 +473,89 @@ def get_verification_results(request_id):
             'request_id': request_id,
             'details': str(e) if current_app.debug else None
         }), 500
+
+def _get_redis_task_results(task_id):
+    """
+    Get task results from Redis (for async processing).
+    
+    Args:
+        task_id: The task ID to get results for
+        
+    Returns:
+        Dict with task results or None if not found
+    """
+    try:
+        import redis
+        import json
+        import os
+        
+        redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+        redis_conn = redis.from_url(redis_url)
+        
+        # Try different Redis keys where results might be stored
+        keys_to_try = [
+            f'rq:job:{task_id}:result',  # Direct result key
+            f'rq:job:{task_id}'          # Job hash key
+        ]
+        
+        for key in keys_to_try:
+            try:
+                if key.endswith(':result'):
+                    # Direct result key
+                    result_data = redis_conn.get(key)
+                    if result_data:
+                        result = json.loads(result_data)
+                        logger.info(f"Found task result in Redis key: {key}")
+                        return result
+                else:
+                    # Job hash key
+                    result_data = redis_conn.hget(key, 'result')
+                    if result_data:
+                        result = json.loads(result_data)
+                        logger.info(f"Found task result in Redis hash: {key}")
+                        return result
+                        
+                    # Also check job status
+                    status = redis_conn.hget(key, 'status')
+                    if status:
+                        status_str = status.decode('utf-8') if isinstance(status, bytes) else str(status)
+                        logger.info(f"Task {task_id} status: {status_str}")
+                        
+                        if status_str == 'failed':
+                            exc_info = redis_conn.hget(key, 'exc_info')
+                            error_msg = exc_info.decode('utf-8') if exc_info else 'Task failed'
+                            return {
+                                'status': 'failed',
+                                'error': error_msg,
+                                'task_id': task_id
+                            }
+                        elif status_str in ['queued', 'started']:
+                            return {
+                                'status': status_str,
+                                'task_id': task_id,
+                                'message': f'Task is {status_str}'
+                            }
+                            
+            except Exception as key_error:
+                logger.debug(f"Error checking Redis key {key}: {key_error}")
+                continue
+        
+        # Check if task exists at all
+        job_exists = redis_conn.exists(f'rq:job:{task_id}')
+        if job_exists:
+            logger.info(f"Task {task_id} exists in Redis but no result found yet")
+            return {
+                'status': 'running',
+                'task_id': task_id,
+                'message': 'Task is still processing'
+            }
+        else:
+            logger.info(f"Task {task_id} not found in Redis")
+            return None
+            
+    except Exception as e:
+        logger.error(f"Error getting Redis task results for {task_id}: {e}")
+        return None
 
 
 @vue_api.route('/progress/<task_id>', methods=['GET'])

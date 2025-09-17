@@ -611,21 +611,36 @@ class UnifiedSyncProcessor:
     
     def _deduplicate_citations(self, citations: List[Dict[str, Any]], request_id: str) -> List[Dict[str, Any]]:
         """Apply deduplication to citations list."""
+        logger.info(f"[UnifiedSyncProcessor {request_id}] DEDUPLICATION CALLED with {len(citations)} citations")
+        
         if not citations:
+            logger.info(f"[UnifiedSyncProcessor {request_id}] No citations to deduplicate")
             return citations
         
         try:
             from src.citation_deduplication import deduplicate_citations
             
             original_count = len(citations)
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Starting deduplication of {original_count} citations")
+            
+            # Log citation texts for debugging
+            citation_texts = [c.get('citation', '').replace('\n', ' ').strip() for c in citations]
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Citation texts: {citation_texts}")
+            
             deduplicated = deduplicate_citations(citations, debug=True)
             
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Deduplication completed: {original_count} → {len(deduplicated)} citations")
+            
             if len(deduplicated) < original_count:
-                logger.info(f"[UnifiedSyncProcessor {request_id}] Deduplication: {original_count} → {len(deduplicated)} citations "
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Deduplication SUCCESS: "
                            f"({original_count - len(deduplicated)} duplicates removed)")
+            else:
+                logger.warning(f"[UnifiedSyncProcessor {request_id}] Deduplication found NO duplicates to remove")
             
             return deduplicated
             
         except Exception as e:
-            logger.warning(f"[UnifiedSyncProcessor {request_id}] Deduplication failed: {e}")
+            logger.error(f"[UnifiedSyncProcessor {request_id}] Deduplication FAILED: {e}")
+            import traceback
+            logger.error(f"[UnifiedSyncProcessor {request_id}] Deduplication traceback: {traceback.format_exc()}")
             return citations  # Return original citations if deduplication fails
