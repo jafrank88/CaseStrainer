@@ -33,6 +33,7 @@ COPY --chown=app:app app/ /app/app/
 COPY --chown=app:app config/ /app/config/
 COPY --chown=app:app templates/ /app/templates/
 COPY --chown=app:app static/ /app/static/
+COPY --chown=app:app wait-for-redis.py /app/wait-for-redis.py
 COPY --chown=app:app VERSION /app/VERSION
 # Clean up any .pyc files and __pycache__ directories after copy
 RUN find . -type d -name '__pycache__' -exec rm -r {} + && find . -type f -name '*.pyc' -delete
