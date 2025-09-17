@@ -132,7 +132,55 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             processor = UnifiedSyncProcessor(options)
             
             # Process the text using the same processor that works for sync
-            result = processor.process_text_unified(text, {'request_id': task_id})
+            # Add timeout mechanism to prevent hanging
+            import threading
+            import queue
+            
+            def process_with_timeout():
+                """Process text with timeout to prevent hanging."""
+                result_queue = queue.Queue()
+                exception_queue = queue.Queue()
+                
+                def worker():
+                    try:
+                        result = processor.process_text_unified(text, {'request_id': task_id})
+                        result_queue.put(result)
+                    except Exception as e:
+                        exception_queue.put(e)
+                
+                # Start processing in a separate thread
+                worker_thread = threading.Thread(target=worker)
+                worker_thread.daemon = True
+                worker_thread.start()
+                
+                # Wait for result with timeout
+                worker_thread.join(timeout=60)  # 60 second timeout
+                
+                if worker_thread.is_alive():
+                    logger.error(f"[TASK:{task_id}] Processing timed out after 60 seconds")
+                    return {
+                        'success': False,
+                        'error': 'Processing timed out after 60 seconds - possible container environment issue'
+                    }
+                
+                # Check for exceptions
+                if not exception_queue.empty():
+                    e = exception_queue.get()
+                    logger.error(f"[TASK:{task_id}] Processing failed with exception: {e}")
+                    raise e
+                
+                # Get result
+                if not result_queue.empty():
+                    return result_queue.get()
+                else:
+                    logger.error(f"[TASK:{task_id}] No result returned from processing")
+                    return {
+                        'success': False,
+                        'error': 'No result returned from processing'
+                    }
+            
+            logger.info(f"[TASK:{task_id}] Starting processing with 60s timeout")
+            result = process_with_timeout()
             
             # Ensure result has the expected format for async
             if result.get('success', False):
