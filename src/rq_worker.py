@@ -116,15 +116,20 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             text = input_data.get('text', '')
             logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
             
-            from src.unified_sync_processor import UnifiedSyncProcessor
-            from src.models import ProcessingConfig
+            from src.unified_sync_processor import UnifiedSyncProcessor, ProcessingOptions
             
             # Create processor with same config as sync processing
-            config = ProcessingConfig(
+            options = ProcessingOptions(
                 enable_verification=True,
-                debug_mode=False
+                enable_clustering=True,
+                enable_deduplication=True,
+                force_ultra_fast=False,
+                skip_clustering_threshold=300,
+                ultra_fast_threshold=500,
+                sync_threshold=5 * 1024,
+                max_citations_for_skip_clustering=3
             )
-            processor = UnifiedSyncProcessor(config)
+            processor = UnifiedSyncProcessor(options)
             
             # Process the text using the same processor that works for sync
             result = processor.process_text(text, task_id)
