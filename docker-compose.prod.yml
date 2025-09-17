@@ -74,7 +74,7 @@ services:
   rqworker1:
     build: .
     container_name: casestrainer-rqworker1-prod
-    command: python src/rq_worker.py
+    command: sh -c "python wait-for-redis.py && python src/rq_worker.py"
     depends_on:
       redis:
         condition: service_healthy
@@ -116,7 +116,7 @@ services:
   rqworker2:
     build: .
     container_name: casestrainer-rqworker2-prod
-    command: python src/rq_worker.py
+    command: sh -c "python wait-for-redis.py && python src/rq_worker.py"
     depends_on:
       redis:
         condition: service_healthy
@@ -158,7 +158,7 @@ services:
   rqworker3:
     build: .
     container_name: casestrainer-rqworker3-prod
-    command: python src/rq_worker.py
+    command: sh -c "python wait-for-redis.py && python src/rq_worker.py"
     depends_on:
       redis:
         condition: service_healthy
