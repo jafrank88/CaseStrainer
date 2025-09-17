@@ -61,27 +61,55 @@ __all__ = [
 ]
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
-    """Direct wrapper function to create CitationService instance and call process_citation_task."""
-    import traceback
-    from src.api.services.citation_service import CitationService
-    import asyncio
-    import time
-    import json
-    import os
+    """Direct wrapper function with extensive diagnostic logging."""
     
-    # Log detailed environment information
-    logger.info(f"[TASK:{task_id}] Starting task processing")
-    logger.info(f"[TASK:{task_id}] Environment: Python {platform.python_version()}, PID: {os.getpid()}")
-    logger.info(f"[TASK:{task_id}] Input type: {input_type}, Input data keys: {list(input_data.keys())}")
+    # DIAGNOSTIC LOGGING - Track every step of worker startup
+    logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP BEGINS ==========")
+    logger.info(f"[DIAGNOSTIC:{task_id}] Step 1: Function entry successful")
     
-    # Log Redis connection info
     try:
-        redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
-        logger.info(f"[TASK:{task_id}] Using Redis URL: {redis_url}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 2: Starting basic imports...")
+        import traceback
+        import time
+        import json
+        import os
+        import sys
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 2: Basic imports SUCCESS")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 3: Environment info...")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Python version: {sys.version}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Working directory: {os.getcwd()}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Input type: {input_type}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Input data keys: {list(input_data.keys())}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 3: Environment info SUCCESS")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis environment check...")
+        try:
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+            logger.info(f"[DIAGNOSTIC:{task_id}] Redis URL: {redis_url}")
+        except Exception as e:
+            logger.error(f"[DIAGNOSTIC:{task_id}] Redis URL error: {str(e)}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis environment SUCCESS")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 5: CitationService import...")
+        from src.api.services.citation_service import CitationService
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 5: CitationService import SUCCESS")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 6: Creating CitationService instance...")
+        service = CitationService()
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 6: CitationService creation SUCCESS")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP COMPLETE ==========")
+        
     except Exception as e:
-        logger.error(f"[TASK:{task_id}] Error getting Redis URL: {str(e)}")
-    
-    service = CitationService()
+        logger.error(f"[DIAGNOSTIC:{task_id}] STARTUP FAILED at import/initialization: {str(e)}")
+        logger.error(f"[DIAGNOSTIC:{task_id}] Traceback: {traceback.format_exc()}")
+        return {
+            'status': 'failed',
+            'task_id': task_id,
+            'error': f'Worker startup failed: {str(e)}',
+            'diagnostic': 'startup_failure'
+        }
     
     # Setup timeout handler for non-Windows systems
     timeout_set = False
@@ -101,29 +129,32 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     
     try:
         start_time = time.time()
-        logger.info(f"[TASK:{task_id}] Starting processing of type: {input_type}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] ========== MAIN PROCESSING BEGINS ==========")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Starting processing of type: {input_type}")
         
         # Log input data (truncated if too large)
         input_data_str = str(input_data)
         if len(input_data_str) > 500:
             input_data_str = input_data_str[:500] + "... [truncated]"
-        logger.info(f"[TASK:{task_id}] Input data: {input_data_str}")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Input data logged")
         
-        # Process the task using UnifiedSyncProcessor (which has deduplication and works with text)
-        logger.info(f"[TASK:{task_id}] Using UnifiedSyncProcessor for async text processing")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Entering processing logic...")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Using minimal async worker for diagnostic testing")
         
         if input_type == 'text':
             text = input_data.get('text', '')
             logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
             
             # MINIMAL ASYNC WORKER - Bypass all complex processing
-            logger.info(f"[TASK:{task_id}] Using minimal async worker to test basic functionality")
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using minimal async worker")
             
             try:
+                logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing re and time...")
                 import re
                 import time
+                logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: re and time imports SUCCESS")
                 
-                logger.info(f"[TASK:{task_id}] Starting minimal citation extraction")
+                logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting minimal citation extraction")
                 
                 # Ultra-basic citation extraction (no complex imports or processing)
                 citation_patterns = [
