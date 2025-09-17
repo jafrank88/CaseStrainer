@@ -118,12 +118,13 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             
             from src.unified_sync_processor import UnifiedSyncProcessor, ProcessingOptions
             
-            # Create processor with same config as sync processing
+            # Create processor with simplified config for async processing
+            # Disable verification to prevent hanging in container environment
             options = ProcessingOptions(
-                enable_verification=True,
-                enable_clustering=True,
+                enable_verification=False,  # DISABLED: Likely cause of container hanging
+                enable_clustering=False,    # DISABLED: Simplify processing
                 enable_caching=True,
-                force_ultra_fast=False,
+                force_ultra_fast=True,      # ENABLED: Use fastest processing path
                 skip_clustering_threshold=300,
                 ultra_fast_threshold=500,
                 sync_threshold=5 * 1024,
@@ -131,56 +132,18 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             )
             processor = UnifiedSyncProcessor(options)
             
-            # Process the text using the same processor that works for sync
-            # Add timeout mechanism to prevent hanging
-            import threading
-            import queue
+            # Process the text using simplified ultra-fast processing
+            logger.info(f"[TASK:{task_id}] Starting ultra-fast async processing (no verification, no clustering)")
             
-            def process_with_timeout():
-                """Process text with timeout to prevent hanging."""
-                result_queue = queue.Queue()
-                exception_queue = queue.Queue()
-                
-                def worker():
-                    try:
-                        result = processor.process_text_unified(text, {'request_id': task_id})
-                        result_queue.put(result)
-                    except Exception as e:
-                        exception_queue.put(e)
-                
-                # Start processing in a separate thread
-                worker_thread = threading.Thread(target=worker)
-                worker_thread.daemon = True
-                worker_thread.start()
-                
-                # Wait for result with timeout
-                worker_thread.join(timeout=60)  # 60 second timeout
-                
-                if worker_thread.is_alive():
-                    logger.error(f"[TASK:{task_id}] Processing timed out after 60 seconds")
-                    return {
-                        'success': False,
-                        'error': 'Processing timed out after 60 seconds - possible container environment issue'
-                    }
-                
-                # Check for exceptions
-                if not exception_queue.empty():
-                    e = exception_queue.get()
-                    logger.error(f"[TASK:{task_id}] Processing failed with exception: {e}")
-                    raise e
-                
-                # Get result
-                if not result_queue.empty():
-                    return result_queue.get()
-                else:
-                    logger.error(f"[TASK:{task_id}] No result returned from processing")
-                    return {
-                        'success': False,
-                        'error': 'No result returned from processing'
-                    }
-            
-            logger.info(f"[TASK:{task_id}] Starting processing with 60s timeout")
-            result = process_with_timeout()
+            try:
+                result = processor.process_text_unified(text, {'request_id': task_id})
+                logger.info(f"[TASK:{task_id}] Ultra-fast processing completed successfully")
+            except Exception as e:
+                logger.error(f"[TASK:{task_id}] Ultra-fast processing failed: {e}")
+                result = {
+                    'success': False,
+                    'error': f'Ultra-fast processing failed: {str(e)}'
+                }
             
             # Ensure result has the expected format for async
             if result.get('success', False):
