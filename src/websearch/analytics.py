@@ -281,6 +281,7 @@ class AdvancedAnalytics:
         try:
             self.cache.set('analytics_data', value=self.stats, ttl_hours=24)
         except Exception as e:
+            logger.warning(f"Failed to cache analytics data: {str(e)}")
     
     def load_cached_analytics(self):
         """Load analytics data from cache."""
@@ -290,3 +291,4 @@ class AdvancedAnalytics:
                 self.stats.update(cached_data)
                 logger.info("Loaded analytics data from cache")
         except Exception as e:
+            logger.warning(f"Failed to load analytics data from cache: {str(e)}")

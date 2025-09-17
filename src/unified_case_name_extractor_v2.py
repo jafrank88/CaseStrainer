@@ -121,26 +121,40 @@ class UnifiedCaseNameExtractorV2:
         self._setup_validation_rules()
         
     def _setup_patterns(self):
-        """Initialize improved regex patterns that avoid over-matching"""
+        """Initialize improved regex patterns that handle legal abbreviations and complete case names"""
         self.patterns = [
+            {
+                'name': 'legal_abbreviation_comprehensive',
+                'pattern': r'([A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s*,\s*Inc\.|\s*,\s*LLC|\s*,\s*Corp\.|\s*Inc\.|\s*LLC|\s*Corp\.)?)\s+v\.\s+([A-Z][a-zA-Z]*(?:\'[a-z])?(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s+of\s+[A-Z][a-zA-Z]*)?(?:\s*,\s*Inc\.|\s*,\s*LLC|\s*,\s*Corp\.|\s*Inc\.|\s*LLC|\s*Corp\.)?)',
+                'confidence': 0.99,
+                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
+                'description': 'Comprehensive pattern for legal abbreviations and entity names including departments'
+            },
             {
                 'name': 'reverse_lookup_v_precise',
                 'pattern': r'(?:^|[.!?]\s+|;\s+)([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.99,
+                'confidence': 0.95,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Precise case name pattern with flexible character support'
             },
             {
+                'name': 'abbreviation_aware_pattern',
+                'pattern': r'([A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s*,\s*Inc\.|\s*Inc\.)?)\s+v\.\s+([A-Z][a-zA-Z\']*(?:\s+[A-Z][a-zA-Z\']*)*(?:\s*,\s*Inc\.|\s*Inc\.)?)',
+                'confidence': 0.98,
+                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
+                'description': 'Pattern specifically for abbreviated legal names'
+            },
+            {
                 'name': 'reverse_lookup_word_boundary',
                 'pattern': r'\b([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.98,
+                'confidence': 0.94,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Word-boundary aware flexible case name pattern'
             },
             {
                 'name': 'reverse_lookup_with_entities',
                 'pattern': r'\b([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.97,
+                'confidence': 0.93,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Flexible case name pattern supporting all entity types'
             },
@@ -416,7 +430,8 @@ class UnifiedCaseNameExtractorV2:
             
             volume_text_pos = citation_start + volume_pos
             
-            lookback_start = max(0, volume_text_pos - 100)
+            # Expand lookback to capture complete case names with abbreviations
+            lookback_start = max(0, volume_text_pos - 200)
             before_text = text[lookback_start:volume_text_pos].strip()
             
             if debug:
@@ -477,7 +492,8 @@ class UnifiedCaseNameExtractorV2:
     def _extract_context_based(self, text: str, citation: str, citation_start: int, citation_end: int, debug: bool) -> Optional[ExtractionResult]:
         """Context-based extraction: use optimized context window around citation"""
         try:
-            context_start = max(0, citation_start - 200)
+            # Expand context window to capture complete case names with abbreviations
+            context_start = max(0, citation_start - 300)  # Look further back
             context_end = min(len(text), citation_end + 50)
             context = text[context_start:context_end]
             

@@ -664,8 +664,11 @@ class ApplicationFactory:
     
     def _set_cache_headers(self, response: Any, path: str) -> None:
         """Set appropriate caching headers"""
-        if path.endswith(('.js', '.css', '.png', '.jpg', '.jpeg', '.gif', 
-                          '.svg', '.woff', '.woff2', '.ttf', '.eot')):
+        if path.endswith(('.js', '.css')):
+            # JavaScript and CSS files: no cache for development
+            response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0'
+        elif path.endswith(('.png', '.jpg', '.jpeg', '.gif', '.svg', '.woff', '.woff2', '.ttf', '.eot')):
+            # Images and fonts: cache for 1 year (these rarely change)
             response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
         elif path.endswith('.html'):
             response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'

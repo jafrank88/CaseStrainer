@@ -1,0 +1,317 @@
+2025-09-16 12:25:02,344 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 12:25:02,345 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 12:25:02,345 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 12:25:02,346 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 12:25:02,347 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 12:25:02,348 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 12:25:02,365 - __main__ - INFO - === Starting Citation Processing Diagnostic ===
+2025-09-16 12:25:02,366 - __main__ - INFO - 1. Checking configuration...
+2025-09-16 12:25:02,367 - __main__ - INFO - Configuration loaded: {
+  "context_window": 300,
+  "chunk_size": 5000,
+  "min_confidence": 0.7,
+  "immediate_max_length": 50,
+  "immediate_max_words": 10,
+  "extraction_timeout": 120,
+  "enable_clustering": true,
+  "enable_verification": true,
+  "clustering_options": {
+    "enable_parallel_detection": true,
+    "enable_case_relationship_detection": true,
+    "enable_metadata_propagation": true
+  },
+  "verification_options": {
+    "enable_courtlistener": true,
+    "enable_fallback_sources": true,
+    "enable_confidence_scoring": true,
+    "min_confidence_threshold": 0.7
+  }
+}
+2025-09-16 12:25:02,368 - __main__ - INFO - 
+2. Creating test citations...
+2025-09-16 12:25:02,369 - __main__ - INFO - Created 3 test citations
+2025-09-16 12:25:02,369 - __main__ - INFO - 
+3. Initializing UnifiedCitationClusterer...
+2025-09-16 12:25:02,370 - __main__ - INFO - 
+4. Testing clustering...
+2025-09-16 12:25:02,370 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-16 12:25:02,371 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 12:25:02,371 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-09-16 12:25:02,372 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 12:25:02,372 - __main__ - ERROR - Diagnostic failed: 'Citation' object has no attribute 'extracted_case_name'
+Traceback (most recent call last):
+  File "D:\dev\casestrainer\diagnose_clustering.py", line 72, in test_citation_processing
+    clusters = clusterer.cluster_citations(test_citations, "Test document content")
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 108, in cluster_citations
+    clusters = self._extract_and_propagate_metadata(parallel_groups, original_text)
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 224, in _extract_and_propagate_metadata
+    if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Citation' object has no attribute 'extracted_case_name'
+2025-09-16 12:25:58,265 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 12:25:58,266 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 12:25:58,267 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 12:25:58,267 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 12:25:58,268 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 12:25:58,269 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 12:25:58,319 - __main__ - INFO - === Starting Citation Processing Diagnostic ===
+2025-09-16 12:25:58,320 - __main__ - INFO - 1. Checking configuration...
+2025-09-16 12:25:58,320 - __main__ - INFO - Configuration loaded: {
+  "context_window": 300,
+  "chunk_size": 5000,
+  "min_confidence": 0.7,
+  "immediate_max_length": 50,
+  "immediate_max_words": 10,
+  "extraction_timeout": 120,
+  "enable_clustering": true,
+  "enable_verification": true,
+  "clustering_options": {
+    "enable_parallel_detection": true,
+    "enable_case_relationship_detection": true,
+    "enable_metadata_propagation": true
+  },
+  "verification_options": {
+    "enable_courtlistener": true,
+    "enable_fallback_sources": true,
+    "enable_confidence_scoring": true,
+    "min_confidence_threshold": 0.7
+  }
+}
+2025-09-16 12:25:58,323 - __main__ - INFO - 
+2. Creating test citations...
+2025-09-16 12:25:58,323 - __main__ - INFO - Created 3 test citations
+2025-09-16 12:25:58,323 - __main__ - INFO - 
+3. Initializing UnifiedCitationClusterer...
+2025-09-16 12:25:58,324 - __main__ - INFO - 
+4. Testing clustering...
+2025-09-16 12:25:58,325 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-16 12:25:58,325 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 12:25:58,326 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-09-16 12:25:58,327 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 12:25:58,328 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:25:58,328 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:25:58,329 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:25:58,330 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-16 12:25:58,910 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-16 12:25:58,911 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-16 12:25:58,916 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 12:25:59,170 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 12:25:59,202 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 1 unverified citations
+2025-09-16 12:25:59,284 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 1 unverified citations
+2025-09-16 12:25:59,284 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 789 F.2d 123
+2025-09-16 12:25:59,285 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-16 12:25:59,287 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-16 12:25:59,355 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 12:25:59,728 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 12:25:59,731 - src.enhanced_fallback_verifier - INFO - CourtListener failed for 789 F.2d 123, proceeding with enhanced fallback verification
+2025-09-16 12:25:59,739 - src.enhanced_fallback_verifier - INFO - Configured 10 verification sources: ['casemine', 'descrybe', 'findlaw', 'leagle', 'vlex', 'justia', 'google', 'bing', 'duckduckgo', 'scrapingbee']
+2025-09-16 12:25:59,995 - src.enhanced_fallback_verifier - INFO - Created 20 verification tasks for 10 sources
+2025-09-16 12:25:59,999 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.casemine.com:443
+2025-09-16 12:26:00,277 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us?q=%22789%20F.2d%20123%22 HTTP/1.1" 301 0
+2025-09-16 12:26:00,766 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22789%20F%28DOT%292d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:00,849 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 0
+2025-09-16 12:26:03,050 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22789%20F%28DOT%292d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:03,064 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): descrybe.ai:443
+2025-09-16 12:26:03,413 - urllib3.connectionpool - DEBUG - https://descrybe.ai:443 "GET /search?q=%22789+F.2d+123%22&type=cases HTTP/1.1" 200 None
+2025-09-16 12:26:03,642 - urllib3.connectionpool - DEBUG - https://descrybe.ai:443 "GET /search?q=%22789+F.2d+123%22+court+decision&type=cases HTTP/1.1" 200 None
+2025-09-16 12:26:03,645 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): caselaw.findlaw.com:443
+2025-09-16 12:26:03,692 - urllib3.connectionpool - DEBUG - https://caselaw.findlaw.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 403 None
+2025-09-16 12:26:03,845 - urllib3.connectionpool - DEBUG - Resetting dropped connection: caselaw.findlaw.com
+2025-09-16 12:26:03,886 - urllib3.connectionpool - DEBUG - https://caselaw.findlaw.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 403 None
+2025-09-16 12:26:03,889 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.leagle.com:443
+2025-09-16 12:26:03,997 - urllib3.connectionpool - DEBUG - https://www.leagle.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:04,161 - urllib3.connectionpool - DEBUG - https://www.leagle.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:04,164 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): vlex.com:443
+2025-09-16 12:26:07,601 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:07,683 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 301 None
+2025-09-16 12:26:07,685 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): vlex.com:80
+2025-09-16 12:26:07,700 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:07,980 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:08,127 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?search=%22789%20F.2d%20123%22 HTTP/1.1" 301 None
+2025-09-16 12:26:08,141 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:08,412 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:11,995 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:12,089 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 None
+2025-09-16 12:26:12,093 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:12,360 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:12,554 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?search=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 None
+2025-09-16 12:26:12,558 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:12,827 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:12,890 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): law.justia.com:443
+2025-09-16 12:26:12,988 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 403 919
+2025-09-16 12:26:13,094 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 403 919
+2025-09-16 12:26:13,097 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): scholar.google.com:443
+2025-09-16 12:26:13,404 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar_courts?hl=en&as_sdt=0,33&q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:13,553 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar_courts?hl=en&as_sdt=0,33&q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:13,626 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.bing.com:443
+2025-09-16 12:26:13,717 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:13,918 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:13,962 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): duckduckgo.com:443
+2025-09-16 12:26:13,983 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22 HTTP/1.1" 302 138
+2025-09-16 12:26:13,986 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): html.duckduckgo.com:443
+2025-09-16 12:26:14,732 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:14,743 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 302 138
+2025-09-16 12:26:15,317 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:15,352 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:26:15,362 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:26:15,371 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 789 F.2d 123: {'verified': False, 'source': 'fallback_not_found', 'canonical_name': None, 'canonical_date': None, 'url': None, 'canonical_url': None, 'confidence': 0.0, 'error': 'Verification not_found'}
+2025-09-16 12:26:15,372 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'canonical_url', 'confidence', 'error']
+2025-09-16 12:26:15,372 - src.unified_citation_clustering - INFO - DEBUG: Source field: fallback_not_found
+2025-09-16 12:26:15,373 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-16 12:26:15,375 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-16 12:26:15,375 - src.unified_citation_clustering - INFO - Merged 3 initial clusters into 3 final clusters (preserving parallel relationships)
+2025-09-16 12:26:15,376 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-16 12:26:15,376 - src.unified_citation_clustering - INFO - Propagating verification status across 3 clusters
+2025-09-16 12:26:15,377 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-16 12:26:15,377 - src.unified_citation_clustering - INFO - Unified clustering completed: 3 clusters created
+2025-09-16 12:26:15,378 - __main__ - INFO - Clustering completed. Found 3 clusters
+2025-09-16 12:26:15,378 - __main__ - INFO - 
+5. Clustering results:
+2025-09-16 12:26:15,378 - __main__ - INFO - Cluster 1:
+2025-09-16 12:26:15,379 - __main__ - INFO -   Citations in cluster: 1
+2025-09-16 12:26:15,379 - __main__ - INFO -   Citation 1:
+2025-09-16 12:26:15,379 - __main__ - ERROR - Diagnostic failed: 'str' object has no attribute 'get'
+Traceback (most recent call last):
+  File "D:\dev\casestrainer\diagnose_clustering.py", line 91, in test_citation_processing
+    logger.info(f"    Text: {citation.get('text', 'N/A')}")
+                             ^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+2025-09-16 12:26:52,298 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 12:26:52,299 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 12:26:52,299 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 12:26:52,300 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 12:26:52,300 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 12:26:52,300 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 12:26:52,319 - __main__ - INFO - === Starting Citation Processing Diagnostic ===
+2025-09-16 12:26:52,319 - __main__ - INFO - 1. Checking configuration...
+2025-09-16 12:26:52,320 - __main__ - INFO - Configuration loaded: {
+  "context_window": 300,
+  "chunk_size": 5000,
+  "min_confidence": 0.7,
+  "immediate_max_length": 50,
+  "immediate_max_words": 10,
+  "extraction_timeout": 120,
+  "enable_clustering": true,
+  "enable_verification": true,
+  "clustering_options": {
+    "enable_parallel_detection": true,
+    "enable_case_relationship_detection": true,
+    "enable_metadata_propagation": true
+  },
+  "verification_options": {
+    "enable_courtlistener": true,
+    "enable_fallback_sources": true,
+    "enable_confidence_scoring": true,
+    "min_confidence_threshold": 0.7
+  }
+}
+2025-09-16 12:26:52,321 - __main__ - INFO - 
+2. Creating test citations...
+2025-09-16 12:26:52,322 - __main__ - INFO - Created 3 test citations
+2025-09-16 12:26:52,322 - __main__ - INFO - 
+3. Initializing UnifiedCitationClusterer...
+2025-09-16 12:26:52,322 - __main__ - INFO - 
+4. Testing clustering...
+2025-09-16 12:26:52,323 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-16 12:26:52,323 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 12:26:52,323 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-09-16 12:26:52,324 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 12:26:52,324 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:26:52,325 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:26:52,325 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class '__main__.Citation'>
+2025-09-16 12:26:52,326 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-16 12:26:52,860 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-16 12:26:52,861 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-16 12:26:52,866 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 12:26:53,420 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 12:26:53,454 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 1 unverified citations
+2025-09-16 12:26:53,544 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 1 unverified citations
+2025-09-16 12:26:53,545 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 789 F.2d 123
+2025-09-16 12:26:53,546 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-16 12:26:53,548 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-16 12:26:53,573 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 12:26:53,694 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 12:26:53,696 - src.enhanced_fallback_verifier - INFO - CourtListener failed for 789 F.2d 123, proceeding with enhanced fallback verification
+2025-09-16 12:26:53,704 - src.enhanced_fallback_verifier - INFO - Configured 10 verification sources: ['casemine', 'descrybe', 'findlaw', 'leagle', 'vlex', 'justia', 'google', 'bing', 'duckduckgo', 'scrapingbee']
+2025-09-16 12:26:53,957 - src.enhanced_fallback_verifier - INFO - Created 20 verification tasks for 10 sources
+2025-09-16 12:26:53,959 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.casemine.com:443
+2025-09-16 12:26:54,442 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us?q=%22789%20F.2d%20123%22 HTTP/1.1" 301 0
+2025-09-16 12:26:54,843 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22789%20F%28DOT%292d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:54,926 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 0
+2025-09-16 12:26:56,273 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22789%20F%28DOT%292d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:56,293 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): descrybe.ai:443
+2025-09-16 12:26:56,457 - urllib3.connectionpool - DEBUG - https://descrybe.ai:443 "GET /search?q=%22789+F.2d+123%22&type=cases HTTP/1.1" 200 None
+2025-09-16 12:26:56,587 - urllib3.connectionpool - DEBUG - https://descrybe.ai:443 "GET /search?q=%22789+F.2d+123%22+court+decision&type=cases HTTP/1.1" 200 None
+2025-09-16 12:26:56,589 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): caselaw.findlaw.com:443
+2025-09-16 12:26:56,631 - urllib3.connectionpool - DEBUG - https://caselaw.findlaw.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 403 None
+2025-09-16 12:26:56,790 - urllib3.connectionpool - DEBUG - Resetting dropped connection: caselaw.findlaw.com
+2025-09-16 12:26:56,838 - urllib3.connectionpool - DEBUG - https://caselaw.findlaw.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 403 None
+2025-09-16 12:26:56,841 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.leagle.com:443
+2025-09-16 12:26:56,940 - urllib3.connectionpool - DEBUG - https://www.leagle.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:57,100 - urllib3.connectionpool - DEBUG - https://www.leagle.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:57,102 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): vlex.com:443
+2025-09-16 12:26:57,133 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:57,314 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 301 None
+2025-09-16 12:26:57,317 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): vlex.com:80
+2025-09-16 12:26:57,332 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:57,601 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:57,676 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?search=%22789%20F.2d%20123%22 HTTP/1.1" 301 None
+2025-09-16 12:26:57,680 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:57,944 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:58,022 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:58,223 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 None
+2025-09-16 12:26:58,227 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:58,491 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:58,567 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET /search?search=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 301 None
+2025-09-16 12:26:58,571 - urllib3.connectionpool - DEBUG - http://vlex.com:80 "GET / HTTP/1.1" 301 167
+2025-09-16 12:26:58,838 - urllib3.connectionpool - DEBUG - https://vlex.com:443 "GET / HTTP/1.1" 200 None
+2025-09-16 12:26:58,907 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): law.justia.com:443
+2025-09-16 12:26:58,918 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22789%20F.2d%20123%22 HTTP/1.1" 403 919
+2025-09-16 12:26:59,111 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 403 919
+2025-09-16 12:26:59,114 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): scholar.google.com:443
+2025-09-16 12:26:59,206 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar_courts?hl=en&as_sdt=0,33&q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:59,400 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar_courts?hl=en&as_sdt=0,33&q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:59,469 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.bing.com:443
+2025-09-16 12:26:59,570 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:26:59,847 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 12:26:59,881 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): duckduckgo.com:443
+2025-09-16 12:26:59,917 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22 HTTP/1.1" 302 138
+2025-09-16 12:26:59,921 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): html.duckduckgo.com:443
+2025-09-16 12:27:00,488 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22 HTTP/1.1" 200 None
+2025-09-16 12:27:00,500 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 302 138
+2025-09-16 12:27:00,542 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22789%20F.2d%20123%22%20court%20decision HTTP/1.1" 202 None
+2025-09-16 12:27:00,552 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:27:00,561 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:27:00,569 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 789 F.2d 123: {'verified': False, 'source': 'fallback_not_found', 'canonical_name': None, 'canonical_date': None, 'url': None, 'canonical_url': None, 'confidence': 0.0, 'error': 'Verification not_found'}
+2025-09-16 12:27:00,570 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'canonical_url', 'confidence', 'error']
+2025-09-16 12:27:00,570 - src.unified_citation_clustering - INFO - DEBUG: Source field: fallback_not_found
+2025-09-16 12:27:00,571 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-16 12:27:00,573 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-16 12:27:00,573 - src.unified_citation_clustering - INFO - Merged 3 initial clusters into 3 final clusters (preserving parallel relationships)
+2025-09-16 12:27:00,574 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-16 12:27:00,574 - src.unified_citation_clustering - INFO - Propagating verification status across 3 clusters
+2025-09-16 12:27:00,575 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-16 12:27:00,575 - src.unified_citation_clustering - INFO - Unified clustering completed: 3 clusters created
+2025-09-16 12:27:00,575 - __main__ - INFO - Clustering completed. Found 3 clusters
+2025-09-16 12:27:00,576 - __main__ - INFO - 
+5. Clustering results:
+2025-09-16 12:27:00,576 - __main__ - INFO - Cluster 1:
+2025-09-16 12:27:00,576 - __main__ - INFO -   Citations in cluster: 1
+2025-09-16 12:27:00,577 - __main__ - INFO -   Citation 1:
+2025-09-16 12:27:00,577 - __main__ - ERROR -     Error processing citation: 'str' object has no attribute 'get'
+2025-09-16 12:27:00,578 - __main__ - ERROR -     Citation type: <class 'str'>
+2025-09-16 12:27:00,578 - __main__ - ERROR -     Citation data: 123 F.3d 456...
+2025-09-16 12:27:00,578 - __main__ - INFO - Cluster 2:
+2025-09-16 12:27:00,579 - __main__ - INFO -   Citations in cluster: 1
+2025-09-16 12:27:00,579 - __main__ - INFO -   Citation 1:
+2025-09-16 12:27:00,579 - __main__ - ERROR -     Error processing citation: 'str' object has no attribute 'get'
+2025-09-16 12:27:00,580 - __main__ - ERROR -     Citation type: <class 'str'>
+2025-09-16 12:27:00,580 - __main__ - ERROR -     Citation data: 456 U.S. 789...
+2025-09-16 12:27:00,580 - __main__ - INFO - Cluster 3:
+2025-09-16 12:27:00,581 - __main__ - INFO -   Citations in cluster: 1
+2025-09-16 12:27:00,581 - __main__ - INFO -   Citation 1:
+2025-09-16 12:27:00,581 - __main__ - ERROR -     Error processing citation: 'str' object has no attribute 'get'
+2025-09-16 12:27:00,582 - __main__ - ERROR -     Citation type: <class 'str'>
+2025-09-16 12:27:00,582 - __main__ - ERROR -     Citation data: 789 F.2d 123...
+2025-09-16 12:27:00,583 - __main__ - INFO - 
+=== Diagnostic completed successfully ===

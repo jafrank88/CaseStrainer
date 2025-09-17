@@ -1,0 +1,22 @@
+{
+  "document_length": 66731,
+  "processing_time_ms": 1258,
+  "request_id": "54458957-2f05-4ec1-ad1d-4f4c099b4303",
+  "result": {
+    "message": "Url processing started",
+    "metadata": {
+      "content_length": 66731,
+      "input_type": "url",
+      "job_id": "54458957-2f05-4ec1-ad1d-4f4c099b4303",
+      "processing_mode": "queued",
+      "source": "url",
+      "url": "https://www.courts.wa.gov/opinions/pdf/1033940.pdf",
+      "url_domain": "www.courts.wa.gov"
+    },
+    "processing_time": 1.258937120437622,
+    "request_id": "54458957-2f05-4ec1-ad1d-4f4c099b4303",
+    "status": "processing",
+    "success": true,
+    "task_id": "54458957-2f05-4ec1-ad1d-4f4c099b4303"
+  }
+}

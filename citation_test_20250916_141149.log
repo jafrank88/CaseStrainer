@@ -1,0 +1,27 @@
+2025-09-16 14:11:49,196 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 578 U.S. 5
+2025-09-16 14:11:49,197 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Luis v. United States
+2025-09-16 14:11:49,334 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 578 U.S. 5
+2025-09-16 14:11:49,334 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Luis v. United States
+2025-09-16 14:11:49,441 - enhanced_courtlistener_verification - INFO - Successfully processed 1 citations
+2025-09-16 14:11:49,446 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 194 L. Ed. 2d 256
+2025-09-16 14:11:49,447 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Luis v. United States
+2025-09-16 14:11:49,575 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 194 L. Ed. 2d 256
+2025-09-16 14:11:49,576 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Luis v. United States
+2025-09-16 14:11:49,712 - enhanced_courtlistener_verification - INFO - Successfully processed 1 citations
+2025-09-16 14:11:49,717 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 200 Wn.2d 72
+2025-09-16 14:11:49,718 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Convoyant, LLC v. DeepThink, LLC
+2025-09-16 14:11:50,189 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 200 Wn.2d 72
+2025-09-16 14:11:50,189 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Convoyant, LLC v. DeepThink, LLC
+2025-09-16 14:11:50,834 - enhanced_courtlistener_verification - INFO - Successfully processed 1 citations
+2025-09-16 14:11:50,838 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 150 Wn.2d 135
+2025-09-16 14:11:50,838 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: State v. Smith
+2025-09-16 14:11:50,960 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 150 Wn.2d 135
+2025-09-16 14:11:50,961 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: State v. Smith
+2025-09-16 14:11:51,085 - enhanced_courtlistener_verification - INFO - Successfully processed 1 citations
+2025-09-16 14:11:51,089 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 123 F.3d 456
+2025-09-16 14:11:51,090 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Test v. Invalid Case
+2025-09-16 14:11:51,090 - enhanced_courtlistener_verification - WARNING - [VERIFICATION] Test citation detected and rejected: 123 F.3d 456
+2025-09-16 14:11:51,092 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Starting verification for citation: 123 F.3d 456
+2025-09-16 14:11:51,092 - enhanced_courtlistener_verification - INFO - [VERIFICATION] Extracted case name: Test v. Invalid Case
+2025-09-16 14:11:51,093 - enhanced_courtlistener_verification - WARNING - [VERIFICATION] Test citation detected and rejected: 123 F.3d 456
+2025-09-16 14:11:51,093 - enhanced_courtlistener_verification - INFO - Successfully processed 1 citations

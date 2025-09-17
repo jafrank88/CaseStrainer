@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CORS Test for CaseStrainer</title>
+    <script>
+        async function testCors(origin) {
+            const resultDiv = document.getElementById('results');
+            const url = 'https://wolf.law.uw.edu/casestrainer/api/health';
+            
+            try {
+                // Test OPTIONS request (preflight)
+                resultDiv.innerHTML += `<h3>Testing OPTIONS request from ${origin}</h3>`;
+                const optionsResponse = await fetch(url, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': origin,
+                        'Access-Control-Request-Method': 'GET',
+                        'Access-Control-Request-Headers': 'Content-Type',
+                    },
+                    mode: 'cors'
+                });
+                
+                resultDiv.innerHTML += `<p>OPTIONS Status: ${optionsResponse.status} ${optionsResponse.statusText}</p>`;
+                resultDiv.innerHTML += '<p>Response Headers:</p><ul>';
+                optionsResponse.headers.forEach((value, key) => {
+                    if (key.toLowerCase().startsWith('access-control-')) {
+                        resultDiv.innerHTML += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                });
+                resultDiv.innerHTML += '</ul>';
+                
+                // Test GET request
+                resultDiv.innerHTML += `<h3>Testing GET request from ${origin}</h3>`;
+                const getResponse = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Origin': origin
+                    },
+                    mode: 'cors',
+                    credentials: 'include'
+                });
+                
+                const data = await getResponse.json();
+                resultDiv.innerHTML += `<p>GET Status: ${getResponse.status} ${getResponse.statusText}</p>`;
+                resultDiv.innerHTML += '<p>Response Headers:</p><ul>';
+                getResponse.headers.forEach((value, key) => {
+                    if (key.toLowerCase().startsWith('access-control-')) {
+                        resultDiv.innerHTML += `<li><strong>${key}:</strong> ${value}</li>`;
+                    }
+                });
+                resultDiv.innerHTML += '</ul>';
+                resultDiv.innerHTML += `<p>Response Data: <pre>${JSON.stringify(data, null, 2)}</pre></p>`;
+                
+            } catch (error) {
+                resultDiv.innerHTML += `<p style="color: red;">Error: ${error.message}</p>`;
+            }
+        }
+        
+        // Test with different origins when the page loads
+        window.onload = function() {
+            // Test with allowed origin
+            testCors('https://wolf.law.uw.edu');
+            
+            // Test with disallowed origin (should be blocked by CORS)
+            setTimeout(() => testCors('https://malicious-site.com'), 1000);
+        };
+    </script>
+</head>
+<body>
+    <h1>CORS Test for CaseStrainer</h1>
+    <div id="results">
+        <p>Testing CORS configuration...</p>
+    </div>
+</body>
+</html>

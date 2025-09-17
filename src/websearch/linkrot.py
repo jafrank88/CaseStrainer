@@ -91,6 +91,7 @@ class EnhancedLinkrotDetector:
                 recovered = await strategy(url, metadata)
                 recovery_urls.extend(recovered)
             except Exception as e:
+                logger.warning(f"Recovery strategy failed: {str(e)}")
         
         return recovery_urls
     
@@ -111,6 +112,7 @@ class EnhancedLinkrotDetector:
                             wayback_urls.append(wayback_url)
         
         except Exception as e:
+            logger.warning(f"Wayback Machine recovery failed: {str(e)}")
         
         return wayback_urls
     
@@ -136,6 +138,7 @@ class EnhancedLinkrotDetector:
                     alternative_urls.append(alt_url)
         
         except Exception as e:
+            logger.warning(f"Alternative domain recovery failed: {str(e)}")
         
         return alternative_urls
     
@@ -164,5 +167,6 @@ class EnhancedLinkrotDetector:
                 similar_urls.extend(url_patterns)
         
         except Exception as e:
+            logger.warning(f"Similar URL recovery failed: {str(e)}")
         
         return similar_urls 

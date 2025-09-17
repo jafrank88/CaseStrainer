@@ -1,0 +1,84 @@
+{
+  "document_length": 184,
+  "processing_time_ms": 7384,
+  "request_id": "7f4ee862-1181-48ce-8bed-b0cbef28d276",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Smith",
+        "citation": "123 Wash. 2d 45",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Smith",
+        "extracted_date": "1993",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Smith",
+        "citation": "864 P.2d 1371",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Smith",
+        "extracted_date": "1993",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Jones",
+        "citation": "112 Wn.2d 817",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Jones",
+        "extracted_date": "1989",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Jones",
+        "citation": "774 P.2d 1187",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Jones",
+        "extracted_date": "1989",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "fast_no_clustering",
+      "source": "text",
+      "text_length": 184
+    },
+    "processing_time": 7.384472131729126,
+    "request_id": "7f4ee862-1181-48ce-8bed-b0cbef28d276",
+    "success": true
+  }
+}

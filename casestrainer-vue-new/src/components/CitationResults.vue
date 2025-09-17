@@ -1,10 +1,10 @@
 <template>
   <div class="citation-results">
     <!-- SECTION 1: Citations That Need Attention OR Celebration (SHOW FIRST) -->
-    <div v-if="unverifiedCitations.length > 0" class="results-content">
+    <div v-if="(unverifiedCitations?.length || 0) > 0" class="results-content">
       <div class="results-header">
-        <h2>🔴 SECTION 1: Citations That Need Attention</h2>
-        <p>{{ unverifiedCitations.length }} citation(s) need verification</p>
+        <h2>🔍 SECTION 1: Citation Status</h2>
+        <p>{{ unverifiedCitations?.length || 0 }} citation(s) not directly verified</p>
       </div>
       
       <div class="citations-grid">
@@ -12,7 +12,33 @@
           <div class="citation-text">{{ citation.citation }}</div>
           <div class="citation-details">
             <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
-            <div><strong>Status:</strong> <span style="color: red;">UNVERIFIED</span></div>
+            <div><strong>Status:</strong> 
+              <span :style="{ color: citation.true_by_parallel ? '#FF9800' : 'red' }">
+                {{ citation.true_by_parallel ? '✅ VERIFIED BY PARALLEL' : '❌ UNVERIFIED' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1.5: Citations Verified by Parallel (SHOW SECOND) -->
+    <div v-if="(verifiedByParallelCitations?.length || 0) > 0" class="results-content">
+      <div class="results-header">
+        <h2>🟠 SECTION 1.5: Verified by Parallel</h2>
+        <p>{{ verifiedByParallelCitations?.length || 0 }} citation(s) verified by parallel citations</p>
+      </div>
+      
+      <div class="citations-grid">
+        <div v-for="citation in verifiedByParallelCitations" :key="citation.citation" class="citation-card">
+          <div class="citation-text">{{ citation.citation }}</div>
+          <div class="citation-details">
+            <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
+            <div><strong>Status:</strong> 
+              <span style="color: #FF9800;">
+                ✅ VERIFIED BY PARALLEL
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -22,19 +48,20 @@
     <div v-else-if="allCitationsVerified" class="perfect-score-celebration">
       <div class="celebration-content">
         <h2>🎉 Perfect Score!</h2>
-        <p>All {{ verifiedCitations.length }} citations have been successfully verified!</p>
+        <p>All {{ (verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0) }} citations have been successfully verified!</p>
         <div class="celebration-stats">
-          <div>✅ {{ verifiedCitations.length }} Citations Verified</div>
-          <div>📚 {{ clusters.length }} Clusters Found</div>
+          <div>✅ {{ verifiedCitations?.length || 0 }} Citations Verified</div>
+          <div v-if="(verifiedByParallelCitations?.length || 0) > 0">🟠 {{ verifiedByParallelCitations?.length || 0 }} Verified by Parallel</div>
+          <div>📚 {{ clusters?.length || 0 }} Clusters Found</div>
         </div>
       </div>
     </div>
 
     <!-- Clustered Results Display -->
-    <div v-if="clusters.length > 0" class="results-content">
+    <div v-if="(clusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
         <h2>Clustered Results Display</h2>
-        <p>{{ clusters.length }} cluster(s) found</p>
+        <p>{{ clusters?.length || 0 }} cluster(s) found</p>
       </div>
       
       <div class="clusters-list">
@@ -76,18 +103,18 @@
     </div>
 
     <!-- SECTION 2: Individual Citations (SHOW THIRD) -->
-    <div v-if="citations.length > 0" class="results-content">
+    <div v-if="(citations?.length || 0) > 0" class="results-content">
       <div class="results-header">
         <h2>Individual Citations</h2>
-        <p>{{ citations.length }} individual citation(s)</p>
+        <p>{{ citations?.length || 0 }} individual citation(s)</p>
       </div>
       
       <div class="citations-list">
         <div v-for="citation in citations" :key="citation.citation" class="citation-item">
           <div class="citation-text">{{ citation.citation }}</div>
           <div class="citation-status">
-            <span :style="{ color: citation.verified ? 'green' : 'red' }">
-              {{ citation.verified ? '✅ VERIFIED' : '❌ UNVERIFIED' }}
+            <span :style="{ color: citation.verified ? 'green' : (citation.true_by_parallel ? '#FF9800' : 'red') }">
+              {{ citation.verified ? '✅ VERIFIED' : (citation.true_by_parallel ? '✅ VERIFIED BY PARALLEL' : '❌ UNVERIFIED') }}
             </span>
           </div>
           <div class="citation-details">
@@ -100,7 +127,7 @@
     </div>
 
     <!-- No citations found message -->
-    <div v-if="citations.length === 0 && clusters.length === 0" class="no-citations">
+    <div v-if="(citations?.length || 0) === 0 && (clusters?.length || 0) === 0" class="no-citations">
       <h2>No Citations Found</h2>
       <p>No legal citations were detected in the provided text.</p>
     </div>
@@ -152,15 +179,23 @@ export default {
     })
     
     const verifiedCitations = computed(() => {
-      return citations.value.filter(c => c.verified)
+      return citations.value?.filter(c => c.verified) || []
     })
     
     const unverifiedCitations = computed(() => {
-      return citations.value.filter(c => !c.verified)
+      return citations.value?.filter(c => !c.verified && !c.true_by_parallel) || []
+    })
+    
+    const verifiedByParallelCitations = computed(() => {
+      return citations.value?.filter(c => !c.verified && c.true_by_parallel) || []
     })
     
     const allCitationsVerified = computed(() => {
-      return citations.value.length > 0 && unverifiedCitations.value.length === 0
+      return citations.value?.length > 0 && unverifiedCitations.value.length === 0
+    })
+    
+    const allCitationsVerifiedOrParallel = computed(() => {
+      return citations.value?.length > 0 && unverifiedCitations.value.length === 0
     })
     
     // Helper methods for the new cluster display format

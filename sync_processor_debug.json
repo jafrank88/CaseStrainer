@@ -1,0 +1,119 @@
+{
+  "success": true,
+  "citations": [
+    {
+      "citation": "509 P.3d 325",
+      "case_name": "Fode v. Dep't of Ecology",
+      "extracted_case_name": "Fode v. Dep't of Ecology",
+      "canonical_name": null,
+      "extracted_date": "2022",
+      "canonical_date": null,
+      "canonical_url": null,
+      "year": null,
+      "verified": false,
+      "court": null,
+      "confidence": 0.9,
+      "method": "unified_processor",
+      "context": "",
+      "is_parallel": false
+    },
+    {
+      "citation": "159 Wn.2d 700",
+      "case_name": "Bostain v. Food Express",
+      "extracted_case_name": "Bostain v. Food Express",
+      "canonical_name": null,
+      "extracted_date": "2007",
+      "canonical_date": null,
+      "canonical_url": null,
+      "year": null,
+      "verified": false,
+      "court": null,
+      "confidence": 0.9,
+      "method": "unified_processor",
+      "context": "",
+      "is_parallel": false
+    },
+    {
+      "citation": "153 P.3d 846",
+      "case_name": "Bostain v. Food Express",
+      "extracted_case_name": "Bostain v. Food Express",
+      "canonical_name": null,
+      "extracted_date": "2007",
+      "canonical_date": null,
+      "canonical_url": null,
+      "year": null,
+      "verified": false,
+      "court": null,
+      "confidence": 0.9,
+      "method": "unified_processor",
+      "context": "",
+      "is_parallel": false
+    },
+    {
+      "citation": "495 P.3d 866 No. 103394-0 12",
+      "case_name": "Port of Tacoma v. Sacks",
+      "extracted_case_name": "Port of Tacoma v. Sacks",
+      "canonical_name": null,
+      "extracted_date": "2021",
+      "canonical_date": null,
+      "canonical_url": null,
+      "year": null,
+      "verified": false,
+      "court": null,
+      "confidence": 0.9,
+      "method": "unified_processor",
+      "context": "",
+      "is_parallel": false
+    }
+  ],
+  "clusters": [],
+  "processing_strategy": "full_with_verification",
+  "extraction_method": "unified_processor_v2",
+  "verification_enabled": true,
+  "progress_data": {
+    "current_step": 100,
+    "total_steps": 5,
+    "current_message": "Processing completed successfully",
+    "start_time": 1758070915.2464023,
+    "steps": [
+      {
+        "name": "Initializing...",
+        "progress": 100,
+        "status": "completed",
+        "message": "Started unified processing"
+      },
+      {
+        "name": "Extract",
+        "progress": 100,
+        "status": "completed",
+        "message": "Citations extracted successfully"
+      },
+      {
+        "name": "Analyze",
+        "progress": 100,
+        "status": "completed",
+        "message": "Citations analyzed and normalized"
+      },
+      {
+        "name": "Extract Names",
+        "progress": 100,
+        "status": "completed",
+        "message": "Case names and years extracted"
+      },
+      {
+        "name": "Cluster",
+        "progress": 100,
+        "status": "completed",
+        "message": "Citations clustered successfully"
+      },
+      {
+        "name": "Verify",
+        "progress": 100,
+        "status": "completed",
+        "message": "Verification completed"
+      }
+    ]
+  },
+  "processing_time": 4.960235834121704,
+  "request_id": "sync_1758070915246"
+}

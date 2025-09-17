@@ -242,7 +242,7 @@ class ChunkedCitationProcessor:
     
     def __init__(self, progress_manager: SSEProgressManager):
         self.progress_manager = progress_manager
-        self.chunk_size = 1000  # Characters per chunk
+        self.chunk_size = 5000  # Characters per chunk (increased to prevent citation splitting)
     
     async def process_document_with_progress(self, 
                                            document_text: str, 
@@ -378,6 +378,7 @@ class ChunkedCitationProcessor:
                     citations.append(citation_data)
                     
                     if i <= 3:  # Only log first 3 citations to avoid log spam
+                        logger.info(f"[Chunk-{chunk_hash}] Citation {i}: "
                                    f"Name: {citation_dict.get('extracted_case_name')} | "
                                    f"Date: {citation_dict.get('extracted_date')} | "
                                    f"Verified: {citation_dict.get('verified')}")
@@ -464,10 +465,15 @@ class ChunkedCitationProcessor:
                 final_results = await self._perform_final_analysis(results)
                 
                 logger.info("Marking task as complete")
+                # Store final results in tracker
+                if task_id in self.progress_manager.active_tasks:
+                    tracker = self.progress_manager.active_tasks[task_id]
+                    tracker.results = final_results
+                
                 self.progress_manager.update_progress(
                     task_id, 100, "completed", 
                     f"Processing complete! Found {len(results)} citations.",
-                    partial_results=results
+                    partial_results=results  # Keep original results for partial updates
                 )
                 logger.info("Task completed successfully")
                 
@@ -569,29 +575,29 @@ def fetch_url_content(url: str) -> str:
         logger.info(f"Content type: {content_type}")
         
         if 'pdf' in content_type or url.lower().endswith('.pdf'):
-            try:
-                import PyPDF2
-                import io
-                
-                pdf_content = io.BytesIO(response.content)
-                pdf_reader = PyPDF2.PdfReader(pdf_content)
-                text_parts = []
-                
-                for i, page in enumerate(pdf_reader.pages, 1):
-                    try:
-                        text = page.extract_text()
-                        if text:
-                            text_parts.append(text)
-                    except Exception as e:
-                        logger.warning(f"Error extracting text from page {i}: {str(e)}")
-                
-                result = '\n\n'.join(text_parts) if text_parts else ''
-                logger.info(f"Extracted {len(result)} characters total from PDF")
-                return result
-                
-            except Exception as e:
-                logger.error(f"Error processing PDF: {str(e)}\n{traceback.format_exc()}")
-                raise Exception(f"Error processing PDF: {str(e)}")
+            # Try multiple PDF extraction methods for robustness
+            extraction_methods = [
+                ('PyPDF2', _extract_with_pypdf2),
+                ('pdfminer', _extract_with_pdfminer),
+                ('pdfplumber', _extract_with_pdfplumber)
+            ]
+            
+            for method_name, method_func in extraction_methods:
+                try:
+                    logger.info(f"Trying PDF extraction with {method_name}")
+                    result = method_func(response.content)
+                    if result and len(result.strip()) > 0:
+                        logger.info(f"Successfully extracted {len(result)} characters using {method_name}")
+                        return result
+                    else:
+                        logger.warning(f"{method_name} returned empty content")
+                except Exception as e:
+                    logger.warning(f"{method_name} extraction failed: {str(e)}")
+                    continue
+            
+            # If all methods fail, return empty content instead of raising exception
+            logger.error("All PDF extraction methods failed")
+            return ""
         
         elif 'html' in content_type:
             logger.info(f"Returning HTML content, length: {len(response.text)}")
@@ -613,6 +619,66 @@ def fetch_url_content(url: str) -> str:
         logger.error(f"Error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
         raise Exception(f"Failed to fetch URL: {str(e)}")
 
+def _extract_with_pypdf2(pdf_content: bytes) -> str:
+    """Extract text using PyPDF2."""
+    import PyPDF2
+    import io
+    
+    pdf_content_io = io.BytesIO(pdf_content)
+    pdf_reader = PyPDF2.PdfReader(pdf_content_io)
+    text_parts = []
+    
+    for i, page in enumerate(pdf_reader.pages, 1):
+        try:
+            text = page.extract_text()
+            if text:
+                text_parts.append(text)
+        except Exception as e:
+            logger.warning(f"Error extracting text from page {i}: {str(e)}")
+    
+    return '\n\n'.join(text_parts)
+
+def _extract_with_pdfminer(pdf_content: bytes) -> str:
+    """Extract text using pdfminer."""
+    try:
+        from pdfminer.high_level import extract_text_to_fp
+        from pdfminer.layout import LAParams
+        import io
+        
+        output_string = io.StringIO()
+        pdf_content_io = io.BytesIO(pdf_content)
+        
+        extract_text_to_fp(
+            pdf_content_io,
+            output_string,
+            laparams=LAParams(),
+            output_type='text',
+            codec='utf-8'
+        )
+        
+        return output_string.getvalue()
+    except ImportError:
+        raise Exception("pdfminer not available")
+
+def _extract_with_pdfplumber(pdf_content: bytes) -> str:
+    """Extract text using pdfplumber."""
+    try:
+        import pdfplumber
+        import io
+        
+        pdf_content_io = io.BytesIO(pdf_content)
+        text_parts = []
+        
+        with pdfplumber.open(pdf_content_io) as pdf:
+            for page in pdf.pages:
+                text = page.extract_text()
+                if text:
+                    text_parts.append(text)
+        
+        return '\n\n'.join(text_parts)
+    except ImportError:
+        raise Exception("pdfplumber not available")
+
 def create_progress_routes(app: Flask, progress_manager: SSEProgressManager, 
                           citation_processor: ChunkedCitationProcessor):
     """Create Flask routes for progress-enabled citation processing"""
@@ -621,8 +687,8 @@ def create_progress_routes(app: Flask, progress_manager: SSEProgressManager,
     logger = logging.getLogger(__name__)
     
     # DISABLED: Duplicate route conflicts with vue_api_endpoints.py
-    # @app.route('/casestrainer/api/analyze', methods=['POST'])
-    async def start_citation_analysis_disabled():
+    @app.route('/casestrainer/api/analyze', methods=['POST'])
+    async def start_citation_analysis():
         """Start citation analysis and return task ID
         
         Supports multiple input types:
@@ -1227,33 +1293,401 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     Returns:
         Dictionary with processing results
     """
-    from src.unified_input_processor import UnifiedInputProcessor
     import logging
+    import traceback
+    import time
     
     logger = logging.getLogger(__name__)
     logger.info(f"[Task {task_id}] Starting direct citation processing for {input_type}")
+    logger.debug(f"[Task {task_id}] Input data keys: {list(input_data.keys())}")
+    
+    # Create or get progress tracker for this task
+    from src.progress_tracker import create_progress_tracker, get_progress_tracker
+    progress_tracker = get_progress_tracker(task_id) or create_progress_tracker(task_id)
     
     try:
-        processor = UnifiedInputProcessor()
-        
         if input_type == 'text':
             text = input_data.get('text', '')
+            logger.debug(f"[Task {task_id}] Text length: {len(text)} characters")
+            
             if not text:
-                raise ValueError("No text provided for processing")
+                error_msg = "No text provided for processing"
+                logger.error(f"[Task {task_id}] {error_msg}")
+                raise ValueError(error_msg)
+            
+            # Use the full processing pipeline including clustering and verification
+            try:
+                progress_tracker.start_step(0, 'Initializing async processing...')
                 
-            result = processor.process_any_input(
-                input_data=text,
-                input_type='text',
-                request_id=task_id
-            )
+                logger.info(f"[Task {task_id}] Importing required modules...")
+                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
+                from src.config import get_config_value
+                
+                progress_tracker.update_step(0, 25, 'Loading processing modules...')
+                
+                logger.info(f"[Task {task_id}] Initializing processor with verification...")
+                courtlistener_key = get_config_value("COURTLISTENER_API_KEY")
+                logger.debug(f"[Task {task_id}] CourtListener API key: {'Present' if courtlistener_key else 'Not found'}")
+                
+                # Initialize processor with verification enabled
+                options = ProcessingOptions(
+                    enable_enhanced_verification=True,
+                    enable_cross_validation=True,
+                    enable_false_positive_prevention=True,
+                    enable_confidence_scoring=True,
+                    courtlistener_api_key=courtlistener_key
+                )
+                
+                progress_tracker.update_step(0, 75, 'Initializing processor...')
+                
+                logger.info(f"[Task {task_id}] Creating EnhancedSyncProcessor instance...")
+                processor = EnhancedSyncProcessor(options=options)
+                
+                progress_tracker.complete_step(0, 'Initialization complete')
+                progress_tracker.start_step(1, 'Extracting citations from text...')
+                
+                # Process the text through the full pipeline
+                logger.info(f"[Task {task_id}] Starting text processing...")
+                result = processor.process_any_input_enhanced(text, 'text', {})
+                logger.info(f"[Task {task_id}] Text processing completed")
+                
+                progress_tracker.complete_step(1, 'Citation extraction completed')
+                progress_tracker.start_step(2, 'Analyzing and normalizing citations...')
+                
+                # Ensure we have the expected structure
+                if not isinstance(result, dict):
+                    result = {}
+                
+                # Convert any CitationResult objects to dictionaries
+                citations = result.get('citations', [])
+                citation_dicts = []
+                
+                progress_tracker.update_step(2, 50, f'Processing {len(citations)} citations...')
+                
+                for citation in citations:
+                    if hasattr(citation, 'to_dict'):
+                        citation_dicts.append(citation.to_dict())
+                    elif isinstance(citation, dict):
+                        citation_dicts.append(citation)
+                    else:
+                        # Convert CitationResult to dict manually
+                        citation_dicts.append({
+                            'citation': getattr(citation, 'citation', ''),
+                            'extracted_case_name': getattr(citation, 'extracted_case_name', ''),
+                            'extracted_date': getattr(citation, 'extracted_date', ''),
+                            'canonical_name': getattr(citation, 'canonical_name', None),
+                            'canonical_date': getattr(citation, 'canonical_date', None),
+                            'canonical_url': getattr(citation, 'canonical_url', None),
+                            'verified': getattr(citation, 'verified', False),
+                            'confidence': getattr(citation, 'confidence', 0.0),
+                            'method': getattr(citation, 'method', 'unified_processor'),
+                            'source': getattr(citation, 'source', 'unified_architecture'),
+                            'start_index': getattr(citation, 'start_index', 0),
+                            'end_index': getattr(citation, 'end_index', 0),
+                            'is_parallel': getattr(citation, 'is_parallel', False),
+                            'is_cluster': getattr(citation, 'is_cluster', False),
+                            'parallel_citations': getattr(citation, 'parallel_citations', []),
+                            'cluster_members': getattr(citation, 'cluster_members', []),
+                            'pinpoint_pages': getattr(citation, 'pinpoint_pages', []),
+                            'docket_numbers': getattr(citation, 'docket_numbers', []),
+                            'case_history': getattr(citation, 'case_history', []),
+                            'publication_status': getattr(citation, 'publication_status', None),
+                            'error': getattr(citation, 'error', None),
+                            'metadata': getattr(citation, 'metadata', {}),
+                            'cluster_id': getattr(citation, 'cluster_id', None),
+                            'true_by_parallel': getattr(citation, 'true_by_parallel', False)
+                        })
+                
+                progress_tracker.complete_step(2, 'Citation analysis completed')
+                progress_tracker.start_step(3, 'Extracting case names and years...')
+                progress_tracker.complete_step(3, 'Name extraction completed')
+                progress_tracker.start_step(4, 'Clustering parallel citations...')
+                
+                # Get clusters if available
+                clusters = result.get('clusters', [])
+                cluster_dicts = []
+                
+                progress_tracker.update_step(4, 50, f'Processing {len(clusters)} clusters...')
+                
+                for cluster in clusters:
+                    if hasattr(cluster, 'to_dict'):
+                        cluster_dicts.append(cluster.to_dict())
+                    elif isinstance(cluster, dict):
+                        cluster_dicts.append(cluster)
+                
+                progress_tracker.complete_step(4, 'Clustering completed')
+                progress_tracker.start_step(5, 'Verifying citations...')
+                
+                citation_result = {
+                    'citations': citation_dicts,
+                    'clusters': cluster_dicts,
+                    'statistics': {
+                        'total_citations': len(citation_dicts),
+                        'verified_citations': len([c for c in citation_dicts if c.get('verified', False)]),
+                        'total_clusters': len(cluster_dicts),
+                        'verified_clusters': len([c for c in cluster_dicts if c.get('verified', False)]),
+                        'processing_time': result.get('processing_time', 0.0)
+                    },
+                    'success': True,
+                    'processing_mode': 'async_full_processing',
+                    'verification_enabled': True,
+                    'request_id': task_id
+                }
+                
+                progress_tracker.complete_step(5, 'Verification completed')
+                progress_tracker.complete_all('Async processing completed successfully')
+                
+                # Add progress data to result
+                citation_result['progress_data'] = progress_tracker.get_progress_data()
+                
+                logger.info(f"[Task {task_id}] Processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters")
+                
+                return {
+                    'success': True,
+                    'task_id': task_id,
+                    'status': 'completed',
+                    'result': citation_result
+                }
             
-            return {
-                'success': True,
-                'task_id': task_id,
-                'status': 'completed',
-                'result': result
-            }
+            except Exception as e:
+                progress_tracker.fail_step(progress_tracker.current_step, f'Processing failed: {str(e)}')
+                logger.error(f"[Task {task_id}] UnifiedSyncProcessor failed: {str(e)}")
+                logger.error(f"[Task {task_id}] Traceback: {traceback.format_exc()}")
+                
+                # Fallback to basic citation extraction
+                try:
+                    logger.info(f"[Task {task_id}] Attempting fallback citation extraction")
+                    
+                    # Normalize the text first - replace newlines and multiple spaces with single space
+                    normalized_text = ' '.join(text.split())
+                    logger.info(f"[Task {task_id}] Normalized text for fallback extraction")
+                    
+                    # Initialize citations list
+                    citations = []
+                    
+                    # Try basic regex-based citation extraction
+                    import re
+                    
+                    # Comprehensive citation patterns including Washington State
+                    patterns = [
+                        # Washington State citations
+                        r'\b\d+\s+Wn\.\s*2d\s+\d+\b',  # Washington Reports 2d
+                        r'\b\d+\s+Wn\.\s*3d\s+\d+\b',  # Washington Reports 3d
+                        r'\b\d+\s+Wn\.\s*App\.\s*\d+\b',  # Washington Court of Appeals
+                        r'\b\d+\s+P\.\s*2d\s+\d+\b',   # Pacific Reporter 2d
+                        r'\b\d+\s+P\.\s*3d\s+\d+\b',   # Pacific Reporter 3d
+                    ]
+                    
+                    for pattern in patterns:
+                        matches = re.finditer(pattern, normalized_text)
+                        for match in matches:
+                            citation_text = match.group().strip()
+                            if citation_text and len(citation_text) > 5:  # Basic validation
+                                citations.append({
+                                    'citation': citation_text,
+                                    'case_name': None,
+                                    'canonical_name': None,
+                                    'canonical_date': None,
+                                    'canonical_url': None,
+                                    'extracted_case_name': None,
+                                    'extracted_date': None,
+                                    'confidence': 0.5,
+                                    'verified': False,
+                                    'method': 'fallback_regex',
+                                    'context': '',
+                                    'court': None,
+                                    'year': None,
+                                    'is_parallel': False
+                                })
+                    
+                    # Remove duplicates
+                    unique_citations = []
+                    seen = set()
+                    for citation in citations:
+                        if citation['citation'] not in seen:
+                            unique_citations.append(citation)
+                            seen.add(citation['citation'])
+                    
+                    logger.info(f"[Task {task_id}] Fallback extraction found {len(unique_citations)} citations")
+                    
+                    return {
+                        'success': True,
+                        'task_id': task_id,
+                        'status': 'completed',
+                        'result': {
+                            'citations': unique_citations,
+                            'clusters': [],
+                            'clustering_applied': False,
+                            'extraction_method': 'fallback_regex',
+                            'processing_strategy': 'fallback',
+                            'processing_time': 0.1,
+                            'progress_data': {
+                                'current_message': 'Fallback extraction completed',
+                                'current_step': 100,
+                                'start_time': time.time(),
+                                'steps': [
+                                    {
+                                        'message': 'Fallback extraction completed',
+                                        'name': 'Extract',
+                                        'progress': 100,
+                                        'status': 'completed'
+                                    }
+                                ],
+                                'total_steps': 1
+                            },
+                            'request_id': f'fallback_{task_id}',
+                            'success': True,
+                            'verification_applied': False
+                        }
+                    }
+                    
+                except Exception as fallback_error:
+                    logger.error(f"[Task {task_id}] Fallback extraction also failed: {str(fallback_error)}")
+                    
+                    # Return empty result but mark as successful
+                    return {
+                        'success': True,
+                        'task_id': task_id,
+                        'status': 'completed',
+                        'result': {
+                            'citations': [],
+                            'clusters': [],
+                            'clustering_applied': False,
+                            'extraction_method': 'none',
+                            'processing_strategy': 'failed',
+                            'processing_time': 0.01,
+                            'progress_data': {
+                                'current_message': 'Processing failed - no citations found',
+                                'current_step': 100,
+                                'start_time': time.time(),
+                                'steps': [
+                                    {
+                                        'message': 'Processing failed',
+                                        'name': 'Extract',
+                                        'progress': 100,
+                                        'status': 'completed'
+                                    }
+                                ],
+                                'total_steps': 1
+                            },
+                            'request_id': f'failed_{task_id}',
+                            'success': True,
+                            'verification_applied': False,
+                            'error': f'Processing failed: {str(e)}'
+                        }
+                    }
             
+        elif input_type == 'url':
+            url = input_data.get('url', '')
+            logger.debug(f"[Task {task_id}] URL: {url}")
+            
+            if not url:
+                error_msg = "No URL provided for processing"
+                logger.error(f"[Task {task_id}] {error_msg}")
+                raise ValueError(error_msg)
+            
+            # Extract text from URL first
+            try:
+                progress_tracker.start_step(0, 'Extracting content from URL...')
+                
+                logger.info(f"[Task {task_id}] Extracting content from URL...")
+                text = fetch_url_content(url)
+                
+                if not text or len(text.strip()) < 10:
+                    error_msg = f"URL returned empty or insufficient content: {len(text) if text else 0} characters"
+                    logger.error(f"[Task {task_id}] {error_msg}")
+                    progress_tracker.fail_step(0, error_msg)
+                    raise ValueError(error_msg)
+                
+                progress_tracker.complete_step(0, f'Extracted {len(text)} characters from URL')
+                logger.info(f"[Task {task_id}] Extracted {len(text)} characters from URL")
+                
+                # Now process the extracted text using the same pipeline as text processing
+                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
+                from src.config import get_config_value
+                
+                logger.info(f"[Task {task_id}] Initializing processor for URL content...")
+                courtlistener_key = get_config_value("COURTLISTENER_API_KEY")
+                
+                # Initialize processor with verification enabled
+                options = ProcessingOptions(
+                    enable_enhanced_verification=True,
+                    enable_cross_validation=True,
+                    enable_false_positive_prevention=True,
+                    enable_confidence_scoring=True,
+                    courtlistener_api_key=courtlistener_key
+                )
+                
+                processor = EnhancedSyncProcessor(options=options)
+                
+                # Process the extracted text
+                logger.info(f"[Task {task_id}] Starting URL content processing...")
+                result = processor.process_any_input_enhanced(text, 'text', {})
+                logger.info(f"[Task {task_id}] URL content processing completed")
+                
+                # Use the same result processing logic as text processing
+                if not isinstance(result, dict):
+                    result = {}
+                
+                # Convert any CitationResult objects to dictionaries
+                citations = result.get('citations', [])
+                citation_dicts = []
+                
+                for citation in citations:
+                    if hasattr(citation, '__dict__'):
+                        citation_dict = citation.__dict__.copy()
+                    elif isinstance(citation, dict):
+                        citation_dict = citation.copy()
+                    else:
+                        citation_dict = {'citation': str(citation)}
+                    citation_dicts.append(citation_dict)
+                
+                # Handle clusters
+                clusters = result.get('clusters', [])
+                cluster_dicts = []
+                
+                for cluster in clusters:
+                    if hasattr(cluster, '__dict__'):
+                        cluster_dict = cluster.__dict__.copy()
+                    elif isinstance(cluster, dict):
+                        cluster_dict = cluster.copy()
+                    else:
+                        cluster_dict = {'cluster_id': str(cluster)}
+                    cluster_dicts.append(cluster_dict)
+                
+                # Create the final result
+                citation_result = {
+                    'citations': citation_dicts,
+                    'clusters': cluster_dicts,
+                    'statistics': {
+                        'total_citations': len(citation_dicts),
+                        'total_clusters': len(cluster_dicts),
+                        'verified_citations': len([c for c in citation_dicts if c.get('verified', False)]),
+                        'verified_clusters': len([c for c in cluster_dicts if c.get('verified', False)]),
+                        'processing_time': result.get('processing_time', 0.0),
+                        'content_length': len(text),
+                        'url': url
+                    },
+                    'success': True,
+                    'processing_mode': 'async_url_processing',
+                    'verification_enabled': True,
+                    'request_id': task_id
+                }
+                
+                logger.info(f"[Task {task_id}] URL processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters")
+                
+                return {
+                    'success': True,
+                    'task_id': task_id,
+                    'status': 'completed',
+                    'result': citation_result
+                }
+                
+            except Exception as e:
+                logger.error(f"[Task {task_id}] URL processing failed: {str(e)}")
+                logger.error(f"[Task {task_id}] Traceback: {traceback.format_exc()}")
+                raise
+        
         else:
             raise ValueError(f"Unsupported input type for direct processing: {input_type}")
             

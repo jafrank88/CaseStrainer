@@ -1,0 +1,130 @@
+2025-09-16 14:26:36,571 - __main__ - INFO - Starting URL upload test for: https://www.courts.wa.gov/opinions/pdf/1033940.pdf
+2025-09-16 14:26:36,572 - __main__ - INFO - Sending POST request to API endpoint
+2025-09-16 14:26:36,579 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:37,881 - urllib3.connectionpool - DEBUG - http://localhost:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 561
+2025-09-16 14:26:37,882 - __main__ - INFO - Initial response received
+2025-09-16 14:26:37,885 - __main__ - INFO - Task ID: 54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:37,886 - __main__ - INFO - Polling for task completion...
+2025-09-16 14:26:37,887 - __main__ - INFO - Polling task status (attempt 1/30)
+2025-09-16 14:26:37,891 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:37,916 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:37,917 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:39,919 - __main__ - INFO - Polling task status (attempt 2/30)
+2025-09-16 14:26:39,922 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:39,946 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:39,947 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:41,949 - __main__ - INFO - Polling task status (attempt 3/30)
+2025-09-16 14:26:41,951 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:41,970 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:41,971 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:43,972 - __main__ - INFO - Polling task status (attempt 4/30)
+2025-09-16 14:26:43,975 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:43,987 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:43,988 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:45,990 - __main__ - INFO - Polling task status (attempt 5/30)
+2025-09-16 14:26:45,992 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:46,011 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:46,012 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:48,013 - __main__ - INFO - Polling task status (attempt 6/30)
+2025-09-16 14:26:48,015 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:48,034 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:48,035 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:50,036 - __main__ - INFO - Polling task status (attempt 7/30)
+2025-09-16 14:26:50,039 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:50,050 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:50,051 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:52,053 - __main__ - INFO - Polling task status (attempt 8/30)
+2025-09-16 14:26:52,055 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:52,073 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:52,074 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:54,075 - __main__ - INFO - Polling task status (attempt 9/30)
+2025-09-16 14:26:54,078 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:54,090 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:54,091 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:56,093 - __main__ - INFO - Polling task status (attempt 10/30)
+2025-09-16 14:26:56,096 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:56,108 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:56,109 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:26:58,111 - __main__ - INFO - Polling task status (attempt 11/30)
+2025-09-16 14:26:58,113 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:26:58,129 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:26:58,131 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:00,132 - __main__ - INFO - Polling task status (attempt 12/30)
+2025-09-16 14:27:00,135 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:00,148 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:00,149 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:02,151 - __main__ - INFO - Polling task status (attempt 13/30)
+2025-09-16 14:27:02,154 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:02,164 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:02,165 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:04,167 - __main__ - INFO - Polling task status (attempt 14/30)
+2025-09-16 14:27:04,169 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:04,183 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:04,185 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:06,187 - __main__ - INFO - Polling task status (attempt 15/30)
+2025-09-16 14:27:06,189 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:06,202 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:06,203 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:08,204 - __main__ - INFO - Polling task status (attempt 16/30)
+2025-09-16 14:27:08,206 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:08,225 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:08,226 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:10,228 - __main__ - INFO - Polling task status (attempt 17/30)
+2025-09-16 14:27:10,230 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:10,248 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:10,250 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:12,252 - __main__ - INFO - Polling task status (attempt 18/30)
+2025-09-16 14:27:12,254 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:12,272 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:12,273 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:14,274 - __main__ - INFO - Polling task status (attempt 19/30)
+2025-09-16 14:27:14,277 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:14,297 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:14,298 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:16,299 - __main__ - INFO - Polling task status (attempt 20/30)
+2025-09-16 14:27:16,301 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:16,319 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:16,320 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:18,322 - __main__ - INFO - Polling task status (attempt 21/30)
+2025-09-16 14:27:18,325 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:18,347 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:18,348 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:20,350 - __main__ - INFO - Polling task status (attempt 22/30)
+2025-09-16 14:27:20,352 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:20,366 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:20,367 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:22,368 - __main__ - INFO - Polling task status (attempt 23/30)
+2025-09-16 14:27:22,371 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:22,389 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:22,390 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:24,391 - __main__ - INFO - Polling task status (attempt 24/30)
+2025-09-16 14:27:24,393 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:24,412 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:24,413 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:26,414 - __main__ - INFO - Polling task status (attempt 25/30)
+2025-09-16 14:27:26,417 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:26,436 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:26,438 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:28,439 - __main__ - INFO - Polling task status (attempt 26/30)
+2025-09-16 14:27:28,443 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:28,464 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:28,465 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:30,467 - __main__ - INFO - Polling task status (attempt 27/30)
+2025-09-16 14:27:30,469 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:30,487 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:30,488 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:32,490 - __main__ - INFO - Polling task status (attempt 28/30)
+2025-09-16 14:27:32,492 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:32,503 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:32,504 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:34,506 - __main__ - INFO - Polling task status (attempt 29/30)
+2025-09-16 14:27:34,508 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:34,527 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:34,529 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:36,530 - __main__ - INFO - Polling task status (attempt 30/30)
+2025-09-16 14:27:36,533 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:27:36,551 - urllib3.connectionpool - DEBUG - http://localhost:5000 "GET /casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303 HTTP/1.1" 404 22
+2025-09-16 14:27:36,552 - __main__ - ERROR - Error polling task status: 404 Client Error: NOT FOUND for url: http://localhost:5000/casestrainer/api/tasks/54458957-2f05-4ec1-ad1d-4f4c099b4303
+2025-09-16 14:27:38,554 - __main__ - ERROR - Max polling attempts (30) reached without completion
+2025-09-16 14:27:38,555 - __main__ - ERROR - No citations found in result
+2025-09-16 14:27:38,556 - __main__ - ERROR - Result: No result

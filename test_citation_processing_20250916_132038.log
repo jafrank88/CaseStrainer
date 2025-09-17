@@ -1,0 +1,409 @@
+2025-09-16 13:20:38,496 - __main__ - INFO - Python version: 3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]
+2025-09-16 13:20:38,496 - __main__ - INFO - Working directory: D:\dev\casestrainer
+2025-09-16 13:20:38,497 - __main__ - INFO - Python path: ['D:\\dev\\casestrainer', 'D:\\Python\\python313.zip', 'D:\\Python\\DLLs', 'D:\\Python\\Lib', 'D:\\Python', 'C:\\Users\\jafrank\\AppData\\Roaming\\Python\\Python313\\site-packages', 'D:\\Python\\Lib\\site-packages', 'D:\\Python\\Lib\\site-packages\\win32', 'D:\\Python\\Lib\\site-packages\\win32\\lib', 'D:\\Python\\Lib\\site-packages\\Pythonwin']
+2025-09-16 13:20:38,498 - __main__ - INFO - Logging to file: D:\dev\casestrainer\test_citation_processing_20250916_132038.log
+2025-09-16 13:20:38,499 - __main__ - INFO - 
+=== Testing Synchronous Processing ===
+2025-09-16 13:20:38,499 - __main__ - INFO - === Starting Synchronous Processing Test ===
+2025-09-16 13:20:39,033 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 13:20:39,034 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 13:20:39,034 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 13:20:39,035 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 13:20:39,035 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 13:20:39,035 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 13:20:40,272 - __main__ - INFO - CourtListener API key: Present
+2025-09-16 13:20:40,272 - __main__ - INFO - Creating EnhancedSyncProcessor instance...
+2025-09-16 13:20:40,273 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] Initializing with verification enabled: True
+2025-09-16 13:20:40,273 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] Using CourtListener API key: 443a8791...e4aa9f91
+2025-09-16 13:20:40,274 - enhanced_sync_processor - INFO - Enhanced verification initialized successfully
+2025-09-16 13:20:40,274 - enhanced_sync_processor - INFO - Confidence scoring initialized successfully
+2025-09-16 13:20:40,275 - enhanced_sync_processor - INFO - EnhancedSyncProcessor initialized with options: ProcessingOptions(enable_local_processing=True, enable_async_verification=True, enhanced_sync_threshold=5120, ultra_fast_threshold=500, clustering_threshold=300, max_citations_for_local_clustering=10, enable_enhanced_verification=True, enable_cross_validation=True, enable_false_positive_prevention=True, enable_confidence_scoring=True, min_confidence_threshold=0.7, cross_validation_confidence_boost=0.15, false_positive_filter_strictness='medium', courtlistener_api_key='***REDACTED_COURTLISTENER_KEY***')
+2025-09-16 13:20:40,276 - enhanced_sync_processor - INFO - Enhanced verification: Available
+2025-09-16 13:20:40,276 - enhanced_sync_processor - INFO - Confidence scoring: Available
+2025-09-16 13:20:40,277 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] Initialized with thresholds: enhanced_sync=5120, ultra_fast=500, clustering=300
+2025-09-16 13:20:40,277 - __main__ - INFO - Processing text synchronously...
+2025-09-16 13:20:40,277 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing text input
+2025-09-16 13:20:40,278 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] _should_use_enhanced_sync: text_length=643, threshold=5120, result=True
+2025-09-16 13:20:40,278 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Using enhanced sync processing
+2025-09-16 13:20:40,279 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Enhanced sync processing for 643 characters
+2025-09-16 13:20:40,285 - enhanced_sync_processor - INFO - Starting citation extraction...
+2025-09-16 13:20:40,288 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-16 13:20:40,289 - src.unified_extraction_architecture - WARNING - 🎯 UNIFIED_EXTRACT: Starting extraction for citation '' at position None-None
+2025-09-16 13:20:40,292 - src.utils.text_normalizer - DEBUG - Text normalization: 'A federal court may ask this court to answer a que...' -> 'A federal court may ask this court to answer a que...'
+2025-09-16 13:20:40,318 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:40,318 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:40,325 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:40,325 - src.unified_extraction_architecture - WARNING - ✅ UNIFIED_EXTRACT: Pattern extraction result: 'LLC v. DeepThink'
+2025-09-16 13:20:40,328 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] Basic regex found 8 citations
+2025-09-16 13:20:40,329 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor] Local normalization completed for 8 citations
+2025-09-16 13:20:40,332 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-16 13:20:40,380 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:40,390 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:40,390 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:40,398 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:40,410 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:40,546 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 189
+2025-09-16 13:20:40,596 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:40,610 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'de novo. Carlson' -> 'Carlson'
+2025-09-16 13:20:40,610 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Glob. Client Sols., LLC' -> 'Glob. Client Sols., LLC'
+2025-09-16 13:20:40,615 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Carlson v. Glob. Client Sols., LLC' -> 'Carlson v. Glob. Client Sols., LLC'
+2025-09-16 13:20:40,623 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:40,770 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:40,822 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:40,835 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'See also Smith' -> 'Smith'
+2025-09-16 13:20:40,835 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Jones' -> 'Jones'
+2025-09-16 13:20:40,843 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Smith v. Jones' -> 'Smith v. Jones'
+2025-09-16 13:20:40,851 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:40,974 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:41,025 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:41,036 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:41,036 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:41,044 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:41,053 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:41,150 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 13:20:41,198 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:41,204 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Carlson v. Glob. Client Sols., LLC' -> 'Carlson v. Glob. Client Sols., LLC'
+2025-09-16 13:20:41,213 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:41,405 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:41,452 - src.utils.text_normalizer - DEBUG - Text normalization: 'A federal court may ask this court to answer a que...' -> 'A federal court may ask this court to answer a que...'
+2025-09-16 13:20:41,464 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'See also Smith' -> 'Smith'
+2025-09-16 13:20:41,464 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Jones' -> 'Jones'
+2025-09-16 13:20:41,473 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Smith v. Jones' -> 'Smith v. Jones'
+2025-09-16 13:20:41,482 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:41,606 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:41,657 - src.utils.text_normalizer - DEBUG - Text normalization: 'ton law when a resolution of that question is nece...' -> 'ton law when a resolution of that question is nece...'
+2025-09-16 13:20:41,668 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'See also Smith' -> 'Smith'
+2025-09-16 13:20:41,668 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Jones' -> 'Jones'
+2025-09-16 13:20:41,677 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Smith v. Jones' -> 'Smith v. Jones'
+2025-09-16 13:20:41,687 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:41,934 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:41,983 - src.utils.text_normalizer - DEBUG - Text normalization: 'ton law when a resolution of that question is nece...' -> 'ton law when a resolution of that question is nece...'
+2025-09-16 13:20:41,994 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'See also Smith' -> 'Smith'
+2025-09-16 13:20:41,995 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Jones' -> 'Jones'
+2025-09-16 13:20:42,001 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Smith v. Jones' -> 'Smith v. Jones'
+2025-09-16 13:20:42,010 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:42,132 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:42,134 - enhanced_sync_processor - INFO - Enhanced local extraction completed: 8 citations
+2025-09-16 13:20:42,134 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] About to call _cluster_citations_local with 8 citations
+2025-09-16 13:20:42,135 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] _cluster_citations_local called with 8 citations
+2025-09-16 13:20:42,136 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Starting enhanced clustering for 8 citations
+2025-09-16 13:20:42,142 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Clustering with enable_verification=True
+2025-09-16 13:20:42,142 - src.enhanced_clustering - INFO - [EnhancedClusterer enhanced_1758054040277] Starting enhanced clustering for 8 citations, enable_verification=True
+2025-09-16 13:20:42,146 - src.enhanced_clustering - INFO - [EnhancedClusterer enhanced_1758054040277] Verifying citations with unified clustering
+2025-09-16 13:20:42,187 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-16 13:20:42,188 - src.unified_citation_clustering - INFO - Starting unified clustering for 8 citations
+2025-09-16 13:20:42,188 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 13:20:42,189 - src.unified_citation_clustering - INFO - Detected 1 parallel citation groups (including proximity-based)
+2025-09-16 13:20:42,189 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 13:20:42,190 - src.unified_citation_clustering - WARNING - Unsupported citation type: <class 'str'>
+2025-09-16 13:20:42,190 - src.enhanced_clustering - ERROR - [EnhancedClusterer enhanced_1758054040277] Error during verification: 'str' object has no attribute 'citation'
+2025-09-16 13:20:42,195 - src.enhanced_clustering - ERROR - [EnhancedClusterer enhanced_1758054040277] Traceback: Traceback (most recent call last):
+  File "D:\dev\casestrainer\src\enhanced_clustering.py", line 115, in cluster_citations
+    verified_citations = cluster_citations_unified(
+        citation_texts,
+        original_text=text,
+        enable_verification=True
+    )
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 1454, in cluster_citations_unified
+    return clusterer.cluster_citations(citations, original_text, enable_verification)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 108, in cluster_citations
+    clusters = self._extract_and_propagate_metadata(parallel_groups, original_text)
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 266, in _extract_and_propagate_metadata
+    cluster_key = f"group_{sorted_group[0].citation}".replace(' ', '_').replace('.', '_').replace('/', '_')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'citation'
+
+2025-09-16 13:20:42,196 - src.enhanced_clustering - INFO - [EnhancedClusterer enhanced_1758054040277] Enhanced clustering completed: 4 clusters
+2025-09-16 13:20:42,197 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Clustering completed with 4 clusters
+2025-09-16 13:20:42,197 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Enhanced clustering created 4 clusters
+2025-09-16 13:20:42,198 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] About to call _propagate_true_by_parallel_only
+2025-09-16 13:20:42,198 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] _propagate_true_by_parallel_only called with 8 citations and 4 clusters
+2025-09-16 13:20:42,199 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 0: type=<class 'dict'>, citation=200 Wn.2d 72
+2025-09-16 13:20:42,199 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 1: type=<class 'dict'>, citation=171 Wn.2d 486
+2025-09-16 13:20:42,200 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 2: type=<class 'dict'>, citation=146 Wn.2d 1
+2025-09-16 13:20:42,200 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 3: type=<class 'dict'>, citation=514 P.3d 643
+2025-09-16 13:20:42,201 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 4: type=<class 'dict'>, citation=256 P.3d 321
+2025-09-16 13:20:42,201 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 5: type=<class 'dict'>, citation=43 P.3d 4
+2025-09-16 13:20:42,202 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 6: type=<class 'dict'>, citation=200 P.3d 1
+2025-09-16 13:20:42,202 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation 7: type=<class 'dict'>, citation=200 P.3d 1
+2025-09-16 13:20:42,203 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing cluster: LLC_v._DeepThink_2022
+2025-09-16 13:20:42,203 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster citations: ['200 Wn.2d 72', '514 P.3d 643']
+2025-09-16 13:20:42,204 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster has verified: False
+2025-09-16 13:20:42,204 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '200 Wn.2d 72' in cluster
+2025-09-16 13:20:42,205 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '200 Wn.2d 72' in unverified cluster
+2025-09-16 13:20:42,206 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '514 P.3d 643' in cluster
+2025-09-16 13:20:42,206 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '514 P.3d 643' in unverified cluster
+2025-09-16 13:20:42,207 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing cluster: Carlson_v._Glob._Client_Sols.,_LLC_2011
+2025-09-16 13:20:42,207 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster citations: ['171 Wn.2d 486', '256 P.3d 321']
+2025-09-16 13:20:42,208 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster has verified: False
+2025-09-16 13:20:42,208 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '171 Wn.2d 486' in cluster
+2025-09-16 13:20:42,209 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '171 Wn.2d 486' in unverified cluster
+2025-09-16 13:20:42,210 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '256 P.3d 321' in cluster
+2025-09-16 13:20:42,211 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '256 P.3d 321' in unverified cluster
+2025-09-16 13:20:42,211 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing cluster: Smith_v._Jones_2002
+2025-09-16 13:20:42,212 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster citations: ['146 Wn.2d 1', '43 P.3d 4']
+2025-09-16 13:20:42,212 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster has verified: False
+2025-09-16 13:20:42,213 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '146 Wn.2d 1' in cluster
+2025-09-16 13:20:42,214 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '146 Wn.2d 1' in unverified cluster
+2025-09-16 13:20:42,214 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '43 P.3d 4' in cluster
+2025-09-16 13:20:42,215 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '43 P.3d 4' in unverified cluster
+2025-09-16 13:20:42,215 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing cluster: Smith_v._Jones_2009
+2025-09-16 13:20:42,216 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster citations: ['200 P.3d 1', '200 P.3d 1']
+2025-09-16 13:20:42,216 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277]   Cluster has verified: False
+2025-09-16 13:20:42,217 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '200 P.3d 1' in cluster
+2025-09-16 13:20:42,217 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '200 P.3d 1' in unverified cluster
+2025-09-16 13:20:42,218 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found citation '200 P.3d 1' in cluster
+2025-09-16 13:20:42,218 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for citation '200 P.3d 1' in unverified cluster
+2025-09-16 13:20:42,219 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] _propagate_true_by_parallel_only completed successfully
+2025-09-16 13:20:42,219 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] _cluster_citations_local completed, returned 4 clusters
+2025-09-16 13:20:42,226 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,236 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,236 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,244 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,257 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,268 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,268 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,274 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,286 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,296 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,296 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,304 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,316 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,327 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,327 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,335 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,349 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,360 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,361 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,368 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,380 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,390 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,390 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,397 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,411 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,422 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,422 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,429 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,444 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:42,457 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:42,457 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:42,465 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:42,473 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Enhanced sync result: enhanced_sync
+2025-09-16 13:20:42,473 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Result keys: ['success', 'citations', 'clusters', 'processing_mode', 'processing_strategy', 'extraction_method', 'verification_status', 'local_processing_complete', 'citations_found', 'clusters_created']
+2025-09-16 13:20:42,474 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Using synchronous verification (no caching)
+2025-09-16 13:20:42,475 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Starting synchronous verification for 8 citations
+2025-09-16 13:20:42,480 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '200 Wn.2d 72' -> '200 Wn.2d 72'
+2025-09-16 13:20:42,480 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '171 Wn.2d 486' -> '171 Wn.2d 486'
+2025-09-16 13:20:42,481 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '146 Wn.2d 1' -> '146 Wn.2d 1'
+2025-09-16 13:20:42,482 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '514 P.3d 643' -> '514 P.3d 643'
+2025-09-16 13:20:42,482 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '256 P.3d 321' -> '256 P.3d 321'
+2025-09-16 13:20:42,483 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '43 P.3d 4' -> '43 P.3d 4'
+2025-09-16 13:20:42,483 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '200 P.3d 1' -> '200 P.3d 1'
+2025-09-16 13:20:42,483 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cleaned citation: '200 P.3d 1' -> '200 P.3d 1'
+2025-09-16 13:20:42,484 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Attempting individual CourtListener Citation Lookup for each citation
+2025-09-16 13:20:42,485 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '200 Wn.2d 72'
+2025-09-16 13:20:42,487 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:42,581 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 189
+2025-09-16 13:20:42,583 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '200 Wn.2d 72', 'verified': False, 'canonical_name': None, 'canonical_date': None, 'canonical_url': None, 'source': None, 'confidence': 0.0}
+2025-09-16 13:20:42,584 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '171 Wn.2d 486'
+2025-09-16 13:20:42,586 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:42,742 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:42,745 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '171 Wn.2d 486', 'verified': True, 'canonical_name': 'Carlsen v. Global Client Solutions, LLC', 'canonical_date': '2011', 'canonical_url': 'https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:42,746 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '146 Wn.2d 1'
+2025-09-16 13:20:42,748 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,060 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:43,062 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '146 Wn.2d 1', 'verified': True, 'canonical_name': 'Department of Ecology v. Campbell & Gwinn, L.L.C.', 'canonical_date': '2002', 'canonical_url': 'https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:43,063 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '514 P.3d 643'
+2025-09-16 13:20:43,065 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,206 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 13:20:43,207 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '514 P.3d 643', 'verified': False, 'canonical_name': None, 'canonical_date': None, 'canonical_url': None, 'source': None, 'confidence': 0.0}
+2025-09-16 13:20:43,208 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '256 P.3d 321'
+2025-09-16 13:20:43,210 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,327 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:43,329 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '256 P.3d 321', 'verified': True, 'canonical_name': 'Carlsen v. Global Client Solutions, LLC', 'canonical_date': '2011', 'canonical_url': 'https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:43,330 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '43 P.3d 4'
+2025-09-16 13:20:43,332 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,457 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:43,459 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '43 P.3d 4', 'verified': True, 'canonical_name': 'State, Dept. of Ecology v. Campbell & Gwinn', 'canonical_date': '2002', 'canonical_url': 'https://www.courtlistener.com/opinion/2624899/state-dept-of-ecology-v-campbell-gwinn/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:43,460 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '200 P.3d 1'
+2025-09-16 13:20:43,462 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,596 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:43,598 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '200 P.3d 1', 'verified': True, 'canonical_name': 'State v. Prine', 'canonical_date': '2009', 'canonical_url': 'https://www.courtlistener.com/opinion/2624611/state-v-prine/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:43,599 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Processing citation: '200 P.3d 1'
+2025-09-16 13:20:43,601 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:43,733 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-16 13:20:43,735 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation Lookup result: {'citation': '200 P.3d 1', 'verified': True, 'canonical_name': 'State v. Prine', 'canonical_date': '2009', 'canonical_url': 'https://www.courtlistener.com/opinion/2624611/state-v-prine/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:43,735 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '200 Wn.2d 72': {'citation': '200 Wn.2d 72', 'verified': False, 'canonical_name': None, 'canonical_date': None, 'canonical_url': None, 'source': None, 'confidence': 0.0}
+2025-09-16 13:20:43,736 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 Wn.2d 72' not verified by CourtListener, trying fallback
+2025-09-16 13:20:43,737 - src.enhanced_fallback_verifier - INFO - Starting optimized sync verification for 200 Wn.2d 72
+2025-09-16 13:20:43,739 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-16 13:20:45,519 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 502 15700
+2025-09-16 13:20:45,521 - urllib3.connectionpool - DEBUG - Resetting dropped connection: www.courtlistener.com
+2025-09-16 13:20:45,607 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 189
+2025-09-16 13:20:45,811 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=%22200+Wn.2d+72%22&type=opinion&order_by=relevance HTTP/1.1" 400 165
+2025-09-16 13:20:45,904 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=%22200+Wash.2d+72%22&type=opinion&order_by=relevance HTTP/1.1" 400 165
+2025-09-16 13:20:45,906 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.casemine.com:443
+2025-09-16 13:20:46,168 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search?q=%22200%20Wn.2d%2072%22 HTTP/1.1" 301 0
+2025-09-16 13:20:46,851 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22200%20Wn%28DOT%292d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:47,222 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /judgement/us/67e24df122bfeee8de728fac HTTP/1.1" 200 None
+2025-09-16 13:20:47,233 - src.enhanced_fallback_verifier - INFO - CaseMine CAPTCHA detected - using 'Unknown Case' to prevent contamination
+2025-09-16 13:20:47,233 - src.enhanced_fallback_verifier - INFO - CaseMine found case at https://www.casemine.com/judgement/us/67e24df122bfeee8de728fac but couldn't extract canonical name
+2025-09-16 13:20:47,303 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search?q=%22200%20Wash.2d%2072%22 HTTP/1.1" 301 0
+2025-09-16 13:20:47,716 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22200%20Wash%28DOT%292d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:47,723 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.bing.com:443
+2025-09-16 13:20:47,869 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22200%20Wn.2d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:47,970 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22200%20Wash.2d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:48,034 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): law.justia.com:443
+2025-09-16 13:20:48,070 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22200%20Wn.2d%2072%22 HTTP/1.1" 403 919
+2025-09-16 13:20:48,238 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22200%20Wash.2d%2072%22 HTTP/1.1" 403 919
+2025-09-16 13:20:48,240 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): scholar.google.com:443
+2025-09-16 13:20:48,376 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar?q=%22200%20Wn.2d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:48,578 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar?q=%22200%20Wash.2d%2072%22 HTTP/1.1" 200 None
+2025-09-16 13:20:48,626 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): duckduckgo.com:443
+2025-09-16 13:20:48,658 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22200%20Wn.2d%2072%22 HTTP/1.1" 302 138
+2025-09-16 13:20:48,661 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): html.duckduckgo.com:443
+2025-09-16 13:20:48,723 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22200%20Wn.2d%2072%22 HTTP/1.1" 202 None
+2025-09-16 13:20:48,831 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22200%20Wash.2d%2072%22 HTTP/1.1" 302 138
+2025-09-16 13:20:48,862 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22200%20Wash.2d%2072%22 HTTP/1.1" 202 None
+2025-09-16 13:20:48,874 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Optimized fallback verification failed for '200 Wn.2d 72'
+2025-09-16 13:20:48,875 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '171 Wn.2d 486': {'citation': '171 Wn.2d 486', 'verified': True, 'canonical_name': 'Carlsen v. Global Client Solutions, LLC', 'canonical_date': '2011', 'canonical_url': 'https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:48,876 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '146 Wn.2d 1': {'citation': '146 Wn.2d 1', 'verified': True, 'canonical_name': 'Department of Ecology v. Campbell & Gwinn, L.L.C.', 'canonical_date': '2002', 'canonical_url': 'https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:48,876 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '514 P.3d 643': {'citation': '514 P.3d 643', 'verified': False, 'canonical_name': None, 'canonical_date': None, 'canonical_url': None, 'source': None, 'confidence': 0.0}
+2025-09-16 13:20:48,877 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '514 P.3d 643' not verified by CourtListener, trying fallback
+2025-09-16 13:20:48,878 - src.enhanced_fallback_verifier - INFO - Starting optimized sync verification for 514 P.3d 643
+2025-09-16 13:20:49,174 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 13:20:49,660 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-09-16 13:20:49,757 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=%22514+P.3d+643%22&type=opinion&order_by=relevance HTTP/1.1" 400 165
+2025-09-16 13:20:49,950 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=%22514+P.3d+643%22+court+decision&type=opinion&order_by=relevance HTTP/1.1" 400 165
+2025-09-16 13:20:50,019 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search?q=%22514%20P.3d%20643%22 HTTP/1.1" 301 0
+2025-09-16 13:20:50,487 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22514%20P%28DOT%293d%20643%22 HTTP/1.1" 200 None
+2025-09-16 13:20:50,822 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /judgement/us/62f72960c2281c7ac2f653a1 HTTP/1.1" 200 None
+2025-09-16 13:20:50,831 - src.enhanced_fallback_verifier - INFO - CaseMine CAPTCHA detected - using 'Unknown Case' to prevent contamination
+2025-09-16 13:20:50,832 - src.enhanced_fallback_verifier - INFO - CaseMine found case at https://www.casemine.com/judgement/us/62f72960c2281c7ac2f653a1 but couldn't extract canonical name
+2025-09-16 13:20:50,901 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search?q=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 301 0
+2025-09-16 13:20:52,285 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /search/us/%22514%20P%28DOT%293d%20643%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 13:20:52,669 - urllib3.connectionpool - DEBUG - https://www.casemine.com:443 "GET /judgement/us/62f72960c2281c7ac2f653a1 HTTP/1.1" 200 None
+2025-09-16 13:20:52,678 - src.enhanced_fallback_verifier - INFO - CaseMine CAPTCHA detected - using 'Unknown Case' to prevent contamination
+2025-09-16 13:20:52,678 - src.enhanced_fallback_verifier - INFO - CaseMine found case at https://www.casemine.com/judgement/us/62f72960c2281c7ac2f653a1 but couldn't extract canonical name
+2025-09-16 13:20:52,737 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22514%20P.3d%20643%22 HTTP/1.1" 200 None
+2025-09-16 13:20:52,989 - urllib3.connectionpool - DEBUG - https://www.bing.com:443 "GET /search?q=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 13:20:53,074 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22514%20P.3d%20643%22 HTTP/1.1" 403 919
+2025-09-16 13:20:53,276 - urllib3.connectionpool - DEBUG - https://law.justia.com:443 "GET /search?query=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 403 919
+2025-09-16 13:20:53,352 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar?q=%22514%20P.3d%20643%22 HTTP/1.1" 200 None
+2025-09-16 13:20:53,557 - urllib3.connectionpool - DEBUG - https://scholar.google.com:443 "GET /scholar?q=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 200 None
+2025-09-16 13:20:53,604 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22514%20P.3d%20643%22 HTTP/1.1" 302 138
+2025-09-16 13:20:53,643 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22514%20P.3d%20643%22 HTTP/1.1" 202 None
+2025-09-16 13:20:53,804 - urllib3.connectionpool - DEBUG - https://duckduckgo.com:443 "GET /html/?q=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 302 138
+2025-09-16 13:20:53,839 - urllib3.connectionpool - DEBUG - https://html.duckduckgo.com:443 "GET /html/?q=%22514%20P.3d%20643%22%20court%20decision HTTP/1.1" 202 None
+2025-09-16 13:20:53,847 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Optimized fallback verification failed for '514 P.3d 643'
+2025-09-16 13:20:53,848 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '256 P.3d 321': {'citation': '256 P.3d 321', 'verified': True, 'canonical_name': 'Carlsen v. Global Client Solutions, LLC', 'canonical_date': '2011', 'canonical_url': 'https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:53,849 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '43 P.3d 4': {'citation': '43 P.3d 4', 'verified': True, 'canonical_name': 'State, Dept. of Ecology v. Campbell & Gwinn', 'canonical_date': '2002', 'canonical_url': 'https://www.courtlistener.com/opinion/2624899/state-dept-of-ecology-v-campbell-gwinn/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:53,850 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '200 P.3d 1': {'citation': '200 P.3d 1', 'verified': True, 'canonical_name': 'State v. Prine', 'canonical_date': '2009', 'canonical_url': 'https://www.courtlistener.com/opinion/2624611/state-v-prine/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:53,851 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Found matching result for '200 P.3d 1': {'citation': '200 P.3d 1', 'verified': True, 'canonical_name': 'State v. Prine', 'canonical_date': '2009', 'canonical_url': 'https://www.courtlistener.com/opinion/2624611/state-v-prine/', 'source': 'CourtListener Citation-Lookup API v4', 'confidence': 0.95}
+2025-09-16 13:20:53,851 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Synchronous verification completed: 8 results
+2025-09-16 13:20:53,854 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Synchronous verification completed
+2025-09-16 13:20:53,855 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Updating citations with verification results...
+2025-09-16 13:20:53,855 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 Wn.2d 72' - Extracted: 'LLC v. DeepThink' (2022), Canonical: 'None' (None)
+2025-09-16 13:20:53,856 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '171 Wn.2d 486' - Extracted: 'Carlson v. Glob. Client Sols., LLC' (2011), Canonical: 'Carlsen v. Global Client Solutions, LLC' (2011)
+2025-09-16 13:20:53,857 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '146 Wn.2d 1' - Extracted: 'Smith v. Jones' (2002), Canonical: 'Department of Ecology v. Campbell & Gwinn, L.L.C.' (2002)
+2025-09-16 13:20:53,857 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '514 P.3d 643' - Extracted: 'LLC v. DeepThink' (2022), Canonical: 'None' (None)
+2025-09-16 13:20:53,858 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '256 P.3d 321' - Extracted: 'Carlson v. Glob. Client Sols., LLC' (2011), Canonical: 'Carlsen v. Global Client Solutions, LLC' (2011)
+2025-09-16 13:20:53,858 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '43 P.3d 4' - Extracted: 'Smith v. Jones' (2002), Canonical: 'State, Dept. of Ecology v. Campbell & Gwinn' (2002)
+2025-09-16 13:20:53,859 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 P.3d 1' - Extracted: 'Smith v. Jones' (2009), Canonical: 'State v. Prine' (2009)
+2025-09-16 13:20:53,860 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 P.3d 1' - Extracted: 'Smith v. Jones' (2009), Canonical: 'State v. Prine' (2009)
+2025-09-16 13:20:53,860 - enhanced_sync_processor - INFO - [CLUSTER_VERIFICATION] Updating verification status for 4 clusters based on 8 citations
+2025-09-16 13:20:53,861 - enhanced_sync_processor - INFO - [CLUSTER_VERIFICATION] Cluster 'LLC_v._DeepThink_2022': 0/2 citations verified -> cluster verified: False
+2025-09-16 13:20:53,861 - enhanced_sync_processor - INFO - [CLUSTER_VERIFICATION] Cluster 'Carlson_v._Glob._Client_Sols.,_LLC_2011': 2/2 citations verified -> cluster verified: True
+2025-09-16 13:20:53,862 - enhanced_sync_processor - INFO - [CLUSTER_VERIFICATION] Cluster 'Smith_v._Jones_2002': 2/2 citations verified -> cluster verified: True
+2025-09-16 13:20:53,862 - enhanced_sync_processor - INFO - [CLUSTER_VERIFICATION] Cluster 'Smith_v._Jones_2009': 2/2 citations verified -> cluster verified: True
+2025-09-16 13:20:53,863 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citations updated with verification data
+2025-09-16 13:20:53,863 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Updating clusters with verification data...
+2025-09-16 13:20:53,864 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] _update_clusters_with_verification called with 4 clusters and 8 verification results
+2025-09-16 13:20:53,864 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Starting cluster processing loop
+2025-09-16 13:20:53,865 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Checking cluster 'LLC v. DeepThink' - cluster_has_verified: False
+2025-09-16 13:20:53,865 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Checking cluster 'Carlson v. Glob. Client Sols., LLC' - cluster_has_verified: True
+2025-09-16 13:20:53,866 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Applying true_by_parallel logic for cluster 'Carlson v. Glob. Client Sols., LLC'
+2025-09-16 13:20:53,866 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster citations: ['171 Wn.2d 486', '256 P.3d 321']
+2025-09-16 13:20:53,867 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster has verified citations: True
+2025-09-16 13:20:53,867 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '171 Wn.2d 486' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,868 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '171 Wn.2d 486'
+2025-09-16 13:20:53,868 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '256 P.3d 321' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,868 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '256 P.3d 321'
+2025-09-16 13:20:53,869 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Checking cluster 'Smith v. Jones' - cluster_has_verified: True
+2025-09-16 13:20:53,869 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Applying true_by_parallel logic for cluster 'Smith v. Jones'
+2025-09-16 13:20:53,870 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster citations: ['146 Wn.2d 1', '43 P.3d 4']
+2025-09-16 13:20:53,870 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster has verified citations: True
+2025-09-16 13:20:53,870 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '146 Wn.2d 1' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,871 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '146 Wn.2d 1'
+2025-09-16 13:20:53,871 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '43 P.3d 4' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,872 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '43 P.3d 4'
+2025-09-16 13:20:53,872 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Checking cluster 'Smith v. Jones' - cluster_has_verified: True
+2025-09-16 13:20:53,873 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Applying true_by_parallel logic for cluster 'Smith v. Jones'
+2025-09-16 13:20:53,873 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster citations: ['200 P.3d 1', '200 P.3d 1']
+2025-09-16 13:20:53,874 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Cluster has verified citations: True
+2025-09-16 13:20:53,874 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 P.3d 1' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,875 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '200 P.3d 1'
+2025-09-16 13:20:53,875 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Citation '200 P.3d 1' is verified, setting true_by_parallel=False
+2025-09-16 13:20:53,876 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Set true_by_parallel=False for verified citation '200 P.3d 1'
+2025-09-16 13:20:53,876 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Clusters updated with verification data
+2025-09-16 13:20:53,883 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:53,894 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:53,894 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:53,901 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:53,916 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:53,927 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:53,927 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:53,935 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:53,948 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:53,958 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:53,958 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:53,965 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:53,976 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:53,987 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:53,987 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:53,995 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:54,007 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:54,017 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:54,018 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:54,024 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:54,037 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:54,047 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:54,047 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:54,054 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:54,066 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:54,078 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:54,078 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:54,085 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:54,097 - src.utils.text_normalizer - DEBUG - Text normalization: '
+A federal court may ask this court to answer a qu...' -> ' A federal court may ask this court to answer a qu...'
+2025-09-16 13:20:54,107 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC' -> 'LLC'
+2025-09-16 13:20:54,108 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'DeepThink' -> 'DeepThink'
+2025-09-16 13:20:54,114 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'LLC v. DeepThink' -> 'LLC v. DeepThink'
+2025-09-16 13:20:54,120 - enhanced_sync_processor - INFO - [EnhancedSyncProcessor enhanced_1758054040277] Enhanced processing completed in 13.842s
+2025-09-16 13:20:54,120 - __main__ - INFO - Synchronous processing completed in 13.84 seconds
+2025-09-16 13:20:54,121 - __main__ - INFO - Found 8 citations
+2025-09-16 13:20:54,129 - __main__ - INFO - Results saved to sync_processing_results.json
+2025-09-16 13:20:54,130 - __main__ - INFO - 
+=== Test completed successfully ===
+2025-09-16 13:20:54,130 - __main__ - INFO - Found 8 citations in the test text.

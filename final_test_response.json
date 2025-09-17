@@ -1,0 +1,84 @@
+{
+  "document_length": 740,
+  "processing_time_ms": 147,
+  "request_id": "9b069fb8-101b-4b23-a897-b3824e998b28",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Fode v. Dep't of Ecology",
+        "citation": "509 P.3d 325",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Fode v. Dep't of Ecology",
+        "extracted_date": "2022",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Bostain v. Food Express",
+        "citation": "159 Wn.2d 700",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Bostain v. Food Express",
+        "extracted_date": "2007",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Bostain v. Food Express",
+        "citation": "153 P.3d 846",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Bostain v. Food Express",
+        "extracted_date": "2007",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Port of Tacoma v. Sacks",
+        "citation": "495 P.3d 866 No. 103394-0 12",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Port of Tacoma v. Sacks",
+        "extracted_date": "2021",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "full_with_verification",
+      "source": "text",
+      "text_length": 740
+    },
+    "processing_time": 0.14753389358520508,
+    "request_id": "9b069fb8-101b-4b23-a897-b3824e998b28",
+    "success": true
+  }
+}

@@ -29,7 +29,7 @@ class ProcessingOptions:
     force_ultra_fast: bool = False
     skip_clustering_threshold: int = 300
     ultra_fast_threshold: int = 500
-    sync_threshold: int = 2 * 1024  # 2KB
+    sync_threshold: int = 5 * 1024  # 5KB - reasonable for sync processing
     max_citations_for_skip_clustering: int = 3
 
 class UnifiedSyncProcessor:
@@ -215,6 +215,9 @@ class UnifiedSyncProcessor:
                 
                 citations_list = self._convert_citations_to_dicts(citations)
                 
+                # Apply deduplication
+                citations_list = self._deduplicate_citations(citations_list, request_id)
+                
                 return {
                     'success': True,
                     'citations': citations_list,
@@ -224,6 +227,9 @@ class UnifiedSyncProcessor:
                 }
             else:
                 citations_list = self._convert_citations_to_dicts(citations)
+                
+                # Apply deduplication
+                citations_list = self._deduplicate_citations(citations_list, request_id)
                 
                 return {
                     'success': True,
@@ -246,6 +252,9 @@ class UnifiedSyncProcessor:
             
             citations_list = self._convert_citations_to_dicts(citations)
             
+            # Apply deduplication
+            citations_list = self._deduplicate_citations(citations_list, request_id)
+            
             return {
                 'success': True,
                 'citations': citations_list,
@@ -261,28 +270,63 @@ class UnifiedSyncProcessor:
     def _process_with_verification(self, text: str, request_id: str, options: Optional[Dict]) -> Dict[str, Any]:
         """Full processing with clustering and verification."""
         try:
-            logger.info(f"[UnifiedSyncProcessor {request_id}] Full processing with verification")
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
             
-            citations = self._extract_citations_standard(text)
-            citation_results = citations
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Starting full processing with verification")
             
-            if len(text) < self.clustering_skip_threshold and len(citations) <= self.max_citations_for_skip_clustering:
-                logger.info(f"[UnifiedSyncProcessor {request_id}] Skipping clustering for short text with few citations")
-                clusters = []
-            else:
-                clusters = self._apply_clustering_with_verification(citation_results, text, request_id, options)
+            # Get verification flag from options or use default
+            enable_verification = options.get('enable_verification', True) if options else True
             
-            citations_list = self._convert_citations_to_dicts(citation_results)
-            clusters_list = self._convert_clusters_to_dicts(clusters, citation_results)
+            # Extract citations using the full processor pipeline (includes verification)
+            processor = UnifiedCitationProcessorV2()
+            
+            # Use the full async processing pipeline that includes verification
+            import asyncio
+            try:
+                result = asyncio.run(processor.process_text(text))
+                citations = result.get('citations', [])
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Full pipeline processing completed with {len(citations)} citations")
+            except Exception as e:
+                logger.warning(f"[UnifiedSyncProcessor {request_id}] Full pipeline failed, falling back to basic extraction: {e}")
+                citations = processor._extract_with_regex(text)
+            
+            if not citations:
+                logger.warning(f"[UnifiedSyncProcessor {request_id}] No citations found in text")
+                return {
+                    'success': True,
+                    'citations': [],
+                    'clusters': [],
+                    'processing_strategy': 'full_with_verification',
+                    'extraction_method': 'unified_processor_v2',
+                    'warning': 'No citations found in text',
+                    'verification_enabled': enable_verification
+                }
+            
+            # Apply clustering with verification
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Starting clustering with verification={'enabled' if enable_verification else 'disabled'}")
+            clusters = self._apply_clustering_with_verification(
+                citations=citations, 
+                text=text, 
+                request_id=request_id, 
+                options=options, 
+                enable_verification=enable_verification
+            )
+            
+            # Convert citations to dictionaries for the response
+            citations_list = self._convert_citations_to_dicts(citations)
+            
+            # Apply deduplication
+            citations_list = self._deduplicate_citations(citations_list, request_id)
+            
+            clusters_list = self._convert_clusters_to_dicts(clusters, citations)
             
             return {
                 'success': True,
                 'citations': citations_list,
                 'clusters': clusters_list,
                 'processing_strategy': 'full_with_verification',
-                'extraction_method': 'standard_regex',
-                'clustering_applied': len(clusters) > 0,
-                'verification_applied': self._has_verification(citations)
+                'extraction_method': 'unified_processor_v2',
+                'verification_enabled': enable_verification
             }
             
         except Exception as e:
@@ -334,19 +378,41 @@ class UnifiedSyncProcessor:
             'warning': 'Used fallback extraction due to processing errors'
         }
     
-    def _apply_clustering_with_verification(self, citations: List, text: str, request_id: str, options: Optional[Dict]) -> List:
-        """Apply clustering with verification for citations."""
+    def _apply_clustering_with_verification(self, citations: List, text: str, request_id: str, options: Optional[Dict], enable_verification: bool = None) -> List:
+        """Apply clustering with verification for citations.
+        
+        Args:
+            citations: List of citation objects to cluster
+            text: The original text being processed
+            request_id: Unique ID for the request
+            options: Optional processing options
+            enable_verification: Whether to enable verification (overrides auto-detection if provided)
+            
+        Returns:
+            List of citation clusters
+        """
         try:
             from src.unified_citation_clustering import cluster_citations_unified
             
-            enable_verification = len(text) > 500  # Lowered from 1000 to 500 for better coverage
+            # Use provided enable_verification if available, otherwise auto-detect
+            if enable_verification is None:
+                enable_verification = len(text) > 500  # Lowered from 1000 to 500 for better coverage
+                
+                if any('Wn.' in str(c) for c in citations) and len(text) >= 300:
+                    logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected - ensuring proper parallel detection")
+                    enable_verification = True
+                elif any('Wn.' in str(c) for c in citations) and len(text) < 300:
+                    logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected but text too short - using fast path")
+                    enable_verification = False
             
-            if any('Wn.' in str(c) for c in citations) and len(text) >= 300:
-                logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected - ensuring proper parallel detection")
-                enable_verification = True
-            elif any('Wn.' in str(c) for c in citations) and len(text) < 300:
-                logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected but text too short - using fast path")
-                enable_verification = False
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Clustering with verification={'enabled' if enable_verification else 'disabled'}")
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Input citations: {len(citations)}")
+            
+            # Debug: Log citation details
+            for i, citation in enumerate(citations):
+                citation_text = getattr(citation, 'citation', str(citation))
+                case_name = getattr(citation, 'extracted_case_name', 'N/A')
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Citation {i+1}: {citation_text} - {case_name}")
             
             clustering_result = cluster_citations_unified(
                 citations, 
@@ -354,11 +420,17 @@ class UnifiedSyncProcessor:
                 enable_verification=enable_verification
             )
             
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Clustering result type: {type(clustering_result)}")
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Clustering result: {clustering_result}")
+            
             if isinstance(clustering_result, dict):
                 clusters = clustering_result.get('clusters', [])
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Extracted clusters from dict: {len(clusters)}")
             else:
                 clusters = clustering_result if isinstance(clustering_result, list) else []
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Using result as list: {len(clusters)}")
             
+            logger.info(f"[UnifiedSyncProcessor {request_id}] Final clusters: {clusters}")
             logger.info(f"[UnifiedSyncProcessor {request_id}] Clustering completed with {len(clusters)} clusters")
             return clusters
             
@@ -393,9 +465,11 @@ class UnifiedSyncProcessor:
     
     def _convert_clusters_to_dicts(self, clusters: List, citations: Optional[List] = None) -> List[Dict[str, Any]]:
         """Convert clusters to dictionaries for frontend consumption."""
+        logger.info(f"[UnifiedSyncProcessor] Converting {len(clusters)} clusters to dicts")
         clusters_list = []
         
-        for cluster in clusters:
+        for i, cluster in enumerate(clusters):
+            logger.info(f"[UnifiedSyncProcessor] Processing cluster {i+1}: {cluster}")
             if isinstance(cluster, dict):
                 citations_list = cluster.get('citations', [])
                 
@@ -408,9 +482,18 @@ class UnifiedSyncProcessor:
                 citation_objects = []
                 if citations_list and citations:
                     for citation_obj in citations:
-                        if not hasattr(citation_obj, 'citation'):
+                        citation_text = getattr(citation_obj, 'citation', str(citation_obj))
+                        if not citation_text:
                             continue
-                        if citation_obj.citation not in citations_list:
+                        
+                        # Improved matching - check if citation text matches any in the cluster
+                        citation_matches = False
+                        for cluster_citation in citations_list:
+                            if citation_text == cluster_citation or citation_text.strip() == cluster_citation.strip():
+                                citation_matches = True
+                                break
+                        
+                        if not citation_matches:
                             continue
                         
                         citation_dict = {
@@ -525,3 +608,24 @@ class UnifiedSyncProcessor:
             'cache_size': len(self.cache),
             'active_entries': active_entries
         }
+    
+    def _deduplicate_citations(self, citations: List[Dict[str, Any]], request_id: str) -> List[Dict[str, Any]]:
+        """Apply deduplication to citations list."""
+        if not citations:
+            return citations
+        
+        try:
+            from src.citation_deduplication import deduplicate_citations
+            
+            original_count = len(citations)
+            deduplicated = deduplicate_citations(citations, debug=True)
+            
+            if len(deduplicated) < original_count:
+                logger.info(f"[UnifiedSyncProcessor {request_id}] Deduplication: {original_count} → {len(deduplicated)} citations "
+                           f"({original_count - len(deduplicated)} duplicates removed)")
+            
+            return deduplicated
+            
+        except Exception as e:
+            logger.warning(f"[UnifiedSyncProcessor {request_id}] Deduplication failed: {e}")
+            return citations  # Return original citations if deduplication fails

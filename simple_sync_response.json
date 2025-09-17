@@ -1,0 +1,97 @@
+{
+  "document_length": 36,
+  "processing_time_ms": 5566,
+  "request_id": "2a1a6dac-077f-472e-9764-4ba3a68fae77",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Brown v. Board",
+        "citation": "347 U.S. 483",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Brown v. Board",
+        "extracted_date": "1954",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "fast_no_clustering",
+      "source": "text",
+      "text_length": 36
+    },
+    "processing_time": 5.566203355789185,
+    "progress_data": {
+      "current_message": "Citation extraction completed",
+      "current_step": 1,
+      "elapsed_time": 5.553515195846558,
+      "end_time": 1758086087.8638012,
+      "overall_progress": 100,
+      "start_time": 1758086082.3124702,
+      "status": "completed",
+      "steps": [
+        {
+          "end_time": 1758086082.3254776,
+          "message": "Initialization complete",
+          "name": "Initializing",
+          "progress": 100,
+          "start_time": 1758086082.3151565,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758086087.8425946,
+          "message": "Citation extraction completed",
+          "name": "Extract",
+          "progress": 100,
+          "start_time": 1758086082.328436,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758086087.844851,
+          "message": "Analysis completed",
+          "name": "Analyze",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758086087.8538795,
+          "message": "Name extraction completed",
+          "name": "Extract Names",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758086087.8593757,
+          "message": "Clustering completed",
+          "name": "Cluster",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758086087.8616784,
+          "message": "Verification completed",
+          "name": "Verify",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        }
+      ],
+      "task_id": "2a1a6dac-077f-472e-9764-4ba3a68fae77",
+      "total_steps": 6
+    },
+    "request_id": "2a1a6dac-077f-472e-9764-4ba3a68fae77",
+    "success": true
+  }
+}

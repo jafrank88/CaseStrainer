@@ -14,6 +14,7 @@ reliable, and well-tested approach.
 """
 
 import logging
+import os
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import re
@@ -36,18 +37,43 @@ class UnifiedCitationClusterer:
     """
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the unified clusterer with configuration."""
-        self.config = config or {}
-        self.debug_mode = self.config.get('debug_mode', False)
+        """Initialize the unified clusterer with configuration.
         
-        self.proximity_threshold = self.config.get('proximity_threshold', 200)
-        self.min_cluster_size = self.config.get('min_cluster_size', 1)  # Allow single citation clusters
-        self.case_name_similarity_threshold = self.config.get('case_name_similarity_threshold', 0.8)
+        Args:
+            config: Optional configuration dictionary. If not provided, will load from default config.
+        """
+        from src.config import get_citation_config
+        
+        # Get default configuration if not provided
+        default_config = get_citation_config()
+        
+        # Merge with provided config
+        self.config = {**default_config, **(config or {})}
+        
+        # Set debug mode from config or environment
+        self.debug_mode = self.config.get('debug_mode', False) or os.environ.get('DEBUG', '').lower() in ('1', 'true', 'yes')
+        
+        # Configure clustering parameters
+        clustering_config = self.config.get('clustering_options', {})
+        self.proximity_threshold = clustering_config.get('proximity_threshold', 200)
+        self.min_cluster_size = clustering_config.get('min_cluster_size', 1)  # Allow single citation clusters
+        self.case_name_similarity_threshold = clustering_config.get('case_name_similarity_threshold', 0.8)
+        
+        # Configure verification
+        self.enable_verification = self.config.get('enable_verification', True)
+        self.verification_config = self.config.get('verification_options', {})
         
         if self.debug_mode:
-            logger.info("UnifiedCitationClusterer initialized")
+            logger.info("UnifiedCitationClusterer initialized with configuration:")
+            logger.info(f"- Debug mode: {self.debug_mode}")
+            logger.info(f"- Proximity threshold: {self.proximity_threshold}")
+            logger.info(f"- Min cluster size: {self.min_cluster_size}")
+            logger.info(f"- Case name similarity threshold: {self.case_name_similarity_threshold}")
+            logger.info(f"- Verification enabled: {self.enable_verification}")
+            if self.enable_verification:
+                logger.info(f"  - Verification config: {self.verification_config}")
     
-    def cluster_citations(self, citations: List[Any], original_text: str = "", enable_verification: bool = False) -> List[Dict[str, Any]]:
+    def cluster_citations(self, citations: List[Any], original_text: str = "", enable_verification: bool = None) -> List[Dict[str, Any]]:
         """
         Main clustering method with optimal flow:
         1. FIRST: Detect parallel citations (clustering)
@@ -58,11 +84,18 @@ class UnifiedCitationClusterer:
         Args:
             citations: List of citation objects to cluster
             original_text: Original text for context (optional)
-            enable_verification: Whether to verify citations with CourtListener API
+            enable_verification: Whether to verify citations with CourtListener API.
+                              If None, uses the instance's default setting.
             
         Returns:
             List of cluster dictionaries with proper metadata
         """
+        # Use instance setting if not explicitly overridden
+        if enable_verification is None:
+            enable_verification = self.enable_verification
+            
+        if self.debug_mode:
+            logger.info(f"Starting clustering with verification {'enabled' if enable_verification else 'disabled'}")
         if not citations:
             return []
         
@@ -98,36 +131,61 @@ class UnifiedCitationClusterer:
         groups = []
         visited = set()
         
-        sorted_citations = sorted(citations, key=lambda c: c.start_index if hasattr(c, 'start_index') and c.start_index is not None else 0)
+        # Helper function to get citation text
+        def get_citation_text(cit):
+            if isinstance(cit, dict):
+                return cit.get('citation', cit.get('text', ''))
+            return getattr(cit, 'citation', getattr(cit, 'text', ''))
+            
+        # Helper function to get start index
+        def get_start_index(cit):
+            if isinstance(cit, dict):
+                return cit.get('start', cit.get('start_index', 0))
+            return getattr(cit, 'start_index', getattr(cit, 'start', 0))
+            
+        # Helper function to get parallel citations
+        def get_parallel_citations(cit):
+            if isinstance(cit, dict):
+                return cit.get('parallel_citations', [])
+            return getattr(cit, 'parallel_citations', [])
+        
+        # Sort citations by start index
+        sorted_citations = sorted(citations, key=lambda c: get_start_index(c))
+        
+        # Create a lookup for citations by their text
+        citation_lookup = {get_citation_text(c): c for c in citations}
         
         for citation in sorted_citations:
-            if citation.citation in visited:
+            citation_text = get_citation_text(citation)
+            if citation_text in visited:
                 continue
             
             group = [citation]
-            visited.add(citation.citation)
+            visited.add(citation_text)
             
-            parallel_citations = getattr(citation, 'parallel_citations', [])
-            citation_lookup = {c.citation: c for c in citations}
-            
+            # Check for explicitly marked parallel citations
+            parallel_citations = get_parallel_citations(citation)
             for parallel_cite in parallel_citations:
                 if parallel_cite in citation_lookup and parallel_cite not in visited:
                     parallel_citation = citation_lookup[parallel_cite]
+                    reverse_parallels = get_parallel_citations(parallel_citation)
                     
-                    reverse_parallels = getattr(parallel_citation, 'parallel_citations', [])
-                    if citation.citation in reverse_parallels:
-                        distance = abs(citation.start_index - parallel_citation.start_index)
+                    # Check for bidirectional relationship
+                    if citation_text in reverse_parallels:
+                        distance = abs(get_start_index(citation) - get_start_index(parallel_citation))
                         if distance <= self.proximity_threshold:
                             group.append(parallel_citation)
                             visited.add(parallel_cite)
             
+            # Check for proximity-based parallel citations
             for other_citation in sorted_citations:
-                if other_citation.citation in visited:
+                other_text = get_citation_text(other_citation)
+                if other_text in visited:
                     continue
                 
                 if self._are_citations_parallel_by_proximity(citation, other_citation, text):
                     group.append(other_citation)
-                    visited.add(other_citation.citation)
+                    visited.add(other_text)
             
             groups.append(group)
         
@@ -187,16 +245,19 @@ class UnifiedCitationClusterer:
                 citation_list = [c.citation for c in sorted_group]
             
             for citation in sorted_group:
-                # Only overwrite if the citation doesn't already have a valid extracted case name
-                if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
-                    citation.extracted_case_name = case_name or "N/A"
-                citation.extracted_date = year or "N/A"
-                if True:
-
-                    pass  # Empty block
-
-                
-                    pass  # Empty block
+                # Handle both object and dictionary access patterns
+                if hasattr(citation, 'extracted_case_name'):
+                    # Object access
+                    if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                        citation.extracted_case_name = case_name or "N/A"
+                    citation.extracted_date = year or "N/A"
+                elif isinstance(citation, dict):
+                    # Dictionary access
+                    if not citation.get('extracted_case_name') or citation.get('extracted_case_name') == "N/A":
+                        citation['extracted_case_name'] = case_name or "N/A"
+                    citation['extracted_date'] = year or "N/A"
+                else:
+                    logger.warning(f"Unsupported citation type: {type(citation)}")
 
                 
             if case_name and year and case_name != "N/A" and year != "N/A":
@@ -210,48 +271,30 @@ class UnifiedCitationClusterer:
         
         return clusters
     
-    def _are_citations_parallel_by_proximity(self, citation1: Any, citation2: Any, text: str) -> bool:
-        """
-        Determine if two citations are parallel based on proximity and patterns.
-        
-        Args:
-            citation1: First citation to compare
-            citation2: Second citation to compare
-            text: Original text for context
             
-        Returns:
-            True if citations appear to be parallel (same case, different reporters)
-        """
-        if not (hasattr(citation1, 'start_index') and hasattr(citation2, 'start_index')):
-            return False
-        
-        if citation1.start_index is None or citation2.start_index is None:
-            return False
+        if self.debug_mode and len(sorted_group) > 1:
+            citation_list = [c.citation for c in sorted_group]
             
-        distance = abs(citation1.start_index - citation2.start_index)
-        if distance > self.proximity_threshold:
-            return False
-        
-        reporter1 = self._extract_reporter_type(citation1.citation)
-        reporter2 = self._extract_reporter_type(citation2.citation)
-        
-        if reporter1 == reporter2:
-            return False
-        
-        is_parallel = self._match_parallel_patterns(citation1.citation, citation2.citation)
-        
-        if not is_parallel:
-            is_parallel = self._check_washington_parallel_patterns(citation1.citation, citation2.citation, text)
-        
-        if True:
+        for citation in sorted_group:
+            # Handle both object and dictionary access patterns
+            if hasattr(citation, 'extracted_case_name'):
+                # Object access
+                if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                    citation.extracted_case_name = case_name or "N/A"
+                citation.extracted_date = year or "N/A"
+            elif isinstance(citation, dict):
+                # Dictionary access
+                if not citation.get('extracted_case_name') or citation.get('extracted_case_name') == "N/A":
+                    citation['extracted_case_name'] = case_name or "N/A"
+                citation['extracted_date'] = year or "N/A"
+            else:
+                logger.warning(f"Unsupported citation type: {type(citation)}")
 
-        
-            pass  # Empty block
-
-        
-        
-            pass  # Empty block
-
+                
+        if case_name and year and case_name != "N/A" and year != "N/A":
+            cluster_key = f"{case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
+        else:
+            cluster_key = f"group_{sorted_group[0].citation}".replace(' ', '_').replace('.', '_').replace('/', '_')
         
         
         return is_parallel
@@ -361,6 +404,122 @@ class UnifiedCitationClusterer:
         reverse_combination = (reporter2, reporter1)
         
         return combination in parallel_combinations or reverse_combination in parallel_combinations
+    
+    def _are_citations_parallel_by_proximity(self, citation1: Any, citation2: Any, text: str) -> bool:
+        """
+        Determine if two citations are parallel based on proximity and reporter patterns.
+        
+        Args:
+            citation1: First citation object
+            citation2: Second citation object
+            text: Original text for context
+            
+        Returns:
+            True if citations are likely parallel citations
+        """
+        # Helper functions to get citation properties
+        def get_citation_text(cit):
+            if isinstance(cit, dict):
+                return cit.get('citation', cit.get('text', ''))
+            return getattr(cit, 'citation', getattr(cit, 'text', ''))
+            
+        def get_start_index(cit):
+            if isinstance(cit, dict):
+                return cit.get('start', cit.get('start_index', 0))
+            return getattr(cit, 'start_index', getattr(cit, 'start', 0))
+        
+        def get_case_name(cit):
+            if isinstance(cit, dict):
+                return cit.get('extracted_case_name', cit.get('case_name', ''))
+            return getattr(cit, 'extracted_case_name', getattr(cit, 'case_name', ''))
+        
+        def get_year(cit):
+            if isinstance(cit, dict):
+                return cit.get('extracted_date', cit.get('year', ''))
+            return getattr(cit, 'extracted_date', getattr(cit, 'year', ''))
+        
+        citation1_text = get_citation_text(citation1)
+        citation2_text = get_citation_text(citation2)
+        
+        # Check if they have different reporter types (required for parallel citations)
+        reporter1 = self._extract_reporter_type(citation1_text)
+        reporter2 = self._extract_reporter_type(citation2_text)
+        
+        if reporter1 == reporter2:
+            return False  # Same reporter type, not parallel
+        
+        # Check if they match known parallel patterns
+        if not self._match_parallel_patterns(citation1_text, citation2_text):
+            return False
+        
+        # Check proximity - parallel citations should be close to each other
+        start1 = get_start_index(citation1)
+        start2 = get_start_index(citation2)
+        distance = abs(start1 - start2)
+        
+        if distance > self.proximity_threshold:
+            return False
+        
+        # Check if they have the same case name (if available)
+        case1 = get_case_name(citation1)
+        case2 = get_case_name(citation2)
+        
+        if case1 and case2 and case1 != 'N/A' and case2 != 'N/A':
+            # If both have case names, they should match
+            similarity = self._calculate_name_similarity(case1, case2)
+            if similarity < self.case_name_similarity_threshold:
+                return False
+        
+        # Check if they have the same year (if available)
+        year1 = get_year(citation1)
+        year2 = get_year(citation2)
+        
+        if year1 and year2 and year1 != 'N/A' and year2 != 'N/A':
+            # If both have years, they should match
+            if year1 != year2:
+                return False
+        
+        # Additional check for Washington citations specifically
+        if 'wn' in citation1_text.lower() or 'wn' in citation2_text.lower():
+            return self._check_washington_parallel_patterns(citation1_text, citation2_text, text)
+        
+        return True
+    
+    def _calculate_name_similarity(self, name1: str, name2: str) -> float:
+        """
+        Calculate similarity between two case names.
+        
+        Args:
+            name1: First case name
+            name2: Second case name
+            
+        Returns:
+            Similarity score between 0 and 1
+        """
+        if not name1 or not name2:
+            return 0.0
+        
+        # Normalize names for comparison
+        def normalize_name(name):
+            return re.sub(r'[^\w\s]', '', name.lower()).strip()
+        
+        norm1 = normalize_name(name1)
+        norm2 = normalize_name(name2)
+        
+        if norm1 == norm2:
+            return 1.0
+        
+        # Simple word-based similarity
+        words1 = set(norm1.split())
+        words2 = set(norm2.split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
     
     def _merge_clusters_by_extracted_metadata(self, clusters: Dict[str, List[Any]]) -> Dict[str, List[Any]]:
         """
@@ -850,6 +1009,7 @@ class UnifiedCitationClusterer:
                 logger.warning(f"✅ Master extraction found: '{case_name}' for citation: '{getattr(citation, 'citation', 'unknown')}'")
                 return case_name
         except Exception as e:
+            logger.warning(f"Error in master extraction: {str(e)}")
         
         start_pos = max(0, citation.start_index - 500)
         end_pos = citation.start_index
@@ -1381,17 +1541,30 @@ def _detect_parallel_citations(citations: list, text: str = ""):
 
 
 
-def cluster_citations_unified(citations: List[Any], original_text: str = "", enable_verification: bool = False) -> List[Dict[str, Any]]:
+def cluster_citations_unified(citations: List[Any], original_text: str = "", enable_verification: bool = None) -> List[Dict[str, Any]]:
     """
     Convenience function for unified citation clustering with optional verification.
     
     Args:
         citations: List of citation objects to cluster
         original_text: Original text for context (optional)
-        enable_verification: Whether to verify citations with CourtListener API
+        enable_verification: Whether to verify citations with CourtListener API.
+                          If None, uses the default configuration setting.
         
     Returns:
         List of cluster dictionaries with proper metadata
     """
-    clusterer = UnifiedCitationClusterer()
+    from src.config import get_citation_config
+    
+    # Get default configuration
+    config = get_citation_config()
+    
+    # Create clusterer with default config
+    clusterer = UnifiedCitationClusterer(config=config)
+    
+    # If enable_verification is not specified, use the default from config
+    if enable_verification is None:
+        enable_verification = config.get('enable_verification', True)
+    
+    logger.info(f"Starting unified citation clustering with verification {'enabled' if enable_verification else 'disabled'}")
     return clusterer.cluster_citations(citations, original_text, enable_verification)

@@ -7,6 +7,7 @@ const progressState = reactive({
   taskId: null,
   startTime: null,
   estimatedTotalTime: 0,
+  elapsedTime: null, // Real elapsed time from backend
   currentStep: '',
   stepProgress: 0,
   totalProgress: 0,
@@ -53,13 +54,20 @@ const progressState = reactive({
 export function useUnifiedProgress() {
   // Computed properties
   const elapsedTime = computed(() => {
+    // Use real elapsed time from backend if available
+    if (progressState.elapsedTime !== undefined && progressState.elapsedTime >= 0) {
+      console.log('Progress debug: Using real backend elapsed time:', progressState.elapsedTime);
+      return progressState.elapsedTime;
+    }
+    
+    // Fallback to calculated elapsed time
     if (!progressState.startTime || typeof progressState.startTime !== 'number') {
       console.log('Progress debug: Invalid startTime, returning 0:', progressState.startTime);
       return 0;
     }
     const elapsed = (Date.now() - progressState.startTime) / 1000;
     const result = isNaN(elapsed) ? 0 : Math.max(0, elapsed);
-    console.log('Progress debug: elapsedTime computed:', { startTime: progressState.startTime, elapsed, result });
+    console.log('Progress debug: elapsedTime computed (calculated):', { startTime: progressState.startTime, elapsed, result });
     return result;
   });
 
@@ -75,7 +83,13 @@ export function useUnifiedProgress() {
   });
 
   const progressPercent = computed(() => {
-    // Additional safety check for startTime
+    // Use real progress data from backend if available
+    if (progressState.totalProgress !== undefined && progressState.totalProgress >= 0) {
+      console.log('Progress debug: Using real backend progress:', progressState.totalProgress);
+      return Math.min(100, Math.max(0, progressState.totalProgress));
+    }
+    
+    // Fallback to time-based estimation if no real progress available
     if (!progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
       console.log('Progress debug: Invalid progress state, returning 0:', { 
         startTime: progressState.startTime, 
@@ -85,7 +99,7 @@ export function useUnifiedProgress() {
     }
     const percent = (elapsedTime.value / progressState.estimatedTotalTime) * 100;
     const result = isNaN(percent) ? 0 : Math.min(100, Math.max(0, percent));
-    console.log('Progress debug: progressPercent computed:', { 
+    console.log('Progress debug: progressPercent computed (time-based):', { 
       startTime: progressState.startTime,
       estimatedTotalTime: progressState.estimatedTotalTime, 
       elapsedTime: elapsedTime.value, 
@@ -287,6 +301,7 @@ export function useUnifiedProgress() {
       taskId: null,
       startTime: null,
       estimatedTotalTime: 0,
+      elapsedTime: null,
       currentStep: '',
       stepProgress: 0,
       totalProgress: 0,

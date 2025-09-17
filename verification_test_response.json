@@ -1,0 +1,36 @@
+{
+  "document_length": 48,
+  "processing_time_ms": 5312,
+  "request_id": "bad38143-826e-4973-bb3c-abeb8a1e7adf",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Brown v. Board of Education",
+        "citation": "347 U.S. 483",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Brown v. Board of Education",
+        "extracted_date": "1954",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "fast_no_clustering",
+      "source": "text",
+      "text_length": 48
+    },
+    "processing_time": 5.312947750091553,
+    "request_id": "bad38143-826e-4973-bb3c-abeb8a1e7adf",
+    "success": true
+  }
+}

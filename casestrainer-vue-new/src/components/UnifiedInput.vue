@@ -113,28 +113,58 @@ const handleAnalyze = async (data) => {
   }
 };
 
+// Import the API service
+import { analyze } from '../api/api';
+
 // Handle URL analysis
 const analyzeUrl = async () => {
-  if (!isValidUrl.value) return;
+  if (!isValidUrl.value) {
+    console.error('Invalid URL:', url.value);
+    return;
+  }
   
   try {
     isLoading.value = true;
-    const response = await fetch(`/casestrainer/api/analyze/url?url=${encodeURIComponent(url.value)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+    console.log('Starting URL analysis for:', url.value);
+    
+    // Use the API service instead of direct fetch
+    const response = await analyze({
+      type: 'url',
+      url: url.value
     });
     
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
+    console.log('Analysis response received:', {
+      hasCitations: !!response.citations,
+      citationsCount: response.citations?.length || 0,
+      hasClusters: !!response.clusters,
+      clustersCount: response.clusters?.length || 0,
+      status: response.status,
+      taskId: response.task_id || response.request_id,
+      response: response
+    });
     
-    const data = await response.json();
-    emit('analyze', { ...data, type: 'url', source: url.value });
+    // The API service will handle polling for async results
+    emit('analyze', { 
+      ...response, 
+      type: 'url', 
+      source: url.value 
+    });
+    
   } catch (error) {
-    console.error('Error analyzing URL:', error);
-            console.error(`Failed to analyze URL: ${error.message}`);
+    console.error('Error analyzing URL:', {
+      url: url.value,
+      error: error,
+      message: error.message,
+      stack: error.stack
+    });
+    
+    // Emit error to parent component
+    emit('error', {
+      type: 'url_analysis_error',
+      message: `Failed to analyze URL: ${error.message}`,
+      details: error.response?.data || {},
+      timestamp: new Date().toISOString()
+    });
   } finally {
     isLoading.value = false;
   }

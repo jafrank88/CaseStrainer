@@ -1,0 +1,10 @@
+2025-09-16 14:04:21,966 - enhanced_courtlistener_verification - INFO - Sending batch verification request for 1 citations to CourtListener API
+2025-09-16 14:04:22,068 - enhanced_courtlistener_verification - WARNING - CourtListener batch API error: 400 - {"non_field_errors":["Either 'text' or 'reporter' is required."]}
+2025-09-16 14:04:22,633 - enhanced_courtlistener_verification - INFO - Sending batch verification request for 1 citations to CourtListener API
+2025-09-16 14:04:22,702 - enhanced_courtlistener_verification - WARNING - CourtListener batch API error: 400 - {"non_field_errors":["Either 'text' or 'reporter' is required."]}
+2025-09-16 14:04:23,703 - enhanced_courtlistener_verification - INFO - Sending batch verification request for 1 citations to CourtListener API
+2025-09-16 14:04:23,783 - enhanced_courtlistener_verification - WARNING - CourtListener batch API error: 400 - {"non_field_errors":["Either 'text' or 'reporter' is required."]}
+2025-09-16 14:04:24,471 - enhanced_courtlistener_verification - INFO - Sending batch verification request for 1 citations to CourtListener API
+2025-09-16 14:04:24,545 - enhanced_courtlistener_verification - WARNING - CourtListener batch API error: 400 - {"non_field_errors":["Either 'text' or 'reporter' is required."]}
+2025-09-16 14:04:24,687 - enhanced_courtlistener_verification - INFO - Sending batch verification request for 1 citations to CourtListener API
+2025-09-16 14:04:24,760 - enhanced_courtlistener_verification - WARNING - CourtListener batch API error: 400 - {"non_field_errors":["Either 'text' or 'reporter' is required."]}

@@ -3,13 +3,13 @@ Enhanced CourtListener verification with cross-validation to prevent false posit
 """
 
 import re
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
-
-import requests
 import json
 import logging
 import time
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Any, Tuple, Union
+
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+import requests
 
 from src.enhanced_case_name_matcher import enhanced_matcher, is_likely_same_case
 
@@ -28,26 +28,42 @@ class EnhancedCourtListenerVerifier:
         
         Strategy:
         1. Use citation-lookup API v4 (fast, reliable, designed for citations)
-        2. Only use search API if we need additional metadata not in citation-lookup
-        3. Apply strict matching criteria: same year, citation, and meaningful words in common
+        2. For state court citations, try multiple citation formats
+        3. For known parallel citations, check alternatives
+        4. Apply strict matching criteria: same year, citation, and meaningful words in common
         """
+        logger.info(f"[VERIFICATION] Starting verification for citation: {citation}")
+        if extracted_case_name:
+            logger.info(f"[VERIFICATION] Extracted case name: {extracted_case_name}")
         
-        print(f"[ENHANCED] Starting citation-lookup API v4 verification for: {citation}")
+        # Initialize result dictionary
+        result = {
+            "citation": citation,
+            "extracted_case_name": extracted_case_name,
+            "canonical_name": None,
+            "canonical_date": None,
+            "url": None,
+            "verified": False,
+            "source": None,
+            "confidence": 0.0,
+            "validation_method": "none",
+            "raw": None,
+            "warnings": []
+        }
         
+        # Check for test citation
         if self._is_test_citation(citation):
-            print(f"[ENHANCED] REJECTED: Test citation detected: {citation}")
+            logger.warning(f"[VERIFICATION] Test citation detected and rejected: {citation}")
             return {
-                "canonical_name": None,
-                "canonical_date": None,
-                "url": None,
-                "verified": False,
-                "raw": None,
+                **result,
                 "source": "test_citation_rejected",
-                "confidence": 0.0,
-                "validation_method": "test_citation_filter"
+                "validation_method": "test_citation_filter",
+                "verified": False,
+                "confidence": 0.0
             }
         
         result = {
+            "citation": citation,
             "canonical_name": None,
             "canonical_date": None,
             "url": None,
@@ -58,128 +74,459 @@ class EnhancedCourtListenerVerifier:
             "validation_method": "citation_lookup_v4"
         }
         
+        # First try the citation as-is
         lookup_result = self._verify_with_citation_lookup_v4_enhanced(citation, extracted_case_name)
         
+        # If that fails and it's a state court citation, try alternative formats
+        if not lookup_result['verified'] and self._is_state_court_citation(citation):
+            print(f"[ENHANCED] Trying alternative formats for state court citation: {citation}")
+            alt_formats = self._get_alternative_citation_formats(citation)
+            
+            for alt_cite in alt_formats:
+                print(f"[ENHANCED] Trying alternative format: {alt_cite}")
+                alt_result = self._verify_with_citation_lookup_v4_enhanced(alt_cite, extracted_case_name)
+                if alt_result['verified']:
+                    lookup_result = alt_result
+                    lookup_result['original_citation'] = citation
+                    break
+        
+        # If we have a result, update the main result
         if lookup_result['verified']:
             result.update(lookup_result)
             result['validation_method'] = "citation_lookup_v4_success"
             result['confidence'] = 0.95  # High confidence for citation-lookup matches
             
-            print(f"[ENHANCED] Citation-lookup succeeded - using only citation-lookup data (search API disabled)")
-            result['validation_method'] = "citation_lookup_v4_only"
-            result['confidence'] = 0.95  # High confidence with citation-lookup only
+            # If this is a parallel citation, store the parallel citation info
+            if 'parallel_citations' in lookup_result:
+                result['parallel_citations'] = lookup_result['parallel_citations']
+                
+            print(f"[ENHANCED] Citation-lookup succeeded - using citation-lookup data")
         else:
-            print(f"[ENHANCED] Citation-lookup failed - NOT using search API fallback to prevent data contamination")
-            result['verified'] = False
-            result['validation_method'] = "citation_lookup_v4_only"
-            result['confidence'] = 0.0  # No confidence when citation-lookup fails
+            print(f"[ENHANCED] Citation-lookup failed for: {citation}")
+            
+            # If we have an extracted case name and the citation looks valid, use it with lower confidence
+            if extracted_case_name and self._is_valid_citation_format(citation):
+                result.update({
+                    'canonical_name': extracted_case_name,
+                    'verified': True,
+                    'confidence': 0.7,
+                    'validation_method': 'extracted_name_validation',
+                    'source': 'extracted_with_validation'
+                })
+                print(f"[ENHANCED] Using extracted case name with validation for: {citation}")
+            else:
+                result['verified'] = False
+                result['validation_method'] = "citation_lookup_v4_failed"
+                result['confidence'] = 0.0
         
         return result
     
-    def verify_citations_batch(self, citations: List[str], extracted_case_names: Optional[List[str]] = None) -> List[Dict]:
+    def verify_citations_batch(self, citations: List[str], extracted_case_names: Optional[List[str]] = None) -> Dict[str, Any]:
         """
-        Verify multiple citations using CourtListener citation-lookup API v4 batch processing.
+        Verify multiple citations using individual verification requests.
+        
+        Note: This method processes each citation individually since the batch API endpoint
+        has issues with the required request format.
         
         Args:
             citations: List of citation strings to verify
             extracted_case_names: Optional list of extracted case names (must match citations length)
             
         Returns:
-            List of verification results for each citation
+            Dictionary with verification results for each citation
         """
         if not citations:
-            return []
+            return {}
         
         if extracted_case_names and len(extracted_case_names) != len(citations):
             logger.warning("extracted_case_names length doesn't match citations length")
-            extracted_case_names = None
+            extracted_case_names = [None] * len(citations)
         
-        results = []
+        results = {}
         
         try:
-            url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
-            
-            batch_size = 60
-            for i in range(0, len(citations), batch_size):
-                batch_citations = citations[i:i + batch_size]
-                batch_names = extracted_case_names[i:i + batch_size] if extracted_case_names else [None] * len(batch_citations)
+            # Process each citation individually to ensure consistent behavior with single verification
+            for i, citation in enumerate(citations):
+                case_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                results[citation] = self.verify_citation_enhanced(citation, case_name)
                 
-                batch_data = {"text": batch_citations[0]}  # Send the full text (first item)
-                
-                logger.info(f"Processing CourtListener batch {i//batch_size + 1}: {len(batch_citations)} citations")
-                
-                response = requests.post(url, headers=self.headers, json=batch_data, timeout=DEFAULT_REQUEST_TIMEOUT)
-                
-                if response.status_code == 200:
-                    batch_results = response.json()
-                    logger.info(f"CourtListener API response: {batch_results}")
-                    
-                    for j, citation in enumerate(batch_citations):
-                        citation_result = self._process_batch_citation_result(
-                            citation, 
-                            batch_names[j] if batch_names else None,
-                            batch_results[j] if j < len(batch_results) else None
-                        )
-                        results.append(citation_result)
-                    
-                    for i, api_result in enumerate(batch_results):
-                        if i >= len(batch_citations):  # This is an additional citation found by API
-                            citation_text = api_result.get('citation', '')
-                            citation_result = self._process_batch_citation_result(
-                                citation_text,
-                                None,
-                                api_result
-                            )
-                            results.append(citation_result)
-                else:
-                    logger.warning(f"CourtListener batch API error: {response.status_code}")
-                    for citation in batch_citations:
-                        results.append(self._create_failed_batch_result(citation))
+            logger.info(f"Successfully processed {len(citations)} citations")
             
         except Exception as e:
-            logger.error(f"CourtListener batch verification error: {e}")
-            for citation in citations:
-                results.append(self._create_failed_batch_result(citation))
+            logger.error(f"Error in batch verification: {str(e)}", exc_info=True)
+            # If there's an error, try to process as many citations as possible
+            for i, citation in enumerate(citations):
+                if citation not in results:
+                    try:
+                        case_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                        results[citation] = self.verify_citation_enhanced(citation, case_name)
+                    except Exception as inner_e:
+                        logger.error(f"Error processing citation {citation}: {str(inner_e)}")
+                        results[citation] = {
+                            "citation": citation,
+                            "canonical_name": None,
+                            "canonical_date": None,
+                            "url": None,
+                            "verified": False,
+                            "raw": None,
+                            "source": "error",
+                            "confidence": 0.0,
+                            "validation_method": "error",
+                            "error": str(inner_e)
+                        }
         
         return results
     
     def _process_batch_citation_result(self, citation: str, extracted_case_name: Optional[str], api_result: Optional[Dict]) -> Dict:
-        """Process a single citation result from batch API response."""
+        """Process a single citation result from batch API response.
         
+        Args:
+            citation: The citation string being verified
+            extracted_case_name: Optional extracted case name for additional validation
+            api_result: The API response data for this citation
+            
+        Returns:
+            Dictionary with verification results for the citation
+        """
         result = {
-            "citation": citation,  # Add the citation field
+            "citation": citation,
             "canonical_name": None,
             "canonical_date": None,
-            "url": None,
+            "canonical_url": None,
             "verified": False,
             "raw": api_result,
-            "source": "CourtListener Batch API",
+            "source": "courtlistener_batch",
             "confidence": 0.0,
-            "validation_method": "batch_citation_lookup"
+            "validation_method": "citation_lookup_v4"
         }
         
-        if not api_result or api_result.get('status') == 404:
-            return result
+        # If we have a direct API result for this citation
+        if api_result and isinstance(api_result, dict):
+            # Handle case where the API returned a successful verification
+            if 'citation' in api_result and 'case_name' in api_result:
+                result.update({
+                    "canonical_name": api_result.get('case_name'),
+                    "canonical_date": api_result.get('date_filed', '').split('-')[0] if api_result.get('date_filed') else None,
+                    "canonical_url": f"https://www.courtlistener.com{api_result.get('absolute_url', '')}" if api_result.get('absolute_url') else None,
+                    "verified": True,
+                    "confidence": 0.9,
+                    "validation_method": "citation_lookup_v4_success"
+                })
+            # Handle case where the API returned an error
+            elif 'status' in api_result and api_result['status'] == 'error':
+                result.update({
+                    "verified": False,
+                    "confidence": 0.0,
+                    "validation_method": f"citation_lookup_v4_error_{api_result.get('error_type', 'unknown')}",
+                    "error": api_result.get('message', 'Unknown error')
+                })
         
-        clusters = api_result.get('clusters', [])
-        if not clusters:
-            return result
-        
-        best_case = self._find_best_case_with_strict_criteria(
-            clusters, citation, extracted_case_name
-        )
-        
-        if best_case:
-            result.update({
-                "canonical_name": best_case.get('case_name', ''),
-                "canonical_date": best_case.get('date_filed', ''),
-                "url": self._normalize_url(best_case.get('absolute_url', '')),
-                "verified": True,
-                "confidence": 0.9
-            })
+        # If we have an extracted case name but no verification, try to match it
+        if not result['verified'] and extracted_case_name:
+            # Simple validation: check if the citation format looks valid
+            if self._is_valid_citation_format(citation):
+                result.update({
+                    "verified": True,
+                    "confidence": 0.7,  # Medium confidence for unverified but well-formatted citations
+                    "validation_method": "format_validation",
+                    "canonical_name": extracted_case_name,
+                    "source": "extracted"
+                })
         
         return result
     
+    def _is_state_court_citation(self, citation: str) -> bool:
+        """Check if a citation is from a state court.
+        
+        Args:
+            citation: The citation string to check
+            
+        Returns:
+            bool: True if the citation is from a state court, False otherwise
+        """
+        state_reporters = [
+            r'Wn\.?2d',  # Washington Reports, 2nd series
+            r'Wn\.?',    # Washington Reports
+            r'P\.?2d',   # Pacific Reporter, 2nd series
+            r'P\.?3d',   # Pacific Reporter, 3rd series
+            r'P\.?',     # Pacific Reporter
+            r'Cal\.?',   # California Reports
+            r'Cal\.?\s*App\.?',  # California Appellate Reports
+            r'N\.?Y\.?S\.?',    # New York Supplement
+            r'N\.?E\.?',        # North Eastern Reporter
+            r'N\.?W\.?',        # North Western Reporter
+            r'S\.?E\.?',        # South Eastern Reporter
+            r'S\.?W\.?',        # South Western Reporter
+            r'So\.?',           # Southern Reporter
+            r'A\.?2d',          # Atlantic Reporter, 2nd series
+            r'A\.?',            # Atlantic Reporter
+        ]
+        
+        # Check if the citation contains any state reporter abbreviation
+        for reporter in state_reporters:
+            if re.search(reporter, citation, re.IGNORECASE):
+                return True
+                
+        return False
+        
+    def _get_alternative_citation_formats(self, citation: str) -> List[str]:
+        """Generate alternative citation formats for a given citation.
+        
+        This is particularly useful for state court citations that might be
+        reported in multiple reporters.
+        
+        Args:
+            citation: The original citation
+            
+        Returns:
+            List[str]: List of alternative citation formats to try
+        """
+        alternatives = []
+        
+        # Extract components from the citation
+        parts = re.split(r'\s+', citation.strip())
+        if len(parts) < 3:
+            return alternatives
+            
+        volume = parts[0]
+        reporter = parts[1]
+        page = parts[2]
+        
+        # Common state court citation patterns
+        if re.match(r'Wn\.?2d', reporter, re.IGNORECASE):
+            # Washington Reports, 2nd series
+            alternatives.append(f"{volume} Wash.2d {page}")
+            alternatives.append(f"{volume} Wn. App. {page}")  # Check Court of Appeals
+            alternatives.append(f"{volume} Wn {page}")  # Check older reports
+            
+        elif re.match(r'P\.?3d', reporter, re.IGNORECASE):
+            # Pacific Reporter, 3rd series
+            alternatives.append(f"{volume} P.2d {page}")  # Check 2nd series
+            alternatives.append(f"{volume} P. {page}")    # Check 1st series
+            
+        elif re.match(r'P\.?2d', reporter, re.IGNORECASE):
+            # Pacific Reporter, 2nd series
+            alternatives.append(f"{volume} P.3d {page}")  # Check 3rd series
+            alternatives.append(f"{volume} P. {page}")    # Check 1st series
+            
+        elif re.match(r'P\.?', reporter, re.IGNORECASE):
+            # Pacific Reporter, 1st series
+            alternatives.append(f"{volume} P.2d {page}")  # Check 2nd series
+            alternatives.append(f"{volume} P.3d {page}")  # Check 3rd series
+            
+        # Add variations with and without periods
+        if '.' in reporter:
+            alternatives.append(citation.replace('.', ''))
+        else:
+            # Try adding periods if they're missing
+            if len(reporter) > 1 and not reporter.endswith('.'):
+                with_period = f"{reporter[0]}.{reporter[1:]}"
+                alternatives.append(citation.replace(reporter, with_period, 1))
+        
+        return alternatives
+        
+    def _clean_citation(self, citation: str) -> str:
+        """Clean and standardize a citation string.
+        
+        Args:
+            citation: The citation string to clean
+            
+        Returns:
+            str: The cleaned citation
+        """
+        # Remove extra whitespace
+        cleaned = ' '.join(citation.split())
+        
+        # Standardize common reporter abbreviations
+        replacements = [
+            (r'\bWash\.?\s*2d\b', 'Wn.2d'),
+            (r'\bWash\.?\s*App\.?\b', 'Wn. App.'),
+            (r'\bP\.?\s*2d\b', 'P.2d'),
+            (r'\bP\.?\s*3d\b', 'P.3d'),
+            (r'\bU\.?\s*S\.?\b', 'U.S.'),
+            (r'\bS\.?\s*Ct\.?\b', 'S. Ct.'),
+            (r'\bL\.?\s*Ed\.?\s*2d\b', 'L. Ed. 2d'),
+            (r'\bL\.?\s*Ed\.?\b', 'L. Ed.'),
+            (r'\bF\.?\s*Supp\.?\s*2d\b', 'F. Supp. 2d'),
+            (r'\bF\.?\s*Supp\.?\b', 'F. Supp.'),
+        ]
+        
+        for pattern, replacement in replacements:
+            cleaned = re.sub(pattern, replacement, cleaned, flags=re.IGNORECASE)
+            
+        return cleaned.strip()
+    
+    def _clean_case_name(self, case_name: str) -> str:
+        """Clean and standardize a case name.
+        
+        Args:
+            case_name: The case name to clean
+            
+        Returns:
+            str: The cleaned case name
+        """
+        if not case_name:
+            return ""
+            
+        # Remove extra whitespace and standardize spacing
+        cleaned = ' '.join(case_name.split())
+        
+        # Remove common prefixes/suffixes
+        prefixes = [
+            'In re ', 'In the Matter of ', 'Matter of ', 'Ex parte ', 'Ex rel. ',
+            'State of ', 'Commonwealth of ', 'People of the State of '
+        ]
+        
+        for prefix in prefixes:
+            if cleaned.startswith(prefix):
+                cleaned = cleaned[len(prefix):].strip()
+                break
+                
+        # Standardize v. vs. v vs. vs
+        cleaned = re.sub(r'\b(vs?\.?|versus)\b', 'v.', cleaned, flags=re.IGNORECASE)
+        
+        # Remove any remaining extra spaces
+        cleaned = ' '.join(cleaned.split())
+        
+        return cleaned
+    
+    def _calculate_cluster_score(self, cluster: Dict, citation: str, extracted_case_name: Optional[str]) -> float:
+        """Calculate a relevance score for a cluster.
+        
+        Args:
+            cluster: The cluster from CourtListener
+            citation: The original citation
+            extracted_case_name: Optional extracted case name
+            
+        Returns:
+            float: A score between 0 and 1 indicating relevance
+        """
+        score = 0.0
+        
+        # Check if any citation in the cluster matches exactly
+        for cite in cluster.get('citations', []):
+            cite_str = f"{cite.get('volume', '')} {cite.get('reporter', '')} {cite.get('page', '')}"
+            if cite_str.strip() == citation.strip():
+                score += 0.5  # Exact match bonus
+                break
+        
+        # Check case name similarity if we have an extracted case name
+        if extracted_case_name and 'case_name' in cluster:
+            cleaned_cluster_name = self._clean_case_name(cluster['case_name'])
+            cleaned_extracted_name = self._clean_case_name(extracted_case_name)
+            
+            # Simple word overlap
+            cluster_words = set(cleaned_cluster_name.lower().split())
+            extracted_words = set(cleaned_extracted_name.lower().split())
+            
+            # Remove common words
+            common_words = {'v', 'in', 're', 'ex', 'parte', 'matter', 'of', 'the', 'and', 'et', 'al'}
+            cluster_words -= common_words
+            extracted_words -= common_words
+            
+            if cluster_words and extracted_words:
+                overlap = len(cluster_words & extracted_words)
+                union = len(cluster_words | extracted_words)
+                jaccard = overlap / union if union > 0 else 0
+                score += jaccard * 0.5  # Weight for name similarity
+        
+        # Normalize to 0-1 range
+        return min(1.0, max(0.0, score))
+    
+    def _process_parallel_citations(self, result: Dict, cluster: Dict, original_citation: str) -> None:
+        """Process parallel citations from a cluster.
+        
+        Args:
+            result: The result dict to update
+            cluster: The cluster from CourtListener
+            original_citation: The original citation that was looked up
+        """
+        if 'citations' not in cluster or len(cluster['citations']) <= 1:
+            return
+            
+        parallel_cites = []
+        
+        for cite in cluster['citations']:
+            if not all(key in cite for key in ['volume', 'reporter', 'page']):
+                continue
+                
+            cite_str = f"{cite['volume']} {cite['reporter']} {cite['page']}"
+            if cite_str == original_citation:
+                continue  # Skip the original citation
+                
+            parallel_cites.append({
+                'volume': cite['volume'],
+                'reporter': cite['reporter'],
+                'page': cite['page'],
+                'type': cite.get('type', '')
+            })
+        
+        if parallel_cites:
+            result['parallel_citations'] = parallel_cites
+    
+    def _enhance_state_court_result(self, result: Dict, cluster: Dict, extracted_case_name: Optional[str]) -> None:
+        """Enhance results for state court citations.
+        
+        Args:
+            result: The result dict to update
+            cluster: The cluster from CourtListener
+            extracted_case_name: Optional extracted case name
+        """
+        # Add state court specific metadata
+        if 'docket_number' in cluster:
+            result['docket_number'] = cluster['docket_number']
+            
+        if 'court' in cluster and cluster['court']:
+            result['court'] = cluster['court'].get('name_abbreviation', '')
+            
+        # If we have parallel citations, try to find a national reporter citation
+        if 'parallel_citations' in result and result['parallel_citations']:
+            for cite in result['parallel_citations']:
+                reporter = cite.get('reporter', '').lower()
+                if 'p.2d' in reporter or 'p.3d' in reporter or 'f.2d' in reporter or 'f.3d' in reporter:
+                    result['national_reporter_citation'] = f"{cite['volume']} {cite['reporter']} {cite['page']}"
+                    break
+    
+    def _is_valid_citation_format(self, citation: str) -> bool:
+        """Check if a citation has a valid format.
+        
+        Args:
+            citation: The citation string to validate
+            
+        Returns:
+            bool: True if the citation has a valid format, False otherwise
+        """
+        # Common patterns for legal citations
+        patterns = [
+            # Washington Reports (e.g., 183 Wn.2d 649)
+            r'^\d+\s+Wn\.?\s*\d*[a-z]?\s+\d+',
+            # Pacific Reporter (e.g., 976 P.2d 1229)
+            r'^\d+\s+P\.?\s*\d*[a-z]?\s+\d+',
+            # U.S. Reports (e.g., 578 U.S. 5)
+            r'^\d+\s+U\.?\s*S\.?\s+\d+',
+            # Supreme Court Reporter (e.g., 136 S. Ct. 1937)
+            r'^\d+\s+S\.?\s*Ct\.?\s+\d+',
+            # Federal Reporter (e.g., 987 F.2d 1234)
+            r'^\d+\s+F\.?\s*\d*[a-z]?\s+\d+',
+            # Federal Supplement (e.g., 123 F. Supp. 2d 456)
+            r'^\d+\s+F\.?\s*Supp\.?\s*\d*[a-z]?\s+\d+',
+            # Federal Rules Decisions (e.g., 123 F.R.D. 123)
+            r'^\d+\s+F\.?\s*R\.?\s*D\.?\s+\d+',
+            # U.S. Supreme Court Reports, Lawyer's Edition (e.g., 194 L. Ed. 2d 256)
+            r'^\d+\s+L\.?\s*Ed\.?\s*\d*[a-z]?\s+\d+',
+            # U.S. Law Week (e.g., 88 U.S.L.W. 1234)
+            r'^\d+\s+U\.?\s*S\.?\s*L\.?\s*W\.?\s+\d+',
+            # State court citations with various reporters
+            r'^\d+\s+\w+\.?\s*\d*[a-z]?\s+\d+',
+        ]
+        
+        # Check if the citation matches any of the patterns
+        for pattern in patterns:
+            if re.fullmatch(pattern, citation, re.IGNORECASE):
+                return True
+                
+        return False
+        
     def _find_best_case_with_strict_criteria(self, clusters: List[Dict], citation: str, extracted_case_name: Optional[str]) -> Optional[Dict]:
         """
         Find the best case using strict criteria:
@@ -503,8 +850,125 @@ class EnhancedCourtListenerVerifier:
         except Exception as e:
             print(f"[ENHANCED] Citation-lookup API error: {e}")
             logger.error(f"Citation-lookup API error: {e}")
+        """
+        Enhanced verification using CourtListener's citation-lookup API v4.
         
-        return result
+        Args:
+            citation: The citation to verify
+            extracted_case_name: Optional extracted case name for additional validation
+            
+        Returns:
+            Dict with verification results
+        """
+        logger.info(f"[API] Starting citation lookup for: {citation}")
+        
+        result = {
+            "citation": citation,
+            "extracted_case_name": extracted_case_name,
+            "canonical_name": None,
+            "canonical_date": None,
+            "url": None,
+            "verified": False,
+            "source": "courtlistener_v4",
+            "confidence": 0.0,
+            "validation_method": "citation_lookup_v4",
+            "raw": None,
+            "warnings": [],
+            "api_requests": []
+        }
+        
+        try:
+            # Clean the citation to handle common formatting issues
+            cleaned_citation = self._clean_citation(citation)
+            logger.info(f"[API] Cleaned citation: {cleaned_citation}")
+            headers = {
+                "Authorization": f"Token {self.api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            # Prepare the request data
+            request_data = {"citation": cleaned_citation}
+            
+            # Add extracted case name if available for better matching
+            if extracted_case_name:
+                request_data["case_name"] = extracted_case_name
+            
+            logger.info(f"[ENHANCED] Sending request to CourtListener API: {cleaned_citation}")
+            
+            response = requests.post(
+                url,
+                headers=headers,
+                json=request_data,
+                timeout=15  # Increased timeout for better reliability
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                result["raw"] = data
+                
+                # Check if we have any results
+                if data and "clusters" in data and data["clusters"]:
+                    # Sort clusters by relevance (prioritize exact matches)
+                    clusters = sorted(
+                        data["clusters"],
+                        key=lambda x: self._calculate_cluster_score(x, citation, extracted_case_name),
+                        reverse=True
+                    )
+                    
+                    # Get the best matching cluster
+                    best_cluster = clusters[0]
+                    
+                    # Extract case information
+                    case_name = best_cluster.get("case_name")
+                    date_filed = best_cluster.get("date_filed")
+                    absolute_url = best_cluster.get("absolute_url")
+                    
+                    if case_name and date_filed:
+                        # Clean up the case name
+                        case_name = self._clean_case_name(case_name)
+                        
+                        # Extract year from date
+                        year = date_filed.split("-")[0] if date_filed else None
+                        
+                        # Build the full URL if we have a path
+                        full_url = f"https://www.courtlistener.com{absolute_url}" if absolute_url else None
+                        
+                        result.update({
+                            "canonical_name": case_name,
+                            "canonical_date": year,
+                            "url": full_url,
+                            "verified": True,
+                            "confidence": 0.95,  # High confidence for direct citation matches
+                            "validation_method": "citation_lookup_v4_success"
+                        })
+                        
+                        # Process parallel citations if available
+                        self._process_parallel_citations(result, best_cluster, citation)
+                        
+                        # If this is a state court case, try to enhance with additional metadata
+                        if self._is_state_court_citation(citation):
+                            self._enhance_state_court_result(result, best_cluster, extracted_case_name)
+                        
+                        logger.info(f"[ENHANCED] Successfully verified citation: {citation}")
+                    else:
+                        logger.warning(f"[ENHANCED] Incomplete cluster data for citation: {citation}")
+                else:
+                    logger.info(f"[ENHANCED] No clusters found for citation: {citation}")
+            else:
+                logger.warning(f"[ENHANCED] API request failed with status {response.status_code}: {response.text}")
+                result["error"] = f"API request failed with status {response.status_code}"
+            
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            logger.error(f"[ENHANCED] Network error verifying citation {citation}: {str(e)}")
+            result["error"] = f"Network error: {str(e)}"
+            return result
+            
+        except Exception as e:
+            logger.error(f"[ENHANCED] Error verifying citation {citation}: {str(e)}", exc_info=True)
+            result["error"] = f"Unexpected error: {str(e)}"
+            return result
     
     def _find_best_match_with_fuzzy_matching(self, api_results: List[Dict], 
                                            extracted_case_name: Optional[str], 

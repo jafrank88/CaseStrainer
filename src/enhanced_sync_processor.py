@@ -47,7 +47,7 @@ class ProcessingOptions:
     enable_local_processing: bool = True
     enable_async_verification: bool = True
     
-    enhanced_sync_threshold: int = 15 * 1024  # 15KB for enhanced sync
+    enhanced_sync_threshold: int = 80 * 1024  # 80KB for enhanced sync to handle PDF content
     ultra_fast_threshold: int = 500  # 500 chars for ultra-fast
     clustering_threshold: int = 300  # 300 chars for clustering
     max_citations_for_local_clustering: int = 10
@@ -71,22 +71,45 @@ class EnhancedSyncProcessor:
     
     def __init__(self, options: Optional[ProcessingOptions] = None, progress_callback: Optional[Any] = None):
         """Initialize the enhanced sync processor with configuration options."""
-        self.options = options or ProcessingOptions()
+        from src.config import get_citation_config
+        
+        # Get default configuration
+        config = get_citation_config()
+        
+        # Initialize with default options if none provided
+        if options is None:
+            options = ProcessingOptions()
+            
+            # Apply default configuration from config.py
+            options.enable_enhanced_verification = config.get('enable_verification', True)
+            options.enable_confidence_scoring = config.get('verification_options', {}).get('enable_confidence_scoring', True)
+            options.cross_validation_confidence_boost = 0.15  # Default value
+            
+            # Set API key from environment if not already set
+            if not hasattr(options, 'courtlistener_api_key') or not options.courtlistener_api_key:
+                from src.config import get_config_value
+                options.courtlistener_api_key = get_config_value('COURTLISTENER_API_KEY')
+        
+        self.options = options
         self.progress_callback = progress_callback  # Progress callback function
         
+        # Log configuration
+        logger.info(f"[EnhancedSyncProcessor] Initializing with verification enabled: {self.options.enable_enhanced_verification}")
+        if self.options.enable_enhanced_verification and self.options.courtlistener_api_key:
+            logger.info(f"[EnhancedSyncProcessor] Using CourtListener API key: {self.options.courtlistener_api_key[:8]}...{self.options.courtlistener_api_key[-8:] if self.options.courtlistener_api_key else 'None'}")
+        
+        # Initialize verifier if enabled
         self.enhanced_verifier = None
-        if (self.options.enable_enhanced_verification and 
-            enhanced_verification_available and 
-            self.options.courtlistener_api_key):
+        if self.options.enable_enhanced_verification and enhanced_verification_available:
             try:
-                logger.info(f"[EnhancedSyncProcessor] Initializing EnhancedCourtListenerVerifier with API key: {self.options.courtlistener_api_key[:8]}...{self.options.courtlistener_api_key[-8:]}")
-                self.enhanced_verifier = EnhancedCourtListenerVerifier(self.options.courtlistener_api_key)
-                logger.info("Enhanced verification initialized successfully")
+                if self.options.courtlistener_api_key:
+                    self.enhanced_verifier = EnhancedCourtListenerVerifier(self.options.courtlistener_api_key)
+                    logger.info("Enhanced verification initialized successfully")
+                else:
+                    logger.warning("CourtListener API key not provided, enhanced verification disabled")
             except Exception as e:
                 logger.warning(f"Failed to initialize enhanced verification: {e}")
                 self.enhanced_verifier = None
-        else:
-            logger.warning(f"[EnhancedSyncProcessor] Enhanced verification not initialized: enable_enhanced_verification={self.options.enable_enhanced_verification}, enhanced_verification_available={enhanced_verification_available}, has_api_key={bool(self.options.courtlistener_api_key)}")
         
         self.confidence_scorer = None
         if self.options.enable_confidence_scoring and confidence_scoring_available:
@@ -431,81 +454,43 @@ class EnhancedSyncProcessor:
                 logger.warning(f"Progress callback failed: {e}")
     
     def _extract_citations_fast(self, text: str) -> List:
-        """UPDATED: Use master extraction function for consistent, accurate results."""
+        """UPDATED: Use master extraction function with enhanced error handling."""
+        import re
+        import traceback
+        from src.models import CitationResult
+        
+        logger.info("Starting citation extraction...")
+        
         try:
-            from src.unified_extraction_architecture import get_unified_extractor
-            from src.models import CitationResult
-            import re
-            
-            
-            extractor = get_unified_extractor()
-            citations = []
-            
-            citation_patterns = [
-                r'\b\d+\s+Wn\.?\s*\d*d\s+\d+\b',  # Washington reports
-                r'\b\d+\s+P\.?\s*\d*d\s+\d+\b',   # Pacific reports (single line)
-                r'\b\d+\s*\n\s*P\.?\s*\d*d\s+\d+\b',  # Pacific reports (with newline)
-                r'\b\d+\s+[A-Z]+\.?\s+\d+\b',     # General format
-                # Unicode-aware patterns for corrupted text
-                r'\b\d+\s+Wn\.\s*2d\s+\d+\b',  # Handle corrupted apostrophes in case names
-                r'\b\d+\s+Wn\.\s*3d\s+\d+\b',  # Handle corrupted apostrophes in case names
-                r'\b\d+\s+P\.\s*3d\s+\d+\b',   # Handle corrupted apostrophes in case names
-                r'\b\d+\s+P\.\s*2d\s+\d+\b',   # Handle corrupted apostrophes in case names
-            ]
-            
-            processed_citations = set()
-            
-            for pattern in citation_patterns:
-                for match in re.finditer(pattern, text):
-                    citation_text = match.group(0)
-                    start_pos = match.start()
-                    end_pos = match.end()
+            # First try the unified extraction architecture
+            try:
+                from src.unified_extraction_architecture import extract_case_name_and_year_unified
+                
+                # Normalize text to handle newlines and extra spaces
+                normalized_text = ' '.join(text.split())
+                
+                # Try to extract citations using the unified extractor
+                result = extract_case_name_and_year_unified(
+                    text=normalized_text,
+                    citation="",  # Will be extracted from text
+                    debug=True
+                )
+                
+                if result and 'citations' in result:
+                    logger.info(f"Found {len(result['citations'])} citations using unified extractor")
+                    return result['citations']
                     
-                    cleaned_citation_text = citation_text.replace('\n', ' ').replace('\r', ' ').strip()
-                    cleaned_citation_text = ' '.join(cleaned_citation_text.split())
-                    
-                    citation_key = f"{cleaned_citation_text}_{start_pos}_{end_pos}"
-                    
-                    if citation_key in processed_citations:
-                        continue
-                    
-                    processed_citations.add(citation_key)
-                    
-                    from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
-                    result = extract_case_name_and_date_master(
-                        text=text,
-                        citation=citation_text,
-                        citation_start=start_pos,
-                        citation_end=end_pos,
-                        debug=False
-                    )
-                    
-                    citation = CitationResult(
-                        citation=cleaned_citation_text,  # Use cleaned citation text
-                        start_index=start_pos,
-                        end_index=end_pos,
-                        extracted_case_name=result.get('case_name', ''),
-                        extracted_date=result.get('year', ''),
-                        canonical_name=None,
-                        canonical_date=None,
-                        url=None,
-                        verified=False,
-                        source="unified_architecture",
-                        confidence=result.get('confidence', 0.0),
-                        metadata={
-                            'extraction_method': 'unified_architecture',
-                            'method': result.get('method', 'unknown'),
-                            'debug_info': result.get('debug_info', {})
-                        }
-                    )
-                    
-                    citations.append(citation)
+            except Exception as e:
+                logger.warning(f"Unified extraction failed, falling back to regex: {str(e)}")
+                logger.debug(traceback.format_exc())
             
-            filtered_citations = self._filter_false_positive_citations(citations, text)
-            
-            return filtered_citations
+            # Fall back to regex-based extraction if unified extraction fails
+            return self._extract_citations_basic_regex(text)
             
         except Exception as e:
+            logger.error(f"Critical error in citation extraction: {str(e)}")
+            logger.error(traceback.format_exc())
+            # Last resort: basic regex fallback
             return self._extract_citations_basic_regex(text)
     
     def _filter_false_positive_citations(self, citations: List, text: str) -> List:
@@ -578,14 +563,26 @@ class EnhancedSyncProcessor:
         import re
         
         patterns = [
-            r'\b\d+\s+Wn\.\d+\s+\d+',  # 200 Wn.2d 72
-            r'\b\d+\s+P\.\d+\s+\d+',   # 514 P.3d 643
+            # Washington State citations - comprehensive patterns
+            r'\b\d+\s+Wn\.\s*2d\s+\d+',  # 200 Wn.2d 72
+            r'\b\d+\s+Wn\.\s*3d\s+\d+',  # 200 Wn.3d 72
             r'\b\d+\s+Wn\.\s*App\.\s*\d+',  # 136 Wn. App. 104
-            # Unicode-aware patterns for corrupted text
-            r'\b\d+\s+Wn\.\s*2d\s+\d+',  # Handle corrupted apostrophes in case names
-            r'\b\d+\s+Wn\.\s*3d\s+\d+',  # Handle corrupted apostrophes in case names
-            r'\b\d+\s+P\.\s*3d\s+\d+',   # Handle corrupted apostrophes in case names
-            r'\b\d+\s+P\.\s*2d\s+\d+',   # Handle corrupted apostrophes in case names
+            r'\b\d+\s+Wn\.\s*App\.\s*\d+d\s+\d+',  # 33 Wn. App. 2d 75 (matches both 2d and 3d)
+            
+            # Pacific Reporter citations
+            r'\b\d+\s+P\.\s*2d\s+\d+',   # 514 P.2d 643
+            r'\b\d+\s+P\.\s*3d\s+\d+',   # 514 P.3d 643
+            
+            # Federal citations
+            r'\b\d+\s+F\.\s*2d\s+\d+',  # Federal 2d
+            r'\b\d+\s+F\.\s*3d\s+\d+',  # Federal 3d
+            r'\b\d+\s+F\.\s*Supp\.\s*\d+',  # Federal Supp
+            
+            # Supreme Court citations
+            r'\b\d+\s+S\.\s*Ct\.\s*\d+',  # Supreme Court citations
+            r'\b\d+\s+U\.S\.\s*\d+',  # U.S. Supreme Court citations
+            r'\b\d+\s+L\.\s*Ed\.\s*\d+',  # Lawyers Edition
+            r'\b\d+\s+L\.\s*Ed\.\s*2d\s+\d+',  # Lawyers Edition 2d
         ]
         
         citations = []
@@ -968,16 +965,27 @@ class EnhancedSyncProcessor:
             logger.info(f"[EnhancedSyncProcessor {request_id}] _cluster_citations_local called with {len(citations)} citations")
             logger.info(f"[EnhancedSyncProcessor {request_id}] Starting enhanced clustering for {len(citations)} citations")
             
-            from src.enhanced_clustering import EnhancedCitationClusterer, ClusteringConfig
+            # Use the unified clustering system that we already fixed
+            from src.unified_citation_clustering import cluster_citations_unified
             
-            config = ClusteringConfig(
-                proximity_threshold=100,  # Reduced from 200 to 100 for better case separation
-                debug_mode=False,  # Disable debug in production
-                enable_caching=True
-            )
-            clusterer = EnhancedCitationClusterer(config)
+            # Get verification flag from instance options with proper fallback
+            enable_verification = getattr(self.options, 'enable_enhanced_verification', False)
             
-            clusters = clusterer.cluster_citations(citations, text, request_id)
+            # Log the verification setting
+            logger.info(f"[EnhancedSyncProcessor {request_id}] Using unified clustering with enable_verification={enable_verification}")
+            
+            try:
+                # Use the same clustering function that works for sync processing
+                clusters = cluster_citations_unified(
+                    citations, 
+                    text, 
+                    enable_verification=bool(enable_verification)
+                )
+                logger.info(f"[EnhancedSyncProcessor {request_id}] Clustering completed with {len(clusters)} clusters")
+            except Exception as e:
+                logger.error(f"[EnhancedSyncProcessor {request_id}] Error in cluster_citations: {str(e)}")
+                logger.error(f"[EnhancedSyncProcessor {request_id}] Citations being clustered: {[str(c) for c in citations]}")
+                raise
             
             logger.info(f"[EnhancedSyncProcessor {request_id}] Enhanced clustering created {len(clusters)} clusters")
             
@@ -1426,17 +1434,52 @@ class EnhancedSyncProcessor:
     
     def _redirect_to_full_async(self, text: str, request_id: str, input_type: str, metadata: Dict) -> Dict[str, Any]:
         """Redirect to full async processing when text is too long."""
-        return {
-            'success': True,
-            'status': 'redirected_to_full_async',
-            'message': f'Text too long ({len(text)} chars) for enhanced sync processing. Redirecting to full async.',
-            'task_id': request_id,
-            'processing_mode': 'full_async_redirect',
-            'text_length': len(text),
-            'request_id': request_id,
-            'input_type': input_type,
-            'metadata': metadata
-        }
+        try:
+            from rq import Queue
+            from redis import Redis
+            
+            logger.info(f"[EnhancedSyncProcessor {request_id}] Queuing task for async processing (text length: {len(text)})")
+            
+            redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+            redis_conn = Redis.from_url(redis_url)
+            queue = Queue('casestrainer', connection=redis_conn)
+            
+            # Queue the task for async processing
+            job = queue.enqueue(
+                'src.progress_manager.process_citation_task_direct',
+                args=(request_id, input_type, {'text': text}),
+                job_id=request_id,
+                job_timeout=600,  # 10 minutes timeout
+                result_ttl=86400,
+                failure_ttl=86400
+            )
+            
+            logger.info(f"[EnhancedSyncProcessor {request_id}] Task queued with job_id: {job.id}")
+            
+            return {
+                'success': True,
+                'status': 'processing',
+                'message': f'Text too long ({len(text)} chars) for enhanced sync processing. Queued for async processing.',
+                'task_id': request_id,
+                'job_id': job.id,
+                'processing_mode': 'async_queued',
+                'text_length': len(text),
+                'request_id': request_id,
+                'input_type': input_type,
+                'metadata': metadata
+            }
+            
+        except Exception as e:
+            logger.error(f"[EnhancedSyncProcessor {request_id}] Failed to queue async task: {e}")
+            return {
+                'success': False,
+                'status': 'failed',
+                'error': f'Failed to queue async processing: {str(e)}',
+                'task_id': request_id,
+                'request_id': request_id,
+                'input_type': input_type,
+                'metadata': metadata
+            }
     
     def _debug_citation_object(self, citation, prefix="DEBUG"):
         """Debug method to inspect citation objects thoroughly."""

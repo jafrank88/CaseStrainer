@@ -1,0 +1,85 @@
+{
+  "document_length": 66731,
+  "processing_time_ms": 1903,
+  "request_id": "0e8e0846-40c4-4424-832f-b26e2d53de5f",
+  "result": {
+    "message": "Url processing started",
+    "metadata": {
+      "content_length": 66731,
+      "input_type": "url",
+      "job_id": "0e8e0846-40c4-4424-832f-b26e2d53de5f",
+      "processing_mode": "queued",
+      "source": "url",
+      "url": "https://www.courts.wa.gov/opinions/pdf/1033940.pdf",
+      "url_domain": "www.courts.wa.gov"
+    },
+    "processing_time": 1.9030547142028809,
+    "progress_data": {
+      "current_message": "Queued for background processing",
+      "current_step": 0,
+      "elapsed_time": 1.902958869934082,
+      "end_time": null,
+      "overall_progress": 16,
+      "start_time": 1758083307.5867162,
+      "status": "initializing",
+      "steps": [
+        {
+          "end_time": 1758083309.4867232,
+          "message": "Queued for background processing",
+          "name": "Initializing",
+          "progress": 100,
+          "start_time": 1758083307.5914557,
+          "status": "completed"
+        },
+        {
+          "end_time": null,
+          "message": "Extracting citations from text",
+          "name": "Extract",
+          "progress": 0,
+          "start_time": null,
+          "status": "pending"
+        },
+        {
+          "end_time": null,
+          "message": "Analyzing and normalizing citations",
+          "name": "Analyze",
+          "progress": 0,
+          "start_time": null,
+          "status": "pending"
+        },
+        {
+          "end_time": null,
+          "message": "Extracting case names and years",
+          "name": "Extract Names",
+          "progress": 0,
+          "start_time": null,
+          "status": "pending"
+        },
+        {
+          "end_time": null,
+          "message": "Clustering parallel citations",
+          "name": "Cluster",
+          "progress": 0,
+          "start_time": null,
+          "status": "pending"
+        },
+        {
+          "end_time": null,
+          "message": "Verifying citations with external sources",
+          "name": "Verify",
+          "progress": 0,
+          "start_time": null,
+          "status": "pending"
+        }
+      ],
+      "task_id": "0e8e0846-40c4-4424-832f-b26e2d53de5f",
+      "total_steps": 6
+    },
+    "progress_endpoint": "/casestrainer/api/progress/0e8e0846-40c4-4424-832f-b26e2d53de5f",
+    "progress_stream": "/casestrainer/api/progress-stream/0e8e0846-40c4-4424-832f-b26e2d53de5f",
+    "request_id": "0e8e0846-40c4-4424-832f-b26e2d53de5f",
+    "status": "processing",
+    "success": true,
+    "task_id": "0e8e0846-40c4-4424-832f-b26e2d53de5f"
+  }
+}

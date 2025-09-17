@@ -1,0 +1,57 @@
+2025-09-16 13:12:27,417 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 13:12:27,418 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 13:12:27,418 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 13:12:27,419 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 13:12:27,420 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 13:12:27,420 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 13:12:27,436 - __main__ - INFO - === Starting Synchronous Processing Test ===
+2025-09-16 13:12:27,437 - __main__ - INFO - Configuration:
+2025-09-16 13:12:27,438 - __main__ - INFO -   context_window: 300
+2025-09-16 13:12:27,438 - __main__ - INFO -   chunk_size: 5000
+2025-09-16 13:12:27,439 - __main__ - INFO -   min_confidence: 0.7
+2025-09-16 13:12:27,439 - __main__ - INFO -   immediate_max_length: 50
+2025-09-16 13:12:27,439 - __main__ - INFO -   immediate_max_words: 10
+2025-09-16 13:12:27,440 - __main__ - INFO -   extraction_timeout: 120
+2025-09-16 13:12:27,440 - __main__ - INFO -   enable_clustering: True
+2025-09-16 13:12:27,441 - __main__ - INFO -   enable_verification: True
+2025-09-16 13:12:27,441 - __main__ - INFO -   clustering_options:
+2025-09-16 13:12:27,441 - __main__ - INFO -     enable_parallel_detection: True
+2025-09-16 13:12:27,442 - __main__ - INFO -     enable_case_relationship_detection: True
+2025-09-16 13:12:27,442 - __main__ - INFO -     enable_metadata_propagation: True
+2025-09-16 13:12:27,442 - __main__ - INFO -   verification_options:
+2025-09-16 13:12:27,443 - __main__ - INFO -     enable_courtlistener: True
+2025-09-16 13:12:27,443 - __main__ - INFO -     enable_fallback_sources: True
+2025-09-16 13:12:27,444 - __main__ - INFO -     enable_confidence_scoring: True
+2025-09-16 13:12:27,444 - __main__ - INFO -     min_confidence_threshold: 0.7
+2025-09-16 13:12:27,444 - __main__ - INFO - 
+Input citations:
+2025-09-16 13:12:27,445 - __main__ - INFO -   1. 505 U.S. 1003 (type: federal)
+2025-09-16 13:12:27,445 - __main__ - INFO -   2. 123 F.3d 456 (type: federal)
+2025-09-16 13:12:27,446 - __main__ - INFO -   3. 789 F.2d 123 (type: federal)
+2025-09-16 13:12:27,446 - __main__ - INFO -   4. 100 S. Ct. 1000 (type: federal)
+2025-09-16 13:12:27,446 - __main__ - INFO -   5. 100 S.Ct. 1000 (type: federal)
+2025-09-16 13:12:27,447 - __main__ - INFO - 
+=== Testing cluster_citations_unified ===
+2025-09-16 13:12:27,447 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-16 13:12:27,448 - src.unified_citation_clustering - INFO - Starting unified clustering for 5 citations
+2025-09-16 13:12:27,448 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 13:12:27,448 - __main__ - ERROR - Synchronous test failed: 'dict' object has no attribute 'citation'
+Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_sync_async.py", line 117, in test_sync_processing
+    clusters = cluster_citations_unified(
+        citations=citations_data,
+        original_text="Test document content for citation processing",
+        enable_verification=True
+    )
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 1447, in cluster_citations_unified
+    return clusterer.cluster_citations(citations, original_text, enable_verification)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 105, in cluster_citations
+    parallel_groups = self._detect_parallel_citation_groups(citations, original_text)
+  File "D:\dev\casestrainer\src\unified_citation_clustering.py", line 137, in _detect_parallel_citation_groups
+    if citation.citation in visited:
+       ^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'citation'
+2025-09-16 13:12:27,455 - __main__ - INFO - 
+Test completed. Check sync_test.log for detailed results.
+2025-09-16 13:12:27,456 - __main__ - INFO - Clustering results have been saved to clustering_results.json

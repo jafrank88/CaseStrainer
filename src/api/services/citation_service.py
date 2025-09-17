@@ -37,6 +37,7 @@ class CitationService:
             # which can take a long time and should never be done synchronously
             return False
         elif input_type == 'url':
+            # URLs should use async processing for large documents
             return False
         
         return False
@@ -45,25 +46,38 @@ class CitationService:
         """Process input immediately using the enhanced sync processor."""
         try:
             from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
+            from src.config import get_citation_config, get_config_value
             
-            courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
+            # Get configuration
+            config = get_citation_config()
+            
+            # Get API key from environment
+            courtlistener_api_key = get_config_value('COURTLISTENER_API_KEY')
             if courtlistener_api_key:
-                logger.info(f"[CitationService] CourtListener API key: {courtlistener_api_key[:8]}...{courtlistener_api_key[-8:]}")
+                logger.info(f"[CitationService] Using CourtListener API key: {courtlistener_api_key[:8]}...{courtlistener_api_key[-8:]}")
             else:
                 logger.warning("[CitationService] CourtListener API key not found in environment")
             
+            # Configure processor with defaults from config
             processor_options = ProcessingOptions(
                 enable_local_processing=True,
-                enable_async_verification=True,
+                enable_async_verification=True,  # Re-enabled for proper async processing
                 enhanced_sync_threshold=15 * 1024,  # 15KB for enhanced sync
                 ultra_fast_threshold=500,
                 clustering_threshold=300,
-                enable_enhanced_verification=True,  # Re-enabled now that clustering is working
-                enable_cross_validation=True,      # Re-enabled for better verification
+                enable_enhanced_verification=config.get('enable_verification', True),
+                enable_cross_validation=True,
                 enable_false_positive_prevention=True,
-                enable_confidence_scoring=True,
+                enable_confidence_scoring=config.get('verification_options', {}).get('enable_confidence_scoring', True),
+                min_confidence_threshold=config.get('verification_options', {}).get('min_confidence_threshold', 0.7),
                 courtlistener_api_key=courtlistener_api_key
             )
+            
+            logger.info(f"[CitationService] Processing with verification: {processor_options.enable_enhanced_verification}")
+            if processor_options.enable_enhanced_verification:
+                logger.info("[CitationService] Citation verification is ENABLED")
+            else:
+                logger.warning("[CitationService] Citation verification is DISABLED - only basic extraction will be performed")
             
             processor = EnhancedSyncProcessor(processor_options)
             text_content = input_data.get('text', '')

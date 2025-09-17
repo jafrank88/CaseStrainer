@@ -1,0 +1,23 @@
+2025-09-16 14:38:54,535 - __main__ - INFO - ================================================================================
+2025-09-16 14:38:54,536 - __main__ - INFO - CaseStrainer Production API Test
+2025-09-16 14:38:54,536 - __main__ - INFO - ================================================================================
+2025-09-16 14:38:54,536 - __main__ - INFO - Testing text analysis with production endpoint
+2025-09-16 14:38:54,537 - __main__ - INFO - Sending text analysis request...
+2025-09-16 14:38:54,849 - __main__ - INFO - Text analysis response status: 200
+2025-09-16 14:38:54,854 - __main__ - INFO - Text analysis found 4 citations
+2025-09-16 14:38:54,855 - __main__ - INFO - 
+================================================================================
+2025-09-16 14:38:54,856 - __main__ - INFO - Testing URL upload with production endpoint: https://wolf.law.uw.edu/casestrainer/api/analyze
+2025-09-16 14:38:54,857 - __main__ - INFO - Target PDF URL: https://www.courts.wa.gov/opinions/pdf/1033940.pdf
+2025-09-16 14:38:54,857 - __main__ - INFO - Sending POST request to production API endpoint...
+2025-09-16 14:38:56,752 - __main__ - INFO - Response status code: 200
+2025-09-16 14:38:56,752 - __main__ - INFO - Response headers: {'Server': 'nginx', 'Date': 'Tue, 16 Sep 2025 21:38:56 GMT', 'Content-Type': 'application/json', 'Content-Length': '562', 'Connection': 'keep-alive', 'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:5000, *', 'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type', 'Vary': 'Origin', 'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS', 'Access-Control-Allow-Headers': 'DNT,User-Agent,X-Requested-With,If-Modified-Since,Cache-Control,Content-Type,Range,Authorization'}
+2025-09-16 14:38:56,753 - __main__ - INFO - Successfully parsed JSON response
+2025-09-16 14:38:56,757 - __main__ - INFO - Full response saved to production_url_response.json
+2025-09-16 14:38:56,757 - __main__ - INFO - Response keys: ['document_length', 'processing_time_ms', 'request_id', 'result']
+2025-09-16 14:38:56,758 - __main__ - WARNING - No 'citations' key found in response
+2025-09-16 14:38:56,758 - __main__ - INFO - Received async task ID: 97209d87-e479-4d3f-9544-440adc1dd443
+2025-09-16 14:38:56,759 - __main__ - INFO - This appears to be an asynchronous processing response
+2025-09-16 14:38:56,759 - __main__ - INFO - You may need to poll the status at: https://wolf.law.uw.edu/casestrainer/api/tasks/97209d87-e479-4d3f-9544-440adc1dd443
+2025-09-16 14:38:56,760 - __main__ - INFO - ================================================================================
+2025-09-16 14:38:56,761 - __main__ - INFO - Test completed. Check the log files for detailed results.

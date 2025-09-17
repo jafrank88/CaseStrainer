@@ -1,0 +1,34 @@
+2025-09-16 16:53:47,054 - __main__ - INFO - ================================================================================
+2025-09-16 16:53:47,062 - __main__ - INFO - ================================================================================
+2025-09-16 16:53:47,063 - __main__ - INFO - Testing specific paragraph for citation extraction and clustering
+2025-09-16 16:53:47,063 - __main__ - INFO - Text length: 740 characters
+2025-09-16 16:53:47,064 - __main__ - INFO - Sending text analysis request...
+2025-09-16 16:53:47,300 - __main__ - INFO - Response status code: 200
+2025-09-16 16:53:47,304 - __main__ - INFO - Response saved to paragraph_analysis_response.json
+2025-09-16 16:53:47,304 - __main__ - INFO - Response keys: ['document_length', 'processing_time_ms', 'request_id', 'result']
+2025-09-16 16:53:47,306 - __main__ - INFO - ================================================================================
+2025-09-16 16:53:47,306 - __main__ - INFO - ANALYSIS RESULTS
+2025-09-16 16:53:47,307 - __main__ - INFO - ================================================================================
+2025-09-16 16:53:47,321 - __main__ - INFO - 
+Citation 1:
+2025-09-16 16:53:47,361 - __main__ - INFO - 
+Citation 2:
+2025-09-16 16:53:47,398 - __main__ - INFO - 
+Citation 3:
+2025-09-16 16:53:47,434 - __main__ - INFO - 
+Citation 4:
+2025-09-16 16:53:47,495 - __main__ - INFO - ================================================================================
+2025-09-16 16:53:47,499 - __main__ - INFO - Possible reasons:
+2025-09-16 16:53:47,499 - __main__ - INFO -   • Citations may not be similar enough to cluster
+2025-09-16 16:53:47,500 - __main__ - INFO -   • Clustering algorithm may require minimum similarity threshold
+2025-09-16 16:53:47,500 - __main__ - INFO -   • Processing strategy may have disabled clustering
+2025-09-16 16:53:47,500 - __main__ - INFO -   • Unique case names found: 3
+2025-09-16 16:53:47,501 - __main__ - INFO -     - Bostain v. Food Express
+2025-09-16 16:53:47,501 - __main__ - INFO -     - Port of Tacoma v. Sacks
+2025-09-16 16:53:47,501 - __main__ - INFO -     - Fode v. Dep't of Ecology
+2025-09-16 16:53:47,506 - __main__ - INFO - Possible reasons:
+2025-09-16 16:53:47,506 - __main__ - INFO -   • Citations may not exist in the verification database
+2025-09-16 16:53:47,506 - __main__ - INFO -   • Verification service may be unavailable
+2025-09-16 16:53:47,507 - __main__ - INFO -   • Citation format may not match database entries
+2025-09-16 16:53:47,507 - __main__ - INFO -   • API key for verification service may be missing/invalid
+2025-09-16 16:53:47,511 - __main__ - INFO - ================================================================================

@@ -334,7 +334,7 @@ class UnifiedInputProcessor:
                         process_citation_task_direct,
                         args=(request_id, 'text', {'text': text}),
                         job_id=request_id,  # Use request_id as the job ID
-                        job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 10 minutes timeout
+                        job_timeout=600,  # 10 minutes timeout
                         result_ttl=86400,
                         failure_ttl=86400
                     )

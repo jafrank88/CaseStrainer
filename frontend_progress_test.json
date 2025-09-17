@@ -1,0 +1,113 @@
+{
+  "document_length": 77,
+  "processing_time_ms": 6317,
+  "request_id": "75cb87be-d0dd-4e73-bb7c-36cf707e5692",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Brown v. Board",
+        "citation": "347 U.S. 483",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Brown v. Board",
+        "extracted_date": "1954",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "Miranda v. Arizona",
+        "citation": "384 U.S. 436",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "Miranda v. Arizona",
+        "extracted_date": "1966",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "fast_no_clustering",
+      "source": "text",
+      "text_length": 77
+    },
+    "processing_time": 6.31741738319397,
+    "progress_data": {
+      "current_message": "Citation extraction completed",
+      "current_step": 1,
+      "elapsed_time": 6.317369699478149,
+      "end_time": 1758087222.3727286,
+      "overall_progress": 100,
+      "start_time": 1758087216.0572824,
+      "status": "completed",
+      "steps": [
+        {
+          "end_time": 1758087216.0696821,
+          "message": "Initialization complete",
+          "name": "Initializing",
+          "progress": 100,
+          "start_time": 1758087216.060124,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758087222.3572302,
+          "message": "Citation extraction completed",
+          "name": "Extract",
+          "progress": 100,
+          "start_time": 1758087216.072123,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758087222.3636105,
+          "message": "Analysis completed",
+          "name": "Analyze",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758087222.3663034,
+          "message": "Name extraction completed",
+          "name": "Extract Names",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758087222.3687372,
+          "message": "Clustering completed",
+          "name": "Cluster",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        },
+        {
+          "end_time": 1758087222.370742,
+          "message": "Verification completed",
+          "name": "Verify",
+          "progress": 100,
+          "start_time": null,
+          "status": "completed"
+        }
+      ],
+      "task_id": "75cb87be-d0dd-4e73-bb7c-36cf707e5692",
+      "total_steps": 6
+    },
+    "request_id": "75cb87be-d0dd-4e73-bb7c-36cf707e5692",
+    "success": true
+  }
+}

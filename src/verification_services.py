@@ -8,13 +8,20 @@ Implements actual verification calls to:
 """
 
 import logging
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
-
+import os
 import time
+import re
 import requests
 from typing import Dict, List, Any, Optional
 from urllib.parse import quote_plus
-import re
+
+from src.config import (
+    DEFAULT_REQUEST_TIMEOUT, 
+    COURTLISTENER_TIMEOUT, 
+    CASEMINE_TIMEOUT, 
+    WEBSEARCH_TIMEOUT, 
+    SCRAPINGBEE_TIMEOUT
+)
 
 logger = logging.getLogger(__name__)
 
@@ -31,10 +38,21 @@ class CourtListenerService:
         self.request_interval = 60.0 / self.requests_per_minute
         
         self.session = requests.Session()
-        self.session.headers.update({
+        self.api_key = os.environ.get('COURTLISTENER_API_KEY')
+        
+        headers = {
             'User-Agent': 'CaseStrainer/1.0 (Legal Citation Verification Tool)',
             'Accept': 'application/json'
-        })
+        }
+        
+        # Add Authorization header if API key is available
+        if self.api_key:
+            headers['Authorization'] = f'Token {self.api_key}'
+            logger.info("Using CourtListener API key for authentication")
+        else:
+            logger.warning("No CourtListener API key found. Requests will be unauthenticated and may be rate-limited.")
+            
+        self.session.headers.update(headers)
     
     def _rate_limit(self):
         """Implement rate limiting for API calls"""

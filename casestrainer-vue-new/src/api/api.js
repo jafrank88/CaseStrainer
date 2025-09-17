@@ -218,76 +218,161 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       }
     });
     
+    // Handle nested response structure
+    const responseData = response.data.result || response.data;
+    const status = responseData.status || responseData.state;
+    const result = responseData.result || responseData;
+    const message = responseData.message || responseData.detail || '';
+    
     // Log the response
     console.log('Status check response:', {
       taskId: requestId,
-      clientRequestId: clientRequestId,
+      clientRequestId,
       status: response.status,
-      data: response.data,
-      headers: response.headers
+      statusMessage: status,
+      message,
+      hasCitations: !!result.citations,
+      citationsCount: result.citations?.length,
+      hasClusters: !!result.clusters,
+      clustersCount: result.clusters?.length,
+      responseStructure: response.data.result ? 'nested' : 'flat',
+      elapsed: Date.now() - startTime,
+      responseKeys: Object.keys(responseData)
     });
     
-    // Add more detailed status handling
+    // Handle 404 - task not found or not ready
     if (response.status === 404) {
-      // If we get a 404, the task might not be ready yet
-      console.log('Task not ready yet, retrying...', {
+      console.log('Task not found or not ready yet, retrying...', {
         taskId: requestId,
-        clientRequestId: clientRequestId,
+        clientRequestId,
         elapsed: Date.now() - startTime,
         endpoint: `/task_status/${requestId}`
       });
+      
+      // If we've been waiting a while, the task might have been lost
+      if (Date.now() - startTime > 30000) { // 30 seconds
+        console.warn('Task not found after 30 seconds, it may have been lost', {
+          taskId: requestId,
+          clientRequestId,
+          elapsed: Date.now() - startTime
+        });
+        throw new Error('Task not found or lost. Please try again.');
+      }
+      
       await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
       return pollForResults(requestId, clientRequestId, startTime);
     }
     
-    if (response.data.status === 'completed') {
-            console.log('Task completed:', {
+    // Check for completion
+    if (status === 'completed' || status === 'finished' || result.citations || result.clusters) {
+      console.log('Task completed successfully:', {
         taskId: requestId,
-        clientRequestId: clientRequestId,
+        clientRequestId,
         elapsed: Date.now() - startTime,
-        citations: response.data.result?.citations?.length || 0
+        citationsCount: result.citations?.length || 0,
+        clustersCount: result.clusters?.length || 0,
+        hasError: !!result.error
       });
       
-      // DEBUG: Alert when task is completed
-      console.log(`🎉 TASK COMPLETED! Citations: ${response.data.result?.citations?.length || 0}`);
+      // If we have citations or clusters, consider it a success even without explicit status
+      if (result.citations || result.clusters) {
+        return { 
+          ...result,
+          status: 'completed',
+          requestId: clientRequestId,
+          message: message || 'Analysis completed successfully'
+        };
+      }
       
-      return { ...response.data, requestId: clientRequestId };
-    } else if (response.data.status === 'failed') {
+      // Otherwise return the full result
+      return {
+        ...result,
+        status: 'completed',
+        requestId: clientRequestId
+      };
+    } else if (status === 'failed' || status === 'error' || responseData.error) {
+      const errorMessage = responseData.error?.message ||
+        responseData.error ||
+        responseData.message ||
+        'Request failed';
+
       console.error('Task failed:', {
         taskId: requestId,
-        clientRequestId: clientRequestId,
-        error: response.data.error,
-        elapsed: Date.now() - startTime
+        clientRequestId,
+        error: errorMessage,
+        status,
+        elapsed: Date.now() - startTime,
+        responseData: responseData,
+        stack: responseData.stack || responseData.error?.stack
       });
-      throw new Error(response.data.error || 'Request failed');
-    } else if (response.data.status === 'processing' || response.data.status === 'queued' || response.data.status === 'pending') {
+
+      // Create a more detailed error object
+      const error = new Error(errorMessage);
+      error.response = response;
+      error.taskId = requestId;
+      error.status = status;
+      error.elapsed = Date.now() - startTime;
+
+      throw error;
+
+    } else if (status === 'processing' || status === 'queued' || status === 'pending' || status === 'started') {
       // Log processing status for debugging
-      console.log('Processing status:', {
+      const progressInfo = {
         taskId: requestId,
-        clientRequestId: clientRequestId,
-        status: response.data.status,
-        progress: response.data.progress,
-        message: response.data.message,
-        queuePosition: response.data.queue_position,
-        estimatedWaitTime: response.data.estimated_wait_time,
-        citations: response.data.citations?.length || 0
-      });
-      
-      // DEBUG: Alert for processing status
-      console.log(`🔄 POLLING: Status=${response.data.status}, Citations=${response.data.citations?.length || 0}`);
-      
-      // Continue polling
-      await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
+        clientRequestId,
+        status,
+        progress: responseData.progress,
+        message: responseData.message || message,
+        queuePosition: responseData.queue_position,
+        estimatedWaitTime: responseData.estimated_wait_time,
+        citationsCount: result.citations?.length || 0,
+        clustersCount: result.clusters?.length || 0,
+        elapsed: Date.now() - startTime
+      };
+
+      console.log('Processing status:', progressInfo);
+
+      // If we've been processing for too long, consider it a timeout
+      if (Date.now() - startTime > 300000) { // 5 minutes
+        const timeoutError = new Error('Analysis timed out after 5 minutes');
+        timeoutError.code = 'ETIMEDOUT';
+        timeoutError.taskId = requestId;
+        throw timeoutError;
+      }
+
+      // Continue polling with increasing delay
+      const elapsed = Date.now() - startTime;
+      const delay = Math.min(POLLING_INTERVAL * (1 + Math.floor(elapsed / 60000)), 10000); // Max 10s delay
+
+      console.log(`🔄 POLLING: Status=${status}, Elapsed=${Math.round(elapsed / 1000)}s, Next check in ${delay}ms`);
+
+      await new Promise(resolve => setTimeout(resolve, delay));
       return pollForResults(requestId, clientRequestId, startTime);
+
     } else {
-      // Handle unknown status
-      console.warn('Unknown status received:', {
+      // Unknown status, log and continue polling with backoff
+      const elapsed = Date.now() - startTime;
+      const backoffTime = Math.min(POLLING_INTERVAL * 2, 15000); // Max 15s backoff
+
+      console.warn('Unknown status, continuing to poll:', {
         taskId: requestId,
-        clientRequestId: clientRequestId,
-        status: response.data.status,
-        data: response.data
+        clientRequestId,
+        status,
+        responseData: responseData,
+        elapsed,
+        nextCheckIn: backoffTime
       });
-      await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
+
+      // If we've been in an unknown state for too long, fail
+      if (elapsed > 300000) { // 5 minutes
+        const error = new Error('Analysis stuck in unknown state');
+        error.code = 'EUNKNOWNSTATE';
+        error.taskId = requestId;
+        error.elapsed = elapsed;
+        throw error;
+      }
+
+      await new Promise(resolve => setTimeout(resolve, backoffTime));
       return pollForResults(requestId, clientRequestId, startTime);
     }
   } catch (error) {
@@ -599,16 +684,43 @@ export const analyze = async (requestData, requestId = null) => {
             taskId: response.data.task_id
         });
         
-        // If we get a processing status with task_id, start polling
-        if (response.data.status === 'processing' && response.data.task_id) {
+        // Extract status and task ID from response
+        const responseData = response.data.result || response.data;
+        const status = responseData.status || responseData.state;
+        const taskId = responseData.task_id || responseData.request_id || responseData.job_id;
+        const message = responseData.message || responseData.detail;
+        
+        console.log('Processing response:', {
+            status,
+            taskId,
+            message,
+            hasResult: !!responseData.result,
+            hasCitations: !!responseData.citations,
+            hasClusters: !!responseData.clusters
+        });
+        
+        // If we have a processing status with a task ID, start polling
+        if ((status === 'processing' || status === 'queued' || status === 'started') && taskId) {
             console.log('Starting polling for task:', {
-                taskId: response.data.task_id,
+                taskId,
                 requestId: requestId,
-                status: response.data.status,
-                message: response.data.message
+                status,
+                message
             });
-            const polledResults = await pollForResults(response.data.task_id, requestId);
-            return { ...polledResults, requestId: requestId };
+            
+            try {
+                const polledResults = await pollForResults(taskId, requestId);
+                console.log('Polling completed with results:', {
+                    hasCitations: !!polledResults.citations,
+                    citationsCount: polledResults.citations?.length,
+                    hasClusters: !!polledResults.clusters,
+                    clustersCount: polledResults.clusters?.length
+                });
+                return { ...polledResults, requestId: requestId };
+            } catch (error) {
+                console.error('Error during polling:', error);
+                throw error;
+            }
         }
         
         console.log('Returning response data:', response.data);

@@ -465,10 +465,14 @@ class DockerOptimizedProcessor:
             
             citation_result = await processor.process_document_citations(text)
             
+            # Apply deduplication to citations
+            citations = citation_result.get('citations', [])
+            citations = self._deduplicate_citations(citations, file_path)
+            
             result = {
                 'status': 'completed',
                 'text_length': len(text),
-                'citations': citation_result.get('citations', []),
+                'citations': citations,
                 'clusters': citation_result.get('clusters', []),
                 'statistics': {
                     'total_citations': len(citation_result.get('citations', [])),
@@ -498,6 +502,29 @@ class DockerOptimizedProcessor:
                 'error': error_msg,
                 'processing_time': time.time() - start_time
             }
+    
+    def _deduplicate_citations(self, citations: List[Dict[str, Any]], file_path: str) -> List[Dict[str, Any]]:
+        """Apply deduplication to citations list."""
+        if not citations:
+            return citations
+        
+        try:
+            from src.citation_deduplication import deduplicate_citations
+            import logging
+            
+            original_count = len(citations)
+            deduplicated = deduplicate_citations(citations, debug=True)
+            
+            if len(deduplicated) < original_count:
+                logging.info(f"[DockerOptimizedProcessor] Deduplication for {file_path}: {original_count} → {len(deduplicated)} citations "
+                           f"({original_count - len(deduplicated)} duplicates removed)")
+            
+            return deduplicated
+            
+        except Exception as e:
+            import logging
+            logging.warning(f"[DockerOptimizedProcessor] Deduplication failed for {file_path}: {e}")
+            return citations  # Return original citations if deduplication fails
 
 
 def extract_pdf_pages(file_path: str, start_page: int, end_page: int, file_hash: str) -> str:

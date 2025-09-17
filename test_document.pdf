@@ -1,0 +1,62 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog
+   /Pages 2 0 R
+>>
+endobj
+
+2 0 obj
+<< /Type /Pages
+   /Kids [3 0 R]
+   /Count 1
+   /MediaBox [0 0 612 792]
+>>
+endobj
+
+3 0 obj
+<< /Type /Page
+   /Parent 2 0 R
+   /Resources << /Font << /F1 4 0 R >> >>
+   /Contents 5 0 R
+>>
+endobj
+
+4 0 obj
+<< /Type /Font
+   /Subtype /Type1
+   /BaseFont /Helvetica
+>>
+endobj
+
+5 0 obj
+<< /Length 73 >>
+stream
+BT
+/F1 24 Tf
+100 700 Td
+(Test Document for CaseStrainer) Tj
+100 650 Td
+(This is a test document with some legal citations.) Tj
+100 600 Td
+(State v. Smith, 123 Wash. 2d 45, 864 P.2d 1371 (1993)) Tj
+100 550 Td
+(State v. Jones, 112 Wn.2d 817, 774 P.2d 1187 (1989)) Tj
+ET
+endstream
+endobj
+
+xref
+0 6
+0000000000 65535 f 
+0000000015 00000 n 
+0000000069 00000 n 
+0000000129 00000 n 
+0000000202 00000 n 
+0000000233 00000 n 
+trailer
+<< /Size 6
+   /Root 1 0 R
+>>
+startxref
+303
+%%EOF

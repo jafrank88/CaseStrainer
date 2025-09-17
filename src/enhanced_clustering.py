@@ -63,7 +63,7 @@ class EnhancedCitationClusterer:
             'supreme_parallel': re.compile(r'(\d+)\s+S\.\s*Ct\.\s+\d+.*?(\d+)\s+L\.\s*Ed\.\d*d\s+\d+')
         }
     
-    def cluster_citations(self, citations: List[Any], text: str = "", request_id: str = "") -> List[Dict[str, Any]]:
+    def cluster_citations(self, citations: List[Any], text: str = "", request_id: str = "", enable_verification: bool = False) -> List[Dict[str, Any]]:
         """
         Enhanced clustering with optimal flow:
         1. Detect parallel citations by proximity and patterns
@@ -71,17 +71,79 @@ class EnhancedCitationClusterer:
         3. Propagate metadata to all citations in the group
         4. Create final clusters by propagated metadata
         5. Apply similarity-based refinement
+        6. Optionally verify citations with CourtListener API if enable_verification is True
+        
+        Args:
+            citations: List of citation objects to cluster
+            text: The full text from which citations were extracted
+            request_id: Optional request ID for logging
+            enable_verification: Whether to verify citations with CourtListener API
+            
+        Returns:
+            List of citation clusters with metadata and verification status
         """
         if not citations:
             return []
         
-        logger.info(f"[EnhancedClusterer {request_id}] Starting enhanced clustering for {len(citations)} citations")
+        logger.info(f"[EnhancedClusterer {request_id}] Starting enhanced clustering for {len(citations)} citations, enable_verification={enable_verification}")
         
         parallel_groups = self._detect_parallel_citations_enhanced(citations, text)
         
         enhanced_citations = self._extract_and_propagate_metadata_enhanced(citations, parallel_groups, text)
         
         final_clusters = self._create_final_clusters_enhanced(enhanced_citations)
+        
+        # Apply verification if enabled
+        if enable_verification:
+            logger.info(f"[EnhancedClusterer {request_id}] Verifying citations with unified clustering")
+            try:
+                # Use the unified clustering function with verification enabled
+                from src.unified_citation_clustering import cluster_citations_unified
+                from src.citation_verifier import CitationVerifier
+                
+                # Extract citation texts
+                citation_texts = []
+                for cluster in final_clusters:
+                    if 'citations' in cluster and cluster['citations']:
+                        for citation in cluster['citations']:
+                            if isinstance(citation, dict):
+                                citation_texts.append(citation.get('citation', ''))
+                            else:
+                                citation_texts.append(str(citation))
+                
+                # Verify citations using unified clustering
+                verified_citations = cluster_citations_unified(
+                    citation_texts, 
+                    original_text=text,
+                    enable_verification=True
+                )
+                
+                # Update clusters with verification results
+                verified_citation_map = {}
+                for citation in verified_citations:
+                    if isinstance(citation, dict) and 'citation' in citation:
+                        verified_citation_map[citation['citation']] = citation
+                
+                # Update clusters with verification results
+                for cluster in final_clusters:
+                    if 'citations' in cluster and cluster['citations']:
+                        for i, citation in enumerate(cluster['citations']):
+                            if isinstance(citation, dict):
+                                citation_text = citation.get('citation', '')
+                                if citation_text in verified_citation_map:
+                                    verified = verified_citation_map[citation_text]
+                                    citation.update({
+                                        'verified': verified.get('verified', False),
+                                        'canonical_name': verified.get('canonical_name'),
+                                        'canonical_date': verified.get('canonical_date'),
+                                        'canonical_url': verified.get('canonical_url'),
+                                        'verification_source': verified.get('verification_source', 'UnifiedVerification'),
+                                        'verification_confidence': verified.get('verification_confidence', 0.8)
+                                    })
+            except Exception as e:
+                logger.error(f"[EnhancedClusterer {request_id}] Error during verification: {e}")
+                import traceback
+                logger.error(f"[EnhancedClusterer {request_id}] Traceback: {traceback.format_exc()}")
         
         refined_clusters = self._apply_similarity_refinement(final_clusters)
         

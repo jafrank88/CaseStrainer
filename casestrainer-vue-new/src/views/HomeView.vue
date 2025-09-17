@@ -503,7 +503,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api, { analyze } from '@/api/api';
 import { globalProgress } from '@/stores/progressStore';
@@ -1078,20 +1078,40 @@ const analyzeContent = async () => {
       }));
       
       // Extract and use progress data from backend response
-      if (response.metadata && response.metadata.progress_data) {
-        const progressData = response.metadata.progress_data;
+      if (response.result && response.result.progress_data) {
+        const progressData = response.result.progress_data;
         console.log('📊 Backend progress data received:', progressData);
         
-        // Update global progress with backend data
+        // Update global progress with real backend data
         if (progressData.steps && progressData.steps.length > 0) {
-          // Set up processing steps from backend
+          // Use real progress data from backend instead of time-based estimation
+          globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
+          globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
+          
+          // Set up processing steps from backend with real progress
           const backendSteps = progressData.steps.map(step => ({
             step: step.name,
-            estimated_time: step.status === 'completed' ? 1 : 5, // Completed steps are fast
-            startTime: step.status === 'completed' ? 0 : null
+            progress: step.progress || 0,
+            status: step.status,
+            message: step.message,
+            estimated_time: 1, // Not used since we have real progress
+            startTime: step.start_time,
+            endTime: step.end_time,
+            completed: step.status === 'completed'
           }));
           
           globalProgress.setSteps(backendSteps);
+          
+          // Override the time-based progress calculation with real data
+          globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
+          globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
+          
+          console.log('✅ Updated progress with real backend data:', {
+            totalProgress: progressData.overall_progress,
+            currentStep: progressData.current_message,
+            elapsedTime: progressData.elapsed_time,
+            steps: backendSteps.length
+          });
           
           // Update progress for each completed step
           progressData.steps.forEach(step => {
@@ -1138,20 +1158,40 @@ const analyzeContent = async () => {
       console.log('🔄 Async task started with task_id:', response.task_id);
       
       // Extract and use progress data from backend response for async tasks
-      if (response.metadata && response.metadata.progress_data) {
-        const progressData = response.metadata.progress_data;
+      if (response.result && response.result.progress_data) {
+        const progressData = response.result.progress_data;
         console.log('📊 Backend progress data for async task:', progressData);
         
-        // Update global progress with backend data
+        // Update global progress with real backend data for async tasks
         if (progressData.steps && progressData.steps.length > 0) {
-          // Set up processing steps from backend
+          // Use real progress data from backend instead of time-based estimation
+          globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
+          globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
+          
+          // Set up processing steps from backend with real progress
           const backendSteps = progressData.steps.map(step => ({
             step: step.name,
-            estimated_time: step.status === 'completed' ? 1 : 5,
-            startTime: step.status === 'completed' ? 0 : null
+            progress: step.progress || 0,
+            status: step.status,
+            message: step.message,
+            estimated_time: 1, // Not used since we have real progress
+            startTime: step.start_time,
+            endTime: step.end_time,
+            completed: step.status === 'completed'
           }));
           
           globalProgress.setSteps(backendSteps);
+          
+          // Override the time-based progress calculation with real data
+          globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
+          globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
+          
+          console.log('✅ Updated async progress with real backend data:', {
+            totalProgress: progressData.overall_progress,
+            currentStep: progressData.current_message,
+            elapsedTime: progressData.elapsed_time,
+            steps: backendSteps.length
+          });
           
           // Update progress for each completed step
           progressData.steps.forEach(step => {
@@ -1275,33 +1315,100 @@ const analyzeContent = async () => {
       return; // Don't navigate, show progress on current page
     } else if (response) {
       console.log('Response received but no task_id or immediate results - storing for display');
-      // Format response data for CitationResults component
-      if (response.result) {
+      
+      try {
+        // Handle different response structures
+        let resultData = response.result || response;
+        
+        // If we have a direct response with citations/clusters
+        if ((response.citations || response.clusters) && !resultData) {
+          resultData = response;
+        }
+        
         // Map citation_objects to citations for component compatibility
-        const mappedClusters = (response.result.clusters || []).map(cluster => ({
+        const mappedClusters = (resultData.clusters || []).map(cluster => ({
           ...cluster,
           citations: cluster.citation_objects || cluster.citations || []
         }));
         
+        // Extract citations from clusters if not in root
+        const allCitations = [
+          ...(resultData.citations || []),
+          ...mappedClusters.flatMap(cluster => cluster.citations || [])
+        ];
+        
+        // Remove duplicate citations by citation text
+        const uniqueCitations = Array.from(new Map(
+          allCitations.map(item => [item.citation || item.citation_text, item])
+        ).values());
+        
         analysisResults.value = {
           result: {
-            citations: response.result.citations || [],
-            clusters: response.result.clusters || []
+            citations: uniqueCitations,
+            clusters: mappedClusters
           },
           clusters: mappedClusters,
-          citations: response.result.citations || [],
-          message: response.message,
-          metadata: response.metadata,
-          success: response.success,
-          total_citations: response.result.citations?.length || 0
+          citations: uniqueCitations,
+          message: response.message || 'Analysis completed',
+          metadata: response.metadata || {},
+          success: response.success !== false, // Default to true if not specified
+          total_citations: uniqueCitations.length
         };
-      } else {
-        analysisResults.value = response;
+        
+        console.log('Analysis results processed:', {
+          citationsCount: uniqueCitations.length,
+          clustersCount: mappedClusters.length,
+          hasMessage: !!response.message,
+          hasMetadata: !!response.metadata
+        });
+        
+      } catch (error) {
+        console.error('Error in analyzeContent:', {
+          error,
+          message: error.message,
+          stack: error.stack,
+          response: error.response?.data || 'No response data'
+        });
+        
+        // Set detailed error state
+        const errorMessage = error.response?.data?.error 
+          ? `Server error: ${error.response.data.error}`
+          : error.message || 'An unexpected error occurred during analysis';
+          
+        analysisError.value = {
+          message: errorMessage,
+          response: error.response?.data,
+          status: error.response?.status,
+          headers: error.response?.headers
+        };
+        
+        // If this was a network error, suggest checking connection
+        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
+          analysisError.value += ' (Connection timeout - the server took too long to respond)';
+        } else if (error.response?.status === 429) {
+          analysisError.value = 'Rate limit exceeded. Please wait a moment and try again.';
+        }
+      } finally {
+        isAnalyzing.value = false;
+        
+        // Ensure any loading states are reset
+        if (activeAsyncTask.value) {
+          activeAsyncTask.value = null;
+          asyncTaskProgress.value = null;
+        }
+        
+        // Force UI update in case we're in a weird state
+        nextTick(() => {
+          // Small delay to ensure UI has updated
+          setTimeout(() => {
+            if (analysisError.value) {
+              // Scroll error into view
+              const errorEl = document.querySelector('.error-message');
+              errorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+          }, 100);
+        });
       }
-      analysisError.value = '';
-      
-      // Complete progress tracking with route scoping
-      globalProgress.completeProgress(analysisResults.value, 'home');
     } else {
       console.log('No response received');
       analysisError.value = 'No response received from server';

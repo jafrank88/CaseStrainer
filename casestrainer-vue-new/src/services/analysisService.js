@@ -259,8 +259,11 @@ export const useAnalysisService = () => {
       const responseData = response.data || {};
       
       // Check if we got a task_id and need to poll for results
-      if (responseData.task_id && (responseData.status === 'processing' || responseData.status === 'queued')) {
-        console.log('Task started, polling for results:', responseData.task_id);
+      const taskId = responseData.result?.task_id || responseData.task_id;
+      const status = responseData.result?.status || responseData.status;
+      
+      if (taskId && (status === 'processing' || status === 'queued')) {
+        console.log('Task started, polling for results:', taskId);
         
         // Poll for results
         let attempts = 0;
@@ -272,7 +275,7 @@ export const useAnalysisService = () => {
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Poll for results
-          const pollResponse = await currentApi.get(`/casestrainer/api/task_status/${responseData.task_id}`);
+          const pollResponse = await currentApi.get(`/casestrainer/api/task_status/${taskId}`);
           
           if (pollResponse.data && pollResponse.data.status === 'completed') {
             console.log('Task completed, returning results');
@@ -308,7 +311,7 @@ export const useAnalysisService = () => {
             
             taskProgress = {
               ...pollResponse.data,
-              task_id: responseData.task_id,
+              task_id: taskId,
               attempts: attempts + 1,
               max_attempts: maxAttempts,
               progress,
@@ -323,7 +326,7 @@ export const useAnalysisService = () => {
             }
             
             // Log progress for debugging
-            console.log(`Task ${responseData.task_id} progress: ${progress}% - ${statusMessage}`);
+            console.log(`Task ${taskId} progress: ${progress}% - ${statusMessage}`);
             
             attempts++;
             continue;

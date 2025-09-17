@@ -1,0 +1,199 @@
+2025-09-16 12:57:54,755 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 12:57:54,756 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 12:57:54,757 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 12:57:54,757 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 12:57:54,758 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 12:57:54,758 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 12:57:54,772 - __main__ - INFO - === Starting Citation Processing Test ===
+2025-09-16 12:57:54,773 - __main__ - INFO - Citation configuration:
+2025-09-16 12:57:54,774 - __main__ - INFO -   context_window = 300
+2025-09-16 12:57:54,774 - __main__ - INFO -   chunk_size = 5000
+2025-09-16 12:57:54,774 - __main__ - INFO -   min_confidence = 0.7
+2025-09-16 12:57:54,774 - __main__ - INFO -   immediate_max_length = 50
+2025-09-16 12:57:54,775 - __main__ - INFO -   immediate_max_words = 10
+2025-09-16 12:57:54,775 - __main__ - INFO -   extraction_timeout = 120
+2025-09-16 12:57:54,776 - __main__ - INFO -   enable_clustering = True
+2025-09-16 12:57:54,776 - __main__ - INFO -   enable_verification = True
+2025-09-16 12:57:54,776 - __main__ - INFO -   clustering_options:
+2025-09-16 12:57:54,777 - __main__ - INFO -     enable_parallel_detection = True
+2025-09-16 12:57:54,777 - __main__ - INFO -     enable_case_relationship_detection = True
+2025-09-16 12:57:54,777 - __main__ - INFO -     enable_metadata_propagation = True
+2025-09-16 12:57:54,778 - __main__ - INFO -   verification_options:
+2025-09-16 12:57:54,778 - __main__ - INFO -     enable_courtlistener = True
+2025-09-16 12:57:54,778 - __main__ - INFO -     enable_fallback_sources = True
+2025-09-16 12:57:54,778 - __main__ - INFO -     enable_confidence_scoring = True
+2025-09-16 12:57:54,779 - __main__ - INFO -     min_confidence_threshold = 0.7
+2025-09-16 12:57:54,779 - __main__ - INFO - Created 3 test citations
+2025-09-16 12:57:54,779 - __main__ - INFO - Initializing UnifiedCitationClusterer...
+2025-09-16 12:57:54,780 - __main__ - INFO - Running citation clustering...
+2025-09-16 12:57:54,780 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-16 12:57:54,780 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 12:57:54,781 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-09-16 12:57:54,781 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 12:57:54,782 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-16 12:57:55,320 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-16 12:57:55,320 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-16 12:57:55,584 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 1 unverified citations
+2025-09-16 12:57:55,666 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 1 unverified citations
+2025-09-16 12:57:55,667 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 789 F.2d 123
+2025-09-16 12:57:55,967 - src.enhanced_fallback_verifier - INFO - CourtListener failed for 789 F.2d 123, proceeding with enhanced fallback verification
+2025-09-16 12:57:55,975 - src.enhanced_fallback_verifier - INFO - Configured 10 verification sources: ['casemine', 'descrybe', 'findlaw', 'leagle', 'vlex', 'justia', 'google', 'bing', 'duckduckgo', 'scrapingbee']
+2025-09-16 12:57:56,232 - src.enhanced_fallback_verifier - INFO - Created 20 verification tasks for 10 sources
+2025-09-16 12:58:08,161 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:58:08,171 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:58:08,181 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 789 F.2d 123: {'verified': False, 'source': 'fallback_not_found', 'canonical_name': None, 'canonical_date': None, 'url': None, 'canonical_url': None, 'confidence': 0.0, 'error': 'Verification not_found'}
+2025-09-16 12:58:08,182 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'canonical_url', 'confidence', 'error']
+2025-09-16 12:58:08,182 - src.unified_citation_clustering - INFO - DEBUG: Source field: fallback_not_found
+2025-09-16 12:58:08,183 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-16 12:58:08,185 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-16 12:58:08,186 - src.unified_citation_clustering - INFO - Merged 3 initial clusters into 3 final clusters (preserving parallel relationships)
+2025-09-16 12:58:08,186 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-16 12:58:08,187 - src.unified_citation_clustering - INFO - Propagating verification status across 3 clusters
+2025-09-16 12:58:08,187 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-16 12:58:08,188 - src.unified_citation_clustering - INFO - Unified clustering completed: 3 clusters created
+2025-09-16 12:58:08,188 - __main__ - INFO - Found 3 clusters
+2025-09-16 12:58:08,188 - __main__ - INFO - 
+Cluster 1:
+2025-09-16 12:58:08,189 - __main__ - ERROR - Test failed: 'dict' object has no attribute 'citations'
+Traceback (most recent call last):
+  File "D:\dev\casestrainer\test_clustering_verification.py", line 99, in test_citation_processing
+    for j, citation in enumerate(cluster.citations, 1):
+                                 ^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'citations'
+2025-09-16 12:58:42,445 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 52
+2025-09-16 12:58:42,446 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 53
+2025-09-16 12:58:42,447 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 54
+2025-09-16 12:58:42,447 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 55
+2025-09-16 12:58:42,448 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 56
+2025-09-16 12:58:42,448 - dotenv.main - WARNING - python-dotenv could not parse statement starting at line 57
+2025-09-16 12:58:42,470 - __main__ - INFO - === Starting Citation Processing Test ===
+2025-09-16 12:58:42,471 - __main__ - INFO - Citation configuration:
+2025-09-16 12:58:42,471 - __main__ - INFO -   context_window = 300
+2025-09-16 12:58:42,472 - __main__ - INFO -   chunk_size = 5000
+2025-09-16 12:58:42,472 - __main__ - INFO -   min_confidence = 0.7
+2025-09-16 12:58:42,473 - __main__ - INFO -   immediate_max_length = 50
+2025-09-16 12:58:42,473 - __main__ - INFO -   immediate_max_words = 10
+2025-09-16 12:58:42,473 - __main__ - INFO -   extraction_timeout = 120
+2025-09-16 12:58:42,474 - __main__ - INFO -   enable_clustering = True
+2025-09-16 12:58:42,474 - __main__ - INFO -   enable_verification = True
+2025-09-16 12:58:42,475 - __main__ - INFO -   clustering_options:
+2025-09-16 12:58:42,475 - __main__ - INFO -     enable_parallel_detection = True
+2025-09-16 12:58:42,476 - __main__ - INFO -     enable_case_relationship_detection = True
+2025-09-16 12:58:42,476 - __main__ - INFO -     enable_metadata_propagation = True
+2025-09-16 12:58:42,477 - __main__ - INFO -   verification_options:
+2025-09-16 12:58:42,477 - __main__ - INFO -     enable_courtlistener = True
+2025-09-16 12:58:42,478 - __main__ - INFO -     enable_fallback_sources = True
+2025-09-16 12:58:42,478 - __main__ - INFO -     enable_confidence_scoring = True
+2025-09-16 12:58:42,479 - __main__ - INFO -     min_confidence_threshold = 0.7
+2025-09-16 12:58:42,479 - __main__ - INFO - Created 3 test citations
+2025-09-16 12:58:42,480 - __main__ - INFO - Initializing UnifiedCitationClusterer...
+2025-09-16 12:58:42,480 - __main__ - INFO - Running citation clustering...
+2025-09-16 12:58:42,481 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-16 12:58:42,481 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-16 12:58:42,482 - src.unified_citation_clustering - INFO - Detected 3 parallel citation groups (including proximity-based)
+2025-09-16 12:58:42,482 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-16 12:58:42,483 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-16 12:58:43,102 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-16 12:58:43,102 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-16 12:58:43,814 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 1 unverified citations
+2025-09-16 12:58:43,896 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 1 unverified citations
+2025-09-16 12:58:43,896 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 789 F.2d 123
+2025-09-16 12:58:44,067 - src.enhanced_fallback_verifier - INFO - CourtListener failed for 789 F.2d 123, proceeding with enhanced fallback verification
+2025-09-16 12:58:44,076 - src.enhanced_fallback_verifier - INFO - Configured 10 verification sources: ['casemine', 'descrybe', 'findlaw', 'leagle', 'vlex', 'justia', 'google', 'bing', 'duckduckgo', 'scrapingbee']
+2025-09-16 12:58:44,326 - src.enhanced_fallback_verifier - INFO - Created 20 verification tasks for 10 sources
+2025-09-16 12:58:51,810 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:58:51,819 - src.enhanced_fallback_verifier - WARNING - ScrapingBee API key not configured. Set SCRAPINGBEE_API_KEY in config/scrapingbee_config.py or environment variable
+2025-09-16 12:58:51,828 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 789 F.2d 123: {'verified': False, 'source': 'fallback_not_found', 'canonical_name': None, 'canonical_date': None, 'url': None, 'canonical_url': None, 'confidence': 0.0, 'error': 'Verification not_found'}
+2025-09-16 12:58:51,828 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'canonical_url', 'confidence', 'error']
+2025-09-16 12:58:51,829 - src.unified_citation_clustering - INFO - DEBUG: Source field: fallback_not_found
+2025-09-16 12:58:51,829 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-16 12:58:51,832 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-16 12:58:51,832 - src.unified_citation_clustering - INFO - Merged 3 initial clusters into 3 final clusters (preserving parallel relationships)
+2025-09-16 12:58:51,833 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-16 12:58:51,833 - src.unified_citation_clustering - INFO - Propagating verification status across 3 clusters
+2025-09-16 12:58:51,833 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-16 12:58:51,834 - src.unified_citation_clustering - INFO - Unified clustering completed: 3 clusters created
+2025-09-16 12:58:51,834 - __main__ - INFO - Found 3 clusters
+2025-09-16 12:58:51,835 - __main__ - INFO - 
+Cluster 1:
+2025-09-16 12:58:51,835 - __main__ - INFO -   Citation 1: Unknown
+2025-09-16 12:58:51,836 - __main__ - INFO -     Extracted case: N/A
+2025-09-16 12:58:51,836 - __main__ - INFO -     Extracted date: N/A
+2025-09-16 12:58:51,836 - __main__ - INFO - 
+Cluster 2:
+2025-09-16 12:58:51,837 - __main__ - INFO -   Citation 1: Unknown
+2025-09-16 12:58:51,837 - __main__ - INFO -     Extracted case: N/A
+2025-09-16 12:58:51,838 - __main__ - INFO -     Extracted date: N/A
+2025-09-16 12:58:51,838 - __main__ - INFO - 
+Cluster 3:
+2025-09-16 12:58:51,838 - __main__ - INFO -   Citation 1: Unknown
+2025-09-16 12:58:51,839 - __main__ - INFO -     Extracted case: N/A
+2025-09-16 12:58:51,839 - __main__ - INFO -     Extracted date: N/A
+2025-09-16 12:58:51,839 - __main__ - WARNING - No verification data found in any citation
+2025-09-16 12:58:51,840 - __main__ - INFO - === Test Completed: Clustering is working ===
+2025-09-16 17:45:20,717 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:20,721 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:20,721 - __main__ - INFO - Sending synchronous request...
+2025-09-16 17:45:20,948 - __main__ - INFO -   Citations found: 4
+2025-09-16 17:45:20,948 - __main__ - INFO -   Clusters created: 0
+2025-09-16 17:45:20,949 - __main__ - INFO -   Processing strategy: full_with_verification
+2025-09-16 17:45:20,949 - __main__ - INFO -   Bostain citations: 2
+2025-09-16 17:45:20,949 - __main__ - INFO -   Verified citations: 0/4
+2025-09-16 17:45:20,954 - __main__ - INFO -     1. 159 Wn.2d 700 - Bostain v. Food Express
+2025-09-16 17:45:20,954 - __main__ - INFO -     2. 153 P.3d 846 - Bostain v. Food Express
+2025-09-16 17:45:20,963 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:20,969 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:20,972 - __main__ - INFO - Sending async request with 2224 characters...
+2025-09-16 17:45:21,059 - __main__ - INFO - Got async task ID: 1b085a12-e9d1-486c-9009-cfb8e217a5e9
+2025-09-16 17:45:21,059 - __main__ - INFO - Polling attempt 1/30...
+2025-09-16 17:45:21,100 - __main__ - INFO - Task status: processing
+2025-09-16 17:45:26,102 - __main__ - INFO - Polling attempt 2/30...
+2025-09-16 17:45:26,173 - __main__ - INFO -   Citations found: 0
+2025-09-16 17:45:26,173 - __main__ - INFO -   Clusters created: 0
+2025-09-16 17:45:26,173 - __main__ - INFO -   Bostain citations: 0
+2025-09-16 17:45:26,174 - __main__ - INFO -   Verified citations: 0/0
+2025-09-16 17:45:26,175 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:26,179 - __main__ - INFO - ================================================================================
+2025-09-16 17:45:26,182 - __main__ - INFO -   Citations: 4
+2025-09-16 17:45:26,183 - __main__ - INFO -   Clusters: 0
+2025-09-16 17:45:26,183 - __main__ - INFO -   Verified: 0
+2025-09-16 17:45:26,183 - __main__ - INFO -   Bostain citations: 2
+2025-09-16 17:45:26,184 - __main__ - INFO -   Strategy: full_with_verification
+2025-09-16 17:45:26,194 - __main__ - INFO -   Citations: 0
+2025-09-16 17:45:26,195 - __main__ - INFO -   Clusters: 0
+2025-09-16 17:45:26,195 - __main__ - INFO -   Verified: 0
+2025-09-16 17:45:26,195 - __main__ - INFO -   Bostain citations: 0
+2025-09-16 17:45:26,200 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:26,306 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:26,311 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:26,312 - __main__ - INFO - Sending synchronous request...
+2025-09-16 17:50:26,509 - __main__ - INFO -   Citations found: 4
+2025-09-16 17:50:26,510 - __main__ - INFO -   Clusters created: 0
+2025-09-16 17:50:26,510 - __main__ - INFO -   Processing strategy: full_with_verification
+2025-09-16 17:50:26,510 - __main__ - INFO -   Bostain citations: 2
+2025-09-16 17:50:26,511 - __main__ - INFO -   Verified citations: 0/4
+2025-09-16 17:50:26,515 - __main__ - INFO -     1. 159 Wn.2d 700 - Bostain v. Food Express
+2025-09-16 17:50:26,516 - __main__ - INFO -     2. 153 P.3d 846 - Bostain v. Food Express
+2025-09-16 17:50:26,524 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:26,530 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:26,530 - __main__ - INFO - Sending async request with 2224 characters...
+2025-09-16 17:50:26,600 - __main__ - INFO - Got async task ID: 3ef524b9-1303-428d-9484-ff7beee25aba
+2025-09-16 17:50:26,600 - __main__ - INFO - Polling attempt 1/30...
+2025-09-16 17:50:26,645 - __main__ - INFO - Task status: processing
+2025-09-16 17:50:31,647 - __main__ - INFO - Polling attempt 2/30...
+2025-09-16 17:50:31,755 - __main__ - INFO -   Citations found: 0
+2025-09-16 17:50:31,755 - __main__ - INFO -   Clusters created: 0
+2025-09-16 17:50:31,756 - __main__ - INFO -   Bostain citations: 0
+2025-09-16 17:50:31,756 - __main__ - INFO -   Verified citations: 0/0
+2025-09-16 17:50:31,757 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:31,762 - __main__ - INFO - ================================================================================
+2025-09-16 17:50:31,766 - __main__ - INFO -   Citations: 4
+2025-09-16 17:50:31,766 - __main__ - INFO -   Clusters: 0
+2025-09-16 17:50:31,766 - __main__ - INFO -   Verified: 0
+2025-09-16 17:50:31,767 - __main__ - INFO -   Bostain citations: 2
+2025-09-16 17:50:31,767 - __main__ - INFO -   Strategy: full_with_verification
+2025-09-16 17:50:31,779 - __main__ - INFO -   Citations: 0
+2025-09-16 17:50:31,779 - __main__ - INFO -   Clusters: 0
+2025-09-16 17:50:31,780 - __main__ - INFO -   Verified: 0
+2025-09-16 17:50:31,780 - __main__ - INFO -   Bostain citations: 0
+2025-09-16 17:50:31,784 - __main__ - INFO - ================================================================================

@@ -160,7 +160,21 @@ def get_citation_config() -> dict:
         'min_confidence': MIN_CITATION_CONFIDENCE,
         'immediate_max_length': IMMEDIATE_PROCESSING_MAX_LENGTH,
         'immediate_max_words': IMMEDIATE_PROCESSING_MAX_WORDS,
-        'extraction_timeout': CITATION_EXTRACTION_TIMEOUT
+        'extraction_timeout': CITATION_EXTRACTION_TIMEOUT,
+        # Enable clustering and verification by default
+        'enable_clustering': get_bool_config_value('ENABLE_CLUSTERING', True),
+        'enable_verification': get_bool_config_value('ENABLE_VERIFICATION', True),
+        'clustering_options': {
+            'enable_parallel_detection': True,
+            'enable_case_relationship_detection': True,
+            'enable_metadata_propagation': True
+        },
+        'verification_options': {
+            'enable_courtlistener': True,
+            'enable_fallback_sources': True,
+            'enable_confidence_scoring': True,
+            'min_confidence_threshold': 0.7
+        }
     }
 
 def get_timeout_config() -> dict:

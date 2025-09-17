@@ -198,17 +198,61 @@ class CitationExtractor(ICitationExtractor):
             r'\b\d+\s+F\.\s*Supp\.\s+\d+'      # Federal Supplement
         ]
         
-        state_patterns = [
-            r'\b(\d+)\s+Wn\.3d\s+(\d+)\b',
-            r'\b(\d+)\s+Wn\.\s+3d\s+(\d+)\b',
-            r'\b(\d+)\s+Wn\.\s+2d\s+(\d+)\b',
-            r'\b(\d+)\s+Wn\.\s+App\.\s+(\d+)\b',
-            r'\b(\d+)\s+Wn\.\s+(\d+)\b',
-            r'\b(\d+)\s+Wash\.\s+3d\s+(\d+)\b',
-            r'\b(\d+)\s+Wash\.\s+2d\s+(\d+)\b',
-            r'\b(\d+)\s+Wash\.\s+App\.\s+(\d+)\b',
-            r'\b(\d+)\s+Wash\.\s+(\d+)\b',
+        # Enhanced Washington state citation patterns
+        # These patterns handle various formats of Washington state citations
+        # including different spacing, punctuation, and reporter abbreviations
+        
+        # Base components
+        volume = r'(\d+)'  # Volume number
+        reporter_wn = r'([Ww][Nn]\.?)'  # Wn or Wn.
+        reporter_wash = r'([Ww][Aa][Ss][Hh]\.?)'  # Wash or Wash.
+        series = r'(2d|3d|4th|App\.?)'  # Series (2d, 3d, 4th, App, App.)
+        page = r'(\d+)'  # Page number
+        
+        # Common separators (space, comma, period, etc.)
+        sep = r'[\s,\.\-]*'
+        
+        # Build patterns for different citation formats
+        patterns = [
+            # Format: 123 Wn.2d 456
+            fr'\b{volume}{sep}{reporter_wn}{sep}{series}{sep}{page}\b',
             
+            # Format: 123 Wn 2d 456 (with spaces)
+            fr'\b{volume}{sep}{reporter_wn}{sep}{series[:1]}{sep}\d+{sep}{page}\b',
+            
+            # Format: 123Wn.2d456 (no spaces)
+            fr'\b{volume}{reporter_wn}{series}{page}\b',
+            
+            # Format: 123 Wn. App. 456 (with App.)
+            fr'\b{volume}{sep}{reporter_wn}{sep}App\.{sep}{page}\b',
+            
+            # Format: 123WnApp456 (no spaces with App)
+            fr'\b{volume}{reporter_wn}App{page}\b',
+            
+            # Format: 123 Wash. 2d 456 (full word with spaces)
+            fr'\b{volume}{sep}{reporter_wash}{sep}{series[:1]}{sep}\d+{sep}{page}\b',
+            
+            # Format: 123Wash.2d456 (full word, no spaces)
+            fr'\b{volume}{reporter_wash}{series}{page}\b',
+            
+            # Format: 123 Wn. 456 (no series)
+            fr'\b{volume}{sep}{reporter_wn}{sep}{page}\b',
+            
+            # Format: 123Wn456 (no series, no spaces)
+            fr'\b{volume}{reporter_wn}{page}\b',
+            
+            # Format: 123 Wash. 456 (full word, no series)
+            fr'\b{volume}{sep}{reporter_wash}{sep}{page}\b',
+            
+            # Format: 123Wash456 (full word, no series, no spaces)
+            fr'\b{volume}{reporter_wash}{page}\b'
+        ]
+        
+        # Combine all patterns into a single pattern with non-capturing groups
+        state_patterns = [f'(?:{p})' for p in patterns]
+        
+        # Add other standard citation patterns
+        state_patterns.extend([
             r'\b\d+\s+A\.\s*3d\s+\d+',
             r'\b\d+\s+A\.\s*2d\s+\d+',
             r'\b\d+\s+P\.\s*3d\s+\d+',
@@ -219,7 +263,7 @@ class CitationExtractor(ICitationExtractor):
             r'\b\d+\s+S\.E\.\s*2d\s+\d+',
             r'\b\d+\s+S\.W\.\s*3d\s+\d+',
             r'\b\d+\s+S\.W\.\s*2d\s+\d+'
-        ]
+        ])
         
         all_patterns = federal_patterns + state_patterns
         

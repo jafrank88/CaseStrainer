@@ -9,7 +9,6 @@ from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_
 import sys
 import uuid
 import logging
-import traceback
 import time
 import json
 from datetime import datetime
@@ -127,41 +126,135 @@ def analyze_text():
                 'type': request.form.get('type', 'text')
             }
         
-        if not data or 'text' not in data or not data['text']:
+        # Check for file upload first
+        has_file = request.files and 'file' in request.files and request.files['file'].filename
+        
+        # Validate that we have either text, url, or file data
+        has_text = data and 'text' in data and data['text']
+        has_url = data and 'url' in data and data['url']
+        
+        if not data and not has_file:
             return jsonify({
-                'error': 'Missing or invalid request data',
+                'error': 'Missing or invalid request data - must provide either text, url, or file',
                 'request_id': request_id,
                 'content_type': request.content_type
             }), 400
             
-        text_length = len(data['text']) if data['text'] else 0
-        logger.info(f"[Request {request_id}] Starting analysis of text (length: {text_length})")
+        # Determine input type and data
+        if has_file:
+            # Process file upload
+            file = request.files['file']
+            filename = file.filename.lower() if file.filename else ''
+            
+            if filename.endswith('.pdf'):
+                try:
+                    import PyPDF2
+                    import io
+                    
+                    pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
+                    text_parts = []
+                    for page in pdf_reader.pages:
+                        text = page.extract_text()
+                        if text:
+                            text_parts.append(text)
+                    input_data = '\n\n'.join(text_parts)
+                    input_type = 'text'  # Use 'text' since we've already extracted the content
+                    logger.info(f"[Request {request_id}] Starting analysis of PDF file: {file.filename} ({len(input_data)} chars)")
+                except Exception as e:
+                    logger.error(f"Error reading PDF: {str(e)}")
+                    return jsonify({'error': 'Error reading PDF file'}), 400
+            else:
+                try:
+                    input_data = file.read().decode('utf-8')
+                    input_type = 'text'  # Use 'text' since we've already extracted the content
+                    logger.info(f"[Request {request_id}] Starting analysis of text file: {file.filename} ({len(input_data)} chars)")
+                except UnicodeDecodeError:
+                    return jsonify({'error': 'Invalid file encoding. Please use UTF-8 encoded text files.'}), 400
+        elif has_url:
+            input_data = data['url']
+            input_type = 'url'
+            logger.info(f"[Request {request_id}] Starting analysis of URL: {input_data}")
+        else:
+            input_data = data['text']
+            input_type = 'text'
+            text_length = len(input_data) if input_data else 0
+            logger.info(f"[Request {request_id}] Starting analysis of text (length: {text_length})")
         
         try:
-            from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
             import time
-            
-            options = ProcessingOptions(
-                enable_async_verification=True,
-                enable_enhanced_verification=True,
-                enable_confidence_scoring=True,
-                courtlistener_api_key=os.getenv('COURTLISTENER_API_KEY')
-            )
-            
-            processor = EnhancedSyncProcessor(options)
-            
             start_time = time.time()
-            result = processor.process_any_input_enhanced(
-                input_data=data['text'],
-                input_type='text',
-                options={
-                    'document_type': 'legal_brief',
-                    'enable_enhanced_verification': True,
-                    'enable_async_verification': True,
-                    'enable_clustering': True,
-                    'request_id': request_id
-                }
-            )
+            
+            # Create progress tracker for this request
+            from src.progress_tracker import create_progress_tracker
+            progress_tracker = create_progress_tracker(request_id)
+            
+            # Start initial step
+            progress_tracker.start_step(0, 'Initializing processing...')
+            
+            # Check if this should be processed immediately (sync) or queued (async)
+            from src.api.services.citation_service import CitationService
+            citation_service = CitationService()
+            
+            input_data_for_check = {'type': input_type}
+            if input_type == 'text':
+                input_data_for_check['text'] = input_data
+            
+            should_process_immediately = citation_service.should_process_immediately(input_data_for_check)
+            
+            if should_process_immediately:
+                # Sync processing with real-time progress
+                logger.info(f"[Request {request_id}] Processing immediately (sync) with progress tracking")
+                
+                progress_tracker.complete_step(0, 'Initialization complete')
+                progress_tracker.start_step(1, 'Starting immediate processing...')
+                
+                from src.unified_input_processor import UnifiedInputProcessor
+                processor = UnifiedInputProcessor()
+                
+                result = processor.process_any_input(
+                    input_data=input_data,
+                    input_type=input_type,
+                    request_id=request_id
+                )
+                
+                # Update progress based on result
+                if result.get('success'):
+                    progress_tracker.complete_step(1, 'Citation extraction completed')
+                    progress_tracker.complete_step(2, 'Analysis completed')
+                    progress_tracker.complete_step(3, 'Name extraction completed')
+                    progress_tracker.complete_step(4, 'Clustering completed')
+                    progress_tracker.complete_step(5, 'Verification completed')
+                    progress_tracker.complete_all('Immediate processing completed successfully')
+                else:
+                    progress_tracker.fail_step(1, 'Processing failed')
+                
+                # Add progress data to result
+                result['progress_data'] = progress_tracker.get_progress_data()
+                
+            else:
+                # Async processing - return task info immediately
+                logger.info(f"[Request {request_id}] Queuing for async processing with progress tracking")
+                
+                progress_tracker.update_step(0, 50, 'Queuing for background processing...')
+                
+                from src.unified_input_processor import UnifiedInputProcessor
+                processor = UnifiedInputProcessor()
+                
+                result = processor.process_any_input(
+                    input_data=input_data,
+                    input_type=input_type,
+                    request_id=request_id
+                )
+                
+                # For async, return task information with progress endpoint
+                if 'task_id' in result or 'request_id' in result:
+                    task_id = result.get('task_id') or result.get('request_id')
+                    progress_tracker.complete_step(0, 'Queued for background processing')
+                    
+                    result['progress_data'] = progress_tracker.get_progress_data()
+                    result['progress_endpoint'] = f'/casestrainer/api/progress/{task_id}'
+                    result['progress_stream'] = f'/casestrainer/api/progress-stream/{task_id}'
+            
             process_time = time.time() - start_time
             
             if not isinstance(result, dict):
@@ -190,11 +283,18 @@ def analyze_text():
             except Exception as e:
                 logger.warning(f"[Request {request_id}] Data separation validation failed: {e}")
             
+            # Calculate document length based on input type
+            if has_url:
+                # For URLs, use the actual content length from metadata, fallback to URL length
+                document_length = result.get('metadata', {}).get('content_length', len(input_data))
+            else:
+                document_length = len(input_data)  # Text length
+            
             restructured_result = {
                 'result': result,
                 'request_id': request_id,
                 'processing_time_ms': int(process_time * 1000),
-                'document_length': len(data['text'])
+                'document_length': document_length
             }
             
             logger.info(f"[Request {request_id}] Request completed successfully in {0}ms")
@@ -249,6 +349,12 @@ def get_task_status(task_id):
                 'error': 'Task not found',
                 'task_id': task_id
             }), 404
+        
+        # Force refresh job status from Redis
+        job.refresh()
+        
+        # Debug logging
+        logger.info(f"[Request {task_id}] Job status: {job.get_status()}, is_finished: {job.is_finished}, is_failed: {job.is_failed}")
         
         if job.is_finished:
             result = job.result
@@ -355,6 +461,98 @@ def get_verification_results(request_id):
             'details': str(e) if current_app.debug else None
         }), 500
 
+
+@vue_api.route('/progress/<task_id>', methods=['GET'])
+def get_progress(task_id):
+    """Get current progress for a task."""
+    try:
+        from src.progress_tracker import get_progress_data
+        
+        progress_data = get_progress_data(task_id)
+        
+        if progress_data:
+            return jsonify({
+                'success': True,
+                'progress': progress_data
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'error': 'Task not found or progress not available'
+            }), 404
+            
+    except Exception as e:
+        logger.error(f"Error getting progress for task {task_id}: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+@vue_api.route('/progress-stream/<task_id>', methods=['GET'])
+def progress_stream(task_id):
+    """Server-Sent Events stream for real-time progress updates."""
+    try:
+        from src.progress_tracker import get_progress_tracker
+        import json
+        
+        def generate_progress_events():
+            """Generate Server-Sent Events for progress updates."""
+            tracker = get_progress_tracker(task_id)
+            
+            if not tracker:
+                yield f"data: {json.dumps({'error': 'Task not found'})}\n\n"
+                return
+            
+            # Send initial progress
+            initial_data = tracker.get_progress_data()
+            yield f"data: {json.dumps(initial_data)}\n\n"
+            
+            # Set up callback for real-time updates
+            update_queue = []
+            
+            def progress_callback(progress_data):
+                update_queue.append(progress_data)
+            
+            tracker.add_update_callback(progress_callback)
+            
+            # Stream updates until completion
+            last_update_time = time.time()
+            while tracker.status not in ['completed', 'failed']:
+                # Send any queued updates
+                while update_queue:
+                    update_data = update_queue.pop(0)
+                    yield f"data: {json.dumps(update_data)}\n\n"
+                
+                # Send periodic heartbeat
+                current_time = time.time()
+                if current_time - last_update_time > 5:  # Every 5 seconds
+                    heartbeat_data = tracker.get_progress_data()
+                    yield f"data: {json.dumps(heartbeat_data)}\n\n"
+                    last_update_time = current_time
+                
+                time.sleep(0.5)  # Check for updates every 500ms
+            
+            # Send final update
+            final_data = tracker.get_progress_data()
+            yield f"data: {json.dumps(final_data)}\n\n"
+        
+        return Response(
+            generate_progress_events(),
+            mimetype='text/event-stream',
+            headers={
+                'Cache-Control': 'no-cache',
+                'Connection': 'keep-alive',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Headers': 'Cache-Control'
+            }
+        )
+        
+    except Exception as e:
+        logger.error(f"Error in progress stream for task {task_id}: {str(e)}", exc_info=True)
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
 
 @vue_api.route('/analyze/verification-stream/<request_id>', methods=['GET'])
 def verification_stream(request_id):

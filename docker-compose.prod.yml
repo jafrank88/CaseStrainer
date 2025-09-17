@@ -201,20 +201,14 @@ services:
   frontend-prod:
     build: 
       context: ./casestrainer-vue-new
-      dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile.prod
     container_name: casestrainer-frontend-prod
     ports:
       - "8080:80"
     environment:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
-      - NODE_ENV=development
-    volumes:
-      # Mount development source code for live updates
-      - ./casestrainer-vue-new/src:/app/src:ro
-      - ./casestrainer-vue-new/public:/app/public:ro
-      - ./casestrainer-vue-new/package.json:/app/package.json:ro
-      - ./casestrainer-vue-new/vite.config.js:/app/vite.config.js:ro
+      - NODE_ENV=production
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]

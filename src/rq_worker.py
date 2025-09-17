@@ -43,7 +43,10 @@ def register_worker_functions():
         'extract_pdf_optimized',
         'extract_pdf_optimized_v2',
         'process_citation_task_direct',
-        'src.redis_distributed_processor.DockerOptimizedProcessor.process_document'
+        'src.redis_distributed_processor.DockerOptimizedProcessor.process_document',
+        'src.async_verification_worker.verify_citations_enhanced',
+        'src.async_verification_worker.verify_citations_basic',
+        'src.async_verification_worker.verify_citations_async'
     ]
     
     logger.info(f"Registered worker functions: {worker_functions}")
@@ -59,49 +62,151 @@ __all__ = [
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
     """Direct wrapper function to create CitationService instance and call process_citation_task."""
+    import traceback
     from src.api.services.citation_service import CitationService
     import asyncio
     import time
+    import json
+    import os
+    
+    # Log detailed environment information
+    logger.info(f"[TASK:{task_id}] Starting task processing")
+    logger.info(f"[TASK:{task_id}] Environment: Python {platform.python_version()}, PID: {os.getpid()}")
+    logger.info(f"[TASK:{task_id}] Input type: {input_type}, Input data keys: {list(input_data.keys())}")
+    
+    # Log Redis connection info
+    try:
+        redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+        logger.info(f"[TASK:{task_id}] Using Redis URL: {redis_url}")
+    except Exception as e:
+        logger.error(f"[TASK:{task_id}] Error getting Redis URL: {str(e)}")
     
     service = CitationService()
     
-    import platform
+    # Setup timeout handler for non-Windows systems
     timeout_set = False
-    
     if platform.system() != 'Windows':
         try:
             def timeout_handler(signum, frame):
-                raise TimeoutError(f"Task {task_id} timed out after 10 minutes")
+                error_msg = f"Task {task_id} timed out after 10 minutes"
+                logger.error(f"[TASK:{task_id}] {error_msg}")
+                raise TimeoutError(error_msg)
             
             signal.signal(signal.SIGALRM, timeout_handler)  # type: ignore[attr-defined]
             signal.alarm(600)  # type: ignore[attr-defined]
             timeout_set = True
-        except (AttributeError, OSError):
-            pass
+            logger.info(f"[TASK:{task_id}] Timeout handler set for 10 minutes")
+        except (AttributeError, OSError) as e:
+            logger.warning(f"[TASK:{task_id}] Could not set signal handler: {str(e)}")
     
     try:
         start_time = time.time()
-        logger.info(f"Starting task {task_id} of type {input_type}")
+        logger.info(f"[TASK:{task_id}] Starting processing of type: {input_type}")
         
+        # Log input data (truncated if too large)
+        input_data_str = str(input_data)
+        if len(input_data_str) > 500:
+            input_data_str = input_data_str[:500] + "... [truncated]"
+        logger.info(f"[TASK:{task_id}] Input data: {input_data_str}")
+        
+        # Process the task
+        logger.info(f"[TASK:{task_id}] Creating asyncio event loop")
         result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
         
+        # Ensure the result is JSON serializable
         processing_time = time.time() - start_time
-        logger.info(f"Task {task_id} completed successfully in {processing_time:.2f} seconds")
-        return result
+        logger.info(f"[TASK:{task_id}] Task completed in {processing_time:.2f} seconds")
+        
+        try:
+            # Log result summary (truncated if too large)
+            result_str = str(result)
+            if len(result_str) > 500:
+                result_str = result_str[:500] + "... [truncated]"
+            logger.info(f"[TASK:{task_id}] Task result: {result_str}")
+            
+            # Test serialization
+            json.dumps(result)
+            logger.info(f"[TASK:{task_id}] Result is JSON serializable")
+            
+            # Log success with metrics if available
+            if isinstance(result, dict):
+                status = result.get('status', 'unknown')
+                num_citations = len(result.get('citations', []))
+                num_clusters = len(result.get('clusters', []))
+                logger.info(f"[TASK:{task_id}] Task completed with status '{status}'. Citations: {num_citations}, Clusters: {num_clusters}")
+            
+            # Ensure the result is properly stored in Redis
+            try:
+                from redis import Redis
+                import json
+                redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+                redis_conn = Redis.from_url(redis_url)
+                
+                # Store the result with a 24-hour TTL
+                result_key = f'rq:job:{task_id}:result'
+                redis_conn.setex(result_key, 86400, json.dumps(result))
+                logger.info(f"[TASK:{task_id}] Result stored in Redis with key: {result_key}")
+                
+                # Also store in the job hash for RQ compatibility
+                job_key = f'rq:job:{task_id}'
+                redis_conn.hset(job_key, 'result', json.dumps(result))
+                redis_conn.expire(job_key, 86400)
+                logger.info(f"[TASK:{task_id}] Result stored in job hash")
+                
+            except Exception as e:
+                logger.error(f"[TASK:{task_id}] Error storing result in Redis: {str(e)}", exc_info=True)
+            
+            return result
+            
+        except (TypeError, OverflowError) as e:
+            error_msg = f"Result for task {task_id} is not JSON serializable: {e}"
+            logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
+            
+            # Create a safe result with error information
+            safe_result = {
+                'status': 'failed',
+                'error': 'Result serialization failed',
+                'task_id': task_id,
+                'processing_time': processing_time,
+                'original_status': result.get('status') if isinstance(result, dict) else str(type(result)),
+                'error_details': str(e)
+            }
+            
+            # Try to include basic result info if available
+            if isinstance(result, dict):
+                safe_result.update({
+                    'result_type': 'dict',
+                    'result_keys': list(result.keys())
+                })
+            else:
+                safe_result['result_type'] = str(type(result))
+            
+            logger.info(f"[TASK:{task_id}] Returning safe result after serialization error")
+            return safe_result
         
     except TimeoutError as e:
-        logger.error(f"Task {task_id} timed out: {e}")
+        error_msg = f"Task {task_id} timed out after 10 minutes"
+        logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
         return {
             'status': 'failed',
-            'error': 'Task timed out after 10 minutes',
-            'task_id': task_id
+            'error': error_msg,
+            'task_id': task_id,
+            'processing_time': time.time() - start_time if 'start_time' in locals() else None,
+            'error_type': 'timeout',
+            'stack_trace': traceback.format_exc()
         }
     except Exception as e:
-        logger.error(f"Task {task_id} failed: {e}", exc_info=True)
+        error_msg = f"Task {task_id} failed: {str(e)}"
+        logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
         return {
             'status': 'failed',
-            'error': str(e),
-            'task_id': task_id
+            'error': error_msg,
+            'task_id': task_id,
+            'processing_time': time.time() - start_time if 'start_time' in locals() else None,
+            'error_type': type(e).__name__,
+            'stack_trace': traceback.format_exc(),
+            'task_id': task_id,
+            'exception_type': type(e).__name__
         }
     finally:
         if platform.system() != 'Windows' and timeout_set:

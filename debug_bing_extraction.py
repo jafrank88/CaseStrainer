@@ -78,3 +78,7 @@ def debug_bing_extraction():
 if __name__ == '__main__':
     debug_bing_extraction()
 
+
+
+
+

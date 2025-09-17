@@ -1,0 +1,84 @@
+{
+  "document_length": 461,
+  "processing_time_ms": 218,
+  "request_id": "e1e4d2b2-2066-4aa2-9671-c9ebfa8f726f",
+  "result": {
+    "citations": [
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "DeSean v. Sanger",
+        "citation": "2 Wn. 3d 329",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "DeSean v. Sanger",
+        "extracted_date": "2023",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "DeSean v. Sanger",
+        "citation": "536 P.3d 191",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "DeSean v. Sanger",
+        "extracted_date": "2023",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Ervin",
+        "citation": "169 Wn.2d 815",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Ervin",
+        "extracted_date": "2010",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      },
+      {
+        "canonical_date": null,
+        "canonical_name": null,
+        "canonical_url": null,
+        "case_name": "State v. Ervin",
+        "citation": "239 P.3d 354",
+        "confidence": 0.9,
+        "context": "",
+        "court": null,
+        "extracted_case_name": "State v. Ervin",
+        "extracted_date": "2010",
+        "is_parallel": false,
+        "method": "unified_processor",
+        "verified": false,
+        "year": null
+      }
+    ],
+    "clusters": [],
+    "metadata": {
+      "input_type": "text",
+      "processing_mode": "immediate",
+      "processing_strategy": "fast_no_clustering",
+      "source": "text",
+      "text_length": 461
+    },
+    "processing_time": 0.2185218334197998,
+    "request_id": "e1e4d2b2-2066-4aa2-9671-c9ebfa8f726f",
+    "success": true
+  }
+}

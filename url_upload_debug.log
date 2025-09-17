@@ -1,0 +1,9 @@
+2025-09-16 14:23:34,024 - __main__ - INFO - Starting URL upload test for: https://www.courts.wa.gov/opinions/pdf/1033940.pdf
+2025-09-16 14:23:34,025 - __main__ - INFO - Sending POST request to API endpoint
+2025-09-16 14:23:34,032 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:5000
+2025-09-16 14:23:35,705 - urllib3.connectionpool - DEBUG - http://localhost:5000 "POST /casestrainer/api/analyze HTTP/1.1" 200 562
+2025-09-16 14:23:35,706 - __main__ - INFO - Response status code: 200
+2025-09-16 14:23:35,707 - __main__ - INFO - Response headers: {'Access-Control-Allow-Credentials': 'true', 'Access-Control-Allow-Origin': 'http://localhost:5000', 'Access-Control-Expose-Headers': 'Content-Disposition, Content-Type', 'Content-Length': '562', 'Content-Type': 'application/json', 'Date': 'Tue, 16 Sep 2025 21:23:34 GMT', 'Server': 'waitress', 'Vary': 'Origin'}
+2025-09-16 14:23:35,709 - __main__ - INFO - Successfully parsed JSON response
+2025-09-16 14:23:35,712 - __main__ - INFO - Full response saved to url_analysis_response.json
+2025-09-16 14:23:35,712 - __main__ - WARNING - No 'citations' key found in response

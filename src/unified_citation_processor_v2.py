@@ -57,25 +57,101 @@ except Exception as e:
 
 from src.case_name_extraction_core import extract_case_name_and_date, extract_case_name_only
 
-from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
+try:
+    from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
+    COMPREHENSIVE_WEBSEARCH_AVAILABLE = True
+    logger.info("Comprehensive websearch engine successfully imported")
+except ImportError as e:
+    COMPREHENSIVE_WEBSEARCH_AVAILABLE = False
+    logger.warning(f"Comprehensive websearch engine not available: {e}")
+    search_cluster_for_canonical_sources = None
+except Exception as e:
+    COMPREHENSIVE_WEBSEARCH_AVAILABLE = False
+    logger.warning(f"Comprehensive websearch engine import failed with unexpected error: {e}")
+    search_cluster_for_canonical_sources = None
 
-from src.citation_utils_consolidated import normalize_citation, generate_citation_variants
+try:
+    from src.citation_utils_consolidated import normalize_citation, generate_citation_variants
+    CITATION_UTILS_AVAILABLE = True
+    logger.info("Citation utils successfully imported")
+except ImportError as e:
+    CITATION_UTILS_AVAILABLE = False
+    logger.warning(f"Citation utils not available: {e}")
+    normalize_citation = None
+    generate_citation_variants = None
+except Exception as e:
+    CITATION_UTILS_AVAILABLE = False
+    logger.warning(f"Citation utils import failed with unexpected error: {e}")
+    normalize_citation = None
+    generate_citation_variants = None
 
 
-from src.models import CitationResult, ProcessingConfig
+try:
+    from src.models import CitationResult, ProcessingConfig
+    MODELS_AVAILABLE = True
+    logger.info("Models successfully imported")
+except ImportError as e:
+    MODELS_AVAILABLE = False
+    logger.warning(f"Models not available: {e}")
+    CitationResult = None
+    ProcessingConfig = None
+except Exception as e:
+    MODELS_AVAILABLE = False
+    logger.warning(f"Models import failed with unexpected error: {e}")
+    CitationResult = None
+    ProcessingConfig = None
 
-from src.unified_citation_clustering import (
-    UnifiedCitationClusterer,
-    cluster_citations_unified
-)
-from src.citation_clustering import (
-    _propagate_canonical_to_parallels,
-    _propagate_extracted_to_parallels_clusters,
-    _is_citation_contained_in_any
-)
-# from src.case_name_extraction_core import extract_case_name_triple_comprehensive
+try:
+    from src.unified_citation_clustering import (
+        UnifiedCitationClusterer,
+        cluster_citations_unified
+    )
+    CLUSTERING_AVAILABLE = True
+    logger.info("Citation clustering successfully imported")
+except ImportError as e:
+    CLUSTERING_AVAILABLE = False
+    logger.warning(f"Citation clustering not available: {e}")
+    UnifiedCitationClusterer = None
+    cluster_citations_unified = None
+except Exception as e:
+    CLUSTERING_AVAILABLE = False
+    logger.warning(f"Citation clustering import failed with unexpected error: {e}")
+    UnifiedCitationClusterer = None
+    cluster_citations_unified = None
 
-from src.canonical_case_name_service import get_canonical_case_name_with_date
+try:
+    from src.citation_clustering import (
+        _propagate_canonical_to_parallels,
+        _propagate_extracted_to_parallels_clusters,
+        _is_citation_contained_in_any
+    )
+    CITATION_CLUSTERING_AVAILABLE = True
+    logger.info("Citation clustering utilities successfully imported")
+except ImportError as e:
+    CITATION_CLUSTERING_AVAILABLE = False
+    logger.warning(f"Citation clustering utilities not available: {e}")
+    _propagate_canonical_to_parallels = None
+    _propagate_extracted_to_parallels_clusters = None
+    _is_citation_contained_in_any = None
+except Exception as e:
+    CITATION_CLUSTERING_AVAILABLE = False
+    logger.warning(f"Citation clustering utilities import failed with unexpected error: {e}")
+    _propagate_canonical_to_parallels = None
+    _propagate_extracted_to_parallels_clusters = None
+    _is_citation_contained_in_any = None
+
+try:
+    from src.canonical_case_name_service import get_canonical_case_name_with_date
+    CANONICAL_SERVICE_AVAILABLE = True
+    logger.info("Canonical case name service successfully imported")
+except ImportError as e:
+    CANONICAL_SERVICE_AVAILABLE = False
+    logger.warning(f"Canonical case name service not available: {e}")
+    get_canonical_case_name_with_date = None
+except Exception as e:
+    CANONICAL_SERVICE_AVAILABLE = False
+    logger.warning(f"Canonical case name service import failed with unexpected error: {e}")
+    get_canonical_case_name_with_date = None
 
 # from src.courtlistener_verification import verify_with_courtlistener  # DEPRECATED
 # from src.citation_verification import (  # DEPRECATED
@@ -1080,6 +1156,7 @@ class UnifiedCitationProcessorV2:
                             citation.extracted_date = self._extract_date_from_context(text, citation)
                     else:
                         if citation.extracted_date and citation.extracted_date != "2010-09-09":
+                            pass  # Date is valid, keep it
                         else:
                             logger.warning(f"🔍 [WARNING] Suspicious extracted_date: '{citation.extracted_date}' for citation: '{citation.citation}'")
                             if citation.extracted_date and "-" in citation.extracted_date:
@@ -2257,7 +2334,7 @@ class UnifiedCitationProcessorV2:
                 # Verification handled by unified clustering - skip deprecated check
                 if False:  # Deprecated function removed
                     # Verification handled by unified clustering
-            pass
+                    pass
                     if citation.verified:
                         validation_result = self._validate_verification_result(citation, 'CourtListener')
                         if validation_result['valid']:
@@ -2282,6 +2359,7 @@ class UnifiedCitationProcessorV2:
             logger.info(f"[VERIFICATION] CourtListener errors: {len(courtlistener_errors)} citations failed")
             if self.config.debug_mode:
                 for error in courtlistener_errors[:3]:  # Show first 3 errors in debug mode
+                    logger.debug(f"[VERIFICATION] CourtListener error: {error}")
         
         logger.info(f"[VERIFICATION] CourtListener results: {courtlistener_verified_count}/{len(citations)} verified")
         
@@ -2377,11 +2455,13 @@ class UnifiedCitationProcessorV2:
                     logger.info(f"[VERIFICATION] Fallback validation failures: {len(fallback_validation_failures)} citations failed validation")
                     if self.config.debug_mode:
                         for failure in fallback_validation_failures[:3]:  # Show first 3 failures in debug mode
+                            logger.debug(f"[VERIFICATION] Fallback validation failure: {failure}")
                 
                 if fallback_errors:
                     logger.info(f"[VERIFICATION] Fallback errors: {len(fallback_errors)} citations had errors")
                     if self.config.debug_mode:
                         for error in fallback_errors[:3]:  # Show first 3 errors in debug mode
+                            logger.debug(f"[VERIFICATION] Fallback error: {error}")
                 
             except Exception as e:
                 logger.error(f"[VERIFICATION] Critical error in fallback verification system: {str(e)}")
@@ -2412,6 +2492,7 @@ class UnifiedCitationProcessorV2:
             unverified_citations = [c for c in citations if not c.verified]
             if unverified_citations:
                 for citation in unverified_citations[:5]:  # Show first 5 unverified
+                    logger.debug(f"[VERIFICATION] Unverified citation: {citation.citation}")
         
         logger.info(f"[VERIFICATION] === END VERIFICATION SUMMARY ===")
         
@@ -3173,6 +3254,7 @@ class UnifiedCitationProcessorV2:
                             parallel_cite.metadata = {}
                         parallel_cite.metadata['true_by_parallel'] = True
         for c in citations:
+            pass  # This loop was incomplete, adding pass to fix syntax
 
     def _normalize_canonical_fields(self, citations: List['CitationResult']):
         """
@@ -3242,6 +3324,7 @@ class UnifiedCitationProcessorV2:
                             c.metadata['true_by_parallel'] = True
                     visited.add(cite_str)
         for c in citations:
+            pass  # This loop was incomplete, adding pass to fix syntax
 
     def ensure_bidirectional_parallels(self, citations: List['CitationResult']):
         """
@@ -3272,6 +3355,7 @@ class UnifiedCitationProcessorV2:
             i = j
         if self.config.debug_mode:
             for c in citations:
+                pass  # This loop was incomplete, adding pass to fix syntax
 
     def propagate_extracted_date_to_group(self, citations: List['CitationResult']):
         """
@@ -3299,9 +3383,8 @@ class UnifiedCitationProcessorV2:
                     visited.add(cite_str)
         if self.config.debug_mode:
             for c in citations:
+                pass  # This loop was incomplete, adding pass to fix syntax
 
-
-        
         try:
             from src.unified_citation_clustering import _normalize_citation_comprehensive
             normalized_text = _normalize_citation_comprehensive(text)
