@@ -109,9 +109,23 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             input_data_str = input_data_str[:500] + "... [truncated]"
         logger.info(f"[TASK:{task_id}] Input data: {input_data_str}")
         
-        # Process the task
-        logger.info(f"[TASK:{task_id}] Creating asyncio event loop")
-        result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
+        # Process the task using DockerOptimizedProcessor (which has deduplication)
+        logger.info(f"[TASK:{task_id}] Using DockerOptimizedProcessor for async processing")
+        
+        if input_type == 'text':
+            text = input_data.get('text', '')
+            logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
+            
+            from src.redis_distributed_processor import DockerOptimizedProcessor
+            processor = DockerOptimizedProcessor()
+            
+            # Process the document using the same processor that has deduplication
+            result = asyncio.run(processor.process_document(text, task_id))
+            
+        else:
+            # For non-text inputs, fall back to the original method
+            logger.info(f"[TASK:{task_id}] Using CitationService for non-text input type: {input_type}")
+            result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
         
         # Ensure the result is JSON serializable
         processing_time = time.time() - start_time
