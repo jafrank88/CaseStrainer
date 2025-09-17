@@ -122,7 +122,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             options = ProcessingOptions(
                 enable_verification=True,
                 enable_clustering=True,
-                enable_deduplication=True,
+                enable_caching=True,
                 force_ultra_fast=False,
                 skip_clustering_threshold=300,
                 ultra_fast_threshold=500,
@@ -132,7 +132,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             processor = UnifiedSyncProcessor(options)
             
             # Process the text using the same processor that works for sync
-            result = processor.process_text(text, task_id)
+            result = processor.process_text_unified(text, {'request_id': task_id})
             
             # Ensure result has the expected format for async
             if result.get('success', False):
