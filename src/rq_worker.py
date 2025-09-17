@@ -109,18 +109,44 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             input_data_str = input_data_str[:500] + "... [truncated]"
         logger.info(f"[TASK:{task_id}] Input data: {input_data_str}")
         
-        # Process the task using DockerOptimizedProcessor (which has deduplication)
-        logger.info(f"[TASK:{task_id}] Using DockerOptimizedProcessor for async processing")
+        # Process the task using UnifiedSyncProcessor (which has deduplication and works with text)
+        logger.info(f"[TASK:{task_id}] Using UnifiedSyncProcessor for async text processing")
         
         if input_type == 'text':
             text = input_data.get('text', '')
             logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
             
-            from src.redis_distributed_processor import DockerOptimizedProcessor
-            processor = DockerOptimizedProcessor()
+            from src.unified_sync_processor import UnifiedSyncProcessor
+            from src.models import ProcessingConfig
             
-            # Process the document using the same processor that has deduplication
-            result = asyncio.run(processor.process_document(text, task_id))
+            # Create processor with same config as sync processing
+            config = ProcessingConfig(
+                enable_verification=True,
+                debug_mode=False
+            )
+            processor = UnifiedSyncProcessor(config)
+            
+            # Process the text using the same processor that works for sync
+            result = processor.process_text(text, task_id)
+            
+            # Ensure result has the expected format for async
+            if result.get('success', False):
+                result = {
+                    'status': 'completed',
+                    'task_id': task_id,
+                    'citations': result.get('citations', []),
+                    'clusters': result.get('clusters', []),
+                    'metadata': {
+                        'processing_strategy': result.get('processing_strategy', 'async_unified'),
+                        'text_length': len(text)
+                    }
+                }
+            else:
+                result = {
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': result.get('error', 'Processing failed')
+                }
             
         else:
             # For non-text inputs, fall back to the original method
