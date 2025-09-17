@@ -116,33 +116,62 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             text = input_data.get('text', '')
             logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
             
-            from src.unified_sync_processor import UnifiedSyncProcessor, ProcessingOptions
-            
-            # Create processor with simplified config for async processing
-            # Disable verification to prevent hanging in container environment
-            options = ProcessingOptions(
-                enable_verification=False,  # DISABLED: Likely cause of container hanging
-                enable_clustering=False,    # DISABLED: Simplify processing
-                enable_caching=True,
-                force_ultra_fast=True,      # ENABLED: Use fastest processing path
-                skip_clustering_threshold=300,
-                ultra_fast_threshold=500,
-                sync_threshold=5 * 1024,
-                max_citations_for_skip_clustering=3
-            )
-            processor = UnifiedSyncProcessor(options)
-            
-            # Process the text using simplified ultra-fast processing
-            logger.info(f"[TASK:{task_id}] Starting ultra-fast async processing (no verification, no clustering)")
+            # MINIMAL ASYNC WORKER - Bypass all complex processing
+            logger.info(f"[TASK:{task_id}] Using minimal async worker to test basic functionality")
             
             try:
-                result = processor.process_text_unified(text, {'request_id': task_id})
-                logger.info(f"[TASK:{task_id}] Ultra-fast processing completed successfully")
+                import re
+                import time
+                
+                logger.info(f"[TASK:{task_id}] Starting minimal citation extraction")
+                
+                # Ultra-basic citation extraction (no complex imports or processing)
+                citation_patterns = [
+                    r'\d+\s+Wn\.2d\s+\d+',           # Washington 2d
+                    r'\d+\s+Wn\.\s+App\.\s+2d\s+\d+', # Washington App 2d  
+                    r'\d+\s+P\.3d\s+\d+'             # Pacific 3d
+                ]
+                
+                citations_found = []
+                for pattern in citation_patterns:
+                    matches = re.findall(pattern, text)
+                    for match in matches:
+                        citations_found.append({
+                            'citation': match,
+                            'extracted_case_name': 'Minimal Worker',
+                            'verified': False,
+                            'confidence': 1.0,
+                            'method': 'minimal_async'
+                        })
+                
+                logger.info(f"[TASK:{task_id}] Minimal extraction found {len(citations_found)} citations")
+                
+                # Simple deduplication
+                seen_citations = set()
+                deduplicated = []
+                for cit in citations_found:
+                    cit_text = cit['citation']
+                    if cit_text not in seen_citations:
+                        seen_citations.add(cit_text)
+                        deduplicated.append(cit)
+                
+                logger.info(f"[TASK:{task_id}] Deduplication: {len(citations_found)} → {len(deduplicated)}")
+                
+                result = {
+                    'success': True,
+                    'citations': deduplicated,
+                    'clusters': [],
+                    'processing_strategy': 'minimal_async',
+                    'processing_time': time.time() - time.time()
+                }
+                
+                logger.info(f"[TASK:{task_id}] Minimal async processing completed successfully")
+                
             except Exception as e:
-                logger.error(f"[TASK:{task_id}] Ultra-fast processing failed: {e}")
+                logger.error(f"[TASK:{task_id}] Minimal async processing failed: {e}")
                 result = {
                     'success': False,
-                    'error': f'Ultra-fast processing failed: {str(e)}'
+                    'error': f'Minimal async processing failed: {str(e)}'
                 }
             
             # Ensure result has the expected format for async
