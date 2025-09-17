@@ -83,13 +83,51 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
         logger.info(f"[DIAGNOSTIC:{task_id}] Input data keys: {list(input_data.keys())}")
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 3: Environment info SUCCESS")
         
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis environment check...")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis readiness check...")
         try:
+            import redis
             redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
             logger.info(f"[DIAGNOSTIC:{task_id}] Redis URL: {redis_url}")
+            
+            # Check if Redis is ready (not loading dataset)
+            redis_client = redis.from_url(redis_url)
+            
+            # Wait for Redis to be ready with timeout
+            max_wait = 30  # 30 seconds max wait
+            wait_interval = 1  # Check every second
+            
+            for attempt in range(max_wait):
+                try:
+                    # Test Redis connection
+                    redis_client.ping()
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Redis ready after {attempt} seconds")
+                    break
+                except redis.exceptions.BusyLoadingError:
+                    if attempt == 0:
+                        logger.info(f"[DIAGNOSTIC:{task_id}] Redis loading dataset, waiting...")
+                    elif attempt % 5 == 0:
+                        logger.info(f"[DIAGNOSTIC:{task_id}] Still waiting for Redis ({attempt}s)...")
+                    time.sleep(wait_interval)
+                except Exception as e:
+                    logger.error(f"[DIAGNOSTIC:{task_id}] Redis connection error: {e}")
+                    if attempt < 5:  # Retry connection errors for first 5 seconds
+                        time.sleep(wait_interval)
+                    else:
+                        raise
+            else:
+                # Timeout waiting for Redis
+                logger.error(f"[DIAGNOSTIC:{task_id}] Redis not ready after {max_wait} seconds")
+                return {
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': f'Redis not ready after {max_wait} seconds - dataset still loading',
+                    'diagnostic': 'redis_loading_timeout'
+                }
+                
         except Exception as e:
-            logger.error(f"[DIAGNOSTIC:{task_id}] Redis URL error: {str(e)}")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis environment SUCCESS")
+            logger.error(f"[DIAGNOSTIC:{task_id}] Redis readiness error: {str(e)}")
+            # Continue anyway - might be a temporary issue
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis readiness SUCCESS")
         
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 5: CitationService import...")
         from src.api.services.citation_service import CitationService
