@@ -43,23 +43,11 @@ class CitationExtractor:
     def _init_patterns(self):
         """Initialize citation patterns."""
         self.citation_patterns = [
-            r'\b\d+\s+U\.S\.\s+\d+\b',
-            r'\b\d+\s+S\.Ct\.\s+\d+\b',
-            r'\b\d+\s+F\.\d*d?\b',
-            r'\b\d+\s+F\.Supp\.\d*d?\b',
-            r'\b\d+\s+F\.App\'x\b',
+            # WL (WestLaw) citations - high priority since they're very specific
+            r'\b(\d{4})\s+WL\s+(\d+)\b',
             
-            r'\b\d+\s+Wn\.\s*3d\s*\n?\s*\d+\b',  # Washington Reports, 3d Series (e.g., 2 Wn. 3d 329)
-            r'\b\d+\s+Wn\.\s*2d\s*\n?\s*\d+\b',  # Washington Reports, 2d Series (e.g., 169 Wn.2d 815)
-            r'\b\d+\s+Wn\.\s*App\.\s*\d+\b',  # Washington Court of Appeals
-            r'\b\d+\s+Wn\.\s*\d+\b',  # Washington Reports
-            r'\b\d+\s+Wash\.\s*3d\s*\n?\s*\d+\b',  # Washington Reports, 3d Series (alternate format)
-            r'\b\d+\s+Wash\.\s*2d\s*\n?\s*\d+\b',  # Washington Reports, 2d Series (alternate format)
-            r'\b\d+\s+P\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # Pacific Reporter (with or without series)
-            r'\b\d+\s+N\.W\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # North Western Reporter
-            r'\b\d+\s+S\.W\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # South Western Reporter
-            r'\b\d+\s+N\.E\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # North Eastern Reporter
-            r'\b\d+\s+S\.E\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # South Eastern Reporter
+            # Federal Reporter (e.g., 123 F.3d 456, 123 F.2d 456, 123 F. Supp. 2d 456)
+            r'\b(\d+)\s+F\.?\s*(?:Supp\.?|App\.x)?\s*(?:\d+\s*)?(?:d|D)\.?\s+\d+\b',
             r'\b\d+\s+A\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # Atlantic Reporter
             r'\b\d+\s+So\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)',  # Southern Reporter
             r'\b\d+\s+Cal\.(?:\s*\d*d?\s+\d+\b|\s*\d+\.\d+\b)'  # California Reporter
@@ -228,8 +216,25 @@ class CitationExtractor:
         
         return citations
     
+    def _extract_case_name_proximity_based(self, text: str, start: int, end: int, citation_text: str) -> Optional[str]:
+        """Extract case name based on proximity to citation."""
+        # Look for case name in the 200 characters before the citation
+        search_start = max(0, start - 200)
+        search_text = text[search_start:start]
+        
+        # Try each case name pattern
+        for pattern in self.compiled_case_patterns:
+            matches = list(pattern.finditer(search_text))
+            if matches:
+                # Get the closest match to the citation
+                closest_match = matches[-1]  # Last match is closest to citation
+                if len(closest_match.groups()) >= 2:
+                    return f"{closest_match.group(1).strip()} v. {closest_match.group(2).strip()}"
+                else:
+                    return closest_match.group(1).strip()
+        
+        return None
 
-    
     def extract_with_regex(self, text: str) -> CitationList:
         """Extract citations using regex patterns."""
         if not text:
@@ -332,115 +337,119 @@ class CitationExtractor:
             logger.error(f"Error extracting citation text from eyecite object: {e}")
             return None
     
-    def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj):
+    def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj) -> None:
         """Extract metadata from eyecite citation object."""
-        try:
-            if hasattr(citation_obj, 'case_name'):
-                citation.extracted_case_name = str(citation_obj.case_name)
+        if not citation or not citation_obj:
+            return
             
-            if hasattr(citation_obj, 'year'):
-                citation.extracted_date = str(citation_obj.year)
+        # Extract basic metadata
+        metadata = citation.metadata or {}
+        metadata.update({
+            'eyecite_type': type(citation_obj).__name__,
+            'matched_text': getattr(citation_obj, 'matched_text', ''),
+            'groups': getattr(citation_obj, 'groups', {}),
+        })
+        
+        # Special handling for WL citations
+        wl_match = re.match(r'^(\d{4})\s+WL\s+(\d+)$', citation.citation)
+        if wl_match:
+            metadata.update({
+                'citation_type': 'westlaw',
+                'year': wl_match.group(1),
+                'document_number': wl_match.group(2),
+                'full_citation': f"{wl_match.group(1)} WL {wl_match.group(2)}"
+            })
             
-            if citation.metadata is None:
-                citation.metadata = {}
-            citation.metadata['eyecite_type'] = type(citation_obj).__name__
-            
-        except Exception as e:
-            logger.error(f"Error extracting eyecite metadata: {e}")
-    
-    def _extract_case_name_proximity_based(self, text: str, start: int, end: int, citation_text: str) -> Optional[str]:
-        """Extract case name using proximity-based approach with smaller context windows."""
-        if not text or start is None:
-            return None
-        
-        context_start = max(0, start - 200)
-        context_end = min(len(text), end + 50)
-        context = text[context_start:context_end]
-        
-        best_match = None
-        best_distance = float('inf')
-        
-        for i, pattern in enumerate(self.compiled_case_patterns):
-            for match in pattern.finditer(context):
-                if i == 0:  # State v. pattern (first pattern)
-                    case_name = f"{match.group(1)} v. {match.group(2)}"
-                elif i < 3:  # In re patterns (patterns 1 and 2)
-                    case_name = f"In re {match.group(1)}"
-                else:  # Standard v. patterns (remaining patterns)
-                    case_name = f"{match.group(1)} v. {match.group(2)}"
+            # If we don't have a year yet, use the one from the WL citation
+            if not citation.extracted_date:
+                citation.extracted_date = wl_match.group(1)
                 
-                match_pos = match.start()
-                citation_pos = start - context_start
-                distance = abs(match_pos - citation_pos)
-                
-                if distance < best_distance and is_valid_case_name(case_name):
-                    best_match = case_name
-                    best_distance = distance
-        
-        if best_match:
-            logger.info(f"🔍 Found case name: '{best_match}' (distance: {best_distance})")
-            return best_match
-        
-        return None
-    
-    def _extract_case_name_from_context(self, context: str) -> Optional[str]:
-        """Extract case name from context around citation."""
-        if not context:
-            return None
-        
-        for i, pattern in enumerate(self.compiled_case_patterns):
-            match = pattern.search(context)
-            if match:
-                if i == 0:  # State v. pattern (first pattern)
-                    case_name = f"{match.group(1)} v. {match.group(2)}"
-                elif i < 3:  # In re patterns (patterns 1 and 2)
-                    case_name = f"In re {match.group(1)}"
-                else:  # Standard v. patterns (remaining patterns)
-                    case_name = f"{match.group(1)} v. {match.group(2)}"
-                
-                logger.info(f"🔍 Found case name pattern {i}: '{case_name}' from match: {match.groups()}")
-                if is_valid_case_name(case_name):
-                    logger.info(f"✅ Valid case name: '{case_name}'")
-                    return case_name
-                else:
-                    logger.info(f"❌ Invalid case name: '{case_name}'")
-        
-        return None
-    
-
+        citation.metadata = metadata
     
     def _extract_year_from_citation(self, citation_text: str, text: str, start_index: int) -> Optional[str]:
         """Enhanced year extraction with multiple strategies."""
-        if not citation_text:
-            return None
+        # Check for WL citation format (e.g., 2006 WL 3801910)
+        wl_match = re.match(r'^(\d{4})\s+WL\s+\d+$', citation_text)
+        if wl_match:
+            return wl_match.group(1)
+            
+        # Check for LEXIS citation format (e.g., 2023 U.S. LEXIS 1234)
+        lexis_match = re.search(r'^(\d{4})\s+LEXIS\s+\d+$', citation_text)
+        if lexis_match:
+            return lexis_match.group(1)
         
-        
-        year_match = re.search(r'\((\d{4})\)$', citation_text)
+        # Check if year is already in the citation (e.g., 123 F.3d 456 (2023))
+        year_match = re.search(r'\(\s*(\d{4})\s*\)', citation_text)
         if year_match:
             return year_match.group(1)
         
-        year_match = re.search(r'\b(19|20)\d{2}\b', citation_text)
-        if year_match:
-            return year_match.group(0)
+        # Look for year in surrounding text (50 characters before and after)
+        context_start = max(0, start_index - 50)
+        context_end = min(len(text), start_index + len(citation_text) + 50)
+        context = text[context_start:context_end]
         
-        after_text = text[start_index:start_index + 300]
-        year_match = re.search(r'\((\d{4})\)', after_text)
-        if year_match:
-            return year_match.group(1)
-        
-        before_text = text[max(0, start_index - 100):start_index]
-        year_match = re.search(r'\((\d{4})\)', before_text)
-        if year_match:
-            return year_match.group(1)
-        
+        # Look for year in parentheses after the citation
+        year_after = re.search(r'\b(?:\d{4})\b', context[len(citation_text):])
+        if year_after:
+            return year_after.group(0)
+            
+        # Look for year in the citation itself (e.g., 2023 U.S. LEXIS 1234)
+        year_in_cite = re.search(r'\b(19|20)\d{2}\b', citation_text)
+        if year_in_cite:
+            return year_in_cite.group(0)
+            
         return None
     
+    def extract_wl_citations(self, text: str) -> List[CitationResult]:
+        """Extract WL citations from text using specific WL pattern."""
+        pattern = r'\b(\d{4})\s+WL\s+(\d+)\b'
+        citations = []
+        
+        for match in re.finditer(pattern, text):
+            year = match.group(1)
+            doc_number = match.group(2)
+            citation_text = match.group(0)
+            start, end = match.span()
+            
+            # Extract context around the citation
+            context_start = max(0, start - 100)
+            context_end = min(len(text), end + 100)
+            context = text[context_start:context_end]
+            
+            citation = CitationResult(
+                citation=citation_text,
+                start_index=start,
+                end_index=end,
+                extracted_case_name=None,
+                extracted_date=year,
+                canonical_name=None,
+                canonical_date=None,
+                url=None,
+                verified=False,
+                source="wl_regex",
+                confidence=0.95,  # High confidence for WL citations
+                context=context,
+                metadata={
+                    'citation_type': 'westlaw',
+                    'year': year,
+                    'document_number': doc_number,
+                    'full_citation': citation_text
+                }
+            )
+            citations.append(citation)
+        
+        return citations
+
     def extract_citations(self, text: str, use_eyecite: bool = True) -> CitationList:
         """Extract citations using both regex and eyecite methods."""
         if not text:
-            return []
-        
+            return CitationList()
+            
         citations = []
+        
+        # Extract WL citations first (high priority)
+        wl_citations = self.extract_wl_citations(text)
+        citations.extend(wl_citations)
         
         regex_citations = self.extract_with_regex(text)
         citations.extend(regex_citations)

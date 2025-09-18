@@ -179,69 +179,170 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Entering processing logic...")
         logger.info(f"[DIAGNOSTIC:{task_id}] Using minimal async worker for diagnostic testing")
         
-        if input_type == 'text':
-            text = input_data.get('text', '')
-            logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
+        if input_type in ['text', 'url']:
+            # Handle both text and URL inputs with the full pipeline
+            if input_type == 'text':
+                text = input_data.get('text', '')
+                logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
+            elif input_type == 'url':
+                url = input_data.get('url', '')
+                logger.info(f"[TASK:{task_id}] Processing URL: {url}")
+                
+                # Extract text from URL first
+                try:
+                    logger.info(f"[TASK:{task_id}] Extracting text from URL...")
+                    import requests
+                    from src.optimized_pdf_processor import OptimizedPDFProcessor
+                    import tempfile
+                    import os
+                    
+                    # Download the content
+                    response = requests.get(url, timeout=30)
+                    response.raise_for_status()
+                    
+                    # If it's a PDF, extract text
+                    if 'pdf' in response.headers.get('content-type', '').lower() or url.lower().endswith('.pdf'):
+                        logger.info(f"[TASK:{task_id}] Detected PDF, extracting text...")
+                        
+                        # Save to temporary file
+                        with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_file:
+                            temp_file.write(response.content)
+                            temp_path = temp_file.name
+                        
+                        try:
+                            # Extract text using PDF processor
+                            pdf_processor = OptimizedPDFProcessor()
+                            result = pdf_processor.process_pdf(temp_path)
+                            text = result.text if result else ""
+                            logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters from PDF")
+                        finally:
+                            # Clean up temp file
+                            if os.path.exists(temp_path):
+                                os.remove(temp_path)
+                    else:
+                        # Plain text content
+                        text = response.text
+                        logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters from URL")
+                    
+                    if not text or len(text.strip()) < 10:
+                        logger.warning(f"[TASK:{task_id}] No meaningful text extracted from URL")
+                        result = {
+                            'success': True,
+                            'citations': [],
+                            'clusters': [],
+                            'processing_strategy': 'url_no_text',
+                            'processing_time': time.time() - start_time
+                        }
+                        # Skip to full processing
+                        skip_full_processing = True
+                    else:
+                        skip_full_processing = False
+                    
+                except Exception as e:
+                    logger.error(f"[TASK:{task_id}] URL text extraction failed: {e}")
+                    result = {
+                        'success': False,
+                        'error': f'URL text extraction failed: {str(e)}'
+                    }
+                    skip_full_processing = True
+            else:
+                skip_full_processing = False
             
-            # MINIMAL ASYNC WORKER - Bypass all complex processing
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using minimal async worker")
-            
-            try:
-                logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing re and time...")
-                import re
-                import time
-                logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: re and time imports SUCCESS")
+            # Only proceed with full processing if we have text and no errors
+            if not locals().get('skip_full_processing', False):
+                # FULL ASYNC WORKER - Use UnifiedCitationProcessorV2 for complete processing
+                logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using full async worker with UnifiedCitationProcessorV2")
                 
-                logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting minimal citation extraction")
-                
-                # Ultra-basic citation extraction (no complex imports or processing)
-                citation_patterns = [
-                    r'\d+\s+Wn\.2d\s+\d+',           # Washington 2d
-                    r'\d+\s+Wn\.\s+App\.\s+2d\s+\d+', # Washington App 2d  
-                    r'\d+\s+P\.3d\s+\d+'             # Pacific 3d
-                ]
-                
-                citations_found = []
-                for pattern in citation_patterns:
-                    matches = re.findall(pattern, text)
-                    for match in matches:
-                        citations_found.append({
-                            'citation': match,
-                            'extracted_case_name': 'Minimal Worker',
-                            'verified': False,
-                            'confidence': 1.0,
-                            'method': 'minimal_async'
-                        })
-                
-                logger.info(f"[TASK:{task_id}] Minimal extraction found {len(citations_found)} citations")
-                
-                # Simple deduplication
-                seen_citations = set()
-                deduplicated = []
-                for cit in citations_found:
-                    cit_text = cit['citation']
-                    if cit_text not in seen_citations:
-                        seen_citations.add(cit_text)
-                        deduplicated.append(cit)
-                
-                logger.info(f"[TASK:{task_id}] Deduplication: {len(citations_found)} → {len(deduplicated)}")
-                
-                result = {
-                    'success': True,
-                    'citations': deduplicated,
-                    'clusters': [],
-                    'processing_strategy': 'minimal_async',
-                    'processing_time': time.time() - time.time()
-                }
-                
-                logger.info(f"[TASK:{task_id}] Minimal async processing completed successfully")
-                
-            except Exception as e:
-                logger.error(f"[TASK:{task_id}] Minimal async processing failed: {e}")
-                result = {
-                    'success': False,
-                    'error': f'Minimal async processing failed: {str(e)}'
-                }
+                try:
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing UnifiedCitationProcessorV2...")
+                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                    import asyncio
+                    import time
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: UnifiedCitationProcessorV2 import SUCCESS")
+                    
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting full citation processing pipeline")
+                    
+                    # Use the full processing pipeline
+                    processor = UnifiedCitationProcessorV2()
+                    result_data = asyncio.run(processor.process_text(text))
+                    citations_found = result_data.get('citations', [])
+                    
+                    logger.info(f"[TASK:{task_id}] Full pipeline found {len(citations_found)} citations")
+                    
+                    # Convert CitationResult objects to dictionaries if needed
+                    citations_list = []
+                    for citation in citations_found:
+                        if hasattr(citation, 'to_dict'):
+                            citations_list.append(citation.to_dict())
+                        elif isinstance(citation, dict):
+                            citations_list.append(citation)
+                        else:
+                            # Fallback conversion
+                            citations_list.append({
+                                'citation': getattr(citation, 'citation', str(citation)),
+                                'extracted_case_name': getattr(citation, 'extracted_case_name', None),
+                                'verified': getattr(citation, 'verified', False),
+                                'confidence': getattr(citation, 'confidence', 1.0),
+                                'method': getattr(citation, 'method', 'full_async')
+                            })
+                    
+                    result = {
+                        'success': True,
+                        'citations': citations_list,
+                        'clusters': result_data.get('clusters', []),
+                        'processing_strategy': 'full_async_unified',
+                        'processing_time': time.time() - start_time
+                    }
+                    
+                    logger.info(f"[TASK:{task_id}] Full async processing completed successfully")
+                    
+                except Exception as e:
+                    logger.error(f"[TASK:{task_id}] Full async processing failed: {e}")
+                    logger.error(f"[TASK:{task_id}] Exception details: {str(e)}")
+                    import traceback
+                    logger.error(f"[TASK:{task_id}] Traceback: {traceback.format_exc()}")
+                    
+                    # Fallback to minimal processing if full pipeline fails
+                    logger.info(f"[TASK:{task_id}] Falling back to minimal processing")
+                    try:
+                        import re
+                        citation_patterns = [
+                            r'\d+\s+Wn\.2d\s+\d+',           # Washington 2d
+                            r'\d+\s+Wn\.\s+App\.\s+2d\s+\d+', # Washington App 2d  
+                            r'\d+\s+P\.3d\s+\d+',            # Pacific 3d
+                            r'\d+\s+U\.S\.\s+\d+',           # US Supreme Court
+                            r'\d+\s+F\.3d\s+\d+',            # Federal 3d
+                            r'\d+\s+P\.2d\s+\d+'             # Pacific 2d
+                        ]
+                        
+                        citations_found = []
+                        for pattern in citation_patterns:
+                            matches = re.findall(pattern, text)
+                            for match in matches:
+                                citations_found.append({
+                                    'citation': match,
+                                    'extracted_case_name': None,
+                                    'verified': False,
+                                    'confidence': 0.8,
+                                    'method': 'fallback_async'
+                                })
+                        
+                        result = {
+                            'success': True,
+                            'citations': citations_found,
+                            'clusters': [],
+                            'processing_strategy': 'fallback_async',
+                            'processing_time': time.time() - start_time
+                        }
+                        
+                        logger.info(f"[TASK:{task_id}] Fallback processing found {len(citations_found)} citations")
+                        
+                    except Exception as e2:
+                        logger.error(f"[TASK:{task_id}] Fallback processing also failed: {e2}")
+                        result = {
+                            'success': False,
+                            'error': f'Both full and fallback processing failed: {str(e)}'
+                        }
             
             # Ensure result has the expected format for async
             if result.get('success', False):

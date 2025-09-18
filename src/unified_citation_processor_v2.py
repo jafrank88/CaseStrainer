@@ -3043,7 +3043,7 @@ class UnifiedCitationProcessorV2:
         
         if self.config.enable_verification and citations:
             logger.info("[UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)")
-            verified_citations = await self._verify_citations(citations, text)
+            verified_citations = self._verify_citations_sync(citations, text)
             citations = verified_citations
             logger.info(f"[UNIFIED_PIPELINE] After verification: {len(citations)} citations")
         else:

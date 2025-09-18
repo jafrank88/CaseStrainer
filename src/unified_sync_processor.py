@@ -353,14 +353,27 @@ class UnifiedSyncProcessor:
         try:
             from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
             processor = UnifiedCitationProcessorV2()
-            citations = processor._extract_with_regex(text)
+            
+            # Use the full processing pipeline instead of just regex
+            import asyncio
+            result = asyncio.run(processor.process_text(text))
+            citations = result.get('citations', [])
             
             logger.info(f"[UnifiedSyncProcessor] Standard extraction found {len(citations)} citations")
             return citations
             
         except Exception as e:
             logger.error(f"[UnifiedSyncProcessor] Standard extraction failed: {e}")
-            return []
+            # Fallback to regex-only extraction if full pipeline fails
+            try:
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                processor = UnifiedCitationProcessorV2()
+                citations = processor._extract_with_regex(text)
+                logger.info(f"[UnifiedSyncProcessor] Fallback regex extraction found {len(citations)} citations")
+                return citations
+            except Exception as e2:
+                logger.error(f"[UnifiedSyncProcessor] Fallback extraction also failed: {e2}")
+                return []
     
     def _extract_citations_fallback(self, text: str, request_id: str) -> Dict[str, Any]:
         """Fallback extraction when all other methods fail."""

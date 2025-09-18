@@ -55,60 +55,42 @@ export function useUnifiedProgress() {
   // Computed properties
   const elapsedTime = computed(() => {
     // Use real elapsed time from backend if available
-    if (progressState.elapsedTime !== undefined && progressState.elapsedTime >= 0) {
-      console.log('Progress debug: Using real backend elapsed time:', progressState.elapsedTime);
-      return progressState.elapsedTime;
+    if (progressState.elapsedTime !== undefined && progressState.elapsedTime !== null && progressState.elapsedTime >= 0) {
+      return Math.max(0, progressState.elapsedTime);
     }
     
     // Fallback to calculated elapsed time
-    if (!progressState.startTime || typeof progressState.startTime !== 'number') {
-      console.log('Progress debug: Invalid startTime, returning 0:', progressState.startTime);
+    if (!progressState.startTime || typeof progressState.startTime !== 'number' || !progressState.isActive) {
       return 0;
     }
     const elapsed = (Date.now() - progressState.startTime) / 1000;
-    const result = isNaN(elapsed) ? 0 : Math.max(0, elapsed);
-    console.log('Progress debug: elapsedTime computed (calculated):', { startTime: progressState.startTime, elapsed, result });
-    return result;
+    return isNaN(elapsed) ? 0 : Math.max(0, Math.floor(elapsed));
   });
 
   const remainingTime = computed(() => {
-    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0 || typeof progressState.estimatedTotalTime !== 'number') {
-      console.log('Progress debug: Invalid estimatedTotalTime, returning 0:', progressState.estimatedTotalTime);
+    if (!progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0 || !progressState.isActive) {
       return 0;
     }
-    const remaining = progressState.estimatedTotalTime - elapsedTime.value;
-    const result = isNaN(remaining) ? 0 : Math.max(0, remaining);
-    console.log('Progress debug: remainingTime computed:', { estimatedTotalTime: progressState.estimatedTotalTime, elapsedTime: elapsedTime.value, remaining, result });
-    return result;
+    const remaining = Math.max(0, progressState.estimatedTotalTime - elapsedTime.value);
+    return isNaN(remaining) ? 0 : Math.floor(remaining);
   });
 
   const progressPercent = computed(() => {
     // Use real progress data from backend if available
-    if (progressState.totalProgress !== undefined && progressState.totalProgress >= 0) {
-      console.log('Progress debug: Using real backend progress:', progressState.totalProgress);
-      return Math.min(100, Math.max(0, progressState.totalProgress));
+    if (progressState.totalProgress !== undefined && progressState.totalProgress !== null && progressState.totalProgress >= 0) {
+      return Math.min(100, Math.max(0, Math.floor(progressState.totalProgress)));
     }
     
     // Fallback to time-based estimation if no real progress available
-    if (!progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
-      console.log('Progress debug: Invalid progress state, returning 0:', { 
-        startTime: progressState.startTime, 
-        estimatedTotalTime: progressState.estimatedTotalTime 
-      });
+    if (!progressState.isActive || !progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
       return 0;
     }
-    const percent = (elapsedTime.value / progressState.estimatedTotalTime) * 100;
-    const result = isNaN(percent) ? 0 : Math.min(100, Math.max(0, percent));
-    console.log('Progress debug: progressPercent computed (time-based):', { 
-      startTime: progressState.startTime,
-      estimatedTotalTime: progressState.estimatedTotalTime, 
-      elapsedTime: elapsedTime.value, 
-      percent, 
-      result,
-      startTimeType: typeof progressState.startTime,
-      estimatedTimeType: typeof progressState.estimatedTotalTime
-    });
-    return result;
+    
+    const elapsed = elapsedTime.value;
+    if (elapsed <= 0) return 0;
+    
+    const percent = (elapsed / progressState.estimatedTotalTime) * 100;
+    return isNaN(percent) ? 0 : Math.min(100, Math.max(0, Math.floor(percent)));
   });
 
   const currentStepProgress = computed(() => {
@@ -153,7 +135,7 @@ export function useUnifiedProgress() {
     console.log('Starting unified progress tracking:', { uploadType, estimatedTime });
     
     // Ensure estimatedTime is a valid positive number
-    const validEstimatedTime = Math.max(1, Math.floor(estimatedTime) || 30);
+    const validEstimatedTime = Math.max(5, Math.floor(estimatedTime) || 30);
     
     // Reset all state
     Object.assign(progressState, {
@@ -161,9 +143,10 @@ export function useUnifiedProgress() {
       taskId: null,
       startTime: Date.now(),
       estimatedTotalTime: validEstimatedTime,
+      elapsedTime: null, // Reset to null so computed property calculates it
       currentStep: 'Initializing...',
       stepProgress: 0,
-      totalProgress: 0,
+      totalProgress: 5, // Start with 5% to show immediate progress
       processingSteps: [],
       actualTimes: {},
       citationInfo: null,
@@ -229,12 +212,17 @@ export function useUnifiedProgress() {
       }
     }
     
-    if (update.progress !== undefined) {
-      progressState.stepProgress = update.progress;
+    if (update.progress !== undefined && update.progress !== null) {
+      progressState.stepProgress = Math.max(0, Math.min(100, update.progress));
     }
     
-    if (update.total_progress !== undefined) {
-      progressState.totalProgress = update.total_progress;
+    if (update.total_progress !== undefined && update.total_progress !== null) {
+      progressState.totalProgress = Math.max(0, Math.min(100, update.total_progress));
+    }
+    
+    // Update elapsed time from backend if provided
+    if (update.elapsed_time !== undefined && update.elapsed_time !== null) {
+      progressState.elapsedTime = Math.max(0, update.elapsed_time);
     }
     
     if (update.citation_info) {
@@ -245,15 +233,8 @@ export function useUnifiedProgress() {
       progressState.rateLimitInfo = update.rate_limit_info;
     }
     
-    if (update.estimated_total_time) {
-      progressState.estimatedTotalTime = update.estimated_total_time;
-      
-      // Debug: Check if estimatedTotalTime is being modified
-      console.log('Progress debug: estimatedTotalTime updated:', {
-        oldValue: progressState.estimatedTotalTime,
-        newValue: update.estimated_total_time,
-        type: typeof update.estimated_total_time
-      });
+    if (update.estimated_total_time && update.estimated_total_time > 0) {
+      progressState.estimatedTotalTime = Math.max(5, update.estimated_total_time);
     }
   };
 

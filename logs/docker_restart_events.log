@@ -66,3 +66,35 @@
 [2025-09-13 19:23:50] [SUCCESS] Restart ID: ca7db7f4
 [2025-09-13 19:23:50] [SUCCESS] Recovery completed in 55 seconds
 [2025-09-13 19:23:50] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-17 12:02:50] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-17 12:02:50] [RESTART] Restart ID: 6fe4ec64
+[2025-09-17 12:02:50] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout), Docker daemon frozen (timeout)
+[2025-09-17 12:02:50] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-17 12:03:50] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-17 12:03:50] [SUCCESS] Restart ID: 6fe4ec64
+[2025-09-17 12:03:50] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-17 12:03:50] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-17 13:42:29] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-17 13:42:29] [RESTART] Restart ID: 3220d1e2
+[2025-09-17 13:42:29] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-09-17 13:42:29] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-17 13:43:29] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-17 13:43:29] [SUCCESS] Restart ID: 3220d1e2
+[2025-09-17 13:43:29] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-17 13:43:30] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-17 15:27:46] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-17 15:27:46] [RESTART] Restart ID: 62278ac4
+[2025-09-17 15:27:46] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-09-17 15:27:46] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-17 15:28:46] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-17 15:28:46] [SUCCESS] Restart ID: 62278ac4
+[2025-09-17 15:28:46] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-17 15:28:46] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-18 01:53:39] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-18 01:53:39] [RESTART] Restart ID: 1982f59b
+[2025-09-18 01:53:39] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout), Docker API not accessible
+[2025-09-18 01:53:39] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-18 01:54:39] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-18 01:54:39] [SUCCESS] Restart ID: 1982f59b
+[2025-09-18 01:54:39] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-18 01:54:39] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856

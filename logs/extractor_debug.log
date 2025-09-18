@@ -11281,3 +11281,693 @@ C...' -> 'IN THE SUPREME COURT OF THE STATE OF WASHINGTON CE...'
 2025-09-17 08:20:40,286 - src.unified_case_name_extractor_v2 - INFO - [UNIFIED_EXTRACTOR] Trying strategy: context_based
 2025-09-17 08:20:40,292 - src.unified_case_name_extractor_v2 - INFO -  [UNIFIED_EXTRACTOR] Strategy context_based succeeded: 'Lucid Grp. USA, Inc. v. Dep' (confidence: 1.0)
 2025-09-17 08:20:40,293 - src.unified_case_name_extractor_v2 - INFO -  [UNIFIED_EXTRACTOR] Final result: 'Lucid Grp. USA, Inc. v. Dep' (confidence: 0.80, method: context_based_legal_abbreviation_comprehensive)
+2025-09-17 16:28:51,639 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 17:24:27,696 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 18:03:40,104 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 11:25:09,097 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-17 11:25:09,100 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-17 11:25:10,200 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-17 11:25:10,201 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-17 11:25:10,201 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-17 11:25:10,202 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-17 11:25:10,216 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-17 11:25:10,227 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-17 11:25:10,228 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-17 11:25:26,314 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-17 11:25:26,314 - src.unified_citation_processor_v2 - WARNING - [DEPRECATED] _extract_with_regex is deprecated. Use _extract_citations_unified() instead.
+2025-09-17 11:25:26,314 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex
+2025-09-17 11:25:26,474 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Standard extraction found 4 citations
+2025-09-17 11:25:26,474 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133507286] DEDUPLICATION CALLED with 4 citations
+2025-09-17 11:25:26,476 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133507286] Starting deduplication of 4 citations
+2025-09-17 11:25:26,476 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133507286] Citation texts: ['150 Wn.2d 674', '80 P.3d 598', '159 Wn.2d 700', '153 P.3d 846']
+2025-09-17 11:25:26,476 - src.citation_deduplication - INFO - [Deduplication] Starting with 4 citations
+2025-09-17 11:25:26,477 - src.citation_deduplication - INFO - [Deduplication] After exact duplicates: 4 citations
+2025-09-17 11:25:26,477 - src.citation_deduplication - INFO - [Deduplication] After normalized duplicates: 4 citations
+2025-09-17 11:25:26,477 - src.citation_deduplication - INFO - [Deduplication] After position overlaps: 4 citations
+2025-09-17 11:25:26,477 - src.citation_deduplication - INFO - [Deduplication] Removed similar citation: 80 P.3d 598 (similarity: 1.00, date_match: True)
+2025-09-17 11:25:26,478 - src.citation_deduplication - INFO - [Deduplication] Removed similar citation: 153 P.3d 846 (similarity: 1.00, date_match: True)
+2025-09-17 11:25:26,478 - src.citation_deduplication - INFO - [Deduplication] Final result: 2 citations
+2025-09-17 11:25:26,478 - src.citation_deduplication - INFO - [Deduplication] Removed 2 duplicates total
+2025-09-17 11:25:26,489 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133507286] Deduplication SUCCESS: (2 duplicates removed)
+2025-09-17 11:25:26,489 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Cached result for text pattern
+2025-09-17 11:25:26,489 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133507286] Processing completed in 19.204s
+2025-09-17 11:25:26,492 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Initialized with thresholds: sync=5120, ultra_fast=500, clustering_skip=300
+2025-09-17 11:25:26,493 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Processing text: 146 characters
+2025-09-17 11:25:26,493 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Using ultra-fast path
+2025-09-17 11:25:26,493 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Ultra-fast extraction for 146 characters
+2025-09-17 11:25:26,547 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Fast extraction found 5 citations
+2025-09-17 11:25:26,548 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Important citations detected, enabling clustering
+2025-09-17 11:25:26,548 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-17 11:25:26,548 - src.unified_citation_clustering - INFO - Starting unified clustering for 5 citations
+2025-09-17 11:25:26,548 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-17 11:25:26,548 - src.unified_sync_processor - WARNING - [UnifiedSyncProcessor sync_1758133526493] Ultra-fast processing failed: '<' not supported between instances of 'NoneType' and 'int'
+2025-09-17 11:25:26,548 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Fast processing without clustering
+2025-09-17 11:25:26,548 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-17 11:25:26,550 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-17 11:25:26,550 - src.unified_citation_processor_v2 - WARNING - [DEPRECATED] _extract_with_regex is deprecated. Use _extract_citations_unified() instead.
+2025-09-17 11:25:26,550 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex
+2025-09-17 11:25:26,686 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Standard extraction found 4 citations
+2025-09-17 11:25:26,686 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] DEDUPLICATION CALLED with 4 citations
+2025-09-17 11:25:26,686 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Starting deduplication of 4 citations
+2025-09-17 11:25:26,686 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Citation texts: ['150 Wn.2d 674', '80 P.3d 598', '159 Wn.2d 700', '153 P.3d 846']
+2025-09-17 11:25:26,687 - src.citation_deduplication - INFO - [Deduplication] Starting with 4 citations
+2025-09-17 11:25:26,687 - src.citation_deduplication - INFO - [Deduplication] After exact duplicates: 4 citations
+2025-09-17 11:25:26,687 - src.citation_deduplication - INFO - [Deduplication] After normalized duplicates: 4 citations
+2025-09-17 11:25:26,687 - src.citation_deduplication - INFO - [Deduplication] After position overlaps: 4 citations
+2025-09-17 11:25:26,687 - src.citation_deduplication - INFO - [Deduplication] Removed similar citation: 80 P.3d 598 (similarity: 1.00, date_match: True)
+2025-09-17 11:25:26,688 - src.citation_deduplication - INFO - [Deduplication] Removed similar citation: 153 P.3d 846 (similarity: 1.00, date_match: True)
+2025-09-17 11:25:26,688 - src.citation_deduplication - INFO - [Deduplication] Final result: 2 citations
+2025-09-17 11:25:26,688 - src.citation_deduplication - INFO - [Deduplication] Removed 2 duplicates total
+2025-09-17 11:25:26,698 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Deduplication SUCCESS: (2 duplicates removed)
+2025-09-17 11:25:26,698 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Cached result for text pattern
+2025-09-17 11:25:26,698 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758133526493] Processing completed in 0.205s
+2025-09-17 18:29:15,498 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 19:03:26,528 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 12:10:59,271 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-17 12:10:59,961 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-17 12:11:00,869 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-17 12:11:00,871 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-17 12:11:00,883 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-17 12:11:00,883 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-17 12:11:00,900 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-17 12:11:00,917 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-17 12:11:00,918 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Starting full processing with verification
+2025-09-17 12:11:00,919 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-17 12:11:06,691 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-17 12:11:06,691 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-17 12:11:06,695 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 2360 chars
+2025-09-17 12:11:06,700 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 1 citations
+2025-09-17 12:11:06,700 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 1 citations
+2025-09-17 12:11:06,700 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-17 12:11:06,781 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 40 citations
+2025-09-17 12:11:06,781 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-17 12:11:06,784 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 1 citations
+2025-09-17 12:11:06,784 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-17 12:11:06,865 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-17 12:11:06,868 - src.utils.text_normalizer - DEBUG - Text normalization: 'Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d 674...' -> 'Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d 674...'
+2025-09-17 12:11:06,888 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Inc.' -> 'Inc.'
+2025-09-17 12:11:06,888 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Cananwill' -> 'Cananwill'
+2025-09-17 12:11:06,899 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Inc. v. Cananwill' -> 'Inc. v. Cananwill'
+2025-09-17 12:11:06,908 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-17 12:11:06,909 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 1 citations
+2025-09-17 12:11:06,910 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 1 citations extracted
+2025-09-17 12:11:06,966 - src.utils.text_normalizer - DEBUG - Text normalization: 'Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d 674...' -> 'Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d 674...'
+2025-09-17 12:11:06,976 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Inc.' -> 'Inc.'
+2025-09-17 12:11:06,976 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Cananwill' -> 'Cananwill'
+2025-09-17 12:11:06,987 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Inc. v. Cananwill' -> 'Inc. v. Cananwill'
+2025-09-17 12:11:06,995 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-17 12:11:06,995 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 1 citations for parallel relationships
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 0 parallel groups
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 1 citations
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 1 citations
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 1 citations
+2025-09-17 12:11:06,996 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-17 12:11:06,996 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Starting unified clustering for 1 citations
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Detected 1 parallel citation groups (including proximity-based)
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Batch verifying 1 citations with CourtListener API
+2025-09-17 12:11:06,997 - src.unified_citation_clustering - INFO - Processing batch 1/1 (1 citations)
+2025-09-17 12:11:06,999 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-17 12:11:07,158 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-17 12:11:07,180 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-17 12:11:07,180 - src.unified_citation_clustering - INFO - Merged 1 initial clusters into 1 final clusters (preserving parallel relationships)
+2025-09-17 12:11:07,180 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-17 12:11:07,180 - src.unified_citation_clustering - INFO - Propagating verification status across 1 clusters
+2025-09-17 12:11:07,180 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-17 12:11:07,181 - src.unified_citation_clustering - INFO - Unified clustering completed: 1 clusters created
+2025-09-17 12:11:07,181 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using unified clustering
+2025-09-17 12:11:07,181 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-17 12:11:07,182 - src.unified_sync_processor - WARNING - [UnifiedSyncProcessor sync_1758136259149] Full pipeline failed, falling back to basic extraction: 'UnifiedCitationProcessorV2' object has no attribute '_verify_citations'
+2025-09-17 12:11:07,182 - src.unified_citation_processor_v2 - WARNING - [DEPRECATED] _extract_with_regex is deprecated. Use _extract_citations_unified() instead.
+2025-09-17 12:11:07,182 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Starting clustering with verification=enabled
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Clustering with verification=enabled
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Input citations: 40
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 1: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 2: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 3: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 4: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,456 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 5: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 6: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 7: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 8: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 9: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 10: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 11: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 12: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 13: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 14: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 15: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,457 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 16: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 17: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 18: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 19: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 20: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 21: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 22: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 23: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 24: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 25: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 26: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,458 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 27: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 28: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 29: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 30: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 31: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 32: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 33: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 34: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 35: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 36: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,459 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 37: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,460 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 38: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,460 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 39: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,460 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation 40: 150 Wn.2d 674 - Inc. v. Cananwill
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Starting unified clustering for 40 citations
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Detected 1 parallel citation groups (including proximity-based)
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-17 12:11:08,460 - src.unified_citation_clustering - INFO - Batch verifying 1 citations with CourtListener API
+2025-09-17 12:11:08,461 - src.unified_citation_clustering - INFO - Processing batch 1/1 (1 citations)
+2025-09-17 12:11:08,462 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-17 12:11:08,559 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-17 12:11:08,575 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-17 12:11:08,576 - src.unified_citation_clustering - INFO - Merged 1 initial clusters into 1 final clusters (preserving parallel relationships)
+2025-09-17 12:11:08,576 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-17 12:11:08,576 - src.unified_citation_clustering - INFO - Propagating verification status across 1 clusters
+2025-09-17 12:11:08,576 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-17 12:11:08,576 - src.unified_citation_clustering - INFO - Unified clustering completed: 1 clusters created
+2025-09-17 12:11:08,576 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Clustering result type: <class 'list'>
+2025-09-17 12:11:08,576 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Clustering result: [{'cluster_id': 'inc_v_cananwill_2003', 'case_name': 'Inc. v. Cananwill', 'year': '2003', 'size': 1, 'citations': ['150 Wn.2d 674'], 'citation_objects': [{'citation': '150 Wn.2d 674', 'extracted_case_name': 'Inc. v. Cananwill', 'canonical_name': 'Restaurant Development, Inc. v. Cananwill, Inc.', 'extracted_date': '2003', 'canonical_date': '2003', 'canonical_url': 'https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/', 'verified': True, 'confidence': 0.9, 'method': 'unified_processor', 'context': '', 'is_parallel': False, 'true_by_parallel': False, 'url': None, 'source': 'citation_block', 'error': None, 'metadata': {'block_case_name': 'Inc. v. Cananwill', 'block_year': '2003', 'parallel_citations': ['150 Wn.2d 674'], 'verification_status': 'verified', 'verification_source': 'courtlistener_batch_api', 'canonical_data_available': True, 'verification_error': None}}], 'cluster_type': 'unified_extracted'}]
+2025-09-17 12:11:08,576 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Using result as list: 1
+2025-09-17 12:11:08,577 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Final clusters: [{'cluster_id': 'inc_v_cananwill_2003', 'case_name': 'Inc. v. Cananwill', 'year': '2003', 'size': 1, 'citations': ['150 Wn.2d 674'], 'citation_objects': [{'citation': '150 Wn.2d 674', 'extracted_case_name': 'Inc. v. Cananwill', 'canonical_name': 'Restaurant Development, Inc. v. Cananwill, Inc.', 'extracted_date': '2003', 'canonical_date': '2003', 'canonical_url': 'https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/', 'verified': True, 'confidence': 0.9, 'method': 'unified_processor', 'context': '', 'is_parallel': False, 'true_by_parallel': False, 'url': None, 'source': 'citation_block', 'error': None, 'metadata': {'block_case_name': 'Inc. v. Cananwill', 'block_year': '2003', 'parallel_citations': ['150 Wn.2d 674'], 'verification_status': 'verified', 'verification_source': 'courtlistener_batch_api', 'canonical_data_available': True, 'verification_error': None}}], 'cluster_type': 'unified_extracted'}]
+2025-09-17 12:11:08,577 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Clustering completed with 1 clusters
+2025-09-17 12:11:08,578 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] DEDUPLICATION CALLED with 40 citations
+2025-09-17 12:11:08,580 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Starting deduplication of 40 citations
+2025-09-17 12:11:08,580 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Citation texts: ['150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674', '150 Wn.2d 674']
+2025-09-17 12:11:08,580 - src.citation_deduplication - INFO - [Deduplication] Starting with 40 citations
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,581 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,582 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,583 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] Removed exact duplicate: 150 Wn.2d 674
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] After exact duplicates: 1 citations
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] After normalized duplicates: 1 citations
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] After position overlaps: 1 citations
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] Final result: 1 citations
+2025-09-17 12:11:08,584 - src.citation_deduplication - INFO - [Deduplication] Removed 39 duplicates total
+2025-09-17 12:11:08,591 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Deduplication SUCCESS: (39 duplicates removed)
+2025-09-17 12:11:08,591 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Converting 1 clusters to dicts
+2025-09-17 12:11:08,591 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Processing cluster 1: {'cluster_id': 'inc_v_cananwill_2003', 'case_name': 'Inc. v. Cananwill', 'year': '2003', 'size': 1, 'citations': ['150 Wn.2d 674'], 'citation_objects': [{'citation': '150 Wn.2d 674', 'extracted_case_name': 'Inc. v. Cananwill', 'canonical_name': 'Restaurant Development, Inc. v. Cananwill, Inc.', 'extracted_date': '2003', 'canonical_date': '2003', 'canonical_url': 'https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/', 'verified': True, 'confidence': 0.9, 'method': 'unified_processor', 'context': '', 'is_parallel': False, 'true_by_parallel': False, 'url': None, 'source': 'citation_block', 'error': None, 'metadata': {'block_case_name': 'Inc. v. Cananwill', 'block_year': '2003', 'parallel_citations': ['150 Wn.2d 674'], 'verification_status': 'verified', 'verification_source': 'courtlistener_batch_api', 'canonical_data_available': True, 'verification_error': None}}], 'cluster_type': 'unified_extracted'}
+2025-09-17 12:11:08,592 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor] Cached result for text pattern
+2025-09-17 12:11:08,593 - src.unified_sync_processor - INFO - [UnifiedSyncProcessor sync_1758136259149] Processing completed in 9.444s
+2025-09-17 12:11:08,595 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:08,854 - urllib3.connectionpool - DEBUG - http://localhost:8080 "POST /casestrainer/api/analyze HTTP/1.1" 200 1765
+2025-09-17 12:11:08,857 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:08,956 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 98
+2025-09-17 12:11:11,960 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:12,001 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 98
+2025-09-17 12:11:15,004 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:15,034 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 98
+2025-09-17 12:11:18,038 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:18,073 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 98
+2025-09-17 12:11:21,077 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:21,106 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 98
+2025-09-17 12:11:24,109 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:24,142 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 107
+2025-09-17 12:11:27,146 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:27,183 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 107
+2025-09-17 12:11:30,186 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:30,207 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 107
+2025-09-17 12:11:33,213 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:33,247 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 107
+2025-09-17 12:11:36,250 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:36,286 - urllib3.connectionpool - DEBUG - http://localhost:8080 "GET /casestrainer/api/analyze/verification-results/43adf324-abb1-4846-90c6-20a9f496a622 HTTP/1.1" 200 107
+2025-09-17 12:11:39,291 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-17 12:11:47,732 - urllib3.connectionpool - DEBUG - http://localhost:8080 "POST /casestrainer/api/analyze HTTP/1.1" 200 3441
+2025-09-17 19:13:35,655 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 19:28:01,075 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 19:37:22,273 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 19:41:06,704 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 19:59:30,166 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 20:31:05,811 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 20:43:08,087 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 21:10:40,201 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 21:19:58,365 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 21:21:40,701 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 22:28:25,390 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 22:36:55,640 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 22:41:48,305 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 16:17:05,546 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-17 16:17:06,111 - unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-17 16:17:06,842 - unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-17 16:17:06,844 - unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-17 16:17:06,850 - unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-17 16:17:06,850 - unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-17 16:17:06,863 - unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-17 16:17:06,875 - unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-17 16:17:06,884 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-17 16:17:06,886 - unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-17 16:17:10,417 - unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-17 16:17:10,417 - unified_citation_processor_v2 - INFO - CourtListener API key available: True
+2025-09-17 16:17:10,417 - unified_citation_processor_v2 - INFO - Enhanced web searcher available: True
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-17 16:17:10,419 - unified_citation_processor_v2 - INFO - [DEBUG] Text length: 553 chars
+2025-09-17 16:17:10,422 - unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 5 citations
+2025-09-17 16:17:10,422 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 5 citations
+2025-09-17 16:17:10,422 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-17 16:17:10,495 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 9 citations
+2025-09-17 16:17:10,495 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-17 16:17:10,500 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 9 citations
+2025-09-17 16:17:10,500 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-17 16:17:10,574 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-17 16:17:10,577 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:10,696 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:10,786 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:10,865 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:10,953 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,018 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,114 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,187 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,256 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,336 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,414 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,482 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,552 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,631 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:11,720 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:11,815 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:11,908 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:12,006 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:12,017 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-17 16:17:12,018 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 9 citations
+2025-09-17 16:17:12,019 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 9 citations extracted
+2025-09-17 16:17:12,074 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,148 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,215 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,288 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,361 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,433 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,503 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,569 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:12,641 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:12,652 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-17 16:17:12,652 - unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 9 citations for parallel relationships
+2025-09-17 16:17:12,653 - unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 0 parallel groups
+2025-09-17 16:17:12,653 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 9 citations
+2025-09-17 16:17:12,654 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-17 16:17:12,654 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 9 citations
+2025-09-17 16:17:12,654 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-17 16:17:12,654 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 9 citations
+2025-09-17 16:17:12,654 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-17 16:17:12,655 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-17 16:17:12,655 - src.unified_citation_clustering - INFO - Starting unified clustering for 9 citations
+2025-09-17 16:17:12,655 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-17 16:17:12,655 - src.unified_citation_clustering - INFO - Detected 2 parallel citation groups (including proximity-based)
+2025-09-17 16:17:12,655 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-17 16:17:12,732 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,848 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:12,957 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,067 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,168 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,267 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,369 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,486 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:13,589 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:13,705 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:13,817 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:13,854 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-17 16:17:13,854 - src.unified_citation_clustering - INFO - Batch verifying 9 citations with CourtListener API
+2025-09-17 16:17:13,854 - src.unified_citation_clustering - INFO - Processing batch 1/1 (9 citations)
+2025-09-17 16:17:13,856 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-17 16:17:14,345 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-17 16:17:14,529 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-17 16:17:14,529 - src.unified_citation_clustering - INFO - Merged 2 initial clusters into 2 final clusters (preserving parallel relationships)
+2025-09-17 16:17:14,529 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-17 16:17:14,529 - src.unified_citation_clustering - INFO - Propagating verification status across 2 clusters
+2025-09-17 16:17:14,529 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-17 16:17:14,530 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-09-17 16:17:14,530 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 2 clusters using unified clustering
+2025-09-17 16:17:14,530 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-17 16:17:51,649 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-17 16:17:52,255 - unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-17 16:17:52,917 - unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-17 16:17:52,918 - unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-17 16:17:52,925 - unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-17 16:17:52,925 - unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-17 16:17:52,937 - unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-17 16:17:52,949 - unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-17 16:17:52,958 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-17 16:17:52,960 - unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-17 16:17:56,449 - unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-17 16:17:56,449 - unified_citation_processor_v2 - INFO - CourtListener API key available: True
+2025-09-17 16:17:56,449 - unified_citation_processor_v2 - INFO - Enhanced web searcher available: True
+2025-09-17 16:17:56,450 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-17 16:17:56,451 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-17 16:17:56,451 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-17 16:17:56,451 - unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-17 16:17:56,451 - unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-17 16:17:56,451 - unified_citation_processor_v2 - INFO - [DEBUG] Text length: 553 chars
+2025-09-17 16:17:56,453 - unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 5 citations
+2025-09-17 16:17:56,453 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 5 citations
+2025-09-17 16:17:56,453 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-17 16:17:56,528 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 9 citations
+2025-09-17 16:17:56,528 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-17 16:17:56,532 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 9 citations
+2025-09-17 16:17:56,532 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-17 16:17:56,608 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-17 16:17:56,613 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:56,720 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:56,799 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:56,880 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:56,965 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,042 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,117 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,197 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,283 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,360 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,437 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,520 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,603 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,679 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:57,765 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:57,844 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:57,920 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:58,014 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:58,026 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-17 16:17:58,027 - unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 9 citations
+2025-09-17 16:17:58,027 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 9 citations extracted
+2025-09-17 16:17:58,087 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,161 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,236 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,309 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,378 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,441 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,516 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,589 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:58,671 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:58,682 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-17 16:17:58,683 - unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 9 citations for parallel relationships
+2025-09-17 16:17:58,683 - unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 0 parallel groups
+2025-09-17 16:17:58,683 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 9 citations
+2025-09-17 16:17:58,684 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-17 16:17:58,684 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 9 citations
+2025-09-17 16:17:58,684 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-17 16:17:58,684 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 9 citations
+2025-09-17 16:17:58,684 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-17 16:17:58,684 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-17 16:17:58,685 - src.unified_citation_clustering - INFO - Starting unified clustering for 9 citations
+2025-09-17 16:17:58,685 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-17 16:17:58,685 - src.unified_citation_clustering - INFO - Detected 2 parallel citation groups (including proximity-based)
+2025-09-17 16:17:58,685 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-17 16:17:58,765 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:58,885 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,006 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,117 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,231 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,350 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,464 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,576 - src.utils.text_normalizer - DEBUG - Text normalization: '
+    FILED
+    SEPTEMBER 16, 2025
+    In the Offic...' -> ' FILED SEPTEMBER 16, 2025 In the Office of the Cle...'
+2025-09-17 16:17:59,689 - src.utils.text_normalizer - DEBUG - Text normalization: '   SEPTEMBER 16, 2025
+    In the Office of the Cle...' -> ' SEPTEMBER 16, 2025 In the Office of the Clerk of ...'
+2025-09-17 16:17:59,802 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:59,916 - src.utils.text_normalizer - DEBUG - Text normalization: '   In the Office of the Clerk of Court
+    WA Stat...' -> ' In the Office of the Clerk of Court WA State Cour...'
+2025-09-17 16:17:59,949 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-17 16:17:59,950 - src.unified_citation_clustering - INFO - Batch verifying 9 citations with CourtListener API
+2025-09-17 16:17:59,950 - src.unified_citation_clustering - INFO - Processing batch 1/1 (9 citations)
+2025-09-17 16:17:59,952 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-17 16:18:00,353 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-17 16:18:00,532 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-17 16:18:00,533 - src.unified_citation_clustering - INFO - Merged 2 initial clusters into 2 final clusters (preserving parallel relationships)
+2025-09-17 16:18:00,533 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-17 16:18:00,533 - src.unified_citation_clustering - INFO - Propagating verification status across 2 clusters
+2025-09-17 16:18:00,533 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-17 16:18:00,533 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 2 clusters using unified clustering
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] Starting verification for 9 citations
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener results: 0/9 verified
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] 0 citations need fallback verification
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] === FINAL VERIFICATION SUMMARY ===
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] Total citations processed: 9
+2025-09-17 16:18:00,534 - unified_citation_processor_v2 - INFO - [VERIFICATION] Successfully verified: 9 (100.0%)
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener verified: 0
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback verified: 0
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION] Still unverified: 0
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION] Quality breakdown:
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION]   High confidence (>0.8): 4
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION]   Medium confidence (0.5-0.8): 5
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION]   Low confidence (<0.5): 0
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [VERIFICATION] === END VERIFICATION SUMMARY ===
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After verification: 9 citations
+2025-09-17 16:18:00,535 - unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 9 final citations, 2 clusters
+2025-09-17 23:23:14,954 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 23:26:07,949 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 23:35:54,063 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-17 23:40:47,175 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-18 00:21:31,328 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-18 00:54:27,525 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-18 08:54:16,524 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-18 08:57:00,915 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-18 08:59:16,275 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
