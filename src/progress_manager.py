@@ -1315,51 +1315,39 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 logger.error(f"[Task {task_id}] {error_msg}")
                 raise ValueError(error_msg)
             
-            # Use the full processing pipeline including clustering and verification
+            # Use the full UnifiedCitationProcessorV2 pipeline (FIXED: was using EnhancedSyncProcessor)
             try:
                 progress_tracker.start_step(0, 'Initializing async processing...')
                 
                 logger.info(f"[Task {task_id}] Importing required modules...")
-                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
-                from src.config import get_config_value
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                import asyncio
                 
-                progress_tracker.update_step(0, 25, 'Loading processing modules...')
+                progress_tracker.update_step(0, 50, 'Loading processing modules...')
                 
-                logger.info(f"[Task {task_id}] Initializing processor with verification...")
-                courtlistener_key = get_config_value("COURTLISTENER_API_KEY")
-                logger.debug(f"[Task {task_id}] CourtListener API key: {'Present' if courtlistener_key else 'Not found'}")
-                
-                # Initialize processor with verification enabled
-                options = ProcessingOptions(
-                    enable_enhanced_verification=True,
-                    enable_cross_validation=True,
-                    enable_false_positive_prevention=True,
-                    enable_confidence_scoring=True,
-                    courtlistener_api_key=courtlistener_key
-                )
+                logger.info(f"[Task {task_id}] Initializing UnifiedCitationProcessorV2...")
+                processor = UnifiedCitationProcessorV2()
                 
                 progress_tracker.update_step(0, 75, 'Initializing processor...')
-                
-                logger.info(f"[Task {task_id}] Creating EnhancedSyncProcessor instance...")
-                processor = EnhancedSyncProcessor(options=options)
                 
                 progress_tracker.complete_step(0, 'Initialization complete')
                 progress_tracker.start_step(1, 'Extracting citations from text...')
                 
                 # Process the text through the full pipeline
-                logger.info(f"[Task {task_id}] Starting text processing...")
-                result = processor.process_any_input_enhanced(text, 'text', {})
+                logger.info(f"[Task {task_id}] Starting text processing with UnifiedCitationProcessorV2...")
+                result = asyncio.run(processor.process_text(text))
                 logger.info(f"[Task {task_id}] Text processing completed")
                 
                 progress_tracker.complete_step(1, 'Citation extraction completed')
                 progress_tracker.start_step(2, 'Analyzing and normalizing citations...')
                 
-                # Ensure we have the expected structure
+                # Ensure we have the expected structure from UnifiedCitationProcessorV2
                 if not isinstance(result, dict):
-                    result = {}
+                    result = {'citations': [], 'clusters': []}
                 
-                # Convert any CitationResult objects to dictionaries
+                # Extract citations and clusters from UnifiedCitationProcessorV2 result
                 citations = result.get('citations', [])
+                clusters = result.get('clusters', [])
                 citation_dicts = []
                 
                 progress_tracker.update_step(2, 50, f'Processing {len(citations)} citations...')
@@ -1468,7 +1456,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     # Try basic regex-based citation extraction
                     import re
                     
-                    # Comprehensive citation patterns including Washington State
+                    # Comprehensive citation patterns including Washington State and WL citations
                     patterns = [
                         # Washington State citations
                         r'\b\d+\s+Wn\.\s*2d\s+\d+\b',  # Washington Reports 2d
@@ -1476,6 +1464,9 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         r'\b\d+\s+Wn\.\s*App\.\s*\d+\b',  # Washington Court of Appeals
                         r'\b\d+\s+P\.\s*2d\s+\d+\b',   # Pacific Reporter 2d
                         r'\b\d+\s+P\.\s*3d\s+\d+\b',   # Pacific Reporter 3d
+                        # Westlaw citations (ADDED)
+                        r'\b\d{4}\s+WL\s+\d+\b',       # Westlaw citations (2006 WL 3801910)
+                        r'\b\d{4}\s+Westlaw\s+\d+\b',  # Alternative Westlaw format
                     ]
                     
                     for pattern in patterns:
@@ -1578,8 +1569,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     }
             
         elif input_type == 'url':
+            # NOTE: This should no longer be reached since URLs are now converted to text at the API level
+            # But keeping as fallback for any legacy code paths
             url = input_data.get('url', '')
-            logger.debug(f"[Task {task_id}] URL: {url}")
+            logger.warning(f"[Task {task_id}] Unexpected URL input type - URLs should be converted to text at API level. URL: {url}")
             
             if not url:
                 error_msg = "No URL provided for processing"
@@ -1602,35 +1595,26 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 progress_tracker.complete_step(0, f'Extracted {len(text)} characters from URL')
                 logger.info(f"[Task {task_id}] Extracted {len(text)} characters from URL")
                 
-                # Now process the extracted text using the same pipeline as text processing
-                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
-                from src.config import get_config_value
+                # Now process the extracted text using UnifiedCitationProcessorV2 (FIXED: was using EnhancedSyncProcessor)
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                import asyncio
                 
-                logger.info(f"[Task {task_id}] Initializing processor for URL content...")
-                courtlistener_key = get_config_value("COURTLISTENER_API_KEY")
+                logger.info(f"[Task {task_id}] Initializing UnifiedCitationProcessorV2 for URL content...")
                 
-                # Initialize processor with verification enabled
-                options = ProcessingOptions(
-                    enable_enhanced_verification=True,
-                    enable_cross_validation=True,
-                    enable_false_positive_prevention=True,
-                    enable_confidence_scoring=True,
-                    courtlistener_api_key=courtlistener_key
-                )
-                
-                processor = EnhancedSyncProcessor(options=options)
+                processor = UnifiedCitationProcessorV2()
                 
                 # Process the extracted text
                 logger.info(f"[Task {task_id}] Starting URL content processing...")
-                result = processor.process_any_input_enhanced(text, 'text', {})
+                result = asyncio.run(processor.process_text(text))
                 logger.info(f"[Task {task_id}] URL content processing completed")
                 
                 # Use the same result processing logic as text processing
                 if not isinstance(result, dict):
-                    result = {}
+                    result = {'citations': [], 'clusters': []}
                 
-                # Convert any CitationResult objects to dictionaries
+                # Extract citations and clusters from UnifiedCitationProcessorV2 result
                 citations = result.get('citations', [])
+                clusters = result.get('clusters', [])
                 citation_dicts = []
                 
                 for citation in citations:

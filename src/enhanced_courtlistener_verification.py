@@ -15,10 +15,21 @@ from src.enhanced_case_name_matcher import enhanced_matcher, is_likely_same_case
 
 logger = logging.getLogger(__name__)
 
+def _deprecated_warning():
+    """Issue deprecation warning for EnhancedCourtListenerVerifier."""
+    import warnings
+    warnings.warn(
+        "EnhancedCourtListenerVerifier is deprecated and will be removed in v3.0.0. "
+        "Use unified verification system in cluster_citations_unified() instead.",
+        DeprecationWarning,
+        stacklevel=3
+    )
+
 class EnhancedCourtListenerVerifier:
     """Enhanced verification with cross-validation between API endpoints"""
     
     def __init__(self, api_key: str):
+        _deprecated_warning()  # Issue deprecation warning
         self.api_key = api_key
         self.headers = {"Authorization": f"Token {api_key}"}
     

@@ -149,8 +149,6 @@
     "src/file_utils.py":  "F7880A59C43D5ABE248B41E90EC313CB",
     "src/fix_citation_formats.py":  "FD8CFB7570B5DC978E62A7888A8DBFB9",
     "src/generate_sample_citations.py":  "6148131E88442F4254B74E8B74B7D11A",
-    "src\\enhanced_sync_processor.py":  "1E04FD220E739BC6BB4C3BBAA84C7479",
-    "src/enhanced_sync_processor.py":  "1E04FD220E739BC6BB4C3BBAA84C7479",
     "casestrainer-vue-new\\src\\views\\HomeView.vue":  "98E0B4AFBFCF78755A3B019EC8759D46",
     "src/healthcheck_robust.py":  "DB29E48A7846052E490FE52C0F7DAE4B",
     "src\\unified_case_name_extractor_v2.py":  "1D2435390FA3050CBFBF7B44340AD730",
@@ -165,11 +163,13 @@
     "Dockerfile":  "C65ECAFAA8A909B7AA230C2B56565F4F",
     "casestrainer-vue-new\\src\\stores\\progressStore.js":  "3FEF86322038CA9DDB5F40D78096FB24",
     "src/data_separation_validator.py":  "01F0E9CFFE73E8DEDE5BAA1C30FC814F",
-    "src/unified_citation_processor_v2.py":  "001DD3B1C255E411F8FDE16CBB041EE7",
     "src/enhanced_citation_utilities.py":  "40D01A84C40A2F991B7CECCAF2C1ACFF",
     "src/enhanced_sync_processor_refactored.py":  "39A4F2C5E88585419035135B520C8B46",
     "src/langsearch_integration.py":  "A38FAF1F148DAD72C5E15489F48F047F",
     "src/legal_case_extractor_integrated.py":  "F28B1E2F7B7D2F93873E255E720C1E50",
     "src/enhanced_fallback_verifier.py":  "1F0A3534E0B49A4229CB6BC2092A3C0D",
-    "src/citation_extractor.py":  "79B0073EB28FFA826B510C965F16D92F"
+    "src/citation_extractor.py":  "79B0073EB28FFA826B510C965F16D92F",
+    "src\\enhanced_sync_processor.py":  "A0BB5707C8DE88DDFEB23D0955470C3B",
+    "src/unified_citation_processor_v2.py":  "6E16E6042A154C372C6051F21A18A4CC",
+    "src/enhanced_sync_processor.py":  "A0BB5707C8DE88DDFEB23D0955470C3B"
 }

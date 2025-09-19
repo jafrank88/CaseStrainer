@@ -52036,3 +52036,332 @@
 2025/09/18 08:59:22 [notice] 1#1: start worker process 21
 2025/09/18 08:59:22 [notice] 1#1: start worker process 22
 2025/09/18 08:59:22 [notice] 1#1: start worker process 23
+2025/09/18 09:01:26 [error] 9#9: *5 open() "/etc/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 09:01:26 [error] 9#9: *5 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 09:03:38 [warn] 11#11: *15 a client request body is buffered to a temporary file /var/cache/nginx/client_temp/0000000001, client: 172.18.0.1, server: wolf.law.uw.edu, request: "POST /casestrainer/api/analyze HTTP/1.1", host: "wolf.law.uw.edu", referrer: "https://wolf.law.uw.edu/casestrainer/"
+2025/09/18 09:50:32 [error] 20#20: *140 open() "/etc/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 09:50:32 [error] 20#20: *140 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:10:41 [error] 9#9: *204 open() "/etc/nginx/html/manage/account/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /manage/account/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:10:41 [error] 9#9: *204 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /manage/account/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:10:56 [error] 9#9: *205 open() "/etc/nginx/html/manage/account/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /manage/account/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:10:56 [error] 9#9: *205 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /manage/account/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:08 [error] 9#9: *206 open() "/etc/nginx/html/admin/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /admin/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:08 [error] 9#9: *206 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /admin/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:23 [error] 9#9: *208 open() "/etc/nginx/html/admin/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /admin/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:23 [error] 9#9: *208 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /admin/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:34 [error] 9#9: *209 open() "/etc/nginx/html/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:34 [error] 9#9: *209 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:49 [error] 9#9: *211 open() "/etc/nginx/html/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:49 [error] 9#9: *211 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:59 [error] 9#9: *212 open() "/etc/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:11:59 [error] 9#9: *212 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:15 [error] 9#9: *214 open() "/etc/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:15 [error] 9#9: *214 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:25 [error] 9#9: *215 open() "/etc/nginx/html/cgi-bin/login.cgi" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/login.cgi HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:25 [error] 9#9: *215 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/login.cgi HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:43 [error] 9#9: *217 open() "/etc/nginx/html/cgi-bin/login.cgi" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/login.cgi HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:12:43 [error] 9#9: *217 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/login.cgi HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:14 [error] 9#9: *220 open() "/etc/nginx/html/login.htm" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.htm HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:14 [error] 9#9: *220 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.htm HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:24 [error] 9#9: *221 open() "/etc/nginx/html/login.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:24 [error] 9#9: *221 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:39 [error] 9#9: *222 open() "/etc/nginx/html/login.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:39 [error] 9#9: *222 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:51 [error] 8#8: *225 open() "/etc/nginx/html/login.jsp" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.jsp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:13:51 [error] 8#8: *225 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.jsp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:05 [error] 8#8: *226 open() "/etc/nginx/html/login.jsp" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.jsp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:05 [error] 8#8: *226 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login.jsp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:19 [error] 8#8: *228 open() "/etc/nginx/html/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:19 [error] 8#8: *228 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:34 [error] 8#8: *229 open() "/etc/nginx/html/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:34 [error] 8#8: *229 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:45 [error] 8#8: *231 open() "/etc/nginx/html/doc/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /doc/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:45 [error] 8#8: *231 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /doc/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:58 [error] 8#8: *232 open() "/etc/nginx/html/doc/index.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /doc/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:14:58 [error] 8#8: *232 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /doc/index.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:13 [error] 8#8: *234 open() "/etc/nginx/html/remote/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:13 [error] 8#8: *234 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:32 [error] 8#8: *235 open() "/etc/nginx/html/remote/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:32 [error] 8#8: *235 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:45 [error] 8#8: *237 open() "/etc/nginx/html/admin/login.asp" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //admin/login.asp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:15:45 [error] 8#8: *237 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //admin/login.asp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:21 [error] 8#8: *240 "/etc/nginx/html/web/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /web/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:21 [error] 8#8: *240 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /web/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:45 [error] 8#8: *241 "/etc/nginx/html/web/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /web/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:45 [error] 8#8: *241 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /web/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:57 [error] 8#8: *243 open() "/etc/nginx/html/webpages/login.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //webpages/login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:16:57 [error] 8#8: *243 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //webpages/login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:17:12 [error] 8#8: *245 open() "/etc/nginx/html/webpages/login.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //webpages/login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:17:12 [error] 8#8: *245 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET //webpages/login.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 10:24:02 [error] 10#10: *270 open() "/etc/nginx/html/apple-touch-icon-precomposed.png" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:24:02 [error] 10#10: *270 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:24:02 [error] 10#10: *272 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:24:02 [error] 10#10: *272 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:24:02 [error] 10#10: *271 open() "/etc/nginx/html/apple-touch-icon.png" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:24:02 [error] 10#10: *271 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 10:55:39 [error] 10#10: *350 open() "/etc/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/actuator/gateway/routes"
+2025/09/18 10:55:39 [error] 10#10: *350 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3", referrer: "http://128.208.154.3:80/actuator/gateway/routes"
+2025/09/18 12:21:33 [error] 12#12: *568 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 12:21:33 [error] 12#12: *568 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 12:21:35 [error] 12#12: *573 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 12:21:35 [error] 12#12: *573 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 13:51:55 [error] 14#14: *812 open() "/etc/nginx/html/.env" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 13:51:55 [error] 14#14: *812 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/cgi-bin/userLogin" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/userLogin HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/userLogin HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/auth.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /auth.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /auth.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/sslvpn" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /sslvpn HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /sslvpn HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 "/etc/nginx/html/RDWeb/Pages/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /RDWeb/Pages/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /RDWeb/Pages/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/remote/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:18 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:19 [error] 15#15: *969 open() "/etc/nginx/html/global-protect/login.esp" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /global-protect/login.esp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:19 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /global-protect/login.esp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:19 [error] 15#15: *969 open() "/etc/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 14:57:19 [error] 15#15: *969 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 16:02:07 [error] 15#15: *1115 open() "/etc/nginx/html/.env" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/09/18 16:02:07 [error] 15#15: *1115 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.env HTTP/1.1", host: "128.208.154.3"
+2025/09/18 16:02:09 [error] 16#16: *1117 open() "/etc/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 16:02:09 [error] 16#16: *1117 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/18 16:18:28 [error] 16#16: *1164 open() "/etc/nginx/html/apple-touch-icon-precomposed.png" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 16:18:28 [error] 16#16: *1164 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon-precomposed.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 16:18:28 [error] 16#16: *1165 open() "/etc/nginx/html/apple-touch-icon.png" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 16:18:28 [error] 16#16: *1165 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /apple-touch-icon.png HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 16:18:29 [error] 16#16: *1166 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 16:18:29 [error] 16#16: *1166 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/18 18:12:38 [error] 18#18: *1444 open() "/etc/nginx/html/assets/js/views/login.js" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /assets/js/views/login.js HTTP/1.1", host: "128.208.154.3"
+2025/09/18 18:12:38 [error] 18#18: *1444 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /assets/js/views/login.js HTTP/1.1", host: "128.208.154.3"
+2025/09/18 18:40:49 [error] 18#18: *1505 open() "/etc/nginx/html/.git/index" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/index HTTP/1.1", host: "128.208.154.3"
+2025/09/18 18:40:49 [error] 18#18: *1505 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/index HTTP/1.1", host: "128.208.154.3"
+2025/09/18 19:24:24 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/09/18 19:24:24 [notice] 12#12: gracefully shutting down
+2025/09/18 19:24:24 [notice] 13#13: gracefully shutting down
+2025/09/18 19:24:24 [notice] 8#8: gracefully shutting down
+2025/09/18 19:24:24 [notice] 19#19: gracefully shutting down
+2025/09/18 19:24:24 [notice] 17#17: gracefully shutting down
+2025/09/18 19:24:24 [notice] 9#9: gracefully shutting down
+2025/09/18 19:24:24 [notice] 17#17: exiting
+2025/09/18 19:24:24 [notice] 18#18: gracefully shutting down
+2025/09/18 19:24:24 [notice] 20#20: gracefully shutting down
+2025/09/18 19:24:24 [notice] 10#10: gracefully shutting down
+2025/09/18 19:24:24 [notice] 11#11: gracefully shutting down
+2025/09/18 19:24:24 [notice] 14#14: gracefully shutting down
+2025/09/18 19:24:24 [notice] 15#15: gracefully shutting down
+2025/09/18 19:24:24 [notice] 21#21: gracefully shutting down
+2025/09/18 19:24:24 [notice] 15#15: exiting
+2025/09/18 19:24:24 [notice] 22#22: gracefully shutting down
+2025/09/18 19:24:24 [notice] 23#23: gracefully shutting down
+2025/09/18 19:24:24 [notice] 12#12: exiting
+2025/09/18 19:24:24 [notice] 8#8: exiting
+2025/09/18 19:24:24 [notice] 13#13: exiting
+2025/09/18 19:24:24 [notice] 19#19: exiting
+2025/09/18 19:24:24 [notice] 18#18: exiting
+2025/09/18 19:24:24 [notice] 16#16: gracefully shutting down
+2025/09/18 19:24:24 [notice] 9#9: exiting
+2025/09/18 19:24:24 [notice] 17#17: exit
+2025/09/18 19:24:24 [notice] 10#10: exiting
+2025/09/18 19:24:24 [notice] 20#20: exiting
+2025/09/18 19:24:24 [notice] 11#11: exiting
+2025/09/18 19:24:24 [notice] 14#14: exiting
+2025/09/18 19:24:24 [notice] 15#15: exit
+2025/09/18 19:24:24 [notice] 21#21: exiting
+2025/09/18 19:24:24 [notice] 23#23: exiting
+2025/09/18 19:24:24 [notice] 22#22: exiting
+2025/09/18 19:24:24 [notice] 12#12: exit
+2025/09/18 19:24:24 [notice] 8#8: exit
+2025/09/18 19:24:24 [notice] 18#18: exit
+2025/09/18 19:24:24 [notice] 13#13: exit
+2025/09/18 19:24:24 [notice] 19#19: exit
+2025/09/18 19:24:24 [notice] 16#16: exiting
+2025/09/18 19:24:24 [notice] 9#9: exit
+2025/09/18 19:24:24 [notice] 20#20: exit
+2025/09/18 19:24:24 [notice] 10#10: exit
+2025/09/18 19:24:24 [notice] 11#11: exit
+2025/09/18 19:24:24 [notice] 14#14: exit
+2025/09/18 19:24:24 [notice] 21#21: exit
+2025/09/18 19:24:24 [notice] 23#23: exit
+2025/09/18 19:24:24 [notice] 22#22: exit
+2025/09/18 19:24:24 [notice] 16#16: exit
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 12
+2025/09/18 19:24:24 [notice] 1#1: worker process 12 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 15
+2025/09/18 19:24:24 [notice] 1#1: worker process 15 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 17
+2025/09/18 19:24:24 [notice] 1#1: worker process 17 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 9
+2025/09/18 19:24:24 [notice] 1#1: worker process 9 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 18
+2025/09/18 19:24:24 [notice] 1#1: worker process 8 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 10 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 11 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 13 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 18 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 20 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 21 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 22 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 23 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 8
+2025/09/18 19:24:24 [notice] 1#1: signal 17 (SIGCHLD) received from 14
+2025/09/18 19:24:24 [notice] 1#1: worker process 14 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 16 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: worker process 19 exited with code 0
+2025/09/18 19:24:24 [notice] 1#1: exit
+2025/09/18 19:32:45 [notice] 1#1: using the "epoll" event method
+2025/09/18 19:32:45 [notice] 1#1: nginx/1.29.1
+2025/09/18 19:32:45 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/09/18 19:32:45 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/09/18 19:32:45 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/09/18 19:32:45 [notice] 1#1: start worker processes
+2025/09/18 19:32:45 [notice] 1#1: start worker process 8
+2025/09/18 19:32:45 [notice] 1#1: start worker process 9
+2025/09/18 19:32:45 [notice] 1#1: start worker process 10
+2025/09/18 19:32:45 [notice] 1#1: start worker process 11
+2025/09/18 19:32:45 [notice] 1#1: start worker process 12
+2025/09/18 19:32:45 [notice] 1#1: start worker process 13
+2025/09/18 19:32:45 [notice] 1#1: start worker process 14
+2025/09/18 19:32:45 [notice] 1#1: start worker process 15
+2025/09/18 19:32:45 [notice] 1#1: start worker process 16
+2025/09/18 19:32:45 [notice] 1#1: start worker process 17
+2025/09/18 19:32:45 [notice] 1#1: start worker process 18
+2025/09/18 19:32:45 [notice] 1#1: start worker process 19
+2025/09/18 19:32:45 [notice] 1#1: start worker process 20
+2025/09/18 19:32:45 [notice] 1#1: start worker process 21
+2025/09/18 19:32:45 [notice] 1#1: start worker process 22
+2025/09/18 19:32:45 [notice] 1#1: start worker process 23
+2025/09/18 20:05:30 [error] 8#8: *98 open() "/etc/nginx/html/actuator/gateway/routes" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/09/18 20:05:30 [error] 8#8: *98 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /actuator/gateway/routes HTTP/1.1", host: "128.208.154.3:443"
+2025/09/18 20:20:00 [notice] 1#1: signal 3 (SIGQUIT) received, shutting down
+2025/09/18 20:20:00 [notice] 9#9: gracefully shutting down
+2025/09/18 20:20:00 [notice] 8#8: gracefully shutting down
+2025/09/18 20:20:00 [notice] 10#10: gracefully shutting down
+2025/09/18 20:20:00 [notice] 11#11: gracefully shutting down
+2025/09/18 20:20:00 [notice] 12#12: gracefully shutting down
+2025/09/18 20:20:00 [notice] 13#13: gracefully shutting down
+2025/09/18 20:20:00 [notice] 14#14: gracefully shutting down
+2025/09/18 20:20:00 [notice] 15#15: gracefully shutting down
+2025/09/18 20:20:00 [notice] 16#16: gracefully shutting down
+2025/09/18 20:20:00 [notice] 17#17: gracefully shutting down
+2025/09/18 20:20:00 [notice] 18#18: gracefully shutting down
+2025/09/18 20:20:00 [notice] 19#19: gracefully shutting down
+2025/09/18 20:20:00 [notice] 20#20: gracefully shutting down
+2025/09/18 20:20:00 [notice] 21#21: gracefully shutting down
+2025/09/18 20:20:00 [notice] 23#23: gracefully shutting down
+2025/09/18 20:20:00 [notice] 22#22: gracefully shutting down
+2025/09/18 20:20:00 [notice] 9#9: exiting
+2025/09/18 20:20:00 [notice] 8#8: exiting
+2025/09/18 20:20:00 [notice] 10#10: exiting
+2025/09/18 20:20:00 [notice] 11#11: exiting
+2025/09/18 20:20:00 [notice] 12#12: exiting
+2025/09/18 20:20:00 [notice] 13#13: exiting
+2025/09/18 20:20:00 [notice] 14#14: exiting
+2025/09/18 20:20:00 [notice] 15#15: exiting
+2025/09/18 20:20:00 [notice] 12#12: exit
+2025/09/18 20:20:00 [notice] 16#16: exiting
+2025/09/18 20:20:00 [notice] 17#17: exiting
+2025/09/18 20:20:00 [notice] 18#18: exiting
+2025/09/18 20:20:00 [notice] 20#20: exiting
+2025/09/18 20:20:00 [notice] 19#19: exiting
+2025/09/18 20:20:00 [notice] 21#21: exiting
+2025/09/18 20:20:00 [notice] 22#22: exiting
+2025/09/18 20:20:00 [notice] 23#23: exiting
+2025/09/18 20:20:00 [notice] 9#9: exit
+2025/09/18 20:20:00 [notice] 8#8: exit
+2025/09/18 20:20:00 [notice] 10#10: exit
+2025/09/18 20:20:00 [notice] 11#11: exit
+2025/09/18 20:20:00 [notice] 13#13: exit
+2025/09/18 20:20:00 [notice] 15#15: exit
+2025/09/18 20:20:00 [notice] 16#16: exit
+2025/09/18 20:20:00 [notice] 17#17: exit
+2025/09/18 20:20:00 [notice] 14#14: exit
+2025/09/18 20:20:00 [notice] 20#20: exit
+2025/09/18 20:20:00 [notice] 19#19: exit
+2025/09/18 20:20:00 [notice] 18#18: exit
+2025/09/18 20:20:00 [notice] 21#21: exit
+2025/09/18 20:20:00 [notice] 22#22: exit
+2025/09/18 20:20:00 [notice] 23#23: exit
+2025/09/18 20:20:00 [notice] 1#1: signal 17 (SIGCHLD) received from 14
+2025/09/18 20:20:00 [notice] 1#1: worker process 8 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 9 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 10 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 11 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 12 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 13 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 14 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 15 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 16 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 17 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 18 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 19 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 20 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 21 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: worker process 22 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: signal 29 (SIGIO) received
+2025/09/18 20:20:00 [notice] 1#1: signal 17 (SIGCHLD) received from 11
+2025/09/18 20:20:00 [notice] 1#1: signal 17 (SIGCHLD) received from 23
+2025/09/18 20:20:00 [notice] 1#1: worker process 23 exited with code 0
+2025/09/18 20:20:00 [notice] 1#1: exit
+2025/09/18 20:20:38 [notice] 1#1: using the "epoll" event method
+2025/09/18 20:20:38 [notice] 1#1: nginx/1.29.1
+2025/09/18 20:20:38 [notice] 1#1: built by gcc 14.2.0 (Alpine 14.2.0) 
+2025/09/18 20:20:38 [notice] 1#1: OS: Linux 6.6.87.2-microsoft-standard-WSL2
+2025/09/18 20:20:38 [notice] 1#1: getrlimit(RLIMIT_NOFILE): 1048576:1048576
+2025/09/18 20:20:38 [notice] 1#1: start worker processes
+2025/09/18 20:20:38 [notice] 1#1: start worker process 9
+2025/09/18 20:20:38 [notice] 1#1: start worker process 10
+2025/09/18 20:20:38 [notice] 1#1: start worker process 11
+2025/09/18 20:20:38 [notice] 1#1: start worker process 12
+2025/09/18 20:20:38 [notice] 1#1: start worker process 13
+2025/09/18 20:20:38 [notice] 1#1: start worker process 14
+2025/09/18 20:20:38 [notice] 1#1: start worker process 15
+2025/09/18 20:20:38 [notice] 1#1: start worker process 16
+2025/09/18 20:20:38 [notice] 1#1: start worker process 17
+2025/09/18 20:20:38 [notice] 1#1: start worker process 18
+2025/09/18 20:20:38 [notice] 1#1: start worker process 19
+2025/09/18 20:20:38 [notice] 1#1: start worker process 20
+2025/09/18 20:20:38 [notice] 1#1: start worker process 21
+2025/09/18 20:20:38 [notice] 1#1: start worker process 22
+2025/09/18 20:20:38 [notice] 1#1: start worker process 23
+2025/09/18 20:20:38 [notice] 1#1: start worker process 24
+2025/09/18 20:24:05 [error] 9#9: *7 open() "/etc/nginx/html/developmentserver/metadatauploader" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /developmentserver/metadatauploader HTTP/1.1", host: "128.208.154.3"
+2025/09/18 20:24:05 [error] 9#9: *7 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /developmentserver/metadatauploader HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:31:03 [error] 18#18: *159 open() "/etc/nginx/html/ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:31:03 [error] 18#18: *159 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /ecp/Current/exporttool/microsoft.exchange.ediscovery.exporttool.application HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:48:11 [error] 11#11: *262 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:48:11 [error] 11#11: *262 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:48:18 [error] 11#11: *264 open() "/etc/nginx/html/wiki" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /wiki HTTP/1.1", host: "128.208.154.3"
+2025/09/18 21:48:18 [error] 11#11: *264 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /wiki HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:50:21 [error] 12#12: *432 open() "/etc/nginx/html/aaa9" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /aaa9 HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:50:21 [error] 12#12: *432 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /aaa9 HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:50:33 [error] 13#13: *434 open() "/etc/nginx/html/aab8" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /aab8 HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:50:33 [error] 13#13: *434 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /aab8 HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:52:53 [error] 13#13: *442 open() "/etc/nginx/html/owa/auth/x.js" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/x.js HTTP/1.1", host: "128.208.154.3"
+2025/09/18 22:52:53 [error] 13#13: *442 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /owa/auth/x.js HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:22:22 [error] 14#14: *520 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:22:22 [error] 14#14: *520 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:36:34 [error] 14#14: *557 open() "/etc/nginx/html/favicon.ico" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:36:34 [error] 14#14: *557 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /favicon.ico HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:39 [error] 15#15: *606 open() "/etc/nginx/html/cgi-bin/userLogin" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/userLogin HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:39 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /cgi-bin/userLogin HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/auth.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /auth.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /auth.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/sslvpn" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /sslvpn HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /sslvpn HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 "/etc/nginx/html/RDWeb/Pages/index.html" is not found (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /RDWeb/Pages/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /RDWeb/Pages/ HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/remote/login" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /remote/login?lang=en HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/global-protect/login.esp" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /global-protect/login.esp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:40 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /global-protect/login.esp HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:41 [error] 15#15: *606 open() "/etc/nginx/html/+CSCOE+/logon.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/18 23:52:41 [error] 15#15: *606 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /+CSCOE+/logon.html HTTP/1.1", host: "128.208.154.3"
+2025/09/19 00:14:08 [error] 15#15: *667 open() "/etc/nginx/html/.git/config" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/19 00:14:08 [error] 15#15: *667 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /.git/config HTTP/1.1", host: "128.208.154.3"
+2025/09/19 00:19:40 [error] 15#15: *679 open() "/etc/nginx/html/robots.txt" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"
+2025/09/19 00:19:40 [error] 15#15: *679 open() "/etc/nginx/html/casestrainer/404.html" failed (2: No such file or directory), client: 172.18.0.1, server: wolf.law.uw.edu, request: "GET /robots.txt HTTP/1.1", host: "wolf.law.uw.edu"

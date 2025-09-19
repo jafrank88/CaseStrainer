@@ -171,9 +171,17 @@ def analyze_text():
                 except UnicodeDecodeError:
                     return jsonify({'error': 'Invalid file encoding. Please use UTF-8 encoded text files.'}), 400
         elif has_url:
-            input_data = data['url']
-            input_type = 'url'
-            logger.info(f"[Request {request_id}] Starting analysis of URL: {input_data}")
+            # Extract text from URL first, then process as text
+            url = data['url']
+            logger.info(f"[Request {request_id}] Extracting content from URL: {url}")
+            try:
+                from src.progress_manager import fetch_url_content
+                input_data = fetch_url_content(url)
+                input_type = 'text'  # Convert to text processing
+                logger.info(f"[Request {request_id}] Extracted {len(input_data)} characters from URL, processing as text")
+            except Exception as e:
+                logger.error(f"[Request {request_id}] URL extraction failed: {e}")
+                return jsonify({'error': f'Failed to extract content from URL: {str(e)}'}), 400
         else:
             input_data = data['text']
             input_type = 'text'

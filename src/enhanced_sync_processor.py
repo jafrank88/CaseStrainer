@@ -1,6 +1,13 @@
 """
 Enhanced Sync Processor with Async Verification
-Implements Option 1: Enhanced Sync + Async Verification for all input types.
+
+DEPRECATED: This processor is deprecated and will be removed in v3.0.0.
+Use UnifiedCitationProcessorV2 with progress_callback parameter instead.
+
+The features from this processor have been integrated into the main pipeline:
+- Progress callbacks: Use UnifiedCitationProcessorV2(progress_callback=callback)
+- False positive prevention: Integrated into main processing pipeline
+- Enhanced verification: Use unified clustering with verification enabled
 
 This processor provides:
 1. Immediate results with local citation extraction, normalization, and clustering
@@ -9,6 +16,7 @@ This processor provides:
 4. No timeouts or blocking operations
 """
 
+import warnings
 import os
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
@@ -21,6 +29,15 @@ from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 from pathlib import Path
 import re
+
+def _deprecated_warning():
+    """Issue deprecation warning for EnhancedSyncProcessor."""
+    warnings.warn(
+        "EnhancedSyncProcessor is deprecated and will be removed in v3.0.0. "
+        "Use UnifiedCitationProcessorV2 with progress_callback parameter instead.",
+        DeprecationWarning,
+        stacklevel=3
+    )
 
 try:
     from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
@@ -71,6 +88,7 @@ class EnhancedSyncProcessor:
     
     def __init__(self, options: Optional[ProcessingOptions] = None, progress_callback: Optional[Any] = None):
         """Initialize the enhanced sync processor with configuration options."""
+        _deprecated_warning()  # Issue deprecation warning
         from src.config import get_citation_config
         
         # Get default configuration
@@ -968,8 +986,8 @@ class EnhancedSyncProcessor:
             # Use the unified clustering system that we already fixed
             from src.unified_citation_clustering import cluster_citations_unified
             
-            # Get verification flag from instance options with proper fallback
-            enable_verification = getattr(self.options, 'enable_enhanced_verification', False)
+            # Get verification flag from instance options with proper fallback (default to True for better results)
+            enable_verification = getattr(self.options, 'enable_enhanced_verification', True)
             
             # Log the verification setting
             logger.info(f"[EnhancedSyncProcessor {request_id}] Using unified clustering with enable_verification={enable_verification}")

@@ -1,25 +1,36 @@
 """
 Enhanced Sync Processor with Async Verification - Refactored
-Implements Option 1: Enhanced Sync + Async Verification for all input types.
 
-This processor provides:
-1. Immediate results with local citation extraction, normalization, and clustering
-2. Background async verification using fallback verifier
-3. Support for text, files, and URLs
-4. No timeouts or blocking operations
+DEPRECATED: This module is deprecated and will be removed in v3.0.0.
+Use UnifiedCitationProcessorV2 directly instead.
 
-Refactored to use modular components for better maintainability.
+The features from this processor have been integrated into the main pipeline:
+- Progress callbacks: Use UnifiedCitationProcessorV2(progress_callback=callback)
+- False positive prevention: Integrated into main processing pipeline
+- Enhanced processing options: Use ProcessingConfig instead
+
+Provides immediate results with local processing and optional background verification.
 """
 
+import warnings
 import os
 import sys
 import time
 import logging
 import hashlib
-import tempfile
 from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 from pathlib import Path
+
+def _deprecated_warning():
+    """Issue deprecation warning for this module."""
+    warnings.warn(
+        "enhanced_sync_processor_refactored is deprecated and will be removed in v3.0.0. "
+        "Use UnifiedCitationProcessorV2 directly instead.",
+        DeprecationWarning,
+        stacklevel=3
+    )
+
 import re
 
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
@@ -45,6 +56,7 @@ class EnhancedSyncProcessor:
     
     def __init__(self, options: Optional[EnhancedProcessingOptions] = None, progress_callback: Optional[Any] = None):
         """Initialize the enhanced sync processor with configuration options."""
+        _deprecated_warning()  # Issue deprecation warning
         self.options = options or EnhancedProcessingOptions()
         self.progress_callback = progress_callback
         
@@ -185,12 +197,12 @@ class EnhancedSyncProcessor:
     def _process_basic_sync(self, text: str, request_id: str, options: Optional[Dict]) -> Dict[str, Any]:
         """Basic sync processing for simple cases."""
         try:
-            # Use core processor with basic settings
+            # Use core processor with basic settings (enable clustering for better results)
             basic_options = ProcessingOptions(
                 enable_enhanced_verification=False,
                 enable_confidence_scoring=False,
                 enable_false_positive_prevention=True,
-                enable_clustering=False
+                enable_clustering=True  # ENABLED: Basic clustering improves citation organization
             )
             
             basic_processor = SyncProcessorCore(

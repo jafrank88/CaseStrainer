@@ -6,9 +6,32 @@ This module integrates the best components from:
 2. EnhancedLegalSearchEngine's query strategies
 3. ComprehensiveWebSearchEngine's search capabilities
 
-It provides robust fallback verification for citations not found in CourtListener,
-ensuring canonical name, year, and URL are extracted from approved sites.
+The fallback verification functionality has been integrated into:
+- unified_citation_clustering.cluster_citations_unified() with enable_verification=True
+- UnifiedCitationProcessorV2 main processing pipeline
+
+Enhanced features from this module have been integrated into the main verification system:
+- Multi-source fallback verification
+- Enhanced error recovery
+- Confidence aggregation from multiple sources
+
+Provides multi-source verification with enhanced error handling and confidence scoring.
 """
+
+import warnings
+import logging
+import asyncio
+from typing import Dict, List, Optional, Any
+import time
+
+def _deprecated_warning():
+    """Issue deprecation warning for EnhancedFallbackVerifier."""
+    warnings.warn(
+        "EnhancedFallbackVerifier is deprecated and will be removed in v3.0.0. "
+        "Use unified verification system in cluster_citations_unified() instead.",
+        DeprecationWarning,
+        stacklevel=3
+    )
 
 import asyncio
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
@@ -32,6 +55,7 @@ class EnhancedFallbackVerifier:
     """
     
     def __init__(self, enable_experimental_engines=True):
+        _deprecated_warning()  # Issue deprecation warning
         self.session = requests.Session()
         self.session.headers.update({
             'User-Agent': 'CaseStrainer Citation Verifier (Educational Research)'

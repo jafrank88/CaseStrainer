@@ -293,12 +293,13 @@ class UnifiedInputProcessor:
             logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
             
             if should_process_immediately:
-                logger.info(f"[Unified Processor {request_id}] Processing immediately (short content)")
+                logger.info(f"[Unified Processor {request_id}] Processing immediately (short content) - using UnifiedCitationProcessorV2 directly")
                 try:
-                    from src.unified_sync_processor import UnifiedSyncProcessor
+                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                    import asyncio
                     
-                    processor = UnifiedSyncProcessor()
-                    result = processor.process_text_unified(input_data.get('text', ''), {})
+                    processor = UnifiedCitationProcessorV2()
+                    result = asyncio.run(processor.process_text(input_data.get('text', '')))
                     
                     logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
                     
@@ -311,7 +312,7 @@ class UnifiedInputProcessor:
                             **input_metadata,
                             'processing_mode': 'immediate',
                             'source': source_name,
-                            'processing_strategy': result.get('processing_strategy', 'unknown')
+                            'processing_strategy': 'unified_v2_direct'
                         }
                     }
                 except Exception as e:

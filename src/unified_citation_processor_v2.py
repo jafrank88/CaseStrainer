@@ -169,16 +169,19 @@ class UnifiedCitationProcessorV2:
     Unified citation processor that consolidates the best parts of all existing implementations.
     """
     
-    def __init__(self, config: Optional[ProcessingConfig] = None):
+    def __init__(self, config: Optional[ProcessingConfig] = None, progress_callback: Optional[callable] = None):
         logger.info('[DEBUG] ENTERED UnifiedCitationProcessorV2.__init__')
         self.config = config or ProcessingConfig()
+        self.progress_callback = progress_callback  # NEW: Progress callback support
         self._init_patterns()
         self._init_case_name_patterns()
         self._init_date_patterns()
         self._init_state_reporter_mapping()
         
-        self.courtlistener_api_key = get_config_value("COURTLISTENER_API_KEY")
+        # Initialize CourtListener API key
+        self.courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
         
+        # Initialize enhanced web searcher
         from src.comprehensive_websearch_engine import ComprehensiveWebSearchEngine
         self.enhanced_web_searcher = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
         logger.info("Initialized ComprehensiveWebSearchEngine for legal database lookups")
@@ -187,6 +190,16 @@ class UnifiedCitationProcessorV2:
             logger.info(f"CourtListener API key available: {bool(self.courtlistener_api_key)}")
             logger.info(f"Enhanced web searcher available: {bool(self.enhanced_web_searcher)}")
         
+        logger.info('[DEBUG] EXITED UnifiedCitationProcessorV2.__init__')
+
+    def _update_progress(self, progress: int, step: str, message: str):
+        """Update progress if callback is available."""
+        if self.progress_callback and callable(self.progress_callback):
+            try:
+                self.progress_callback(progress, step, message)
+            except Exception as e:
+                logger.warning(f"Progress callback failed: {e}")
+
     def _init_patterns(self):
         """Initialize comprehensive citation patterns with proper Bluebook spacing."""
         self.citation_patterns = {
@@ -2331,11 +2344,7 @@ class UnifiedCitationProcessorV2:
         
         for citation in citations:
             try:
-                # Verification handled by unified clustering - skip deprecated check
-                if False:  # Deprecated function removed
-                    # Verification handled by unified clustering
-                    pass
-                    if citation.verified:
+                # Verification handled by unified clustering - deprecated check removed
                         validation_result = self._validate_verification_result(citation, 'CourtListener')
                         if validation_result['valid']:
                             courtlistener_verified_count += 1
@@ -2857,6 +2866,8 @@ class UnifiedCitationProcessorV2:
             'wash2d_space',     # Washington Supreme Court 2d series (Wash. with space)
             'wash_app',         # Washington Court of Appeals (Wash.)
             'wash_app_space',   # Washington Court of Appeals (Wash. with space)
+            'westlaw',          # Westlaw citations (2006 WL 3801910)
+            'westlaw_alt',      # Alternative Westlaw format (2006 Westlaw 3801910)
         ]
         
         for pattern_name in priority_patterns:
@@ -2982,9 +2993,11 @@ class UnifiedCitationProcessorV2:
             Dict containing 'citations' (list) and 'clusters' (list)
         """
         logger.info("[UNIFIED_PIPELINE] Starting unified citation processing pipeline")
+        self._update_progress(10, "Extracting", "Extracting citations from text")
         
         citations = self._extract_citations_unified(text)
         logger.info(f"[UNIFIED_PIPELINE] Phase 1 complete: {len(citations)} citations extracted")
+        self._update_progress(30, "Enhancing", "Enhancing citation data with case names and dates")
         
         # Align with Enhanced Sync: upgrade truncated names using master extractor
         try:
@@ -3034,27 +3047,99 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[UNIFIED_PIPELINE] After bidirectional parallels: {len(citations)} citations")
         
         logger.info("[UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations")
+        self._update_progress(60, "Propagating Data", "Propagating canonical data to parallel citations")
         self.propagate_canonical_to_cluster(citations)
         logger.info(f"[UNIFIED_PIPELINE] After canonical propagation: {len(citations)} citations")
         
+        logger.info("[UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations")
+        self._update_progress(65, "Filtering", "Removing false positive citations")
+        citations = self._filter_false_positive_citations(citations, text)
+        logger.info(f"[UNIFIED_PIPELINE] After false positive filtering: {len(citations)} citations")
+        
         logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system")
+        self._update_progress(70, "Clustering", "Creating citation clusters")
         clusters = cluster_citations_unified(citations, original_text=text, enable_verification=True)
         logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using unified clustering")
         
         if self.config.enable_verification and citations:
             logger.info("[UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)")
+            self._update_progress(80, "Verifying", "Verifying citations with external sources")
             verified_citations = self._verify_citations_sync(citations, text)
             citations = verified_citations
             logger.info(f"[UNIFIED_PIPELINE] After verification: {len(citations)} citations")
         else:
             logger.info("[UNIFIED_PIPELINE] Phase 6: Skipping verification (disabled)")
         
+        self._update_progress(100, "Complete", f"Processing complete: {len(citations)} citations, {len(clusters)} clusters")
         logger.info(f"[UNIFIED_PIPELINE] Pipeline complete: {len(citations)} final citations, {len(clusters)} clusters")
         
         return {
             'citations': citations,
             'clusters': clusters
         }
+
+    def _filter_false_positive_citations(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
+        """Filter out false positive citations like standalone page numbers."""
+        valid_citations = []
+        
+        for citation in citations:
+            citation_text = citation.citation if hasattr(citation, 'citation') else str(citation)
+            
+            if self._is_standalone_page_number(citation_text, text):
+                logger.debug(f"Filtered standalone page number: {citation_text}")
+                continue
+            
+            if self._is_volume_without_reporter(citation_text):
+                logger.debug(f"Filtered volume without reporter: {citation_text}")
+                continue
+            
+            if len(citation_text.strip()) < 8:
+                logger.debug(f"Filtered too short citation: {citation_text}")
+                continue
+            
+            valid_citations.append(citation)
+        
+        logger.info(f"False positive filter: {len(citations)} → {len(valid_citations)} citations")
+        return valid_citations
+    
+    def _is_standalone_page_number(self, citation_text: str, text: str) -> bool:
+        """Check if citation is just a standalone page number."""
+        if re.match(r'^\d+$', citation_text):
+            pos = text.find(citation_text)
+            if pos != -1:
+                context_before = text[max(0, pos-50):pos]
+                context_after = text[pos+len(citation_text):min(len(text), pos+len(citation_text)+50)]
+                
+                reporter_patterns = [
+                    r'\bWn\.\d*d?\b',  # Wn.2d, Wn.3d
+                    r'\bP\.\d*d?\b',   # P.2d, P.3d
+                    r'\bU\.S\.\b',     # U.S.
+                    r'\bS\.Ct\.\b',    # S.Ct.
+                    r'\bWn\.\s*App\.\b',  # Wn. App.
+                ]
+                
+                for pattern in reporter_patterns:
+                    if (re.search(pattern, context_before) or 
+                        re.search(pattern, context_after)):
+                        return False
+                
+                return True
+        
+        return False
+    
+    def _is_volume_without_reporter(self, citation_text: str) -> bool:
+        """Check if citation is just a volume number without reporter."""
+        if re.match(r'^\d+$', citation_text):
+            return True
+        
+        if citation_text.lower() == "volume reporter page":
+            return True
+        
+        parts = citation_text.split()
+        if len(parts) == 2 and all(part.isdigit() for part in parts):
+            return True
+        
+        return False
 
     async def process_document_citations(self, document_text, document_type=None, user_context=None):
         """

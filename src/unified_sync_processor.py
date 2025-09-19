@@ -1,5 +1,18 @@
 """
 Unified Sync Processor
+
+DEPRECATED: This processor has been largely bypassed by architectural simplifications.
+Use UnifiedCitationProcessorV2 directly instead.
+
+The architectural changes have made this processor redundant:
+- Sync processing now uses UnifiedCitationProcessorV2 directly
+- URL/File processing simplified to use main text pipeline
+- All input types now follow the same processing path
+
+The features from this processor have been integrated into:
+- UnifiedCitationProcessorV2 main processing pipeline
+- unified_citation_clustering.cluster_citations_unified()
+
 Combines the best features of all three sync paths:
 - CitationService's ultra-fast processing
 - UnifiedInputProcessor's smart routing  
@@ -8,6 +21,7 @@ Combines the best features of all three sync paths:
 This eliminates redundancy and provides a single, optimized sync processing path.
 """
 
+import warnings
 import os
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
@@ -19,6 +33,15 @@ from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
+
+def _deprecated_warning():
+    """Issue deprecation warning for UnifiedSyncProcessor."""
+    warnings.warn(
+        "UnifiedSyncProcessor is deprecated due to architectural simplifications. "
+        "Use UnifiedCitationProcessorV2 directly instead.",
+        DeprecationWarning,
+        stacklevel=3
+    )
 
 @dataclass
 class ProcessingOptions:
@@ -40,6 +63,7 @@ class UnifiedSyncProcessor:
     """
     
     def __init__(self, options: Optional[ProcessingOptions] = None):
+        _deprecated_warning()  # Issue deprecation warning
         self.options = options or ProcessingOptions()
         self.cache = {}
         self.cache_ttl = 3600  # 1 hour cache TTL
@@ -280,7 +304,6 @@ class UnifiedSyncProcessor:
             # Extract citations using the full processor pipeline (includes verification)
             processor = UnifiedCitationProcessorV2()
             
-            # Use the full async processing pipeline that includes verification
             import asyncio
             try:
                 result = asyncio.run(processor.process_text(text))
@@ -411,12 +434,9 @@ class UnifiedSyncProcessor:
             if enable_verification is None:
                 enable_verification = len(text) > 500  # Lowered from 1000 to 500 for better coverage
                 
-                if any('Wn.' in str(c) for c in citations) and len(text) >= 300:
-                    logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected - ensuring proper parallel detection")
-                    enable_verification = True
-                elif any('Wn.' in str(c) for c in citations) and len(text) < 300:
-                    logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected but text too short - using fast path")
-                    enable_verification = False
+                if any('Wn.' in str(c) for c in citations):
+                    logger.info(f"[UnifiedSyncProcessor {request_id}] Washington citations detected - enabling verification for better parallel detection")
+                    enable_verification = True  # ENABLED: Always verify Washington citations regardless of text length
             
             logger.info(f"[UnifiedSyncProcessor {request_id}] Clustering with verification={'enabled' if enable_verification else 'disabled'}")
             logger.info(f"[UnifiedSyncProcessor {request_id}] Input citations: {len(citations)}")
