@@ -595,9 +595,9 @@ def fetch_url_content(url: str) -> str:
                     logger.warning(f"{method_name} extraction failed: {str(e)}")
                     continue
             
-            # If all methods fail, return empty content instead of raising exception
+            # If all methods fail, provide helpful error message
             logger.error("All PDF extraction methods failed")
-            return ""
+            raise Exception("The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format. Please try a different document or contact support if the issue persists.")
         
         elif 'html' in content_type:
             logger.info(f"Returning HTML content, length: {len(response.text)}")
@@ -615,9 +615,46 @@ def fetch_url_content(url: str) -> str:
                 logger.warning(f"Could not decode content as text: {content_type}")
                 return f"[Binary content from {url} - cannot be processed as text]"
                 
+    except requests.exceptions.Timeout:
+        logger.error(f"Timeout fetching URL {url}")
+        raise Exception(f"The URL took too long to respond. Please check if the URL is accessible and try again.")
+    
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Connection error fetching URL {url}: {str(e)}")
+        if "Name or service not known" in str(e) or "nodename nor servname provided" in str(e):
+            raise Exception(f"The URL could not be found. Please check that the URL is correct and accessible.")
+        elif "Connection refused" in str(e):
+            raise Exception(f"The server refused the connection. The URL may be temporarily unavailable.")
+        else:
+            raise Exception(f"Could not connect to the URL. Please check your internet connection and try again.")
+    
+    except requests.exceptions.HTTPError as e:
+        status_code = e.response.status_code if e.response else None
+        logger.error(f"HTTP error fetching URL {url}: {status_code} - {str(e)}")
+        
+        if status_code == 404:
+            raise Exception(f"The document was not found at this URL (404 error). Please check that the URL is correct.")
+        elif status_code == 403:
+            raise Exception(f"Access to this document is forbidden (403 error). The document may require special permissions.")
+        elif status_code == 500:
+            raise Exception(f"The server encountered an error (500 error). Please try again later.")
+        elif status_code and 400 <= status_code < 500:
+            raise Exception(f"There was a problem with the request ({status_code} error). Please check the URL and try again.")
+        elif status_code and status_code >= 500:
+            raise Exception(f"The server is experiencing problems ({status_code} error). Please try again later.")
+        else:
+            raise Exception(f"The URL returned an error ({status_code}). Please check the URL and try again.")
+    
     except requests.exceptions.RequestException as e:
         logger.error(f"Error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
-        raise Exception(f"Failed to fetch URL: {str(e)}")
+        raise Exception(f"Failed to fetch the URL: {str(e)}. Please check that the URL is accessible and try again.")
+    
+    except Exception as e:
+        logger.error(f"Unexpected error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
+        if "PDF extraction" in str(e):
+            raise Exception(f"The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format.")
+        else:
+            raise Exception(f"An unexpected error occurred while processing the URL: {str(e)}")
 
 def _extract_with_pypdf2(pdf_content: bytes) -> str:
     """Extract text using PyPDF2."""
@@ -679,16 +716,22 @@ def _extract_with_pdfplumber(pdf_content: bytes) -> str:
     except ImportError:
         raise Exception("pdfplumber not available")
 
-def create_progress_routes(app: Flask, progress_manager: SSEProgressManager, 
+def create_progress_routes_DISABLED(app: Flask, progress_manager: SSEProgressManager, 
                           citation_processor: ChunkedCitationProcessor):
-    """Create Flask routes for progress-enabled citation processing"""
+    """DISABLED: Create Flask routes for progress-enabled citation processing
+    
+    This function has been disabled to prevent route conflicts with vue_api_endpoints.py
+    The Vue API endpoints provide the same functionality with better integration.
+    """
+    # All routes in this function have been disabled to prevent conflicts
+    return  # Early return to skip all route registration
     
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
     # DISABLED: Duplicate route conflicts with vue_api_endpoints.py
-    @app.route('/casestrainer/api/analyze', methods=['POST'])
-    async def start_citation_analysis():
+    # @app.route('/casestrainer/api/analyze', methods=['POST'])
+    def start_citation_analysis_DISABLED():
         """Start citation analysis and return task ID
         
         Supports multiple input types:
@@ -1695,7 +1738,7 @@ def setup_progress_enabled_app():
     
     citation_processor = ChunkedCitationProcessor(progress_manager)
     
-    create_progress_routes(app, progress_manager, citation_processor)
+    # create_progress_routes_DISABLED(app, progress_manager, citation_processor)  # DISABLED to prevent route conflicts
     
     return app
 

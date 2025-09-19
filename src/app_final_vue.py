@@ -587,18 +587,20 @@ class ApplicationFactory:
                     'traceback': traceback.format_exc()
                 }), 500
         
-        try:
-            from src.progress_manager import create_progress_routes, SSEProgressManager, ChunkedCitationProcessor
-            self.logger.info("Importing progress manager components...")
-            
-            progress_manager = SSEProgressManager()
-            citation_processor = ChunkedCitationProcessor(progress_manager)
-            
-            create_progress_routes(app, progress_manager, citation_processor)
-            self.logger.info("✅ Progress manager routes registered successfully")
-            
-        except Exception as e:
-            self.logger.error(f"❌ Failed to register progress manager routes: {e}", exc_info=True)
+        # DISABLED: Progress manager routes conflict with vue_api_endpoints.py
+        # The Vue API endpoints provide the same functionality with better integration
+        # try:
+        #     from src.progress_manager import create_progress_routes, SSEProgressManager, ChunkedCitationProcessor
+        #     self.logger.info("Importing progress manager components...")
+        #     
+        #     progress_manager = SSEProgressManager()
+        #     citation_processor = ChunkedCitationProcessor(progress_manager)
+        #     
+        #     create_progress_routes(app, progress_manager, citation_processor)
+        #     self.logger.info("✅ Progress manager routes registered successfully")
+        #     
+        # except Exception as e:
+        #     self.logger.error(f"❌ Failed to register progress manager routes: {e}", exc_info=True)
         
         @app.route('/casestrainer/api/memory')
         def memory_status():

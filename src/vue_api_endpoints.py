@@ -162,7 +162,12 @@ def analyze_text():
                     logger.info(f"[Request {request_id}] Starting analysis of PDF file: {file.filename} ({len(input_data)} chars)")
                 except Exception as e:
                     logger.error(f"Error reading PDF: {str(e)}")
-                    return jsonify({'error': 'Error reading PDF file'}), 400
+                    if "password" in str(e).lower():
+                        return jsonify({'error': 'This PDF appears to be password-protected. Please provide an unprotected PDF file.'}), 400
+                    elif "corrupt" in str(e).lower() or "invalid" in str(e).lower():
+                        return jsonify({'error': 'The PDF file appears to be corrupted or invalid. Please try a different file.'}), 400
+                    else:
+                        return jsonify({'error': f'Could not process the PDF file: {str(e)}. Please ensure it is a valid PDF document.'}), 400
             else:
                 try:
                     input_data = file.read().decode('utf-8')
@@ -174,6 +179,14 @@ def analyze_text():
             # Extract text from URL first, then process as text
             url = data['url']
             logger.info(f"[Request {request_id}] Extracting content from URL: {url}")
+            
+            # Basic URL validation
+            if not url or not isinstance(url, str) or not url.strip():
+                return jsonify({'error': 'Please provide a valid URL.'}), 400
+            
+            if not url.startswith(('http://', 'https://')):
+                return jsonify({'error': 'Please provide a complete URL starting with http:// or https://'}), 400
+            
             try:
                 from src.progress_manager import fetch_url_content
                 input_data = fetch_url_content(url)
@@ -181,7 +194,7 @@ def analyze_text():
                 logger.info(f"[Request {request_id}] Extracted {len(input_data)} characters from URL, processing as text")
             except Exception as e:
                 logger.error(f"[Request {request_id}] URL extraction failed: {e}")
-                return jsonify({'error': f'Failed to extract content from URL: {str(e)}'}), 400
+                return jsonify({'error': f'{str(e)}'}), 400
         else:
             input_data = data['text']
             input_type = 'text'
@@ -254,14 +267,39 @@ def analyze_text():
                     request_id=request_id
                 )
                 
-                # For async, return task information with progress endpoint
-                if 'task_id' in result or 'request_id' in result:
-                    task_id = result.get('task_id') or result.get('request_id')
+                # Check if we got a sync fallback result or actual async task
+                processing_mode = result.get('metadata', {}).get('processing_mode', '')
+                
+                if 'task_id' in result:
+                    # True async processing
+                    task_id = result.get('task_id')
                     progress_tracker.complete_step(0, 'Queued for background processing')
                     
                     result['progress_data'] = progress_tracker.get_progress_data()
                     result['progress_endpoint'] = f'/casestrainer/api/progress/{task_id}'
                     result['progress_stream'] = f'/casestrainer/api/progress-stream/{task_id}'
+                    
+                elif processing_mode == 'sync_fallback':
+                    # Sync fallback - treat like immediate processing
+                    logger.info(f"[Request {request_id}] Sync fallback completed, treating as immediate processing")
+                    
+                    if result.get('success'):
+                        progress_tracker.complete_step(0, 'Initialization complete')
+                        progress_tracker.complete_step(1, 'Citation extraction completed (sync fallback)')
+                        progress_tracker.complete_step(2, 'Analysis completed')
+                        progress_tracker.complete_step(3, 'Name extraction completed')
+                        progress_tracker.complete_step(4, 'Clustering completed')
+                        progress_tracker.complete_step(5, 'Verification completed')
+                        progress_tracker.complete_all('Sync fallback processing completed successfully')
+                    else:
+                        progress_tracker.fail_step(1, 'Sync fallback processing failed')
+                    
+                    result['progress_data'] = progress_tracker.get_progress_data()
+                    
+                else:
+                    # Failed to queue and no fallback
+                    progress_tracker.fail_step(0, 'Failed to queue for processing')
+                    result['progress_data'] = progress_tracker.get_progress_data()
             
             process_time = time.time() - start_time
             
@@ -298,11 +336,17 @@ def analyze_text():
             else:
                 document_length = len(input_data)  # Text length
             
+            # Flatten the result structure to avoid nested result.result
             restructured_result = {
-                'result': result,
+                'citations': result.get('citations', []),
+                'clusters': result.get('clusters', []),
+                'success': result.get('success', True),
+                'message': result.get('message', 'Analysis completed'),
+                'metadata': result.get('metadata', {}),
                 'request_id': request_id,
                 'processing_time_ms': int(process_time * 1000),
-                'document_length': document_length
+                'document_length': document_length,
+                'progress_data': result.get('progress_data', {})
             }
             
             logger.info(f"[Request {request_id}] Request completed successfully in {0}ms")
@@ -367,11 +411,32 @@ def get_task_status(task_id):
         if job.is_finished:
             result = job.result
             logger.info(f"[Request {task_id}] Task completed successfully")
-            return jsonify({
-                'task_id': task_id,
-                'status': 'completed',
-                'result': result
-            })
+            
+            # Flatten the result structure to match the sync response format
+            if result and isinstance(result, dict):
+                flattened_result = {
+                    'task_id': task_id,
+                    'status': 'completed',
+                    'citations': result.get('citations', []),
+                    'clusters': result.get('clusters', []),
+                    'success': result.get('success', True),
+                    'message': result.get('message', 'Task completed successfully'),
+                    'metadata': result.get('metadata', {}),
+                    'processing_time_ms': result.get('processing_time_ms', 0),
+                    'document_length': result.get('document_length', 0)
+                }
+                logger.info(f"[Request {task_id}] Returning flattened result with {len(flattened_result.get('citations', []))} citations")
+                return jsonify(flattened_result)
+            else:
+                return jsonify({
+                    'task_id': task_id,
+                    'status': 'completed',
+                    'citations': [],
+                    'clusters': [],
+                    'success': False,
+                    'message': 'Task completed but no valid result found',
+                    'metadata': {}
+                })
         elif job.is_failed:
             logger.error(f"[Request {task_id}] Task failed: {job.exc_info}")
             return jsonify({

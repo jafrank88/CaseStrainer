@@ -1158,23 +1158,31 @@ const analyzeContent = async () => {
       console.log('🔄 Async task started with task_id:', response.task_id);
       
       // Extract and use progress data from backend response for async tasks
-      if (response.result && response.result.progress_data) {
-        const progressData = response.result.progress_data;
+      if (response.progress_data) {
+        const progressData = response.progress_data;
         console.log('📊 Backend progress data for async task:', progressData);
+        
+        // Reset and reinitialize progress for async task with backend data
+        globalProgress.resetProgress();
+        
+        // Initialize progress state with backend data
+        globalProgress.progressState.isActive = true;
+        globalProgress.progressState.taskId = response.task_id;
+        globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now();
+        globalProgress.progressState.estimatedTotalTime = 300; // 5 minutes for async tasks
+        globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
+        globalProgress.progressState.currentStep = progressData.current_message || 'Initializing...';
+        globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
         
         // Update global progress with real backend data for async tasks
         if (progressData.steps && progressData.steps.length > 0) {
-          // Use real progress data from backend instead of time-based estimation
-          globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
-          globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
-          
           // Set up processing steps from backend with real progress
           const backendSteps = progressData.steps.map(step => ({
             step: step.name,
             progress: step.progress || 0,
             status: step.status,
             message: step.message,
-            estimated_time: 1, // Not used since we have real progress
+            estimated_time: 50, // 50 seconds per step for async
             startTime: step.start_time,
             endTime: step.end_time,
             completed: step.status === 'completed'
@@ -1182,26 +1190,13 @@ const analyzeContent = async () => {
           
           globalProgress.setSteps(backendSteps);
           
-          // Override the time-based progress calculation with real data
-          globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
-          globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
-          
-          console.log('✅ Updated async progress with real backend data:', {
+          console.log('✅ Initialized async progress with backend data:', {
             totalProgress: progressData.overall_progress,
             currentStep: progressData.current_message,
             elapsedTime: progressData.elapsed_time,
+            startTime: globalProgress.progressState.startTime,
+            isActive: globalProgress.progressState.isActive,
             steps: backendSteps.length
-          });
-          
-          // Update progress for each completed step
-          progressData.steps.forEach(step => {
-            if (step.status === 'completed') {
-              globalProgress.updateProgress({ 
-                step: step.name, 
-                progress: step.progress || 100,
-                total_progress: step.progress || 100 
-              });
-            }
           });
         }
       }
@@ -1214,12 +1209,14 @@ const analyzeContent = async () => {
         message: response.message || 'Task queued and waiting to be processed'
       };
       
-      // Update progress to show queued status
-      globalProgress.updateProgress({ 
-        step: 'Task queued...', 
-        progress: 20,
-        total_progress: 20 
-      });
+      // Only update progress if we don't have backend progress data
+      if (!response.progress_data) {
+        globalProgress.updateProgress({ 
+          step: 'Task queued...', 
+          progress: 20,
+          total_progress: 20 
+        });
+      }
       
       // Start polling for task status
       pollingService.startPolling(
@@ -1258,32 +1255,44 @@ const analyzeContent = async () => {
         (result) => {
           console.log('✅ Task completed:', result);
           
-          // Format the result data for CitationResults component
-          if (result.result) {
-            const mappedClusters = (result.result.clusters || []).map(cluster => ({
+          // The async task result should now have the same flat structure as sync results
+          const citations = result.citations || [];
+          const clusters = result.clusters || [];
+          
+          console.log('Async task result structure:', {
+            hasCitations: !!result.citations,
+            citationsCount: citations.length,
+            hasClusters: !!result.clusters,
+            clustersCount: clusters.length,
+            hasNestedResult: !!result.result,
+            resultKeys: Object.keys(result)
+          });
+          
+          if (citations.length > 0 || clusters.length > 0) {
+            const mappedClusters = clusters.map(cluster => ({
               ...cluster,
               citations: cluster.citation_objects || cluster.citations || []
             }));
             
             analysisResults.value = {
               result: {
-                citations: result.result.citations || [],
-                clusters: result.result.clusters || []
+                citations: citations,
+                clusters: clusters
               },
               clusters: mappedClusters,
-              citations: result.result.citations || [],
+              citations: citations,
               message: result.message || 'Analysis completed successfully',
               metadata: result.metadata || {},
               success: true,
-              total_citations: result.result.citations?.length || 0
+              total_citations: citations.length
             };
           } else {
             analysisResults.value = {
               clusters: [],
               citations: [],
-              message: 'Analysis completed but no results found',
-              metadata: {},
-              success: false,
+              message: 'Analysis completed but no citations found',
+              metadata: result.metadata || {},
+              success: result.success !== false,
               total_citations: 0
             };
           }
@@ -1317,13 +1326,16 @@ const analyzeContent = async () => {
       console.log('Response received but no task_id or immediate results - storing for display');
       
       try {
-        // Handle different response structures
-        let resultData = response.result || response;
+        // Response should now have a flat structure with citations and clusters at the top level
+        let resultData = response;
         
-        // If we have a direct response with citations/clusters
-        if ((response.citations || response.clusters) && !resultData) {
-          resultData = response;
-        }
+        console.log('Response structure analysis:', {
+          hasDirectCitations: !!response.citations,
+          hasDirectClusters: !!response.clusters,
+          citationsCount: response.citations?.length || 0,
+          clustersCount: response.clusters?.length || 0,
+          success: response.success
+        });
         
         // Map citation_objects to citations for component compatibility
         const mappedClusters = (resultData.clusters || []).map(cluster => ({

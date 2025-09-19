@@ -185,10 +185,23 @@ export default {
     };
 
     const isProgressValid = computed(() => {
-      return progressState.startTime && 
-             progressState.estimatedTotalTime > 0 && 
-             !isNaN(progressPercent.value) && 
-             progressPercent.value >= 0;
+      const hasValidStartTime = progressState.startTime && typeof progressState.startTime === 'number';
+      const hasValidEstimatedTime = progressState.estimatedTotalTime && progressState.estimatedTotalTime > 0;
+      const hasValidProgress = !isNaN(progressPercent.value) && progressPercent.value >= 0;
+      const isActiveState = progressState.isActive;
+      
+      const isValid = hasValidStartTime && hasValidEstimatedTime && hasValidProgress && isActiveState;
+      
+      console.log('isProgressValid check:', {
+        hasValidStartTime,
+        hasValidEstimatedTime,
+        hasValidProgress,
+        isActiveState,
+        progressPercentValue: progressPercent.value,
+        result: isValid
+      });
+      
+      return isValid;
     });
 
     const handleRetry = () => {

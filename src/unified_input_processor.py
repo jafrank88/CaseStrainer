@@ -303,9 +303,21 @@ class UnifiedInputProcessor:
                     
                     logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
                     
+                    # Convert CitationResult objects to dictionaries for API response
+                    citations = result.get('citations', [])
+                    converted_citations = []
+                    for citation in citations:
+                        if hasattr(citation, '__dict__'):
+                            # Convert CitationResult object to dictionary
+                            citation_dict = citation.__dict__.copy()
+                            converted_citations.append(citation_dict)
+                        else:
+                            # Already a dictionary
+                            converted_citations.append(citation)
+                    
                     return {
                         'success': True,
-                        'citations': result.get('citations', []),
+                        'citations': converted_citations,
                         'clusters': result.get('clusters', []),
                         'request_id': request_id,
                         'metadata': {
@@ -357,6 +369,57 @@ class UnifiedInputProcessor:
                     }
                 except Exception as e:
                     logger.error(f"[Unified Processor {request_id}] Error enqueueing async task: {str(e)}", exc_info=True)
+                    
+                    # Fallback to sync processing when Redis is unavailable
+                    redis_error_indicators = [
+                        "loading the dataset in memory",
+                        "connection",
+                        "getaddrinfo failed",
+                        "redis",
+                        "timeout",
+                        "refused"
+                    ]
+                    should_fallback = any(indicator in str(e).lower() for indicator in redis_error_indicators)
+                    
+                    if should_fallback:
+                        logger.warning(f"[Unified Processor {request_id}] Redis unavailable, falling back to sync processing for large document")
+                        
+                        try:
+                            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                            import asyncio
+                            
+                            processor = UnifiedCitationProcessorV2()
+                            result = asyncio.run(processor.process_text(text))
+                            
+                            logger.info(f"[Unified Processor {request_id}] Sync fallback processing completed successfully")
+                            
+                            # Convert CitationResult objects to dictionaries for API response
+                            citations = result.get('citations', [])
+                            converted_citations = []
+                            for citation in citations:
+                                if hasattr(citation, '__dict__'):
+                                    # Convert CitationResult object to dictionary
+                                    citation_dict = citation.__dict__.copy()
+                                    converted_citations.append(citation_dict)
+                                else:
+                                    # Already a dictionary
+                                    converted_citations.append(citation)
+                            
+                            return {
+                                'success': True,
+                                'citations': converted_citations,
+                                'clusters': result.get('clusters', []),
+                                'request_id': request_id,
+                                'metadata': {
+                                    **input_metadata,
+                                    'processing_mode': 'sync_fallback',
+                                    'source': source_name,
+                                    'fallback_reason': 'redis_unavailable'
+                                }
+                            }
+                        except Exception as fallback_error:
+                            logger.error(f"[Unified Processor {request_id}] Sync fallback also failed: {str(fallback_error)}", exc_info=True)
+                    
                     return {
                         'success': False,
                         'error': f'Failed to enqueue processing task: {str(e)}',
