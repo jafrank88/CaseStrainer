@@ -396,9 +396,9 @@ def analyze():
                 processor_options = ProcessingOptions(
                     enable_local_processing=True,
                     enable_async_verification=True,
-                    enhanced_sync_threshold=15 * 1024,  # 15KB for enhanced sync
-                    ultra_fast_threshold=500,
-                    clustering_threshold=300,
+                    enhanced_sync_threshold=5 * 1024,  # Must match CitationService.SYNC_THRESHOLD
+                    ultra_fast_threshold=500,  # Must match CitationService.ULTRA_FAST_THRESHOLD
+                    clustering_threshold=300,  # Must match CitationService.CLUSTERING_THRESHOLD
                     enable_enhanced_verification=True,
                     enable_cross_validation=True,
                     enable_false_positive_prevention=True,

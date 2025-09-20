@@ -50,9 +50,9 @@ class ProcessingOptions:
     enable_clustering: bool = True
     enable_caching: bool = True
     force_ultra_fast: bool = False
-    skip_clustering_threshold: int = 300
-    ultra_fast_threshold: int = 500
-    sync_threshold: int = 5 * 1024  # 5KB - reasonable for sync processing
+    skip_clustering_threshold: int = 300  # Must match CitationService.CLUSTERING_THRESHOLD
+    ultra_fast_threshold: int = 500  # Must match CitationService.ULTRA_FAST_THRESHOLD
+    sync_threshold: int = 5 * 1024  # Must match CitationService.SYNC_THRESHOLD
     max_citations_for_skip_clustering: int = 3
 
 class UnifiedSyncProcessor:

@@ -64,9 +64,9 @@ class ProcessingOptions:
     enable_local_processing: bool = True
     enable_async_verification: bool = True
     
-    enhanced_sync_threshold: int = 80 * 1024  # 80KB for enhanced sync to handle PDF content
-    ultra_fast_threshold: int = 500  # 500 chars for ultra-fast
-    clustering_threshold: int = 300  # 300 chars for clustering
+    enhanced_sync_threshold: int = 5 * 1024  # Must match CitationService.SYNC_THRESHOLD for consistency
+    ultra_fast_threshold: int = 500  # Must match CitationService.ULTRA_FAST_THRESHOLD
+    clustering_threshold: int = 300  # Must match CitationService.CLUSTERING_THRESHOLD
     max_citations_for_local_clustering: int = 10
     
     enable_enhanced_verification: bool = True
