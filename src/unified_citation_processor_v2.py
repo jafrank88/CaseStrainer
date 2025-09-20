@@ -2332,76 +2332,26 @@ class UnifiedCitationProcessorV2:
         
         return validation_result
 
-    def _verify_with_courtlistener(self, citation) -> dict:
-        """Verify a single citation with CourtListener API v4"""
-        import requests
-        import time
-        
-        if not self.courtlistener_api_key:
-            return {'verified': False, 'error': 'No API key'}
-        
+    def _verify_with_courtlistener(self, citations) -> dict:
+        """Verify citations using existing CourtListener verification services"""
         try:
-            # Rate limiting - be nice to the API
-            time.sleep(0.5)
+            # Use the existing verification services
+            from verification_services import CourtListenerService
             
-            # Use the v4 opinions endpoint
-            url = "https://www.courtlistener.com/api/rest/v4/opinions/"
-            params = {
-                'citation': citation.citation,
-                'format': 'json'
-            }
-            headers = {
-                'Authorization': f'Token {self.courtlistener_api_key}',
-                'User-Agent': 'CaseStrainer/1.0 (Legal Citation Verification)'
-            }
+            service = CourtListenerService()
+            citation_strings = [c.citation for c in citations if hasattr(c, 'citation')]
             
-            response = requests.get(url, params=params, headers=headers, timeout=10)
+            if not citation_strings:
+                return {}
             
-            if response.status_code == 200:
-                data = response.json()
-                if isinstance(data, dict) and data.get('results') and len(data['results']) > 0:
-                    result = data['results'][0]
-                    
-                    # Get cluster URL and fetch detailed information
-                    cluster_url = result.get('cluster')
-                    if cluster_url and isinstance(cluster_url, str):
-                        try:
-                            # Fetch cluster details
-                            cluster_response = requests.get(cluster_url, headers=headers, timeout=10)
-                            if cluster_response.status_code == 200:
-                                cluster_data = cluster_response.json()
-                                case_name = cluster_data.get('case_name', 'Unknown')
-                                date_filed = cluster_data.get('date_filed', 'Unknown')
-                                court_info = cluster_data.get('court', 'Unknown')
-                                
-                                return {
-                                    'verified': True,
-                                    'case_name': case_name,
-                                    'date_filed': date_filed,
-                                    'court': court_info,
-                                    'canonical_url': cluster_url,
-                                    'source': 'CourtListener'
-                                }
-                        except Exception as e:
-                            logger.warning(f"Could not fetch cluster details for {citation.citation}: {e}")
-                    
-                    # Fallback if cluster fetch fails
-                    return {
-                        'verified': True,
-                        'case_name': 'Unknown',
-                        'date_filed': 'Unknown',
-                        'court': 'Unknown',
-                        'canonical_url': cluster_url,
-                        'source': 'CourtListener'
-                    }
-                else:
-                    return {'verified': False, 'error': 'No results found'}
-            else:
-                return {'verified': False, 'error': f'HTTP {response.status_code}'}
-                
+            # Use the existing batch verification method
+            results = service.verify_citations_batch(citation_strings)
+            
+            return results
+            
         except Exception as e:
-            logger.warning(f"CourtListener API error for {citation.citation}: {e}")
-            return {'verified': False, 'error': str(e)}
+            logger.warning(f"Error using existing CourtListener verification service: {e}")
+            return {}
 
     def _verify_citations_sync(self, citations: List['CitationResult'], text: Optional[str] = None) -> List['CitationResult']:
         """Verify citations using CourtListener and fallback sources with enhanced validation."""
@@ -2413,22 +2363,26 @@ class UnifiedCitationProcessorV2:
         courtlistener_verified_count = 0
         courtlistener_errors = []
         
-        for citation in citations:
-            try:
-                # Call CourtListener API to verify citation
-                if self.courtlistener_api_key:
-                    verification_result = self._verify_with_courtlistener(citation)
-                    if verification_result and verification_result.get('verified'):
+        # Use existing batch verification service
+        try:
+            if self.courtlistener_api_key:
+                logger.info("[VERIFICATION] Using existing CourtListener batch verification service")
+                batch_results = self._verify_with_courtlistener(citations)
+                
+                for citation in citations:
+                    citation_result = batch_results.get(citation.citation, {})
+                    
+                    if citation_result.get('verified', False):
                         citation.verified = True
-                        citation.canonical_name = verification_result.get('case_name')
-                        citation.canonical_date = verification_result.get('date_filed')
-                        citation.canonical_url = verification_result.get('canonical_url')
+                        citation.canonical_name = citation_result.get('case_name')
+                        citation.canonical_date = citation_result.get('date_filed')
+                        citation.canonical_url = citation_result.get('canonical_url')
                         
                         # Update metadata
                         if not hasattr(citation, 'metadata') or citation.metadata is None:
                             citation.metadata = {}
                         citation.metadata.update({
-                            'verification_method': 'courtlistener_api',
+                            'verification_method': 'courtlistener_batch_api',
                             'verification_source': 'CourtListener',
                             'canonical_data_available': True
                         })
@@ -2445,17 +2399,14 @@ class UnifiedCitationProcessorV2:
                     else:
                         citation.verified = False
                         logger.info(f"[VERIFICATION] NOT FOUND: CourtListener could not verify: {citation.citation}")
-                else:
-                    logger.warning("[VERIFICATION] CourtListener API key not available, skipping verification")
-            except Exception as e:
-                error_context = {
-                    'citation': citation.citation,
-                    'extracted_name': getattr(citation, 'extracted_case_name', 'N/A'),
-                    'error': str(e),
-                    'step': 'CourtListener API'
-                }
-                courtlistener_errors.append(error_context)
-                logger.warning(f"[VERIFICATION] CourtListener verification failed for {citation.citation}: {str(e)}")
+            else:
+                logger.warning("[VERIFICATION] CourtListener API key not available, skipping verification")
+                
+        except Exception as e:
+            logger.error(f"[VERIFICATION] Error in batch verification: {str(e)}")
+            # Fallback to marking all as unverified
+            for citation in citations:
+                citation.verified = False
         
         if courtlistener_errors:
             logger.info(f"[VERIFICATION] CourtListener errors: {len(courtlistener_errors)} citations failed")
