@@ -560,7 +560,12 @@ class UnifiedCitationClusterer:
                 extracted_name = getattr(sample_citation, 'extracted_case_name', 'N/A')
                 extracted_year = getattr(sample_citation, 'extracted_date', 'N/A')
                 
-                if extracted_name and extracted_year and extracted_name != 'N/A' and extracted_year != 'N/A':
+                # Special case: WL citations should never be merged based on metadata
+                # Each WL citation is a distinct case regardless of extracted metadata
+                sample_reporter = self._extract_reporter_type(sample_citation.citation)
+                if sample_reporter == 'wl':
+                    metadata_cluster_key = f"wl_{sample_citation.citation.replace(' ', '_')}"
+                elif extracted_name and extracted_year and extracted_name != 'N/A' and extracted_year != 'N/A':
                     normalized_name = self._normalize_case_name_for_clustering(extracted_name)
                     metadata_cluster_key = f"{normalized_name}_{extracted_year}"
                 else:
