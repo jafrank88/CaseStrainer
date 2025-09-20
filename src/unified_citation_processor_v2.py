@@ -2439,58 +2439,36 @@ class UnifiedCitationProcessorV2:
                         extracted_date = citation.extracted_date
                         
                         logger.info(f"[VERIFICATION] Attempting fallback verification: {citation_text}")
-                        if True:
-
-                            pass  # Empty block
-
                         
-                            pass  # Empty block
-
+                        # Use enhanced fallback verification
+                        result = verifier.verify_citation_sync(citation_text, extracted_case_name, extracted_date)
                         
-                        result = verifier.verify_citation_sync(
-                            citation_text, 
-                            extracted_case_name, 
-                            extracted_date
-                        )
-                        
-                        if result['verified']:
+                        if result and result.get('verified', False):
                             citation.verified = True
-                            citation.canonical_name = result['canonical_name']
-                            citation.canonical_date = result['canonical_date']
-                            citation.url = result['url']
-                            citation.source = result['source']  # Use actual website source (e.g., 'Cornell Law', 'Justia')
-                            citation.confidence = result['confidence']
+                            citation.canonical_name = result.get('canonical_name') or result.get('case_name')
+                            citation.canonical_date = result.get('canonical_date') or result.get('date_filed')
+                            citation.canonical_url = result.get('canonical_url') or result.get('url')
                             
-                            validation_result = self._validate_verification_result(citation, f"Fallback-{result['source']}")
+                            # Update metadata
+                            if not hasattr(citation, 'metadata') or citation.metadata is None:
+                                citation.metadata = {}
+                            citation.metadata.update({
+                                'verification_method': 'enhanced_fallback',
+                                'verification_source': result.get('source', 'Fallback'),
+                                'canonical_data_available': True
+                            })
                             
+                            validation_result = self._validate_verification_result(citation, result.get('source', 'Fallback'))
                             if validation_result['valid']:
-                                if not hasattr(citation, 'metadata') or citation.metadata is None:
-                                    citation.metadata = {}
-                                citation.metadata.update({
-                                    'verification_method': 'fallback',
-                                    'fallback_source': result['source'],
-                                    'verification_details': result.get('verification_details', {}),
-                                    'validation_passed': True
-                                })
-                                
                                 fallback_verified_count += 1
-                                logger.info(f"[VERIFICATION] SUCCESS: Fallback verified: {citation_text} -> {citation.canonical_name} (via {result['source']})")
+                                logger.info(f"[VERIFICATION] SUCCESS: Fallback verified: {citation.citation} -> {citation.canonical_name}")
                             else:
                                 citation.verified = False
                                 citation.canonical_name = None
                                 citation.canonical_date = None
-                                citation.url = None
-                                
-                                validation_failure = {
-                                    'citation': citation_text,
-                                    'source': result['source'],
-                                    'reason': validation_result['reason'],
-                                    'attempted_canonical': result['canonical_name']
-                                }
-                                fallback_validation_failures.append(validation_failure)
-                                logger.warning(f"[VERIFICATION] FAILED: Fallback validation failed: {citation_text} - {validation_result['reason']}")
+                                logger.warning(f"[VERIFICATION] FAILED: Fallback verification failed validation: {citation.citation} - {validation_result['reason']}")
                         else:
-                            failure_reason = result.get('error', 'Unknown error')
+                            logger.info(f"[VERIFICATION] NOT FOUND: Fallback could not verify: {citation.citation}")
                             
                     except Exception as e:
                         error_context = {
