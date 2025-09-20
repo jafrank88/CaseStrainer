@@ -19,6 +19,11 @@ logger = logging.getLogger(__name__)
 class CitationService:
     """Service for processing citations with Redis-distributed processing."""
     
+    # Unified processing thresholds - standardized across all processors
+    SYNC_THRESHOLD = 5 * 1024  # 5KB - reasonable for sync processing
+    ULTRA_FAST_THRESHOLD = 500  # 500 bytes - ultra fast processing
+    CLUSTERING_THRESHOLD = 300  # 300 bytes - skip clustering for very short text
+    
     def __init__(self):
         self.processor = DockerOptimizedProcessor()
         self.cache_ttl = 3600  # 1 hour cache
@@ -26,21 +31,129 @@ class CitationService:
         self._last_cache_cleanup = time.time()
         self._cache_cleanup_interval = 300  # Clean cache every 5 minutes
     
-    def should_process_immediately(self, input_data: Dict) -> bool:
-        """Determine if input should be processed immediately vs queued."""
+    def determine_processing_mode(self, text: str) -> str:
+        """
+        Unified function to determine processing mode based on text content size.
+        
+        Args:
+            text: The actual text content to be processed
+            
+        Returns:
+            'sync' or 'async' based on content size
+        """
+        text_size = len(text)
+        
+        if text_size < self.SYNC_THRESHOLD:
+            logger.info(f"Text size {text_size} bytes < {self.SYNC_THRESHOLD} bytes - using SYNC processing")
+            return 'sync'
+        else:
+            logger.info(f"Text size {text_size} bytes >= {self.SYNC_THRESHOLD} bytes - using ASYNC processing")
+            return 'async'
+    
+    def extract_text_from_input(self, input_data: Dict) -> Optional[str]:
+        """
+        Extract text content from various input types.
+        
+        Args:
+            input_data: Input data with type and content
+            
+        Returns:
+            Extracted text content or None if extraction fails
+        """
         input_type = input_data.get('type')
         
         if input_type == 'text':
-            text = input_data.get('text', '')
-            return len(text) < 2 * 1024  # Changed from 10KB to 2KB
-        elif input_type == 'file':
-            # which can take a long time and should never be done synchronously
-            return False
+            return input_data.get('text', '')
         elif input_type == 'url':
-            # URLs should use async processing for large documents
+            url = input_data.get('url', '')
+            if not url:
+                return None
+            return self._fetch_url_content(url)
+        elif input_type == 'file':
+            # Files should still be handled async due to extraction complexity
+            # But we can add basic file text extraction here if needed
+            return None
+        
+        return None
+    
+    def _fetch_url_content(self, url: str) -> Optional[str]:
+        """
+        Fetch URL content with timeout and size limits.
+        
+        Args:
+            url: URL to fetch
+            
+        Returns:
+            Content string or None if fetch fails
+        """
+        try:
+            import requests
+            from requests.adapters import HTTPAdapter
+            from urllib3.util.retry import Retry
+            
+            session = requests.Session()
+            
+            # Retry strategy for reliability
+            retry_strategy = Retry(
+                total=2,
+                backoff_factor=0.1,
+                status_forcelist=[429, 500, 502, 503, 504],
+            )
+            adapter = HTTPAdapter(max_retries=retry_strategy)
+            session.mount("http://", adapter)
+            session.mount("https://", adapter)
+            
+            # Fetch with timeout and size limit
+            response = session.get(
+                url,
+                timeout=10,  # Reasonable timeout for content fetch
+                headers={
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+                },
+                stream=True
+            )
+            
+            # Check content length header first
+            content_length = response.headers.get('content-length')
+            if content_length and int(content_length) > 100 * 1024:  # 100KB limit
+                logger.info(f"URL content too large: {content_length} bytes")
+                return None
+            
+            # Download content with size limit
+            content = ""
+            downloaded = 0
+            max_size = 100 * 1024  # 100KB max
+            
+            for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
+                if chunk:
+                    content += chunk
+                    downloaded += len(chunk.encode('utf-8'))
+                    if downloaded > max_size:
+                        logger.info(f"URL content exceeded size limit: {downloaded} bytes")
+                        return None
+            
+            return content
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch URL content: {e}")
+            return None
+    
+    def should_process_immediately(self, input_data: Dict) -> bool:
+        """
+        DEPRECATED: Use extract_text_from_input() + determine_processing_mode() instead.
+        
+        This method is kept for backward compatibility but should be replaced
+        with the new unified approach.
+        """
+        # Extract text first, then determine processing mode
+        text = self.extract_text_from_input(input_data)
+        if text is None:
+            # If text extraction fails, default to async for better error handling
             return False
         
-        return False
+        # Use unified routing decision
+        processing_mode = self.determine_processing_mode(text)
+        return processing_mode == 'sync'
     
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
         """Process input immediately using the enhanced sync processor."""
@@ -58,13 +171,13 @@ class CitationService:
             else:
                 logger.warning("[CitationService] CourtListener API key not found in environment")
             
-            # Configure processor with defaults from config
+            # Configure processor with unified thresholds
             processor_options = ProcessingOptions(
                 enable_local_processing=True,
                 enable_async_verification=True,  # Re-enabled for proper async processing
-                enhanced_sync_threshold=15 * 1024,  # 15KB for enhanced sync
-                ultra_fast_threshold=500,
-                clustering_threshold=300,
+                enhanced_sync_threshold=self.SYNC_THRESHOLD,  # Use unified threshold
+                ultra_fast_threshold=self.ULTRA_FAST_THRESHOLD,  # Use unified threshold
+                clustering_threshold=self.CLUSTERING_THRESHOLD,  # Use unified threshold
                 enable_enhanced_verification=config.get('enable_verification', True),
                 enable_cross_validation=True,
                 enable_false_positive_prevention=True,
@@ -80,8 +193,18 @@ class CitationService:
                 logger.warning("[CitationService] Citation verification is DISABLED - only basic extraction will be performed")
             
             processor = EnhancedSyncProcessor(processor_options)
-            text_content = input_data.get('text', '')
-            result = processor.process_any_input_enhanced(text_content, input_data.get('type', 'text'), {})
+            
+            # Extract text using unified approach
+            text_content = self.extract_text_from_input(input_data)
+            if text_content is None:
+                return {
+                    'success': False,
+                    'error': 'Failed to extract text content from input',
+                    'processing_mode': 'immediate_failed'
+                }
+            
+            logger.info(f"[CitationService] Processing {len(text_content)} characters for immediate processing")
+            result = processor.process_any_input_enhanced(text_content, 'text', {})
             
             result['processing_mode'] = 'immediate'
             
