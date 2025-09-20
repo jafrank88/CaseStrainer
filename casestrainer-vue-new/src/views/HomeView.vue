@@ -988,7 +988,7 @@ const pollAsyncJob = async (jobId) => {
       attempts++;
       console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
       
-      const statusResponse = await axios.get(`/casestrainer/api/task_status/${jobId}`);
+      const statusResponse = await axios.get(`task_status/${jobId}`);
       const jobData = statusResponse.data;
       
       console.log('📋 Job status:', jobData.status);
