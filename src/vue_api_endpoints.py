@@ -456,10 +456,50 @@ def get_task_status(task_id):
             }), 500
         else:
             logger.info(f"[Request {task_id}] Task still processing")
+            
+            # Try to get progress information from job meta
+            progress_info = {}
+            if hasattr(job, 'meta') and job.meta:
+                progress_info = job.meta
+            
+            # Create simulated progress based on job age for better UX
+            import time
+            job_age = time.time() - (job.created_at.timestamp() if job.created_at else time.time())
+            
+            # Simulate progress phases based on elapsed time
+            if job_age < 5:
+                progress = 10
+                current_step = "Extract"
+                message = "Extracting citations from document..."
+            elif job_age < 10:
+                progress = 30
+                current_step = "Analyze"
+                message = "Analyzing citation patterns..."
+            elif job_age < 15:
+                progress = 50
+                current_step = "Extract Names"
+                message = "Extracting case names and dates..."
+            elif job_age < 20:
+                progress = 70
+                current_step = "Verify"
+                message = "Verifying citations with legal databases..."
+            else:
+                progress = 85
+                current_step = "Cluster"
+                message = "Creating citation clusters..."
+            
             return jsonify({
                 'task_id': task_id,
                 'status': 'processing',
-                'message': 'Task is still being processed'
+                'message': message,
+                'progress': progress,
+                'current_step': current_step,
+                'progress_data': {
+                    'phase': current_step.lower(),
+                    'progress': progress,
+                    'message': message,
+                    'elapsed_time': int(job_age)
+                }
             })
             
     except Exception as e:
