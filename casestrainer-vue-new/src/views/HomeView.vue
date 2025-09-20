@@ -1061,8 +1061,24 @@ const pollAsyncJob = async (jobId) => {
       
       console.log('📋 Job status:', jobData.status);
       
-      if (jobData.status === 'completed') {
+      // Check for completion using multiple possible status indicators
+      const isCompleted = jobData.status === 'completed' || 
+                         jobData.status === 'finished' || 
+                         jobData.is_finished === true ||
+                         (jobData.citations && jobData.citations.length > 0);
+      
+      const isFailed = jobData.status === 'failed' || 
+                      jobData.is_failed === true ||
+                      jobData.error;
+      
+      if (isCompleted) {
         console.log('✅ Async job completed successfully');
+        console.log('📊 Completion indicators:', {
+          status: jobData.status,
+          is_finished: jobData.is_finished,
+          citations_count: jobData.citations?.length || 0,
+          clusters_count: jobData.clusters?.length || 0
+        });
         
         // Complete global progress
         globalProgress.completeProgress(jobData, 'home');
@@ -1071,7 +1087,7 @@ const pollAsyncJob = async (jobId) => {
           citations: jobData.citations || [],
           clusters: jobData.clusters || []
         };
-      } else if (jobData.status === 'failed') {
+      } else if (isFailed) {
         console.error('❌ Async job failed:', jobData.error);
         globalProgress.setError(jobData.error || 'Async processing failed');
         throw new Error(jobData.error || 'Async processing failed');
@@ -1083,22 +1099,55 @@ const pollAsyncJob = async (jobId) => {
         // Job still running, continue polling
         console.log('⏳ Job still running, continuing to poll...');
         
+        // Enhanced debugging and progress updates
+        console.log('🔍 RAW BACKEND RESPONSE:', JSON.stringify(jobData, null, 2));
+        
         // Update progress with detailed backend data
         if (jobData.progress !== undefined || jobData.current_step || jobData.progress_data) {
           console.log('📊 Updating progress from backend:', {
             progress: jobData.progress,
             current_step: jobData.current_step,
-            progress_data: jobData.progress_data
+            progress_data: jobData.progress_data,
+            hasProgressData: !!jobData.progress_data,
+            hasSteps: !!(jobData.progress_data && jobData.progress_data.steps)
           });
           
           // Use backend progress data if available
-          const progressPercent = jobData.progress || jobData.progress_data?.overall_progress || globalProgress.progressPercent;
-          const currentStep = jobData.current_step || jobData.progress_data?.current_message || 'Processing...';
+          let progressPercent = jobData.progress || jobData.progress_data?.overall_progress;
+          let currentStep = jobData.current_step || jobData.progress_data?.current_message;
+          
+          // If no explicit progress, try to calculate from steps
+          if (!progressPercent && jobData.progress_data?.steps) {
+            const completedSteps = jobData.progress_data.steps.filter(s => s.status === 'completed').length;
+            const totalSteps = jobData.progress_data.steps.length;
+            progressPercent = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
+            console.log('📊 Calculated progress from steps:', progressPercent, `(${completedSteps}/${totalSteps})`);
+          }
+          
+          // If still no progress, use a minimum to show activity
+          if (!progressPercent || progressPercent === 0) {
+            progressPercent = Math.max(5, globalProgress.progressPercent); // Minimum 5% to show activity
+            console.log('📊 Using minimum progress to show activity:', progressPercent);
+          }
+          
+          // If no current step, try to find active step
+          if (!currentStep && jobData.progress_data?.steps) {
+            const activeStep = jobData.progress_data.steps.find(s => s.status === 'in_progress' || s.status === 'running');
+            const lastCompletedStep = jobData.progress_data.steps.filter(s => s.status === 'completed').pop();
+            currentStep = activeStep?.name || lastCompletedStep?.name || 'Processing...';
+            console.log('📊 Determined current step:', currentStep);
+          }
           
           globalProgress.updateProgress({
-            step: currentStep,
+            step: currentStep || 'Processing...',
             progress: progressPercent,
             total_progress: progressPercent
+          });
+          
+          console.log('📊 Updated global progress:', {
+            step: currentStep,
+            progress: progressPercent,
+            globalProgressPercent: globalProgress.progressPercent
           });
           
           // Update individual step progress if available
@@ -1114,7 +1163,22 @@ const pollAsyncJob = async (jobId) => {
             }));
             
             globalProgress.setSteps(steps);
-            console.log('📋 Updated processing steps:', steps.length);
+            console.log('📋 Updated processing steps:', {
+              count: steps.length,
+              steps: steps.map(s => `${s.step}: ${s.status} (${s.progress}%)`)
+            });
+          }
+        } else {
+          console.log('⚠️ No progress data found in backend response');
+          // Force a small progress increment to show activity
+          const currentProgress = globalProgress.progressPercent;
+          if (currentProgress < 95) {
+            globalProgress.updateProgress({
+              step: 'Processing...',
+              progress: Math.min(currentProgress + 2, 95), // Small increment, max 95%
+              total_progress: Math.min(currentProgress + 2, 95)
+            });
+            console.log('📊 Incremented progress to show activity:', globalProgress.progressPercent);
           }
         }
         
