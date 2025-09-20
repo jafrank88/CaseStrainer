@@ -286,6 +286,23 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                                 'method': getattr(citation, 'method', 'full_async')
                             })
                     
+                    # Apply deduplication to rq_worker async processing (MISSING FEATURE ADDED)
+                    logger.info(f"[TASK:{task_id}] Starting deduplication of {len(citations_list)} citations")
+                    try:
+                        from src.citation_deduplication import deduplicate_citations
+                        
+                        original_count = len(citations_list)
+                        citations_list = deduplicate_citations(citations_list, debug=True)
+                        
+                        logger.info(f"[TASK:{task_id}] Deduplication completed: {original_count} → {len(citations_list)} citations")
+                        if len(citations_list) < original_count:
+                            logger.info(f"[TASK:{task_id}] Deduplication SUCCESS: "
+                                       f"({original_count - len(citations_list)} duplicates removed)")
+                        
+                    except Exception as e:
+                        logger.error(f"[TASK:{task_id}] Deduplication FAILED: {e}")
+                        # Continue with original citations if deduplication fails
+                    
                     result = {
                         'success': True,
                         'citations': citations_list,

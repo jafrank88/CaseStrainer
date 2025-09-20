@@ -1430,8 +1430,26 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         })
                 
                 progress_tracker.complete_step(2, 'Citation analysis completed')
-                progress_tracker.start_step(3, 'Extracting case names and years...')
-                progress_tracker.complete_step(3, 'Name extraction completed')
+                progress_tracker.start_step(3, 'Deduplicating citations...')
+                
+                # Apply deduplication to async processing (MISSING FEATURE ADDED)
+                logger.info(f"[Task {task_id}] Starting deduplication of {len(citation_dicts)} citations")
+                try:
+                    from src.citation_deduplication import deduplicate_citations
+                    
+                    original_count = len(citation_dicts)
+                    citation_dicts = deduplicate_citations(citation_dicts, debug=True)
+                    
+                    logger.info(f"[Task {task_id}] Deduplication completed: {original_count} → {len(citation_dicts)} citations")
+                    if len(citation_dicts) < original_count:
+                        logger.info(f"[Task {task_id}] Deduplication SUCCESS: "
+                                   f"({original_count - len(citation_dicts)} duplicates removed)")
+                    
+                except Exception as e:
+                    logger.error(f"[Task {task_id}] Deduplication FAILED: {e}")
+                    # Continue with original citations if deduplication fails
+                
+                progress_tracker.complete_step(3, f'Deduplication completed ({len(citation_dicts)} unique citations)')
                 progress_tracker.start_step(4, 'Clustering parallel citations...')
                 
                 # Get clusters if available
@@ -1445,8 +1463,25 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         cluster_dicts.append(cluster.to_dict())
                     elif isinstance(cluster, dict):
                         cluster_dicts.append(cluster)
-                
-                progress_tracker.complete_step(4, 'Clustering completed')
+
+                # Apply cluster deduplication to async processing
+                logger.info(f"[Task {task_id}] Starting cluster deduplication of {len(cluster_dicts)} clusters")
+                try:
+                    from src.citation_deduplication import deduplicate_clusters
+                    
+                    original_cluster_count = len(cluster_dicts)
+                    cluster_dicts = deduplicate_clusters(cluster_dicts, debug=True)
+                    
+                    logger.info(f"[Task {task_id}] Cluster deduplication completed: {original_cluster_count} → {len(cluster_dicts)} clusters")
+                    if len(cluster_dicts) < original_cluster_count:
+                        logger.info(f"[Task {task_id}] Cluster deduplication SUCCESS: "
+                                   f"({original_cluster_count - len(cluster_dicts)} duplicate clusters removed)")
+                    
+                except Exception as e:
+                    logger.error(f"[Task {task_id}] Cluster deduplication FAILED: {e}")
+                    # Continue with original clusters if deduplication fails
+
+                progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
                 progress_tracker.start_step(5, 'Verifying citations...')
                 
                 citation_result = {
