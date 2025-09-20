@@ -81,8 +81,9 @@ class CourtListenerService:
         self._rate_limit()
         
         try:
+            # Citation-lookup API expects 'text' parameter with space-separated citations
             batch_data = {
-                'citations': citations
+                'text': ' '.join(citations)
             }
             
             logger.info(f"Verifying {len(citations)} citations with CourtListener citation lookup")
@@ -95,7 +96,8 @@ class CourtListenerService:
             
             if response.status_code == 200:
                 results = response.json()
-                return self._parse_citation_lookup_results(citations, results)
+                # API returns array directly, not {'results': [...]}
+                return self._parse_citation_lookup_results(citations, {'results': results})
             else:
                 logger.warning(f"CourtListener citation lookup failed: {response.status_code} - {response.text}")
                 return self._create_fallback_results(citations, 'citation_lookup_v4')
@@ -174,12 +176,45 @@ class CourtListenerService:
             for result in api_results['results']:
                 citation = result.get('citation')
                 if citation and citation in results:
-                    verification_data = self._parse_verification_result(result)
-                    results[citation].update(verification_data)
-                    results[citation]['verified'] = True
-                    results[citation]['source'] = 'citation_lookup_v4'
+                    # Check if citation was found (status != 404)
+                    if result.get('status') != 404 and result.get('clusters'):
+                        # Citation found with clusters - need to fetch cluster data
+                        cluster_data = self._fetch_cluster_data(result.get('clusters'))
+                        if cluster_data:
+                            verification_data = self._parse_verification_result(cluster_data)
+                            results[citation].update(verification_data)
+                            results[citation]['verified'] = True
+                            results[citation]['source'] = 'citation_lookup_v4'
+                    else:
+                        # Citation not found or no clusters
+                        logger.info(f"Citation not found in CourtListener: {citation}")
         
         return results
+    
+    def _fetch_cluster_data(self, clusters: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Fetch detailed data from the first cluster"""
+        if not clusters:
+            return {}
+        
+        try:
+            # Use the first cluster
+            cluster = clusters[0]
+            cluster_url = cluster.get('absolute_url')
+            
+            if cluster_url:
+                # Fetch cluster details
+                full_url = f"https://www.courtlistener.com{cluster_url}"
+                response = self.session.get(full_url, timeout=10)
+                
+                if response.status_code == 200:
+                    return response.json()
+                else:
+                    logger.warning(f"Failed to fetch cluster data: {response.status_code}")
+            
+        except Exception as e:
+            logger.warning(f"Error fetching cluster data: {e}")
+        
+        return {}
     
     def _parse_search_result(self, citation: str, search_results: Dict[str, Any]) -> Dict[str, Any]:
         """Parse results from CourtListener search API"""
