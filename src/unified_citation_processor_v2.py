@@ -3195,7 +3195,7 @@ class UnifiedCitationProcessorV2:
                 'canonical_name': citation.canonical_name,
                 'extracted_date': extracted_date,
                 'canonical_date': citation.canonical_date,
-                'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
+                'verified': self._get_verification_status(citation),
                 'court': citation.court,
                 'confidence': citation.confidence,
                 'method': citation.method,
@@ -3274,7 +3274,7 @@ class UnifiedCitationProcessorV2:
                     'canonical_name': getattr(citation, 'canonical_name', None),
                     'extracted_date': extracted_date,
                     'canonical_date': getattr(citation, 'canonical_date', None),
-                'verified': citation.verified if isinstance(citation.verified, bool) else (citation.verified == "true_by_parallel" or citation.verified == True),
+                    'verified': self._get_verification_status(citation),
                 'court': citation.court,
                 'confidence': citation.confidence,
                 'method': citation.method,
@@ -3341,6 +3341,38 @@ class UnifiedCitationProcessorV2:
         formatted = re.sub(r'\s*\)', ')', formatted)
         
         return formatted
+
+    def _get_verification_status(self, citation) -> bool:
+        """
+        Determine the actual verification status of a citation.
+        
+        Args:
+            citation: Citation object to check
+            
+        Returns:
+            bool: True if citation is verified, False otherwise
+        """
+        # Check the verified field
+        if hasattr(citation, 'verified'):
+            if isinstance(citation.verified, bool):
+                return citation.verified
+            elif citation.verified == "true_by_parallel":
+                return True
+            elif citation.verified is True:
+                return True
+        
+        # Check metadata for verification status
+        if hasattr(citation, 'metadata') and citation.metadata:
+            verification_status = citation.metadata.get('verification_status')
+            if verification_status == 'verified':
+                return True
+        
+        # Check if we have canonical data (indicates verification)
+        if (hasattr(citation, 'canonical_name') and citation.canonical_name and 
+            hasattr(citation, 'canonical_url') and citation.canonical_url):
+            return True
+            
+        return False
 
     def _propagate_canonical_to_parallels(self, citations: List['CitationResult']):
         """
