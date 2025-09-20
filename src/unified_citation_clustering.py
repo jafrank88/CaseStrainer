@@ -1484,7 +1484,7 @@ class UnifiedCitationClusterer:
             for citation in citations:
                 if not getattr(citation, 'verified', False):
                     citation.true_by_parallel = True
-                    citation.verified = 'true_by_parallel'
+                    citation.verified = True  # Set to boolean True, not string
                     
                     if not hasattr(citation, 'metadata'):
                         citation.metadata = {}
