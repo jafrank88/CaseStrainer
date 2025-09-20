@@ -421,25 +421,60 @@
               <!-- Processing Phase Indicator -->
               <div class="processing-phases mt-3">
                 <div class="phase-indicators">
-                  <div :class="['phase-indicator', { active: globalProgress.progressState.currentStep?.includes('extract') || globalProgress.progressPercent > 0 }]">
+                  <div :class="['phase-indicator', { 
+                    active: isPhaseActive('extract'), 
+                    completed: isPhaseCompleted('extract'),
+                    current: isCurrentPhase('extract')
+                  }]">
                     <i class="bi bi-file-text"></i>
                     <span>Extract</span>
+                    <div v-if="getPhaseProgress('extract') > 0" class="phase-progress">
+                      {{ Math.round(getPhaseProgress('extract')) }}%
+                    </div>
                   </div>
-                  <div :class="['phase-indicator', { active: globalProgress.progressState.currentStep?.includes('analyz') || globalProgress.progressPercent > 25 }]">
+                  <div :class="['phase-indicator', { 
+                    active: isPhaseActive('analyz'), 
+                    completed: isPhaseCompleted('analyz'),
+                    current: isCurrentPhase('analyz')
+                  }]">
                     <i class="bi bi-search"></i>
                     <span>Analyze</span>
+                    <div v-if="getPhaseProgress('analyz') > 0" class="phase-progress">
+                      {{ Math.round(getPhaseProgress('analyz')) }}%
+                    </div>
                   </div>
-                  <div :class="['phase-indicator', { active: globalProgress.progressState.currentStep?.includes('name') || globalProgress.progressPercent > 50 }]">
+                  <div :class="['phase-indicator', { 
+                    active: isPhaseActive('name'), 
+                    completed: isPhaseCompleted('name'),
+                    current: isCurrentPhase('name')
+                  }]">
                     <i class="bi bi-person-badge"></i>
                     <span>Extract Names</span>
+                    <div v-if="getPhaseProgress('name') > 0" class="phase-progress">
+                      {{ Math.round(getPhaseProgress('name')) }}%
+                    </div>
                   </div>
-                  <div :class="['phase-indicator', { active: globalProgress.progressState.currentStep?.includes('verif') || globalProgress.progressPercent > 75 }]">
+                  <div :class="['phase-indicator', { 
+                    active: isPhaseActive('verif'), 
+                    completed: isPhaseCompleted('verif'),
+                    current: isCurrentPhase('verif')
+                  }]">
                     <i class="bi bi-shield-check"></i>
                     <span>Verify</span>
+                    <div v-if="getPhaseProgress('verif') > 0" class="phase-progress">
+                      {{ Math.round(getPhaseProgress('verif')) }}%
+                    </div>
                   </div>
-                  <div :class="['phase-indicator', { active: globalProgress.progressState.currentStep?.includes('cluster') || globalProgress.progressPercent > 90 }]">
+                  <div :class="['phase-indicator', { 
+                    active: isPhaseActive('cluster'), 
+                    completed: isPhaseCompleted('cluster'),
+                    current: isCurrentPhase('cluster')
+                  }]">
                     <i class="bi bi-collection"></i>
                     <span>Cluster</span>
+                    <div v-if="getPhaseProgress('cluster') > 0" class="phase-progress">
+                      {{ Math.round(getPhaseProgress('cluster')) }}%
+                    </div>
                   </div>
                 </div>
               </div>
@@ -976,6 +1011,39 @@ const formatFileSize = (bytes) => {
 
 // Progress tracking methods are now handled by the global progress store
 
+// Enhanced phase indicator functions for real-time progress
+const isPhaseActive = (phaseName) => {
+  const currentStep = globalProgress.progressState.currentStep?.toLowerCase() || '';
+  return currentStep.includes(phaseName.toLowerCase()) || 
+         globalProgress.progressState.steps?.some(step => 
+           step.step.toLowerCase().includes(phaseName.toLowerCase()) && 
+           (step.status === 'in_progress' || step.status === 'completed')
+         );
+};
+
+const isPhaseCompleted = (phaseName) => {
+  return globalProgress.progressState.steps?.some(step => 
+    step.step.toLowerCase().includes(phaseName.toLowerCase()) && 
+    step.status === 'completed'
+  );
+};
+
+const isCurrentPhase = (phaseName) => {
+  const currentStep = globalProgress.progressState.currentStep?.toLowerCase() || '';
+  return currentStep.includes(phaseName.toLowerCase()) ||
+         globalProgress.progressState.steps?.some(step => 
+           step.step.toLowerCase().includes(phaseName.toLowerCase()) && 
+           step.status === 'in_progress'
+         );
+};
+
+const getPhaseProgress = (phaseName) => {
+  const step = globalProgress.progressState.steps?.find(step => 
+    step.step.toLowerCase().includes(phaseName.toLowerCase())
+  );
+  return step?.progress || 0;
+};
+
 // Enhanced async job polling function (from EnhancedValidator)
 const pollAsyncJob = async (jobId) => {
   console.log('🔄 Enhanced async job polling started for:', jobId);
@@ -1015,13 +1083,39 @@ const pollAsyncJob = async (jobId) => {
         // Job still running, continue polling
         console.log('⏳ Job still running, continuing to poll...');
         
-        // Update progress if available
-        if (jobData.progress) {
-          globalProgress.updateProgress({
-            step: jobData.current_step || 'Processing...',
+        // Update progress with detailed backend data
+        if (jobData.progress !== undefined || jobData.current_step || jobData.progress_data) {
+          console.log('📊 Updating progress from backend:', {
             progress: jobData.progress,
-            total_progress: jobData.progress
+            current_step: jobData.current_step,
+            progress_data: jobData.progress_data
           });
+          
+          // Use backend progress data if available
+          const progressPercent = jobData.progress || jobData.progress_data?.overall_progress || globalProgress.progressPercent;
+          const currentStep = jobData.current_step || jobData.progress_data?.current_message || 'Processing...';
+          
+          globalProgress.updateProgress({
+            step: currentStep,
+            progress: progressPercent,
+            total_progress: progressPercent
+          });
+          
+          // Update individual step progress if available
+          if (jobData.progress_data && jobData.progress_data.steps) {
+            const steps = jobData.progress_data.steps.map(step => ({
+              step: step.name,
+              progress: step.progress || 0,
+              status: step.status,
+              message: step.message,
+              completed: step.status === 'completed',
+              startTime: step.start_time,
+              endTime: step.end_time
+            }));
+            
+            globalProgress.setSteps(steps);
+            console.log('📋 Updated processing steps:', steps.length);
+          }
         }
         
         // Wait 5 seconds before next poll
@@ -2143,6 +2237,117 @@ const handleAsyncTaskError = (errorMessage) => {
   font-size: 0.9rem;
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Enhanced Phase Indicators */
+.processing-phases {
+  margin-top: 1.5rem;
+}
+
+.phase-indicators {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.phase-indicator {
+  flex: 1;
+  min-width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid #e9ecef;
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.phase-indicator i {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #6c757d;
+  transition: all 0.3s ease;
+}
+
+.phase-indicator span {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.phase-indicator.active {
+  border-color: #007bff;
+  background: rgba(0, 123, 255, 0.1);
+}
+
+.phase-indicator.active i,
+.phase-indicator.active span {
+  color: #007bff;
+}
+
+.phase-indicator.current {
+  border-color: #ffc107;
+  background: rgba(255, 193, 7, 0.15);
+  animation: pulse 2s infinite;
+}
+
+.phase-indicator.current i,
+.phase-indicator.current span {
+  color: #ffc107;
+}
+
+.phase-indicator.completed {
+  border-color: #28a745;
+  background: rgba(40, 167, 69, 0.1);
+}
+
+.phase-indicator.completed i,
+.phase-indicator.completed span {
+  color: #28a745;
+}
+
+.phase-indicator.completed i::before {
+  content: '\f26b'; /* Bootstrap check-circle icon */
+}
+
+.phase-progress {
+  position: absolute;
+  bottom: 0.25rem;
+  right: 0.25rem;
+  background: rgba(0, 123, 255, 0.9);
+  color: white;
+  padding: 0.2rem 0.4rem;
+  border-radius: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  min-width: 2rem;
+  text-align: center;
+}
+
+.phase-indicator.completed .phase-progress {
+  background: rgba(40, 167, 69, 0.9);
+}
+
+.phase-indicator.current .phase-progress {
+  background: rgba(255, 193, 7, 0.9);
+  color: #000;
+}
+
+@keyframes pulse {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: 0 0 0 0 rgba(255, 193, 7, 0.4);
+  }
+  50% { 
+    transform: scale(1.02); 
+    box-shadow: 0 0 0 8px rgba(255, 193, 7, 0);
+  }
 }
 
 .analyze-btn {
