@@ -505,6 +505,7 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import axios from 'axios';
 import api, { analyze } from '@/api/api';
 import { globalProgress } from '@/stores/progressStore';
 import CitationResults from '@/components/CitationResults.vue';
@@ -975,6 +976,74 @@ const formatFileSize = (bytes) => {
 
 // Progress tracking methods are now handled by the global progress store
 
+// Enhanced async job polling function (from EnhancedValidator)
+const pollAsyncJob = async (jobId) => {
+  console.log('🔄 Enhanced async job polling started for:', jobId);
+  
+  const maxAttempts = 60; // 5 minutes max (60 * 5 seconds)
+  let attempts = 0;
+  
+  const poll = async () => {
+    try {
+      attempts++;
+      console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
+      
+      const statusResponse = await axios.get(`/casestrainer/api/task_status/${jobId}`);
+      const jobData = statusResponse.data;
+      
+      console.log('📋 Job status:', jobData.status);
+      
+      if (jobData.status === 'completed') {
+        console.log('✅ Async job completed successfully');
+        
+        // Complete global progress
+        globalProgress.completeProgress(jobData, 'home');
+        
+        return {
+          citations: jobData.citations || [],
+          clusters: jobData.clusters || []
+        };
+      } else if (jobData.status === 'failed') {
+        console.error('❌ Async job failed:', jobData.error);
+        globalProgress.setError(jobData.error || 'Async processing failed');
+        throw new Error(jobData.error || 'Async processing failed');
+      } else if (attempts >= maxAttempts) {
+        console.error('❌ Async job polling timeout');
+        globalProgress.setError('Processing timeout - please try again');
+        throw new Error('Processing timeout - please try again');
+      } else {
+        // Job still running, continue polling
+        console.log('⏳ Job still running, continuing to poll...');
+        
+        // Update progress if available
+        if (jobData.progress) {
+          globalProgress.updateProgress({
+            step: jobData.current_step || 'Processing...',
+            progress: jobData.progress,
+            total_progress: jobData.progress
+          });
+        }
+        
+        // Wait 5 seconds before next poll
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return await poll(); // Recursive call
+      }
+    } catch (error) {
+      console.error('❌ Error polling async job:', error);
+      if (attempts >= maxAttempts) {
+        globalProgress.setError('Error checking job status');
+        throw new Error('Error checking job status');
+      } else {
+        // Retry on error after delay
+        await new Promise(resolve => setTimeout(resolve, 5000));
+        return await poll(); // Recursive call
+      }
+    }
+  };
+  
+  return await poll();
+};
+
 const analyzeContent = async () => {
   // Show debug popup
       // Debug alert removed for cleaner interface
@@ -1050,8 +1119,53 @@ const analyzeContent = async () => {
     const response = await analyze(requestData);
     // Debug alert removed for cleaner interface
     
+    // Enhanced processing mode detection and async polling
+    const processingMode = response?.metadata?.processing_mode;
+    const jobId = response?.metadata?.job_id;
+    
+    console.log('🔍 Enhanced Processing Analysis:');
+    console.log('- Processing mode:', processingMode);
+    console.log('- Job ID:', jobId);
+    console.log('- Document size:', textContent.value?.length || 'unknown');
+    console.log('- Response type:', typeof response);
+    
+    // Handle async processing with dedicated polling
+    if (processingMode === 'queued' && jobId) {
+      console.log('🔄 Large document detected - starting enhanced async polling');
+      
+      try {
+        const asyncResults = await pollAsyncJob(jobId);
+        if (asyncResults) {
+          // Process async results
+          analysisResults.value = {
+            result: {
+              citations: asyncResults.citations || [],
+              clusters: asyncResults.clusters || []
+            },
+            clusters: asyncResults.clusters || [],
+            citations: asyncResults.citations || [],
+            message: 'Analysis completed successfully',
+            metadata: { processing_mode: 'queued', job_id: jobId },
+            success: true,
+            total_citations: asyncResults.citations?.length || 0
+          };
+          analysisError.value = '';
+          
+          console.log('✅ Async processing completed:', {
+            citations: asyncResults.citations?.length || 0,
+            clusters: asyncResults.clusters?.length || 0
+          });
+          
+          return; // Exit early since we handled async processing
+        }
+      } catch (asyncError) {
+        console.error('❌ Async polling failed:', asyncError);
+        analysisError.value = `Async processing failed: ${asyncError.message}`;
+        return;
+      }
+    }
+    
     // Response details logged to console for debugging
-
     console.log('Response analysis:');
     console.log('- Has response:', !!response);
     console.log('- Has task_id:', response?.task_id);
@@ -1378,28 +1492,51 @@ const analyzeContent = async () => {
         console.error('Error in analyzeContent:', {
           error,
           message: error.message,
-          stack: error.stack,
-          response: error.response?.data || 'No response data'
+          code: error.code,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          responseData: error.response?.data,
+          stack: error.stack
         });
         
-        // Set detailed error state
-        const errorMessage = error.response?.data?.error 
-          ? `Server error: ${error.response.data.error}`
-          : error.message || 'An unexpected error occurred during analysis';
-          
-        analysisError.value = {
-          message: errorMessage,
-          response: error.response?.data,
-          status: error.response?.status,
-          headers: error.response?.headers
-        };
+        // Enhanced error handling (from EnhancedValidator)
+        let errorMessage = 'An unexpected error occurred during analysis';
         
-        // If this was a network error, suggest checking connection
-        if (error.code === 'ECONNABORTED' || error.message.includes('timeout')) {
-          analysisError.value += ' (Connection timeout - the server took too long to respond)';
-        } else if (error.response?.status === 429) {
-          analysisError.value = 'Rate limit exceeded. Please wait a moment and try again.';
+        if (error.code === 'ECONNABORTED') {
+          errorMessage = 'Request timed out. Large documents may take longer to process. Please try again.';
+        } else if (error.response) {
+          // The request was made and the server responded with a status code
+          const { status, data } = error.response;
+          console.error('Server responded with error:', { status, data });
+          
+          if (status === 400) {
+            errorMessage = data?.message || 'Bad request. Please check your input and try again.';
+          } else if (status === 401) {
+            errorMessage = 'Session expired. Please refresh the page and try again.';
+          } else if (status === 403) {
+            errorMessage = 'You do not have permission to perform this action.';
+          } else if (status === 404) {
+            errorMessage = 'The requested resource was not found.';
+          } else if (status === 429) {
+            errorMessage = 'Rate limit exceeded. Please wait a moment and try again.';
+          } else if (status === 502) {
+            errorMessage = 'Server is processing your request. Please wait and try again.';
+          } else if (status >= 500) {
+            errorMessage = 'A server error occurred. Please try again later.';
+          } else {
+            errorMessage = `Request failed with status code ${status}`;
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          console.error('No response received:', error.request);
+          errorMessage = 'No response from server. Please check your network connection.';
+        } else {
+          // Something happened in setting up the request
+          console.error('Request setup error:', error.message);
+          errorMessage = `Request failed: ${error.message}`;
         }
+          
+        analysisError.value = errorMessage;
       } finally {
         isAnalyzing.value = false;
         

@@ -14435,3 +14435,501 @@ AttributeError: 'str' object has no attribute 'keys'
 2025-09-19 09:59:33,565 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-09-19 10:05:29,515 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-09-19 10:12:57,404 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 10:19:19,806 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 10:23:44,118 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 10:27:13,767 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 03:30:31,778 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-19 03:30:32,297 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-19 03:30:32,952 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-19 03:30:32,954 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-19 03:30:32,960 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-19 03:30:32,960 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-19 03:30:32,972 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-19 03:30:32,985 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-19 03:30:32,987 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:30:36,266 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-19 03:30:36,266 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:30:36,266 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-19 03:30:36,268 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 189 chars
+2025-09-19 03:30:36,269 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 4 citations
+2025-09-19 03:30:36,270 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 4 citations
+2025-09-19 03:30:36,270 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-19 03:30:36,331 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 4 citations
+2025-09-19 03:30:36,331 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-19 03:30:36,335 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 6 citations
+2025-09-19 03:30:36,335 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-19 03:30:36,408 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-19 03:30:36,411 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:36,437 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:36,438 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:36,448 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:36,534 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:36,543 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:36,543 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:36,561 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:36,651 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:36,662 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:36,663 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:36,672 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:36,740 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:36,751 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:36,751 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:36,770 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:36,920 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:36,949 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:36,949 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:36,977 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:37,103 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,117 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:37,117 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:37,131 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:37,143 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-19 03:30:37,149 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 6 citations
+2025-09-19 03:30:37,149 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 6 citations extracted
+2025-09-19 03:30:37,242 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,260 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:37,260 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:37,268 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:37,343 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,354 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:37,354 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:37,369 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:37,436 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,445 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:30:37,445 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:30:37,454 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:30:37,530 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,538 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:37,538 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:37,550 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:37,612 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,622 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:37,622 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:37,630 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:37,691 - src.utils.text_normalizer - DEBUG - Text normalization: '
+        State v. Johnson, 160 Wn.2d 500, 158 P.3d...' -> ' State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (20...'
+2025-09-19 03:30:37,708 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'was a landmark case. City of Seattle' -> 'City of Seattle'
+2025-09-19 03:30:37,709 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Williams' -> 'Williams'
+2025-09-19 03:30:37,717 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'City of Seattle v. Williams' -> 'City of Seattle v. Williams'
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 6 citations for parallel relationships
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found parallel group: ['158 P.3d 677', '240 P.3d 1055']
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 1 parallel groups
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 6 citations
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 6 citations
+2025-09-19 03:30:37,725 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-19 03:30:37,726 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 6 citations
+2025-09-19 03:30:37,726 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-09-19 03:30:37,733 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 6 citations
+2025-09-19 03:30:37,733 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-19 03:30:37,733 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-19 03:30:37,733 - src.unified_citation_clustering - INFO - Starting unified clustering for 6 citations
+2025-09-19 03:30:37,733 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-19 03:30:37,734 - src.unified_citation_clustering - INFO - Detected 2 parallel citation groups (including proximity-based)
+2025-09-19 03:30:37,734 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-19 03:30:37,734 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-19 03:30:37,734 - src.unified_citation_clustering - INFO - Batch verifying 6 citations with CourtListener API
+2025-09-19 03:30:37,734 - src.unified_citation_clustering - INFO - Processing batch 1/1 (6 citations)
+2025-09-19 03:30:37,737 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-19 03:30:38,025 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-19 03:30:38,093 - src.unified_citation_clustering - WARNING -   Canonical: 'In re the Personal Restraint of Shale'
+2025-09-19 03:30:38,094 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:30:38,094 - src.unified_citation_clustering - WARNING -   Similarity: 0.00 - rejecting verification
+2025-09-19 03:30:38,112 - src.unified_citation_clustering - WARNING -   Canonical: 'Ramos v. State ex rel. Wyoming Workers' Safety & Compensation Division'
+2025-09-19 03:30:38,112 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:30:38,112 - src.unified_citation_clustering - WARNING -   Similarity: 0.17 - rejecting verification
+2025-09-19 03:30:38,140 - src.unified_citation_clustering - WARNING -   Canonical: 'State v. Ish'
+2025-09-19 03:30:38,141 - src.unified_citation_clustering - WARNING -   Extracted: 'City of Seattle v. Williams'
+2025-09-19 03:30:38,141 - src.unified_citation_clustering - WARNING -   Similarity: 0.14 - rejecting verification
+2025-09-19 03:30:38,158 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 6 unverified citations
+2025-09-19 03:30:38,164 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 6 unverified citations
+2025-09-19 03:30:38,164 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:30:38,165 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:30:38,165 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500, 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,165 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,165 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500
+2025-09-19 03:30:38,166 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 158 P.3d 677
+2025-09-19 03:30:38,166 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:30:38,166 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 170 Wash.2d 200, 240 P.3d 1055
+2025-09-19 03:30:38,167 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 170 Wash.2d 200, 240 P.3d 1055
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 170 Wash.2d 200, 240 P.3d 1055: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,167 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 170 Wash.2d 200
+2025-09-19 03:30:38,168 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 170 Wash.2d 200
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 170 Wash.2d 200: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 240 P.3d 1055
+2025-09-19 03:30:38,168 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 240 P.3d 1055
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 240 P.3d 1055: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:30:38,168 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:30:38,169 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-19 03:30:38,169 - src.unified_citation_clustering - INFO - Merged 2 initial clusters into 2 final clusters (preserving parallel relationships)
+2025-09-19 03:30:38,169 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-19 03:30:38,169 - src.unified_citation_clustering - INFO - Propagating verification status across 2 clusters
+2025-09-19 03:30:38,169 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-19 03:30:38,170 - src.unified_citation_clustering - INFO - Unified clustering completed: 2 clusters created
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 2 clusters using unified clustering
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Starting verification for 6 citations
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500, 158 P.3d 677 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 158 P.3d 677 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 170 Wash.2d 200, 240 P.3d 1055 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 170 Wash.2d 200 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 240 P.3d 1055 - Missing canonical name
+2025-09-19 03:30:38,170 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener results: 0/6 verified
+2025-09-19 03:30:38,171 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] 6 citations need fallback verification
+2025-09-19 03:30:38,171 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:30:38,171 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:30:38,171 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500
+2025-09-19 03:30:38,171 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:30:38,171 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 158 P.3d 677
+2025-09-19 03:30:38,171 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:30:38,171 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 170 Wash.2d 200, 240 P.3d 1055
+2025-09-19 03:30:38,172 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 170 Wash.2d 200, 240 P.3d 1055
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 170 Wash.2d 200
+2025-09-19 03:30:38,172 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 170 Wash.2d 200
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 240 P.3d 1055
+2025-09-19 03:30:38,172 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 240 P.3d 1055
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback results: 0/6 verified
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === FINAL VERIFICATION SUMMARY ===
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Total citations processed: 6
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Successfully verified: 0 (0.0%)
+2025-09-19 03:30:38,172 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener verified: 0
+2025-09-19 03:30:38,173 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback verified: 0
+2025-09-19 03:30:38,173 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Still unverified: 6
+2025-09-19 03:30:38,173 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === END VERIFICATION SUMMARY ===
+2025-09-19 03:30:38,173 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After verification: 6 citations
+2025-09-19 03:30:38,173 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 6 final citations, 2 clusters
+2025-09-19 03:33:10,080 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-19 03:33:10,600 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-19 03:33:11,296 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-19 03:33:11,298 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-19 03:33:11,303 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-19 03:33:11,304 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-19 03:33:11,315 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-19 03:33:11,326 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-19 03:33:11,327 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:33:14,675 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-19 03:33:14,676 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:33:14,676 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-19 03:33:14,677 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-19 03:33:14,678 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-19 03:33:14,678 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-19 03:33:14,678 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-19 03:33:14,678 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-19 03:33:14,678 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 67 chars
+2025-09-19 03:33:14,679 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 2 citations
+2025-09-19 03:33:14,679 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 2 citations
+2025-09-19 03:33:14,679 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-19 03:33:14,732 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 2 citations
+2025-09-19 03:33:14,732 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-19 03:33:14,735 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 3 citations
+2025-09-19 03:33:14,736 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-19 03:33:14,807 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-19 03:33:14,811 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:14,831 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:14,832 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:14,844 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:14,916 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:14,928 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:14,928 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:14,937 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:15,009 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:15,019 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:15,020 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:15,029 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:15,036 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-19 03:33:15,038 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 3 citations
+2025-09-19 03:33:15,038 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 3 citations extracted
+2025-09-19 03:33:15,096 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:15,104 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:15,104 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:15,113 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:15,175 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:15,185 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:15,186 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:15,193 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:15,253 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:33:15,261 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:33:15,261 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:33:15,273 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 3 citations for parallel relationships
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 0 parallel groups
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 3 citations
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-19 03:33:15,281 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 3 citations
+2025-09-19 03:33:15,282 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-19 03:33:15,282 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 3 citations
+2025-09-19 03:33:15,282 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-09-19 03:33:15,289 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 3 citations
+2025-09-19 03:33:15,289 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Detected 1 parallel citation groups (including proximity-based)
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-19 03:33:15,289 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-19 03:33:15,290 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-19 03:33:15,290 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-19 03:33:15,292 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-19 03:33:15,565 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-19 03:33:15,614 - src.unified_citation_clustering - WARNING -   Canonical: 'In re the Personal Restraint of Shale'
+2025-09-19 03:33:15,614 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:33:15,615 - src.unified_citation_clustering - WARNING -   Similarity: 0.00 - rejecting verification
+2025-09-19 03:33:15,629 - src.unified_citation_clustering - WARNING -   Canonical: 'Ramos v. State ex rel. Wyoming Workers' Safety & Compensation Division'
+2025-09-19 03:33:15,630 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:33:15,630 - src.unified_citation_clustering - WARNING -   Similarity: 0.17 - rejecting verification
+2025-09-19 03:33:15,638 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 3 unverified citations
+2025-09-19 03:33:15,642 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 3 unverified citations
+2025-09-19 03:33:15,643 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:33:15,644 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:33:15,644 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500, 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500
+2025-09-19 03:33:15,645 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:33:15,645 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 158 P.3d 677
+2025-09-19 03:33:15,646 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:33:15,646 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Merged 1 initial clusters into 1 final clusters (preserving parallel relationships)
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Propagating verification status across 1 clusters
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-19 03:33:15,647 - src.unified_citation_clustering - INFO - Unified clustering completed: 1 clusters created
+2025-09-19 03:33:15,647 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using unified clustering
+2025-09-19 03:33:15,647 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-19 03:33:15,647 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Starting verification for 3 citations
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500, 158 P.3d 677 - Missing canonical name
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500 - Missing canonical name
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 158 P.3d 677 - Missing canonical name
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener results: 0/3 verified
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] 3 citations need fallback verification
+2025-09-19 03:33:15,648 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:33:15,648 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500
+2025-09-19 03:33:15,649 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 158 P.3d 677
+2025-09-19 03:33:15,649 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback results: 0/3 verified
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === FINAL VERIFICATION SUMMARY ===
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Total citations processed: 3
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Successfully verified: 0 (0.0%)
+2025-09-19 03:33:15,649 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener verified: 0
+2025-09-19 03:33:15,650 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback verified: 0
+2025-09-19 03:33:15,650 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Still unverified: 3
+2025-09-19 03:33:15,650 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === END VERIFICATION SUMMARY ===
+2025-09-19 03:33:15,650 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After verification: 3 citations
+2025-09-19 03:33:15,650 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 3 final citations, 1 clusters
+2025-09-19 03:33:15,654 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-19 03:33:16,811 - urllib3.connectionpool - DEBUG - http://localhost:8080 "POST /casestrainer/api/analyze HTTP/1.1" 200 6520
+2025-09-19 03:33:16,817 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:8080
+2025-09-19 03:33:16,947 - urllib3.connectionpool - DEBUG - http://localhost:8080 "POST /casestrainer/api/analyze HTTP/1.1" 200 1445
+2025-09-19 03:36:42,976 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-19 03:36:43,533 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-19 03:36:44,198 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-19 03:36:44,199 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-19 03:36:44,206 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-19 03:36:44,206 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-19 03:36:44,219 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-19 03:36:44,230 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-19 03:36:44,232 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:36:47,800 - src.unified_citation_processor_v2 - INFO - Initialized ComprehensiveWebSearchEngine for legal database lookups
+2025-09-19 03:36:47,801 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-09-19 03:36:47,801 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-09-19 03:36:47,803 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-09-19 03:36:47,803 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Starting unified citation extraction
+2025-09-19 03:36:47,803 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction
+2025-09-19 03:36:47,803 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED _extract_with_regex_enhanced
+2025-09-19 03:36:47,803 - src.unified_citation_processor_v2 - INFO - [DEBUG] Using original text for citation extraction
+2025-09-19 03:36:47,804 - src.unified_citation_processor_v2 - INFO - [DEBUG] Text length: 67 chars
+2025-09-19 03:36:47,805 - src.unified_citation_processor_v2 - INFO - [DEBUG] Enhanced regex extraction found 2 citations
+2025-09-19 03:36:47,805 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Regex found 2 citations
+2025-09-19 03:36:47,805 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 2: Eyecite extraction
+2025-09-19 03:36:47,864 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Eyecite found 2 citations
+2025-09-19 03:36:47,864 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 3: Initial deduplication
+2025-09-19 03:36:47,868 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] After deduplication: 3 citations
+2025-09-19 03:36:47,868 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context
+2025-09-19 03:36:47,946 - src.unified_extraction_architecture - INFO - UnifiedExtractionArchitecture initialized
+2025-09-19 03:36:47,949 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:47,970 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:47,970 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:47,980 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,056 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:48,067 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:48,068 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:48,079 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,161 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:48,170 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:48,170 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:48,180 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,188 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Step 5: Normalizing citation components
+2025-09-19 03:36:48,189 - src.unified_citation_processor_v2 - INFO - [UNIFIED_EXTRACTION] Unified extraction complete: 3 citations
+2025-09-19 03:36:48,189 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 3 citations extracted
+2025-09-19 03:36:48,245 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:48,254 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:48,255 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:48,264 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,327 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:48,346 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:48,346 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:48,360 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,443 - src.utils.text_normalizer - DEBUG - Text normalization: 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...' -> 'State v. Johnson, 160 Wn.2d 500, 158 P.3d 677 (200...'
+2025-09-19 03:36:48,463 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State' -> 'State'
+2025-09-19 03:36:48,463 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'Johnson' -> 'Johnson'
+2025-09-19 03:36:48,478 - src.utils.text_normalizer - DEBUG - Case name cleaning: 'State v. Johnson' -> 'State v. Johnson'
+2025-09-19 03:36:48,492 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 3 citations for parallel relationships
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 0 parallel groups
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 3 citations
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 3 citations
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 3 citations
+2025-09-19 03:36:48,493 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-09-19 03:36:48,505 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 3 citations
+2025-09-19 03:36:48,505 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with unified system
+2025-09-19 03:36:48,505 - src.unified_citation_clustering - INFO - Starting unified citation clustering with verification enabled
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Starting unified clustering for 3 citations
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Step 1: Detecting parallel citations and creating clusters
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Detected 1 parallel citation groups (including proximity-based)
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Step 2: Extracting case names from first and years from last in each cluster
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Step 3: Verifying citations with CourtListener API
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Batch verifying 3 citations with CourtListener API
+2025-09-19 03:36:48,506 - src.unified_citation_clustering - INFO - Processing batch 1/1 (3 citations)
+2025-09-19 03:36:48,508 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-09-19 03:36:48,820 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 None
+2025-09-19 03:36:48,874 - src.unified_citation_clustering - WARNING -   Canonical: 'In re the Personal Restraint of Shale'
+2025-09-19 03:36:48,875 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:36:48,875 - src.unified_citation_clustering - WARNING -   Similarity: 0.00 - rejecting verification
+2025-09-19 03:36:48,892 - src.unified_citation_clustering - WARNING -   Canonical: 'Ramos v. State ex rel. Wyoming Workers' Safety & Compensation Division'
+2025-09-19 03:36:48,892 - src.unified_citation_clustering - WARNING -   Extracted: 'State v. Johnson'
+2025-09-19 03:36:48,892 - src.unified_citation_clustering - WARNING -   Similarity: 0.17 - rejecting verification
+2025-09-19 03:36:48,901 - src.unified_citation_clustering - INFO - Applying comprehensive verification to 3 unverified citations
+2025-09-19 03:36:48,905 - src.unified_citation_clustering - INFO - Applying enhanced fallback verification to 3 unverified citations
+2025-09-19 03:36:48,907 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:36:48,908 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:36:48,908 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500, 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:36:48,908 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:36:48,908 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:36:48,908 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:36:48,908 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 160 Wash.2d 500
+2025-09-19 03:36:48,908 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 160 Wash.2d 500: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - Attempting enhanced fallback verification for: 158 P.3d 677
+2025-09-19 03:36:48,909 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Verification result for 158 P.3d 677: {'verified': False, 'source': 'sync_limitation', 'canonical_name': None, 'canonical_date': None, 'url': None, 'confidence': 0.0, 'error': 'Cannot run sync verification from within event loop'}
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Result keys: ['verified', 'source', 'canonical_name', 'canonical_date', 'url', 'confidence', 'error']
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Source field: sync_limitation
+2025-09-19 03:36:48,909 - src.unified_citation_clustering - INFO - DEBUG: Verified field: False
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Step 4: Merging clusters based on propagated extracted case names and years
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Merged 1 initial clusters into 1 final clusters (preserving parallel relationships)
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Step 5: Propagating verification status to parallel citations
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Propagating verification status across 1 clusters
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Verification propagation completed
+2025-09-19 03:36:48,910 - src.unified_citation_clustering - INFO - Unified clustering completed: 1 clusters created
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using unified clustering
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Starting verification for 3 citations
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500, 158 P.3d 677 - Missing canonical name
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 160 Wash.2d 500 - Missing canonical name
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - WARNING - [VERIFICATION] FAILED: CourtListener verification failed validation: 158 P.3d 677 - Missing canonical name
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener results: 0/3 verified
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] 3 citations need fallback verification
+2025-09-19 03:36:48,911 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:36:48,912 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500, 158 P.3d 677
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 160 Wash.2d 500
+2025-09-19 03:36:48,912 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 160 Wash.2d 500
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Attempting fallback verification: 158 P.3d 677
+2025-09-19 03:36:48,912 - src.enhanced_fallback_verifier - WARNING - Sync verification called from within event loop for 158 P.3d 677
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback results: 0/3 verified
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === FINAL VERIFICATION SUMMARY ===
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Total citations processed: 3
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Successfully verified: 0 (0.0%)
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] CourtListener verified: 0
+2025-09-19 03:36:48,912 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Fallback verified: 0
+2025-09-19 03:36:48,913 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Still unverified: 3
+2025-09-19 03:36:48,913 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] === END VERIFICATION SUMMARY ===
+2025-09-19 03:36:48,913 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After verification: 3 citations
+2025-09-19 03:36:48,913 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 3 final citations, 1 clusters
+2025-09-19 18:51:19,338 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 19:34:44,130 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 20:11:41,747 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 20:23:25,286 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 20:43:42,807 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 20:51:15,478 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 20:53:57,689 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 21:07:28,694 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 21:36:15,417 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 21:55:01,731 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 22:13:44,432 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 22:23:41,125 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 15:28:20,408 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-09-19 15:28:20,986 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-09-19 15:28:21,634 - src.unified_citation_processor_v2 - INFO - Comprehensive websearch engine successfully imported
+2025-09-19 15:28:21,636 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-09-19 15:28:21,641 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-09-19 15:28:21,641 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported
+2025-09-19 15:28:21,653 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'for' statement on line 425 (citation_clustering.py, line 426)
+2025-09-19 15:28:21,664 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'except' statement on line 423 (canonical_case_name_service.py, line 425)
+2025-09-19 22:39:50,769 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 22:42:07,906 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 22:44:54,955 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 22:55:44,447 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:17:06,664 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:25:45,686 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:33:08,896 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:37:54,278 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:46:09,965 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-19 23:49:55,440 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-20 00:31:10,644 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-20 00:39:58,554 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-20 01:04:54,535 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-09-20 01:47:29,711 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log

@@ -1,5 +1,14 @@
 <template>
   <div class="enhanced-validator">
+    <!-- DEPRECATION NOTICE -->
+    <div class="alert alert-warning mb-4" role="alert">
+      <h4 class="alert-heading">⚠️ Component Deprecated</h4>
+      <p><strong>EnhancedValidator.vue</strong> has been deprecated and is no longer used in the application routing.</p>
+      <p class="mb-0">All functionality has been migrated to <strong>HomeView.vue</strong> with enhanced async polling, better error handling, and improved processing mode detection.</p>
+      <hr>
+      <p class="mb-0"><small>This component is kept for reference only and should not be used in production.</small></p>
+    </div>
+
     <!-- Header -->
     <div class="header text-center mb-4">
       <h1 class="results-title">{{ headerTitle }}</h1>
@@ -7,12 +16,11 @@
     </div>
 
     <!-- Loading State -->
-    <div v-if="showLoading && !results" class="loading-container">
+    <div v-if="showLoading" class="loading-container">
       <div class="loading-content">
-        <div class="spinner-container">
-          <div class="custom-spinner" role="status" ref="spinnerElement">
-            <div class="spinner-circle" ref="spinnerCircle"></div>
-            <span class="visually-hidden">Processing...</span>
+        <div class="loading-spinner">
+          <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Loading...</span>
           </div>
         </div>
         <h3>Processing Citations</h3>
@@ -23,7 +31,7 @@
             <div class="progress-bar">
               <div class="progress-fill" :style="{ width: globalProgress.progressPercent + '%' }"></div>
             </div>
-            <span class="progress-text">{{ globalProgress.progressState.currentStep || 'Processing...' }}</span>
+            <p class="progress-text">{{ globalProgress.progressPercent }}% complete</p>
           </div>
         </div>
       </div>
@@ -155,10 +163,10 @@ export default {
             } catch (error) {
               console.warn('Progress polling error:', error);
             }
-          }, 1000); // Poll every second
+          }, 500); // Poll every 500ms for more responsive sync progress
         };
 
-        // Start polling immediately
+        // Start polling immediately for sync progress feedback
         startProgressPolling();
 
         // Cleanup function to stop polling
@@ -167,6 +175,66 @@ export default {
             clearInterval(progressPollingInterval);
             progressPollingInterval = null;
           }
+        };
+
+        // Async job polling function
+        const pollAsyncJob = async (jobId) => {
+          console.log('🔄 Polling async job:', jobId);
+          
+          const maxAttempts = 60; // 5 minutes max (60 * 5 seconds)
+          let attempts = 0;
+          
+          const poll = async () => {
+            try {
+              attempts++;
+              console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
+              
+              const statusResponse = await axios.get(`/casestrainer/api/task_status/${jobId}`);
+              const jobData = statusResponse.data;
+              
+              console.log('📋 Job status:', jobData.status);
+              
+              if (jobData.status === 'completed') {
+                console.log('✅ Async job completed successfully');
+                
+                // Update results with completed job data
+                results.value = {
+                  citations: jobData.citations || [],
+                  clusters: jobData.clusters || []
+                };
+                
+                // Complete global progress
+                globalProgress.completeProgress(jobData, 'enhanced-validator');
+                
+                return true;
+              } else if (jobData.status === 'failed') {
+                console.error('❌ Async job failed:', jobData.error);
+                globalProgress.setError(jobData.error || 'Async processing failed');
+                return false;
+              } else if (attempts >= maxAttempts) {
+                console.error('❌ Async job polling timeout');
+                globalProgress.setError('Processing timeout - please try again');
+                return false;
+              } else {
+                // Job still running, continue polling
+                console.log('⏳ Job still running, continuing to poll...');
+                setTimeout(poll, 5000); // Poll every 5 seconds
+                return null; // Continue polling
+              }
+            } catch (error) {
+              console.error('❌ Error polling async job:', error);
+              if (attempts >= maxAttempts) {
+                globalProgress.setError('Error checking job status');
+                return false;
+              } else {
+                // Retry on error
+                setTimeout(poll, 5000);
+                return null;
+              }
+            }
+          };
+          
+          return await poll();
         };
 
         let response;
@@ -269,22 +337,49 @@ export default {
 
         const result = response.data;
         
-        // Update results - handle nested structure from backend
-        if (result.result) {
-          // Backend returns nested structure: { result: { citations: [...], clusters: [...] } }
-          // Ensure we have the expected structure with clusters and citations
+        // Check processing mode to handle progress appropriately
+        const processingMode = result.metadata?.processing_mode;
+        console.log('🔍 Processing mode detected:', processingMode);
+        
+        if (processingMode === 'immediate') {
+          // For immediate/sync processing, complete progress immediately
+          globalProgress.completeProgress(result, 'enhanced-validator');
+        } else if (processingMode === 'queued') {
+          // For async processing, poll for job completion
+          const jobId = result.metadata?.job_id;
+          if (jobId) {
+            console.log('🔄 Starting async job polling for:', jobId);
+            await pollAsyncJob(jobId);
+          } else {
+            console.error('❌ No job_id found for queued processing');
+            globalProgress.setError('No job ID found for async processing');
+          }
+        }
+        
+        // Update results - handle flat structure from backend
+        // Backend now returns flat structure: { citations: [...], clusters: [...] }
+        if (result.citations || result.clusters) {
+          // Direct flat structure (current API format)
+          results.value = {
+            citations: result.citations || [],
+            clusters: result.clusters || []
+          };
+        } else if (result.result) {
+          // Legacy nested structure fallback
           if (result.result.clusters || result.result.citations) {
             results.value = result.result;
           } else {
-            // If the structure is different, try to normalize it
             results.value = {
               clusters: result.result.clusters || [],
               citations: result.result.citations || []
             };
           }
         } else {
-          // Fallback for direct structure
-          results.value = result;
+          // Fallback for any other structure
+          results.value = {
+            citations: [],
+            clusters: []
+          };
         }
         
       } catch (err) {

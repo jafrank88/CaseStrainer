@@ -1326,41 +1326,61 @@ class UnifiedCitationClusterer:
         return merged_clusters
     
     def _format_clusters_for_output(self, clusters: Dict[str, List[Any]]) -> List[Dict[str, Any]]:
-        """Format clusters for output with proper metadata."""
+        """Format clusters for output with proper case name and date extraction."""
         formatted_clusters = []
         
         for cluster_id, citations in clusters.items():
-            if len(citations) < 1:
-                continue
-            
+            # Extract case name and year from citations
+            # Prioritize case names from verified citations
             case_name = None
             year = None
             
-            for citation in citations:
-                if not case_name:
-                    name = getattr(citation, 'extracted_case_name', None)
-                    if name and name != "N/A":
-                        case_name = name
-                
-                if not year:
-                    date = getattr(citation, 'extracted_date', None)
-                    if date and date != "N/A":
-                        year = date
-                
-                if case_name and year:
-                    break
+            # First, try to get case name from verified citations
+            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            if verified_citations:
+                for citation in verified_citations:
+                    if not case_name:
+                        name = getattr(citation, 'extracted_case_name', None)
+                        if name and name != "N/A" and name != "Unknown Case":
+                            case_name = name
+                    
+                    if not year:
+                        date = getattr(citation, 'extracted_date', None)
+                        if date and date != "N/A" and date != "Unknown Year":
+                            year = date
+                    
+                    if case_name and year:
+                        break
+            
+            # If no case name from verified citations, try all citations
+            if not case_name or not year:
+                for citation in citations:
+                    if not case_name:
+                        name = getattr(citation, 'extracted_case_name', None)
+                        if name and name != "N/A" and name != "Unknown Case":
+                            case_name = name
+                    
+                    if not year:
+                        date = getattr(citation, 'extracted_date', None)
+                        if date and date != "N/A" and date != "Unknown Year":
+                            year = date
+                    
+                    if case_name and year:
+                        break
             
             cluster_dict = {
                 'cluster_id': cluster_id,
                 'case_name': case_name or "Unknown Case",
+                'extracted_case_name': case_name or "Unknown Case",  # Frontend compatibility
                 'year': year or "Unknown Year",
+                'extracted_date': year or "Unknown Year",  # Frontend compatibility
                 'size': len(citations),
                 'citations': [c.citation for c in citations],
                 'citation_objects': [self._serialize_citation_object(c) for c in citations],
                 'cluster_type': 'unified_extracted'
             }
             
-            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            # Use the verified_citations we already calculated above
             any_verified = len(verified_citations) > 0
             
             best_verified_citation = None
@@ -1376,6 +1396,18 @@ class UnifiedCitationClusterer:
                 
                 verified_citations.sort(key=source_priority)
                 best_verified_citation = verified_citations[0]
+                
+                # Add canonical data from best verified citation to cluster
+                canonical_name = getattr(best_verified_citation, 'canonical_name', None)
+                canonical_date = getattr(best_verified_citation, 'canonical_date', None)
+                canonical_url = getattr(best_verified_citation, 'canonical_url', None)
+                
+                if canonical_name:
+                    cluster_dict['canonical_name'] = canonical_name
+                if canonical_date:
+                    cluster_dict['canonical_date'] = canonical_date
+                if canonical_url:
+                    cluster_dict['canonical_url'] = canonical_url
             
             for citation in citations:
                 if not hasattr(citation, 'metadata'):

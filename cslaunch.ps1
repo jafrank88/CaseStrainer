@@ -1274,6 +1274,7 @@ function Test-FrontendChanges {
     $frontendFiles = @(
         "casestrainer-vue-new\src\stores\progressStore.js",
         "casestrainer-vue-new\src\views\HomeView.vue",
+        "casestrainer-vue-new\src\views\EnhancedValidator.vue",
         "casestrainer-vue-new\src\components\CitationResults.vue",
         "casestrainer-vue-new\src\components\ProcessingProgress.vue",
         "casestrainer-vue-new\src\main.js",

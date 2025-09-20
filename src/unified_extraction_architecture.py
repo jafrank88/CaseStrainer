@@ -1,4 +1,4 @@
-﻿"""
+"""
 Unified Extraction Architecture
 ==============================
 
@@ -168,6 +168,74 @@ class UnifiedExtractionArchitecture:
         
         return result
     
+    def _try_patterns_on_context(self, context: str, citation: str, citation_start_in_context: int, citation_end_in_context: int, debug: bool) -> Optional[ExtractionResult]:
+        """Try extraction patterns on a specific context window."""
+        # Simple pattern for case names: "Name v. Name" or "In re Name"
+        case_patterns = [
+            r'([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|v\.|vs\.|versus)\s+[A-Z][a-zA-Z\'\.\&\s]*)*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|[A-Z][a-zA-Z\'\.\&\s]*)*)*)',
+            r'(In\s+re\s+[A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|[A-Z][a-zA-Z\'\.\&\s]*)*)*)',
+            r'([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&)*\s*[A-Z][a-zA-Z\'\.\&\s]*)*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&)*\s*[A-Z][a-zA-Z\'\.\&\s]*)*)'
+        ]
+        
+        if debug:
+            logger.warning(f"🔍 ADJUSTED_CONTEXT_EXTRACTION: Testing context: '{context}'")
+        
+        for i, pattern in enumerate(case_patterns):
+            matches = list(re.finditer(pattern, context, re.IGNORECASE))
+            
+            if debug:
+                logger.warning(f"🔍 PATTERN_{i+1}: Found {len(matches)} matches")
+            
+            if matches:
+                # Find the closest match to the citation
+                best_match = None
+                min_distance = float('inf')
+                
+                for match in matches:
+                    match_end_in_context = match.end()
+                    distance = abs(match_end_in_context - citation_start_in_context)
+                    
+                    if debug:
+                        logger.warning(f"🔍 MATCH: '{match.group(0)}' at distance {distance}")
+                    
+                    if distance < min_distance:
+                        min_distance = distance
+                        best_match = match
+                
+                if best_match:
+                    # Extract case name from match
+                    if best_match.group(0).startswith('In re'):
+                        case_name = best_match.group(1) if best_match.lastindex >= 1 else best_match.group(0)
+                    else:
+                        # Standard "A v. B" format
+                        plaintiff = best_match.group(1) if best_match.lastindex >= 1 else ""
+                        defendant = best_match.group(2) if best_match.lastindex >= 2 else ""
+                        if plaintiff and defendant:
+                            case_name = f"{plaintiff.strip()} v. {defendant.strip()}"
+                        else:
+                            case_name = best_match.group(0)
+                    
+                    # Clean up the case name
+                    case_name = case_name.strip()
+                    case_name = re.sub(r'\s+', ' ', case_name)  # Normalize whitespace
+                    
+                    if debug:
+                        logger.warning(f"✅ EXTRACTED_CASE_NAME: '{case_name}' using adjusted context")
+                    
+                    # Simple validation
+                    if len(case_name) > 5 and 'v.' in case_name:
+                        return ExtractionResult(
+                            case_name=case_name,
+                            year="Unknown",
+                            confidence=0.9,
+                            method=f"adjusted_context_pattern_{i+1}",
+                            context=context[:100] + "..." if len(context) > 100 else context
+                        )
+        
+        if debug:
+            logger.warning(f"❌ NO_MATCH: No case name found in adjusted context")
+        return None
+    
     def _extract_with_context(
         self, 
         text: str, 
@@ -178,8 +246,39 @@ class UnifiedExtractionArchitecture:
     ) -> Optional[ExtractionResult]:
         """Extract case name using context window around citation position."""
         try:
-            context_start = max(0, start_index - 500)  # Increased from 200 to 500 to capture full case names
-            context_end = min(len(text), end_index + 100)  # Increased from 50 to 100
+            # IMPROVED NESTED CITATION DETECTION
+            # First, check if this citation is in a "quoting" context
+            text_before_citation = text[:start_index]
+            
+            # Look for "quoting" pattern with case name
+            import re
+            quoting_match = re.search(r'quoting\s+([A-Z][^,]+v\.\s+[A-Z][^,]+)', text_before_citation)
+            
+            if quoting_match:
+                # This appears to be a quoted/nested citation
+                quoted_case_name = quoting_match.group(1).strip()
+                quoting_pos = quoting_match.start()
+                distance_to_citation = start_index - quoting_pos
+                
+                if debug:
+                    logger.warning(f"🔍 QUOTING_DETECTED: Found 'quoting {quoted_case_name}' at distance {distance_to_citation}")
+                
+                # If the quoting is within reasonable distance (e.g., 200 chars), use it
+                if distance_to_citation < 200:
+                    if debug:
+                        logger.warning(f"✅ NESTED_CITATION_SUCCESS: Using quoted case name '{quoted_case_name}'")
+                    
+                    return ExtractionResult(
+                        case_name=quoted_case_name,
+                        year="Unknown",
+                        confidence=0.95,
+                        method="nested_quoting_pattern",
+                        context=f"quoting {quoted_case_name}"
+                    )
+            
+            # Fallback to original context-based extraction
+            context_start = max(0, start_index - 500)
+            context_end = min(len(text), end_index + 100)
             context = text[context_start:context_end]
             
             if debug:

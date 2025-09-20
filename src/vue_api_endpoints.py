@@ -252,6 +252,11 @@ def analyze_text():
                 # Add progress data to result
                 result['progress_data'] = progress_tracker.get_progress_data()
                 
+                # Add processing mode for frontend
+                if 'metadata' not in result:
+                    result['metadata'] = {}
+                result['metadata']['processing_mode'] = 'immediate'
+                
             else:
                 # Async processing - return task info immediately
                 logger.info(f"[Request {request_id}] Queuing for async processing with progress tracking")
@@ -276,8 +281,8 @@ def analyze_text():
                     progress_tracker.complete_step(0, 'Queued for background processing')
                     
                     result['progress_data'] = progress_tracker.get_progress_data()
-                    result['progress_endpoint'] = f'/casestrainer/api/progress/{task_id}'
-                    result['progress_stream'] = f'/casestrainer/api/progress-stream/{task_id}'
+                    result['progress_endpoint'] = f'/casestrainer/api/analyze/progress/{task_id}'
+                    result['progress_stream'] = f'/casestrainer/api/analyze/progress-stream/{task_id}'
                     
                 elif processing_mode == 'sync_fallback':
                     # Sync fallback - treat like immediate processing
@@ -414,16 +419,21 @@ def get_task_status(task_id):
             
             # Flatten the result structure to match the sync response format
             if result and isinstance(result, dict):
+                # Handle nested result structure from worker
+                actual_result = result.get('result', result)  # Get nested result if it exists
+                
                 flattened_result = {
                     'task_id': task_id,
                     'status': 'completed',
-                    'citations': result.get('citations', []),
-                    'clusters': result.get('clusters', []),
-                    'success': result.get('success', True),
-                    'message': result.get('message', 'Task completed successfully'),
-                    'metadata': result.get('metadata', {}),
-                    'processing_time_ms': result.get('processing_time_ms', 0),
-                    'document_length': result.get('document_length', 0)
+                    'citations': actual_result.get('citations', []),
+                    'clusters': actual_result.get('clusters', []),
+                    'success': actual_result.get('success', True),
+                    'message': actual_result.get('message', 'Task completed successfully'),
+                    'metadata': actual_result.get('metadata', {}),
+                    'processing_time_ms': actual_result.get('processing_time_ms', 0),
+                    'document_length': actual_result.get('document_length', 0),
+                    'progress_data': actual_result.get('progress_data', {}),
+                    'statistics': actual_result.get('statistics', {})
                 }
                 logger.info(f"[Request {task_id}] Returning flattened result with {len(flattened_result.get('citations', []))} citations")
                 return jsonify(flattened_result)
@@ -655,6 +665,58 @@ def get_progress(task_id):
         return jsonify({
             'success': False,
             'error': str(e)
+        }), 500
+
+@vue_api.route('/analyze/progress/<task_id>', methods=['GET'])
+def get_analyze_progress(task_id):
+    """Get current progress for an analyze task (frontend-compatible endpoint)."""
+    return get_progress(task_id)
+
+@vue_api.route('/analyze/progress-stream/<task_id>', methods=['GET'])
+def analyze_progress_stream(task_id):
+    """Server-Sent Events stream for real-time progress updates (frontend-compatible endpoint)."""
+    return progress_stream(task_id)
+
+@vue_api.route('/processing_progress', methods=['GET'])
+def get_processing_progress():
+    """Get current processing progress for sync operations."""
+    try:
+        import time
+        
+        # Get current time to simulate progress
+        current_time = time.time()
+        
+        # Use a simple time-based progress simulation for sync processing
+        # This gives the user visual feedback during the brief sync processing time
+        progress_steps = [
+            {'step': 'Initializing...', 'progress': 10, 'message': 'Starting document analysis'},
+            {'step': 'Extract', 'progress': 25, 'message': 'Extracting citations from document'},
+            {'step': 'Analyze', 'progress': 50, 'message': 'Analyzing citation formats'},
+            {'step': 'Extract Names', 'progress': 70, 'message': 'Extracting case names'},
+            {'step': 'Verify', 'progress': 85, 'message': 'Verifying citations'},
+            {'step': 'Cluster', 'progress': 95, 'message': 'Clustering related citations'}
+        ]
+        
+        # Cycle through steps based on time (change every 200ms)
+        step_index = int((current_time * 5) % len(progress_steps))
+        current_step_data = progress_steps[step_index]
+        
+        return jsonify({
+            'status': 'processing',
+            'current_step': current_step_data['step'],
+            'progress': current_step_data['progress'],
+            'total_progress': current_step_data['progress'],
+            'message': current_step_data['message'],
+            'elapsed_time': min(5, int((current_time * 2) % 10)),  # Simulate elapsed time
+            'is_complete': False,
+            'processing_mode': 'sync'
+        })
+    except Exception as e:
+        logger.error(f"Error getting processing progress: {str(e)}", exc_info=True)
+        return jsonify({
+            'status': 'error',
+            'error': str(e),
+            'is_complete': True
         }), 500
 
 @vue_api.route('/progress-stream/<task_id>', methods=['GET'])
