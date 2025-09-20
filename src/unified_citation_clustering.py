@@ -375,6 +375,8 @@ class UnifiedCitationClusterer:
             return 'f3d'
         elif 'f2d' in citation_lower:
             return 'f2d'
+        elif 'wl' in citation_lower:
+            return 'wl'
         else:
             return 'unknown'
     
@@ -447,6 +449,10 @@ class UnifiedCitationClusterer:
         
         if reporter1 == reporter2:
             return False  # Same reporter type, not parallel
+        
+        # Special case: WL citations should never cluster together unless they're identical
+        if reporter1 == 'wl' and reporter2 == 'wl':
+            return citation1_text == citation2_text  # Only cluster if identical
         
         # Check if they match known parallel patterns
         if not self._match_parallel_patterns(citation1_text, citation2_text):
