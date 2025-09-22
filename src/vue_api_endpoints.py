@@ -208,9 +208,11 @@ def analyze_text():
             # Create progress tracker for this request
             from src.progress_tracker import create_progress_tracker
             progress_tracker = create_progress_tracker(request_id)
+            logger.info(f"[Request {request_id}] Created progress tracker: {progress_tracker.task_id}")
             
             # Start initial step
             progress_tracker.start_step(0, 'Initializing processing...')
+            logger.info(f"[Request {request_id}] Started initial step, progress: {progress_tracker.overall_progress}%")
             
             # Check if this should be processed immediately (sync) or queued (async)
             from src.api.services.citation_service import CitationService
@@ -227,10 +229,13 @@ def analyze_text():
                 logger.info(f"[Request {request_id}] Processing immediately (sync) with progress tracking")
                 
                 progress_tracker.complete_step(0, 'Initialization complete')
-                progress_tracker.start_step(1, 'Starting immediate processing...')
+                progress_tracker.start_step(1, 'Extracting citations...')
                 
                 from src.unified_input_processor import UnifiedInputProcessor
                 processor = UnifiedInputProcessor()
+                
+                # Update progress during processing
+                progress_tracker.update_step(1, 25, 'Starting citation extraction...')
                 
                 result = processor.process_any_input(
                     input_data=input_data,
@@ -238,13 +243,27 @@ def analyze_text():
                     request_id=request_id
                 )
                 
+                progress_tracker.update_step(1, 90, 'Citation extraction nearly complete...')
+                
                 # Update progress based on result
                 if result.get('success'):
                     progress_tracker.complete_step(1, 'Citation extraction completed')
+                    progress_tracker.start_step(2, 'Analyzing citations...')
+                    progress_tracker.update_step(2, 50, 'Normalizing citation formats...')
                     progress_tracker.complete_step(2, 'Analysis completed')
+                    
+                    progress_tracker.start_step(3, 'Extracting case names...')
+                    progress_tracker.update_step(3, 75, 'Processing case name patterns...')
                     progress_tracker.complete_step(3, 'Name extraction completed')
+                    
+                    progress_tracker.start_step(4, 'Clustering parallel citations...')
+                    progress_tracker.update_step(4, 60, 'Grouping related citations...')
                     progress_tracker.complete_step(4, 'Clustering completed')
+                    
+                    progress_tracker.start_step(5, 'Verifying citations...')
+                    progress_tracker.update_step(5, 80, 'Checking citation validity...')
                     progress_tracker.complete_step(5, 'Verification completed')
+                    
                     progress_tracker.complete_all('Immediate processing completed successfully')
                 else:
                     progress_tracker.fail_step(1, 'Processing failed')
@@ -457,36 +476,81 @@ def get_task_status(task_id):
         else:
             logger.info(f"[Request {task_id}] Task still processing")
             
-            # Try to get progress information from job meta
+            # Try to get REAL progress information from progress tracker
             progress_info = {}
-            if hasattr(job, 'meta') and job.meta:
+            progress = 10  # Default fallback
+            current_step = "Initialize"
+            message = "Initializing async processing..."
+            
+            try:
+                from src.progress_tracker import get_progress_tracker
+                tracker = get_progress_tracker(task_id)
+                
+                if tracker:
+                    progress_data = tracker.get_progress_data()
+                    logger.info(f"[Request {task_id}] Retrieved progress data: {progress_data}")
+                    
+                    if progress_data:
+                        # Use real progress data from the async worker
+                        progress = progress_data.get('overall_progress', 10)
+                        
+                        # FIXED: Use correct field names from progress tracker
+                        current_step_index = progress_data.get('current_step', 0)
+                        steps = progress_data.get('steps', [])
+                        if current_step_index < len(steps):
+                            current_step = steps[current_step_index].get('name', 'Initialize')
+                        else:
+                            current_step = 'Initialize'
+                            
+                        message = progress_data.get('current_message', 'Processing...')
+                        progress_info = progress_data
+                        
+                        logger.info(f"[Request {task_id}] Using REAL progress: {progress}% - {current_step}: {message}")
+                    else:
+                        logger.warning(f"[Request {task_id}] Progress tracker exists but no progress data available")
+                else:
+                    logger.warning(f"[Request {task_id}] No progress tracker found for task")
+                    
+            except Exception as e:
+                logger.error(f"[Request {task_id}] Error getting real progress data: {e}")
+                
+            # Fallback to job meta if available
+            if hasattr(job, 'meta') and job.meta and not progress_info:
                 progress_info = job.meta
+                logger.info(f"[Request {task_id}] Using job meta as fallback: {progress_info}")
+                
+            # Only use simulated progress as last resort if no real data available
+            if not progress_info or progress <= 10:
+                import time
+                job_age = time.time() - (job.created_at.timestamp() if job.created_at else time.time())
+                
+                logger.warning(f"[Request {task_id}] Falling back to simulated progress (job age: {job_age:.1f}s)")
+                
+                # Simulate progress phases based on elapsed time (fallback only)
+                if job_age < 5:
+                    progress = max(progress, 15)
+                    current_step = "Extract"
+                    message = "Extracting citations from document..."
+                elif job_age < 10:
+                    progress = max(progress, 30)
+                    current_step = "Analyze"
+                    message = "Analyzing citation patterns..."
+                elif job_age < 15:
+                    progress = max(progress, 50)
+                    current_step = "Extract Names"
+                    message = "Extracting case names and dates..."
+                elif job_age < 20:
+                    progress = max(progress, 70)
+                    current_step = "Verify"
+                    message = "Verifying citations with legal databases..."
+                else:
+                    progress = max(progress, 85)
+                    current_step = "Cluster"
+                    message = "Creating citation clusters..."
             
-            # Create simulated progress based on job age for better UX
+            # Calculate elapsed time
             import time
-            job_age = time.time() - (job.created_at.timestamp() if job.created_at else time.time())
-            
-            # Simulate progress phases based on elapsed time
-            if job_age < 5:
-                progress = 10
-                current_step = "Extract"
-                message = "Extracting citations from document..."
-            elif job_age < 10:
-                progress = 30
-                current_step = "Analyze"
-                message = "Analyzing citation patterns..."
-            elif job_age < 15:
-                progress = 50
-                current_step = "Extract Names"
-                message = "Extracting case names and dates..."
-            elif job_age < 20:
-                progress = 70
-                current_step = "Verify"
-                message = "Verifying citations with legal databases..."
-            else:
-                progress = 85
-                current_step = "Cluster"
-                message = "Creating citation clusters..."
+            elapsed_time = int(time.time() - (job.created_at.timestamp() if job.created_at else time.time()))
             
             return jsonify({
                 'task_id': task_id,
@@ -494,11 +558,16 @@ def get_task_status(task_id):
                 'message': message,
                 'progress': progress,
                 'current_step': current_step,
+                'elapsed_time': elapsed_time,  # Keep for backward compatibility
+                'elapsedTime': elapsed_time,   # FIXED: Add camelCase version for Vue.js
                 'progress_data': {
                     'phase': current_step.lower(),
                     'progress': progress,
                     'message': message,
-                    'elapsed_time': int(job_age)
+                    'elapsed_time': elapsed_time,
+                    'elapsedTime': elapsed_time,  # FIXED: Add camelCase version
+                    'real_progress': bool(progress_info),  # Indicate if using real or simulated progress
+                    'full_progress_data': progress_info  # Include full progress data for debugging
                 }
             })
             
@@ -741,15 +810,30 @@ def get_processing_progress():
         step_index = int((current_time * 5) % len(progress_steps))
         current_step_data = progress_steps[step_index]
         
+        # FIXED: Add required fields for Vue.js progress component
+        elapsed_time = min(5, int((current_time * 2) % 10))
+        estimated_total = 8  # Estimate 8 seconds total for sync processing
+        
         return jsonify({
             'status': 'processing',
             'current_step': current_step_data['step'],
             'progress': current_step_data['progress'],
             'total_progress': current_step_data['progress'],
             'message': current_step_data['message'],
-            'elapsed_time': min(5, int((current_time * 2) % 10)),  # Simulate elapsed time
+            'elapsed_time': elapsed_time,  # Keep for backward compatibility
+            'elapsedTime': elapsed_time,   # FIXED: Add camelCase version for Vue.js
             'is_complete': False,
-            'processing_mode': 'sync'
+            'processing_mode': 'sync',
+            # REQUIRED FIELDS for Vue.js progress component:
+            'startTime': (current_time - elapsed_time) * 1000,  # Convert to milliseconds
+            'estimatedTotalTime': estimated_total,  # Must be > 0 for progress bar to show
+            'isActive': True,
+            'taskId': 'sync-processing',
+            'stepProgress': current_step_data['progress'],
+            'processingSteps': [
+                {'step': step['step'], 'completed': step['progress'] <= current_step_data['progress']} 
+                for step in progress_steps
+            ]
         })
     except Exception as e:
         logger.error(f"Error getting processing progress: {str(e)}", exc_info=True)

@@ -1093,7 +1093,7 @@ class UnifiedDocumentProcessor:
             citation_dict = {}
             
             standard_fields = [
-                'citation', 'case_name', 'extracted_case_name', 'canonical_name',
+                'citation', 'extracted_case_name', 'canonical_name', 'cluster_case_name',
                 'extracted_date', 'canonical_date', 'verified', 'court', 'confidence',
                 'method', 'pattern', 'context', 'is_parallel', 'is_cluster',
                 'parallel_citations', 'cluster_members', 'pinpoint_pages',
@@ -1106,7 +1106,7 @@ class UnifiedDocumentProcessor:
                     value = getattr(citation, field)
                     citation_dict[field] = value
                 else:
-                    if field in ['case_name', 'extracted_case_name', 'canonical_name']:
+                    if field in ['extracted_case_name', 'canonical_name', 'cluster_case_name']:
                         citation_dict[field] = 'N/A'
                     elif field in ['verified', 'is_parallel', 'is_cluster']:
                         citation_dict[field] = False
@@ -1114,10 +1114,20 @@ class UnifiedDocumentProcessor:
                         citation_dict[field] = 0.0
                     elif field in ['parallel_citations', 'cluster_members', 'pinpoint_pages', 'docket_numbers', 'case_history']:
                         citation_dict[field] = []
+            
                     elif field in ['start_index', 'end_index']:
                         citation_dict[field] = -1
                     else:
                         citation_dict[field] = None
+            
+            # FIXED: Use cluster_case_name as primary case_name for API response
+            cluster_case_name = citation_dict.get('cluster_case_name')
+            extracted_name = citation_dict.get('extracted_case_name')
+            canonical_name = citation_dict.get('canonical_name')
+            
+            # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
+            # Frontend will use extracted_case_name and canonical_name directly
+            logger.debug(f"Data separation maintained - cluster: '{cluster_case_name}', extracted: '{extracted_name}', canonical: '{canonical_name}'")
             
             return citation_dict
         
@@ -1127,7 +1137,6 @@ class UnifiedDocumentProcessor:
             logger.warning(f"Unable to convert citation object to dict: {type(citation)}")
             return {
                 'citation': str(citation),
-                'case_name': 'N/A',
                 'error': 'Unable to convert citation object'
             }
     
@@ -1202,7 +1211,6 @@ class UnifiedDocumentProcessor:
                             for result in enhanced_results:
                                 citation_dict = {
                                     'citation': result['citation'],
-                                    'case_name': result.get('shared_case_name') or result.get('enhanced_case_name') or result.get('original_case_name'),
                                     'extracted_case_name': result.get('shared_case_name') or result.get('enhanced_case_name') or result.get('original_case_name'),
                                     'canonical_name': result.get('canonical_name'),
                                     'extracted_date': result.get('shared_year') or result.get('enhanced_year') or result.get('original_year'),
@@ -1254,7 +1262,7 @@ class UnifiedDocumentProcessor:
                         
                         statistics = {
                             'total_citations': len(formatted_citations),
-                            'unique_cases': len(set(c.get('case_name') for c in formatted_citations if c.get('case_name') and c.get('case_name') != 'N/A')),
+                            'unique_cases': len(set(c.get('extracted_case_name') or c.get('cluster_case_name') for c in formatted_citations if (c.get('extracted_case_name') and c.get('extracted_case_name') != 'N/A') or (c.get('cluster_case_name') and c.get('cluster_case_name') != 'N/A'))),
                             'verified_citations': len([c for c in formatted_citations if c.get('verified')]),
                             'unverified_citations': len([c for c in formatted_citations if not c.get('verified')]),
                             'parallel_citations': len([c for c in formatted_citations if c.get('is_parallel')]),
@@ -1359,7 +1367,7 @@ class UnifiedDocumentProcessor:
         case_names = set()
         
         for citation in citations:
-            for field in ['case_name', 'extracted_case_name', 'canonical_name']:
+            for field in ['extracted_case_name', 'canonical_name']:
                 name = citation.get(field)
                 if name and name != "N/A" and len(name) > 3:
                     case_names.add(name)

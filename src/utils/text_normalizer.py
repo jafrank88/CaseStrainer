@@ -153,9 +153,9 @@ def clean_extracted_case_name(case_name: str) -> str:
         return case_name
     
     # Remove leading text that doesn't belong to case names
-    # Common patterns that appear before case names
+    # FIXED: More specific patterns that don't destroy valid case names like "Spokeo, Inc."
     leading_patterns = [
-        r'^[^A-Z]*',  # Remove non-capital letters at start
+        # Remove specific legal phrases that appear before case names
         r'^(court|court\.|this\s+court|we\s+review|also\s+an?\s+issue|statutory\s+interpretation|questions?\s+of\s+law|de\s+novo|in\s+light\s+of|the\s+record\s+certified|federal\s+court)[\s\.]*',
         r'^(and|or|but|that|this|is|also|we|may|ask|resolution|of|that|question|necessary|to|resolve|case|before)[\s\.]*',
         r'^(see|citing|quoting|accord|id\.|ibid\.|brief\s+at|opening\s+br\.|reply\s+br\.)[\s\.]*',
@@ -163,6 +163,7 @@ def clean_extracted_case_name(case_name: str) -> str:
         r'^[^A-Z]*an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*',
         r'^[^A-Z]*interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*',
         r'^[^A-Z]*statutory\s+interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*',
+        # REMOVED: r'^[^A-Z]*' - This was too aggressive and destroyed valid case names
     ]
     
     cleaned = case_name

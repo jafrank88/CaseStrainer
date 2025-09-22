@@ -51,14 +51,40 @@ class CitationResult:
             
     def to_dict(self):
         """Convert the CitationResult to a dictionary for JSON serialization."""
+        
+        # Get cluster case name from attribute or metadata
+        cluster_case_name = getattr(self, 'cluster_case_name', None)
+        # Also check metadata if direct attribute is not set
+        if not cluster_case_name and hasattr(self, 'metadata') and self.metadata:
+            cluster_case_name = self.metadata.get('cluster_case_name')
+            
+        extracted_case_name = self.extracted_case_name
+        canonical_name = self.canonical_name
+        
+        # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
+        # Frontend will use extracted_case_name and canonical_name directly
+        
+        # Debug logging for data separation
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.debug(f"DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+        
+        # FIXED: If we have canonical information, the citation should be considered verified
+        verified_status = self.verified
+        if not verified_status and (canonical_name and canonical_name != 'N/A' or self.canonical_url):
+            verified_status = True
+            logger.debug(f"VERIFICATION_FIX: Set verified=True for {self.citation} due to canonical info")
+            
         result = {
             'citation': self.citation,
-            'extracted_case_name': self.extracted_case_name,
+            # REMOVED: case_name field to prevent contamination
+            'extracted_case_name': extracted_case_name,
             'extracted_date': self.extracted_date,
-            'canonical_name': self.canonical_name,
+            'canonical_name': canonical_name,
             'canonical_date': self.canonical_date,
             'canonical_url': self.canonical_url,
-            'verified': self.verified,
+            'cluster_case_name': cluster_case_name,  # FIXED: Add cluster_case_name field
+            'verified': verified_status,  # FIXED: Use corrected verification status
             'url': self.url,
             'court': self.court,
             'docket_number': self.docket_number,

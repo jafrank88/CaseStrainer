@@ -122,8 +122,13 @@ class ProgressTracker:
     
     def _update_overall_progress(self):
         """Update overall progress based on step progress."""
+        if not self.steps:
+            self.overall_progress = 0
+            return
+            
         total_progress = sum(step.progress for step in self.steps)
-        self.overall_progress = min(100, total_progress // len(self.steps))
+        # FIXED: Use float division to avoid integer division issues
+        self.overall_progress = min(100, int(total_progress / len(self.steps)))
         
         # Update status based on progress
         if self.overall_progress == 100:
@@ -138,7 +143,7 @@ class ProgressTracker:
     
     def get_progress_data(self) -> Dict[str, Any]:
         """Get current progress data for API responses."""
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = max(0.0, time.time() - self.start_time)  # Ensure non-negative
         
         return {
             'task_id': self.task_id,

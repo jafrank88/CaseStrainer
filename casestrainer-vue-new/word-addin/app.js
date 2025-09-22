@@ -346,9 +346,10 @@ class CaseTrainerWordAddin {
             statusElement.className = 'verification-status unverified';
         }
 
-        // Set case name
+        // Set case name (use extracted_case_name or canonical_name)
         const caseNameElement = clone.querySelector('.case-name');
-        caseNameElement.textContent = `Case: ${citation.case_name || 'N/A'}`;
+        const displayName = citation.extracted_case_name || citation.canonical_name || 'N/A';
+        caseNameElement.textContent = `Case: ${displayName}`;
 
         // Set date
         const dateElement = clone.querySelector('.date');
@@ -409,9 +410,10 @@ class CaseTrainerWordAddin {
             formatted += ' [Verified]';
         }
         
-        // Add case name if available
-        if (citation.case_name) {
-            formatted += ` (${citation.case_name})`;
+        // Add case name if available (use extracted_case_name or canonical_name)
+        const displayName = citation.extracted_case_name || citation.canonical_name;
+        if (displayName && displayName !== 'N/A') {
+            formatted += ` (${displayName})`;
         }
         
         return formatted;
@@ -421,8 +423,9 @@ class CaseTrainerWordAddin {
      * Show detailed citation information
      */
     showCitationDetails(citation) {
+        const displayName = citation.extracted_case_name || citation.canonical_name || 'N/A';
         const details = `
-Case Name: ${citation.case_name || 'N/A'}
+Case Name: ${displayName}
 Date: ${citation.canonical_date || citation.year || 'N/A'}
 Verified: ${citation.verified ? 'Yes' : 'No'}
 Sources: ${this.getVerificationSources(citation)}

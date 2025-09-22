@@ -1020,6 +1020,21 @@ class EnhancedFallbackVerifier:
         
         return task_wrapper()
     
+    def _run_verification_in_new_loop(self, citation_text: str, extracted_case_name: str = None) -> Dict[str, Any]:
+        """Run verification in a new event loop (for thread pool execution)."""
+        import asyncio
+        
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            result = loop.run_until_complete(
+                self.verify_citation(citation_text, extracted_case_name, extracted_date=None, has_courtlistener_data=False)
+            )
+            return result
+        finally:
+            loop.close()
+    
     def verify_citation_sync(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:
         """
         Synchronous version of verify_citation for use in non-async contexts.
@@ -1043,16 +1058,12 @@ class EnhancedFallbackVerifier:
             try:
                 loop = asyncio.get_event_loop()
                 if loop.is_running():
-                    logger.warning(f"Sync verification called from within event loop for {citation_text}")
-                    return {
-                        'verified': False,
-                        'source': 'sync_limitation',
-                        'canonical_name': None,
-                        'canonical_date': None,
-                        'url': None,
-                        'confidence': 0.0,
-                        'error': 'Cannot run sync verification from within event loop'
-                    }
+                    logger.info(f"Running verification in thread pool for {citation_text} (within event loop)")
+                    # Use thread pool executor to run sync verification from within event loop
+                    import concurrent.futures
+                    with concurrent.futures.ThreadPoolExecutor() as executor:
+                        future = executor.submit(self._run_verification_in_new_loop, citation_text, extracted_case_name)
+                        return future.result(timeout=30)  # 30 second timeout
             except RuntimeError:
                 pass
             

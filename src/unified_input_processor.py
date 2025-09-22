@@ -86,7 +86,12 @@ class UnifiedInputProcessor:
             Dictionary with success status, text, and metadata
         """
         if input_type == 'text':
-            return self._extract_from_text(input_data, request_id)
+            # Extract text from dict if needed
+            if isinstance(input_data, dict):
+                text = input_data.get('text', '')
+            else:
+                text = input_data
+            return self._extract_from_text(text, request_id)
         elif input_type == 'url':
             return self._extract_from_url(input_data, request_id)
         elif input_type == 'file':
@@ -293,7 +298,7 @@ class UnifiedInputProcessor:
             logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
             
             if should_process_immediately:
-                logger.info(f"[Unified Processor {request_id}] Processing immediately (short content) - using UnifiedCitationProcessorV2 directly")
+                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately (short content) - using UnifiedCitationProcessorV2 directly")
                 try:
                     from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
                     import asyncio
@@ -307,13 +312,29 @@ class UnifiedInputProcessor:
                     citations = result.get('citations', [])
                     converted_citations = []
                     for citation in citations:
-                        if hasattr(citation, '__dict__'):
-                            # Convert CitationResult object to dictionary
-                            citation_dict = citation.__dict__.copy()
+                        if hasattr(citation, 'to_dict'):
+                            # Use the fixed to_dict method that doesn't include case_name
+                            citation_dict = citation.to_dict()
+                            
+                            cluster_case_name = citation_dict.get('cluster_case_name')
+                            extracted_case_name = citation_dict.get('extracted_case_name')
+                            canonical_name = citation_dict.get('canonical_name')
+                            logger.debug(f"SYNC_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+                            
                             converted_citations.append(citation_dict)
                         else:
-                            # Already a dictionary
-                            converted_citations.append(citation)
+                            # Already a dictionary - maintain data separation
+                            citation_dict = citation.copy()
+                            
+                            # REMOVED: case_name field eliminated to prevent contamination
+                            # Frontend will use extracted_case_name and canonical_name directly
+                            
+                            cluster_case_name = citation_dict.get('cluster_case_name')
+                            extracted_case_name = citation_dict.get('extracted_case_name')
+                            canonical_name = citation_dict.get('canonical_name')
+                            logger.debug(f"SYNC_DICT_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+                                
+                            converted_citations.append(citation_dict)
                     
                     return {
                         'success': True,
@@ -339,8 +360,27 @@ class UnifiedInputProcessor:
                     from redis import Redis
                     from src.progress_manager import process_citation_task_direct
                     
-                    redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
-                    redis_conn = Redis.from_url(redis_url)
+                    # Try multiple Redis configurations for better connectivity
+                    redis_configs = [
+                        os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0'),
+                        'redis://localhost:6379/0',  # Local Redis fallback
+                        'redis://127.0.0.1:6379/0'   # Alternative local Redis
+                    ]
+                    
+                    redis_conn = None
+                    for redis_url in redis_configs:
+                        try:
+                            redis_conn = Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
+                            redis_conn.ping()  # Test connection
+                            logger.info(f"[Unified Processor {request_id}] Connected to Redis: {redis_url}")
+                            break
+                        except Exception as e:
+                            logger.debug(f"[Unified Processor {request_id}] Redis connection failed for {redis_url}: {e}")
+                            continue
+                    
+                    if not redis_conn:
+                        raise Exception("No Redis instance available")
+                        
                     queue = Queue('casestrainer', connection=redis_conn)
                     
                     job = queue.enqueue(
@@ -397,13 +437,29 @@ class UnifiedInputProcessor:
                             citations = result.get('citations', [])
                             converted_citations = []
                             for citation in citations:
-                                if hasattr(citation, '__dict__'):
-                                    # Convert CitationResult object to dictionary
-                                    citation_dict = citation.__dict__.copy()
+                                if hasattr(citation, 'to_dict'):
+                                    # Use the fixed to_dict method that doesn't include case_name
+                                    citation_dict = citation.to_dict()
+                                    
+                                    cluster_case_name = citation_dict.get('cluster_case_name')
+                                    extracted_case_name = citation_dict.get('extracted_case_name')
+                                    canonical_name = citation_dict.get('canonical_name')
+                                    logger.debug(f"FALLBACK_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+                                    
                                     converted_citations.append(citation_dict)
                                 else:
-                                    # Already a dictionary
-                                    converted_citations.append(citation)
+                                    # Already a dictionary - maintain data separation
+                                    citation_dict = citation.copy()
+                                    
+                                    # REMOVED: case_name field eliminated to prevent contamination
+                                    # Frontend will use extracted_case_name and canonical_name directly
+                                    
+                                    cluster_case_name = citation_dict.get('cluster_case_name')
+                                    extracted_case_name = citation_dict.get('extracted_case_name')
+                                    canonical_name = citation_dict.get('canonical_name')
+                                    logger.debug(f"FALLBACK_DICT_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+                                        
+                                    converted_citations.append(citation_dict)
                             
                             return {
                                 'success': True,

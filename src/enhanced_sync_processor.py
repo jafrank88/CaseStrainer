@@ -1161,7 +1161,7 @@ class EnhancedSyncProcessor:
                 if len(cluster) > 0:
                     clusters.append({
                         'cluster_id': f"fallback_{case_name.replace(' ', '_')}_{case_year}",
-                        'case_name': case_name,
+                        'extracted_case_name': case_name,
                         'year': case_year,
                         'size': len(cluster),
                         'citations': [self._get_citation_text(c) for c in cluster],
@@ -1551,11 +1551,20 @@ class EnhancedSyncProcessor:
         
         for citation in citations:
             if isinstance(citation, dict):
+                # FIXED: Use cluster_case_name as the primary case_name for API response
+                cluster_case_name = citation.get('cluster_case_name')
+                extracted_case_name = citation.get('extracted_case_name')
+                canonical_name = citation.get('canonical_name')
+                
+                # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
+                # Frontend will use extracted_case_name and canonical_name directly
+                logger.debug(f"DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+                
                 converted_citation = {
                     'citation': citation.get('citation', ''),
-                    'extracted_case_name': citation.get('extracted_case_name'),
+                    'extracted_case_name': extracted_case_name,
                     'extracted_date': citation.get('extracted_date'),
-                    'canonical_name': citation.get('canonical_name'),
+                    'canonical_name': canonical_name,
                     'canonical_date': citation.get('canonical_date'),
                     'canonical_url': citation.get('canonical_url'),
                     'verified': citation.get('verified', False),
@@ -1653,6 +1662,21 @@ class EnhancedSyncProcessor:
                             vr_url = verification_result.get('url')
                             if vr_url and isinstance(vr_url, str) and 'courtlistener.com' in vr_url:
                                 canonical_url = vr_url
+                    
+                    # FIXED: Use cluster_case_name as the primary case_name for API response
+                    cluster_case_name = getattr(citation, 'cluster_case_name', None)
+                    
+                    # Priority: cluster_case_name > extracted case_name > canonical_name > 'N/A'
+                    if cluster_case_name and cluster_case_name != 'N/A':
+                        api_case_name = cluster_case_name
+                    elif case_name and case_name != 'N/A':
+                        api_case_name = case_name
+                    elif canonical_name and canonical_name != 'N/A':
+                        api_case_name = canonical_name
+                    else:
+                        api_case_name = 'N/A'
+                        
+                    logger.debug(f"CASE_NAME_FIX_OBJ: cluster='{cluster_case_name}', extracted='{case_name}', canonical='{canonical_name}', final='{api_case_name}'")
                     
                     converted_citation = {
                         'citation': citation_text,
@@ -1900,7 +1924,6 @@ class EnhancedSyncProcessor:
                     
                     cluster_dict = {
                         'cluster_id': getattr(cluster, 'cluster_id', None),
-                        'case_name': case_name,
                         'year': year,
                         'citations': [str(c) for c in citations],
                         'reporter': getattr(cluster, 'reporter', None),

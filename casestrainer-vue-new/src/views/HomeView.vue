@@ -1055,11 +1055,21 @@ const pollAsyncJob = async (jobId) => {
     try {
       attempts++;
       console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
+      console.log('🔧 FRONTEND FIX ACTIVE: Enhanced completion detection enabled');
       
-      const statusResponse = await axios.get(`task_status/${jobId}`);
+      const statusResponse = await axios.get(`task_status/${jobId}?t=${Date.now()}`);
       const jobData = statusResponse.data;
       
       console.log('📋 Job status:', jobData.status);
+      console.log('🔍 DETAILED JOB DATA:', {
+        status: jobData.status,
+        is_finished: jobData.is_finished,
+        is_failed: jobData.is_failed,
+        citations_count: jobData.citations?.length || 0,
+        has_citations: !!jobData.citations,
+        message: jobData.message,
+        task_id: jobData.task_id
+      });
       
       // Check for completion using multiple possible status indicators
       const isCompleted = jobData.status === 'completed' || 

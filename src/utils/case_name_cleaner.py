@@ -23,8 +23,9 @@ def clean_extracted_case_name(case_name: str) -> str:
         r'^(?:that\s+and\s+by\s+the\s+|that\s+and\s+|is\s+also\s+an\s+|also\s+an\s+|also\s+|that\s+|this\s+is\s+|this\s+)\.?\s*',
         # Remove "novo" and similar legal terms at the start
         r'^(?:novo\.?\s+|de\s+novo\.?\s+)',
-        # FIXED: Only remove non-alpha characters at the start, not entire words
-        r'^[^A-Za-z]*',
+        # REMOVED: r'^[^A-Za-z]*' - This was destroying valid case names like "Spokeo, Inc."
+        # Only remove specific punctuation at start, not letters
+        r'^[\s\.,;:!?\-]*',
     ]
     for pattern in cleanup_patterns:
         name = re.sub(pattern, '', name, flags=re.IGNORECASE)

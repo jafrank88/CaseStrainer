@@ -1139,23 +1139,18 @@ class UnifiedCitationProcessorV2:
                         
                         if extracted_name and len(extracted_name.strip()) > 3:
                             citation.extracted_case_name = extracted_name
-                            citation.case_name = extracted_name
                         else:
                             manual_case_name = self._extract_case_name_from_context(text, citation)
                             if manual_case_name:
                                 citation.extracted_case_name = manual_case_name
-                                citation.case_name = manual_case_name
                             else:
                                 citation.extracted_case_name = "N/A"
-                                citation.case_name = "N/A"
                     else:
                         manual_case_name = self._extract_case_name_from_context(text, citation)
                         if manual_case_name:
                             citation.extracted_case_name = manual_case_name
-                            citation.case_name = manual_case_name
                         else:
                             citation.extracted_case_name = "N/A"
-                            citation.case_name = "N/A"
                 except Exception as e:
                     # Don't overwrite existing extracted case name on exception
                     if not citation.extracted_case_name:
@@ -1317,7 +1312,8 @@ class UnifiedCitationProcessorV2:
             'by the federal court'
         ]
         
-        v_pattern_improved = r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)(?:\s*,|\s*\(|\s*$)'
+        # FIXED: Updated pattern to handle commas in company names like "Spokeo, Inc."
+        v_pattern_improved = r'([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)(?:\s*,|\s*\(|\s*$)'
         match = re.search(v_pattern_improved, case_name)
         if match:
             extracted = f"{match.group(1).strip()} v. {match.group(2).strip()}"
@@ -1327,14 +1323,16 @@ class UnifiedCitationProcessorV2:
         case_name_lower = case_name.lower()
         for indicator in contamination_indicators:
             if indicator in case_name_lower:
-                v_pattern = r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)(?=\s*,|\s*$)'
+                # FIXED: Updated pattern to handle commas in company names
+                v_pattern = r'([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)(?=\s*,|\s*$)'
                 match = re.search(v_pattern, case_name)
                 if match:
                     extracted = f"{match.group(1).strip()} v. {match.group(2).strip()}"
                     if len(extracted) < 200 and ' v. ' in extracted:
                         return extracted
                     else:
-                        last_v_pattern = r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)(?=[^A-Za-z]*$)'
+                        # FIXED: Updated pattern to handle commas in company names
+                        last_v_pattern = r'([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)(?=[^A-Za-z]*$)'
                         last_match = re.search(last_v_pattern, case_name)
                         if last_match:
                             return f"{last_match.group(1).strip()} v. {last_match.group(2).strip()}"
@@ -1362,17 +1360,19 @@ class UnifiedCitationProcessorV2:
             case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE).strip()
         
         if len(case_name) > 200:
-            v_pattern = r'([A-Z][A-Za-z0-9&.\'\s-]+(?:\s+[A-Za-z0-9&.\'\s-]+)*?)\s+v\.\s+([A-Z][A-Za-z0-9&.\'\s-]+(?:\s+[A-Za-z0-9&.\'\s-]+)*?)(?=\s*,|\s*\(|\s*$)'
+            # FIXED: Updated pattern to handle commas in company names
+            v_pattern = r'([A-Z][A-Za-z0-9&.\',\s-]+(?:\s+[A-Za-z0-9&.\',\s-]+)*?)\s+v\.\s+([A-Z][A-Za-z0-9&.\',\s-]+(?:\s+[A-Za-z0-9&.\',\s-]+)*?)(?=\s*,|\s*\(|\s*$)'
             match = re.search(v_pattern, case_name)
             if match:
                 case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
             else:
                 return ""  # Too long and no clear case name pattern
         
+        # FIXED: Updated patterns to handle commas in company names
         case_name_patterns = [
-            r'^([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?',  # Party v. Party - allows apostrophes, periods, ampersands
-            r'^(In\s+re\s+[A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?',  # In re cases - allows full names
-            r'^(Ex\s+parte\s+[A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?',  # Ex parte cases - allows full names
+            r'^([A-Z][a-zA-Z\'\.\&,\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,\s]+?)(?:\s*,)?',  # Party v. Party - allows commas in company names
+            r'^(In\s+re\s+[A-Z][a-zA-Z\'\.\&,\s]+?)(?:\s*,)?',  # In re cases - allows commas
+            r'^(Ex\s+parte\s+[A-Z][a-zA-Z\'\.\&,\s]+?)(?:\s*,)?',  # Ex parte cases - allows commas
         ]
         
         for idx, pattern in enumerate(case_name_patterns):

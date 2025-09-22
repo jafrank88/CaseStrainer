@@ -242,6 +242,7 @@ class UnifiedSyncProcessor:
                 # Apply deduplication
                 citations_list = self._deduplicate_citations(citations_list, request_id)
                 
+                
                 return {
                     'success': True,
                     'citations': citations_list,
@@ -478,14 +479,14 @@ class UnifiedSyncProcessor:
             for citation in citations:
                 citation_dict = {
                     'citation': getattr(citation, 'citation', str(citation)),
-                    'case_name': getattr(citation, 'extracted_case_name', None) or getattr(citation, 'case_name', None),
                     'extracted_case_name': getattr(citation, 'extracted_case_name', None),
                     'canonical_name': getattr(citation, 'canonical_name', None),
                     'extracted_date': getattr(citation, 'extracted_date', None),
                     'canonical_date': getattr(citation, 'canonical_date', None),
                     'canonical_url': getattr(citation, 'canonical_url', None) or getattr(citation, 'url', None),
                     'year': getattr(citation, 'year', None),
-                    'verified': getattr(citation, 'verified', False) or getattr(citation, 'is_verified', False),
+                    'verified': self._get_verification_status(citation),
+                    'is_verified': self._get_verification_status(citation),
                     'court': getattr(citation, 'court', None),
                     'confidence': getattr(citation, 'confidence', 0.0),
                     'method': getattr(citation, 'method', 'unified_sync'),
@@ -495,6 +496,33 @@ class UnifiedSyncProcessor:
                 citations_list.append(citation_dict)
         
         return citations_list
+    
+    def _get_verification_status(self, citation) -> bool:
+        """
+        Determine the actual verification status of a citation.
+        This matches the logic from unified_citation_processor_v2.py
+        """
+        # Check the verified field
+        if hasattr(citation, 'verified'):
+            if isinstance(citation.verified, bool):
+                return citation.verified
+            elif citation.verified == "true_by_parallel":
+                return True
+            elif citation.verified is True:
+                return True
+        
+        # Check metadata for verification status
+        if hasattr(citation, 'metadata') and citation.metadata:
+            verification_status = citation.metadata.get('verification_status')
+            if verification_status == 'verified':
+                return True
+        
+        # Check if we have canonical data (indicates verification)
+        if (hasattr(citation, 'canonical_name') and citation.canonical_name and 
+            hasattr(citation, 'canonical_url') and citation.canonical_url):
+            return True
+            
+        return False
     
     def _convert_clusters_to_dicts(self, clusters: List, citations: Optional[List] = None) -> List[Dict[str, Any]]:
         """Convert clusters to dictionaries for frontend consumption."""
@@ -531,7 +559,7 @@ class UnifiedSyncProcessor:
                         
                         citation_dict = {
                             'citation': getattr(citation_obj, 'citation', str(citation_obj)),
-                            'extracted_case_name': getattr(citation_obj, 'extracted_case_name', None) or getattr(citation_obj, 'case_name', None),
+                            'extracted_case_name': getattr(citation_obj, 'extracted_case_name', None),
                             'canonical_name': getattr(citation_obj, 'canonical_name', None),
                             'extracted_date': getattr(citation_obj, 'extracted_date', None) or getattr(citation_obj, 'year', None),
                             'canonical_date': getattr(citation_obj, 'canonical_date', None),
@@ -556,7 +584,7 @@ class UnifiedSyncProcessor:
                     'cluster_id': cluster.get('cluster_id', None),
                     'citations': citations_list,  # Keep the string list for backward compatibility
                     'citation_objects': citation_objects,  # Add citation objects with metadata for frontend scoring
-                    'extracted_case_name': cluster.get('case_name', None),
+                    'extracted_case_name': cluster.get('extracted_case_name', None),
                     'extracted_date': cluster.get('year', None),
                     'canonical_name': canonical_name,
                     'canonical_date': canonical_date,

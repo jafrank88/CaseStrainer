@@ -230,8 +230,10 @@ export function useUnifiedProgress() {
       progressState.totalProgress = Math.max(0, Math.min(100, update.total_progress));
     }
     
-    // Update elapsed time from backend if provided
-    if (update.elapsed_time !== undefined && update.elapsed_time !== null) {
+    // Update elapsed time from backend if provided (check both snake_case and camelCase)
+    if (update.elapsedTime !== undefined && update.elapsedTime !== null) {
+      progressState.elapsedTime = Math.max(0, update.elapsedTime);
+    } else if (update.elapsed_time !== undefined && update.elapsed_time !== null) {
       progressState.elapsedTime = Math.max(0, update.elapsed_time);
     }
     
@@ -243,8 +245,25 @@ export function useUnifiedProgress() {
       progressState.rateLimitInfo = update.rate_limit_info;
     }
     
-    if (update.estimated_total_time && update.estimated_total_time > 0) {
+    // Update start time from backend if provided (check both snake_case and camelCase)
+    if (update.startTime !== undefined && update.startTime !== null) {
+      progressState.startTime = update.startTime;
+    } else if (update.start_time !== undefined && update.start_time !== null) {
+      progressState.startTime = update.start_time;
+    }
+    
+    // Update estimated total time (check both snake_case and camelCase)
+    if (update.estimatedTotalTime && update.estimatedTotalTime > 0) {
+      progressState.estimatedTotalTime = Math.max(5, update.estimatedTotalTime);
+    } else if (update.estimated_total_time && update.estimated_total_time > 0) {
       progressState.estimatedTotalTime = Math.max(5, update.estimated_total_time);
+    }
+    
+    // Update active state (check both snake_case and camelCase)
+    if (update.isActive !== undefined) {
+      progressState.isActive = update.isActive;
+    } else if (update.is_active !== undefined) {
+      progressState.isActive = update.is_active;
     }
   };
 

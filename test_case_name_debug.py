@@ -1,101 +1,63 @@
 #!/usr/bin/env python3
 """
-Debug the case name extraction issue.
+Test the case name extraction with debug enabled to see what's happening.
 """
 
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+
+from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
 
 def test_case_name_extraction():
-    """Test case name extraction step by step."""
+    """Test case name extraction with debug enabled."""
     
-    test_text = """We review statutory interpretation de novo. DeSean v. Sanger, 2 Wn. 3d 329, 334-35, 536 P.3d 191 (2023). State v. Ervin, 169 Wn.2d 815, 820, 239 P.3d 354 (2010)."""
+    text = 'The Supreme Court held in Spokeo, Inc. v. Robins, 578 U.S. 330 (2016) (quoting Raines v. Byrd, 521 U.S. 811, 820 n.3, 117 S. Ct. 2312, 138 L. Ed. 2d 849 (1997)) that standing requirements cannot be erased.'
+    citation = "578 U.S. 330"
+    start_index = text.find(citation)
+    end_index = start_index + len(citation)
     
-    print("=== Testing Case Name Extraction ===")
-    print(f"Test text: {test_text}")
+    print("🔍 TESTING CASE NAME EXTRACTION WITH DEBUG")
+    print("=" * 60)
+    print(f"📝 Text: {text}")
+    print(f"🎯 Citation: {citation}")
+    print(f"📍 Position: {start_index}-{end_index}")
     print()
     
-    # Test 1: Direct CitationParser extraction
-    try:
-        from src.standalone_citation_parser import CitationParser
-        parser = CitationParser()
-        
-        print("🔍 TEST 1: Direct CitationParser extraction")
-        print("Testing citation: '2 Wn. 3d 329'")
-        
-        result = parser.extract_from_text(test_text, "2 Wn. 3d 329")
-        print(f"  Result: {result}")
-        print(f"  Case name: {result.get('case_name')}")
-        print(f"  Year: {result.get('year')}")
-        print()
-        
-        print("Testing citation: '169 Wn.2d 815'")
-        result2 = parser.extract_from_text(test_text, "169 Wn.2d 815")
-        print(f"  Result: {result2}")
-        print(f"  Case name: {result2.get('case_name')}")
-        print(f"  Year: {result2.get('year')}")
-        print()
-        
-    except Exception as e:
-        print(f"❌ CitationParser test failed: {e}")
-        print()
+    print("🧠 Testing master extraction with debug enabled...")
+    result = extract_case_name_and_date_master(
+        text=text,
+        citation=citation,
+        citation_start=start_index,
+        citation_end=end_index,
+        debug=True  # Enable debug
+    )
     
-    # Test 2: Enhanced clustering case name extraction
-    try:
-        from src.enhanced_clustering import EnhancedCitationClusterer, ClusteringConfig
-        
-        config = ClusteringConfig(debug_mode=True)
-        clusterer = EnhancedCitationClusterer(config)
-        
-        print("🔍 TEST 2: Enhanced clustering case name extraction")
-        
-        # Mock citation objects
-        mock_citations = [
-            {'citation': '2 Wn. 3d 329', 'extracted_case_name': None, 'extracted_date': None},
-            {'citation': '169 Wn.2d 815', 'extracted_case_name': None, 'extracted_date': None}
-        ]
-        
-        for citation in mock_citations:
-            case_name = clusterer._extract_case_name(citation, test_text)
-            year = clusterer._extract_year(citation, test_text)
-            print(f"  Citation: '{citation['citation']}'")
-            print(f"    Case name: {case_name}")
-            print(f"    Year: {year}")
-            print()
-            
-    except Exception as e:
-        print(f"❌ Enhanced clustering test failed: {e}")
-        print()
+    print()
+    print("📊 RESULTS:")
+    print(f"   Case name: '{result.get('case_name', 'None')}'")
+    print(f"   Year: '{result.get('year', 'None')}'")
+    print(f"   Method: '{result.get('method', 'None')}'")
+    print(f"   Confidence: {result.get('confidence', 'None')}")
     
-    # Test 3: Check the _improve_case_name_extraction method
-    try:
-        from src.enhanced_sync_processor import EnhancedSyncProcessor
-        
-        processor = EnhancedSyncProcessor()
-        
-        print("🔍 TEST 3: _improve_case_name_extraction method")
-        
-        # Mock citations
-        mock_citations = [
-            {'citation': '2 Wn. 3d 329', 'extracted_case_name': None, 'extracted_date': '2023'},
-            {'citation': '169 Wn.2d 815', 'extracted_case_name': None, 'extracted_date': '2010'}
-        ]
-        
-        print("Before improvement:")
-        for citation in mock_citations:
-            print(f"  '{citation['citation']}' → case_name: {citation['extracted_case_name']}")
-        
-        # Apply improvement
-        processor._improve_case_name_extraction(mock_citations, test_text)
-        
-        print("After improvement:")
-        for citation in mock_citations:
-            print(f"  '{citation['citation']}' → case_name: {citation['extracted_case_name']}")
-        
-    except Exception as e:
-        print(f"❌ _improve_case_name_extraction test failed: {e}")
-        print()
+    print()
+    print("🔍 Testing direct unified extraction...")
+    from src.unified_extraction_architecture import extract_case_name_and_year_unified
+    
+    direct_result = extract_case_name_and_year_unified(
+        text=text,
+        citation=citation,
+        start_index=start_index,
+        end_index=end_index,
+        debug=True
+    )
+    
+    print()
+    print("📊 DIRECT RESULTS:")
+    print(f"   Case name: '{direct_result.get('case_name', 'None')}'")
+    print(f"   Year: '{direct_result.get('year', 'None')}'")
+    print(f"   Method: '{direct_result.get('method', 'None')}'")
+    print(f"   Confidence: {direct_result.get('confidence', 'None')}")
 
 if __name__ == "__main__":
     test_case_name_extraction()

@@ -4,9 +4,14 @@ This script starts an RQ worker with better error handling and resource manageme
 """
 
 import os
+import sys
+
+# CRITICAL: Set up Python path FIRST before any other imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))  # Add /app to path
+sys.path.insert(0, os.path.dirname(__file__))  # Add /app/src to path
+
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
-import sys
 import logging
 import signal
 import time
@@ -22,8 +27,6 @@ from rq import Worker, Queue
 from redis import Redis
 from src.redis_distributed_processor import extract_pdf_pages, extract_pdf_optimized
 from src.optimized_pdf_processor import extract_pdf_optimized_v2
-
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 logging.basicConfig(
     level=logging.INFO,
@@ -277,10 +280,19 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         elif isinstance(citation, dict):
                             citations_list.append(citation)
                         else:
-                            # Fallback conversion
+                            # Fallback conversion with case_name mapping
+                            cluster_case_name = getattr(citation, 'cluster_case_name', None)
+                            extracted_case_name = getattr(citation, 'extracted_case_name', None)
+                            canonical_name = getattr(citation, 'canonical_name', None)
+                            
+                            # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
+                            # Frontend will use extracted_case_name and canonical_name directly
+                            
                             citations_list.append({
                                 'citation': getattr(citation, 'citation', str(citation)),
-                                'extracted_case_name': getattr(citation, 'extracted_case_name', None),
+                                'extracted_case_name': extracted_case_name,
+                                'canonical_name': canonical_name,
+                                'cluster_case_name': cluster_case_name,
                                 'verified': getattr(citation, 'verified', False),
                                 'confidence': getattr(citation, 'confidence', 1.0),
                                 'method': getattr(citation, 'method', 'full_async')
@@ -338,7 +350,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             for match in matches:
                                 citations_found.append({
                                     'citation': match,
+                                    'case_name': 'N/A',  # FIXED: Add case_name field
                                     'extracted_case_name': None,
+                                    'canonical_name': None,
+                                    'cluster_case_name': None,
                                     'verified': False,
                                     'confidence': 0.8,
                                     'method': 'fallback_async'

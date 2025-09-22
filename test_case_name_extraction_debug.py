@@ -28,58 +28,92 @@ documentary." Blackmon v. Blackmon, 155 Wn. App. 715, 722, 230 P.3d 233
     citation = "392 P.3d 1041"
     
     print("=== Testing Case Name Extraction ===")
-    print(f"Text: {test_text}")
-    print(f"Citation: {citation}")
     print()
     
-    try:
-        # Test the legacy function
-        case_name, date, confidence = extract_case_name_triple_comprehensive(test_text, citation)
-        print("=== Legacy Function Result ===")
-        print(f"Case Name: '{case_name}'")
-        print(f"Date: '{date}'")
-        print(f"Confidence: '{confidence}'")
+    for i, test_case in enumerate(test_cases, 1):
+        citation = test_case["citation"]
+        expected = test_case["expected"]
+        
+        print(f"{i}. Testing citation: '{citation}'")
+        print(f"   Expected: '{expected}'")
+        
+        # Find citation position in text
+        start_index = text.find(citation)
+        end_index = start_index + len(citation)
+        
+        if start_index == -1:
+            print(f"   ❌ Citation not found in text")
+            continue
+            
+        print(f"   Position: {start_index}-{end_index}")
+        
+        # Test the master extraction function
+        try:
+            from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+            
+            result = extract_case_name_and_date_master(
+                text=text,
+                citation=citation,
+                citation_start=start_index,
+                citation_end=end_index,
+                debug=False
+            )
+            
+            extracted_name = result.get('case_name', 'None')
+            print(f"   Master extraction: '{extracted_name}'")
+            
+            # Test the cleaning function
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            processor = UnifiedCitationProcessorV2()
+            
+            cleaned_name = processor._clean_extracted_case_name(extracted_name)
+            print(f"   After cleaning: '{cleaned_name}'")
+            
+            # Check if it matches expected
+            if cleaned_name == expected:
+                print(f"   ✅ CORRECT")
+            else:
+                print(f"   ❌ INCORRECT - Expected '{expected}', got '{cleaned_name}'")
+                
+        except Exception as e:
+            print(f"   ❌ ERROR: {e}")
+            import traceback
+            traceback.print_exc()
+        
         print()
+
+    # Test the full API pipeline
+    print("🧪 TESTING FULL API PIPELINE")
+    print("=" * 70)
+    
+    try:
+        import requests
         
-        # Test with different context windows
-        print("=== Testing Different Context Windows ===")
+        response = requests.post(
+            "http://localhost:5000/casestrainer/api/analyze",
+            json={"type": "text", "text": text},
+            headers={"Content-Type": "application/json"},
+            timeout=30,
+            verify=False
+        )
         
-        # Find the citation position
-        citation_pos = test_text.find(citation)
-        if citation_pos != -1:
-            # Context before citation (200 chars)
-            context_before = test_text[max(0, citation_pos - 200):citation_pos]
-            print(f"Context before (200 chars): '{context_before}'")
-            print()
+        if response.status_code == 200:
+            result = response.json()
+            citations = result.get('citations', [])
             
-            # Context after citation (100 chars)
-            context_after = test_text[citation_pos + len(citation):citation_pos + len(citation) + 100]
-            print(f"Context after (100 chars): '{context_after}'")
-            print()
-            
-            # Test with just the context around the citation
-            context_window = 300
-            start_pos = max(0, citation_pos - context_window)
-            end_pos = min(len(test_text), citation_pos + len(citation) + context_window)
-            context_text = test_text[start_pos:end_pos]
-            
-            print(f"Context window ({context_window} chars): '{context_text}'")
-            print()
-            
-            # Test extraction with context window
-            case_name2, date2, confidence2 = extract_case_name_triple_comprehensive(context_text, citation)
-            print("=== Context Window Result ===")
-            print(f"Case Name: '{case_name2}'")
-            print(f"Date: '{date2}'")
-            print(f"Confidence: '{confidence2}'")
-            
+            print(f"📊 API returned {len(citations)} citations:")
+            for citation in citations:
+                citation_text = citation.get('citation', 'N/A')
+                case_name = citation.get('case_name', 'N/A')
+                verified = citation.get('verified', False)
+                true_by_parallel = citation.get('true_by_parallel', False)
+                
+                print(f"   {citation_text}: '{case_name}' (verified={verified}, parallel={true_by_parallel})")
         else:
-            print("❌ Citation not found in text!")
+            print(f"❌ API Error: {response.status_code}")
             
     except Exception as e:
-        print(f"❌ Error: {e}")
-        import traceback
-        traceback.print_exc()
+        print(f"❌ API Test Error: {e}")
 
 if __name__ == "__main__":
     test_case_name_extraction()

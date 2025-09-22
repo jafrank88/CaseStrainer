@@ -103,9 +103,11 @@ class UnifiedCitationClusterer:
         
         logger.info("Step 1: Detecting parallel citations and creating clusters")
         parallel_groups = self._detect_parallel_citation_groups(citations, original_text)
+        logger.warning(f"CLUSTERING_DEBUG: Step 1 created {len(parallel_groups) if parallel_groups else 0} parallel groups")
         
         logger.info("Step 2: Extracting case names from first and years from last in each cluster")
         clusters = self._extract_and_propagate_metadata(parallel_groups, original_text)
+        logger.warning(f"CLUSTERING_DEBUG: Step 2 created {len(clusters)} clusters")
         
         if enable_verification:
             logger.info("Step 3: Verifying citations with CourtListener API")
@@ -113,6 +115,7 @@ class UnifiedCitationClusterer:
         
         logger.info("Step 4: Merging clusters based on propagated extracted case names and years")
         merged_clusters = self._merge_clusters_by_extracted_metadata(clusters)
+        logger.warning(f"CLUSTERING_DEBUG: Step 4 resulted in {len(merged_clusters)} merged clusters")
         
         logger.info("Step 5: Propagating verification status to parallel citations")
         self._propagate_verification_to_parallels(merged_clusters)
@@ -125,32 +128,46 @@ class UnifiedCitationClusterer:
     
     def _detect_parallel_citation_groups(self, citations: List[Any], text: str) -> List[List[Any]]:
         """
-        STEP 1: Detect parallel citation groups based on patterns and proximity.
-        This includes both explicit relationships and proximity-based detection.
+        STEP 1: Detect parallel citation groups using STRUCTURAL PATTERN RECOGNITION.
+        
+        NEW APPROACH: Instead of proximity-based clustering, we use structural patterns
+        to identify citations that belong to the same case based on legal citation format:
+        "Case Name, Citation1, Citation2, Citation3 (Year)"
+        
+        This fixes the issue where citations from different cases get incorrectly clustered
+        due to proximity (e.g., "Spokeo v. Robins, 578 U.S. 330 (2016) (quoting Raines v. Byrd, 521 U.S. 811)")
         """
         groups = []
         visited = set()
         
-        # Helper function to get citation text
+        # Helper functions
         def get_citation_text(cit):
             if isinstance(cit, dict):
                 return cit.get('citation', cit.get('text', ''))
             return getattr(cit, 'citation', getattr(cit, 'text', ''))
             
-        # Helper function to get start index
         def get_start_index(cit):
             if isinstance(cit, dict):
                 return cit.get('start', cit.get('start_index', 0))
             return getattr(cit, 'start_index', getattr(cit, 'start', 0))
             
-        # Helper function to get parallel citations
-        def get_parallel_citations(cit):
+        def get_end_index(cit):
             if isinstance(cit, dict):
-                return cit.get('parallel_citations', [])
-            return getattr(cit, 'parallel_citations', [])
+                return cit.get('end', cit.get('end_index', 0))
+            return getattr(cit, 'end_index', getattr(cit, 'end', 0))
         
         # Sort citations by start index
         sorted_citations = sorted(citations, key=lambda c: get_start_index(c))
+        
+        # NEW: Use structural pattern recognition to group citations
+        structural_groups = self._detect_structural_citation_groups(sorted_citations, text)
+        
+        if structural_groups:
+            logger.info(f"Detected {len(structural_groups)} structural citation groups")
+            return structural_groups
+        
+        # FALLBACK: Use the original proximity-based method if structural detection fails
+        logger.info("Structural detection failed, falling back to proximity-based clustering")
         
         # Create a lookup for citations by their text
         citation_lookup = {get_citation_text(c): c for c in citations}
@@ -164,11 +181,21 @@ class UnifiedCitationClusterer:
             visited.add(citation_text)
             
             # Check for explicitly marked parallel citations
-            parallel_citations = get_parallel_citations(citation)
+            # FIXED: Handle both dict and object citations
+            if isinstance(citation, dict):
+                parallel_citations = citation.get('parallel_citations', [])
+            else:
+                parallel_citations = getattr(citation, 'parallel_citations', [])
+                
             for parallel_cite in parallel_citations:
                 if parallel_cite in citation_lookup and parallel_cite not in visited:
                     parallel_citation = citation_lookup[parallel_cite]
-                    reverse_parallels = get_parallel_citations(parallel_citation)
+                    
+                    # FIXED: Handle both dict and object citations
+                    if isinstance(parallel_citation, dict):
+                        reverse_parallels = parallel_citation.get('parallel_citations', [])
+                    else:
+                        reverse_parallels = getattr(parallel_citation, 'parallel_citations', [])
                     
                     # Check for bidirectional relationship
                     if citation_text in reverse_parallels:
@@ -177,7 +204,7 @@ class UnifiedCitationClusterer:
                             group.append(parallel_citation)
                             visited.add(parallel_cite)
             
-            # Check for proximity-based parallel citations
+            # Check for proximity-based parallel citations (more restrictive now)
             for other_citation in sorted_citations:
                 other_text = get_citation_text(other_citation)
                 if other_text in visited:
@@ -189,21 +216,163 @@ class UnifiedCitationClusterer:
             
             groups.append(group)
         
-        logger.info(f"Detected {len(groups)} parallel citation groups (including proximity-based)")
+        logger.info(f"Detected {len(groups)} parallel citation groups (proximity-based fallback)")
         return groups
+    
+    def _detect_structural_citation_groups(self, sorted_citations: List[Any], text: str) -> List[List[Any]]:
+        """
+        NEW METHOD: Detect citation groups using structural pattern recognition.
+        
+        This method identifies citations that belong to the same case by recognizing
+        the legal citation pattern: "Case Name, Citation1, Citation2, Citation3 (Year)"
+        
+        Args:
+            sorted_citations: Citations sorted by start index
+            text: Original text for pattern matching
+            
+        Returns:
+            List of citation groups based on structural patterns
+        """
+        import re
+        
+        def get_citation_text(cit):
+            if isinstance(cit, dict):
+                return cit.get('citation', cit.get('text', ''))
+            return getattr(cit, 'citation', getattr(cit, 'text', ''))
+            
+        def get_start_index(cit):
+            if isinstance(cit, dict):
+                return cit.get('start', cit.get('start_index', 0))
+            return getattr(cit, 'start_index', getattr(cit, 'start', 0))
+            
+        def get_end_index(cit):
+            if isinstance(cit, dict):
+                return cit.get('end', cit.get('end_index', 0))
+            return getattr(cit, 'end_index', getattr(cit, 'end', 0))
+        
+        groups = []
+        visited = set()
+        
+        # Pattern to match legal citation structures
+        # Matches: "Case Name, Citation1, Citation2 (Year)" or "(quoting Case Name, Citation1 (Year))"
+        citation_structure_patterns = [
+            # Standard pattern: Case v. Case, Citation1, Citation2 (Year)
+            r'([A-Z][^,]+v\.\s+[A-Z][^,]+),\s*([^()]+)\((\d{4})\)',
+            # Quoting pattern: (quoting Case v. Case, Citation1, Citation2 (Year))
+            r'\(quoting\s+([A-Z][^,]+v\.\s+[A-Z][^,]+),\s*([^()]+)\((\d{4})\)\)',
+            # Alternative pattern with "held in"
+            r'held\s+in\s+([A-Z][^,]+v\.\s+[A-Z][^,]+),\s*([^()]+)\((\d{4})\)'
+        ]
+        
+        logger.info(f"🔍 STRUCTURAL: Analyzing text for citation patterns...")
+        
+        for pattern in citation_structure_patterns:
+            matches = re.finditer(pattern, text, re.IGNORECASE)
+            
+            for match in matches:
+                case_name = match.group(1).strip()
+                citations_text = match.group(2).strip()
+                year = match.group(3)
+                
+                match_start = match.start()
+                match_end = match.end()
+                
+                logger.info(f"🎯 STRUCTURAL: Found pattern - Case: '{case_name}', Citations: '{citations_text}', Year: {year}")
+                logger.info(f"📍 STRUCTURAL: Pattern position: {match_start}-{match_end}")
+                
+                # Find all citations that fall within this structural pattern
+                pattern_citations = []
+                for citation in sorted_citations:
+                    citation_text = get_citation_text(citation)
+                    citation_start = get_start_index(citation)
+                    citation_end = get_end_index(citation)
+                    
+                    # Check if this citation falls within the pattern boundaries
+                    if (citation_start >= match_start and citation_end <= match_end and
+                        citation_text not in visited):
+                        
+                        # FIXED: More flexible text matching to handle format normalization
+                        # Check if citation text appears in citations_text (exact match)
+                        # OR if the core citation pattern matches (handles Wn.2d vs Wash.2d)
+                        text_match = (citation_text in citations_text or 
+                                    self._citations_are_equivalent(citation_text, citations_text))
+                        
+                        if text_match:
+                            pattern_citations.append(citation)
+                            visited.add(citation_text)
+                            logger.info(f"✅ STRUCTURAL: Added '{citation_text}' to '{case_name}' group")
+                
+                if pattern_citations:
+                    groups.append(pattern_citations)
+                    logger.info(f"🔗 STRUCTURAL: Created group for '{case_name}' with {len(pattern_citations)} citations")
+        
+        # Handle any remaining unvisited citations as individual groups
+        for citation in sorted_citations:
+            citation_text = get_citation_text(citation)
+            if citation_text not in visited:
+                groups.append([citation])
+                visited.add(citation_text)
+                logger.info(f"📝 STRUCTURAL: Created individual group for unmatched citation '{citation_text}'")
+        
+        logger.info(f"🎉 STRUCTURAL: Created {len(groups)} groups using structural pattern recognition")
+        return groups if groups else None
+    
+    def _citations_are_equivalent(self, citation_text: str, citations_text: str) -> bool:
+        """
+        Check if a citation is equivalent to any citation in the citations text,
+        handling format normalization issues like 'Wn.2d' vs 'Wash.2d'.
+        """
+        import re
+        
+        # Normalize the citation text for comparison
+        def normalize_citation(text):
+            # Handle common abbreviation expansions
+            text = text.replace('Wash.2d', 'Wn.2d')
+            text = text.replace('Wash.', 'Wn.')
+            # Add other common normalizations as needed
+            return text.strip()
+        
+        normalized_citation = normalize_citation(citation_text)
+        
+        # Check if the normalized citation appears in the citations text
+        if normalized_citation in citations_text:
+            return True
+        
+        # Extract individual citations from the citations_text and check each
+        citation_patterns = [
+            r'\d+\s+[A-Za-z.]+\s+\d+',  # Basic pattern like "183 Wn.2d 649"
+            r'\d+\s+[A-Za-z.]+\d*\s+\d+',  # Pattern like "355 P.3d 258"
+        ]
+        
+        for pattern in citation_patterns:
+            matches = re.findall(pattern, citations_text)
+            for match in matches:
+                if normalize_citation(match) == normalized_citation:
+                    return True
+        
+        return False
     
     def _extract_and_propagate_metadata(self, groups: List[List[Any]], text: str) -> Dict[str, List[Any]]:
         """
         STEP 2: Extract case names from first and years from last citation in each group.
         STEP 3: Propagate the extracted data to all members of each group.
+        
+        FIXED: Use sequential cluster IDs instead of case names to avoid clustering issues.
         """
         clusters = {}
+        cluster_counter = 1
         
         for group in groups:
             if not group:
                 continue
             
-            sorted_group = sorted(group, key=lambda c: c.start_index if hasattr(c, 'start_index') and c.start_index is not None else 0)
+            # FIXED: Use helper function to handle both dict and object citations
+            def get_start_index_for_sort(cit):
+                if isinstance(cit, dict):
+                    return cit.get('start', cit.get('start_index', 0))
+                return getattr(cit, 'start_index', getattr(cit, 'start', 0))
+            
+            sorted_group = sorted(group, key=get_start_index_for_sort)
             
             case_name = self._extract_case_name_from_citation(sorted_group[0], text)
             
@@ -260,41 +429,15 @@ class UnifiedCitationClusterer:
                     logger.warning(f"Unsupported citation type: {type(citation)}")
 
                 
-            if case_name and year and case_name != "N/A" and year != "N/A":
-                cluster_key = f"{case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
-            else:
-                cluster_key = f"group_{sorted_group[0].citation}".replace(' ', '_').replace('.', '_').replace('/', '_')
+            # FIXED: Use sequential cluster ID instead of case name-based key
+            cluster_key = f"cluster_{cluster_counter}"
+            cluster_counter += 1
             
-            if cluster_key not in clusters:
-                clusters[cluster_key] = []
-            clusters[cluster_key].extend(sorted_group)
+            clusters[cluster_key] = sorted_group
+            
+            logger.info(f"📋 METADATA: Created {cluster_key} with case='{case_name}', year='{year}', {len(sorted_group)} citations")
         
         return clusters
-    
-            
-        if self.debug_mode and len(sorted_group) > 1:
-            citation_list = [c.citation for c in sorted_group]
-            
-        for citation in sorted_group:
-            # Handle both object and dictionary access patterns
-            if hasattr(citation, 'extracted_case_name'):
-                # Object access
-                if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
-                    citation.extracted_case_name = case_name or "N/A"
-                citation.extracted_date = year or "N/A"
-            elif isinstance(citation, dict):
-                # Dictionary access
-                if not citation.get('extracted_case_name') or citation.get('extracted_case_name') == "N/A":
-                    citation['extracted_case_name'] = case_name or "N/A"
-                citation['extracted_date'] = year or "N/A"
-            else:
-                logger.warning(f"Unsupported citation type: {type(citation)}")
-
-                
-        if case_name and year and case_name != "N/A" and year != "N/A":
-            cluster_key = f"{case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
-        else:
-            cluster_key = f"group_{sorted_group[0].citation}".replace(' ', '_').replace('.', '_').replace('/', '_')
         
         
         return is_parallel
@@ -491,6 +634,98 @@ class UnifiedCitationClusterer:
         
         return True
     
+    def _select_best_canonical_name(self, verified_citations: List[Any]) -> str:
+        """
+        Select the best canonical case name from multiple verified citations.
+        Prioritizes CourtListener, then longest/most complete name.
+        """
+        if not verified_citations:
+            return None
+        
+        canonical_names = []
+        for citation in verified_citations:
+            canonical_name = getattr(citation, 'canonical_name', None)
+            source = getattr(citation, 'source', '').lower()
+            
+            if canonical_name and canonical_name != "N/A":
+                canonical_names.append({
+                    'name': canonical_name,
+                    'source': source,
+                    'citation': getattr(citation, 'citation', 'unknown')
+                })
+        
+        if not canonical_names:
+            return None
+        
+        # Sort by priority: CourtListener first, then by length (most complete)
+        def name_priority(item):
+            source_priority = 0 if 'courtlistener' in item['source'] else 1
+            length_priority = -len(item['name'])  # Negative for descending order
+            return (source_priority, length_priority)
+        
+        canonical_names.sort(key=name_priority)
+        best_name = canonical_names[0]['name']
+        
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"CANONICAL_NAME_SELECTION: Selected '{best_name}' from {len(canonical_names)} options")
+        for i, option in enumerate(canonical_names):
+            logger.warning(f"  Option {i+1}: '{option['name']}' from {option['source']} ({option['citation']})")
+        
+        return best_name
+    
+    def _select_best_canonical_date(self, verified_citations: List[Any]) -> str:
+        """
+        Select the best canonical date from multiple verified citations.
+        Prioritizes CourtListener, then most specific date.
+        """
+        if not verified_citations:
+            return None
+        
+        canonical_dates = []
+        for citation in verified_citations:
+            canonical_date = getattr(citation, 'canonical_date', None)
+            source = getattr(citation, 'source', '').lower()
+            
+            if canonical_date and canonical_date != "N/A":
+                canonical_dates.append({
+                    'date': canonical_date,
+                    'source': source
+                })
+        
+        if not canonical_dates:
+            return None
+        
+        # Sort by priority: CourtListener first
+        def date_priority(item):
+            return 0 if 'courtlistener' in item['source'] else 1
+        
+        canonical_dates.sort(key=date_priority)
+        return canonical_dates[0]['date']
+    
+    def _are_case_names_compatible(self, name1: str, name2: str) -> bool:
+        """
+        Check if two case names are compatible for clustering.
+        Handles partial matches like 'Sakuma Bros. Farms' vs 'Lopez Demetrio v. Sakuma Bros. Farms'.
+        """
+        if not name1 or not name2 or name1 == "N/A" or name2 == "N/A":
+            return True  # If we don't have good names, allow clustering
+        
+        name1_clean = name1.strip().lower()
+        name2_clean = name2.strip().lower()
+        
+        # Exact match
+        if name1_clean == name2_clean:
+            return True
+        
+        # Check if one is a substring of the other (partial match)
+        if name1_clean in name2_clean or name2_clean in name1_clean:
+            return True
+        
+        # Check similarity score
+        similarity = self._calculate_name_similarity(name1, name2)
+        return similarity > 0.3  # Allow if reasonably similar
+    
     def _calculate_name_similarity(self, name1: str, name2: str) -> float:
         """
         Calculate similarity between two case names.
@@ -624,16 +859,27 @@ class UnifiedCitationClusterer:
     
     def _extract_case_name_from_citation(self, citation: Any, text: str) -> str:
         """Extract case name for a specific citation from surrounding text."""
-        existing_name = getattr(citation, 'extracted_case_name', None)
+        # FIXED: Handle both dict and object citations
+        if isinstance(citation, dict):
+            existing_name = citation.get('extracted_case_name')
+        else:
+            existing_name = getattr(citation, 'extracted_case_name', None)
+            
         if existing_name and existing_name != "N/A":
             return existing_name
         
         extracted_name = self._extract_case_name_for_citation(citation, text)
         
         if extracted_name and extracted_name != "N/A":
-            if hasattr(citation, 'start_index') and citation.start_index is not None:
-                search_start = max(0, citation.start_index - 500)
-                search_end = min(len(text), citation.start_index + 100)
+            # Get start index using helper logic
+            if isinstance(citation, dict):
+                start_index = citation.get('start', citation.get('start_index'))
+            else:
+                start_index = getattr(citation, 'start_index', getattr(citation, 'start', None))
+                
+            if start_index is not None:
+                search_start = max(0, start_index - 500)
+                search_end = min(len(text), start_index + 100)
                 search_text = text[search_start:search_end]
                 
                 if extracted_name.lower() not in search_text.lower():
@@ -786,12 +1032,15 @@ class UnifiedCitationClusterer:
                             
                             validation_passed = True
                             if extracted_name and extracted_name != "N/A":
-                                similarity = self._calculate_name_similarity(canonical_name, extracted_name)
-                                if similarity < 0.3:  # Very low threshold for obvious mismatches
-                                    logger.warning(f"✗ Name mismatch: {citation.citation}")
-                                    logger.warning(f"  Canonical: '{canonical_name}'")
-                                    logger.warning(f"  Extracted: '{extracted_name}'")
-                                    logger.warning(f"  Similarity: {similarity:.2f} - rejecting verification")
+                                # FIXED: Use the more flexible case name compatibility check
+                                names_compatible = self._are_case_names_compatible(canonical_name, extracted_name)
+                                logger.warning(f"COMPATIBILITY_CHECK: {citation.citation}")
+                                logger.warning(f"  Canonical: '{canonical_name}'")
+                                logger.warning(f"  Extracted: '{extracted_name}'")
+                                logger.warning(f"  Compatible: {names_compatible}")
+                                
+                                if not names_compatible:
+                                    logger.warning(f"✗ Name incompatible: {citation.citation} - rejecting verification")
                                     validation_passed = False
                             
                             if validation_passed:
@@ -926,11 +1175,13 @@ class UnifiedCitationClusterer:
                         logger.info(f"DEBUG: Source field: {result.get('source', 'MISSING')}")
                         logger.info(f"DEBUG: Verified field: {result.get('verified', 'MISSING')}")
                     
-                    if result and result.get('verified', False):
+                    # FIXED: If we have canonical information, the citation is verified
+                    if result and (result.get('verified', False) or result.get('canonical_name') or result.get('canonical_url')):
                         citation.verified = True
                         citation.is_verified = True
                         citation.source = result.get('source', 'enhanced_fallback')  # Use user-friendly source directly
                         citation.url = result.get('url')
+                        logger.warning(f"VERIFICATION_FIX: Set verified=True for citation '{citation.citation}' (canonical info available)")
                         if hasattr(citation, 'canonical_url'):
                             if not getattr(citation, 'canonical_url'):
                                 citation.canonical_url = result.get('canonical_url') or result.get('url')
@@ -996,15 +1247,21 @@ class UnifiedCitationClusterer:
     
     def _extract_case_name_for_citation(self, citation: Any, text: str) -> str:
         """UPDATED: Use MASTER extraction function for consistency."""
-        if not text or not hasattr(citation, 'start_index') or citation.start_index is None:
+        # FIXED: Handle both dict and object citations
+        if isinstance(citation, dict):
+            citation_text = citation.get('citation')
+            start_index = citation.get('start', citation.get('start_index'))
+            end_index = citation.get('end', citation.get('end_index'))
+        else:
+            citation_text = getattr(citation, 'citation', None)
+            start_index = getattr(citation, 'start_index', None)
+            end_index = getattr(citation, 'end_index', None)
+            
+        if not text or start_index is None:
             return "N/A"
         
         try:
             from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
-            
-            citation_text = getattr(citation, 'citation', None)
-            start_index = getattr(citation, 'start_index', None)
-            end_index = getattr(citation, 'end_index', None)
             
             
             result = extract_case_name_and_date_master(
@@ -1281,17 +1538,29 @@ class UnifiedCitationClusterer:
                 if parallel_cite in citation_lookup and parallel_cite not in visited:
                     parallel_citation = citation_lookup[parallel_cite]
                     
-                    citation_name = getattr(citation, 'extracted_case_name', None)
-                    parallel_name = getattr(parallel_citation, 'extracted_case_name', None)
+                    # FIXED: Check both extracted and canonical names for compatibility
+                    citation_extracted = getattr(citation, 'extracted_case_name', None)
+                    citation_canonical = getattr(citation, 'canonical_name', None)
+                    parallel_extracted = getattr(parallel_citation, 'extracted_case_name', None)
+                    parallel_canonical = getattr(parallel_citation, 'canonical_name', None)
                     
+                    # Get the best available names
+                    citation_name = citation_canonical if citation_canonical and citation_canonical != "N/A" else citation_extracted
+                    parallel_name = parallel_canonical if parallel_canonical and parallel_canonical != "N/A" else parallel_extracted
+                    
+                    # Only reject if we have clear evidence they're different cases
                     if (citation_name and parallel_name and 
                         citation_name != "N/A" and parallel_name != "N/A" and
-                        citation_name.strip() != parallel_name.strip()):
+                        not self._are_case_names_compatible(citation_name, parallel_name)):
+                        logger.warning(f"CLUSTERING_FIX: Rejecting parallel grouping - incompatible names: '{citation_name}' vs '{parallel_name}'")
                         continue  # Different cases - don't group
                     
                     reverse_parallels = getattr(parallel_citation, 'parallel_citations', [])
                     if citation.citation not in reverse_parallels:
+                        logger.warning(f"CLUSTERING_FIX: Skipping non-bidirectional parallel: {citation.citation} -> {parallel_cite} (reverse: {reverse_parallels})")
                         continue  # Not bidirectional - suspicious
+                    
+                    logger.warning(f"CLUSTERING_FIX: Adding parallel citation to group: {citation.citation} + {parallel_cite}")
                     
                     if ((not citation_name or citation_name == "N/A") or 
                         (not parallel_name or parallel_name == "N/A")):
@@ -1347,34 +1616,65 @@ class UnifiedCitationClusterer:
             year = None
             
             # First, try to get case name from verified citations
-            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            # FIXED: Prioritize canonical_name over extracted_case_name
+            # FIXED: Check both verification flags for compatibility
+            verified_citations = [c for c in citations if getattr(c, 'verified', False) or getattr(c, 'is_verified', False)]
+            
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.warning(f"CLUSTER_DEBUG: Processing cluster {cluster_id} with {len(citations)} citations, {len(verified_citations)} verified")
             if verified_citations:
                 for citation in verified_citations:
                     if not case_name:
-                        name = getattr(citation, 'extracted_case_name', None)
-                        if name and name != "N/A" and name != "Unknown Case":
-                            case_name = name
+                        # Try canonical name first (from verification)
+                        canonical_name = getattr(citation, 'canonical_name', None)
+                        if canonical_name and canonical_name != "N/A" and canonical_name != "Unknown Case":
+                            case_name = canonical_name
+                        else:
+                            # Fall back to extracted name
+                            name = getattr(citation, 'extracted_case_name', None)
+                            if name and name != "N/A" and name != "Unknown Case":
+                                case_name = name
                     
                     if not year:
-                        date = getattr(citation, 'extracted_date', None)
-                        if date and date != "N/A" and date != "Unknown Year":
-                            year = date
+                        # Try canonical date first
+                        canonical_date = getattr(citation, 'canonical_date', None)
+                        if canonical_date and canonical_date != "N/A" and canonical_date != "Unknown Year":
+                            year = canonical_date
+                        else:
+                            # Fall back to extracted date
+                            date = getattr(citation, 'extracted_date', None)
+                            if date and date != "N/A" and date != "Unknown Year":
+                                year = date
                     
                     if case_name and year:
                         break
             
             # If no case name from verified citations, try all citations
+            # FIXED: Also prioritize canonical names in fallback
             if not case_name or not year:
                 for citation in citations:
                     if not case_name:
-                        name = getattr(citation, 'extracted_case_name', None)
-                        if name and name != "N/A" and name != "Unknown Case":
-                            case_name = name
+                        # Try canonical name first
+                        canonical_name = getattr(citation, 'canonical_name', None)
+                        if canonical_name and canonical_name != "N/A" and canonical_name != "Unknown Case":
+                            case_name = canonical_name
+                        else:
+                            # Fall back to extracted name
+                            name = getattr(citation, 'extracted_case_name', None)
+                            if name and name != "N/A" and name != "Unknown Case":
+                                case_name = name
                     
                     if not year:
-                        date = getattr(citation, 'extracted_date', None)
-                        if date and date != "N/A" and date != "Unknown Year":
-                            year = date
+                        # Try canonical date first
+                        canonical_date = getattr(citation, 'canonical_date', None)
+                        if canonical_date and canonical_date != "N/A" and canonical_date != "Unknown Year":
+                            year = canonical_date
+                        else:
+                            # Fall back to extracted date
+                            date = getattr(citation, 'extracted_date', None)
+                            if date and date != "N/A" and date != "Unknown Year":
+                                year = date
                     
                     if case_name and year:
                         break
@@ -1408,17 +1708,23 @@ class UnifiedCitationClusterer:
                 verified_citations.sort(key=source_priority)
                 best_verified_citation = verified_citations[0]
                 
-                # Add canonical data from best verified citation to cluster
-                canonical_name = getattr(best_verified_citation, 'canonical_name', None)
-                canonical_date = getattr(best_verified_citation, 'canonical_date', None)
-                canonical_url = getattr(best_verified_citation, 'canonical_url', None)
+                # FIXED: Select the best canonical cluster case name from all verified citations
+                cluster_canonical_name = self._select_best_canonical_name(verified_citations)
+                cluster_canonical_date = self._select_best_canonical_date(verified_citations)
+                cluster_canonical_url = getattr(best_verified_citation, 'canonical_url', None)
                 
-                if canonical_name:
-                    cluster_dict['canonical_name'] = canonical_name
-                if canonical_date:
-                    cluster_dict['canonical_date'] = canonical_date
-                if canonical_url:
-                    cluster_dict['canonical_url'] = canonical_url
+                if cluster_canonical_name:
+                    cluster_dict['canonical_name'] = cluster_canonical_name
+                    # Use the canonical cluster name as the definitive case name
+                    cluster_dict['case_name'] = cluster_canonical_name
+                    cluster_dict['extracted_case_name'] = cluster_canonical_name
+                if cluster_canonical_date:
+                    cluster_dict['canonical_date'] = cluster_canonical_date
+                    # Use the canonical cluster date as the definitive year
+                    cluster_dict['year'] = cluster_canonical_date
+                    cluster_dict['extracted_date'] = cluster_canonical_date
+                if cluster_canonical_url:
+                    cluster_dict['canonical_url'] = cluster_canonical_url
             
             for citation in citations:
                 if not hasattr(citation, 'metadata'):
@@ -1430,6 +1736,22 @@ class UnifiedCitationClusterer:
                     'cluster_case_name': case_name,
                     'cluster_year': year
                 })
+                
+                # FIXED: Use the canonical cluster case name for all citations in the cluster
+                cluster_case_name = cluster_dict.get('case_name', case_name)
+                cluster_year = cluster_dict.get('year', year)
+                
+                citation.cluster_case_name = cluster_case_name
+                citation.cluster_year = cluster_year
+                
+                # Also update the metadata to match
+                citation.metadata['cluster_case_name'] = cluster_case_name
+                citation.metadata['cluster_year'] = cluster_year
+                
+                # Debug logging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.warning(f"CLUSTERING_FIX: Set cluster_case_name='{cluster_case_name}' for citation '{getattr(citation, 'citation', 'unknown')}'")
                 
                 if any_verified and not getattr(citation, 'verified', False) and best_verified_citation:
                     citation.true_by_parallel = True
@@ -1464,7 +1786,8 @@ class UnifiedCitationClusterer:
             if len(citations) < 2:
                 continue  # Single citations don't need propagation
             
-            verified_citations = [c for c in citations if getattr(c, 'verified', False)]
+            # FIXED: Check both verification flags for compatibility
+            verified_citations = [c for c in citations if getattr(c, 'verified', False) or getattr(c, 'is_verified', False)]
             
             if not verified_citations:
                 continue  # No verified citations to propagate from
