@@ -11,6 +11,7 @@ ANALYSIS OF EXISTING FUNCTIONS:
 1. PROBLEMS IDENTIFIED:
    - 47+ different extraction functions doing similar work
    - Inconsistent regex patterns causing case name truncation exact same codepunctuationass that to the 
+   
    - Multiple extraction attempts overriding each other
    - Performance issues from redundant processing
    - Maintenance nightmare with scattered logic
@@ -121,40 +122,26 @@ class UnifiedCaseNameExtractorV2:
         self._setup_validation_rules()
         
     def _setup_patterns(self):
-        """Initialize improved regex patterns that handle legal abbreviations and complete case names"""
+        """Initialize improved regex patterns that avoid over-matching"""
         self.patterns = [
-            {
-                'name': 'legal_abbreviation_comprehensive',
-                'pattern': r'([A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s*,\s*Inc\.|\s*,\s*LLC|\s*,\s*Corp\.|\s*Inc\.|\s*LLC|\s*Corp\.)?)\s+v\.\s+([A-Z][a-zA-Z]*(?:\'[a-z])?(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s+of\s+[A-Z][a-zA-Z]*)?(?:\s*,\s*Inc\.|\s*,\s*LLC|\s*,\s*Corp\.|\s*Inc\.|\s*LLC|\s*Corp\.)?)',
-                'confidence': 0.99,
-                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
-                'description': 'Comprehensive pattern for legal abbreviations and entity names including departments'
-            },
             {
                 'name': 'reverse_lookup_v_precise',
                 'pattern': r'(?:^|[.!?]\s+|;\s+)([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.95,
+                'confidence': 0.99,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Precise case name pattern with flexible character support'
             },
             {
-                'name': 'abbreviation_aware_pattern',
-                'pattern': r'([A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*(?:\s+[A-Z][a-zA-Z]*(?:\.\s*[A-Z][a-zA-Z]*)*)*(?:\s*,\s*Inc\.|\s*Inc\.)?)\s+v\.\s+([A-Z][a-zA-Z\']*(?:\s+[A-Z][a-zA-Z\']*)*(?:\s*,\s*Inc\.|\s*Inc\.)?)',
-                'confidence': 0.98,
-                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
-                'description': 'Pattern specifically for abbreviated legal names'
-            },
-            {
                 'name': 'reverse_lookup_word_boundary',
                 'pattern': r'\b([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.94,
+                'confidence': 0.98,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Word-boundary aware flexible case name pattern'
             },
             {
                 'name': 'reverse_lookup_with_entities',
                 'pattern': r'\b([A-Z][a-zA-Z\'\.\&\s]+?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]+?)(?:\s*,)?$',
-                'confidence': 0.93,
+                'confidence': 0.97,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Flexible case name pattern supporting all entity types'
             },
@@ -430,8 +417,7 @@ class UnifiedCaseNameExtractorV2:
             
             volume_text_pos = citation_start + volume_pos
             
-            # Expand lookback to capture complete case names with abbreviations
-            lookback_start = max(0, volume_text_pos - 200)
+            lookback_start = max(0, volume_text_pos - 100)
             before_text = text[lookback_start:volume_text_pos].strip()
             
             if debug:
@@ -492,8 +478,7 @@ class UnifiedCaseNameExtractorV2:
     def _extract_context_based(self, text: str, citation: str, citation_start: int, citation_end: int, debug: bool) -> Optional[ExtractionResult]:
         """Context-based extraction: use optimized context window around citation"""
         try:
-            # Expand context window to capture complete case names with abbreviations
-            context_start = max(0, citation_start - 300)  # Look further back
+            context_start = max(0, citation_start - 200)
             context_end = min(len(text), citation_end + 50)
             context = text[context_start:context_end]
             
@@ -999,8 +984,8 @@ def extract_case_name_and_date_master(
         # NEW APPROACH: Extract focused context around the citation
         if citation_start is not None and citation_end is not None:
             # Extract context window around the citation
-            context_start = max(0, citation_start - 500)  # 500 chars before citation
-            context_end = min(len(text), citation_end + 100)   # 100 chars after citation
+            context_start = max(0, citation_start - 1000)  # EXPANDED: 1000 chars before citation
+            context_end = min(len(text), citation_end + 200)   # EXPANDED: 200 chars after citation
             context_text = text[context_start:context_end]
             
             # Adjust citation position within the context
@@ -1011,8 +996,24 @@ def extract_case_name_and_date_master(
             logger.warning(f"🔍 MASTER_EXTRACT: Context calculation: start={context_start}, end={context_end}")
             logger.warning(f"🔍 MASTER_EXTRACT: Extracted context length: {len(context_text)}")
             logger.warning(f"🔍 MASTER_EXTRACT: Extracted context: '{context_text}'")
+            
+            # IMPROVED: Classify citation type to improve extraction accuracy
+            citation_type = _classify_citation_context(context_text, citation_start_in_context, citation)
+            logger.warning(f"🔍 MASTER_EXTRACT: Citation type classified as: {citation_type}")
             logger.warning(f"🔍 MASTER_EXTRACT: Citation position in context: {citation_start_in_context}-{citation_end_in_context}")
             logger.warning(f"🔍 MASTER_EXTRACT: Citation text: '{citation}'")
+            
+            # IMPROVED: Skip extraction for embedded discussion citations
+            if citation_type == "embedded_discussion":
+                logger.warning(f"⚠️ MASTER_EXTRACT: Skipping extraction for embedded discussion citation '{citation}'")
+                return {
+                    'case_name': 'N/A',
+                    'year': 'N/A',
+                    'date': 'N/A',
+                    'confidence': 0.0,
+                    'method': 'skipped_embedded',
+                    'debug_info': {'citation_type': citation_type, 'reason': 'embedded_in_discussion'}
+                }
             
             # Use the unified architecture with the focused context
             from src.unified_extraction_architecture import extract_case_name_and_year_unified
@@ -1024,6 +1025,12 @@ def extract_case_name_and_date_master(
                 end_index=citation_end_in_context,
                 debug=debug
             )
+            
+            # Add citation type to debug info
+            if result and isinstance(result, dict):
+                if 'debug_info' not in result:
+                    result['debug_info'] = {}
+                result['debug_info']['citation_type'] = citation_type
             
             if result and result.get('case_name') and result['case_name'] != 'N/A':
                 logger.warning(f"✅ MASTER_EXTRACT: Successfully extracted '{result['case_name']}' for citation '{citation}' using context approach")
@@ -1068,4 +1075,53 @@ def extract_case_name_and_date_master(
             logger.warning(f"⚠️ MASTER_EXTRACT: Fallback extraction failed for citation '{citation}'")
         
         return result
+
+def _classify_citation_context(context_text: str, citation_position: int, citation: str) -> str:
+    """
+    Classify citation as 'proper_case_citation' or 'embedded_discussion'
+    
+    This helps improve extraction accuracy by identifying citations that appear
+    within legal discussion text vs standalone case citations.
+    """
+    import re
+    
+    if not context_text or citation_position < 0:
+        return "unknown"
+    
+    # Extract text before and after the citation
+    before_text = context_text[:citation_position].strip()
+    after_text = context_text[citation_position + len(citation):].strip()
+    
+    # Look for case name patterns before the citation
+    case_name_patterns = [
+        r'\b[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*\s+v\.\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*,?\s*$',
+        r'\bIn\s+re\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*,?\s*$',
+        r'\bState\s+v\.\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*,?\s*$',
+        r'\bEx\s+parte\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*,?\s*$'
+    ]
+    
+    # Check if there's a case name pattern immediately before the citation
+    for pattern in case_name_patterns:
+        if re.search(pattern, before_text[-100:]):  # Check last 100 chars
+            return "proper_case_citation"
+    
+    # Look for embedded discussion indicators
+    embedded_indicators = [
+        r'\b(statutory|actual|damages|award|employer|pay|complainant|violation|occurred)\b',
+        r'\b(plaintiff|defendant|argue|applicants|employment|standing|statute|injury)\b',
+        r'\b(incentivizes|persons|interest|getting|job|offer|search|noncompliant)\b',
+        r'\b(question|issue|review|court|held|ruling|decision|interpretation)\b',
+        r'\b(legislative|created|grant|right|sue|harm|protected|zone)\b'
+    ]
+    
+    # Count embedded indicators in surrounding context
+    context_sample = (before_text[-200:] + " " + after_text[:200:]).lower()
+    embedded_count = sum(1 for pattern in embedded_indicators if re.search(pattern, context_sample))
+    
+    if embedded_count >= 3:
+        return "embedded_discussion"
+    elif embedded_count >= 1:
+        return "possible_embedded"
+    else:
+        return "proper_case_citation"
 
