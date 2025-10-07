@@ -388,12 +388,15 @@ class UnifiedVerificationMaster:
                 canonical_url = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
                 
                 # IMPROVEMENT: Detect and handle truncated canonical names
+                # CRITICAL FIX: Don't flag short names as truncated - some cases have short names!
+                # "Raines v. Byrd" is 14 chars and is COMPLETE, not truncated
                 if canonical_name and extracted_case_name:
                     # Check if canonical name appears truncated
+                    # Only flag as truncated if it has clear truncation indicators
                     is_truncated = (
                         canonical_name.endswith('...') or
-                        len(canonical_name) < 20 or
-                        (extracted_case_name and len(extracted_case_name) > len(canonical_name) + 10)
+                        canonical_name.endswith('..') or
+                        (extracted_case_name and len(extracted_case_name) > len(canonical_name) + 20)  # Much larger threshold
                     )
                     
                     if is_truncated:
@@ -402,9 +405,12 @@ class UnifiedVerificationMaster:
                         logger.warning(f"  Canonical name: '{canonical_name}' (length: {len(canonical_name)})")
                         
                         # Prefer extracted name if it's significantly longer and appears complete
-                        if extracted_case_name and len(extracted_case_name) > len(canonical_name) + 5:
+                        if extracted_case_name and len(extracted_case_name) > len(canonical_name) + 10:
                             logger.info(f"  Using extracted name instead of truncated canonical name")
                             canonical_name = extracted_case_name
+                    else:
+                        # ALWAYS prefer verified canonical name over extraction
+                        logger.info(f"  Using verified canonical name: '{canonical_name}' (not truncated)")
                 
                 # Validate result quality
                 confidence = self._calculate_confidence(citation, canonical_name, extracted_case_name, canonical_date, extracted_date)
