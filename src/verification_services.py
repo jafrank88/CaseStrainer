@@ -178,8 +178,9 @@ class CourtListenerService:
                 if citation and citation in results:
                     # Check if citation was found (status != 404)
                     if result.get('status') != 404 and result.get('clusters'):
-                        # Citation found with clusters - need to fetch cluster data
-                        cluster_data = self._fetch_cluster_data(result.get('clusters'))
+                        # Citation found with clusters - fetch the matching cluster
+                        # CRITICAL: Pass the citation so we can find the correct cluster
+                        cluster_data = self._fetch_cluster_data(result.get('clusters'), target_citation=citation)
                         if cluster_data:
                             verification_data = self._parse_verification_result(cluster_data)
                             results[citation].update(verification_data)
@@ -191,18 +192,61 @@ class CourtListenerService:
         
         return results
     
-    def _fetch_cluster_data(self, clusters: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Fetch detailed data from the first cluster"""
+    def _fetch_cluster_data(self, clusters: List[Dict[str, Any]], target_citation: str = None) -> Dict[str, Any]:
+        """
+        Fetch detailed data from clusters, preferring the one that matches target_citation.
+        
+        Args:
+            clusters: List of cluster dictionaries from CourtListener
+            target_citation: Optional citation string to match against (e.g., "521 U.S. 811")
+        
+        Returns:
+            Cluster data dictionary
+        """
         if not clusters:
             return {}
         
+        # If we have a target citation, try to find the matching cluster
+        if target_citation:
+            normalized_target = target_citation.strip().lower()
+            
+            for cluster in clusters:
+                try:
+                    cluster_url = cluster.get('absolute_url')
+                    if not cluster_url:
+                        continue
+                    
+                    # Fetch cluster details to check citations
+                    full_url = f"https://www.courtlistener.com{cluster_url}"
+                    response = self.session.get(full_url, timeout=10)
+                    
+                    if response.status_code == 200:
+                        cluster_data = response.json()
+                        
+                        # Check if this cluster contains our target citation
+                        cluster_citations = cluster_data.get('citations', [])
+                        for cit in cluster_citations:
+                            if isinstance(cit, str) and normalized_target in cit.lower():
+                                logger.info(f"Found matching cluster for {target_citation}")
+                                return cluster_data
+                            elif isinstance(cit, dict):
+                                cit_text = cit.get('cite', '') or cit.get('citation', '')
+                                if normalized_target in cit_text.lower():
+                                    logger.info(f"Found matching cluster for {target_citation}")
+                                    return cluster_data
+                
+                except Exception as e:
+                    logger.warning(f"Error checking cluster: {e}")
+                    continue
+            
+            logger.warning(f"No cluster found matching {target_citation}, using first cluster")
+        
+        # Fall back to first cluster if no match found or no target specified
         try:
-            # Use the first cluster
             cluster = clusters[0]
             cluster_url = cluster.get('absolute_url')
             
             if cluster_url:
-                # Fetch cluster details
                 full_url = f"https://www.courtlistener.com{cluster_url}"
                 response = self.session.get(full_url, timeout=10)
                 
