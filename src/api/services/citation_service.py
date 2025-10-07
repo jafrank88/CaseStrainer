@@ -615,6 +615,23 @@ class CitationService:
                 
                 logger.info(f"[CitationService] Processing text immediately with EnhancedSyncProcessor: {text[:100]}...")
                 
+                # Set up progress tracking
+                from src.progress_tracker import ProgressTracker
+                task_id = input_data.get('task_id', f"text_{hash(text)}")
+                progress_tracker = ProgressTracker(task_id, total_steps=6)
+                
+                # Create progress callback
+                def progress_callback(progress_data):
+                    """Callback to handle progress updates."""
+                    logger.info(f"[PROGRESS] {task_id}: {progress_data.get('current_step', 'Unknown')} - {progress_data.get('overall_progress', 0)}%")
+                    # Store progress data for polling
+                    if not hasattr(self, '_progress_data'):
+                        self._progress_data = {}
+                    self._progress_data[task_id] = progress_data
+                
+                progress_tracker.add_update_callback(progress_callback)
+                has_progress_tracking = True
+                
                 from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
                 courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
                 processor_options = ProcessingOptions(
@@ -630,11 +647,30 @@ class CitationService:
                     courtlistener_api_key=courtlistener_api_key
                 )
                 enhanced_processor = EnhancedSyncProcessor(processor_options)
-                enhanced_result = enhanced_processor.process_any_input_enhanced(text, 'text', {'wait_for_verification': True})
                 
+                # Start progress tracking
+                progress_tracker.start_step(0, "Initializing processing")
+                progress_tracker.complete_step(0, "Initialization complete")
+                
+                progress_tracker.start_step(1, "Extracting citations")
+                enhanced_result = enhanced_processor.process_any_input_enhanced(text, 'text', {'wait_for_verification': True, 'progress_tracker': progress_tracker})
+                progress_tracker.complete_step(1, "Extraction complete")
+                
+                progress_tracker.start_step(2, "Analyzing citations")
                 citations_list = enhanced_result.get('citations', [])
                 clusters_list = enhanced_result.get('clusters', [])
                 processing_time = enhanced_result.get('processing_time', time.time() - start_time)
+                progress_tracker.complete_step(2, "Analysis complete")
+                
+                progress_tracker.start_step(3, "Extracting case names")
+                progress_tracker.complete_step(3, "Case names extracted")
+                
+                progress_tracker.start_step(4, "Clustering citations")
+                progress_tracker.complete_step(4, "Clustering complete")
+                
+                progress_tracker.start_step(5, "Verifying citations")
+                progress_tracker.complete_step(5, "Verification complete")
+                
                 logger.info(f"[CitationService] Enhanced path: {len(citations_list)} citations, {len(clusters_list)} clusters in {processing_time:.3f}s")
                 
                 result = {
@@ -644,7 +680,8 @@ class CitationService:
                     'message': f"Found {len(citations_list)} citations in {len(clusters_list)} clusters",
                     'processing_time': processing_time,
                     'processing_mode': 'immediate',
-                    'text_length': len(text)
+                    'text_length': len(text),
+                    'progress_data': progress_tracker.get_progress_data() if has_progress_tracking else None
                 }
                 
                 if not hasattr(self, '_cache'):
