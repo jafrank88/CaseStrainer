@@ -886,51 +886,63 @@ function Test-CaseStrainerHealth {
     
     Write-Host "   Testing CaseStrainer health endpoint..." -ForegroundColor Gray
     
-    try {
-        $job = Start-Job -ScriptBlock {
-            try {
-                $uri = "https://wolf.law.uw.edu/casestrainer/api/health"
-                $response = Invoke-WebRequest -Uri $uri -Method GET -TimeoutSec 10 -UseBasicParsing
-                return @{
-                    Success = ($response.StatusCode -eq 200)
-                    StatusCode = $response.StatusCode
-                    Content = $response.Content
-                    Error = $null
-                }
-            } catch {
-                return @{
-                    Success = $false
-                    StatusCode = $null
-                    Content = $null
-                    Error = $_.Exception.Message
-                }
-            }
-        }
-        
-        $result = Wait-Job -Job $job -Timeout $Timeout
-        if ($result) {
-            $jobResult = Receive-Job -Job $job
-            Remove-Job -Job $job
+    # Try multiple health endpoints in order of preference
+    $healthEndpoints = @(
+        "https://wolf.law.uw.edu/casestrainer/api/health", # External URL (primary)
+        "http://localhost:5000/casestrainer/api/health",  # Direct backend (fallback)
+        "http://localhost:5000/casestrainer/api/health_check" # Alternative endpoint (last resort)
+    )
+    
+    foreach ($uri in $healthEndpoints) {
+        try {
+            Write-Host "     Trying: $uri" -ForegroundColor Gray
             
-            if ($jobResult.Success) {
-                Write-Host "     [OK] Health endpoint responding (Status: $($jobResult.StatusCode))" -ForegroundColor Green
-                if ($jobResult.Content) {
-                    Write-Host "     [INFO] Response: $($jobResult.Content)" -ForegroundColor Cyan
+            $job = Start-Job -ScriptBlock {
+                param($testUri)
+                try {
+                    $response = Invoke-WebRequest -Uri $testUri -Method GET -TimeoutSec 5 -UseBasicParsing
+                    return @{
+                        Success = ($response.StatusCode -eq 200)
+                        StatusCode = $response.StatusCode
+                        Content = $response.Content
+                        Error = $null
+                        Uri = $testUri
+                    }
+                } catch {
+                    return @{
+                        Success = $false
+                        StatusCode = $null
+                        Content = $null
+                        Error = $_.Exception.Message
+                        Uri = $testUri
+                    }
                 }
-                return $true
+            } -ArgumentList $uri
+            
+            $result = Wait-Job -Job $job -Timeout 8
+            if ($result) {
+                $jobResult = Receive-Job -Job $job
+                Remove-Job -Job $job
+                
+                if ($jobResult.Success) {
+                    Write-Host "     [OK] Health endpoint responding at $($jobResult.Uri) (Status: $($jobResult.StatusCode))" -ForegroundColor Green
+                    if ($jobResult.Content) {
+                        Write-Host "     [INFO] Response: $($jobResult.Content.Substring(0, [Math]::Min(100, $jobResult.Content.Length)))" -ForegroundColor Cyan
+                    }
+                    return $true
+                }
             } else {
-                Write-Host "     [FAIL] Health endpoint error: $($jobResult.Error)" -ForegroundColor Red
-                return $false
+                Remove-Job -Job $job -Force
             }
-        } else {
-            Write-Host "     [TIMEOUT] Health endpoint check timed out ($Timeout seconds)" -ForegroundColor Red
-            Remove-Job -Job $job -Force
-            return $false
+        } catch {
+            # Continue to next endpoint
         }
-    } catch {
-        Write-Host "     [ERROR] Health check failed: $($_.Exception.Message)" -ForegroundColor Red
-        return $false
     }
+    
+    # If we get here, all endpoints failed
+    Write-Host "     [FAIL] All health endpoints failed" -ForegroundColor Red
+    Write-Host "     [INFO] This is normal if containers are still starting up" -ForegroundColor Cyan
+    return $false
 }
 
 # Smart Frontend Health Check Function
@@ -2268,6 +2280,11 @@ else {
         "fast" {
             Write-Host "Code changes detected - performing Fast Start..." -ForegroundColor Cyan
             Write-Host "This ensures containers have the latest code changes" -ForegroundColor Gray
+            
+            # CRITICAL: Clear Python cache to prevent stale bytecode issues
+            Write-Host "Clearing Python cache to ensure fresh code execution..." -ForegroundColor Yellow
+            Clear-PythonCache
+            
             docker compose -f docker-compose.prod.yml down
             docker compose -f docker-compose.prod.yml up -d
             Write-Host "Fast Start completed!" -ForegroundColor Green
@@ -2275,6 +2292,11 @@ else {
         "full" {
             Write-Host "Significant changes detected - performing Full Rebuild..." -ForegroundColor Yellow
             Write-Host "This ensures all dependencies and configurations are up to date" -ForegroundColor Gray
+            
+            # Clear Python cache before full rebuild
+            Write-Host "Clearing Python cache..." -ForegroundColor Yellow
+            Clear-PythonCache
+            
             docker compose -f docker-compose.prod.yml down
             docker compose -f docker-compose.prod.yml build --no-cache
             docker compose -f docker-compose.prod.yml up -d
