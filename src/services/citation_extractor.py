@@ -490,7 +490,7 @@ class CitationExtractor(ICitationExtractor):
         if not citation.start_index:
             return None
         
-        start_search = max(0, citation.start_index - 200)
+        start_search = max(0, citation.start_index - 50)  # Reduced from 200 to 50
         search_text = text[start_search:citation.start_index]
         
         for pattern in self.case_name_patterns:

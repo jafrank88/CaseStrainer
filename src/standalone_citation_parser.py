@@ -18,18 +18,34 @@ class CitationParser:
     """
     
     def __init__(self):
+        # Enhanced patterns with better boundary detection and sentence-start handling
         self.case_name_patterns = [
+            # Sentence-start patterns (highest priority) - captures cases at beginning of sentences
+            r"(?:^|[.!?]\s+)([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+v\.?\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            r"(?:^|[.!?]\s+)([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+vs\.?\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            
+            # Standard patterns with improved boundaries
             r"([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+v\.?\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
             r"([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+vs\.?\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
             r"([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+versus\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            
+            # Special case patterns (government, estate, etc.)
             r"(Dep't\s+of\s+[A-Za-z&\s,\.\'\-]{1,120}?\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
             r"(Department\s+of\s+[A-Za-z&\s,\.\'\-]{1,120}?\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
-            r"(In\s+re\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            r"(In\s+re\s+(?:Marriage\s+of\s+)?[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
             r"(Estate\s+of\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
-            r"(State\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
-            r"(People\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            r"(Matter\s+of\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            
+            # Criminal/government patterns
+            r"(State\s+(?:of\s+)?[A-Z][a-z]+\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            r"(People\s+(?:of\s+(?:the\s+)?State\s+of\s+)?[A-Z][a-z]+\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
             r"(United\s+States\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            r"(Commonwealth\s+(?:of\s+)?[A-Z][a-z]+\s+v\.?\s+[A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            
+            # Ex rel pattern
             r"([A-Z][A-Za-z&\s,\.\'\-]+?\s+ex\s+rel\.?\s+[A-Za-z&\s,\.\'\-]+?)(?=\s*[,;:.]|\s*\d+\s+[A-Z]|\s*\(|\s*$)",
+            
+            # Fallback patterns (lower priority)
             r"([A-Z][A-Za-z&\s,\.\'\-]{1,120}?\s+v\.?\s+[A-Z][A-Za-z&\s,\.\'\-]{1,120}?)(?=\s*[,;:.])",
         ]
         
@@ -82,14 +98,18 @@ class CitationParser:
             result['full_citation_found'] = True
             result['matched_citation'] = matched_citation
 
-            context_start = max(0, citation_index - 500)  # Already good size
+            # Enhanced context extraction with better sentence boundary detection
+            context_start = max(0, citation_index - 800)  # Expanded from 500 to 800 for better coverage
             context_before = text[context_start:citation_index]
             
+            # More comprehensive citation patterns to avoid contamination
             citation_patterns = [
-                r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\b',  # Basic citation pattern
+                r'\b\d+\s+[A-Za-z.]+(?:\s+\d+)?\s*(?:\(?\d{4}\)?)?',  # Full citation with optional year
+                r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.|Cal\.|N\.Y\.)\s*\d+[a-z]*',  # Reporter with page
                 r'\b\d+\s+(?:Wash\.|Wn\.|P\.|A\.|S\.|N\.|F\.|U\.S\.)\b',  # Common reporters
             ]
             
+            # Find the last citation before our target citation to establish clean boundary
             last_citation_pos = 0
             for pattern in citation_patterns:
                 matches = list(re.finditer(pattern, context_before))
@@ -97,15 +117,22 @@ class CitationParser:
                     if match.end() < (citation_index - context_start):
                         last_citation_pos = max(last_citation_pos, match.end())
             
+            # If we found a previous citation, find the next sentence boundary after it
             if last_citation_pos > 0:
-                if (citation_index - context_start) - last_citation_pos < 100:
-                    sentence_pattern = re.compile(r'\.\s+[A-Z]')
+                # If the previous citation is close (within 150 chars), find sentence boundary
+                if (citation_index - context_start) - last_citation_pos < 150:
+                    # Enhanced sentence boundary detection (period, exclamation, question mark followed by capital)
+                    sentence_pattern = re.compile(r'[.!?]\s+(?=[A-Z])')
                     sentence_matches = list(sentence_pattern.finditer(context_before, last_citation_pos))
                     if sentence_matches:
-                        adjusted_start = context_start + sentence_matches[0].start() + 1
+                        # Start from first sentence after previous citation
+                        adjusted_start = context_start + sentence_matches[0].end()
                         context_start = max(context_start, adjusted_start)
+                        logger.info(f"[DEBUG] Adjusted context start to sentence boundary after previous citation")
                     else:
-                        context_start = max(context_start, context_start + last_citation_pos)
+                        # No sentence boundary found, use position after citation with buffer
+                        context_start = max(context_start, context_start + last_citation_pos + 2)
+                        logger.info(f"[DEBUG] No sentence boundary after previous citation, using position after citation")
             
             context_before = text[context_start:citation_index]
 
@@ -347,34 +374,82 @@ class CitationParser:
         return case_name.strip()
     
     def _is_valid_case_name(self, case_name: str) -> bool:
-        """Validate if a case name looks legitimate."""
+        """
+        Enhanced validation to filter out false positives.
+        Returns True if the case name appears legitimate.
+        """
         if not case_name or len(case_name.strip()) < 5:
+            logger.debug(f"[VALIDATION] Rejected: too short - '{case_name}'")
             return False
         
         case_name = case_name.strip()
         
-        if not re.search(r'\bv\.?\s+', case_name, re.IGNORECASE):
+        # Must contain v. or vs. or versus or "In re" or similar legal indicators
+        legal_indicators = [
+            r'\bv\.?\s+',
+            r'\bvs\.?\s+',
+            r'\bversus\s+',
+            r'^In\s+re\s+',
+            r'^Matter\s+of\s+',
+            r'^Estate\s+of\s+'
+        ]
+        has_indicator = any(re.search(pattern, case_name, re.IGNORECASE) for pattern in legal_indicators)
+        if not has_indicator:
+            logger.debug(f"[VALIDATION] Rejected: no legal indicator - '{case_name}'")
             return False
         
-        if not case_name[0].isupper():
+        # Must start with capital letter or "In"
+        if not (case_name[0].isupper() or case_name.startswith('In ')):
+            logger.debug(f"[VALIDATION] Rejected: doesn't start with capital - '{case_name}'")
             return False
         
-        if len(case_name) > 100:
+        # Reasonable length check (most case names are 10-150 chars)
+        if len(case_name) > 150:
+            logger.debug(f"[VALIDATION] Rejected: too long ({len(case_name)} chars) - '{case_name[:50]}...'")
             return False
         
+        # Enhanced invalid patterns - common false positives
         invalid_patterns = [
-            r'^(questions?|law|review|de\s+novo|statute|meaning)\b',  # Only at start
-            r'^(certified|we\s+also|review|meaning)\b',  # Only at start
-            r'^(federal\s+court|may\s+ask|this\s+court)\b',  # Only at start
-            r'^(necessary|resolve|case|before|federal)\b',  # Only at start
-            r'^(Washington|law|when|resolution)\b',  # Only at start
-            r'^(held|in|that|the|principle|applies)\b',  # Only at start
+            # Procedural/descriptive terms at start
+            r'^(questions?|law|review|de\s+novo|statute|meaning)\b',
+            r'^(certified|we\s+also|review|meaning)\b',
+            r'^(federal\s+court|may\s+ask|this\s+court)\b',
+            r'^(necessary|resolve|case|before|federal)\b',
+            r'^(Washington|law|when|resolution)\b',
+            r'^(held|holding|ruled|ruled\s+that|noted)\b',
+            r'^(the\s+court|this\s+court|such\s+court)\b',
+            
+            # Common legal phrases that aren't case names
+            r'^(see|see\s+also|cf\.|compare|accord|but\s+see)\b',
+            r'^(citing|quoting|relying\s+on|following)\b',
+            
+            # Too generic or problematic content
+            r'\b(id\.|supra|infra|ibid)\b',  # Citations to previous material
+            r'^\d',  # Starts with a number
+            r'^[^A-Za-z]',  # Starts with non-letter
         ]
         
         for pattern in invalid_patterns:
             if re.search(pattern, case_name, re.IGNORECASE):
+                logger.debug(f"[VALIDATION] Rejected: matches invalid pattern '{pattern}' - '{case_name}'")
                 return False
         
+        # For "v." cases, ensure both parties have substance (at least 2 chars each)
+        if ' v. ' in case_name.lower():
+            parties = re.split(r'\s+v\.?\s+', case_name, flags=re.IGNORECASE)
+            if len(parties) >= 2:
+                party1 = parties[0].strip()
+                party2 = parties[1].strip()
+                if len(party1) < 2 or len(party2) < 2:
+                    logger.debug(f"[VALIDATION] Rejected: parties too short - '{case_name}'")
+                    return False
+                
+                # Check that parties contain actual letters (not just punctuation)
+                if not re.search(r'[A-Za-z]{2,}', party1) or not re.search(r'[A-Za-z]{2,}', party2):
+                    logger.debug(f"[VALIDATION] Rejected: parties lack substance - '{case_name}'")
+                    return False
+        
+        logger.debug(f"[VALIDATION] Accepted: '{case_name}'")
         return True
     
     def _is_valid_year(self, year: str) -> bool:

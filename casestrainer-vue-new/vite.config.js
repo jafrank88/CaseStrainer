@@ -8,8 +8,8 @@ export default defineConfig({
     vue()
   ],
   
-  // Base public path when served in production
-  base: process.env.NODE_ENV === 'production' ? '/casestrainer/' : '/casestrainer/',
+  // Base public path - use environment variable or default
+  base: process.env.BASE_URL || '/casestrainer/',
   
   // Development server configuration
   server: {
@@ -17,7 +17,7 @@ export default defineConfig({
     strictPort: true,
     host: '0.0.0.0',
     proxy: {
-      '/casestrainer/api': {
+      '/api': {
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,

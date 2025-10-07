@@ -1,0 +1,122 @@
+Citations found in 1033940.pdf
+============================================================
+
+1. RCW 49.58.110.
+   Source: regex_extraction
+
+2. RCW 49.58.060
+   Source: regex_extraction
+
+3. RCW 
+FILE
+   Source: regex_extraction
+
+4. RCW 49.58.110(4)
+   Source: regex_extraction
+
+5. RCW 49.58.110
+   Source: regex_extraction
+
+6. RCW  49.58.110(4)
+   Source: regex_extraction
+
+7. RCW 
+49.58.070
+   Source: regex_extraction
+
+8. RCW 
+49.58.110(4)
+   Source: regex_extraction
+
+9. RCW 49.58.060.
+   Source: regex_extraction
+
+10. RCW 
+49.58.110(1)
+   Source: regex_extraction
+
+11. RCW 49.58.110(1)
+   Source: regex_extraction
+
+12. RCW 
+49.58.110
+   Source: regex_extraction
+
+13. RCW 
+49.58.070(1)
+   Source: regex_extraction
+
+14. RCW  49.58.070
+   Source: regex_extraction
+
+15. RCW 
+49.58.005(1)
+   Source: regex_extraction
+
+16. RCW 49.58.005(2)
+   Source: regex_extraction
+
+17. RCW  49.58.110
+   Source: regex_extraction
+
+18. RCW 
+49.58.020
+   Source: regex_extraction
+
+19. RCW 49.44.200(1)
+   Source: regex_extraction
+
+20. RCW 49.44.200(5)
+   Source: regex_extraction
+
+21. RCW 49.44.205.
+   Source: regex_extraction
+
+22. RCW 49.94.010(1)
+   Source: regex_extraction
+
+23. RCW 49.94.005.
+   Source: regex_extraction
+
+24. RCW 49.58.090
+   Source: regex_extraction
+
+25. RCW 
+49.58.005
+   Source: regex_extraction
+
+26. RCW 49.58.005
+   Source: regex_extraction
+
+27. RCW 49.58.005(4)
+   Source: regex_extraction
+
+28. RCW 49.58.060(1)
+   Source: regex_extraction
+
+29. RCW 
+49.58.060(2)
+   Source: regex_extraction
+
+30. RCW  49.58.110(1)
+   Source: regex_extraction
+
+31. RCW 49.58.070(1)
+   Source: regex_extraction
+
+32. RCW 
+Branson
+   Source: regex_extraction
+
+33. RCW 49.58.020(3)
+   Source: regex_extraction
+
+34. RCW 49.58.005(1)
+   Source: regex_extraction
+
+35. RCW 49.58.110( 5)
+   Source: regex_extraction
+
+36. RCW 49.58.090.
+   Source: regex_extraction
+

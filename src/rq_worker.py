@@ -524,13 +524,51 @@ def verify_citations_enhanced(citations: list, text: str, request_id: str, input
         }
 
 class RobustWorker(Worker):
-    """Enhanced RQ worker with memory management and graceful shutdown."""
+    """
+    Enhanced RQ worker with memory management, graceful shutdown, and better monitoring.
+    
+    Features:
+    - Memory usage monitoring and soft limits
+    - Automatic restart after job count threshold
+    - Graceful shutdown on signals
+    - Detailed logging
+    - Resource usage tracking
+    """
     
     def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.max_memory_mb = 2048  # 2GB memory limit
+        # Configure memory limits
+        self.max_memory_mb = int(os.environ.get('WORKER_MAX_MEMORY_MB', 2048))  # 2GB default
+        self.memory_check_interval = int(os.environ.get('MEMORY_CHECK_INTERVAL', 5))  # jobs
+        
+        # Configure job limits
         self.job_count = 0
-        self.max_jobs = 100  # Restart after 100 jobs
+        self.max_jobs = int(os.environ.get('MAX_JOBS_BEFORE_RESTART', 100))
+        
+        # Initialize worker with custom queue name if specified
+        queue_name = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
+        if 'queues' not in kwargs:
+            kwargs['queues'] = [queue_name]
+            
+        # Configure worker name for better identification
+        if 'name' not in kwargs:
+            kwargs['name'] = f'worker-{os.getpid()}@{os.uname().nodename}'
+            
+        # Note: RQ Worker only accepts connection, queues, and name parameters
+        # Other settings like job_timeout, result_ttl are set per-job or globally
+        
+        super().__init__(*args, **kwargs)
+        
+        # Initialize metrics
+        self.start_time = time.time()
+        self.metrics = {
+            'jobs_completed': 0,
+            'jobs_failed': 0,
+            'memory_high_watermark': 0,
+            'last_memory_check': 0
+        }
+        
+        logger.info(f"Initialized RobustWorker with max_memory={self.max_memory_mb}MB, "
+                  f"max_jobs={self.max_jobs}, queues={kwargs['queues']}")
         
     def perform_job(self, job, queue):
         """Override to add memory management and job counting."""
@@ -569,38 +607,72 @@ def signal_handler(signum, frame):
     sys.exit(0)
 
 def main():
-    import logging
-    logging.basicConfig(level=logging.INFO)
-    logging.info('[DEBUG] ENTERED rq_worker.py main() - worker is starting up')
+    """Main entry point for the RQ worker with enhanced error handling and monitoring."""
+    # Configure logging
+    log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    # Configure logging - use StreamHandler only to avoid permission issues in Docker
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler()
+        ]
+    )
     
-    if PSUTIL_AVAILABLE:
-        logger.info("psutil available - memory monitoring enabled")
+    # Log startup information
+    logger.info("=" * 80)
+    logger.info(f"Starting CaseStrainer Worker (PID: {os.getpid()})")
+    logger.info(f"Python: {sys.version}")
+    logger.info(f"Redis URL: {os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')}")
+    logger.info("=" * 80)
+    
+    # Set up signal handlers
+    signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGTERM, signal_handler)
+    
+    # Configure queue and worker name
+    queue_name = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
+    worker_name = f'worker-{os.getpid()}@{os.uname().nodename}'
+    
+    # Configure worker settings
+    # Note: Only pass valid RQ Worker parameters
+    worker_kwargs = {
+        'connection': redis_conn,
+        'queues': [queue_name],
+        'name': worker_name
+    }
+    
+    # Start the worker with error handling
+    max_restarts = 10
+    restart_count = 0
+    
+    while restart_count < max_restarts:
+        try:
+            logger.info(f"Starting worker (attempt {restart_count + 1}/{max_restarts})")
+            worker = RobustWorker(**worker_kwargs)
+            logger.info("Worker started. Press Ctrl+C to exit.")
+            worker.work()
+            break  # Exit loop if worker exits cleanly
+                
+        except KeyboardInterrupt:
+            logger.info("Worker stopped by user")
+            break
+            
+        except Exception as e:
+            restart_count += 1
+            wait_time = min(2 ** restart_count, 60)  # Exponential backoff, max 60s
+            
+            logger.error(
+                f"Worker crashed (attempt {restart_count}/{max_restarts}). "
+                f"Restarting in {wait_time} seconds...",
+                exc_info=True
+            )
+            
+            time.sleep(wait_time)
+    
+    if restart_count >= max_restarts:
+        logger.critical("Maximum restart attempts reached. Worker shutting down.")
     else:
-        logger.warning("psutil not available - memory monitoring disabled")
-    
-    signal.signal(signal.SIGTERM, signal_handler)  # type: ignore[attr-defined]
-    signal.signal(signal.SIGINT, signal_handler)  # type: ignore[attr-defined]
-    
-    register_worker_functions()
-    
-    worker = RobustWorker([queue], connection=redis_conn)
-    
-    logger.info("Starting RQ worker...")
-    logger.info(f"Redis URL: {redis_url}")
-    logger.info(f"Queue: casestrainer")
-    logger.info(f"Worker ID: {worker.key}")
-    
-    try:
-        worker.work(
-            with_scheduler=True,
-            max_jobs=100  # Restart after 100 jobs
-        )
-    except KeyboardInterrupt:
-        logger.info("Worker stopped by user")
-    except Exception as e:
-        logger.error(f"Worker error: {e}")
-        raise
-    finally:
         logger.info("Worker shutdown complete")
 
 if __name__ == '__main__':

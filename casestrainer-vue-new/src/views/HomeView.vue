@@ -546,6 +546,7 @@ import { globalProgress } from '@/stores/progressStore';
 import CitationResults from '@/components/CitationResults.vue';
 import AsyncTaskProgress from '@/components/AsyncTaskProgress.vue';
 import pollingService from '@/services/pollingService';
+import logger from '@/utils/logger';
 // import RecentInputs from '@/components/RecentInputs.vue'; // Temporarily hidden
 // import { useRecentInputs } from '@/composables/useRecentInputs'; // Temporarily hidden
 
@@ -566,6 +567,7 @@ const analysisError = ref('');
 // Async task state
 const activeAsyncTask = ref(null);
 const asyncTaskProgress = ref(null);
+const isAsyncProcessing = ref(false); // Track if we're in async mode to prevent early spinner reset
 
 // Progress tracking state is now handled by the global store
 
@@ -580,6 +582,7 @@ watch(activeTab, () => {
     pollingService.stopPolling(activeAsyncTask.value);
     activeAsyncTask.value = null;
     asyncTaskProgress.value = null;
+    isAsyncProcessing.value = false;
     isAnalyzing.value = false;
   }
   
@@ -1212,6 +1215,86 @@ const pollAsyncJob = async (jobId) => {
   return await poll();
 };
 
+// Process immediate results after progress delay
+const processImmediateResults = (response) => {
+  // Store results in the format expected by CitationResults component
+  // Map citation_objects to citations for component compatibility
+  const mappedClusters = (response.result.clusters || []).map(cluster => ({
+    ...cluster,
+    citations: cluster.citation_objects || cluster.citations || []
+  }));
+
+  // Extract and use progress data from backend response
+  if (response.result && response.result.progress_data) {
+    const progressData = response.result.progress_data;
+    console.log('📊 Backend progress data received:', progressData);
+
+    // Update global progress with real backend data
+    if (progressData.steps && progressData.steps.length > 0) {
+      // Use real progress data from backend instead of time-based estimation
+      globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
+      globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
+
+      // Set up processing steps from backend with real progress
+      const backendSteps = progressData.steps.map(step => ({
+        step: step.name,
+        progress: step.progress || 0,
+        status: step.status,
+        message: step.message,
+        estimated_time: 1, // Not used since we have real progress
+        startTime: step.start_time,
+        endTime: step.end_time,
+        completed: step.status === 'completed'
+      }));
+
+      globalProgress.setSteps(backendSteps);
+
+      // Override the time-based progress calculation with real data
+      globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
+      globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
+
+      console.log('✅ Updated progress with real backend data:', {
+        totalProgress: progressData.overall_progress,
+        currentStep: progressData.current_message,
+        elapsedTime: progressData.elapsed_time,
+        steps: backendSteps.length
+      });
+
+      // Update progress for each completed step
+      progressData.steps.forEach(step => {
+        if (step.status === 'completed') {
+          globalProgress.updateProgress({
+            step: step.name,
+            progress: step.progress || 100,
+            total_progress: step.progress || 100
+          });
+        }
+      });
+    }
+  }
+
+  analysisResults.value = {
+    result: {
+      citations: response.result.citations || [],
+      clusters: response.result.clusters || []
+    },
+    clusters: mappedClusters,
+    citations: response.result.citations || [],
+    message: response.message,
+    metadata: response.metadata,
+    success: response.success,
+    total_citations: response.result.citations?.length || 0
+  };
+  analysisError.value = '';
+
+  console.log('Results stored for display:', {
+    citations: response.result?.citations?.length || 0,
+    clusters: response.result?.clusters?.length || 0,
+    message: response.message,
+    reformattedData: analysisResults.value
+  });
+};
+
 const analyzeContent = async () => {
   // Show debug popup
       // Debug alert removed for cleaner interface
@@ -1345,94 +1428,25 @@ const analyzeContent = async () => {
     if (response && response.status === 'completed' && response.result) {
       console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', response.result?.citations?.length || 0);
       
-      // Update progress to show completion
-      globalProgress.updateProgress({ 
-        step: 'Clustering citations...', 
-        progress: 90,
-        total_progress: 90 
-      });
-      
-      // Store results in the format expected by CitationResults component
-      // Map citation_objects to citations for component compatibility
-      const mappedClusters = (response.result.clusters || []).map(cluster => ({
-        ...cluster,
-        citations: cluster.citation_objects || cluster.citations || []
-      }));
-      
-      // Extract and use progress data from backend response
-      if (response.result && response.result.progress_data) {
-        const progressData = response.result.progress_data;
-        console.log('📊 Backend progress data received:', progressData);
+      // For immediate results, ensure progress bar is visible for at least a moment
+      // by delaying the completion slightly
+      setTimeout(async () => {
+        // Update progress to show completion
+        globalProgress.updateProgress({ 
+          step: 'Clustering citations...', 
+          progress: 90,
+          total_progress: 90 
+        });
         
-        // Update global progress with real backend data
-        if (progressData.steps && progressData.steps.length > 0) {
-          // Use real progress data from backend instead of time-based estimation
-          globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
-          globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
-          
-          // Set up processing steps from backend with real progress
-          const backendSteps = progressData.steps.map(step => ({
-            step: step.name,
-            progress: step.progress || 0,
-            status: step.status,
-            message: step.message,
-            estimated_time: 1, // Not used since we have real progress
-            startTime: step.start_time,
-            endTime: step.end_time,
-            completed: step.status === 'completed'
-          }));
-          
-          globalProgress.setSteps(backendSteps);
-          
-          // Override the time-based progress calculation with real data
-          globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
-          globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
-          
-          console.log('✅ Updated progress with real backend data:', {
-            totalProgress: progressData.overall_progress,
-            currentStep: progressData.current_message,
-            elapsedTime: progressData.elapsed_time,
-            steps: backendSteps.length
-          });
-          
-          // Update progress for each completed step
-          progressData.steps.forEach(step => {
-            if (step.status === 'completed') {
-              globalProgress.updateProgress({ 
-                step: step.name, 
-                progress: step.progress || 100,
-                total_progress: step.progress || 100 
-              });
-            }
-          });
-        }
-      }
-      
-      analysisResults.value = {
-        result: {
-          citations: response.result.citations || [],
-          clusters: response.result.clusters || []
-        },
-        clusters: mappedClusters,
-        citations: response.result.citations || [],
-        message: response.message,
-        metadata: response.metadata,
-        success: response.success,
-        total_citations: response.result.citations?.length || 0
-      };
-      analysisError.value = '';
-      
-      // Complete progress tracking with route scoping
-      globalProgress.completeProgress(analysisResults.value, 'home');
-      
-      console.log('Results stored for display:', {
-        citations: response.result?.citations?.length || 0,
-        clusters: response.result?.clusters?.length || 0,
-        message: response.message,
-        reformattedData: analysisResults.value
-      });
-      
-      return; // Don't navigate, show results on current page
+        // Small delay to show completion progress
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Process results after progress is shown
+        processImmediateResults(response);
+        
+        // Complete progress tracking with route scoping
+        globalProgress.completeProgress(analysisResults.value, 'home');
+      }, 100);
     }
     
     // Handle async task with task_id
@@ -1490,6 +1504,9 @@ const analyzeContent = async () => {
         status: 'queued',
         message: response.message || 'Task queued and waiting to be processed'
       };
+      
+      // Mark that we're in async processing mode to prevent early spinner reset
+      isAsyncProcessing.value = true;
       
       // Only update progress if we don't have backend progress data
       if (!response.progress_data) {
@@ -1582,6 +1599,8 @@ const analyzeContent = async () => {
           // Clear async task state
           activeAsyncTask.value = null;
           asyncTaskProgress.value = null;
+          isAsyncProcessing.value = false; // Clear async flag
+          isAnalyzing.value = false; // NOW reset spinner since async is complete
           
           // Complete progress tracking with route scoping
           globalProgress.completeProgress(analysisResults.value, 'home');
@@ -1597,6 +1616,8 @@ const analyzeContent = async () => {
           // Clear async task state
           activeAsyncTask.value = null;
           asyncTaskProgress.value = null;
+          isAsyncProcessing.value = false; // Clear async flag
+          isAnalyzing.value = false; // Reset spinner on error
           
           // Complete progress tracking
           globalProgress.completeProgress(null);
@@ -1705,27 +1726,8 @@ const analyzeContent = async () => {
         }
           
         analysisError.value = errorMessage;
-      } finally {
-        isAnalyzing.value = false;
-        
-        // Ensure any loading states are reset
-        if (activeAsyncTask.value) {
-          activeAsyncTask.value = null;
-          asyncTaskProgress.value = null;
-        }
-        
-        // Force UI update in case we're in a weird state
-        nextTick(() => {
-          // Small delay to ensure UI has updated
-          setTimeout(() => {
-            if (analysisError.value) {
-              // Scroll error into view
-              const errorEl = document.querySelector('.error-message');
-              errorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }, 100);
-        });
       }
+      // REMOVED INNER FINALLY BLOCK - consolidating with outer finally
     } else {
       console.log('No response received');
       analysisError.value = 'No response received from server';
@@ -1772,11 +1774,37 @@ const analyzeContent = async () => {
     globalProgress.setError(errorMessage);
   } finally {
     console.log('=== ANALYSIS COMPLETED ===');
-    isAnalyzing.value = false;
     
-    // Complete progress tracking if not already completed
-    if (globalProgress.progressState.isActive) {
+    // Only reset isAnalyzing if we're NOT in async processing mode
+    // Async mode will reset it in the polling callbacks
+    if (!isAsyncProcessing.value) {
+      isAnalyzing.value = false;
+      console.log('✅ Spinner reset (sync mode)');
+    } else {
+      console.log('⏳ Spinner still active (async mode - will reset in callback)');
+    }
+    
+    // Ensure any loading states are reset for non-async cases
+    if (!isAsyncProcessing.value && activeAsyncTask.value) {
+      activeAsyncTask.value = null;
+      asyncTaskProgress.value = null;
+    }
+    
+    // Complete progress tracking if not already completed (and not async)
+    if (!isAsyncProcessing.value && globalProgress.progressState.isActive) {
       globalProgress.completeProgress();
+    }
+    
+    // Force UI update in case we're in a weird state
+    if (!isAsyncProcessing.value) {
+      nextTick(() => {
+        setTimeout(() => {
+          if (analysisError.value) {
+            const errorEl = document.querySelector('.error-message');
+            errorEl?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }, 100);
+      });
     }
   }
 };

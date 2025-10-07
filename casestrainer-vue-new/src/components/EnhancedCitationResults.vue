@@ -123,10 +123,29 @@
               </div>
               
               <div class="citations-list">
-                <span v-for="citation in cluster.citations" :key="citation" 
-                      class="citation-item">
-                  {{ citation }}
-                </span>
+                <div v-for="citation in Array.isArray(cluster.citations) && cluster.citations[0] && typeof cluster.citations[0] === 'object' ? cluster.citations : cluster.citations.map(c => ({ text: c, verified: false }))" 
+                     :key="citation.text" 
+                     class="citation-item" 
+                     :class="{ 'verified-citation': citation.verified }">
+                  <span class="citation-text">{{ citation.text }}</span>
+                  <span v-if="citation.verified" class="citation-status verified">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span class="citation-source" v-if="citation.verification_source">
+                      ({{ citation.verification_source }})
+                    </span>
+                  </span>
+                  <span v-else class="citation-status unverified">
+                    <i class="bi bi-question-circle-fill"></i>
+                    Not verified
+                  </span>
+                  <a v-if="citation.verification_url" 
+                     :href="citation.verification_url" 
+                     target="_blank" 
+                     class="verification-link"
+                     title="View source">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                  </a>
+                </div>
               </div>
             </div>
             
@@ -434,23 +453,13 @@ export default {
 .verification-progress {
   margin-bottom: 20px;
 }
-
 .progress-container {
   margin-bottom: 16px;
 }
 
-.progress-bar {
-  width: 100%;
-  height: 12px;
-  background-color: #e9ecef;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #007bff 0%, #0056b3 100%);
+.citation-item {
+  margin: 4px 0;
+  padding: 8px 12px;
   transition: width 0.3s ease;
 }
 
@@ -646,20 +655,8 @@ export default {
 }
 
 .citations-count {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-bottom: 8px;
-}
-
 .citations-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.citation-item {
-  background-color: #e9ecef;
-  padding: 4px 8px;
   border-radius: 4px;
   font-size: 0.75rem;
   font-family: 'Courier New', monospace;

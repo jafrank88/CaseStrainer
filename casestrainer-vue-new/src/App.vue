@@ -74,11 +74,13 @@
 
     <!-- Main Content -->
     <main class="container-fluid container-lg py-3 py-md-4">
-      <router-view v-slot="{ Component }">
-        <transition name="fade" mode="out-in">
-          <component :is="Component" />
-        </transition>
-      </router-view>
+      <ErrorBoundary>
+        <router-view v-slot="{ Component }">
+          <transition name="fade" mode="out-in">
+            <component :is="Component" />
+          </transition>
+        </router-view>
+      </ErrorBoundary>
     </main>
 
     <!-- Footer -->
@@ -125,8 +127,13 @@
 </template>
 
 <script>
+import ErrorBoundary from '@/components/ErrorBoundary.vue';
+
 export default {
   name: 'App',
+  components: {
+    ErrorBoundary
+  },
   data() {
     return {
       appVersion: typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : '0.0.0',

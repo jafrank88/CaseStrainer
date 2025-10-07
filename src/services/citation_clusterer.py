@@ -72,40 +72,27 @@ class CitationClusterer(ICitationClusterer):
     
     def cluster_citations(self, citations: List[CitationResult]) -> List[Dict[str, Any]]:
         """
-        Group citations into clusters based on case relationships and ensure proper merging.
+        DEPRECATED: Use cluster_citations_unified_master() instead.
         
-        Args:
-            citations: List of citations to cluster
-            
-        Returns:
-            List of properly merged cluster dictionaries
+        This function now delegates to the new unified master implementation
+        that consolidates all 45+ duplicate clustering functions.
+        
+        MIGRATION: Replace calls with:
+        from src.unified_clustering_master import cluster_citations_unified_master
         """
-        if not citations:
-            return []
+        import warnings
+        warnings.warn(
+            "CitationClusterer.cluster_citations() is deprecated. Use cluster_citations_unified_master() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         
-        citations = self.detect_parallel_citations(citations, "")  # Use empty string for text parameter
-        
-        canonical_clusters = self._create_canonical_clusters(citations)
-        
-        self._merge_unverified_with_canonical(citations, canonical_clusters)
-        
-        extracted_clusters = self._create_extracted_clusters(citations, canonical_clusters)
-        
-        all_clusters = {**canonical_clusters, **extracted_clusters}
-        
-        self._propagate_canonical_data(all_clusters)
-        
-        formatted_clusters = self._format_clusters(all_clusters)
-        
-        for cluster in formatted_clusters:
-            if cluster['size'] > 1:
-                for citation in cluster['citations']:
-                    citation['is_cluster'] = True
-        
-        if self.config.debug_mode:
-            logger.info(f"CitationClusterer created {len(formatted_clusters)} clusters")
-        
-        return formatted_clusters
+        # Delegate to the new master implementation
+        from src.unified_clustering_master import cluster_citations_unified_master
+        return cluster_citations_unified_master(
+            citations=citations,
+            config=self.config
+        )
     
     def _group_citations_by_proximity(self, citations: List[CitationResult], text: str) -> List[List[CitationResult]]:
         """

@@ -1,61 +1,55 @@
-#!/usr/bin/env python3
+"""
+Detailed test with logging to see what's happening
+"""
+import asyncio
+import sys
+import logging
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 
-import requests
-import json
+sys.path.insert(0, str(Path(__file__).parent))
 
-def test_verification_detailed():
-    """Test verification status in detail."""
+# Load environment variables
+load_dotenv()
+
+# Enable detailed logging
+logging.basicConfig(level=logging.DEBUG, format='%(levelname)s - %(name)s - %(message)s')
+
+# Verify API key is loaded
+print(f"Environment API Key: {os.getenv('COURTLISTENER_API_KEY')[:20] if os.getenv('COURTLISTENER_API_KEY') else 'NOT FOUND'}...")
+
+async def test_with_logging():
+    """Test with full logging enabled."""
     
-    test_text = '''Lopez Demetrio v. Sakuma Bros. Farms, 183 Wn.2d 649, 655, 355 P.3d 258 (2015).'''
+    print("=" * 80)
+    print("DETAILED VERIFICATION TEST: 521 U.S. 811")
+    print("=" * 80)
     
-    print("VERIFICATION STATUS DETAILED TEST")
-    print("=" * 60)
+    from src.unified_verification_master import UnifiedVerificationMaster
     
-    url = "http://localhost:5000/casestrainer/api/analyze"
-    data = {"text": test_text, "type": "text"}
+    master = UnifiedVerificationMaster()
     
-    try:
-        response = requests.post(url, data=data, timeout=30)
-        
-        if response.status_code == 200:
-            result = response.json()
-            citations = result.get('citations', [])
-            
-            print(f"Found {len(citations)} citations")
-            print()
-            
-            for i, citation in enumerate(citations, 1):
-                citation_text = citation.get('citation', 'N/A')
-                verified = citation.get('verified', False)
-                is_verified = citation.get('is_verified', False)
-                canonical_name = citation.get('canonical_name', 'N/A')
-                canonical_date = citation.get('canonical_date', 'N/A')
-                extracted_name = citation.get('extracted_case_name', 'N/A')
-                
-                print(f"Citation {i}: {citation_text}")
-                print(f"  verified: {verified}")
-                print(f"  is_verified: {is_verified}")
-                print(f"  canonical_name: {canonical_name}")
-                print(f"  canonical_date: {canonical_date}")
-                print(f"  extracted_case_name: {extracted_name}")
-                
-                # Check verification status
-                if verified and canonical_name != 'N/A':
-                    print("  ✅ PROPERLY VERIFIED")
-                elif not verified and canonical_name != 'N/A':
-                    print("  ❌ HAS CANONICAL DATA BUT NOT MARKED VERIFIED")
-                elif verified and canonical_name == 'N/A':
-                    print("  ⚠️  MARKED VERIFIED BUT NO CANONICAL DATA")
-                else:
-                    print("  ❌ NOT VERIFIED AND NO CANONICAL DATA")
-                print()
-                
-        else:
-            print(f"Error: {response.status_code}")
-            print(response.text)
-            
-    except Exception as e:
-        print(f"Request failed: {e}")
+    print(f"\nAPI Key configured: {bool(master.api_key)}")
+    if master.api_key:
+        print(f"API Key (first 10 chars): {master.api_key[:10]}...")
+    
+    print("\nCalling verify_citation...")
+    result = await master.verify_citation(
+        citation="521 U.S. 811",
+        extracted_case_name="Branson",
+        extracted_date="1997"
+    )
+    
+    print(f"\n{'='*80}")
+    print(f"RESULT:")
+    print(f"{'='*80}")
+    print(f"Verified: {result.verified}")
+    print(f"Canonical Name: {result.canonical_name}")
+    print(f"Canonical Date: {result.canonical_date}")
+    print(f"Error: {result.error}")
+    print(f"Source: {result.source}")
+    print(f"{'='*80}")
 
 if __name__ == "__main__":
-    test_verification_detailed()
+    asyncio.run(test_with_logging())

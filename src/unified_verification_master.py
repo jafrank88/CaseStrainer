@@ -356,15 +356,32 @@ class UnifiedVerificationMaster:
             response.raise_for_status()
             data = response.json()
             
-            # citation-lookup returns clusters array directly
-            if data.get('clusters') and len(data['clusters']) > 0:
+            # citation-lookup API returns different formats:
+            # - Sometimes a list of results directly: [{citation: "...", clusters: [...]}]
+            # - Sometimes a dict with results: {results: [{citation: "...", clusters: [...]}]}
+            clusters = None
+            if isinstance(data, list) and len(data) > 0:
+                # List format - first item should have clusters
+                first_result = data[0]
+                if isinstance(first_result, dict) and 'clusters' in first_result:
+                    clusters = first_result['clusters']
+            elif isinstance(data, dict):
+                # Dict format - check for clusters or results
+                if 'clusters' in data:
+                    clusters = data['clusters']
+                elif 'results' in data and len(data['results']) > 0:
+                    first_result = data['results'][0]
+                    if isinstance(first_result, dict) and 'clusters' in first_result:
+                        clusters = first_result['clusters']
+            
+            if clusters and len(clusters) > 0:
                 # CRITICAL FIX: Find the cluster that actually contains our citation
                 # Don't blindly take the first one!
-                cluster = await self._find_matching_cluster(data['clusters'], citation)
+                cluster = await self._find_matching_cluster(clusters, citation)
                 
                 if not cluster:
                     logger.warning(f"No matching cluster found for {citation}, using first cluster")
-                    cluster = data['clusters'][0]
+                    cluster = clusters[0]
                 
                 canonical_name = cluster.get('case_name')
                 canonical_date = cluster.get('date_filed')
@@ -402,7 +419,7 @@ class UnifiedVerificationMaster:
                         source="CourtListener",
                         confidence=confidence,
                         method="citation_lookup_v4",
-                        raw_data=result
+                        raw_data=cluster
                     )
             
             return VerificationResult(citation=citation, error="No high-confidence results from CourtListener lookup")

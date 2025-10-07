@@ -652,199 +652,50 @@ class EnhancedFallbackVerifier:
     
     async def verify_citation(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None, has_courtlistener_data: bool = False) -> Dict[str, Any]:
         """
-        Verify a citation using hybrid verification: CourtListener first, then enhanced fallback with 10 sources.
+        DEPRECATED: Use verify_citation_unified_master() instead.
         
-        Args:
-            citation_text: The citation text to verify
-            extracted_case_name: Optional extracted case name
-            extracted_date: Optional extracted date
-            has_courtlistener_data: If True, skip fallback verification (already verified)
-            
-        Returns:
-            Dictionary with verification results
+        This function now delegates to the new unified master implementation
+        that consolidates all 80+ duplicate verification functions.
+        
+        MIGRATION: Replace calls with:
+        from src.unified_verification_master import verify_citation_unified_master
         """
-        logger.info(f"🚀 HYBRID VERIFICATION CALLED for {citation_text}")
+        import warnings
+        warnings.warn(
+            "EnhancedFallbackVerifier.verify_citation() is deprecated. Use verify_citation_unified_master() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         
-        if has_courtlistener_data:
-            logger.info(f"Skipping fallback verification for {citation_text} - already has CourtListener data")
-            return self._create_fallback_result(citation_text, "already_verified", extracted_case_name)
-        
-        start_time = time.time()
-        max_total_time = 30.0  # Increased to 30 seconds total per citation for better reliability
-        
-        
-        try:
-            courtlistener_result = await self._try_courtlistener_first(citation_text, extracted_case_name)
-            if courtlistener_result and courtlistener_result.get('verified', False):
-                elapsed = time.time() - start_time
-                logger.info(f"✅ CourtListener verified: {citation_text} -> {courtlistener_result.get('canonical_name', 'N/A')} in {elapsed:.1f}s")
-                return courtlistener_result
-            
-            logger.info(f"CourtListener failed for {citation_text}, proceeding with enhanced fallback verification")
-            
-            citation_info = self._parse_citation(citation_text)
-            
-            queries = self.generate_enhanced_legal_queries(citation_text, extracted_case_name)
-            
-            state = self.detect_state_from_citation(citation_text)
-            if state:
-                logger.info(f"Generated {len(queries)} queries for {state} citation {citation_text}")
-                for i, q in enumerate(queries[:6]):  # Show first 6 queries
-                    logger.debug(f"  Query {i+1}: {q[:100]}{'...' if len(q) > 100 else ''}")
-            
-            sources = [
-                ('casemine', self._verify_with_casemine, 8.0),        # Legal database, international - FREE, HAS WASHINGTON CASES!
-                ('descrybe', self._verify_with_descrybe, 8.0),        # Legal database, 3.6M U.S. cases - FREE!
-                ('findlaw', self._verify_with_findlaw, 8.0),          # Legal database, good coverage - FREE!
-                ('leagle', self._verify_with_leagle, 8.0),            # Legal database, comprehensive - FREE!
-                ('vlex', self._verify_with_vlex, 8.0),                # Legal database, extensive - FREE!
-                ('justia', self._verify_with_justia, 8.0),            # Legal-specific but reliable - FREE!
-                
-                ('google', self._verify_with_google_scholar, 6.0),    # Fast, reliable, broad coverage (rate-limited)
-                ('bing', self._verify_with_bing, 6.0),                # Fast, reliable, good legal indexing (rate-limited)
-                ('duckduckgo', self._verify_with_duckduckgo, 6.0),    # Fast, no rate limiting (rate-limited)
-                
-                ('scrapingbee', self._verify_with_scrapingbee, 4.0),  # Premium: handles JS, anti-bot bypass - LAST RESORT
-            ]
-            
-            logger.info(f"Configured {len(sources)} verification sources: {[s[0] for s in sources]}")
-            
-            tasks = []
-            logger.info(f"🔍 Processing {len(sources)} verification sources: {[s[0] for s in sources]}")
-            
-            for source_name, verify_func, source_timeout in sources:
-                state = self.detect_state_from_citation(citation_text)
-                max_queries = 4 if state else 2
-                logger.info(f"📋 Processing source {source_name} with max_queries={max_queries} and timeout={source_timeout}s")
-                
-                for query_info in queries[:max_queries]:
-                    query = query_info['query']
-                    query_type = query_info.get('type', '')
-                    
-                    
-                    task = self._create_verification_task(
-                        source_name, verify_func, citation_text, citation_info, extracted_case_name, extracted_date, query, source_timeout
-                    )
-                    tasks.append(task)
-                    logger.info(f"✅ Created task for {source_name} with query: {query[:50]}... and timeout: {source_timeout}s")
-            
-            logger.info(f"Created {len(tasks)} verification tasks for {len(sources)} sources")
-            results = []
-            try:
-                results = await asyncio.wait_for(
-                    asyncio.gather(*tasks, return_exceptions=True),
-                    timeout=max_total_time
-                )
-            except asyncio.TimeoutError:
-                logger.warning(f"Enhanced fallback verification timed out after {max_total_time}s for {citation_text}")
-                return self._create_fallback_result(citation_text, "timeout", extracted_case_name)
-            
-            best_result = None
-            best_score = 0
-            free_source_results = []  # Track results from free sources
-            
-            for result in results:
-                if isinstance(result, Exception):
-                    continue
-                    
-                if isinstance(result, dict) and result.get('verified'):
-                    expected_name = extracted_case_name
-                    expected_year = extracted_date or (citation_info.get('year') if citation_info else None)
-                    score = self._calculate_verification_score(result, expected_name, expected_year)
-                    
-                    source_name = result.get('source', 'unknown')
-                    if source_name != 'scrapingbee':
-                        free_source_results.append((result, score))
-                    
-                    if score > best_score:
-                        best_score = score
-                        best_result = result
-            
-            if best_result and best_score >= 1.5:  # Require minimum score for verification
-                if best_result.get('source') == 'CourtListener':
-                    logger.info(f"Preserving CourtListener source for {citation_text}")
-                else:
-                    source_url = best_result.get('canonical_url') or best_result.get('url')
-                    if source_url:
-                        best_result['source'] = self._extract_source_from_url(source_url)
-                
-                if not best_result.get('canonical_url') and best_result.get('url'):
-                    best_result['canonical_url'] = best_result['url']
-                
-                elapsed = time.time() - start_time
-                logger.info(f"✅ Enhanced fallback verified: {citation_text} -> {best_result.get('canonical_name', 'N/A')} (via {best_result.get('source', 'unknown')}) in {elapsed:.1f}s")
-                return best_result
-            elif best_result:
-                elapsed = time.time() - start_time
-                logger.warning(f"❌ Verification score too low ({best_score:.2f}) for {citation_text} -> {best_result.get('canonical_name', 'N/A')} in {elapsed:.1f}s")
-                return self._create_fallback_result(citation_text, "low_confidence", extracted_case_name)
-            
-            if not free_source_results:
-                logger.info(f"🔄 No results from free sources for {citation_text}, ScrapingBee was used as last resort")
-            else:
-                logger.info(f"🔄 Free sources found {len(free_source_results)} results but none met verification threshold for {citation_text}")
-            
-            elapsed = time.time() - start_time
-            return self._create_fallback_result(citation_text, "not_found", extracted_case_name)
-            
-        except Exception as e:
-            elapsed = time.time() - start_time
-            logger.error(f"Enhanced fallback verification error for {citation_text} after {elapsed:.1f}s: {str(e)}")
-            return self._create_fallback_result(citation_text, "error", extracted_case_name)
+        # Delegate to the new master implementation
+        from src.unified_verification_master import verify_citation_unified_master
+        return await verify_citation_unified_master(
+            citation=citation_text,
+            extracted_case_name=extracted_case_name,
+            extracted_date=extracted_date,
+            enable_fallback=not has_courtlistener_data
+        )
     
-    async def _try_courtlistener_first(self, citation_text: str, extracted_case_name: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    def verify_citation_sync(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:
         """
-        Try CourtListener verification first for fast, reliable results.
+        DEPRECATED: Use verify_citation_unified_master_sync() instead.
         
-        Args:
-            citation_text: The citation to verify
-            extracted_case_name: Optional extracted case name
-            
-        Returns:
-            CourtListener verification result or None if failed
+        This function now delegates to the new unified master implementation.
         """
-        try:
-            courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
-            if not courtlistener_api_key:
-                return None
-            
-            try:
-                from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
-            except ImportError:
-                return None
-            
-            courtlistener_verifier = EnhancedCourtListenerVerifier(courtlistener_api_key)
-            
-            result = courtlistener_verifier.verify_citation_enhanced(citation_text, extracted_case_name)
-            
-            if result and result.get('verified', False):
-                logger.info(f"✓ CourtListener verification successful for: {citation_text}")
-                
-                url = result.get('url', '')
-                canonical_url = result.get('canonical_url') or result.get('url', '')
-                
-                if url and url.startswith('/'):
-                    url = f"https://www.courtlistener.com{url}"
-                if canonical_url and canonical_url.startswith('/'):
-                    canonical_url = f"https://www.courtlistener.com{canonical_url}"
-                
-                return {
-                    'verified': True,
-                    'canonical_name': result.get('canonical_name'),
-                    'canonical_date': result.get('canonical_date'),
-                    'url': url,
-                    'canonical_url': canonical_url,
-                    'source': 'CourtListener',
-                    'validation_method': result.get('validation_method', 'enhanced_cross_validation'),
-                    'confidence': result.get('confidence', 0.0),
-                    'verification_strategy': 'courtlistener_only'
-                }
-            else:
-                return None
-                
-        except Exception as e:
-            logger.warning(f"CourtListener verification error for {citation_text}: {str(e)}")
-            return None
+        import warnings
+        warnings.warn(
+            "EnhancedFallbackVerifier.verify_citation_sync() is deprecated. Use verify_citation_unified_master_sync() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        
+        # Delegate to the new master implementation
+        from src.unified_verification_master import verify_citation_unified_master_sync
+        return verify_citation_unified_master_sync(
+            citation=citation_text,
+            extracted_case_name=extracted_case_name,
+            extracted_date=extracted_date
+        )
     
     def _extract_source_from_url(self, url: Optional[str]) -> str:
         """Extract a user-friendly source name from a URL."""

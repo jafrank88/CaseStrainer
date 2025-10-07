@@ -25,10 +25,10 @@ class CaseNameExtractor:
     def extract_case_name(self, text: str, citation_text: str, start: int, end: int) -> Optional[str]:
         """Extract case name from text around a citation."""
         self.logger.info(f"\n{'='*80}")
-        self.logger.info(f"Extracting case name for: {citation_text}")
+        self.logger.info(f"🔍 Extracting case name for: '{citation_text}' at position {start}-{end}")
         
         # Show context around the citation
-        context_window = 200
+        context_window = 300  # Increased context window for better debugging
         context_start = max(0, start - context_window)
         context_end = min(len(text), end + context_window)
         
@@ -36,17 +36,30 @@ class CaseNameExtractor:
         after = text[end:context_end]
         full_context = f"{before} [{citation_text}] {after}"
         
-        self.logger.debug(f"Full context: ...{full_context}...")
+        self.logger.debug(f"\n=== CONTEXT AROUND CITATION ===\n{full_context}\n{'='*50}")
         
-        # Common patterns for case name extraction
+        # Enhanced patterns for case name extraction
         patterns = [
-            # Pattern 1: Case name followed by comma, then citation
-            r'([A-Z][^.!?]*?)\s*\b(?:v\.|vs\.|v\s|in\s+re\b|ex\s+rel\.|ex\s+parte\b)[^.!?]*?' + re.escape(citation_text),
+            # Pattern 1: Case name followed by comma, then citation (most common)
+            {
+                'pattern': r'([A-Z][^.!?]*?)\s*\b(?:v\.|vs\.|v\s|in\s+re\b|ex\s+rel\.|ex\s+parte\b)[^.!?]*?' + re.escape(citation_text),
+                'description': 'Case name followed by citation'
+            },
             # Pattern 2: In re/Ex parte at start of sentence
-            r'(?:In\s+re|Ex\s+parte|Ex\s+rel\.)\s+([A-Z][^.!?]*?)(?=\s*\d|\s*v\.|\s*vs\.|\s*\n|\s*$)',
+            {
+                'pattern': r'(?:In\s+re|Ex\s+parte|Ex\s+rel\.|Matter\s+of|In\s+the\s+Matter\s+of)\s+([A-Z][^.!?]*?)(?=\s*\d|\s*v\.|\s*vs\.|\s*\n|\s*$)',
+                'description': 'In re/Ex parte at start of sentence'
+            },
             # Pattern 3: Look for v. or v in the previous sentence
-            r'([A-Z][^.!?]*?\b(?:v\.?|vs\.?|in\s+re|ex\s+rel\.|ex\s+parte)\b[^.!?]*?)[.!?](?:\s+[A-Z]|\s*\n|\s*$)',
-        ]
+            {
+                'pattern': r'([A-Z][^.!?]*?\b(?:v\.?|vs\.?|in\s+re|ex\s+rel\.|ex\s+parte)\b[^.!?]*?)[.!?](?:\s+[A-Z]|\s*\n|\s*$)',
+                'description': 'Case name in previous sentence'
+            },
+            # Pattern 4: For corporate names with Inc., LLC, etc.
+            {
+                'pattern': r'([A-Z][^.!?]*?\b(?:Inc\.?|L\.?L\.?C\.?|Corp\.?|Ltd\.?|Co\.?)\b[^.!?]*?\b(?:v\.?|vs\.?)\b[^.!?]*?)[^A-Za-z0-9]' + re.escape(citation_text),
+                'description': 'Corporate name with Inc./LLC'
+            }
         
         # Try each pattern
         for i, pattern in enumerate(patterns, 1):
@@ -86,18 +99,23 @@ class CaseNameExtractor:
         return None
 
 def main():
-    test_text = """We review statutory interpretation de novo. DeSean v. Sanger, 2 Wn. 3d 329, 334-35, 536 P.3d 191 (2023). 
-    "The goal of statutory interpretation is to give effect to the legislature's intentions." DeSean, 2 Wn.3d at 335. 
-    In determining the plain meaning of a statute, we look to the text of the statute, as well as its No. 87675-9-I/14 14 
-    broader context and the statutory scheme as a whole. State v. Ervin, 169 Wn.2d 815, 820, 239 P.3d 354 (2010). 
-    Only if the plain text is susceptible to more than one interpretation do we turn to statutory construction, 
-    legislative history, and relevant case law to determine legislative intent. Ervin, 169 Wn.2d at 820."""
+    test_text = """In Spokeo, Inc. v. Robins, 578 U.S. 330 (2016), the Supreme Court held that 
+    a plaintiff must demonstrate concrete injury even for statutory violations. This was later 
+    cited in 136 S. Ct. 1540 (2016) and 194 L. Ed. 2d 635 (2016).
+    
+    In another context, the court in Five Corners Family Farmers v. State, 173 Wn.2d 296, 
+    306, 268 P.3d 892 (2011) discussed the importance of standing in environmental cases.
+    
+    The case of Branson v. Washington Fine Wine, 2 Wn. App. 2d 1048 (2018) provides 
+    additional context on this issue."""
 
     # Test cases with their positions in the text
     test_cases = [
-        {"text": "2 Wn. 3d 329, 334-35, 536 P.3d 191 (2023)", "start": 50, "end": 85},
-        {"text": "DeSean, 2 Wn.3d at 335", "start": 180, "end": 202},
-        {"text": "169 Wn.2d 815, 820, 239 P.3d 354 (2010)", "start": 320, "end": 357},
+        {"text": "578 U.S. 330 (2016)", "start": 25, "end": 43},  # Spokeo
+        {"text": "136 S. Ct. 1540 (2016)", "start": 129, "end": 150},  # Spokeo parallel
+        {"text": "194 L. Ed. 2d 635 (2016)", "start": 155, "end": 178},  # Spokeo parallel
+        {"text": "173 Wn.2d 296, 306, 268 P.3d 892 (2011)", "start": 247, "end": 285},  # Five Corners
+        {"text": "2 Wn. App. 2d 1048 (2018)", "start": 368, "end": 391},  # Branson
         {"text": "Ervin, 169 Wn.2d at 820", "start": 512, "end": 535}
     ]
     

@@ -35,19 +35,27 @@ class EnhancedCourtListenerVerifier:
     
     def verify_citation_enhanced(self, citation: str, extracted_case_name: Optional[str] = None) -> Dict:
         """
-        Enhanced verification using citation-lookup API v4 as primary method.
+        DEPRECATED: Use verify_citation_unified_master_sync() instead.
         
-        Strategy:
-        1. Use citation-lookup API v4 (fast, reliable, designed for citations)
-        2. For state court citations, try multiple citation formats
-        3. For known parallel citations, check alternatives
-        4. Apply strict matching criteria: same year, citation, and meaningful words in common
+        This function now delegates to the new unified master implementation
+        that consolidates all 80+ duplicate verification functions.
+        
+        MIGRATION: Replace calls with:
+        from src.unified_verification_master import verify_citation_unified_master_sync
         """
-        logger.info(f"[VERIFICATION] Starting verification for citation: {citation}")
-        if extracted_case_name:
-            logger.info(f"[VERIFICATION] Extracted case name: {extracted_case_name}")
+        import warnings
+        warnings.warn(
+            "EnhancedCourtListenerVerifier.verify_citation_enhanced() is deprecated. Use verify_citation_unified_master_sync() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         
-        # Initialize result dictionary
+        # Delegate to the new master implementation
+        from src.unified_verification_master import verify_citation_unified_master_sync
+        return verify_citation_unified_master_sync(
+            citation=citation,
+            extracted_case_name=extracted_case_name
+        )
         result = {
             "citation": citation,
             "extracted_case_name": extracted_case_name,

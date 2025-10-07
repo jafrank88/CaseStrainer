@@ -98,3 +98,43 @@
 [2025-09-18 01:54:39] [SUCCESS] Restart ID: 1982f59b
 [2025-09-18 01:54:39] [SUCCESS] Recovery completed in 55 seconds
 [2025-09-18 01:54:39] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-25 08:27:09] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-25 08:27:09] [RESTART] Restart ID: 2a52e8bd
+[2025-09-25 08:27:09] [RESTART] Reason: Health check failed: Docker API not accessible
+[2025-09-25 08:27:09] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-25 08:28:10] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-25 08:28:10] [SUCCESS] Restart ID: 2a52e8bd
+[2025-09-25 08:28:10] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-25 08:28:10] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-25 16:38:14] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-25 16:38:14] [RESTART] Restart ID: abafc06e
+[2025-09-25 16:38:14] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-09-25 16:38:14] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-25 16:39:15] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-25 16:39:15] [SUCCESS] Restart ID: abafc06e
+[2025-09-25 16:39:15] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-25 16:39:15] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-25 18:07:40] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-25 18:07:40] [RESTART] Restart ID: a4e026ae
+[2025-09-25 18:07:40] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-09-25 18:07:40] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-25 18:08:41] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-25 18:08:41] [SUCCESS] Restart ID: a4e026ae
+[2025-09-25 18:08:41] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-25 18:08:41] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-09-29 19:57:09] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-09-29 19:57:09] [RESTART] Restart ID: 6068fe36
+[2025-09-29 19:57:09] [RESTART] Reason: Health check failed: Docker API not accessible
+[2025-09-29 19:57:09] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-09-29 19:58:10] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-09-29 19:58:10] [SUCCESS] Restart ID: 6068fe36
+[2025-09-29 19:58:10] [SUCCESS] Recovery completed in 55 seconds
+[2025-09-29 19:58:10] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-06 13:43:17] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-06 13:43:17] [RESTART] Restart ID: 19973ccf
+[2025-10-06 13:43:17] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout)
+[2025-10-06 13:43:17] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-06 13:44:18] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-06 13:44:18] [SUCCESS] Restart ID: 19973ccf
+[2025-10-06 13:44:18] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-06 13:44:18] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856

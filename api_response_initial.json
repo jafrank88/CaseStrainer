@@ -1,0 +1,77 @@
+{
+  "citations": [],
+  "clusters": [],
+  "document_length": 66731,
+  "message": "Text processing started",
+  "metadata": {
+    "input_type": "text",
+    "job_id": "f46acf0c-78e4-41d6-b447-d4d834ac3338",
+    "processing_mode": "queued",
+    "source": "text",
+    "text_length": 66731
+  },
+  "processing_time_ms": 74,
+  "progress_data": {
+    "current_message": "Queued for background processing",
+    "current_step": 0,
+    "elapsed_time": 0.07496428489685059,
+    "end_time": null,
+    "overall_progress": 16,
+    "start_time": 1758820277.1952326,
+    "status": "initializing",
+    "steps": [
+      {
+        "end_time": 1758820277.267777,
+        "message": "Queued for background processing",
+        "name": "Initializing",
+        "progress": 100,
+        "start_time": 1758820277.2029788,
+        "status": "completed"
+      },
+      {
+        "end_time": null,
+        "message": "Extracting citations from text",
+        "name": "Extract",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Analyzing and normalizing citations",
+        "name": "Analyze",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Extracting case names and years",
+        "name": "Extract Names",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Clustering parallel citations",
+        "name": "Cluster",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Verifying citations with external sources",
+        "name": "Verify",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      }
+    ],
+    "task_id": "f46acf0c-78e4-41d6-b447-d4d834ac3338",
+    "total_steps": 6
+  },
+  "request_id": "f46acf0c-78e4-41d6-b447-d4d834ac3338",
+  "success": true
+}

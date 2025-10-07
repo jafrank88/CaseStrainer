@@ -1,0 +1,2139 @@
+{
+  "citations": [
+    "CitationResult(citation='183 Wash.2d 649', extracted_case_name='Lopez Demetrio v. Sakuma Bros. Farms', extracted_date='2015', canonical_name='Lopez Demetrio v. Sakuma Bros. Farms', canonical_date='2015-07-16', canonical_url='https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=4465, end_index=4479, is_parallel=False, is_cluster=True, parallel_citations=['355 P.3d 258'], cluster_members=['355 P.3d 258'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_1', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='355 P.3d 258', extracted_case_name='Lopez Demetrio v. Sakuma Bros. Farms', extracted_date='2015', canonical_name='Lopez Demetrio v. Sakuma Bros. Farms', canonical_date='2015-07-16', canonical_url='https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=4486, end_index=4498, is_parallel=False, is_cluster=True, parallel_citations=['183 Wash.2d 649'], cluster_members=['183 Wash.2d 649'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_1', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='192 Wash.2d 453', extracted_case_name=None, extracted_date='2018', canonical_name='Archdiocese of Wash. v. Wash. Metro. Area Transit Auth.', canonical_date='2018-07-31', canonical_url='https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=4626, end_index=4639, is_parallel=False, is_cluster=True, parallel_citations=['430 P.3d 655'], cluster_members=['430 P.3d 655', '432 P.3d 841'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_2', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='430 P.3d 655', extracted_case_name=None, extracted_date='2018', canonical_name=\"Spokane Cnty. v. Wash. Dep't of Fish & Wildlife\", canonical_date='2018-12-06', canonical_url='https://www.courtlistener.com/opinion/6657720/spokane-cnty-v-wash-dept-of-fish-wildlife/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=4646, end_index=4659, is_parallel=False, is_cluster=True, parallel_citations=['192 Wash.2d 453'], cluster_members=['192 Wash.2d 453', '432 P.3d 841'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_2', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='146 Wash.2d 1', extracted_case_name=None, extracted_date='2002', canonical_name='Williams v. Verizon Wash., D.C. Inc.', canonical_date='2018-03-31', canonical_url='https://www.courtlistener.com/opinion/7329625/williams-v-verizon-wash-dc-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=5066, end_index=5077, is_parallel=False, is_cluster=True, parallel_citations=['43 P.3d 4'], cluster_members=['43 P.3d 4', '147 Wash.2d 602', '56 P.3d 981', '839 P.2d 324', '120 Wash.2d 140', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='43 P.3d 4', extracted_case_name=None, extracted_date='2002', canonical_name='Northland-4, L. L.C. v. Franklin Cnty. Bd. of Revision', canonical_date='2018-10-25', canonical_url='https://www.courtlistener.com/opinion/7178262/northland-4-l-lc-v-franklin-cnty-bd-of-revision/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=5086, end_index=5095, is_parallel=False, is_cluster=True, parallel_citations=['146 Wash.2d 1'], cluster_members=['146 Wash.2d 1', '147 Wash.2d 602', '56 P.3d 981', '839 P.2d 324', '120 Wash.2d 140', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='182 Wash.2d 342', extracted_case_name='State v. Velasquez', extracted_date='2015', canonical_name='Public Utility District No. 1 v. State', canonical_date='2015-01-29', canonical_url='https://www.courtlistener.com/opinion/4909533/public-utility-district-no-1-v-state/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=5471, end_index=5484, is_parallel=False, is_cluster=True, parallel_citations=['340 P.3d 849'], cluster_members=['340 P.3d 849'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_4', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='340 P.3d 849', extracted_case_name='te v. Ve', extracted_date='2015', canonical_name='H.S.P. v. J.K.', canonical_date='2015-08-26', canonical_url='https://www.courtlistener.com/opinion/7410640/hsp-v-jk/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=5491, end_index=5504, is_parallel=False, is_cluster=True, parallel_citations=['182 Wash.2d 342'], cluster_members=['182 Wash.2d 342'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_4', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='176 Wash.2d 333', extracted_case_name='State v. Velasquez', extracted_date='2013', canonical_name='State v. Velasquez', canonical_date='2013-01-17', canonical_url='https://www.courtlistener.com/opinion/4909325/state-v-velasquez/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=5711, end_index=5724, is_parallel=False, is_cluster=True, parallel_citations=['292 P.3d 92'], cluster_members=['292 P.3d 92'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_5', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='292 P.3d 92', extracted_case_name='State v. Velasquez', extracted_date='2013', canonical_name='State v. Velasquez', canonical_date='2013-01-17', canonical_url='https://www.courtlistener.com/opinion/4909325/state-v-velasquez/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=5731, end_index=5743, is_parallel=False, is_cluster=True, parallel_citations=['176 Wash.2d 333'], cluster_members=['176 Wash.2d 333'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_5', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='199 Wash.2d 528', extracted_case_name=None, extracted_date='2022', canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=9665, end_index=9679, is_parallel=False, is_cluster=True, parallel_citations=['509 P.3d 818'], cluster_members=['509 P.3d 818', '802 P.2d 784', '116 Wash.2d 1'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_6', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='509 P.3d 818', extracted_case_name=None, extracted_date='2022', canonical_name='Jeffery Moore v. Equitrans, L.P.', canonical_date='2022-02-23', canonical_url='https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=9686, end_index=9698, is_parallel=False, is_cluster=True, parallel_citations=['199 Wash.2d 528'], cluster_members=['199 Wash.2d 528', '802 P.2d 784', '116 Wash.2d 1'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_6', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='116 Wash.2d 1', extracted_case_name='', extracted_date='1991', canonical_name='Wash v. Banda-Wash', canonical_date='2025-02-03', canonical_url='https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=9787, end_index=9798, is_parallel=False, is_cluster=True, parallel_citations=['802 P.2d 784'], cluster_members=['199 Wash.2d 528', '509 P.3d 818', '802 P.2d 784'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_6', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='802 P.2d 784', extracted_case_name='', extracted_date='1991', canonical_name='Ex Parte Gregory P. Hatzis', canonical_date='2015-04-30', canonical_url='https://www.courtlistener.com/opinion/3069053/ex-parte-gregory-p-hatzis/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=9804, end_index=9816, is_parallel=False, is_cluster=True, parallel_citations=['116 Wash.2d 1'], cluster_members=['199 Wash.2d 528', '509 P.3d 818', '116 Wash.2d 1'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_6', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='101 Wash.2d 270', extracted_case_name='Coburn v. Seda', extracted_date='1984', canonical_name='Wash. Post v. McManus', canonical_date='2019-01-03', canonical_url='https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=10413, end_index=10427, is_parallel=False, is_cluster=True, parallel_citations=['677 P.2d 173'], cluster_members=['677 P.2d 173'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_7', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='677 P.2d 173', extracted_case_name='Coburn v. Seda', extracted_date='1984', canonical_name='H.R. v. P.J.E.', canonical_date='2023-11-22', canonical_url='https://www.courtlistener.com/opinion/9443919/hr-v-pje/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=10434, end_index=10447, is_parallel=False, is_cluster=True, parallel_citations=['101 Wash.2d 270'], cluster_members=['101 Wash.2d 270'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_7', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='174 Wash.2d 619', extracted_case_name='Broughton Lumber Co. v. BNSF Ry. Co.', extracted_date='2012', canonical_name='Broughton Lumber Co. v. BNSF Railway Co.', canonical_date='2012-05-31', canonical_url='https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=12314, end_index=12327, is_parallel=False, is_cluster=True, parallel_citations=['278 P.3d 173'], cluster_members=['278 P.3d 173'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_8', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='278 P.3d 173', extracted_case_name='Broughton Lumber Co. v. BNSF Ry. Co.', extracted_date='2012', canonical_name='Broughton Lumber Co. v. BNSF Railway Co.', canonical_date='2012-05-31', canonical_url='https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=12334, end_index=12347, is_parallel=False, is_cluster=True, parallel_citations=['174 Wash.2d 619'], cluster_members=['174 Wash.2d 619'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_8', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='187 Wash.2d 669', extracted_case_name='Crisantos v. State Farm Fire & Cas. Co.', extracted_date='2017', canonical_name='Perez-Crisantos v. State Farm Fire & Casualty Co.', canonical_date='2017-02-02', canonical_url='https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=13673, end_index=13686, is_parallel=False, is_cluster=True, parallel_citations=['389 P.3d 476'], cluster_members=['389 P.3d 476'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_9', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='389 P.3d 476', extracted_case_name='Crisantos v. State Farm Fire & Cas. Co.', extracted_date='2017', canonical_name='Perez-Crisantos v. State Farm Fire & Casualty Co.', canonical_date='2017-02-02', canonical_url='https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=13693, end_index=13706, is_parallel=False, is_cluster=True, parallel_citations=['187 Wash.2d 669'], cluster_members=['187 Wash.2d 669'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_9', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='559 P.3d 545', extracted_case_name=None, extracted_date='2024', canonical_name='Devore, P. v. Metro Aviation, Inc.', canonical_date='2024-11-18', canonical_url='https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=15022, end_index=15035, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['2024 WL 3199858', '2024 WL 4678268'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_28', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='150 Wash.2d 674', extracted_case_name='Rest.  Dev., Inc. v. Cananwill, Inc.', extracted_date='2003', canonical_name='Restaurant Development, Inc. v. Cananwill, Inc.', canonical_date='2003-12-11', canonical_url='https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=15091, end_index=15105, is_parallel=False, is_cluster=True, parallel_citations=['80 P.3d 598'], cluster_members=['4 Wash.3d 1021', '80 P.3d 598'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_10', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='80 P.3d 598', extracted_case_name='Rest.  Dev., Inc. v. Cananwill, Inc.', extracted_date='2003', canonical_name='75-80 Properties v. RALE, Inc.', canonical_date='2020-08-24', canonical_url='https://www.courtlistener.com/opinion/10020950/75-80-properties-v-rale-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=15112, end_index=15124, is_parallel=False, is_cluster=True, parallel_citations=['150 Wash.2d 674'], cluster_members=['150 Wash.2d 674', '4 Wash.3d 1021'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_10', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='4 Wash.3d 1021', extracted_case_name='Rest.  Dev., Inc. v. Cananwill, Inc.', extracted_date='2025', canonical_name='Rest.  Dev., Inc. v. Cananwill, Inc.', canonical_date='2025-02-03', canonical_url='https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='wn3d', context='', start_index=15150, end_index=15162, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['150 Wash.2d 674', '80 P.3d 598'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_10', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='509 P.3d 325', extracted_case_name='Fode v. De', extracted_date='2022', canonical_name='Jeffery Moore v. Equitrans, L.P.', canonical_date='2022-02-23', canonical_url='https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=19916, end_index=19928, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_29', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='159 Wash.2d 700', extracted_case_name='Bostain v. Food \\nExpress, Inc.', extracted_date='2007', canonical_name='Bostain v. Food Express, Inc.', canonical_date='2007-03-01', canonical_url='https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=19979, end_index=19992, is_parallel=False, is_cluster=True, parallel_citations=['153 P.3d 846'], cluster_members=['153 P.3d 846'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_11', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='153 P.3d 846', extracted_case_name='Bostain v. Food \\nExpress, Inc.', extracted_date='2007', canonical_name='Bostain v. Food Exp., Inc.', canonical_date='2007-03-01', canonical_url='https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=19999, end_index=20011, is_parallel=False, is_cluster=True, parallel_citations=['159 Wash.2d 700'], cluster_members=['159 Wash.2d 700'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_11', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='495 P.3d 866', extracted_case_name='Port of Tacoma v. Sacks', extracted_date='2021', canonical_name='Dept. of Human Services v. P. D.', canonical_date='2021-10-14', canonical_url='https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=20218, end_index=20232, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_30', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='159 Wash.2d 652', extracted_case_name='Tingey v. Haisch', extracted_date='2007', canonical_name='Tingey v. Haisch', canonical_date='2007-02-15', canonical_url='https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=25185, end_index=25198, is_parallel=False, is_cluster=True, parallel_citations=['152 P.3d 1020'], cluster_members=['59 P.3d 655', '148 Wash.2d 224', '152 P.3d 1020'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_12', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='152 P.3d 1020', extracted_case_name='Tingey v. Haisch', extracted_date='2007', canonical_name='Tingey v. Haisch', canonical_date='2007-02-15', canonical_url='https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=25208, end_index=25221, is_parallel=False, is_cluster=True, parallel_citations=['159 Wash.2d 652'], cluster_members=['159 Wash.2d 652', '59 P.3d 655', '148 Wash.2d 224'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_12', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='148 Wash.2d 224', extracted_case_name='', extracted_date='2002', canonical_name='Fraternal Order of Eagles, Tenino Aerie No. 564 v. Grand Aerie of Fraternal Order of Eagles', canonical_date='2002-12-19', canonical_url='https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=25334, end_index=25349, is_parallel=False, is_cluster=True, parallel_citations=['59 P.3d 655'], cluster_members=['159 Wash.2d 652', '59 P.3d 655', '152 P.3d 1020'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_12', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='59 P.3d 655', extracted_case_name='', extracted_date='2002', canonical_name='Gustavo P. Galvan v. State of Mississippi', canonical_date='2023-11-21', canonical_url='https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=25356, end_index=25368, is_parallel=False, is_cluster=True, parallel_citations=['148 Wash.2d 224'], cluster_members=['159 Wash.2d 652', '148 Wash.2d 224', '152 P.3d 1020'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_12', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='148 Wash.2d 723', extracted_case_name='State v. Delgado', extracted_date='2003', canonical_name='State v. Delgado', canonical_date='2003-02-20', canonical_url='https://www.courtlistener.com/opinion/4907885/state-v-delgado/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=25476, end_index=25489, is_parallel=False, is_cluster=True, parallel_citations=['63 P.3d 792'], cluster_members=['63 P.3d 792', '673 P.2d 185', '100 Wash.2d 636'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_13', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='63 P.3d 792', extracted_case_name='State v. Delgado', extracted_date='2003', canonical_name='State v. Cantu', canonical_date='2009-05-15', canonical_url='https://www.courtlistener.com/opinion/2628896/state-v-cantu/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=25496, end_index=25508, is_parallel=False, is_cluster=True, parallel_citations=['148 Wash.2d 723'], cluster_members=['148 Wash.2d 723', '673 P.2d 185', '100 Wash.2d 636'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_13', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='100 Wash.2d 636', extracted_case_name='State v. Vela', extracted_date='1983', canonical_name='State v. Rivers', canonical_date='2023-08-03', canonical_url='https://www.courtlistener.com/opinion/9440060/state-v-rivers/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=25568, end_index=25581, is_parallel=False, is_cluster=True, parallel_citations=['673 P.2d 185'], cluster_members=['148 Wash.2d 723', '63 P.3d 792', '673 P.2d 185'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_13', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='673 P.2d 185', extracted_case_name='State v. Vela', extracted_date='1983', canonical_name='State v. P.M.P.', canonical_date='2019-02-20', canonical_url='https://www.courtlistener.com/opinion/6658184/state-v-pmp/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=25588, end_index=25601, is_parallel=False, is_cluster=True, parallel_citations=['100 Wash.2d 636'], cluster_members=['148 Wash.2d 723', '63 P.3d 792', '100 Wash.2d 636'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_13', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='171 Wash.2d 486', extracted_case_name=None, extracted_date=None, canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=28205, end_index=28218, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['2024 WL 2133370', '131 Wash.2d 523'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_31', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='256 P.3d 321', extracted_case_name=None, extracted_date='2011', canonical_name='Carlsen v. Global Client Solutions, LLC', canonical_date='2011-05-12', canonical_url='https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=28230, end_index=28243, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_32', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='2024 WL 2133370', extracted_case_name=None, extracted_date=None, canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='westlaw', context='', start_index=37049, end_index=37064, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['171 Wash.2d 486', '131 Wash.2d 523'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_31', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='2024 WL 3199858', extracted_case_name='', extracted_date='2024', canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='westlaw', context='', start_index=37146, end_index=37161, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['559 P.3d 545', '2024 WL 4678268'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_28', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='2024 WL 4678268', extracted_case_name=None, extracted_date='2024', canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='westlaw', context='', start_index=37262, end_index=37277, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['559 P.3d 545', '2024 WL 3199858'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_28', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='173 Wash.2d 296', extracted_case_name='Five Corners Fam. Farmers v. State', extracted_date='2011', canonical_name='Five Corners Family Farmers v. State', canonical_date='2011-12-22', canonical_url='https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=39975, end_index=39989, is_parallel=False, is_cluster=True, parallel_citations=['268 P.3d 892'], cluster_members=['268 P.3d 892'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_14', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='268 P.3d 892', extracted_case_name='Five Corners Fam. Farmers v. State', extracted_date='2011', canonical_name='Five Corners Family Farmers v. State', canonical_date='2011-12-22', canonical_url='https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=39996, end_index=40008, is_parallel=False, is_cluster=True, parallel_citations=['173 Wash.2d 296'], cluster_members=['173 Wash.2d 296'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_14', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='2 Wash.3d 310', extracted_case_name='State v. Valdiglesias LaValle', extracted_date='2023', canonical_name=\"Beauregard v. Wash. State Bar Ass'n\", canonical_date='2021-02-11', canonical_url='https://www.courtlistener.com/opinion/4855804/beauregard-v-wash-state-bar-assn/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='wn3d', context='', start_index=41433, end_index=41444, is_parallel=False, is_cluster=True, parallel_citations=['535 P.3d 856'], cluster_members=['535 P.3d 856'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_15', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='535 P.3d 856', extracted_case_name='State v. Valdiglesias LaValle', extracted_date='2023', canonical_name=\"Penn P. Jr. v. State of Alaska, Department of Health & Social Services, Office of Children's Services\", canonical_date='2023-01-06', canonical_url='https://www.courtlistener.com/opinion/9357524/penn-p-jr-v-state-of-alaska-department-of-health-social-services/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=41451, end_index=41463, is_parallel=False, is_cluster=True, parallel_citations=['2 Wash.3d 310'], cluster_members=['2 Wash.3d 310'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_15', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='163 Wash.2d 1', extracted_case_name='State v. Lilyblad', extracted_date='2008', canonical_name='Futurewise v. WESTERN WASH. GROWTH MANAGEMENT HEARINGS BD.', canonical_date='2008-07-31', canonical_url='https://www.courtlistener.com/opinion/2628335/futurewise-v-western-wash-growth-management-hearings-bd/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=42850, end_index=42861, is_parallel=False, is_cluster=True, parallel_citations=['177 P.3d 686'], cluster_members=['177 P.3d 686'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_16', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='177 P.3d 686', extracted_case_name='State v. Lilyblad', extracted_date='2008', canonical_name='State v. Lilyblad', canonical_date='2008-02-07', canonical_url='https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=42866, end_index=42878, is_parallel=False, is_cluster=True, parallel_citations=['163 Wash.2d 1'], cluster_members=['163 Wash.2d 1'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_16', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='197 Wash.2d 841', extracted_case_name='State v. Lilyblad', extracted_date='2021', canonical_name='State v. Jon Smart', canonical_date='2023-06-21', canonical_url='https://www.courtlistener.com/opinion/9408014/state-v-jon-smart/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=42913, end_index=42926, is_parallel=False, is_cluster=True, parallel_citations=['487 P.3d 499'], cluster_members=['487 P.3d 499'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_17', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='487 P.3d 499', extracted_case_name=None, extracted_date='2021', canonical_name='Bashir Sharif v. William P. Barr', canonical_date='2020-07-07', canonical_url='https://www.courtlistener.com/opinion/4766175/bashir-sharif-v-william-p-barr/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=42933, end_index=42945, is_parallel=False, is_cluster=True, parallel_citations=['197 Wash.2d 841'], cluster_members=['197 Wash.2d 841'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_17', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='153 Wash.2d 614', extracted_case_name='State v. Roggenkamp', extracted_date='2005', canonical_name='State v. Roggenkamp', canonical_date='2005-02-10', canonical_url='https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=43238, end_index=43252, is_parallel=False, is_cluster=True, parallel_citations=['106 P.3d 196'], cluster_members=['106 P.3d 196', '976 P.2d 1229', '137 Wash.2d 712'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_18', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='106 P.3d 196', extracted_case_name='State v. Roggenkamp', extracted_date='2005', canonical_name='State v. Cameron', canonical_date='2005-02-15', canonical_url='https://www.courtlistener.com/opinion/887387/state-v-cameron/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=43259, end_index=43271, is_parallel=False, is_cluster=True, parallel_citations=['153 Wash.2d 614'], cluster_members=['153 Wash.2d 614', '976 P.2d 1229', '137 Wash.2d 712'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_18', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='137 Wash.2d 712', extracted_case_name='State v. Jackson', extracted_date='1999', canonical_name='State v. Jackson', canonical_date='1999-04-15', canonical_url='https://www.courtlistener.com/opinion/4907474/state-v-jackson/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=43368, end_index=43381, is_parallel=False, is_cluster=True, parallel_citations=['976 P.2d 1229'], cluster_members=['153 Wash.2d 614', '106 P.3d 196', '976 P.2d 1229'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_18', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='976 P.2d 1229', extracted_case_name='State v. Jackson', extracted_date='1999', canonical_name='State v. Jackson', canonical_date='1999-04-15', canonical_url='https://www.courtlistener.com/opinion/1277199/state-v-jackson/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=43388, end_index=43401, is_parallel=False, is_cluster=True, parallel_citations=['137 Wash.2d 712'], cluster_members=['153 Wash.2d 614', '106 P.3d 196', '137 Wash.2d 712'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_18', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='9 P.3d 655', extracted_case_name='', extracted_date='2002', canonical_name='Abrams v. Related, L.P.', canonical_date='2016-03-24', canonical_url='https://www.courtlistener.com/opinion/3188721/abrams-v-related-lp/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=46578, end_index=46588, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['146 Wash.2d 1', '43 P.3d 4', '147 Wash.2d 602', '56 P.3d 981', '839 P.2d 324', '120 Wash.2d 140'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 2002, 'court': None, 'type': None}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='69 P.3d 318', extracted_case_name='State v. J.P.', extracted_date='2003', canonical_name='State v. J.P.', canonical_date='2003-05-22', canonical_url='https://www.courtlistener.com/opinion/4907923/state-v-jp/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=46702, end_index=46713, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_33', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='136 S. Ct. 1540', extracted_case_name='', extracted_date='2016', canonical_name='Spokeo, Inc. v. Robins', canonical_date='2016-05-16', canonical_url='https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=48824, end_index=48839, is_parallel=False, is_cluster=True, parallel_citations=['194 L. Ed. 2d 635'], cluster_members=['138 L. Ed. 2d 849', '117 S. Ct. 2312', '521 U.S. 811', '194 L. Ed. 2d 635'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 2016, 'court': None, 'type': None}, cluster_id='cluster_19', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='194 L. Ed. 2d 635', extracted_case_name='Inc. v. Robins', extracted_date='2016', canonical_name='Spokeo, Inc. v. Robins', canonical_date='2016-05-16', canonical_url='https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=48841, end_index=48858, is_parallel=False, is_cluster=True, parallel_citations=['136 S. Ct. 1540'], cluster_members=['136 S. Ct. 1540', '138 L. Ed. 2d 849', '117 S. Ct. 2312', '521 U.S. 811'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 2016, 'court': None, 'type': None}, cluster_id='cluster_19', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='521 U.S. 811', extracted_case_name='Branson v. Wash. Fine Win', extracted_date=None, canonical_name='Davis v. Wells Fargo, U.S.', canonical_date='2016-05-27', canonical_url='https://www.courtlistener.com/opinion/8442712/davis-v-wells-fargo-us/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=48917, end_index=48929, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['136 S. Ct. 1540', '138 L. Ed. 2d 849', '117 S. Ct. 2312', '194 L. Ed. 2d 635'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 1997, 'court': None, 'type': None}, cluster_id='cluster_19', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='117 S. Ct. 2312', extracted_case_name='Branson v. Wash. Fine Wine & Spirits', extracted_date='1997', canonical_name='Branson v. Wash. Fine Wine & Spirits', canonical_date='1997-06-26', canonical_url='https://www.courtlistener.com/opinion/118146/raines-v-byrd/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=48940, end_index=48955, is_parallel=False, is_cluster=True, parallel_citations=['138 L. Ed. 2d 849'], cluster_members=['136 S. Ct. 1540', '138 L. Ed. 2d 849', '521 U.S. 811', '194 L. Ed. 2d 635'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 1997, 'court': None, 'type': None}, cluster_id='cluster_19', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='138 L. Ed. 2d 849', extracted_case_name='Branson v. Wash. Fine Wine & Spirits', extracted_date='1997', canonical_name='Branson v. Wash. Fine Wine & Spirits', canonical_date='1997-06-26', canonical_url='https://www.courtlistener.com/opinion/118146/raines-v-byrd/', verified=True, url=None, court=None, docket_number=None, confidence=0.9, method='eyecite', pattern='', context='', start_index=48957, end_index=48974, is_parallel=False, is_cluster=True, parallel_citations=['117 S. Ct. 2312'], cluster_members=['136 S. Ct. 1540', '117 S. Ct. 2312', '521 U.S. 811', '194 L. Ed. 2d 635'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'volume': None, 'reporter': None, 'page': None, 'year': 1997, 'court': None, 'type': None}, cluster_id='cluster_19', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='567 P.3d 1128', extracted_case_name='McFarland v. Tompkins', extracted_date='2025', canonical_name='Commonwealth v. Colon', canonical_date='2018-07-12', canonical_url='https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=49229, end_index=49242, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_34', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='182 Wash.2d 398', extracted_case_name=None, extracted_date='2015', canonical_name=\"Utter v. Building Industry Ass'n\", canonical_date='2015-01-22', canonical_url='https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=49389, end_index=49402, is_parallel=False, is_cluster=True, parallel_citations=['341 P.3d 953'], cluster_members=['341 P.3d 953'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_20', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='341 P.3d 953', extracted_case_name=None, extracted_date='2015', canonical_name=\"Utter v. Building Industry Ass'n\", canonical_date='2015-01-22', canonical_url='https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=49409, end_index=49421, is_parallel=False, is_cluster=True, parallel_citations=['182 Wash.2d 398'], cluster_members=['182 Wash.2d 398'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_20', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='153 Wash.2d 689', extracted_case_name='State v. Robinson', extracted_date='2005', canonical_name='State v. Robinson', canonical_date='2005-02-24', canonical_url='https://www.courtlistener.com/opinion/4908408/state-v-robinson/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=49457, end_index=49470, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['107 P.3d 90'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_27', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='107 P.3d 90', extracted_case_name='State v. Robinson', extracted_date='2005', canonical_name='State v. Kesler, 2007-P-0107 (9-12-2008)', canonical_date='2008-09-12', canonical_url='https://www.courtlistener.com/opinion/3936696/state-v-kesler-2007-p-0107-9-12-2008/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=49481, end_index=49492, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['153 Wash.2d 689'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_27', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='118 Wash.2d 46', extracted_case_name='Wilmot v. Ka', extracted_date='1991', canonical_name='Wash. Post v. McManus', canonical_date='2019-01-03', canonical_url='https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=53269, end_index=53281, is_parallel=False, is_cluster=True, parallel_citations=['821 P.2d 18'], cluster_members=['821 P.2d 18'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_21', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='821 P.2d 18', extracted_case_name='Wilmot v. Ka', extracted_date='1991', canonical_name='N. R. v. M. P.', canonical_date='2024-09-03', canonical_url='https://www.courtlistener.com/opinion/10131791/n-r-v-m-p/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=53288, end_index=53299, is_parallel=False, is_cluster=True, parallel_citations=['118 Wash.2d 46'], cluster_members=['118 Wash.2d 46'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_21', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='198 Wash.2d 418', extracted_case_name=None, extracted_date='2021', canonical_name='Archdiocese of Wash. v. Wash. Metro. Area Transit Auth.', canonical_date='2018-07-31', canonical_url='https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=53589, end_index=53602, is_parallel=False, is_cluster=True, parallel_citations=['495 P.3d 808'], cluster_members=['495 P.3d 808', '931 P.2d 885', '131 Wash.2d 309'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_22', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='495 P.3d 808', extracted_case_name=None, extracted_date='2021', canonical_name='Great Ajax Operating Partnership L.P. v. PCG REO Holdings, LLC', canonical_date='2021-03-04', canonical_url='https://www.courtlistener.com/opinion/4861168/great-ajax-operating-partnership-lp-v-pcg-reo-holdings-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=53610, end_index=53622, is_parallel=False, is_cluster=True, parallel_citations=['198 Wash.2d 418'], cluster_members=['198 Wash.2d 418', '931 P.2d 885', '131 Wash.2d 309'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_22', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='131 Wash.2d 309', extracted_case_name='State v. Bash', extracted_date='1997', canonical_name='Washington State Legislature v. Lowry', canonical_date='1997-02-27', canonical_url='https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=53760, end_index=53773, is_parallel=False, is_cluster=True, parallel_citations=['931 P.2d 885'], cluster_members=['198 Wash.2d 418', '495 P.3d 808', '931 P.2d 885'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_22', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='931 P.2d 885', extracted_case_name='State v. Bash', extracted_date='1997', canonical_name='Washington State Legislature v. Lowry', canonical_date='1997-02-27', canonical_url='https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=53781, end_index=53793, is_parallel=False, is_cluster=True, parallel_citations=['131 Wash.2d 309'], cluster_members=['198 Wash.2d 418', '495 P.3d 808', '131 Wash.2d 309'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_22', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='130 Wash.2d 594', extracted_case_name='State v. Bash', extracted_date='1996', canonical_name='State v. Bash', canonical_date='1996-11-07', canonical_url='https://www.courtlistener.com/opinion/4907169/state-v-bash/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=55828, end_index=55841, is_parallel=False, is_cluster=True, parallel_citations=['925 P.2d 978'], cluster_members=['925 P.2d 978'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_23', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='925 P.2d 978', extracted_case_name='State v. Bash', extracted_date='1996', canonical_name='State v. Bash', canonical_date='1996-11-07', canonical_url='https://www.courtlistener.com/opinion/1163305/state-v-bash/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=55848, end_index=55860, is_parallel=False, is_cluster=True, parallel_citations=['130 Wash.2d 594'], cluster_members=['130 Wash.2d 594'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_23', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='125 Wash.2d 472', extracted_case_name='State v. Si', extracted_date='1994', canonical_name='State v. Silva-Baltazar', canonical_date='1994-12-15', canonical_url='https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=55922, end_index=55935, is_parallel=False, is_cluster=True, parallel_citations=['886 P.2d 138'], cluster_members=['886 P.2d 138'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_24', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='886 P.2d 138', extracted_case_name='State v. Si', extracted_date='1994', canonical_name='People v. Julian', canonical_date='2019-04-29', canonical_url='https://www.courtlistener.com/opinion/6240446/people-v-julian/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=55942, end_index=55954, is_parallel=False, is_cluster=True, parallel_citations=['125 Wash.2d 472'], cluster_members=['125 Wash.2d 472'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_24', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='147 Wash.2d 602', extracted_case_name='', extracted_date='2002', canonical_name='In re the Personal Restraint of Andress', canonical_date='2002-10-24', canonical_url='https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=58210, end_index=58224, is_parallel=False, is_cluster=True, parallel_citations=['56 P.3d 981'], cluster_members=['146 Wash.2d 1', '43 P.3d 4', '56 P.3d 981', '839 P.2d 324', '120 Wash.2d 140', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='56 P.3d 981', extracted_case_name=None, extracted_date='2002', canonical_name='National Inspection & Repair, Inc. v. Valley Forge Life Insurance', canonical_date='2002-11-01', canonical_url='https://www.courtlistener.com/opinion/2629722/national-inspection-repair-inc-v-valley-forge-life-insurance/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=58231, end_index=58242, is_parallel=False, is_cluster=True, parallel_citations=['147 Wash.2d 602'], cluster_members=['146 Wash.2d 1', '43 P.3d 4', '147 Wash.2d 602', '839 P.2d 324', '120 Wash.2d 140', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='120 Wash.2d 140', extracted_case_name=None, extracted_date='1992', canonical_name=\"Hall v. Wash. Dep't of Emp't Sec.\", canonical_date='2018-08-06', canonical_url='https://www.courtlistener.com/opinion/6656974/hall-v-wash-dept-of-empt-sec/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=58302, end_index=58315, is_parallel=False, is_cluster=True, parallel_citations=['839 P.2d 324'], cluster_members=['146 Wash.2d 1', '43 P.3d 4', '147 Wash.2d 602', '56 P.3d 981', '839 P.2d 324', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='839 P.2d 324', extracted_case_name=None, extracted_date='1992', canonical_name='In re the Law Firm of Bolden & Coker, P.C.', canonical_date='2004-01-28', canonical_url='https://www.courtlistener.com/opinion/7407935/in-re-the-law-firm-of-bolden-coker-pc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=58322, end_index=58334, is_parallel=False, is_cluster=True, parallel_citations=['120 Wash.2d 140'], cluster_members=['146 Wash.2d 1', '43 P.3d 4', '147 Wash.2d 602', '56 P.3d 981', '120 Wash.2d 140', '9 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_3', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='136 Wash.2d 38', extracted_case_name=None, extracted_date='1998', canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=59357, end_index=59369, is_parallel=False, is_cluster=True, parallel_citations=['959 P.2d 1091'], cluster_members=['959 P.2d 1091'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_25', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='959 P.2d 1091', extracted_case_name='', extracted_date='1998', canonical_name='City of Redmond v. Central Puget Sound Growth Management Hearings Board', canonical_date='1998-08-06', canonical_url='https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=59375, end_index=59388, is_parallel=False, is_cluster=True, parallel_citations=['136 Wash.2d 38'], cluster_members=['136 Wash.2d 38'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_25', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='432 P.3d 841', extracted_case_name=None, extracted_date='2018', canonical_name='Aaron Richardson v. Department Of Labor & Industries', canonical_date='2018-12-24', canonical_url='https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=59691, end_index=59703, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['192 Wash.2d 453', '430 P.3d 655'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_2', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='162 Wash.2d 42', extracted_case_name='Stevens v. Br', extracted_date='2007', canonical_name='Woytowicz v. George Wash. Univ.', canonical_date='2018-08-27', canonical_url='https://www.courtlistener.com/opinion/7331687/woytowicz-v-george-wash-univ/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=59757, end_index=59769, is_parallel=False, is_cluster=True, parallel_citations=['169 P.3d 473'], cluster_members=['169 P.3d 473'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_26', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='169 P.3d 473', extracted_case_name='Stevens v. Br', extracted_date='2007', canonical_name=\"Stevens v. Brink's Home Security, Inc.\", canonical_date='2007-10-18', canonical_url='https://www.courtlistener.com/opinion/2625168/stevens-v-brinks-home-security-inc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p3d', context='', start_index=59775, end_index=59787, is_parallel=False, is_cluster=True, parallel_citations=['162 Wash.2d 42'], cluster_members=['162 Wash.2d 42'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_26', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='131 Wash.2d 523', extracted_case_name=None, extracted_date=None, canonical_name='Branson v. Wash. Fine Wine & Spirits, LLC', canonical_date='2025-09-04', canonical_url='https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='parallel_citation_cluster', context='', start_index=64761, end_index=64774, is_parallel=False, is_cluster=True, parallel_citations=[], cluster_members=['171 Wash.2d 486', '2024 WL 2133370'], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_31', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='936 P.2d 1123', extracted_case_name=None, extracted_date='1997', canonical_name='Nelson v. McClatchy Newspapers', canonical_date='1997-05-08', canonical_url='https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=64786, end_index=64799, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_35', true_by_parallel=False, is_pinpoint=False, verification_citation=None)",
+    "CitationResult(citation='614 P.2d 209', extracted_case_name='State v. Leek', extracted_date='1980', canonical_name='Lewis v. State', canonical_date='2024-11-06', canonical_url='https://www.courtlistener.com/opinion/10266055/lewis-v-state/', verified=True, url=None, court=None, docket_number=None, confidence=0.8, method='regex_enhanced', pattern='flexible_p2d', context='', start_index=64992, end_index=65005, is_parallel=False, is_cluster=False, parallel_citations=[], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={}, cluster_id='cluster_36', true_by_parallel=False, is_pinpoint=False, verification_citation=None)"
+  ],
+  "clusters": [
+    {
+      "cluster_id": "cluster_1",
+      "case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "date": "2015",
+      "canonical_date": "2015",
+      "extracted_date": "2015",
+      "citations": [
+        {
+          "text": "183 Wash.2d 649",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/"
+        },
+        {
+          "text": "355 P.3d 258",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "183 Wash.2d 649",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/"
+        },
+        {
+          "text": "355 P.3d 258",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "lopez demetrio v sakuma bros farms_2015"
+      }
+    },
+    {
+      "cluster_id": "cluster_2",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2018",
+      "canonical_date": "2018",
+      "extracted_date": "2018",
+      "citations": [
+        {
+          "text": "192 Wash.2d 453",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/"
+        },
+        {
+          "text": "430 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6657720/spokane-cnty-v-wash-dept-of-fish-wildlife/"
+        },
+        {
+          "text": "432 P.3d 841",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/"
+        }
+      ],
+      "size": 3,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "192 Wash.2d 453",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/"
+        },
+        {
+          "text": "430 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6657720/spokane-cnty-v-wash-dept-of-fish-wildlife/"
+        },
+        {
+          "text": "432 P.3d 841",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2018"
+      }
+    },
+    {
+      "cluster_id": "cluster_3",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2002",
+      "canonical_date": "2002",
+      "extracted_date": "2002",
+      "citations": [
+        {
+          "text": "146 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7329625/williams-v-verizon-wash-dc-inc/"
+        },
+        {
+          "text": "43 P.3d 4",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7178262/northland-4-l-lc-v-franklin-cnty-bd-of-revision/"
+        },
+        {
+          "text": "147 Wash.2d 602",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/"
+        },
+        {
+          "text": "56 P.3d 981",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2629722/national-inspection-repair-inc-v-valley-forge-life-insurance/"
+        },
+        {
+          "text": "839 P.2d 324",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7407935/in-re-the-law-firm-of-bolden-coker-pc/"
+        },
+        {
+          "text": "120 Wash.2d 140",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6656974/hall-v-wash-dept-of-empt-sec/"
+        },
+        {
+          "text": "9 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3188721/abrams-v-related-lp/"
+        }
+      ],
+      "size": 7,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "146 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7329625/williams-v-verizon-wash-dc-inc/"
+        },
+        {
+          "text": "43 P.3d 4",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7178262/northland-4-l-lc-v-franklin-cnty-bd-of-revision/"
+        },
+        {
+          "text": "147 Wash.2d 602",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/"
+        },
+        {
+          "text": "56 P.3d 981",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2629722/national-inspection-repair-inc-v-valley-forge-life-insurance/"
+        },
+        {
+          "text": "839 P.2d 324",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7407935/in-re-the-law-firm-of-bolden-coker-pc/"
+        },
+        {
+          "text": "120 Wash.2d 140",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6656974/hall-v-wash-dept-of-empt-sec/"
+        },
+        {
+          "text": "9 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3188721/abrams-v-related-lp/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2002"
+      }
+    },
+    {
+      "cluster_id": "cluster_4",
+      "case_name": "State v. Velasquez",
+      "canonical_name": "State v. Velasquez",
+      "extracted_case_name": "State v. Velasquez",
+      "date": "2015",
+      "canonical_date": "2015",
+      "extracted_date": "2015",
+      "citations": [
+        {
+          "text": "182 Wash.2d 342",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909533/public-utility-district-no-1-v-state/"
+        },
+        {
+          "text": "340 P.3d 849",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7410640/hsp-v-jk/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "182 Wash.2d 342",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909533/public-utility-district-no-1-v-state/"
+        },
+        {
+          "text": "340 P.3d 849",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7410640/hsp-v-jk/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v velasquez_2015"
+      }
+    },
+    {
+      "cluster_id": "cluster_5",
+      "case_name": "State v. Velasquez",
+      "canonical_name": "State v. Velasquez",
+      "extracted_case_name": "State v. Velasquez",
+      "date": "2013",
+      "canonical_date": "2013",
+      "extracted_date": "2013",
+      "citations": [
+        {
+          "text": "176 Wash.2d 333",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/"
+        },
+        {
+          "text": "292 P.3d 92",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "176 Wash.2d 333",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/"
+        },
+        {
+          "text": "292 P.3d 92",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v velasquez_2013"
+      }
+    },
+    {
+      "cluster_id": "cluster_6",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2022",
+      "canonical_date": "2022",
+      "extracted_date": "2022",
+      "citations": [
+        {
+          "text": "199 Wash.2d 528",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "509 P.3d 818",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/"
+        },
+        {
+          "text": "802 P.2d 784",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3069053/ex-parte-gregory-p-hatzis/"
+        },
+        {
+          "text": "116 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/"
+        }
+      ],
+      "size": 4,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "199 Wash.2d 528",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "509 P.3d 818",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/"
+        },
+        {
+          "text": "802 P.2d 784",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3069053/ex-parte-gregory-p-hatzis/"
+        },
+        {
+          "text": "116 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2022"
+      }
+    },
+    {
+      "cluster_id": "cluster_7",
+      "case_name": "Coburn v. Seda",
+      "canonical_name": "Coburn v. Seda",
+      "extracted_case_name": "Coburn v. Seda",
+      "date": "1984",
+      "canonical_date": "1984",
+      "extracted_date": "1984",
+      "citations": [
+        {
+          "text": "101 Wash.2d 270",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/"
+        },
+        {
+          "text": "677 P.2d 173",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9443919/hr-v-pje/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "101 Wash.2d 270",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/"
+        },
+        {
+          "text": "677 P.2d 173",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9443919/hr-v-pje/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "coburn v seda_1984"
+      }
+    },
+    {
+      "cluster_id": "cluster_8",
+      "case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "canonical_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "date": "2012",
+      "canonical_date": "2012",
+      "extracted_date": "2012",
+      "citations": [
+        {
+          "text": "174 Wash.2d 619",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/"
+        },
+        {
+          "text": "278 P.3d 173",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "174 Wash.2d 619",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/"
+        },
+        {
+          "text": "278 P.3d 173",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "broughton lumber co v bnsf ry co_2012"
+      }
+    },
+    {
+      "cluster_id": "cluster_9",
+      "case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "canonical_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "date": "2017",
+      "canonical_date": "2017",
+      "extracted_date": "2017",
+      "citations": [
+        {
+          "text": "187 Wash.2d 669",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/"
+        },
+        {
+          "text": "389 P.3d 476",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "187 Wash.2d 669",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/"
+        },
+        {
+          "text": "389 P.3d 476",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "crisantos v state farm fire cas co_2017"
+      }
+    },
+    {
+      "cluster_id": "cluster_10",
+      "case_name": "Rest.  Dev., Inc. v. Cananwill, Inc.",
+      "canonical_name": "Rest.  Dev., Inc. v. Cananwill, Inc.",
+      "extracted_case_name": "Rest.  Dev., Inc. v. Cananwill, Inc.",
+      "date": "2003",
+      "canonical_date": "2003",
+      "extracted_date": "2003",
+      "citations": [
+        {
+          "text": "150 Wash.2d 674",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/"
+        },
+        {
+          "text": "4 Wash.3d 1021",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/"
+        },
+        {
+          "text": "80 P.3d 598",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10020950/75-80-properties-v-rale-inc/"
+        }
+      ],
+      "size": 3,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "150 Wash.2d 674",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/"
+        },
+        {
+          "text": "4 Wash.3d 1021",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10326157/wash-v-banda-wash/"
+        },
+        {
+          "text": "80 P.3d 598",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10020950/75-80-properties-v-rale-inc/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "rest dev inc v cananwill inc_2003"
+      }
+    },
+    {
+      "cluster_id": "cluster_11",
+      "case_name": "Bostain v. Food \nExpress, Inc.",
+      "canonical_name": "Bostain v. Food \nExpress, Inc.",
+      "extracted_case_name": "Bostain v. Food \nExpress, Inc.",
+      "date": "2007",
+      "canonical_date": "2007",
+      "extracted_date": "2007",
+      "citations": [
+        {
+          "text": "159 Wash.2d 700",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/"
+        },
+        {
+          "text": "153 P.3d 846",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "159 Wash.2d 700",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/"
+        },
+        {
+          "text": "153 P.3d 846",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "bostain v food express inc_2007"
+      }
+    },
+    {
+      "cluster_id": "cluster_12",
+      "case_name": "Tingey v. Haisch",
+      "canonical_name": "Tingey v. Haisch",
+      "extracted_case_name": "Tingey v. Haisch",
+      "date": "2007",
+      "canonical_date": "2007",
+      "extracted_date": "2007",
+      "citations": [
+        {
+          "text": "159 Wash.2d 652",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/"
+        },
+        {
+          "text": "59 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/"
+        },
+        {
+          "text": "148 Wash.2d 224",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/"
+        },
+        {
+          "text": "152 P.3d 1020",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/"
+        }
+      ],
+      "size": 4,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "159 Wash.2d 652",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/"
+        },
+        {
+          "text": "59 P.3d 655",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/"
+        },
+        {
+          "text": "148 Wash.2d 224",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/"
+        },
+        {
+          "text": "152 P.3d 1020",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "tingey v haisch_2007"
+      }
+    },
+    {
+      "cluster_id": "cluster_13",
+      "case_name": "State v. Delgado",
+      "canonical_name": "State v. Delgado",
+      "extracted_case_name": "State v. Delgado",
+      "date": "2003",
+      "canonical_date": "2003",
+      "extracted_date": "2003",
+      "citations": [
+        {
+          "text": "148 Wash.2d 723",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/"
+        },
+        {
+          "text": "63 P.3d 792",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628896/state-v-cantu/"
+        },
+        {
+          "text": "673 P.2d 185",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6658184/state-v-pmp/"
+        },
+        {
+          "text": "100 Wash.2d 636",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9440060/state-v-rivers/"
+        }
+      ],
+      "size": 4,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "148 Wash.2d 723",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/"
+        },
+        {
+          "text": "63 P.3d 792",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628896/state-v-cantu/"
+        },
+        {
+          "text": "673 P.2d 185",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6658184/state-v-pmp/"
+        },
+        {
+          "text": "100 Wash.2d 636",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9440060/state-v-rivers/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v delgado_2003"
+      }
+    },
+    {
+      "cluster_id": "cluster_14",
+      "case_name": "Five Corners Fam. Farmers v. State",
+      "canonical_name": "Five Corners Fam. Farmers v. State",
+      "extracted_case_name": "Five Corners Fam. Farmers v. State",
+      "date": "2011",
+      "canonical_date": "2011",
+      "extracted_date": "2011",
+      "citations": [
+        {
+          "text": "173 Wash.2d 296",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/"
+        },
+        {
+          "text": "268 P.3d 892",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "173 Wash.2d 296",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/"
+        },
+        {
+          "text": "268 P.3d 892",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "five corners fam farmers v state_2011"
+      }
+    },
+    {
+      "cluster_id": "cluster_15",
+      "case_name": "State v. Valdiglesias LaValle",
+      "canonical_name": "State v. Valdiglesias LaValle",
+      "extracted_case_name": "State v. Valdiglesias LaValle",
+      "date": "2023",
+      "canonical_date": "2023",
+      "extracted_date": "2023",
+      "citations": [
+        {
+          "text": "2 Wash.3d 310",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4855804/beauregard-v-wash-state-bar-assn/"
+        },
+        {
+          "text": "535 P.3d 856",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9357524/penn-p-jr-v-state-of-alaska-department-of-health-social-services/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "2 Wash.3d 310",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4855804/beauregard-v-wash-state-bar-assn/"
+        },
+        {
+          "text": "535 P.3d 856",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9357524/penn-p-jr-v-state-of-alaska-department-of-health-social-services/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v valdiglesias lavalle_2023"
+      }
+    },
+    {
+      "cluster_id": "cluster_16",
+      "case_name": "State v. Lilyblad",
+      "canonical_name": "State v. Lilyblad",
+      "extracted_case_name": "State v. Lilyblad",
+      "date": "2008",
+      "canonical_date": "2008",
+      "extracted_date": "2008",
+      "citations": [
+        {
+          "text": "163 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628335/futurewise-v-western-wash-growth-management-hearings-bd/"
+        },
+        {
+          "text": "177 P.3d 686",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "163 Wash.2d 1",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2628335/futurewise-v-western-wash-growth-management-hearings-bd/"
+        },
+        {
+          "text": "177 P.3d 686",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v lilyblad_2008"
+      }
+    },
+    {
+      "cluster_id": "cluster_17",
+      "case_name": "State v. Lilyblad",
+      "canonical_name": "State v. Lilyblad",
+      "extracted_case_name": "State v. Lilyblad",
+      "date": "2021",
+      "canonical_date": "2021",
+      "extracted_date": "2021",
+      "citations": [
+        {
+          "text": "197 Wash.2d 841",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9408014/state-v-jon-smart/"
+        },
+        {
+          "text": "487 P.3d 499",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4766175/bashir-sharif-v-william-p-barr/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "197 Wash.2d 841",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/9408014/state-v-jon-smart/"
+        },
+        {
+          "text": "487 P.3d 499",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4766175/bashir-sharif-v-william-p-barr/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v lilyblad_2021"
+      }
+    },
+    {
+      "cluster_id": "cluster_18",
+      "case_name": "State v. Roggenkamp",
+      "canonical_name": "State v. Roggenkamp",
+      "extracted_case_name": "State v. Roggenkamp",
+      "date": "2005",
+      "canonical_date": "2005",
+      "extracted_date": "2005",
+      "citations": [
+        {
+          "text": "153 Wash.2d 614",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/"
+        },
+        {
+          "text": "106 P.3d 196",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/887387/state-v-cameron/"
+        },
+        {
+          "text": "976 P.2d 1229",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1277199/state-v-jackson/"
+        },
+        {
+          "text": "137 Wash.2d 712",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/"
+        }
+      ],
+      "size": 4,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "153 Wash.2d 614",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/"
+        },
+        {
+          "text": "106 P.3d 196",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/887387/state-v-cameron/"
+        },
+        {
+          "text": "976 P.2d 1229",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1277199/state-v-jackson/"
+        },
+        {
+          "text": "137 Wash.2d 712",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v roggenkamp_2005"
+      }
+    },
+    {
+      "cluster_id": "cluster_19",
+      "case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "canonical_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "date": "2016",
+      "canonical_date": "2016",
+      "extracted_date": "2016",
+      "citations": [
+        {
+          "text": "136 S. Ct. 1540",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/"
+        },
+        {
+          "text": "138 L. Ed. 2d 849",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/"
+        },
+        {
+          "text": "117 S. Ct. 2312",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/"
+        },
+        {
+          "text": "521 U.S. 811",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/8442712/davis-v-wells-fargo-us/"
+        },
+        {
+          "text": "194 L. Ed. 2d 635",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/"
+        }
+      ],
+      "size": 5,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "136 S. Ct. 1540",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/"
+        },
+        {
+          "text": "138 L. Ed. 2d 849",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/"
+        },
+        {
+          "text": "117 S. Ct. 2312",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/"
+        },
+        {
+          "text": "521 U.S. 811",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/8442712/davis-v-wells-fargo-us/"
+        },
+        {
+          "text": "194 L. Ed. 2d 635",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "branson v wash fine wine spirits_2016"
+      }
+    },
+    {
+      "cluster_id": "cluster_20",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2015",
+      "canonical_date": "2015",
+      "extracted_date": "2015",
+      "citations": [
+        {
+          "text": "182 Wash.2d 398",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/"
+        },
+        {
+          "text": "341 P.3d 953",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "182 Wash.2d 398",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/"
+        },
+        {
+          "text": "341 P.3d 953",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2015"
+      }
+    },
+    {
+      "cluster_id": "cluster_21",
+      "case_name": "Wilmot v. Ka",
+      "canonical_name": "Wilmot v. Ka",
+      "extracted_case_name": "Wilmot v. Ka",
+      "date": "1991",
+      "canonical_date": "1991",
+      "extracted_date": "1991",
+      "citations": [
+        {
+          "text": "118 Wash.2d 46",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/"
+        },
+        {
+          "text": "821 P.2d 18",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10131791/n-r-v-m-p/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "118 Wash.2d 46",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7333806/wash-post-v-mcmanus/"
+        },
+        {
+          "text": "821 P.2d 18",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10131791/n-r-v-m-p/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "wilmot v ka_1991"
+      }
+    },
+    {
+      "cluster_id": "cluster_22",
+      "case_name": "State v. Bash",
+      "canonical_name": "State v. Bash",
+      "extracted_case_name": "State v. Bash",
+      "date": "2021",
+      "canonical_date": "2021",
+      "extracted_date": "2021",
+      "citations": [
+        {
+          "text": "198 Wash.2d 418",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/"
+        },
+        {
+          "text": "495 P.3d 808",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4861168/great-ajax-operating-partnership-lp-v-pcg-reo-holdings-llc/"
+        },
+        {
+          "text": "931 P.2d 885",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/"
+        },
+        {
+          "text": "131 Wash.2d 309",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/"
+        }
+      ],
+      "size": 4,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "198 Wash.2d 418",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4522177/archdiocese-of-wash-v-wash-metro-area-transit-auth/"
+        },
+        {
+          "text": "495 P.3d 808",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4861168/great-ajax-operating-partnership-lp-v-pcg-reo-holdings-llc/"
+        },
+        {
+          "text": "931 P.2d 885",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/"
+        },
+        {
+          "text": "131 Wash.2d 309",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v bash_2021"
+      }
+    },
+    {
+      "cluster_id": "cluster_23",
+      "case_name": "State v. Bash",
+      "canonical_name": "State v. Bash",
+      "extracted_case_name": "State v. Bash",
+      "date": "1996",
+      "canonical_date": "1996",
+      "extracted_date": "1996",
+      "citations": [
+        {
+          "text": "130 Wash.2d 594",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/"
+        },
+        {
+          "text": "925 P.2d 978",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1163305/state-v-bash/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "130 Wash.2d 594",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/"
+        },
+        {
+          "text": "925 P.2d 978",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1163305/state-v-bash/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v bash_1996"
+      }
+    },
+    {
+      "cluster_id": "cluster_24",
+      "case_name": "State v. Si",
+      "canonical_name": "State v. Si",
+      "extracted_case_name": "State v. Si",
+      "date": "1994",
+      "canonical_date": "1994",
+      "extracted_date": "1994",
+      "citations": [
+        {
+          "text": "125 Wash.2d 472",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/"
+        },
+        {
+          "text": "886 P.2d 138",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6240446/people-v-julian/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "125 Wash.2d 472",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/"
+        },
+        {
+          "text": "886 P.2d 138",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/6240446/people-v-julian/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v si_1994"
+      }
+    },
+    {
+      "cluster_id": "cluster_25",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "1998",
+      "canonical_date": "1998",
+      "extracted_date": "1998",
+      "citations": [
+        {
+          "text": "136 Wash.2d 38",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "959 P.2d 1091",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "136 Wash.2d 38",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "959 P.2d 1091",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_1998"
+      }
+    },
+    {
+      "cluster_id": "cluster_26",
+      "case_name": "Stevens v. Br",
+      "canonical_name": "Stevens v. Br",
+      "extracted_case_name": "Stevens v. Br",
+      "date": "2007",
+      "canonical_date": "2007",
+      "extracted_date": "2007",
+      "citations": [
+        {
+          "text": "162 Wash.2d 42",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7331687/woytowicz-v-george-wash-univ/"
+        },
+        {
+          "text": "169 P.3d 473",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2625168/stevens-v-brinks-home-security-inc/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "162 Wash.2d 42",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7331687/woytowicz-v-george-wash-univ/"
+        },
+        {
+          "text": "169 P.3d 473",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2625168/stevens-v-brinks-home-security-inc/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "stevens v br_2007"
+      }
+    },
+    {
+      "cluster_id": "cluster_27",
+      "case_name": "State v. Robinson",
+      "canonical_name": "State v. Robinson",
+      "extracted_case_name": "State v. Robinson",
+      "date": "2005",
+      "canonical_date": "2005",
+      "extracted_date": "2005",
+      "citations": [
+        {
+          "text": "153 Wash.2d 689",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/"
+        },
+        {
+          "text": "107 P.3d 90",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3936696/state-v-kesler-2007-p-0107-9-12-2008/"
+        }
+      ],
+      "size": 2,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "153 Wash.2d 689",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/"
+        },
+        {
+          "text": "107 P.3d 90",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/3936696/state-v-kesler-2007-p-0107-9-12-2008/"
+        }
+      ],
+      "confidence": 0.8999999999999999,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v robinson_2005"
+      }
+    },
+    {
+      "cluster_id": "cluster_28",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2024",
+      "canonical_date": "2024",
+      "extracted_date": "2024",
+      "citations": [
+        {
+          "text": "559 P.3d 545",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/"
+        },
+        {
+          "text": "2024 WL 3199858",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "2024 WL 4678268",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        }
+      ],
+      "size": 3,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "559 P.3d 545",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/"
+        },
+        {
+          "text": "2024 WL 3199858",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "2024 WL 4678268",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2024"
+      }
+    },
+    {
+      "cluster_id": "cluster_29",
+      "case_name": "Fode v. De",
+      "canonical_name": "Fode v. De",
+      "extracted_case_name": "Fode v. De",
+      "date": "2022",
+      "canonical_date": "2022",
+      "extracted_date": "2022",
+      "citations": [
+        {
+          "text": "509 P.3d 325",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "509 P.3d 325",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "fode v de_2022"
+      }
+    },
+    {
+      "cluster_id": "cluster_30",
+      "case_name": "Port of Tacoma v. Sacks",
+      "canonical_name": "Port of Tacoma v. Sacks",
+      "extracted_case_name": "Port of Tacoma v. Sacks",
+      "date": "2021",
+      "canonical_date": "2021",
+      "extracted_date": "2021",
+      "citations": [
+        {
+          "text": "495 P.3d 866",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "495 P.3d 866",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "port of tacoma v sacks_2021"
+      }
+    },
+    {
+      "cluster_id": "cluster_31",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": null,
+      "canonical_date": null,
+      "extracted_date": null,
+      "citations": [
+        {
+          "text": "171 Wash.2d 486",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "2024 WL 2133370",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "131 Wash.2d 523",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        }
+      ],
+      "size": 3,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "171 Wash.2d 486",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "2024 WL 2133370",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        },
+        {
+          "text": "131 Wash.2d 523",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/"
+        }
+      ],
+      "confidence": 0.7,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_unknown"
+      }
+    },
+    {
+      "cluster_id": "cluster_32",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "2011",
+      "canonical_date": "2011",
+      "extracted_date": "2011",
+      "citations": [
+        {
+          "text": "256 P.3d 321",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "256 P.3d 321",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_2011"
+      }
+    },
+    {
+      "cluster_id": "cluster_33",
+      "case_name": "State v. J.P.",
+      "canonical_name": "State v. J.P.",
+      "extracted_case_name": "State v. J.P.",
+      "date": "2003",
+      "canonical_date": "2003",
+      "extracted_date": "2003",
+      "citations": [
+        {
+          "text": "69 P.3d 318",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "69 P.3d 318",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v j p_2003"
+      }
+    },
+    {
+      "cluster_id": "cluster_34",
+      "case_name": "McFarland v. Tompkins",
+      "canonical_name": "McFarland v. Tompkins",
+      "extracted_case_name": "McFarland v. Tompkins",
+      "date": "2025",
+      "canonical_date": "2025",
+      "extracted_date": "2025",
+      "citations": [
+        {
+          "text": "567 P.3d 1128",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "567 P.3d 1128",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "mcfarland v tompkins_2025"
+      }
+    },
+    {
+      "cluster_id": "cluster_35",
+      "case_name": "N/A",
+      "canonical_name": "N/A",
+      "extracted_case_name": "N/A",
+      "date": "1997",
+      "canonical_date": "1997",
+      "extracted_date": "1997",
+      "citations": [
+        {
+          "text": "936 P.2d 1123",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "936 P.2d 1123",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "unknown_1997"
+      }
+    },
+    {
+      "cluster_id": "cluster_36",
+      "case_name": "State v. Leek",
+      "canonical_name": "State v. Leek",
+      "extracted_case_name": "State v. Leek",
+      "date": "1980",
+      "canonical_date": "1980",
+      "extracted_date": "1980",
+      "citations": [
+        {
+          "text": "614 P.2d 209",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10266055/lewis-v-state/"
+        }
+      ],
+      "size": 1,
+      "verified": true,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "citation_details": [
+        {
+          "text": "614 P.2d 209",
+          "verified": true,
+          "verification_method": null,
+          "verification_source": "Unknown",
+          "verification_url": "https://www.courtlistener.com/opinion/10266055/lewis-v-state/"
+        }
+      ],
+      "confidence": 0.5,
+      "metadata": {
+        "cluster_type": "metadata_based",
+        "created_by": "unified_master",
+        "cluster_key": "state v leek_1980"
+      }
+    }
+  ]
+}

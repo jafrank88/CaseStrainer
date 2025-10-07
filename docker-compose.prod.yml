@@ -201,7 +201,7 @@ services:
   frontend-prod:
     build: 
       context: ./casestrainer-vue-new
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.prod.simple
     container_name: casestrainer-frontend-prod
     ports:
       - "8080:80"
@@ -209,6 +209,7 @@ services:
       - NGINX_HOST=localhost
       - NGINX_PORT=80
       - NODE_ENV=production
+      - VITE_COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]

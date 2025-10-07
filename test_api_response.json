@@ -1,394 +1,592 @@
 {
-  "result": {
-    "citations": [
-      {
-        "citation": "129 Wn. 2d 320",
-        "case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-        "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
-        "extracted_date": "1996",
-        "canonical_date": "1996-05-30",
-        "verified": true,
+  "citations": [
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "410 U.S. 113",
+      "cluster_case_name": "Roe v. Wade",
+      "cluster_id": "roe_v_wade_1973",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 89,
+      "error": null,
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1973",
+      "is_cluster": false,
+      "is_parallel": true,
+      "is_verified": true,
+      "metadata": {
+        "canonical_data_available": true,
+        "cluster_case_name": "Roe v. Wade",
+        "cluster_id": "roe_v_wade_1973",
+        "cluster_size": 1,
+        "cluster_year": "1973",
         "court": null,
-        "confidence": 1.0,
-        "method": "regex",
-        "pattern": "parallel_citation_cluster",
-        "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
-        "start_index": 125,
-        "end_index": 138,
-        "is_parallel": true,
-        "is_cluster": false,
-        "parallel_citations": [
-          "917 P.2d 100"
-        ],
-        "cluster_members": [
-          "917 P.2d 100"
-        ],
-        "pinpoint_pages": [],
-        "docket_numbers": [],
-        "case_history": [],
-        "publication_status": null,
-        "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
-        "source": "CourtListener-lookup-validated",
-        "error": null,
-        "metadata": {
-          "courtlistener_source": "CourtListener-lookup-validated",
-          "is_in_cluster": true,
-          "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
-          "cluster_members": [
-            "917 P.2d 100"
-          ],
-          "cluster_size": 2,
-          "cluster_extracted_case_name": null,
-          "cluster_extracted_date": null,
-          "cluster_canonical_name": null,
-          "cluster_canonical_date": null,
-          "cluster_url": null
-        },
-        "extraction_method": null
+        "is_in_cluster": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "verification_error": null,
+        "verification_source": "courtlistener_batch_api",
+        "verification_status": "verified",
+        "volume": null,
+        "year": 1973
       },
-      {
-        "citation": "917 P.2d 100",
-        "case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-        "canonical_name": "PRESIDENTIAL ESTATES APT. v. Barrett",
-        "extracted_date": "1996",
-        "canonical_date": "1996-05-30",
-        "verified": true,
+      "method": "eyecite",
+      "parallel_citations": [
+        "347 U.S. 483",
+        "384 U.S. 436",
+        "5 U.S. 137",
+        "372 U.S. 335"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 77,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "1954",
+      "canonical_name": "Brown v. Board of Education",
+      "canonical_url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+      "case_history": [],
+      "citation": "347 U.S. 483",
+      "cluster_case_name": "Roe v. Wade",
+      "cluster_id": "roe_v_wade_1954",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 141,
+      "error": null,
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1954",
+      "is_cluster": false,
+      "is_parallel": true,
+      "is_verified": true,
+      "metadata": {
+        "canonical_data_available": true,
+        "cluster_case_name": "Roe v. Wade",
+        "cluster_id": "roe_v_wade_1954",
+        "cluster_size": 1,
+        "cluster_year": "1954",
+        "confidence": 0.95,
         "court": null,
-        "confidence": 1.0,
-        "method": "regex",
-        "pattern": "flexible_p2d",
-        "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
-        "start_index": 148,
-        "end_index": 160,
-        "is_parallel": true,
-        "is_cluster": false,
-        "parallel_citations": [
-          "129 Wn. 2d 320"
-        ],
-        "cluster_members": [
-          "129 Wn. 2d 320"
-        ],
-        "pinpoint_pages": [],
-        "docket_numbers": [],
-        "case_history": [],
-        "publication_status": null,
-        "url": "https://www.courtlistener.com/opinion/1135857/presidential-estates-apt-v-barrett/",
-        "source": "CourtListener-search-validated",
-        "error": null,
-        "metadata": {
-          "courtlistener_source": "CourtListener-search-validated",
-          "is_in_cluster": true,
-          "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
-          "cluster_members": [
-            "129 Wn. 2d 320"
-          ],
-          "cluster_size": 2,
-          "cluster_extracted_case_name": null,
-          "cluster_extracted_date": null,
-          "cluster_canonical_name": null,
-          "cluster_canonical_date": null,
-          "cluster_url": null
-        },
-        "extraction_method": null
+        "fallback_source": "CourtListener",
+        "is_in_cluster": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "verification_error": null,
+        "verification_source": "fallback_CourtListener",
+        "verification_status": "verified_via_fallback",
+        "volume": null,
+        "year": 1954
       },
-      {
-        "citation": "496 P.3d 305",
-        "case_name": "Matter of Marriage of King",
-        "extracted_case_name": "Matter of Marriage of King",
-        "canonical_name": "Matter of Marriage of King",
-        "extracted_date": "2021",
-        "canonical_date": "1992-05-04",
-        "verified": true,
+      "method": "eyecite",
+      "parallel_citations": [
+        "410 U.S. 113",
+        "384 U.S. 436",
+        "5 U.S. 137",
+        "372 U.S. 335"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "CourtListener",
+      "start_index": 129,
+      "true_by_parallel": false,
+      "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+      "verified": true
+    },
+    {
+      "canonical_date": "1966",
+      "canonical_name": "Miranda v. Arizona",
+      "canonical_url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+      "case_history": [],
+      "citation": "384 U.S. 436",
+      "cluster_case_name": "Roe v. Wade",
+      "cluster_id": "roe_v_wade_1966",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 184,
+      "error": null,
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1966",
+      "is_cluster": false,
+      "is_parallel": true,
+      "is_verified": true,
+      "metadata": {
+        "canonical_data_available": true,
+        "cluster_case_name": "Roe v. Wade",
+        "cluster_id": "roe_v_wade_1966",
+        "cluster_size": 1,
+        "cluster_year": "1966",
+        "confidence": 0.95,
         "court": null,
-        "confidence": 0.9,
-        "method": "regex",
-        "pattern": "flexible_p3d",
-        "context": "d 357, 362, 496 P.3d 305 (2021)",
-        "start_index": 229,
-        "end_index": 241,
-        "is_parallel": true,
-        "is_cluster": false,
-        "parallel_citations": [
-          "66 Wn. App. 134",
-          "831 P.2d 1288"
-        ],
-        "cluster_members": [
-          "66 Wn. App. 134",
-          "831 P.2d 1288"
-        ],
-        "pinpoint_pages": [],
-        "docket_numbers": [],
-        "case_history": [],
-        "publication_status": null,
-        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-        "source": "CourtListener-lookup-validated",
-        "error": null,
-        "metadata": {
-          "is_in_cluster": true,
-          "cluster_id": "fallback_parallel_496 P.3d 305_66 Wn. App. 134_831 P.2d 1288",
-          "cluster_members": [
-            "66 Wn. App. 134",
-            "831 P.2d 1288"
-          ],
-          "cluster_size": 3,
-          "cluster_extracted_case_name": null,
-          "cluster_extracted_date": null,
-          "cluster_canonical_name": null,
-          "cluster_canonical_date": null,
-          "cluster_url": null
-        },
-        "extraction_method": null
+        "fallback_source": "CourtListener",
+        "is_in_cluster": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "verification_error": null,
+        "verification_source": "fallback_CourtListener",
+        "verification_status": "verified_via_fallback",
+        "volume": null,
+        "year": 1966
       },
-      {
-        "citation": "66 Wn. App. 134",
-        "case_name": "Matter of Marriage of King",
-        "extracted_case_name": "Matter of Marriage of King",
-        "canonical_name": "Matter of Marriage of King",
-        "extracted_date": "1992",
-        "canonical_date": "1992-05-04",
-        "verified": true,
+      "method": "eyecite",
+      "parallel_citations": [
+        "410 U.S. 113",
+        "347 U.S. 483",
+        "5 U.S. 137",
+        "372 U.S. 335"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "CourtListener",
+      "start_index": 172,
+      "true_by_parallel": false,
+      "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+      "verified": true
+    },
+    {
+      "canonical_date": "1803",
+      "canonical_name": "Marbury v. Madison",
+      "canonical_url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+      "case_history": [],
+      "citation": "5 U.S. 137",
+      "cluster_case_name": "Roe v. Wade",
+      "cluster_id": "roe_v_wade_1803",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 225,
+      "error": null,
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1803",
+      "is_cluster": false,
+      "is_parallel": true,
+      "is_verified": true,
+      "metadata": {
+        "canonical_data_available": true,
+        "cluster_case_name": "Roe v. Wade",
+        "cluster_id": "roe_v_wade_1803",
+        "cluster_size": 1,
+        "cluster_year": "1803",
+        "confidence": 0.95,
         "court": null,
-        "confidence": 1.0,
-        "method": "regex",
-        "pattern": "wash_complete",
-        "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-        "start_index": 283,
-        "end_index": 298,
-        "is_parallel": true,
-        "is_cluster": false,
-        "parallel_citations": [
-          "831 P.2d 1288"
-        ],
-        "cluster_members": [
-          "831 P.2d 1288"
-        ],
-        "pinpoint_pages": [],
-        "docket_numbers": [],
-        "case_history": [],
-        "publication_status": null,
-        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-        "source": "CourtListener-lookup-validated",
-        "error": null,
-        "metadata": {
-          "courtlistener_source": "CourtListener-lookup-validated",
-          "is_in_cluster": true,
-          "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
-          "cluster_members": [
-            "831 P.2d 1288"
-          ],
-          "cluster_size": 2,
-          "cluster_extracted_case_name": null,
-          "cluster_extracted_date": null,
-          "cluster_canonical_name": null,
-          "cluster_canonical_date": null,
-          "cluster_url": null
-        },
-        "extraction_method": null
+        "fallback_source": "CourtListener",
+        "is_in_cluster": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "verification_error": null,
+        "verification_source": "fallback_CourtListener",
+        "verification_status": "verified_via_fallback",
+        "volume": null,
+        "year": 1803
       },
-      {
-        "citation": "831 P.2d 1288",
-        "case_name": "Matter of Marriage of King",
-        "extracted_case_name": "Matter of Marriage of King",
-        "canonical_name": "Matter of Marriage of King",
-        "extracted_date": "1992",
-        "canonical_date": "1992-05-04",
-        "verified": true,
+      "method": "eyecite",
+      "parallel_citations": [
+        "410 U.S. 113",
+        "347 U.S. 483",
+        "384 U.S. 436",
+        "372 U.S. 335"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "CourtListener",
+      "start_index": 215,
+      "true_by_parallel": false,
+      "url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+      "verified": true
+    },
+    {
+      "canonical_date": "1963",
+      "canonical_name": "Gideon v. Wainwright",
+      "canonical_url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+      "case_history": [],
+      "citation": "372 U.S. 335",
+      "cluster_case_name": "Roe v. Wade",
+      "cluster_id": "roe_v_wade_1963",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 270,
+      "error": null,
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1963",
+      "is_cluster": false,
+      "is_parallel": true,
+      "is_verified": true,
+      "metadata": {
+        "canonical_data_available": true,
+        "cluster_case_name": "Roe v. Wade",
+        "cluster_id": "roe_v_wade_1963",
+        "cluster_size": 1,
+        "cluster_year": "1963",
+        "confidence": 0.95,
         "court": null,
-        "confidence": 1.0,
-        "method": "regex",
-        "pattern": "flexible_p2d",
-        "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-        "start_index": 305,
-        "end_index": 318,
-        "is_parallel": true,
-        "is_cluster": false,
-        "parallel_citations": [
-          "66 Wn. App. 134"
-        ],
-        "cluster_members": [
-          "66 Wn. App. 134"
-        ],
-        "pinpoint_pages": [],
-        "docket_numbers": [],
-        "case_history": [],
-        "publication_status": null,
-        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-        "source": "CourtListener-lookup-validated",
-        "error": null,
-        "metadata": {
-          "is_in_cluster": true,
-          "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
-          "cluster_members": [
-            "66 Wn. App. 134"
-          ],
-          "cluster_size": 2,
-          "cluster_extracted_case_name": null,
-          "cluster_extracted_date": null,
-          "cluster_canonical_name": null,
-          "cluster_canonical_date": null,
-          "cluster_url": null
-        },
-        "extraction_method": null
-      }
-    ],
-    "clusters": [
-      {
-        "cluster_id": "fallback_parallel_129 Wn. 2d 320_917 P.2d 100",
-        "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
-        "canonical_date": "1996-05-30",
-        "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-        "extracted_date": "1996",
-        "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
-        "source": "citation_clustering",
-        "citations": [
-          {
-            "citation": "129 Wn. 2d 320",
-            "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-            "extracted_date": "1996",
-            "canonical_name": "Presidential Estates Apartment Associates v. Barrett",
-            "canonical_date": "1996-05-30",
-            "confidence": 1.0,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/4907111/presidential-estates-apartment-associates-v-barrett/",
+        "fallback_source": "CourtListener",
+        "is_in_cluster": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "verification_error": null,
+        "verification_source": "fallback_CourtListener",
+        "verification_status": "verified_via_fallback",
+        "volume": null,
+        "year": 1963
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "410 U.S. 113",
+        "347 U.S. 483",
+        "384 U.S. 436",
+        "5 U.S. 137"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "CourtListener",
+      "start_index": 258,
+      "true_by_parallel": false,
+      "url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+      "verified": true
+    }
+  ],
+  "clusters": [
+    {
+      "case_name": "Roe v. Wade",
+      "citation_objects": [
+        {
+          "canonical_date": null,
+          "canonical_name": null,
+          "canonical_url": null,
+          "citation": "410 U.S. 113",
+          "confidence": 0.9,
+          "context": "",
+          "error": null,
+          "extracted_case_name": "Roe v. Wade",
+          "extracted_date": "1973",
+          "is_parallel": true,
+          "metadata": {
+            "canonical_data_available": true,
             "court": null,
-            "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
-            "verified": true,
-            "parallel_citations": [
-              "917 P.2d 100"
-            ]
+            "page": null,
+            "reporter": null,
+            "type": null,
+            "verification_error": null,
+            "verification_source": "courtlistener_batch_api",
+            "verification_status": "verified",
+            "volume": null,
+            "year": 1973
           },
-          {
-            "citation": "917 P.2d 100",
-            "extracted_case_name": "Presidential Ests Apt. Assocs. v. Barrett",
-            "extracted_date": "1996",
-            "canonical_name": "PRESIDENTIAL ESTATES APT. v. Barrett",
-            "canonical_date": "1996-05-30",
-            "confidence": 1.0,
-            "source": "CourtListener-search-validated",
-            "url": "https://www.courtlistener.com/opinion/1135857/presidential-estates-apt-v-barrett/",
+          "method": "eyecite",
+          "source": "Unknown",
+          "true_by_parallel": false,
+          "url": null,
+          "verified": true
+        }
+      ],
+      "citations": [
+        "410 U.S. 113"
+      ],
+      "cluster_id": "roe_v_wade_1973",
+      "cluster_type": "unified_extracted",
+      "extracted_case_name": "Roe v. Wade",
+      "extracted_date": "1973",
+      "size": 1,
+      "year": "1973"
+    },
+    {
+      "canonical_date": "1954",
+      "canonical_name": "Brown v. Board of Education",
+      "canonical_url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+      "case_name": "Brown v. Board of Education",
+      "citation_objects": [
+        {
+          "canonical_date": "1954",
+          "canonical_name": "Brown v. Board of Education",
+          "canonical_url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+          "citation": "347 U.S. 483",
+          "confidence": 0.9,
+          "context": "",
+          "error": null,
+          "extracted_case_name": "Roe v. Wade",
+          "extracted_date": "1954",
+          "is_parallel": true,
+          "metadata": {
+            "canonical_data_available": true,
+            "confidence": 0.95,
             "court": null,
-            "context": "We review a trial court's amended order under CR 60 for abuse of discretion. Presidential Ests Apt. Assocs. v. Barrett, 129 Wn.2d 320, 325-26, 917 P.2d 100 (1996)",
-            "verified": true,
-            "parallel_citations": [
-              "129 Wn. 2d 320"
-            ]
-          }
-        ],
-        "has_parallel_citations": true,
-        "size": 2
-      },
-      {
-        "cluster_id": "fallback_parallel_496 P.3d 305_66 Wn. App. 134_831 P.2d 1288",
-        "canonical_name": "Matter of Marriage of King",
-        "canonical_date": "1992-05-04",
-        "extracted_case_name": "Matter of Marriage of King",
-        "extracted_date": "2021",
-        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-        "source": "citation_clustering",
-        "citations": [
-          {
-            "citation": "496 P.3d 305",
-            "extracted_case_name": "Matter of Marriage of King",
-            "extracted_date": "2021",
-            "canonical_name": "Matter of Marriage of King",
-            "canonical_date": "1992-05-04",
-            "confidence": 0.9,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-            "court": null,
-            "context": "d 357, 362, 496 P.3d 305 (2021)",
-            "verified": true,
-            "parallel_citations": [
-              "66 Wn. App. 134",
-              "831 P.2d 1288"
-            ]
+            "fallback_source": "CourtListener",
+            "page": null,
+            "reporter": null,
+            "type": null,
+            "verification_error": null,
+            "verification_source": "fallback_CourtListener",
+            "verification_status": "verified_via_fallback",
+            "volume": null,
+            "year": 1954
           },
-          {
-            "citation": "66 Wn. App. 134",
-            "extracted_case_name": "Matter of Marriage of King",
-            "extracted_date": "1992",
-            "canonical_name": "Matter of Marriage of King",
-            "canonical_date": "1992-05-04",
-            "confidence": 1.0,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+          "method": "eyecite",
+          "source": "CourtListener",
+          "true_by_parallel": false,
+          "url": "https://www.courtlistener.com/opinion/105221/brown-v-board-of-education/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        "347 U.S. 483"
+      ],
+      "cluster_id": "roe_v_wade_1954",
+      "cluster_type": "unified_extracted",
+      "extracted_case_name": "Brown v. Board of Education",
+      "extracted_date": "1954",
+      "size": 1,
+      "year": "1954"
+    },
+    {
+      "canonical_date": "1966",
+      "canonical_name": "Miranda v. Arizona",
+      "canonical_url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+      "case_name": "Miranda v. Arizona",
+      "citation_objects": [
+        {
+          "canonical_date": "1966",
+          "canonical_name": "Miranda v. Arizona",
+          "canonical_url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+          "citation": "384 U.S. 436",
+          "confidence": 0.9,
+          "context": "",
+          "error": null,
+          "extracted_case_name": "Roe v. Wade",
+          "extracted_date": "1966",
+          "is_parallel": true,
+          "metadata": {
+            "canonical_data_available": true,
+            "confidence": 0.95,
             "court": null,
-            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-            "verified": true,
-            "parallel_citations": [
-              "831 P.2d 1288"
-            ]
+            "fallback_source": "CourtListener",
+            "page": null,
+            "reporter": null,
+            "type": null,
+            "verification_error": null,
+            "verification_source": "fallback_CourtListener",
+            "verification_status": "verified_via_fallback",
+            "volume": null,
+            "year": 1966
           },
-          {
-            "citation": "831 P.2d 1288",
-            "extracted_case_name": "Matter of Marriage of King",
-            "extracted_date": "1992",
-            "canonical_name": "Matter of Marriage of King",
-            "canonical_date": "1992-05-04",
-            "confidence": 1.0,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+          "method": "eyecite",
+          "source": "CourtListener",
+          "true_by_parallel": false,
+          "url": "https://www.courtlistener.com/opinion/107252/miranda-v-arizona/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        "384 U.S. 436"
+      ],
+      "cluster_id": "roe_v_wade_1966",
+      "cluster_type": "unified_extracted",
+      "extracted_case_name": "Miranda v. Arizona",
+      "extracted_date": "1966",
+      "size": 1,
+      "year": "1966"
+    },
+    {
+      "canonical_date": "1803",
+      "canonical_name": "Marbury v. Madison",
+      "canonical_url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+      "case_name": "Marbury v. Madison",
+      "citation_objects": [
+        {
+          "canonical_date": "1803",
+          "canonical_name": "Marbury v. Madison",
+          "canonical_url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+          "citation": "5 U.S. 137",
+          "confidence": 0.9,
+          "context": "",
+          "error": null,
+          "extracted_case_name": "Roe v. Wade",
+          "extracted_date": "1803",
+          "is_parallel": true,
+          "metadata": {
+            "canonical_data_available": true,
+            "confidence": 0.95,
             "court": null,
-            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-            "verified": true,
-            "parallel_citations": [
-              "66 Wn. App. 134"
-            ]
-          }
-        ],
-        "has_parallel_citations": true,
-        "size": 3
-      },
-      {
-        "cluster_id": "fallback_parallel_66 Wn. App. 134_831 P.2d 1288",
-        "canonical_name": "Matter of Marriage of King",
-        "canonical_date": "1992-05-04",
-        "extracted_case_name": "Matter of Marriage of King",
-        "extracted_date": "1992",
-        "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-        "source": "citation_clustering",
-        "citations": [
-          {
-            "citation": "66 Wn. App. 134",
-            "extracted_case_name": "Matter of Marriage of King",
-            "extracted_date": "1992",
-            "canonical_name": "Matter of Marriage of King",
-            "canonical_date": "1992-05-04",
-            "confidence": 1.0,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
-            "court": null,
-            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-            "verified": true,
-            "parallel_citations": [
-              "831 P.2d 1288"
-            ]
+            "fallback_source": "CourtListener",
+            "page": null,
+            "reporter": null,
+            "type": null,
+            "verification_error": null,
+            "verification_source": "fallback_CourtListener",
+            "verification_status": "verified_via_fallback",
+            "volume": null,
+            "year": 1803
           },
-          {
-            "citation": "831 P.2d 1288",
-            "extracted_case_name": "Matter of Marriage of King",
-            "extracted_date": "1992",
-            "canonical_name": "Matter of Marriage of King",
-            "canonical_date": "1992-05-04",
-            "confidence": 1.0,
-            "source": "CourtListener-lookup-validated",
-            "url": "https://www.courtlistener.com/opinion/1399227/matter-of-marriage-of-king/",
+          "method": "eyecite",
+          "source": "CourtListener",
+          "true_by_parallel": false,
+          "url": "https://www.courtlistener.com/opinion/84759/marbury-v-madison/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        "5 U.S. 137"
+      ],
+      "cluster_id": "roe_v_wade_1803",
+      "cluster_type": "unified_extracted",
+      "extracted_case_name": "Marbury v. Madison",
+      "extracted_date": "1803",
+      "size": 1,
+      "year": "1803"
+    },
+    {
+      "canonical_date": "1963",
+      "canonical_name": "Gideon v. Wainwright",
+      "canonical_url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+      "case_name": "Gideon v. Wainwright",
+      "citation_objects": [
+        {
+          "canonical_date": "1963",
+          "canonical_name": "Gideon v. Wainwright",
+          "canonical_url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+          "citation": "372 U.S. 335",
+          "confidence": 0.9,
+          "context": "",
+          "error": null,
+          "extracted_case_name": "Roe v. Wade",
+          "extracted_date": "1963",
+          "is_parallel": true,
+          "metadata": {
+            "canonical_data_available": true,
+            "confidence": 0.95,
             "court": null,
-            "context": "d 357, 362, 496 P.3d 305 (2021).\n    \n    In re Marriage of King, 66 Wn. App. 134, 138, 831 P.2d 1288 (1992)",
-            "verified": true,
-            "parallel_citations": [
-              "66 Wn. App. 134"
-            ]
-          }
-        ],
-        "has_parallel_citations": true,
-        "size": 2
-      }
-    ],
-    "statistics": {}
+            "fallback_source": "CourtListener",
+            "page": null,
+            "reporter": null,
+            "type": null,
+            "verification_error": null,
+            "verification_source": "fallback_CourtListener",
+            "verification_status": "verified_via_fallback",
+            "volume": null,
+            "year": 1963
+          },
+          "method": "eyecite",
+          "source": "CourtListener",
+          "true_by_parallel": false,
+          "url": "https://www.courtlistener.com/opinion/8954562/gideon-v-wainwright/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        "372 U.S. 335"
+      ],
+      "cluster_id": "roe_v_wade_1963",
+      "cluster_type": "unified_extracted",
+      "extracted_case_name": "Gideon v. Wainwright",
+      "extracted_date": "1963",
+      "size": 1,
+      "year": "1963"
+    }
+  ],
+  "document_length": 339,
+  "message": "Analysis completed",
+  "metadata": {
+    "input_type": "text",
+    "processing_mode": "immediate",
+    "processing_strategy": "unified_v2_direct",
+    "source": "text",
+    "text_length": 339
   },
-  "success": true,
-  "metadata": {}
+  "processing_time_ms": 2331,
+  "progress_data": {
+    "current_message": "Verification completed",
+    "current_step": 5,
+    "elapsed_time": 2.3318278789520264,
+    "end_time": 1758820483.934401,
+    "overall_progress": 100,
+    "start_time": 1758820481.6048608,
+    "status": "completed",
+    "steps": [
+      {
+        "end_time": 1758820481.6214619,
+        "message": "Initialization complete",
+        "name": "Initializing",
+        "progress": 100,
+        "start_time": 1758820481.6094623,
+        "status": "completed"
+      },
+      {
+        "end_time": 1758820483.8924813,
+        "message": "Citation extraction completed",
+        "name": "Extract",
+        "progress": 100,
+        "start_time": 1758820481.6234767,
+        "status": "completed"
+      },
+      {
+        "end_time": 1758820483.9030838,
+        "message": "Analysis completed",
+        "name": "Analyze",
+        "progress": 100,
+        "start_time": 1758820483.8950636,
+        "status": "completed"
+      },
+      {
+        "end_time": 1758820483.9109428,
+        "message": "Name extraction completed",
+        "name": "Extract Names",
+        "progress": 100,
+        "start_time": 1758820483.908202,
+        "status": "completed"
+      },
+      {
+        "end_time": 1758820483.9193566,
+        "message": "Clustering completed",
+        "name": "Cluster",
+        "progress": 100,
+        "start_time": 1758820483.9165623,
+        "status": "completed"
+      },
+      {
+        "end_time": 1758820483.9321203,
+        "message": "Verification completed",
+        "name": "Verify",
+        "progress": 100,
+        "start_time": 1758820483.9235637,
+        "status": "completed"
+      }
+    ],
+    "task_id": "eb421fcc-47eb-4b41-8f45-fbfcd11d9fff",
+    "total_steps": 6
+  },
+  "request_id": "eb421fcc-47eb-4b41-8f45-fbfcd11d9fff",
+  "success": true
 }

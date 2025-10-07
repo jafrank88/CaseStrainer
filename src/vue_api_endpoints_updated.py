@@ -20,6 +20,7 @@ from flask import Blueprint, request, jsonify, current_app, Response
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
+from src.data_separation_validator import validate_data_separation, enforce_data_separation, restore_extracted_name_if_contaminated
 
 from src.rq_worker import process_citation_task_direct
 from src.unified_input_processor import UnifiedInputProcessor
@@ -616,6 +617,13 @@ def _format_response(result, request_id, metadata, start_time):
     for key in ['message', 'warnings', 'debug', 'verification_status', 'async_verification_queued']:
         if key in result and key not in response_data:
             response_data[key] = result[key]
+    
+    # Perform data integrity validation before returning response
+    validation_errors = _validate_api_response_data(response_data)
+    if validation_errors:
+        logger.error(f"[Request {request_id}] Data integrity validation failed: {validation_errors}")
+        # Log the validation errors but don't fail the request - let frontend handle it
+        response_data['metadata']['validation_warnings'] = validation_errors
     
     log_data = copy.deepcopy(response_data)
     
@@ -2013,3 +2021,123 @@ def verification_results(request_id):
             'error': f'Failed to get verification results: {str(e)}',
             'request_id': request_id
         }), 500
+
+
+def _validate_api_response_data(response_data):
+    """
+    Validate API response data for integrity issues.
+    
+    Args:
+        response_data: The complete API response dictionary
+        
+    Returns:
+        List of validation error messages (empty if all valid)
+    """
+    errors = []
+    
+    try:
+        result = response_data.get('result', {})
+        citations = result.get('citations', [])
+        clusters = result.get('clusters', [])
+        
+        # 1. Check for data separation violations
+        if citations:
+            # Validate data separation for citations
+            separation_report = validate_data_separation(citations, similarity_threshold=0.85)
+            if not separation_report.get('is_valid', True):
+                errors.append(f"Data separation violations: {len(separation_report.get('warnings', []))} issues detected")
+                errors.extend(separation_report.get('warnings', [])[:3])  # Include first 3 warnings
+        
+        # 2. Check for verification status contradictions
+        verified_count = 0
+        error_count = 0
+        
+        for citation in citations:
+            if isinstance(citation, dict):
+                if citation.get('verified') is True:
+                    verified_count += 1
+                    
+                    # Check if verified citation has canonical data
+                    if (citation.get('canonical_case_name') is None and 
+                        citation.get('canonical_date') in [None, '', '']):
+                        errors.append(f"Verified citation '{citation.get('citation', 'unknown')}' missing canonical data")
+                    
+                    # Check for verification errors
+                    if citation.get('error') and 'not be verified' in str(citation.get('error', '')):
+                        error_count += 1
+                        errors.append(f"Verified citation '{citation.get('citation', 'unknown')}' has verification error: {citation.get('error')}")
+        
+        if verified_count > 0 and error_count > 0:
+            errors.append(f"Verification contradiction: {verified_count} verified citations but {error_count} have verification errors")
+        
+        # 3. Check for missing extracted data
+        missing_extracted = 0
+        for citation in citations:
+            if isinstance(citation, dict):
+                if (citation.get('extracted_case_name') is None and 
+                    citation.get('extracted_date') is None):
+                    missing_extracted += 1
+        
+        if missing_extracted > 0:
+            errors.append(f"{missing_extracted} citations missing extracted case names and dates")
+        
+        # 4. Check cluster consistency
+        cluster_ids = set()
+        citations_with_clusters = 0
+        
+        for citation in citations:
+            if isinstance(citation, dict):
+                cluster_id = citation.get('cluster_id')
+                is_in_cluster = citation.get('is_in_cluster')
+                
+                if cluster_id:
+                    cluster_ids.add(cluster_id)
+                    citations_with_clusters += 1
+                elif is_in_cluster:
+                    errors.append(f"Citation '{citation.get('citation', 'unknown')}' marked as in cluster but has no cluster_id")
+        
+        # Check if clusters array matches cluster_ids from citations
+        cluster_ids_from_clusters = {cluster.get('id') for cluster in clusters if isinstance(cluster, dict)}
+        missing_clusters = cluster_ids - cluster_ids_from_clusters
+        if missing_clusters:
+            errors.append(f"Missing cluster definitions for IDs: {list(missing_clusters)[:3]}")
+        
+        # 5. Check for malformed citations
+        malformed_count = 0
+        for citation in citations:
+            if isinstance(citation, dict):
+                cit_text = citation.get('citation', '')
+                if not cit_text or len(str(cit_text)) < 3:
+                    malformed_count += 1
+        
+        if malformed_count > 0:
+            errors.append(f"{malformed_count} citations have malformed or missing citation text")
+        
+        # 6. Check temporal consistency (citations from same cluster shouldn't be decades apart)
+        if len(clusters) > 0:
+            for cluster in clusters:
+                if isinstance(cluster, dict):
+                    cluster_citations = cluster.get('citations', [])
+                    years = []
+                    
+                    for cit_text in cluster_citations:
+                        # Find the citation object
+                        for citation in citations:
+                            if isinstance(citation, dict) and citation.get('citation') == cit_text:
+                                year = citation.get('extracted_date') or citation.get('canonical_date')
+                                if year and isinstance(year, (int, str)):
+                                    try:
+                                        years.append(int(str(year)[:4]))  # Extract year
+                                    except ValueError:
+                                        pass
+                    
+                    if len(years) > 1:
+                        year_range = max(years) - min(years)
+                        if year_range > 50:  # More than 50 years apart
+                            errors.append(f"Cluster '{cluster.get('case_name', 'unknown')}' spans {year_range} years ({min(years)}-{max(years)})")
+    
+    except Exception as e:
+        errors.append(f"Validation error: {str(e)}")
+        logger.error(f"Error during API response validation: {e}", exc_info=True)
+    
+    return errors

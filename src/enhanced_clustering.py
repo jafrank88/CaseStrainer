@@ -65,90 +65,29 @@ class EnhancedCitationClusterer:
     
     def cluster_citations(self, citations: List[Any], text: str = "", request_id: str = "", enable_verification: bool = False) -> List[Dict[str, Any]]:
         """
-        Enhanced clustering with optimal flow:
-        1. Detect parallel citations by proximity and patterns
-        2. Extract metadata from first/last citations in each group
-        3. Propagate metadata to all citations in the group
-        4. Create final clusters by propagated metadata
-        5. Apply similarity-based refinement
-        6. Optionally verify citations with CourtListener API if enable_verification is True
+        DEPRECATED: Use cluster_citations_unified_master() instead.
         
-        Args:
-            citations: List of citation objects to cluster
-            text: The full text from which citations were extracted
-            request_id: Optional request ID for logging
-            enable_verification: Whether to verify citations with CourtListener API
-            
-        Returns:
-            List of citation clusters with metadata and verification status
+        This function now delegates to the new unified master implementation
+        that consolidates all 45+ duplicate clustering functions.
+        
+        MIGRATION: Replace calls with:
+        from src.unified_clustering_master import cluster_citations_unified_master
         """
-        if not citations:
-            return []
+        import warnings
+        warnings.warn(
+            "EnhancedClusterer.cluster_citations() is deprecated. Use cluster_citations_unified_master() instead.",
+            DeprecationWarning,
+            stacklevel=2
+        )
         
-        logger.info(f"[EnhancedClusterer {request_id}] Starting enhanced clustering for {len(citations)} citations, enable_verification={enable_verification}")
-        
-        parallel_groups = self._detect_parallel_citations_enhanced(citations, text)
-        
-        enhanced_citations = self._extract_and_propagate_metadata_enhanced(citations, parallel_groups, text)
-        
-        final_clusters = self._create_final_clusters_enhanced(enhanced_citations)
-        
-        # Apply verification if enabled
-        if enable_verification:
-            logger.info(f"[EnhancedClusterer {request_id}] Verifying citations with unified clustering")
-            try:
-                # Use the unified clustering function with verification enabled
-                from src.unified_citation_clustering import cluster_citations_unified
-                from src.citation_verifier import CitationVerifier
-                
-                # Extract citation texts
-                citation_texts = []
-                for cluster in final_clusters:
-                    if 'citations' in cluster and cluster['citations']:
-                        for citation in cluster['citations']:
-                            if isinstance(citation, dict):
-                                citation_texts.append(citation.get('citation', ''))
-                            else:
-                                citation_texts.append(str(citation))
-                
-                # Verify citations using unified clustering
-                verified_citations = cluster_citations_unified(
-                    citation_texts, 
-                    original_text=text,
-                    enable_verification=True
-                )
-                
-                # Update clusters with verification results
-                verified_citation_map = {}
-                for citation in verified_citations:
-                    if isinstance(citation, dict) and 'citation' in citation:
-                        verified_citation_map[citation['citation']] = citation
-                
-                # Update clusters with verification results
-                for cluster in final_clusters:
-                    if 'citations' in cluster and cluster['citations']:
-                        for i, citation in enumerate(cluster['citations']):
-                            if isinstance(citation, dict):
-                                citation_text = citation.get('citation', '')
-                                if citation_text in verified_citation_map:
-                                    verified = verified_citation_map[citation_text]
-                                    citation.update({
-                                        'verified': verified.get('verified', False),
-                                        'canonical_name': verified.get('canonical_name'),
-                                        'canonical_date': verified.get('canonical_date'),
-                                        'canonical_url': verified.get('canonical_url'),
-                                        'verification_source': verified.get('verification_source', 'UnifiedVerification'),
-                                        'verification_confidence': verified.get('verification_confidence', 0.8)
-                                    })
-            except Exception as e:
-                logger.error(f"[EnhancedClusterer {request_id}] Error during verification: {e}")
-                import traceback
-                logger.error(f"[EnhancedClusterer {request_id}] Traceback: {traceback.format_exc()}")
-        
-        refined_clusters = self._apply_similarity_refinement(final_clusters)
-        
-        logger.info(f"[EnhancedClusterer {request_id}] Enhanced clustering completed: {len(refined_clusters)} clusters")
-        return refined_clusters
+        # Delegate to the new master implementation
+        from src.unified_clustering_master import cluster_citations_unified_master
+        return cluster_citations_unified_master(
+            citations=citations,
+            original_text=text,
+            enable_verification=enable_verification,
+            request_id=request_id
+        )
     
     def _detect_parallel_citations_enhanced(self, citations: List[Any], text: str) -> List[List[Any]]:
         """
@@ -203,21 +142,24 @@ class EnhancedCitationClusterer:
         return parallel_groups
     
     def _group_by_case_name_and_year(self, citations: List[Any]) -> List[List[Any]]:
-        """Group citations by case name and year instead of just proximity."""
+        """Group citations by case name and year using original extracted data."""
         if not citations:
             return []
         
         groups = defaultdict(list)
         
         for citation in citations:
+            # Prefer original extracted data for clustering
             if isinstance(citation, dict):
-                case_name = citation.get('extracted_case_name')
-                year = citation.get('extracted_date')
+                case_name = citation.get('original_case_name', citation.get('extracted_case_name'))
+                year = citation.get('original_date', citation.get('extracted_date'))
             else:
-                case_name = getattr(citation, 'extracted_case_name', None)
-                year = getattr(citation, 'extracted_date', None)
+                case_name = getattr(citation, 'original_case_name', 
+                                  getattr(citation, 'extracted_case_name', None))
+                year = getattr(citation, 'original_date', 
+                             getattr(citation, 'extracted_date', None))
             
-            if case_name and year:
+            if case_name and year and case_name != 'N/A' and year != 'N/A':
                 cleaned_case_name = self._clean_case_name_for_clustering(case_name)
                 normalized_year = self._normalize_year_for_clustering(year)
                 if cleaned_case_name and normalized_year:
@@ -226,36 +168,45 @@ class EnhancedCitationClusterer:
         
         result = [group for group in groups.values() if len(group) > 1]
         
-        if self.config.debug_mode:
+        if self.config.debug_mode and result:
             for i, group in enumerate(result):
-                case_name = getattr(group[0], 'extracted_case_name', 'Unknown')
-                year = getattr(group[0], 'extracted_date', 'Unknown')
+                first_cite = group[0]
+                case_name = getattr(first_cite, 'original_case_name', 
+                                  getattr(first_cite, 'extracted_case_name', 'Unknown'))
+                year = getattr(first_cite, 'original_date', 
+                             getattr(first_cite, 'extracted_date', 'Unknown'))
+                logger.debug(f"Case name/year group {i+1}: {case_name} ({year}) - {len(group)} citations")
         
         return result
     
     def _group_by_case_name_only(self, citations: List[Any]) -> List[List[Any]]:
-        """Group citations by case name only, ignoring potentially incorrect years."""
+        """Group citations by case name only, using original extracted data."""
         if not citations:
             return []
         
         groups = defaultdict(list)
         
         for citation in citations:
+            # Prefer original extracted data for clustering
             if isinstance(citation, dict):
-                case_name = citation.get('extracted_case_name')
+                case_name = citation.get('original_case_name', citation.get('extracted_case_name'))
             else:
-                case_name = getattr(citation, 'extracted_case_name', None)
+                case_name = getattr(citation, 'original_case_name', 
+                                  getattr(citation, 'extracted_case_name', None))
             
-            if case_name:
+            if case_name and case_name != 'N/A':
                 cleaned_case_name = self._clean_case_name_for_clustering(case_name)
                 if cleaned_case_name:
                     groups[cleaned_case_name].append(citation)
         
         result = [group for group in groups.values() if len(group) > 1]
         
-        if self.config.debug_mode:
+        if self.config.debug_mode and result:
             for i, group in enumerate(result):
-                case_name = getattr(group[0], 'extracted_case_name', 'Unknown')
+                first_cite = group[0]
+                case_name = getattr(first_cite, 'original_case_name', 
+                                  getattr(first_cite, 'extracted_case_name', 'Unknown'))
+                logger.debug(f"Case name group {i+1}: {case_name} - {len(group)} citations")
         
         return result
     
@@ -343,7 +294,7 @@ class EnhancedCitationClusterer:
     def _extract_and_propagate_metadata_enhanced(self, citations: List[Any], groups: List[List[Any]], text: str) -> List[Dict[str, Any]]:
         """
         Enhanced metadata extraction and propagation.
-        Case name from first citation, year from last citation.
+        Uses original extracted data for clustering while preserving verified data separately.
         """
         enhanced_citations = []
         
@@ -351,102 +302,156 @@ class EnhancedCitationClusterer:
             if len(group) < 2:
                 continue
             
+            # Get the first and last citations in the group
             first_citation = group[0]
-            if isinstance(first_citation, dict):
-                first_case_name = first_citation.get('extracted_case_name')
-            else:
-                first_case_name = getattr(first_citation, 'extracted_case_name', None)
+            last_citation = group[-1]
             
-            if not first_case_name:
+            # Get the best case name from the first citation
+            if isinstance(first_citation, dict):
+                first_case_name = first_citation.get('original_case_name', 
+                                                  first_citation.get('extracted_case_name'))
+            else:
+                first_case_name = getattr(first_citation, 'original_case_name', 
+                                       getattr(first_citation, 'extracted_case_name', None))
+            
+            # If we still don't have a case name, try to extract it
+            if not first_case_name or first_case_name == 'N/A':
                 first_case_name = self._extract_case_name(first_citation, text)
             
-            if first_case_name:
-                original_case_name = first_case_name
+            # Clean the case name for clustering
+            if first_case_name and first_case_name != 'N/A':
                 first_case_name = self._clean_case_name_for_clustering(first_case_name)
-                if original_case_name != first_case_name:
-                    pass  # Names were cleaned for clustering
-                else:
-                    pass  # Names were already clean
             
-            last_citation = group[-1]
+            # Get the best year from the last citation
             if isinstance(last_citation, dict):
-                last_year = last_citation.get('extracted_date')
+                last_year = last_citation.get('original_date', 
+                                           last_citation.get('extracted_date'))
             else:
-                last_year = getattr(last_citation, 'extracted_date', None)
-            if not last_year:
+                last_year = getattr(last_citation, 'original_date',
+                                 getattr(last_citation, 'extracted_date', None))
+            
+            # If we still don't have a year, try to extract it
+            if not last_year or last_year == 'N/A':
                 last_year = self._extract_year(last_citation, text)
             
-            if not last_year:
-                extracted_year = self._extract_year(last_citation, text)
-                last_year = extracted_year
+            # Normalize the year for clustering
+            if last_year and last_year != 'N/A':
+                last_year = self._normalize_year_for_clustering(last_year)
             
+            # Process each citation in the group
             for citation in group:
-                is_verified = False
+                # Get the original extracted data
                 if isinstance(citation, dict):
+                    original_case_name = citation.get('original_case_name', 
+                                                   citation.get('extracted_case_name'))
+                    original_date = citation.get('original_date',
+                                              citation.get('extracted_date'))
                     is_verified = citation.get('verified', False)
-                elif hasattr(citation, 'verified'):
+                    verification_status = citation.get('verification_status', 'not_verified')
+                    verification_source = citation.get('verification_source')
+                else:
+                    original_case_name = getattr(citation, 'original_case_name',
+                                              getattr(citation, 'extracted_case_name', None))
+                    original_date = getattr(citation, 'original_date',
+                                         getattr(citation, 'extracted_date', None))
                     is_verified = getattr(citation, 'verified', False)
+                    verification_status = getattr(citation, 'verification_status', 'not_verified')
+                    verification_source = getattr(citation, 'verification_source', None)
                 
-                individual_case_name = None
+                # Create enhanced citation with all metadata
+                enhanced_citation = {
+                    'citation': self._get_citation_text(citation),
+                    'original_case_name': original_case_name,
+                    'original_date': original_date,
+                    'cluster_case_name': first_case_name,
+                    'cluster_date': last_year,
+                    'is_parallel': len(group) > 1,
+                    'verified': is_verified,
+                    'verification_status': verification_status,
+                    'verification_source': verification_source,
+                    'metadata': {}
+                }
+                
+                # Add verified data if available
+                if is_verified and verification_status == 'verified':
+                    if isinstance(citation, dict):
+                        enhanced_citation.update({
+                            'verified_case_name': citation.get('verified_case_name'),
+                            'verified_date': citation.get('verified_date'),
+                            'canonical_url': citation.get('canonical_url')
+                        })
+                    else:
+                        enhanced_citation.update({
+                            'verified_case_name': getattr(citation, 'verified_case_name', None),
+                            'verified_date': getattr(citation, 'verified_date', None),
+                            'canonical_url': getattr(citation, 'canonical_url', None)
+                        })
+                
+                # Add any additional metadata
                 if isinstance(citation, dict):
-                    individual_case_name = citation.get('extracted_case_name')
+                    enhanced_citation['metadata'].update({
+                        k: v for k, v in citation.items()
+                        if k not in enhanced_citation and not k.startswith('_')
+                    })
                 else:
-                    individual_case_name = getattr(citation, 'extracted_case_name', None)
+                    enhanced_citation['metadata'].update({
+                        k: getattr(citation, k) 
+                        for k in dir(citation) 
+                        if not k.startswith('_') and not callable(getattr(citation, k))
+                    })
                 
-                final_case_name = individual_case_name if individual_case_name else first_case_name
-                
-                individual_date = None
+                enhanced_citations.append(enhanced_citation)
+        
+        # Add any ungrouped citations
+        grouped_citations = {c for group in groups for c in group}
+        for citation in citations:
+            if citation not in grouped_citations:
+                # Similar processing for ungrouped citations
                 if isinstance(citation, dict):
-                    individual_date = citation.get('extracted_date')
+                    original_case_name = citation.get('original_case_name', 
+                                                   citation.get('extracted_case_name'))
+                    original_date = citation.get('original_date',
+                                              citation.get('extracted_date'))
+                    is_verified = citation.get('verified', False)
+                    verification_status = citation.get('verification_status', 'not_verified')
+                    verification_source = citation.get('verification_source')
                 else:
-                    individual_date = getattr(citation, 'extracted_date', None)
-                
-                citation_text = self._get_citation_text(citation)
-                
-                final_date = individual_date if individual_date else last_year
+                    original_case_name = getattr(citation, 'original_case_name',
+                                              getattr(citation, 'extracted_case_name', None))
+                    original_date = getattr(citation, 'original_date',
+                                         getattr(citation, 'extracted_date', None))
+                    is_verified = getattr(citation, 'verified', False)
+                    verification_status = getattr(citation, 'verification_status', 'not_verified')
+                    verification_source = getattr(citation, 'verification_source', None)
                 
                 enhanced_citation = {
                     'citation': self._get_citation_text(citation),
-                    'extracted_case_name': final_case_name,
-                    'extracted_date': final_date,
-                    'confidence_score': 0.8 if final_case_name and final_date else 0.4,
-                    'extraction_method': 'enhanced_proximity_propagation',
-                    'parallel_group': [self._get_citation_text(c) for c in group],
-                    'original_object': citation,
-                    'verified': is_verified,  # Preserve individual verification status
-                    'true_by_parallel': False  # Will be set later if cluster has verified citations
+                    'original_case_name': original_case_name,
+                    'original_date': original_date,
+                    'cluster_case_name': original_case_name,
+                    'cluster_date': original_date,
+                    'is_parallel': False,
+                    'verified': is_verified,
+                    'verification_status': verification_status,
+                    'verification_source': verification_source,
+                    'metadata': {}
                 }
-                enhanced_citations.append(enhanced_citation)
-        
-        processed_citations = set()
-        for group in groups:
-            for citation in group:
-                processed_citations.add(self._get_citation_text(citation))
-        
-        for citation in citations:
-            citation_text = self._get_citation_text(citation)
-            if citation_text not in processed_citations:
-                if isinstance(citation, dict):
-                    case_name = citation.get('extracted_case_name')
-                    year = citation.get('extracted_date')
-                else:
-                    case_name = getattr(citation, 'extracted_case_name', None)
-                    year = getattr(citation, 'extracted_date', None)
                 
-                if not case_name:
-                    case_name = self._extract_case_name(citation, text)
-                if not year:
-                    year = self._extract_year(citation, text)
+                # Add verified data if available
+                if is_verified and verification_status == 'verified':
+                    if isinstance(citation, dict):
+                        enhanced_citation.update({
+                            'verified_case_name': citation.get('verified_case_name'),
+                            'verified_date': citation.get('verified_date'),
+                            'canonical_url': citation.get('canonical_url')
+                        })
+                    else:
+                        enhanced_citation.update({
+                            'verified_case_name': getattr(citation, 'verified_case_name', None),
+                            'verified_date': getattr(citation, 'verified_date', None),
+                            'canonical_url': getattr(citation, 'canonical_url', None)
+                        })
                 
-                enhanced_citation = {
-                    'citation': citation_text,
-                    'extracted_case_name': case_name,
-                    'extracted_date': year,
-                    'confidence_score': 0.6 if case_name or year else 0.2,
-                    'extraction_method': 'individual_extraction',
-                    'parallel_group': [],
-                    'original_object': citation
-                }
                 enhanced_citations.append(enhanced_citation)
         
         return enhanced_citations
@@ -476,70 +481,66 @@ class EnhancedCitationClusterer:
                 return None
     
     def _create_final_clusters_enhanced(self, enhanced_citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Create final clusters using propagated metadata."""
+        """Create final clusters using propagated metadata with improved naming."""
         clusters = defaultdict(list)
         
+        # First pass: group by extracted case name and year
         for citation in enhanced_citations:
-            case_name = citation.get('extracted_case_name')
-            year = citation.get('extracted_date')
+            # Prefer verified data if available, otherwise use extracted
+            case_name = citation.get('verified_case_name') or citation.get('extracted_case_name')
+            year = citation.get('verified_date') or citation.get('extracted_date')
             
             if case_name and year:
-                normalized_year = year
-                if isinstance(year, str) and '-' in year:
-                    normalized_year = year.split('-')[0]
-                    logger.info(f"[EnhancedClusterer] Normalized date '{year}' to year '{normalized_year}' for case '{case_name}'")
-                
-                key = (case_name, normalized_year)
+                # Normalize year to handle date ranges
+                normalized_year = str(year).split('-')[0] if year and '-' in str(year) else str(year)
+                key = (case_name.strip(), normalized_year)
                 clusters[key].append(citation)
         
         final_clusters = []
         for (case_name, year), citations in clusters.items():
-            if len(citations) >= self.config.min_cluster_size:
-                verified_citations = 0
-                total_citations = len(citations)
-                
+            if not case_name or case_name == 'N/A':
+                # Try to find a better name in the cluster
                 for citation in citations:
-                    citation_verified = False
-                    
-                    if isinstance(citation, dict):
-                        if citation.get('verified', False):
-                            citation_verified = True
-                    
-                    original_obj = citation.get('original_object')
-                    if original_obj and not citation_verified:
-                        if isinstance(original_obj, dict):
-                            if original_obj.get('verified', False):
-                                citation_verified = True
-                        elif hasattr(original_obj, 'verified'):
-                            if getattr(original_obj, 'verified', False):
-                                citation_verified = True
-                    
-                    if citation_verified:
-                        verified_citations += 1
+                    alt_name = (citation.get('verified_case_name') or 
+                              citation.get('extracted_case_name'))
+                    if alt_name and alt_name != 'N/A':
+                        case_name = alt_name
+                        break
                 
-                cluster_has_verified = verified_citations > 0
+                # If still no good name, skip this cluster
+                if not case_name or case_name == 'N/A':
+                    continue
+            
+            # Track verification status
+            verified_citations = sum(1 for c in citations if c.get('verified', False))
+            cluster_has_verified = verified_citations > 0
+            
+            # Ensure all citations in the cluster have consistent metadata
+            for citation in citations:
+                citation['cluster_case_name'] = case_name
+                citation['cluster_year'] = year
+                citation['is_in_cluster'] = True
                 
-                if cluster_has_verified:
-                    for citation in citations:
-                        # Only set true_by_parallel for unverified citations
-                        if not citation.get('verified', False):
-                            citation['true_by_parallel'] = True
-                
-                cluster = {
-                    'cluster_id': f"{case_name.replace(' ', '_')}_{year}",
-                    'case_name': case_name,
-                    'year': year,
-                    'size': len(citations),
-                    'citations': [c['citation'] for c in citations],
-                    'citation_objects': [c for c in citations],  # Use enhanced citations, not original objects
-                    'cluster_type': 'enhanced_proximity_propagation',
-                    'confidence_score': sum(c['confidence_score'] for c in citations) / len(citations),
-                    'cluster_has_verified': cluster_has_verified,  # For internal use only
-                    'verified': cluster_has_verified,  # Set cluster verification status
-                    'verified_citations': verified_citations,
-                    'total_citations': total_citations
-                }
-                final_clusters.append(cluster)
+                # Set true_by_parallel for unverified citations in verified clusters
+                if cluster_has_verified and not citation.get('verified', False):
+                    citation['true_by_parallel'] = True
+            
+            # Create the cluster object
+            cluster = {
+                'cluster_id': f"{case_name.replace(' ', '_')}_{year}",
+                'case_name': case_name,
+                'year': year,
+                'size': len(citations),
+                'citations': [c['citation'] for c in citations],
+                'citation_objects': citations,
+                'cluster_type': 'enhanced_proximity_propagation',
+                'confidence_score': sum(c.get('confidence_score', 0.5) for c in citations) / len(citations),
+                'cluster_has_verified': cluster_has_verified,
+                'verified': cluster_has_verified,
+                'verified_citations': verified_citations,
+                'total_citations': len(citations)
+            }
+            final_clusters.append(cluster)
         
         return final_clusters
     

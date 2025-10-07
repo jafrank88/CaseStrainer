@@ -422,7 +422,7 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
     #     i = j
     import logging
     logger = logging.getLogger(__name__)
-    for c in citations:
+    
     for cid, members in clusters_by_id.items():
         member_citations = []
         for c in members:

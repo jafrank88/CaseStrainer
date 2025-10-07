@@ -1,0 +1,77 @@
+{
+  "citations": [],
+  "clusters": [],
+  "document_length": 66692,
+  "message": "Text processing started",
+  "metadata": {
+    "input_type": "text",
+    "job_id": "54443555-e634-42ab-9d45-53d4852d362e",
+    "processing_mode": "queued",
+    "source": "text",
+    "text_length": 66692
+  },
+  "processing_time_ms": 77,
+  "progress_data": {
+    "current_message": "Queued for background processing",
+    "current_step": 0,
+    "elapsed_time": 0.07741236686706543,
+    "end_time": null,
+    "overall_progress": 16,
+    "start_time": 1758820370.9214168,
+    "status": "initializing",
+    "steps": [
+      {
+        "end_time": 1758820370.9953969,
+        "message": "Queued for background processing",
+        "name": "Initializing",
+        "progress": 100,
+        "start_time": 1758820370.9266295,
+        "status": "completed"
+      },
+      {
+        "end_time": null,
+        "message": "Extracting citations from text",
+        "name": "Extract",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Analyzing and normalizing citations",
+        "name": "Analyze",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Extracting case names and years",
+        "name": "Extract Names",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Clustering parallel citations",
+        "name": "Cluster",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      },
+      {
+        "end_time": null,
+        "message": "Verifying citations with external sources",
+        "name": "Verify",
+        "progress": 0,
+        "start_time": null,
+        "status": "pending"
+      }
+    ],
+    "task_id": "54443555-e634-42ab-9d45-53d4852d362e",
+    "total_steps": 6
+  },
+  "request_id": "54443555-e634-42ab-9d45-53d4852d362e",
+  "success": true
+}

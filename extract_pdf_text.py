@@ -1,38 +1,80 @@
 #!/usr/bin/env python3
-
 import PyPDF2
 import io
 
 def extract_pdf_text():
     """Extract text from the PDF to analyze its content."""
+Extract full text from PDF for comparison
+"""
+try:
+    import PyPDF2
+except ImportError:
+    print("PyPDF2 not installed, trying pypdf...")
+    import pypdf as PyPDF2
+
+pdf_path = "1033940.pdf"
+output_path = "1033940_full_extracted.txt"
+
+print(f"Extracting text from {pdf_path}...")
+
+try:
+    with open(pdf_path, 'rb') as pdf_file:
+        pdf_reader = PyPDF2.PdfReader(pdf_file)
+        num_pages = len(pdf_reader.pages)
+        
+        print(f"PDF has {num_pages} pages")
+        
+        full_text = []
+        for i, page in enumerate(pdf_reader.pages):
+            text = page.extract_text()
+            full_text.append(text)
+            if (i + 1) % 5 == 0:
+                print(f"  Processed {i + 1}/{num_pages} pages...")
+        
+        combined_text = "\n".join(full_text)
+        
+        with open(output_path, 'w', encoding='utf-8') as out_file:
+            out_file.write(combined_text)
+        
+        print(f"\nExtracted {len(combined_text)} characters")
+        print(f"Saved to {output_path}")
+        
+        # Count citations
+        import re
+        wn2d = len(re.findall(r'\d+\s+Wn\.2d\s+\d+', combined_text))
+        wash2d = len(re.findall(r'\d+\s+Wash\.2d\s+\d+', combined_text))
+        p3d = len(re.findall(r'\d+\s+P\.3d\s+\d+', combined_text))
+        p2d = len(re.findall(r'\d+\s+P\.2d\s+\d+', combined_text))
+        
+        print(f"\nPotential citations found:")
+        print(f"  Wn.2d: {wn2d}")
+        print(f"  Wash.2d: {wash2d}")
+        print(f"  P.3d: {p3d}")
+        print(f"  P.2d: {p2d}")
+        print(f"  Total: {wn2d + wash2d + p3d + p2d}")
+        
+except Exception as e:
+    print(f"Error: {e}")
+    print("\nTrying alternative method...")
     
-    pdf_path = "D:\\dev\\casestrainer\\1033940.pdf"
-    
-    print("📄 PDF TEXT EXTRACTION")
-    print("=" * 50)
-    
+    # Try using pdfplumber if available
     try:
-        with open(pdf_path, 'rb') as pdf_file:
-            pdf_reader = PyPDF2.PdfReader(pdf_file)
+        import pdfplumber
+        with pdfplumber.open(pdf_path) as pdf:
+            full_text = []
+            for page in pdf.pages:
+                text = page.extract_text()
+                if text:
+                    full_text.append(text)
             
-            print(f"📁 PDF: {pdf_path}")
-            print(f"📄 Pages: {len(pdf_reader.pages)}")
-            print()
+            combined_text = "\n".join(full_text)
+            with open(output_path, 'w', encoding='utf-8') as out_file:
+                out_file.write(combined_text)
             
-            text_parts = []
-            for i, page in enumerate(pdf_reader.pages):
-                page_text = page.extract_text()
-                if page_text:
-                    text_parts.append(page_text)
-                    print(f"Page {i+1}: {len(page_text)} characters")
-            
-            full_text = '\n\n'.join(text_parts)
-            
-            print(f"\n📊 TOTAL TEXT:")
-            print(f"   Total characters: {len(full_text):,}")
-            print(f"   Total words: {len(full_text.split()):,}")
-            print(f"   Expected routing: {'SYNC' if len(full_text) < 5120 else 'ASYNC'}")
-            print()
+            print(f"Extracted {len(combined_text)} characters using pdfplumber")
+            print(f"Saved to {output_path}")
+    except ImportError:
+        print("Neither PyPDF2 nor pdfplumber available")
             
             # Show first 500 characters
             print("📝 FIRST 500 CHARACTERS:")

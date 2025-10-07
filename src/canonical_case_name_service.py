@@ -421,7 +421,8 @@ class CanonicalCaseNameService:
                             verified=True
                         )
             except Exception as e:
-
+                logger.warning(f"Failed to process canonical case name: {e}")
+                
             enhanced_engine = EnhancedLegalSearchEngine()
             web_engine = ComprehensiveWebSearchEngine()
             queries = enhanced_engine.generate_enhanced_legal_queries(citation)

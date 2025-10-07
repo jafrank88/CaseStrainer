@@ -3,8 +3,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 // Base path for the application
 const BASE_PATH = import.meta.env.BASE_URL || '/casestrainer/';
 
-// Import views directly
-import HomeView from '@/views/HomeView.vue';
+// Import views with lazy loading for better performance
+const HomeView = () => import('@/views/HomeView.vue');
 const EnhancedValidator = () => import('@/views/EnhancedValidator.vue');
 const MinimalTest = () => import('@/views/MinimalTest.vue');
 const NotFound = () => import('@/views/NotFound.vue');

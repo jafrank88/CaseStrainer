@@ -92,7 +92,7 @@
           <div class="cluster-citations">
             <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
               <strong>Citation {{ index + 1 }}:</strong>
-              <span class="citation-text">{{ citation.citation }}</span>
+              <span class="citation-text">{{ citation.text || citation.citation }}</span>
               <span class="citation-status" :class="getCitationStatusClass(citation)">
                 {{ getCitationStatusText(citation) }}
               </span>
@@ -201,8 +201,9 @@ export default {
     // Helper methods for the new cluster display format
     const getClusterSource = (cluster) => {
       // Get verification source from the first verified citation in cluster
-      if (cluster.citation_objects && cluster.citation_objects.length > 0) {
-        for (const citation of cluster.citation_objects) {
+      const citationList = cluster.citations || cluster.citation_objects || []
+      if (citationList.length > 0) {
+        for (const citation of citationList) {
           if (citation.verification_source) {
             return citation.verification_source
           }
@@ -213,7 +214,8 @@ export default {
 
     const getClusterCitations = (cluster) => {
       // Return citation objects with their verification status
-      return cluster.citation_objects || []
+      // Backend sends 'citations', but also check 'citation_objects' for backward compatibility
+      return cluster.citations || cluster.citation_objects || []
     }
 
     const getCitationStatusClass = (citation) => {

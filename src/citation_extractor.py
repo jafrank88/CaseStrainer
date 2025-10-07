@@ -91,11 +91,21 @@ class CitationExtractor:
             r'\b\d+\s+A\.\d*d?\s+\d+\b',
             r'\b\d+\s+So\.\d*d?\s+\d+\b',
             r'\b\d+\s+Cal\.\d*d?\s+\d+\b',
-            r'\b\d+\s+Wash\.\d*d?\s+\d+\b',
-            r'\b\d+\s+Wn\.\s*3d\s*\n?\s*\d+\b',  # Washington Reports, 3d Series
-            r'\b\d+\s+Wn\.\s*2d\s*\n?\s*\d+\b',  # Washington Reports, 2d Series
-            r'\b\d+\s+Wn\.\s*\d*d?\s+\d+\b',  # Fixed: allows optional space between Wn. and volume
-            r'\b\d+\s+Wn\.\s*App\.\s*\d+\b',  # Washington Court of Appeals
+            # Washington Supreme Court (e.g., 183 Wash.2d 649, 183 Wn.2d 649, 183 Wash. 2d 649)
+            r'\b(\d+)\s+(?:Wash\.|Wn\.)(?:\s*2d|2d)\s+(\d+)\b',  # Handles both 'Wash.2d' and 'Wash. 2d'
+            r'\b(\d+)\s+Wash\.(?:\s*2d|2d)\s+(\d+)\b',  # Specific for 'Wash.'
+            r'\b(\d+)\s+Wn\.(?:\s*2d|2d)\s+(\d+)\b',   # Specific for 'Wn.'
+            
+            # Washington Court of Appeals (e.g., 12 Wash. App. 2d 345, 12 Wn. App. 2d 345, 12 Wash. App. 2d 345)
+            r'\b(\d+)\s+(?:Wash\.|Wn\.)\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
+            r'\b(\d+)\s+Wash\.\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
+            r'\b(\d+)\s+Wn\.\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
+            
+            # Pacific Reporter (e.g., 355 P.3d 258, 278 P.3d 173, 976 P.2d 1229)
+            # Handles various formats: P.3d, P. 3d, P3d, etc.
+            r'\b(\d+)\s+P\.(?:\s*3d|3d|\s*2d|2d|\s*d\.)?\s*(\d+)\b',
+            r'\b(\d+)\s+P(?:\s*3d|3d|\s*2d|2d|\s*d\.)?\s+(\d+)\b',  # Handles 'P3d', 'P 3d', etc.
+            r'\b(\d+)\s+P\.?\s*(?:3d|2d|d\.)?\s*(\d+)\b',  # Handles 'P.3d', 'P. 3d', 'P3d', etc.
             r'\b\d+\s+WL\s+\d+\b',
             r'\b\d{4}\s+LEXIS\s+\d+\b',
         ]

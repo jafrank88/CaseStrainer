@@ -533,6 +533,41 @@ class ChunkedCitationProcessor:
         
         clusters = cluster_citations_unified(citation_objects)
         
+        # CRITICAL FIX: Update citation objects with cluster information
+        # This must happen BEFORE serialization to ensure cluster data persists
+        logger.info(f"[PROGRESS_MANAGER] Updating citations with cluster information")
+        citation_to_cluster = {}
+        for cluster in clusters:
+            cluster_id = cluster.get('cluster_id')
+            cluster_case_name = cluster.get('cluster_case_name') or cluster.get('case_name')
+            cluster_citations = cluster.get('citations', [])
+            
+            # Match by citation text, not object id (clusters contain dicts, not objects)
+            for cit_dict in cluster_citations:
+                citation_text = cit_dict.get('citation') if isinstance(cit_dict, dict) else getattr(cit_dict, 'citation', None)
+                if citation_text:
+                    citation_to_cluster[citation_text] = (cluster_id, cluster_case_name, len(cluster_citations))
+        
+        updated_count = 0
+        for citation_obj in citation_objects:
+            citation_text = getattr(citation_obj, 'citation', None)
+            if citation_text and citation_text in citation_to_cluster:
+                cluster_id, cluster_case_name, size = citation_to_cluster[citation_text]
+                citation_obj.cluster_id = cluster_id
+                citation_obj.cluster_case_name = cluster_case_name
+                citation_obj.is_cluster = size > 1
+                updated_count += 1
+        
+        # Update the citation dicts with cluster info from objects
+        for i, citation_dict in enumerate(citations):
+            if i < len(citation_objects):
+                citation_obj = citation_objects[i]
+                citation_dict['cluster_id'] = getattr(citation_obj, 'cluster_id', None)
+                citation_dict['cluster_case_name'] = getattr(citation_obj, 'cluster_case_name', None)
+                citation_dict['is_cluster'] = getattr(citation_obj, 'is_cluster', False)
+        
+        logger.info(f"[PROGRESS_MANAGER] Updated {updated_count} citations with cluster information")
+        
         return {
             'citations': citations,
             'clusters': clusters,

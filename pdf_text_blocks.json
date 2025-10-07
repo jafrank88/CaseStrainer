@@ -1,0 +1,7652 @@
+[
+  {
+    "page": 1,
+    "text": "IN THE SUPREME COURT OF THE STATE OF WASHINGTON",
+    "bbox": [
+      120.96289825439453,
+      148.77804565429688,
+      494.33013916015625,
+      166.71469116210938
+    ]
+  },
+  {
+    "page": 1,
+    "text": "CERTIFICATION FROM THE UNITED \n) \nSTATES DISTRICT COURT FOR THE   \n) \nNo. 103394-0 \nWESTERN DISTRICT OF WASHINGTON \n) \nIN \n) \n) \nLISA BRANSON and CHERIE BURKE, \n) \nindividually and on behalf of all others similarly ) \nsituated, \n) \n) \nPlaintiffs, \n) \n)",
+    "bbox": [
+      72.0,
+      217.12030029296875,
+      434.3097839355469,
+      384.0579833984375
+    ]
+  },
+  {
+    "page": 1,
+    "text": "En Banc",
+    "bbox": [
+      358.15692138671875,
+      334.5248718261719,
+      405.07208251953125,
+      351.98199462890625
+    ]
+  },
+  {
+    "page": 1,
+    "text": "v. \n) \n) \nWASHINGTON FINE WINE & SPIRITS, \n) \nLLC, a Washington limited liability company \n) \ndoing business as TOTAL WINE & More; and ) \nDOES 1-20, \n) \n) \nDefendants. \n)",
+    "bbox": [
+      72.15559387207031,
+      381.47894287109375,
+      331.653564453125,
+      503.54931640625
+    ]
+  },
+  {
+    "page": 1,
+    "text": "Filed: September 4, 2025",
+    "bbox": [
+      350.8380126953125,
+      422.18359375,
+      482.76202392578125,
+      439.6407165527344
+    ]
+  },
+  {
+    "page": 1,
+    "text": ")",
+    "bbox": [
+      324.02020263671875,
+      501.20159912109375,
+      331.459228515625,
+      518.65869140625
+    ]
+  },
+  {
+    "page": 1,
+    "text": "MADSEN, J.—In 2022, the legislature amended the Washington Equal Pay and",
+    "bbox": [
+      108.00289916992188,
+      545.9544067382812,
+      527.414306640625,
+      563.4114990234375
+    ]
+  },
+  {
+    "page": 1,
+    "text": "Opportunities Act (EPOA), ch. 49.58 RCW, to require employers with 15 or more",
+    "bbox": [
+      72.02587890625,
+      575.8401489257812,
+      502.7009582519531,
+      593.2972412109375
+    ]
+  },
+  {
+    "page": 1,
+    "text": "employees to disclose wage scale, salary range, and benefits information in all job",
+    "bbox": [
+      72.03883361816406,
+      605.7259521484375,
+      502.71258544921875,
+      623.1830444335938
+    ]
+  },
+  {
+    "page": 1,
+    "text": "postings, effective January 1, 2023.  RCW 49.58.110.  Violations of this statute entitles",
+    "bbox": [
+      72.03883361816406,
+      635.6116943359375,
+      529.0083618164062,
+      653.0687866210938
+    ]
+  },
+  {
+    "page": 1,
+    "text": "employees and job applicants to the remedies listed in RCW 49.58.060-.070.  RCW",
+    "bbox": [
+      72.05179595947266,
+      665.4974365234375,
+      510.6700134277344,
+      682.9545288085938
+    ]
+  },
+  {
+    "page": 1,
+    "text": "FILE \nIN CLERK’S OFFICE \nSUPREME COURT, STATE OF WASHINGTON \nSEPTEMBER 4, 2025",
+    "bbox": [
+      30.860530853271484,
+      24.16097068786621,
+      199.22634887695312,
+      87.96521759033203
+    ]
+  },
+  {
+    "page": 1,
+    "text": "THIS OPINION WAS FILED \nFOR RECORD AT 8 A.M. ON \nSEPTEMBER 4, 2025",
+    "bbox": [
+      463.0838623046875,
+      27.764541625976562,
+      569.0653076171875,
+      56.24580383300781
+    ]
+  },
+  {
+    "page": 1,
+    "text": "SARAH R. PENDLETON  \nSUPREME COURT CLERK",
+    "bbox": [
+      467.61761474609375,
+      80.98240661621094,
+      567.0580444335938,
+      99.14608764648438
+    ]
+  },
+  {
+    "page": 2,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 2,
+    "text": "2",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "49.58.110(4).1  This case concerns the interpretation of the key term “job applicant” in",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      525.450439453125,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 2,
+    "text": "RCW 49.58.110(4).  The federal district court has asked this court to determine what a",
+    "bbox": [
+      71.99424743652344,
+      105.92736053466797,
+      525.3414916992188,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 2,
+    "text": "plaintiff must prove to be deemed a “job applicant.”  We hold that a plaintiff must apply",
+    "bbox": [
+      72.00720977783203,
+      135.8131103515625,
+      534.1361694335938,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 2,
+    "text": "to a specific job posting but is not required to prove they are a “bona fide” or “good faith”",
+    "bbox": [
+      72.02017211914062,
+      165.6988525390625,
+      543.1421508789062,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 2,
+    "text": "applicant to obtain remedies under the statute.",
+    "bbox": [
+      72.02017211914062,
+      195.70123291015625,
+      314.67022705078125,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 2,
+    "text": "BACKGROUND",
+    "bbox": [
+      260.1864013671875,
+      225.58697509765625,
+      355.1054382324219,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 2,
+    "text": "The defendant, Washington Fine Wine and Spirits LLC, which does business as",
+    "bbox": [
+      108.02304077148438,
+      255.47271728515625,
+      526.8124389648438,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 2,
+    "text": "Total Wine and More (Total Wine), is a Washington limited liability company that owns",
+    "bbox": [
+      72.00717163085938,
+      285.3584899902344,
+      536.6295776367188,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 2,
+    "text": "and operates 13 retail liquor stores throughout Washington.  All job openings at Total",
+    "bbox": [
+      71.99420928955078,
+      315.2442626953125,
+      520.6693725585938,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 2,
+    "text": "Wine are posted on their official website, and some of their retail stores also use third-",
+    "bbox": [
+      71.99420166015625,
+      345.1300354003906,
+      521.0166015625,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "party sites such as Indeed.com.2",
+    "bbox": [
+      71.98123931884766,
+      374.96160888671875,
+      248.28001403808594,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 2,
+    "text": "After the effective date in RCW 49.58.110, plaintiffs Lisa Branson and Cherie",
+    "bbox": [
+      108.00094604492188,
+      404.9640197753906,
+      518.3909912109375,
+      422.421142578125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "Burke submitted applications for job openings at the defendant’s retail stores.  Branson",
+    "bbox": [
+      72.01103210449219,
+      434.84979248046875,
+      528.2366333007812,
+      452.3069152832031
+    ]
+  },
+  {
+    "page": 2,
+    "text": "submitted an application through Indeed.com for a retail sales associate position at Total",
+    "bbox": [
+      71.99809265136719,
+      464.7355651855469,
+      535.4347534179688,
+      482.19268798828125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "Wine’s Tukwila store; however, the job posting for that position did not include the",
+    "bbox": [
+      71.99813842773438,
+      494.621337890625,
+      509.8672790527344,
+      512.0784301757812
+    ]
+  },
+  {
+    "page": 2,
+    "text": "salary or wage range as required by the EPOA.  Similarly, Burke applied for a",
+    "bbox": [
+      71.99813842773438,
+      524.481201171875,
+      481.6667785644531,
+      541.938720703125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "cashier/customer service position at Total Wine’s Tukwila store through Indeed.com and",
+    "bbox": [
+      72.01294708251953,
+      554.3673706054688,
+      537.5891723632812,
+      571.824462890625
+    ]
+  },
+  {
+    "page": 2,
+    "text": "through Total Wine’s official website; however, the job posting on Indeed.com did not",
+    "bbox": [
+      72.012939453125,
+      584.2531127929688,
+      526.433349609375,
+      601.710205078125
+    ]
+  },
+  {
+    "page": 2,
+    "text": "include the required pay range information.  Unlike Branson, Burke had an in-person",
+    "bbox": [
+      72.012939453125,
+      614.2554931640625,
+      517.8045043945312,
+      631.7125854492188
+    ]
+  },
+  {
+    "page": 2,
+    "text": "1 Effective July 27, 2025, RCW 49.58.110(4) and (5) provide the exclusive remedies available for \nviolations of the statute.  See LAWS OF 2025, ch. 383, §§ 4-6.  The amendments do not impact our \nanalysis of a “job applicant” who is eligible for these remedies. \n2 All job postings on Total Wine’s official website, under the “Career Search” button include salary and \nwage ranges.",
+    "bbox": [
+      71.98843383789062,
+      664.4783935546875,
+      531.4717407226562,
+      729.9873657226562
+    ]
+  },
+  {
+    "page": 3,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 3,
+    "text": "3",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "interview for the position and discussed pay with the Tukwila store manager.  Burke did",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      533.9669189453125,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 3,
+    "text": "not accept the offer made to her by Total Wine for the position.",
+    "bbox": [
+      72.0,
+      105.92736053466797,
+      404.8775939941406,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 3,
+    "text": "Subsequently, Branson and Burke filed an amended class action complaint against",
+    "bbox": [
+      108.00289916992188,
+      135.8131103515625,
+      539.753662109375,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 3,
+    "text": "Total Wine in King County, invoking their right to statutory damages under RCW",
+    "bbox": [
+      71.99996948242188,
+      165.6988525390625,
+      502.3108825683594,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 3,
+    "text": "49.58.070 and RCW 49.58.110 for Total Wine’s failure to post the required wage scale or",
+    "bbox": [
+      72.0,
+      195.70123291015625,
+      542.3961791992188,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 3,
+    "text": "salary range in its job postings on Indeed.com.  Total Wine filed a motion to bifurcate",
+    "bbox": [
+      72.0,
+      225.58697509765625,
+      521.7469482421875,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 3,
+    "text": "discovery, arguing that the plaintiffs are not the type of “job applicants” the EPOA",
+    "bbox": [
+      71.98703002929688,
+      255.47271728515625,
+      505.55084228515625,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 3,
+    "text": "intended to protect since the statute is meant to protect “bona fide” applicants.  The",
+    "bbox": [
+      71.98703002929688,
+      285.3584899902344,
+      508.00933837890625,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 3,
+    "text": "plaintiffs opposed the motion, and the parties disputed the meaning of “job applicant” in",
+    "bbox": [
+      71.97406005859375,
+      315.2442626953125,
+      534.318115234375,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 3,
+    "text": "the EPOA.",
+    "bbox": [
+      71.96109008789062,
+      345.1300354003906,
+      138.0830078125,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "The United States District Court for the Western District of Washington then",
+    "bbox": [
+      107.9639663696289,
+      375.01580810546875,
+      511.5047302246094,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 3,
+    "text": "certified the following question:  “What must a Plaintiff prove to be deemed a ‘job",
+    "bbox": [
+      71.96109008789062,
+      405.0182189941406,
+      504.79010009765625,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 3,
+    "text": "applicant’ within the meaning of RCW 49.58.110(4)?  For example, must they prove that",
+    "bbox": [
+      71.96112060546875,
+      434.90399169921875,
+      538.7569580078125,
+      452.3611145019531
+    ]
+  },
+  {
+    "page": 3,
+    "text": "they are a ‘bona fide’ applicant”?  Ord. Certifying Question to Wash. State Sup. Ct. at 2",
+    "bbox": [
+      71.97409057617188,
+      464.7897644042969,
+      532.30029296875,
+      482.24688720703125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "(W.D. Wash. Aug. 20, 2024).  We accepted certification.",
+    "bbox": [
+      72.0,
+      494.6015930175781,
+      371.6222229003906,
+      512.0587158203125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "ANALYSIS",
+    "bbox": [
+      273.8260803222656,
+      524.4873657226562,
+      341.38653564453125,
+      541.9444580078125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "Certified questions are questions of law that this court reviews de novo and in light",
+    "bbox": [
+      107.98989868164062,
+      554.3731079101562,
+      542.9832763671875,
+      571.8302001953125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "of the record certified by the federal court.  Lopez Demetrio v. Sakuma Bros. Farms, 183",
+    "bbox": [
+      71.97406005859375,
+      584.2588500976562,
+      536.9619750976562,
+      601.7159423828125
+    ]
+  },
+  {
+    "page": 3,
+    "text": "Wn.2d 649, 655, 355 P.3d 258 (2015).  Statutory interpretation is also an issue of law we",
+    "bbox": [
+      71.96112060546875,
+      614.26123046875,
+      538.4044799804688,
+      631.7183227539062
+    ]
+  },
+  {
+    "page": 3,
+    "text": "review de novo.  Spokane County v. Dep’t of Fish & Wildlife, 192 Wn.2d 453, 457, 430",
+    "bbox": [
+      71.96112060546875,
+      644.1470336914062,
+      531.4500122070312,
+      661.6041259765625
+    ]
+  },
+  {
+    "page": 3,
+    "text": "P.3d 655 (2018).",
+    "bbox": [
+      71.96109008789062,
+      674.0327758789062,
+      169.04444885253906,
+      691.4898681640625
+    ]
+  },
+  {
+    "page": 4,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 4,
+    "text": "4",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 4,
+    "text": "We are asked to interpret the statutory term “job applicant” within RCW",
+    "bbox": [
+      108.0,
+      76.04161834716797,
+      488.49658203125,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 4,
+    "text": "49.58.110(4).  Our “fundamental objective is to ascertain and carry out the Legislature’s",
+    "bbox": [
+      71.99713134765625,
+      105.92736053466797,
+      533.986083984375,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 4,
+    "text": "intent, and if the statute’s meaning is plain on its face, then the court must give effect to",
+    "bbox": [
+      72.01007080078125,
+      135.8131103515625,
+      531.1012573242188,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 4,
+    "text": "that plain meaning as an expression of legislative intent.”  Dep’t of Ecology v. Campbell",
+    "bbox": [
+      71.99713134765625,
+      165.6988525390625,
+      534.4617919921875,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 4,
+    "text": "& Gwinn, LLC, 146 Wn.2d 1, 9-10, 43 P.3d 4 (2002).  In addition to looking at the plain",
+    "bbox": [
+      71.98419189453125,
+      195.70123291015625,
+      534.695068359375,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 4,
+    "text": "language to determine legislative intent, we consider “the text of the provision in",
+    "bbox": [
+      71.98419189453125,
+      225.58697509765625,
+      495.8280029296875,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 4,
+    "text": "question, the context of the statute in which the provision is found, related provisions,",
+    "bbox": [
+      71.98419189453125,
+      255.47271728515625,
+      521.3864135742188,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 4,
+    "text": "amendments to the provision, and the statutory scheme as a whole.”  Ass’n of Wash.",
+    "bbox": [
+      71.99713134765625,
+      285.3584899902344,
+      512.41162109375,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 4,
+    "text": "Spirits & Wine Distribs. v. Wash. State Liquor Control Bd., 182 Wn.2d 342, 350, 340",
+    "bbox": [
+      72.01007080078125,
+      315.2442626953125,
+      519.954345703125,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 4,
+    "text": "P.3d 849 (2015) (citing Campbell & Gwinn, 146 Wn.2d at 9-10).  If the plain language of",
+    "bbox": [
+      71.99713134765625,
+      345.1300354003906,
+      540.9547119140625,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 4,
+    "text": "the statute is clear and subject to only one reasonable interpretation, then we look no",
+    "bbox": [
+      71.99710083007812,
+      375.01580810546875,
+      514.50732421875,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 4,
+    "text": "further.  State v. Velasquez, 176 Wn.2d 333, 336, 292 P.3d 92 (2013).  A term does not",
+    "bbox": [
+      71.98416137695312,
+      405.0182189941406,
+      527.4918212890625,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 4,
+    "text": "become ambiguous “merely because multiple interpretations are conceivable” but rather",
+    "bbox": [
+      72.0,
+      434.84161376953125,
+      533.9850463867188,
+      452.2987365722656
+    ]
+  },
+  {
+    "page": 4,
+    "text": "when it is subject to more than one reasonable interpretation.  Id.",
+    "bbox": [
+      72.0,
+      464.7273864746094,
+      419.3499755859375,
+      482.18450927734375
+    ]
+  },
+  {
+    "page": 4,
+    "text": "The Plain Language of “Job Applicant” in RCW 49.58.110(4)",
+    "bbox": [
+      108.00288391113281,
+      494.6131591796875,
+      434.0505676269531,
+      512.0702514648438
+    ]
+  },
+  {
+    "page": 4,
+    "text": "The EPOA, formerly known as the Equal Pay Act, was enacted in Washington in",
+    "bbox": [
+      108.0,
+      524.4816284179688,
+      533.2823486328125,
+      541.938720703125
+    ]
+  },
+  {
+    "page": 4,
+    "text": "1943 to prohibit gender-based pay discrimination.  See LAWS OF 1943, ch. 254, § 1.  In",
+    "bbox": [
+      71.99710083007812,
+      554.361572265625,
+      527.5194702148438,
+      571.824462890625
+    ]
+  },
+  {
+    "page": 4,
+    "text": "2018, the EPOA was expanded to enhance enforcement by allowing the Department of",
+    "bbox": [
+      72.00146484375,
+      584.2473754882812,
+      527.5078735351562,
+      601.7044677734375
+    ]
+  },
+  {
+    "page": 4,
+    "text": "Labor and Industries (L&I) to investigate complaints made by employees for violations",
+    "bbox": [
+      72.01443481445312,
+      614.249755859375,
+      529.7888793945312,
+      631.7068481445312
+    ]
+  },
+  {
+    "page": 4,
+    "text": "of the act.  See RCW 49.58.060.  In 2019, the EPOA was further expanded to require that",
+    "bbox": [
+      72.01443481445312,
+      644.135498046875,
+      540.2462768554688,
+      661.5925903320312
+    ]
+  },
+  {
+    "page": 4,
+    "text": "employers provide the wage or salary range or minimum wage to a job applicant upon",
+    "bbox": [
+      72.00146484375,
+      674.021240234375,
+      523.5538330078125,
+      691.4783325195312
+    ]
+  },
+  {
+    "page": 5,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 5,
+    "text": "5",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 5,
+    "text": "their request after an initial job offer had been made by the employer.  Former RCW",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      514.17578125,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 5,
+    "text": "49.58.110(1) (2019).",
+    "bbox": [
+      71.98703002929688,
+      105.92736053466797,
+      190.0655975341797,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 5,
+    "text": "In 2022, the legislature amended RCW 49.58.110(1) to require employers to",
+    "bbox": [
+      107.98991394042969,
+      135.8131103515625,
+      508.63409423828125,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 5,
+    "text": "disclose salary, wage, and benefits information in all job postings.  Now, wage or salary",
+    "bbox": [
+      71.98703002929688,
+      165.6988525390625,
+      532.9093017578125,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 5,
+    "text": "ranges must be provided in all job postings regardless of whether an applicant requests",
+    "bbox": [
+      71.99998474121094,
+      195.70123291015625,
+      526.0665283203125,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 5,
+    "text": "the information or whether they receive a job offer.  As it currently stands, RCW",
+    "bbox": [
+      72.0,
+      225.58697509765625,
+      495.4549865722656,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 5,
+    "text": "49.58.110 states in relevant part:",
+    "bbox": [
+      72.0,
+      255.47271728515625,
+      244.9123077392578,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 5,
+    "text": "(1) The employer must disclose in each posting for each job opening the\nwage scale or salary range, and a general description of all of the benefits\nand other compensation to be offered to the hired applicant. For the\npurposes of this section, “posting” means any solicitation intended to\nrecruit job applicants for a specific available position, including recruitment\ndone directly by an employer or indirectly through a third party, and\nincludes any postings done electronically, or with a printed hard copy, that\nincludes qualifications for desired applicants.",
+    "bbox": [
+      108.0,
+      285.4416198730469,
+      502.9158630371094,
+      407.5387268066406
+    ]
+  },
+  {
+    "page": 5,
+    "text": ". . . . \n(4) A job applicant or an employee is entitled to the remedies in\nRCW 49.58.060 and 49.58.070 for violations of this section.",
+    "bbox": [
+      108.0,
+      404.96160888671875,
+      477.4698486328125,
+      452.2987365722656
+    ]
+  },
+  {
+    "page": 5,
+    "text": "(Emphasis added.)",
+    "bbox": [
+      72.0,
+      463.5216064453125,
+      175.0579376220703,
+      480.9787292480469
+    ]
+  },
+  {
+    "page": 5,
+    "text": "RCW 49.58.110(4) provides two potential remedies for job applicants and",
+    "bbox": [
+      107.98991394042969,
+      493.4073791503906,
+      497.1397705078125,
+      510.864501953125
+    ]
+  },
+  {
+    "page": 5,
+    "text": "employees.  First, they may either submit a complaint to L&I, who may then initiate an",
+    "bbox": [
+      71.98703002929688,
+      523.4097900390625,
+      528.5859985351562,
+      540.8668823242188
+    ]
+  },
+  {
+    "page": 5,
+    "text": "investigation for EPOA violations.  See RCW 49.58.060.  Second, they may bring a civil",
+    "bbox": [
+      71.98703002929688,
+      553.2955322265625,
+      536.8532104492188,
+      570.7526245117188
+    ]
+  },
+  {
+    "page": 5,
+    "text": "action against an employer for actual damages or “statutory damages equal to the actual",
+    "bbox": [
+      71.97406768798828,
+      583.1812744140625,
+      531.8131103515625,
+      600.6383666992188
+    ]
+  },
+  {
+    "page": 5,
+    "text": "damages or five thousand dollars, whichever is greater,” among other relief.  RCW",
+    "bbox": [
+      71.97409057617188,
+      613.0670166015625,
+      506.6122741699219,
+      630.5241088867188
+    ]
+  },
+  {
+    "page": 5,
+    "text": "49.58.070(1).3",
+    "bbox": [
+      71.98703002929688,
+      642.921630859375,
+      150.48001098632812,
+      660.409912109375
+    ]
+  },
+  {
+    "page": 5,
+    "text": "3 Aaron’s LLC amicus brief argues that although job applicants are entitled to the remedies prescribed in \nRCW 49.58.070, the statute creates a private right of action only for employees.  Included in its argument",
+    "bbox": [
+      71.9913330078125,
+      688.598388671875,
+      538.2105102539062,
+      716.1873779296875
+    ]
+  },
+  {
+    "page": 6,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 6,
+    "text": "6",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 6,
+    "text": "The legislature did not provide a definition for the term “job applicant” in chapter",
+    "bbox": [
+      108.0,
+      76.04161834716797,
+      536.0000610351562,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 6,
+    "text": "49.58 RCW.  Both parties agree that the plain language of the term resolves the question",
+    "bbox": [
+      71.99713134765625,
+      105.92736053466797,
+      535.5789184570312,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 6,
+    "text": "before us; however, they disagree on the correct definition of the term.  The defendant",
+    "bbox": [
+      72.02310180664062,
+      135.8131103515625,
+      523.55859375,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 6,
+    "text": "argues that the term in the context of the EPOA has a readily ascertainable meaning,",
+    "bbox": [
+      72.02310180664062,
+      165.6988525390625,
+      513.7958374023438,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 6,
+    "text": "which is “a person who formally notifies an employer of the person’s genuine interest in",
+    "bbox": [
+      72.02311706542969,
+      195.70123291015625,
+      535.2135009765625,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 6,
+    "text": "filling a specific posted job.”  Answering Br. of Resp’t-Def. Wash. Fine Wine & Spirits",
+    "bbox": [
+      72.0101318359375,
+      225.58697509765625,
+      531.50048828125,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 6,
+    "text": "LLC (Br. of Resp’t) at 26.  Total Wine concludes that a “job applicant” “must be a person",
+    "bbox": [
+      72.0101318359375,
+      255.47271728515625,
+      542.7470703125,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 6,
+    "text": "who actually applied for the job with a good faith or bona fide interest in obtaining the",
+    "bbox": [
+      71.9971923828125,
+      285.3584899902344,
+      525.0010375976562,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 6,
+    "text": "posted job.”  Id. at 62.  The plaintiffs argue that the legislature intended the term to",
+    "bbox": [
+      71.99722290039062,
+      315.2442626953125,
+      506.623779296875,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 6,
+    "text": "conform to its universally accepted definition and ask us to hold that the term",
+    "bbox": [
+      71.98428344726562,
+      345.1300354003906,
+      477.6841125488281,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 6,
+    "text": "unambiguously means “any person who applies to a job posting.”  Opening Br. of",
+    "bbox": [
+      71.9713134765625,
+      375.01580810546875,
+      500.8436584472656,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 6,
+    "text": "Pls./Appellants at 24.  We agree with the plaintiffs.",
+    "bbox": [
+      71.97134399414062,
+      405.0182189941406,
+      344.597900390625,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 6,
+    "text": "Since the statute does not provide a definition of the term, we look to dictionary",
+    "bbox": [
+      107.96125793457031,
+      434.90399169921875,
+      526.634033203125,
+      452.3611145019531
+    ]
+  },
+  {
+    "page": 6,
+    "text": "definitions “ʻto determine a word’s plain and ordinary meaning.ʼ”  State v. M.Y.G., 199",
+    "bbox": [
+      72.0,
+      464.72161865234375,
+      528.9759521484375,
+      482.1787414550781
+    ]
+  },
+  {
+    "page": 6,
+    "text": "Wn.2d 528, 532, 509 P.3d 818 (2022) (plurality opinion) (quoting Am. Legion Post No.",
+    "bbox": [
+      72.01296997070312,
+      494.6073913574219,
+      529.81201171875,
+      512.0645141601562
+    ]
+  },
+  {
+    "page": 6,
+    "text": "32 v. City of Walla Walla, 116 Wn.2d 1, 8, 802 P.2d 784 (1991)).  The term “applicant”",
+    "bbox": [
+      72.01296997070312,
+      524.4931640625,
+      531.4449462890625,
+      541.9502563476562
+    ]
+  },
+  {
+    "page": 6,
+    "text": "is defined as “one who applies for something : one who makes a usu[ally] formal request",
+    "bbox": [
+      72.01298522949219,
+      554.1715698242188,
+      538.3267211914062,
+      572.108154296875
+    ]
+  },
+  {
+    "page": 6,
+    "text": "esp[ecially] for something of benefit to himself.”  WEBSTER’S THIRD NEW",
+    "bbox": [
+      72.01300048828125,
+      584.2415771484375,
+      461.8819274902344,
+      601.7217407226562
+    ]
+  },
+  {
+    "page": 6,
+    "text": "INTERNATIONAL DICTIONARY 105 (2002).  Another dictionary defines it similarly as",
+    "bbox": [
+      72.0,
+      614.2415771484375,
+      514.684814453125,
+      631.6986694335938
+    ]
+  },
+  {
+    "page": 6,
+    "text": "“[o]ne who applies or makes request”  OXFORD ENGLISH DICTIONARY 405-06 (1993).",
+    "bbox": [
+      72.01004028320312,
+      644.12158203125,
+      525.34375,
+      661.58447265625
+    ]
+  },
+  {
+    "page": 6,
+    "text": "is that the rule of lenity supports a finding that job applicants do not have a private right of action under \nthe EPOA.  However, this court need not consider issues raised solely by amici.  Coburn v. Seda, 101 \nWn.2d 270, 279, 677 P.2d 173 (1984)",
+    "bbox": [
+      71.98898315429688,
+      675.9600219726562,
+      530.7561645507812,
+      729.9840087890625
+    ]
+  },
+  {
+    "page": 7,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 7,
+    "text": "7",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 7,
+    "text": "The related term “apply” means “to make an appeal or a request esp[ecially] formally and",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      542.3961181640625,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 7,
+    "text": "often in writing and usu[ally] for something of benefit to oneself.”  WEBSTER’S, supra, at",
+    "bbox": [
+      71.99993896484375,
+      105.92162322998047,
+      540.1199951171875,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 7,
+    "text": "105.  These definitions do not rely on the subjective intent of an individual to determine",
+    "bbox": [
+      72.00482177734375,
+      135.807373046875,
+      532.2001342773438,
+      153.2644805908203
+    ]
+  },
+  {
+    "page": 7,
+    "text": "whether a person is an applicant.  They simply require that an individual submits a formal",
+    "bbox": [
+      72.0047607421875,
+      165.693115234375,
+      542.3931274414062,
+      183.1502227783203
+    ]
+  },
+  {
+    "page": 7,
+    "text": "application or request for a job.",
+    "bbox": [
+      72.0047607421875,
+      195.69549560546875,
+      244.93003845214844,
+      213.15260314941406
+    ]
+  },
+  {
+    "page": 7,
+    "text": "Total Wine argues that a “job applicant” must possess an intent or genuine interest",
+    "bbox": [
+      108.00764465332031,
+      225.58123779296875,
+      540.488037109375,
+      243.03834533691406
+    ]
+  },
+  {
+    "page": 7,
+    "text": "in obtaining a job.  The plaintiffs contend that subjective intent is irrelevant because the",
+    "bbox": [
+      72.00479125976562,
+      255.46697998046875,
+      531.138671875,
+      272.9241027832031
+    ]
+  },
+  {
+    "page": 7,
+    "text": "legislature could have included qualifying language to the statute, such as “bona fide” job",
+    "bbox": [
+      72.01776123046875,
+      285.3527526855469,
+      541.6906127929688,
+      302.80987548828125
+    ]
+  },
+  {
+    "page": 7,
+    "text": "applicant, if it intended to limit the type of job applicant who is entitled to remedies.",
+    "bbox": [
+      72.01776123046875,
+      315.238525390625,
+      516.3681640625,
+      332.6956481933594
+    ]
+  },
+  {
+    "page": 7,
+    "text": "Total Wine counters that if the legislature added qualifying language it would be “mere",
+    "bbox": [
+      72.01774597167969,
+      345.1242980957031,
+      529.6741943359375,
+      362.5814208984375
+    ]
+  },
+  {
+    "page": 7,
+    "text": "surplusage when the meaning of the term is clear without [it].”  Br. of Resp’t at 25.  It",
+    "bbox": [
+      72.01776123046875,
+      375.01007080078125,
+      521.7816162109375,
+      392.4671936035156
+    ]
+  },
+  {
+    "page": 7,
+    "text": "contends that bots or deceased relatives could recover under the statute since the",
+    "bbox": [
+      72.01779174804688,
+      405.0124816894531,
+      493.1827697753906,
+      422.4696044921875
+    ]
+  },
+  {
+    "page": 7,
+    "text": "legislature did not write “‘human job applicant.’”  Id. at 26.  It further argues that the",
+    "bbox": [
+      72.03074645996094,
+      434.89825439453125,
+      516.753173828125,
+      452.3553771972656
+    ]
+  },
+  {
+    "page": 7,
+    "text": "plaintiffs’ interpretation would mean that the legislature intended to protect individuals",
+    "bbox": [
+      72.0,
+      464.72161865234375,
+      527.8757934570312,
+      482.1787414550781
+    ]
+  },
+  {
+    "page": 7,
+    "text": "who submit applications in bad faith.  Total Wine’s argument overlooks the language in",
+    "bbox": [
+      72.00003051757812,
+      494.6073913574219,
+      532.1680908203125,
+      512.0645141601562
+    ]
+  },
+  {
+    "page": 7,
+    "text": "the definition of “applicant,” which refers to a person or “one who applies” for",
+    "bbox": [
+      72.00003051757812,
+      524.4931640625,
+      484.51812744140625,
+      541.9502563476562
+    ]
+  },
+  {
+    "page": 7,
+    "text": "something, which indicates a living human.  Thus, we need not be concerned that bots,",
+    "bbox": [
+      72.00001525878906,
+      554.37890625,
+      526.4424438476562,
+      571.8359985351562
+    ]
+  },
+  {
+    "page": 7,
+    "text": "pets, or deceased individuals will pursue claims as “job applicants.”",
+    "bbox": [
+      72.00006103515625,
+      584.2646484375,
+      431.2901306152344,
+      601.7217407226562
+    ]
+  },
+  {
+    "page": 7,
+    "text": "The plain language of the term “job applicant” means a person who applies to a",
+    "bbox": [
+      108.01589965820312,
+      614.26708984375,
+      524.8807373046875,
+      631.7241821289062
+    ]
+  },
+  {
+    "page": 7,
+    "text": "job posting, regardless of their subjective intent in doing so.  We must give effect to that",
+    "bbox": [
+      72.02597045898438,
+      644.15283203125,
+      534.3998413085938,
+      661.6099243164062
+    ]
+  },
+  {
+    "page": 8,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 8,
+    "text": "8",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 8,
+    "text": "meaning.4  Broughton Lumber Co. v. BNSF Ry. Co., 174 Wn.2d 619, 627, 278 P.3d 173",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      532.314208984375,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 8,
+    "text": "(2012).",
+    "bbox": [
+      71.988037109375,
+      105.92736053466797,
+      119.62899780273438,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 8,
+    "text": "The statutory scheme supports the plaintiffs’ interpretation.  In the “Findings—",
+    "bbox": [
+      107.99092102050781,
+      135.8131103515625,
+      520.5570068359375,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 8,
+    "text": "Intent” section of the EPOA, the legislature found that “there continues to be a gap in",
+    "bbox": [
+      72.00103759765625,
+      165.6988525390625,
+      519.1923217773438,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 8,
+    "text": "wages and advancement opportunities among workers in Washington, especially",
+    "bbox": [
+      72.00103759765625,
+      195.70123291015625,
+      494.9817810058594,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 8,
+    "text": "women,” which has led to “higher rates of poverty among women and children.”  RCW",
+    "bbox": [
+      72.00100708007812,
+      225.58697509765625,
+      530.7590942382812,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 8,
+    "text": "49.58.005(1).  The legislature intended to “address income disparities, employer",
+    "bbox": [
+      72.00100708007812,
+      255.47271728515625,
+      492.96771240234375,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 8,
+    "text": "discrimination, and retaliation practices, and to reflect the equal status of all workers in",
+    "bbox": [
+      72.01397705078125,
+      285.3584899902344,
+      528.2214965820312,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 8,
+    "text": "Washington state.”  RCW 49.58.005(2).",
+    "bbox": [
+      72.01397705078125,
+      315.2442626953125,
+      290.4158935546875,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 8,
+    "text": "Over time, the legislature has expanded the protections afforded to employees and",
+    "bbox": [
+      108.01686096191406,
+      345.1300354003906,
+      538.6828002929688,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 8,
+    "text": "applicants, demonstrating the legislature’s concern with ending income disparities and",
+    "bbox": [
+      72.00103759765625,
+      375.01580810546875,
+      524.2647705078125,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 8,
+    "text": "gender inequality.  For example, it amended former RCW 49.58.110(1) to require that",
+    "bbox": [
+      72.00100708007812,
+      405.0182189941406,
+      522.8534545898438,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 8,
+    "text": "employers include wage scale or salary range information in each job posting made by",
+    "bbox": [
+      72.01397705078125,
+      434.90399169921875,
+      525.3767700195312,
+      452.3611145019531
+    ]
+  },
+  {
+    "page": 8,
+    "text": "the employer or indirectly through a third party rather than waiting until after an applicant",
+    "bbox": [
+      72.01394653320312,
+      464.7897644042969,
+      543.1488037109375,
+      482.24688720703125
+    ]
+  },
+  {
+    "page": 8,
+    "text": "is offered a position.",
+    "bbox": [
+      72.02688598632812,
+      494.675537109375,
+      188.66688537597656,
+      512.1326293945312
+    ]
+  },
+  {
+    "page": 8,
+    "text": "Other sections of the EPOA also support our interpretation of the term.  “[W]here",
+    "bbox": [
+      108.02975463867188,
+      524.561279296875,
+      535.8134155273438,
+      542.0183715820312
+    ]
+  },
+  {
+    "page": 8,
+    "text": "the legislature includes particular language in one section of a statute but omits it in",
+    "bbox": [
+      72.0,
+      554.361572265625,
+      509.8794860839844,
+      571.8186645507812
+    ]
+  },
+  {
+    "page": 8,
+    "text": "another, the exclusion is presumed intentional.ˮ  Perez-Crisantos v. State Farm Fire &",
+    "bbox": [
+      71.98703002929688,
+      584.2473754882812,
+      526.770263671875,
+      601.7044677734375
+    ]
+  },
+  {
+    "page": 8,
+    "text": "Cas. Co., 187 Wn.2d 669, 680, 389 P.3d 476 (2017).  Here, the legislature has included",
+    "bbox": [
+      71.97409057617188,
+      614.249755859375,
+      529.9933471679688,
+      631.7068481445312
+    ]
+  },
+  {
+    "page": 8,
+    "text": "4 If the legislature intends to limit the statute to bona fide job seekers, it can amend the statute as was \nrecently attempted, by defining the term “job applicant” in RCW 49.58.110 as “a person who has made \nand submitted a bona fide application for employment.”  H.B. 2349, at 2, 68th Leg., Reg. Sess. (Wash. \n2024); S.B. 6241, at 2, 68th Leg., Reg. Sess. (Wash. 2024); see also LAWS OF 2025, ch. 383 (not defining \nor adding qualifying language to the term “job applicant”).",
+    "bbox": [
+      71.9471435546875,
+      650.6400146484375,
+      539.1619262695312,
+      729.9873657226562
+    ]
+  },
+  {
+    "page": 9,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 9,
+    "text": "9",
+    "bbox": [
+      303.0,
+      740.8799438476562,
+      312.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "qualifying language in other parts of the EPOA, which indicates that it purposely omitted",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      539.5073852539062,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 9,
+    "text": "qualifying language in RCW 49.58.110(4).  For example, in RCW 49.58.110(1) the",
+    "bbox": [
+      71.98703002929688,
+      105.92736053466797,
+      509.4855041503906,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 9,
+    "text": "legislature used the term “desired applicants” in its definition of “posting.”  The",
+    "bbox": [
+      71.97402954101562,
+      135.8131103515625,
+      490.6494140625,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 9,
+    "text": "legislature also included the term “bona fide” in other sections of the EPOA.  See RCW",
+    "bbox": [
+      71.98696899414062,
+      165.6988525390625,
+      530.7281494140625,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 9,
+    "text": "49.58.020-.030 (referring to good faith, bona fide job-related factors that justify a",
+    "bbox": [
+      71.9739990234375,
+      195.70123291015625,
+      498.6949768066406,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 9,
+    "text": "differential in compensation).  The legislature could have included the same qualifying",
+    "bbox": [
+      71.98699951171875,
+      225.58697509765625,
+      527.1188354492188,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 9,
+    "text": "language here but chose not to.  “‘[A] court must not add words where the legislature has",
+    "bbox": [
+      71.97402954101562,
+      255.47271728515625,
+      538.9913940429688,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 9,
+    "text": "chosen not to include them.’”  Lucid Grp. USA, Inc. v. Dep’t of Licensing, 33 Wn. App.",
+    "bbox": [
+      71.97402954101562,
+      285.3584899902344,
+      531.5640258789062,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 9,
+    "text": "2d 75, 81, 559 P.3d 545 (2024) (quoting Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d",
+    "bbox": [
+      71.9739990234375,
+      315.2442626953125,
+      527.4791259765625,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 9,
+    "text": "674, 682, 80 P.3d 598 (2003)), review denied, 4 Wn.3d 1021 (2025).",
+    "bbox": [
+      71.9610595703125,
+      345.1300354003906,
+      432.6767578125,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "Additionally, RCW 49.44.200(1) prohibits employers from requesting or requiring",
+    "bbox": [
+      107.95101928710938,
+      375.01580810546875,
+      541.1092529296875,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 9,
+    "text": "“an employee or applicant” to disclose login information for their personal social",
+    "bbox": [
+      71.9481201171875,
+      405.0182189941406,
+      497.2227478027344,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 9,
+    "text": "networking accounts.  The statute states that “applicant” “means an applicant for",
+    "bbox": [
+      71.94815063476562,
+      434.90399169921875,
+      494.58282470703125,
+      452.3611145019531
+    ]
+  },
+  {
+    "page": 9,
+    "text": "employment.”  RCW 49.44.200(5)(b).  The definition of “applicant” is broadly defined",
+    "bbox": [
+      71.94818115234375,
+      464.7897644042969,
+      528.1686401367188,
+      482.24688720703125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "and does not mention the subjective intent of the applicant.  An employee or applicant is",
+    "bbox": [
+      72.0,
+      494.6015930175781,
+      535.0349731445312,
+      512.0587158203125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "provided a private right of action for violations under RCW 49.44.205.  If the legislature",
+    "bbox": [
+      72.0,
+      524.4873657226562,
+      535.405517578125,
+      541.9444580078125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "intended to add a qualifier to the term “job applicant,” it could have done so as it did in",
+    "bbox": [
+      72.0,
+      554.3731079101562,
+      528.243896484375,
+      571.8302001953125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "RCW 49.94.010(1), which restricts employers from requesting information about an",
+    "bbox": [
+      72.00006103515625,
+      584.2588500976562,
+      513.4824829101562,
+      601.7159423828125
+    ]
+  },
+  {
+    "page": 9,
+    "text": "applicant’s criminal record until the employer has initially determined that the applicant",
+    "bbox": [
+      72.0001220703125,
+      614.26123046875,
+      532.5491943359375,
+      631.7183227539062
+    ]
+  },
+  {
+    "page": 9,
+    "text": "is “otherwise qualified.”  “‘Otherwise qualified’ means that the applicant meets the basic",
+    "bbox": [
+      72.0001220703125,
+      644.1470336914062,
+      537.5478515625,
+      661.6041259765625
+    ]
+  },
+  {
+    "page": 9,
+    "text": "criteria for the position as set out in the advertisement or job description without",
+    "bbox": [
+      72.0001220703125,
+      674.0327758789062,
+      492.953857421875,
+      691.4898681640625
+    ]
+  },
+  {
+    "page": 9,
+    "text": "consideration of a criminal record.”  RCW 49.94.005.  Total Wine contends that",
+    "bbox": [
+      72.0001220703125,
+      703.9185180664062,
+      492.46142578125,
+      721.3756103515625
+    ]
+  },
+  {
+    "page": 10,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 10,
+    "text": "10",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 10,
+    "text": "individuals may apply for positions they are clearly unqualified for and then bring suit.",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      530.4249877929688,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 10,
+    "text": "However, if the legislature intended only “qualified job applicants” to be entitled to",
+    "bbox": [
+      72.02590942382812,
+      105.92736053466797,
+      509.52960205078125,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 10,
+    "text": "remedies, it could have included similar limiting language in RCW 49.58.110(4).",
+    "bbox": [
+      72.01296997070312,
+      135.8131103515625,
+      501.014892578125,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 10,
+    "text": "Even if the term “job applicant” is ambiguous, the legislative history of RCW",
+    "bbox": [
+      108.015869140625,
+      165.6988525390625,
+      515.167236328125,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 10,
+    "text": "49.58.110(4) supports defining the term more broadly.  See Perez-Crisantos, 187 Wn.2d",
+    "bbox": [
+      72.01296997070312,
+      195.70123291015625,
+      535.2111206054688,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 10,
+    "text": "at 680 (when there is ambiguity in a statute, courts have turned to extrinsic evidence of",
+    "bbox": [
+      72.00003051757812,
+      225.58697509765625,
+      527.1253662109375,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 10,
+    "text": "legislative intent).  In 2022, the legislature recognized the importance of individuals",
+    "bbox": [
+      71.987060546875,
+      255.47271728515625,
+      511.68359375,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 10,
+    "text": "being provided with pay-related information “before they apply for a job” in order to",
+    "bbox": [
+      72.00003051757812,
+      285.3584899902344,
+      516.7185668945312,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 10,
+    "text": "combat pay inequity, avoid wasted time, and “make our market more competitive.”5",
+    "bbox": [
+      72.00006103515625,
+      315.20159912109375,
+      516.5999755859375,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 10,
+    "text": "Engrossed Substitute Senate Bill 5761 now requires employers to disclose hourly or",
+    "bbox": [
+      71.99423217773438,
+      345.0873718261719,
+      512.3764038085938,
+      362.54449462890625
+    ]
+  },
+  {
+    "page": 10,
+    "text": "salary compensation and a general description of all benefits in each posting for each job",
+    "bbox": [
+      71.9942626953125,
+      374.97314453125,
+      537.2453002929688,
+      392.4302673339844
+    ]
+  },
+  {
+    "page": 10,
+    "text": "opening.  See ENGROSSED SUBSTITUTE S.B. 5761, 67th Leg., Reg. Sess. (Wash. 2022).",
+    "bbox": [
+      72.00726318359375,
+      404.96160888671875,
+      533.757568359375,
+      422.43267822265625
+    ]
+  },
+  {
+    "page": 10,
+    "text": "The initial version of Senate Bill 5761 (S.B. 5761) stated that “[a]n individual is",
+    "bbox": [
+      107.99563598632812,
+      434.8473815917969,
+      528.236572265625,
+      452.30450439453125
+    ]
+  },
+  {
+    "page": 10,
+    "text": "entitled to the remedies in RCW 49.58.060 and 49.58.070 for violations of this section.”",
+    "bbox": [
+      72.0,
+      464.72161865234375,
+      536.99560546875,
+      482.1787414550781
+    ]
+  },
+  {
+    "page": 10,
+    "text": "Id. (emphasis added).  At the public hearing in the Senate Committee on Labor,",
+    "bbox": [
+      71.99996948242188,
+      494.6073913574219,
+      488.88037109375,
+      512.0645141601562
+    ]
+  },
+  {
+    "page": 10,
+    "text": "Commerce & Tribal Affairs, L&I raised concerns about the cost of the bill, including for",
+    "bbox": [
+      71.99996948242188,
+      524.4931640625,
+      536.62890625,
+      541.9502563476562
+    ]
+  },
+  {
+    "page": 10,
+    "text": "investigating complaints, and noted that anyone may file a complaint, not just applicants",
+    "bbox": [
+      71.98696899414062,
+      554.37890625,
+      535.0762939453125,
+      571.8359985351562
+    ]
+  },
+  {
+    "page": 10,
+    "text": "or employees.  The agency suggested changing the term “individual” to “job applicant or",
+    "bbox": [
+      71.99993896484375,
+      584.2646484375,
+      538.0804443359375,
+      601.7217407226562
+    ]
+  },
+  {
+    "page": 10,
+    "text": "an employee.”  S.B. REP. ON S.B. 5761, at 2-3, 67th Leg., Reg. Sess. (Wash. 2022).",
+    "bbox": [
+      71.99996948242188,
+      614.2415771484375,
+      508.44000244140625,
+      631.7241821289062
+    ]
+  },
+  {
+    "page": 10,
+    "text": "5 S. Floor Debate on Engrossed Substitute S.B. 5761, 67th Leg., Reg. Sess. (Feb. 9, 2022)), at 11 min., 05 \nsec. to 11 min., 15 sec, video recording by TVW, Washington State’s Public Affairs Network, \nhttps://tvw.org/video/senate-floor-debate-february-9-2022021162/?eventID=2022021162 (former Senator \nEmily Randall, the prime sponsor of the bill, testifying in favor of its passage).",
+    "bbox": [
+      71.98031616210938,
+      663.239990234375,
+      540.8160400390625,
+      729.9820556640625
+    ]
+  },
+  {
+    "page": 11,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 11,
+    "text": "11",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 11,
+    "text": "The committee revised the bill to make that change.  This means that the",
+    "bbox": [
+      108.0,
+      76.04161834716797,
+      488.8814392089844,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 11,
+    "text": "legislature specifically considered who could obtain remedies under the statute and",
+    "bbox": [
+      72.01007080078125,
+      105.92736053466797,
+      507.02545166015625,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 11,
+    "text": "limited protection to those individuals who actually applied for the job.  Significantly, the",
+    "bbox": [
+      72.0230712890625,
+      135.8131103515625,
+      541.3421630859375,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 11,
+    "text": "legislature did not include any further limitation.",
+    "bbox": [
+      72.01010131835938,
+      165.6988525390625,
+      331.68963623046875,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 11,
+    "text": "L&I’s Internal Policies",
+    "bbox": [
+      72.0,
+      195.70123291015625,
+      234.37301635742188,
+      228.13868713378906
+    ]
+  },
+  {
+    "page": 11,
+    "text": "Under RCW 49.58.090, L&I is authorized to adopt rules to implement RCW",
+    "bbox": [
+      108.00288391113281,
+      225.55963134765625,
+      509.7745056152344,
+      243.01673889160156
+    ]
+  },
+  {
+    "page": 11,
+    "text": "49.58.005 and 49.58.020-.060.  Total Wine states that although RCW 49.58.110 does not",
+    "bbox": [
+      71.99996948242188,
+      255.44537353515625,
+      538.797119140625,
+      272.9024963378906
+    ]
+  },
+  {
+    "page": 11,
+    "text": "fall under the listed provisions subject to L&I’s rule making, L&I’s rule making extends",
+    "bbox": [
+      71.99996948242188,
+      285.3311462402344,
+      534.490478515625,
+      302.78826904296875
+    ]
+  },
+  {
+    "page": 11,
+    "text": "to RCW 49.58.005, which announces the legislative intent for the EPOA.  This includes",
+    "bbox": [
+      72.01287841796875,
+      315.2169189453125,
+      532.6890258789062,
+      332.6740417480469
+    ]
+  },
+  {
+    "page": 11,
+    "text": "the legislature’s intent “to require an employer to provide wage and salary information to",
+    "bbox": [
+      72.01284790039062,
+      345.1026916503906,
+      539.1819458007812,
+      362.559814453125
+    ]
+  },
+  {
+    "page": 11,
+    "text": "applicants and employees.”  RCW 49.58.005(4).  Total Wine argues that since L&I has",
+    "bbox": [
+      72.02578735351562,
+      374.98846435546875,
+      528.9395751953125,
+      392.4455871582031
+    ]
+  },
+  {
+    "page": 11,
+    "text": "the authority to administer the EPOA within the full scope of the legislature’s intent and",
+    "bbox": [
+      72.02578735351562,
+      404.9908752441406,
+      533.6505737304688,
+      422.447998046875
+    ]
+  },
+  {
+    "page": 11,
+    "text": "also has the requisite expertise to carry out that authority, we should give the agency’s",
+    "bbox": [
+      72.02578735351562,
+      434.87664794921875,
+      523.9241333007812,
+      452.3337707519531
+    ]
+  },
+  {
+    "page": 11,
+    "text": "interpretation of an ambiguous statute great weight in determining legislative intent.",
+    "bbox": [
+      72.0257568359375,
+      464.7624206542969,
+      512.5491333007812,
+      482.21954345703125
+    ]
+  },
+  {
+    "page": 11,
+    "text": "“‘[A]gency interpretations of statutes are accorded deference only if “(1) the",
+    "bbox": [
+      108.02865600585938,
+      494.648193359375,
+      509.0499267578125,
+      512.1052856445312
+    ]
+  },
+  {
+    "page": 11,
+    "text": "particular agency is charged with the administration and enforcement of the statute, (2)",
+    "bbox": [
+      72.02578735351562,
+      524.533935546875,
+      527.5347290039062,
+      541.9910278320312
+    ]
+  },
+  {
+    "page": 11,
+    "text": "the statute is ambiguous, and (3) the statute falls within the agency’s special expertise.”’”",
+    "bbox": [
+      72.02578735351562,
+      554.419677734375,
+      542.993408203125,
+      571.8767700195312
+    ]
+  },
+  {
+    "page": 11,
+    "text": "Lucid Grp. USA, Inc., 33 Wn. App. 2d at 80 (emphasis omitted) (quoting Fode v. Dep’t",
+    "bbox": [
+      72.02578735351562,
+      584.3054809570312,
+      530.0451049804688,
+      601.7625732421875
+    ]
+  },
+  {
+    "page": 11,
+    "text": "of Ecology, 22 Wn. App. 2d 22, 33, 509 P.3d 325 (2022) (quoting Bostain v. Food",
+    "bbox": [
+      72.0128173828125,
+      614.307861328125,
+      503.4162292480469,
+      631.7649536132812
+    ]
+  },
+  {
+    "page": 11,
+    "text": "Express, Inc., 159 Wn.2d 700, 716, 153 P.3d 846 (2007))).  However, courts are not",
+    "bbox": [
+      72.0,
+      644.12158203125,
+      512.40673828125,
+      661.5786743164062
+    ]
+  },
+  {
+    "page": 11,
+    "text": "bound by agency interpretation as courts have the “‘“ultimate authority to interpret a",
+    "bbox": [
+      72.0,
+      674.0073852539062,
+      514.882080078125,
+      691.4644775390625
+    ]
+  },
+  {
+    "page": 11,
+    "text": "statute.”’”  Id. (quoting Port of Tacoma v. Sacks, 19 Wn. App. 2d 295, 304, 495 P.3d 866",
+    "bbox": [
+      72.00001525878906,
+      703.8931274414062,
+      540.2318115234375,
+      721.3502197265625
+    ]
+  },
+  {
+    "page": 12,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 12,
+    "text": "12",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "(2021) (quoting Bostain, 159 Wn.2d at 716)).  Under RCW 49.58.060(1), L&I is tasked",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      531.10791015625,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 12,
+    "text": "with investigating complaints made by job applicants and employees to determine if there",
+    "bbox": [
+      72.0,
+      105.92736053466797,
+      542.3961181640625,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 12,
+    "text": "has been a violation of the EPOA.  If a violation has occurred, L&I may, among other",
+    "bbox": [
+      72.0,
+      135.8131103515625,
+      521.7677001953125,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 12,
+    "text": "things, “order the employer to pay to the complainant actual damages; statutory damages",
+    "bbox": [
+      72.02591705322266,
+      165.6988525390625,
+      537.7396240234375,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 12,
+    "text": "equal to the actual damages or five thousand dollars, whichever is greater.”  RCW",
+    "bbox": [
+      72.02590942382812,
+      195.70123291015625,
+      502.3626708984375,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 12,
+    "text": "49.58.060(2)(a).",
+    "bbox": [
+      72.03886413574219,
+      225.58697509765625,
+      160.1150360107422,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 12,
+    "text": "In administering and enforcing RCW 49.58.060, L&I issued F700-200-000, which",
+    "bbox": [
+      108.02877807617188,
+      255.47271728515625,
+      540.4884033203125,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 12,
+    "text": "is a complaint form that also addresses who can file a complaint.  It states that “L&I will",
+    "bbox": [
+      72.012939453125,
+      285.3584899902344,
+      535.8046875,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 12,
+    "text": "investigate complaints filed by applicants who have applied to a job in good faith with",
+    "bbox": [
+      72.012939453125,
+      315.2442626953125,
+      524.278076171875,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 12,
+    "text": "the intent of gaining employment.  L&I generally only assesses damages when an",
+    "bbox": [
+      72.0,
+      345.1300354003906,
+      500.1595458984375,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "applicant can establish they have suffered a financial loss as a result of a violation of the",
+    "bbox": [
+      72.00006103515625,
+      375.01580810546875,
+      534.3635864257812,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 12,
+    "text": "law.”  WASH. STATE DEP’T OF LAB. & INDUS., EQUAL PAY & OPPORTUNITIES ACT",
+    "bbox": [
+      72.01303100585938,
+      404.96160888671875,
+      505.5628967285156,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 12,
+    "text": "COMPLAINT FORM at 1 (July 2025), https://lni.wa.gov/forms-publications/F700-200-",
+    "bbox": [
+      72.0,
+      434.84161376953125,
+      510.95428466796875,
+      452.2987365722656
+    ]
+  },
+  {
+    "page": 12,
+    "text": "000.pdf [https://perma.cc/FH2P-2CWL].",
+    "bbox": [
+      71.99903869628906,
+      464.7273864746094,
+      284.1451416015625,
+      482.18450927734375
+    ]
+  },
+  {
+    "page": 12,
+    "text": "Total Wine points to this form to support its interpretation that “job applicants”",
+    "bbox": [
+      108.00192260742188,
+      494.6001892089844,
+      523.4158325195312,
+      512.0587158203125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "must be people who apply for jobs in good faith or have a bona fide intention of gaining",
+    "bbox": [
+      71.98416137695312,
+      524.4873657226562,
+      533.3860473632812,
+      541.9444580078125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "employment.  However, L&I does not have rule making authority over the meaning of",
+    "bbox": [
+      71.98416137695312,
+      554.3731079101562,
+      524.5992431640625,
+      571.8302001953125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "the term “job applicant,” and the meaning of “job applicant” is not ambiguous.",
+    "bbox": [
+      71.97119903564453,
+      584.2588500976562,
+      487.7682189941406,
+      601.7159423828125
+    ]
+  },
+  {
+    "page": 12,
+    "text": "Moreover, L&I does not define the term “job applicant” but instead defines the",
+    "bbox": [
+      71.97120666503906,
+      614.26123046875,
+      486.3153991699219,
+      631.7183227539062
+    ]
+  },
+  {
+    "page": 12,
+    "text": "complaints it will investigate.  Considering the concern raised by L&I regarding cost to",
+    "bbox": [
+      71.97120666503906,
+      644.1470336914062,
+      529.2738647460938,
+      661.6041259765625
+    ]
+  },
+  {
+    "page": 12,
+    "text": "the agency, it is likely its limitation is due to its limited resources.  As noted, the agency",
+    "bbox": [
+      71.95824432373047,
+      674.0327758789062,
+      532.8519897460938,
+      691.4898681640625
+    ]
+  },
+  {
+    "page": 12,
+    "text": "already expressed concerns regarding the costs of investigating complaints, which is why",
+    "bbox": [
+      71.94528198242188,
+      703.9185180664062,
+      539.4810791015625,
+      721.3756103515625
+    ]
+  },
+  {
+    "page": 13,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 13,
+    "text": "13",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 13,
+    "text": "it urged the legislature to amend S.B. 5761 to limit the remedies afforded to job",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      488.871337890625,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 13,
+    "text": "applicants and employees instead of any individual.  See S.B. REP. ON S.B. 5761, at 3.",
+    "bbox": [
+      72.0,
+      105.92162322998047,
+      522.2275390625,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 13,
+    "text": "Significantly, in 2024, L&I published its preliminary draft rule language for the",
+    "bbox": [
+      107.98709106445312,
+      135.807373046875,
+      525.1889038085938,
+      153.2644805908203
+    ]
+  },
+  {
+    "page": 13,
+    "text": "EPOA, which included a definition of the term “applicant.”  It defined the term as “an",
+    "bbox": [
+      71.98422241210938,
+      165.693115234375,
+      522.4738159179688,
+      183.1502227783203
+    ]
+  },
+  {
+    "page": 13,
+    "text": "individual, including existing employees, who submits in good faith an application for a",
+    "bbox": [
+      71.9971923828125,
+      195.69549560546875,
+      532.8936157226562,
+      213.15260314941406
+    ]
+  },
+  {
+    "page": 13,
+    "text": "job posting with the intent of gaining employment.”  Pls./Appellants’ Statement of",
+    "bbox": [
+      71.9971923828125,
+      225.58123779296875,
+      504.4853515625,
+      243.03834533691406
+    ]
+  },
+  {
+    "page": 13,
+    "text": "Additional Auths., Attach. A at 1.  In response, seven members of the Washington State",
+    "bbox": [
+      72.01019287109375,
+      255.46697998046875,
+      532.5476684570312,
+      272.9241027832031
+    ]
+  },
+  {
+    "page": 13,
+    "text": "House of Representatives signed and submitted a public comment letter.  The letter",
+    "bbox": [
+      71.99722290039062,
+      285.3527526855469,
+      508.05706787109375,
+      302.80987548828125
+    ]
+  },
+  {
+    "page": 13,
+    "text": "stated:",
+    "bbox": [
+      71.99722290039062,
+      315.238525390625,
+      109.19242095947266,
+      332.6956481933594
+    ]
+  },
+  {
+    "page": 13,
+    "text": "We are concerned the current draft undermines the Legislature’s intent.  \nSpecifically, the definition of “applicant” in the preliminary draft (and the \nspecification that job applicants or employees must demonstrate lost \ncompensation to recover damages each undermine key components of the \nEPOA).",
+    "bbox": [
+      107.98714447021484,
+      345.2409362792969,
+      495.68292236328125,
+      422.44366455078125
+    ]
+  },
+  {
+    "page": 13,
+    "text": ". . . .  \nWe have historically declined to qualify or narrow the definition of \n“applicant” because we intend for this unambiguous term to be understood \nby its plain and ordinary meaning.  For the EPOA’s salary disclosure \nrequirement to work as intended, anyone who applied to the job must have \naccess to the remedies we set out in RCW 49.58.060 and .070.  Requiring a \njob applicant to prove subjective “intent” adds a new element to the cause \nof action in order to access remedies [and] would frustrate a key purpose of \nthe statute[.]  This is the opposite of our intent. \n \nId., Attach. B at 1.  To avoid contradicting the legislature’s intent, included in the letter",
+    "bbox": [
+      72.03604125976562,
+      419.98126220703125,
+      528.6155395507812,
+      586.7918090820312
+    ]
+  },
+  {
+    "page": 13,
+    "text": "was a request that L&I remove the definition of “applicant” and remove the requirement",
+    "bbox": [
+      72.02310180664062,
+      599.2205200195312,
+      534.706787109375,
+      616.6776123046875
+    ]
+  },
+  {
+    "page": 13,
+    "text": "that a job applicant or employee demonstrate actual damages.  It reasoned that statutory",
+    "bbox": [
+      72.02310180664062,
+      629.1062622070312,
+      530.7383422851562,
+      646.5633544921875
+    ]
+  },
+  {
+    "page": 13,
+    "text": "damages were provided under both RCW 49.58.060 and .070 because most violations of",
+    "bbox": [
+      72.02310943603516,
+      658.9920043945312,
+      535.58935546875,
+      676.4490966796875
+    ]
+  },
+  {
+    "page": 13,
+    "text": ".110 do not result in provable monetary loss, and the legislature wants “to ensure",
+    "bbox": [
+      72.03610229492188,
+      688.8778076171875,
+      495.89288330078125,
+      706.3348999023438
+    ]
+  },
+  {
+    "page": 14,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      78.4439468383789
+    ]
+  },
+  {
+    "page": 14,
+    "text": "14",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 14,
+    "text": "compliance with the statute by allowing job applicants and employees to recover",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      494.96002197265625,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 14,
+    "text": "reasonable statutory damages for violations.”  Id. at 2.",
+    "bbox": [
+      71.987060546875,
+      105.92736053466797,
+      356.5108642578125,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 14,
+    "text": "Subsequently, L&I published an updated version of its draft rule language,",
+    "bbox": [
+      71.98703002929688,
+      135.8131103515625,
+      499.6217041015625,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 14,
+    "text": "removing the definition of applicant, and removing the requirement that job applicants",
+    "bbox": [
+      71.987060546875,
+      165.6988525390625,
+      524.9378051757812,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 14,
+    "text": "and employees demonstrate actual damages.  See id., Attach. C at 1, 6.  Total Wine’s",
+    "bbox": [
+      71.98705291748047,
+      195.70123291015625,
+      516.6964111328125,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 14,
+    "text": "reliance on L&I’s definition of “job applicantˮ is misplaced.",
+    "bbox": [
+      71.98703002929688,
+      225.58697509765625,
+      392.26751708984375,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 14,
+    "text": "The Plain Meaning of “Job Applicant” Does Not Produce Absurd Results",
+    "bbox": [
+      107.98992919921875,
+      255.47271728515625,
+      494.0294189453125,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 14,
+    "text": "Lastly, Total Wine argues that construing “job applicant” to mean anyone who",
+    "bbox": [
+      108.0,
+      285.32159423828125,
+      520.6852416992188,
+      302.7787170410156
+    ]
+  },
+  {
+    "page": 14,
+    "text": "applies to a job opening regardless of their subjective intent yields unlikely, absurd, and",
+    "bbox": [
+      72.01007080078125,
+      315.2073669433594,
+      531.973388671875,
+      332.66448974609375
+    ]
+  },
+  {
+    "page": 14,
+    "text": "strained consequences.",
+    "bbox": [
+      72.010009765625,
+      345.0931396484375,
+      200.88426208496094,
+      362.5502624511719
+    ]
+  },
+  {
+    "page": 14,
+    "text": "“Where the legislature provides no statutory definition and a court gives a term its",
+    "bbox": [
+      107.99993896484375,
+      374.9789123535156,
+      538.3108520507812,
+      392.43603515625
+    ]
+  },
+  {
+    "page": 14,
+    "text": "plain and ordinary meaning by reference to a dictionary, the court ‘will avoid literal",
+    "bbox": [
+      71.9970703125,
+      404.9813232421875,
+      510.59710693359375,
+      422.4384460449219
+    ]
+  },
+  {
+    "page": 14,
+    "text": "reading of a statute which would result in unlikely, absurd, or strained consequences.’”",
+    "bbox": [
+      71.9970703125,
+      434.8670959472656,
+      530.71240234375,
+      452.32421875
+    ]
+  },
+  {
+    "page": 14,
+    "text": "Tingey v. Haisch, 159 Wn.2d 652, 663-64, 152 P.3d 1020 (2007) (quoting Fraternal Ord.",
+    "bbox": [
+      71.98414611816406,
+      464.75286865234375,
+      541.6533203125,
+      482.2099914550781
+    ]
+  },
+  {
+    "page": 14,
+    "text": "of Eagles, Tenino Aerie No. 564 v. Grand Aerie of Fraternal Ord. of Eagles, 148 Wn.2d",
+    "bbox": [
+      71.9841537475586,
+      494.6386413574219,
+      534.0858764648438,
+      512.0957641601562
+    ]
+  },
+  {
+    "page": 14,
+    "text": "224, 239, 59 P.3d 655 (2002)).  “[I]t will not be presumed that the legislature intended",
+    "bbox": [
+      71.97113037109375,
+      524.5244140625,
+      523.873291015625,
+      541.9815063476562
+    ]
+  },
+  {
+    "page": 14,
+    "text": "absurd results.”  State v. Delgado, 148 Wn.2d 723, 733, 63 P.3d 792 (2003) (Madsen, J.,",
+    "bbox": [
+      71.95816040039062,
+      554.41015625,
+      535.511474609375,
+      571.8672485351562
+    ]
+  },
+  {
+    "page": 14,
+    "text": "dissenting) (citing State v. Vela, 100 Wn.2d 636, 641, 673 P.2d 185 (1983)).",
+    "bbox": [
+      71.94522094726562,
+      584.2958984375,
+      475.27337646484375,
+      601.7529907226562
+    ]
+  },
+  {
+    "page": 14,
+    "text": "As mentioned previously, the defendant argues that under this definition people",
+    "bbox": [
+      107.94808959960938,
+      614.29833984375,
+      525.19140625,
+      631.7554321289062
+    ]
+  },
+  {
+    "page": 14,
+    "text": "who are not qualified, who are incarcerated, who are living abroad, or who are serial",
+    "bbox": [
+      71.9451904296875,
+      644.18408203125,
+      514.3736572265625,
+      661.6411743164062
+    ]
+  },
+  {
+    "page": 14,
+    "text": "plaintiffs looking for lawsuits fall under the statute.  It contends that the absurd",
+    "bbox": [
+      71.9451904296875,
+      674.06982421875,
+      485.8915100097656,
+      691.5269165039062
+    ]
+  },
+  {
+    "page": 14,
+    "text": "consequences are magnified in the context of class action litigation since nothing would",
+    "bbox": [
+      72.0,
+      703.881591796875,
+      532.3262329101562,
+      721.3386840820312
+    ]
+  },
+  {
+    "page": 15,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 15,
+    "text": "15",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 15,
+    "text": "prevent thousands of individuals from applying to a position they are unqualified for.",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      521.4010009765625,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 15,
+    "text": "This could potentially result in tremendous class action liability on large and small",
+    "bbox": [
+      72.0129623413086,
+      105.92736053466797,
+      504.8328552246094,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 15,
+    "text": "businesses alike.6  Further, defendant argues that it would incentivize plaintiffs to commit",
+    "bbox": [
+      72.0,
+      135.8016357421875,
+      542.1571655273438,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 15,
+    "text": "fraud by seeking employment at businesses they have no interest in working at,",
+    "bbox": [
+      71.99420166015625,
+      165.6873779296875,
+      487.80279541015625,
+      183.1444854736328
+    ]
+  },
+  {
+    "page": 15,
+    "text": "meanwhile punishing employers “well beyond any conceivable calculation of the harm",
+    "bbox": [
+      72.00714111328125,
+      195.68975830078125,
+      527.88818359375,
+      213.14686584472656
+    ]
+  },
+  {
+    "page": 15,
+    "text": "the EPOA was designed to address.”  Br. of Resp’t at 30.  It asserts that employers will",
+    "bbox": [
+      72.02010345458984,
+      225.57550048828125,
+      527.88818359375,
+      243.03260803222656
+    ]
+  },
+  {
+    "page": 15,
+    "text": "be punished for mere mistakes and that serial plaintiffs who suffered little to no harm will",
+    "bbox": [
+      72.02011108398438,
+      255.46124267578125,
+      542.0585327148438,
+      272.9183654785156
+    ]
+  },
+  {
+    "page": 15,
+    "text": "recover statutory damages.7  We disagree.",
+    "bbox": [
+      72.02011108398438,
+      285.32159423828125,
+      294.13189697265625,
+      302.80413818359375
+    ]
+  },
+  {
+    "page": 15,
+    "text": "In order to best effectuate the statute’s intended purpose of eradicating pay-based",
+    "bbox": [
+      108.00817108154297,
+      315.2073669433594,
+      534.0032958984375,
+      332.66448974609375
+    ]
+  },
+  {
+    "page": 15,
+    "text": "discrimination, it follows that the term “job applicant” should be more broadly defined.",
+    "bbox": [
+      72.00529479980469,
+      345.0931396484375,
+      532.5440673828125,
+      362.5502624511719
+    ]
+  },
+  {
+    "page": 15,
+    "text": "Narrowing the term “job applicant” to those who applied for the job in good faith or have",
+    "bbox": [
+      72.01825714111328,
+      374.9789123535156,
+      540.2396240234375,
+      392.43603515625
+    ]
+  },
+  {
+    "page": 15,
+    "text": "a bona fide interest in obtaining the posted job would shift the onus from employers to",
+    "bbox": [
+      72.01824951171875,
+      404.9813232421875,
+      524.654052734375,
+      422.4384460449219
+    ]
+  },
+  {
+    "page": 15,
+    "text": "comply with the EPOA and put the burden on applicants to show that they applied in",
+    "bbox": [
+      72.01825714111328,
+      434.8670959472656,
+      516.7367553710938,
+      452.32421875
+    ]
+  },
+  {
+    "page": 15,
+    "text": "good faith despite not being provided the required pay expectations in the relevant job",
+    "bbox": [
+      72.00531005859375,
+      464.72161865234375,
+      523.21533203125,
+      482.1840515136719
+    ]
+  },
+  {
+    "page": 15,
+    "text": "6 Amicus argues that allowing anyone who submits a job application to be entitled to statutory damages \nviolates the Fourteenth Amendment to the United States Constitution since it can result in severe penalties \nin the class action context that are disproportionate to the offense.  Amicus Curiae Br. by Rest. L. Ctr., \nWash. Hosp. Ass’n & Int’l Franchise Ass’n at 7.  However, this argument was not raised by the defendant \nand is not within the scope of the certified question; therefore, we decline to consider the issue.  \n7 Both the defendant and amici argue that the job applicants who do not have a good faith intent to obtain \nemployment lack statutory standing because they are not within the zone of interest protected by the \nstatute and because they have not suffered an injury in fact, economic or otherwise.  We decline to \naddress the standing argument, as it is beyond the scope of the certified question.  See Carlsen v. Glob. \nClient Sols., LLC, 171 Wn.2d 486, 495 n.2, 256 P.3d 321 (2011) (declining to address the possibility of \npreemption since it is beyond the scope of the district court’s certified question).  The dissent argues that \nwe silently address whether a legislatively created statute can grant a plaintiff the right to sue even though \nthat plaintiff has suffered no harm and is not within the protected zone of interest.  We disagree.  Our \nholding is limited to interpreting the term “job applicant” in RCW 49.58.110(4).  However, we observe \nthat if a plaintiff meets the definition of job applicant, the plaintiff likely is within the protected zone of \ninterest.",
+    "bbox": [
+      71.95590209960938,
+      525.2783813476562,
+      542.6618041992188,
+      729.9786987304688
+    ]
+  },
+  {
+    "page": 16,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 16,
+    "text": "16",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 16,
+    "text": "posting.  Further, it is unclear what it means to be a “good faith” or “bona fide” job",
+    "bbox": [
+      72.0,
+      76.04161834716797,
+      507.34710693359375,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 16,
+    "text": "applicant.  Does it require that a person have all of the qualifications and preferences",
+    "bbox": [
+      72.01292419433594,
+      105.92736053466797,
+      515.979736328125,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 16,
+    "text": "listed in the job posting?  Must the applicant prove they would have accepted the job if",
+    "bbox": [
+      72.02588653564453,
+      135.8131103515625,
+      527.1746826171875,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 16,
+    "text": "given an offer from the employer?  The reality is that many individuals apply for multiple",
+    "bbox": [
+      72.02588653564453,
+      165.6988525390625,
+      542.0721435546875,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 16,
+    "text": "job postings when they are seeking employment and may not have all the qualifications",
+    "bbox": [
+      72.02589416503906,
+      195.70123291015625,
+      530.4042358398438,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 16,
+    "text": "listed.  To interpret the term “job applicant” in the manner advocated by the defendant",
+    "bbox": [
+      72.01293182373047,
+      225.58697509765625,
+      523.9061279296875,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 16,
+    "text": "would discourage applicants from bringing suit against employers for fear of costly",
+    "bbox": [
+      72.01293182373047,
+      255.47271728515625,
+      508.8077697753906,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 16,
+    "text": "litigation and intrusion into their personal lives to prove that they are “bona fide”",
+    "bbox": [
+      72.012939453125,
+      285.3584899902344,
+      496.41015625,
+      302.81561279296875
+    ]
+  },
+  {
+    "page": 16,
+    "text": "applicants.",
+    "bbox": [
+      72.012939453125,
+      315.2442626953125,
+      137.65536499023438,
+      332.7013854980469
+    ]
+  },
+  {
+    "page": 16,
+    "text": "The legislature did not intend to make it more difficult for job applicants to",
+    "bbox": [
+      108.01582336425781,
+      345.1300354003906,
+      502.2200622558594,
+      362.587158203125
+    ]
+  },
+  {
+    "page": 16,
+    "text": "recover for violations of the EPOA.  Rather, in providing statutory damages as a potential",
+    "bbox": [
+      72.012939453125,
+      375.01580810546875,
+      541.6962890625,
+      392.4729309082031
+    ]
+  },
+  {
+    "page": 16,
+    "text": "remedy, it intended to hold employers accountable regardless of an applicant’s ability to",
+    "bbox": [
+      72.012939453125,
+      405.0182189941406,
+      534.140625,
+      422.475341796875
+    ]
+  },
+  {
+    "page": 16,
+    "text": "show actual damages since proving damages in these situations is difficult.  If the",
+    "bbox": [
+      72.02587890625,
+      434.90399169921875,
+      499.0967102050781,
+      452.3611145019531
+    ]
+  },
+  {
+    "page": 16,
+    "text": "consequences of violating the plain language of the EPOA are too onerous, the legislature",
+    "bbox": [
+      72.012939453125,
+      464.7897644042969,
+      542.4089965820312,
+      482.24688720703125
+    ]
+  },
+  {
+    "page": 16,
+    "text": "is in the best position to amend the statute to mitigate the liability employers face.8",
+    "bbox": [
+      71.99996948242188,
+      494.5977783203125,
+      512.2799682617188,
+      512.0587158203125
+    ]
+  },
+  {
+    "page": 16,
+    "text": "8 Effective July 27, 2025, RCW 49.58.110 is amended to provide employers an opportunity to correct a \nviolation of RCW 49.58.110(1) within five days of being notified of the violation before a job applicant \nor employee may seek remedies.  See LAWS OF 2025, ch. 383, § 1(b).  If the employer corrects the posting \nwithin five business days or contacts any applicable third-party posting entity with a demand to correct \nthe job posting, then “neither the department nor the court may assess or award penalties, damages, or \nother relief . . . for the violation.”  Id.  This revision to the current statute addresses employers’ concerns \nregarding liability while maintaining the burden on the employer to comply with the EPOA instead of \nplacing the burden on the plaintiff to prove their motive for applying.",
+    "bbox": [
+      71.9500732421875,
+      626.558349609375,
+      541.9096069335938,
+      729.975341796875
+    ]
+  },
+  {
+    "page": 17,
+    "text": "No. 103394-0",
+    "bbox": [
+      72.0,
+      34.67997360229492,
+      141.72000122070312,
+      50.843971252441406
+    ]
+  },
+  {
+    "page": 17,
+    "text": "17",
+    "bbox": [
+      300.0,
+      740.8799438476562,
+      315.0,
+      757.0439453125
+    ]
+  },
+  {
+    "page": 17,
+    "text": "CONCLUSION",
+    "bbox": [
+      264.1199951171875,
+      76.04161834716797,
+      351.12042236328125,
+      93.49874114990234
+    ]
+  },
+  {
+    "page": 17,
+    "text": "We answer the example raised in the certified question no.  A job applicant",
+    "bbox": [
+      108.00384521484375,
+      105.92736053466797,
+      502.5593566894531,
+      123.38448333740234
+    ]
+  },
+  {
+    "page": 17,
+    "text": "need not prove they are a “bona fide” applicant to be deemed a “job applicant.”",
+    "bbox": [
+      72.00096130371094,
+      135.8131103515625,
+      490.978271484375,
+      153.2702178955078
+    ]
+  },
+  {
+    "page": 17,
+    "text": "Rather, in accordance with the plain language of RCW 49.58.110(4), a person",
+    "bbox": [
+      71.98800659179688,
+      165.6988525390625,
+      480.57794189453125,
+      183.1559600830078
+    ]
+  },
+  {
+    "page": 17,
+    "text": "must apply to any solicitation intended to recruit job applicants for a specific",
+    "bbox": [
+      71.98800659179688,
+      195.70123291015625,
+      474.4477844238281,
+      213.15834045410156
+    ]
+  },
+  {
+    "page": 17,
+    "text": "available position to be considered a “job applicant,” regardless of the person’s",
+    "bbox": [
+      71.98800659179688,
+      225.58697509765625,
+      486.7106018066406,
+      243.04408264160156
+    ]
+  },
+  {
+    "page": 17,
+    "text": "subjective intent in applying for the specific position.",
+    "bbox": [
+      72.0009765625,
+      255.47271728515625,
+      355.81195068359375,
+      272.9298400878906
+    ]
+  },
+  {
+    "page": 17,
+    "text": "_______________________________",
+    "bbox": [
+      285.39910888671875,
+      344.7680969238281,
+      490.1116943359375,
+      362.2252197265625
+    ]
+  },
+  {
+    "page": 17,
+    "text": "WE CONCUR:",
+    "bbox": [
+      69.39479064941406,
+      389.6356201171875,
+      153.88101196289062,
+      407.0927429199219
+    ]
+  },
+  {
+    "page": 17,
+    "text": "_______________________________    ________________________________",
+    "bbox": [
+      69.39479064941406,
+      449.49786376953125,
+      495.1531066894531,
+      466.9549865722656
+    ]
+  },
+  {
+    "page": 17,
+    "text": "_______________________________    ________________________________",
+    "bbox": [
+      69.39479064941406,
+      494.2487487792969,
+      495.1531066894531,
+      511.70587158203125
+    ]
+  },
+  {
+    "page": 17,
+    "text": "_______________________________    ________________________________",
+    "bbox": [
+      69.39479064941406,
+      539.1162719726562,
+      495.1531066894531,
+      556.5733642578125
+    ]
+  },
+  {
+    "page": 17,
+    "text": "_______________________________    ________________________________",
+    "bbox": [
+      69.39479064941406,
+      583.8671875,
+      495.1531066894531,
+      601.3242797851562
+    ]
+  },
+  {
+    "page": 18,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC",
+    "bbox": [
+      72.0,
+      34.64159393310547,
+      304.2043151855469,
+      52.098716735839844
+    ]
+  },
+  {
+    "page": 18,
+    "text": "1",
+    "bbox": [
+      72.0,
+      725.9616088867188,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 18,
+    "text": "No. 103394-0",
+    "bbox": [
+      262.44000244140625,
+      131.91250610351562,
+      343.7175598144531,
+      150.8243865966797
+    ]
+  },
+  {
+    "page": 18,
+    "text": "GORDON McCLOUD, J. (dissenting)—Washington’s Equal Pay and",
+    "bbox": [
+      108.01402282714844,
+      171.39297485351562,
+      503.66552734375,
+      190.3048553466797
+    ]
+  },
+  {
+    "page": 18,
+    "text": "Opportunities Act (EPOA) requires every employer of 15 or more employees to",
+    "bbox": [
+      78.96527099609375,
+      203.55862426757812,
+      530.2108764648438,
+      222.4705047607422
+    ]
+  },
+  {
+    "page": 18,
+    "text": "disclose the wage scale or salary range and benefits for each job opening it",
+    "bbox": [
+      78.97927856445312,
+      235.72427368164062,
+      501.2296142578125,
+      254.6361541748047
+    ]
+  },
+  {
+    "page": 18,
+    "text": "advertises. RCW 49.58.110(1). The EPOA then gives every “job applicant or . .",
+    "bbox": [
+      78.97927856445312,
+      268.0022277832031,
+      528.892578125,
+      286.9140930175781
+    ]
+  },
+  {
+    "page": 18,
+    "text": ". employee” the right to sue for violations of this provision; the remedies",
+    "bbox": [
+      78.97927856445312,
+      300.1678771972656,
+      489.7771301269531,
+      319.0797424316406
+    ]
+  },
+  {
+    "page": 18,
+    "text": "include “statutory damages equal to the actual damages or five thousand dollars,",
+    "bbox": [
+      78.99334716796875,
+      332.3335266113281,
+      532.7634887695312,
+      351.2453918457031
+    ]
+  },
+  {
+    "page": 18,
+    "text": "whichever is greater.” RCW 49.58.110(4); RCW 49.58.070(1).",
+    "bbox": [
+      78.99334716796875,
+      364.6114807128906,
+      439.03509521484375,
+      383.5233459472656
+    ]
+  },
+  {
+    "page": 18,
+    "text": "The federal district court has asked us who qualifies as a “job applicant”",
+    "bbox": [
+      108.04208374023438,
+      403.9656066894531,
+      516.8687744140625,
+      422.8774719238281
+    ]
+  },
+  {
+    "page": 18,
+    "text": "entitled to seek those “actual damages” or that “five thousand dollars” in",
+    "bbox": [
+      79.00736236572266,
+      436.1312561035156,
+      489.6689758300781,
+      455.0431213378906
+    ]
+  },
+  {
+    "page": 18,
+    "text": "statutory penalties under RCW 49.58.110(4). Specifically, it asked whether a",
+    "bbox": [
+      79.00735473632812,
+      468.4092102050781,
+      513.902099609375,
+      487.3210754394531
+    ]
+  },
+  {
+    "page": 18,
+    "text": "job applicant must be “bona fide.”",
+    "bbox": [
+      79.00732421875,
+      500.5748596191406,
+      274.51434326171875,
+      519.4867553710938
+    ]
+  },
+  {
+    "page": 18,
+    "text": "The majority answers this question “no.” It holds that any person who",
+    "bbox": [
+      108.04205322265625,
+      539.928955078125,
+      503.5686340332031,
+      558.8408813476562
+    ]
+  },
+  {
+    "page": 18,
+    "text": "submits a job application in response to a noncompliant posting is entitled to",
+    "bbox": [
+      79.23199462890625,
+      572.0946044921875,
+      512.309814453125,
+      591.0065307617188
+    ]
+  },
+  {
+    "page": 18,
+    "text": "$5,000 worth of statutory damages—even if that person’s sole intent is to",
+    "bbox": [
+      79.23199462890625,
+      604.37255859375,
+      494.16326904296875,
+      623.2844848632812
+    ]
+  },
+  {
+    "page": 18,
+    "text": "collect a damages award, not to redress any personal harm and not to obtain an",
+    "bbox": [
+      79.21795654296875,
+      636.5382080078125,
+      523.9210815429688,
+      655.4501342773438
+    ]
+  },
+  {
+    "page": 18,
+    "text": "offer of employment.",
+    "bbox": [
+      79.21795654296875,
+      668.7037963867188,
+      205.6060333251953,
+      687.61572265625
+    ]
+  },
+  {
+    "page": 19,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 19,
+    "text": "2",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 19,
+    "text": "But the legislature enacted the EPOA to protect Washington workers and to",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      535.8958740234375,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 19,
+    "text": "fight employer discrimination. It did not enact the EPOA to give bounty seekers an",
+    "bbox": [
+      72.00144958496094,
+      139.12405395507812,
+      540.7550048828125,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 19,
+    "text": "incentive to trawl the Internet for noncompliant job postings to obtain a statutory",
+    "bbox": [
+      72.01553344726562,
+      171.28970336914062,
+      528.1724853515625,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 19,
+    "text": "damages award unrelated to any personal harm. This legislative intent shows in the",
+    "bbox": [
+      72.02960205078125,
+      203.56765747070312,
+      540.8842163085938,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 19,
+    "text": "statute’s language in context, in its legislative history, and in the relevant agency’s",
+    "bbox": [
+      72.02957153320312,
+      235.73330688476562,
+      537.539794921875,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 19,
+    "text": "interpretation. The majority’s definition of “job applicant” misconstrues those",
+    "bbox": [
+      72.02957153320312,
+      267.8989562988281,
+      512.169677734375,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 19,
+    "text": "sources, misstates the legislature’s intent, and ends up stretching the meaning of",
+    "bbox": [
+      72.02957153320312,
+      300.1769104003906,
+      523.964599609375,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 19,
+    "text": "“job applicant” to include even plaintiffs who suffered no harm—a class that no",
+    "bbox": [
+      72.02957153320312,
+      332.3425598144531,
+      523.4956665039062,
+      351.2544250488281
+    ]
+  },
+  {
+    "page": 19,
+    "text": "legislator sought to protect. This conclusion is not true to the statute and will result",
+    "bbox": [
+      72.02957153320312,
+      364.5082092285156,
+      539.7006225585938,
+      383.4200744628906
+    ]
+  },
+  {
+    "page": 19,
+    "text": "in absurd and unintended consequences.",
+    "bbox": [
+      72.02957153320312,
+      396.6738586425781,
+      300.6569519042969,
+      415.5857238769531
+    ]
+  },
+  {
+    "page": 19,
+    "text": "I would answer the certified question by defining “job applicant” in RCW",
+    "bbox": [
+      108.02813720703125,
+      436.1543273925781,
+      525.7911987304688,
+      455.0661926269531
+    ]
+  },
+  {
+    "page": 19,
+    "text": "49.58.110(4) as a person who responds to a job posting for the reason that",
+    "bbox": [
+      72.02957153320312,
+      468.3199768066406,
+      489.747802734375,
+      487.2318420410156
+    ]
+  },
+  {
+    "page": 19,
+    "text": "applicants normally apply, that is, to gain an offer of employment. I would avoid",
+    "bbox": [
+      72.0295639038086,
+      500.4856262207031,
+      527.446533203125,
+      519.3975219726562
+    ]
+  },
+  {
+    "page": 19,
+    "text": "using the vague terms “bona fide” or “good faith” in defining “job applicant.”",
+    "bbox": [
+      72.0155029296875,
+      532.7635498046875,
+      511.4815673828125,
+      551.6754760742188
+    ]
+  },
+  {
+    "page": 19,
+    "text": "And I would not define “applicant” as one who intends to take the job if",
+    "bbox": [
+      72.0155029296875,
+      564.92919921875,
+      479.2036437988281,
+      583.8411254882812
+    ]
+  },
+  {
+    "page": 19,
+    "text": "offered—there are countless legitimate reasons for seeking an offer without",
+    "bbox": [
+      72.01559448242188,
+      597.0947875976562,
+      499.01275634765625,
+      616.0067138671875
+    ]
+  },
+  {
+    "page": 19,
+    "text": "committing in advance to take it (such as using the offer as bargaining tool, as an",
+    "bbox": [
+      72.015625,
+      629.3727416992188,
+      529.7379150390625,
+      648.28466796875
+    ]
+  },
+  {
+    "page": 19,
+    "text": "opportunity to learn more about the job duties, or as a time to ask more candid",
+    "bbox": [
+      72.02972412109375,
+      661.5383911132812,
+      514.3826293945312,
+      680.4503173828125
+    ]
+  },
+  {
+    "page": 20,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      67.09676361083984
+    ]
+  },
+  {
+    "page": 20,
+    "text": "3",
+    "bbox": [
+      302.5199890136719,
+      724.598388671875,
+      312.4800109863281,
+      743.5103149414062
+    ]
+  },
+  {
+    "page": 20,
+    "text": "questions about benefits). But an applicant must be seeking an offer, not a",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      489.9722900390625,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 20,
+    "text": "bounty.",
+    "bbox": [
+      72.0,
+      139.12405395507812,
+      121.3506088256836,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 20,
+    "text": "This standard is not that demanding, and a plaintiff’s credible testimony",
+    "bbox": [
+      107.99856567382812,
+      178.47817993164062,
+      514.9241333007812,
+      197.3900604248047
+    ]
+  },
+  {
+    "page": 20,
+    "text": "alone might well satisfy it. And it is the most reasonable reading of the term “job",
+    "bbox": [
+      71.9859619140625,
+      210.75613403320312,
+      528.9489135742188,
+      229.6680145263672
+    ]
+  },
+  {
+    "page": 20,
+    "text": "applicant,” given what the legislature intended to do: protect real applicants from",
+    "bbox": [
+      71.98599243164062,
+      242.92178344726562,
+      529.812255859375,
+      261.8336486816406
+    ]
+  },
+  {
+    "page": 20,
+    "text": "real harm and provide incentives for employers to comply, while also protecting",
+    "bbox": [
+      71.98602294921875,
+      275.0874328613281,
+      525.1200561523438,
+      293.9992980957031
+    ]
+  },
+  {
+    "page": 20,
+    "text": "employers from potentially ruinous damages awards unrelated to any harm.",
+    "bbox": [
+      71.98602294921875,
+      307.3653869628906,
+      498.4790954589844,
+      326.2772521972656
+    ]
+  },
+  {
+    "page": 20,
+    "text": "FACTS AND PROCEDURAL HISTORY",
+    "bbox": [
+      209.4937744140625,
+      346.7184143066406,
+      405.8699951171875,
+      365.6313781738281
+    ]
+  },
+  {
+    "page": 20,
+    "text": "Plaintiffs Lisa Branson and Cherie Burke are Washington residents who",
+    "bbox": [
+      107.99734497070312,
+      386.0725402832031,
+      515.505615234375,
+      404.9844055175781
+    ]
+  },
+  {
+    "page": 20,
+    "text": "applied1 online for retail positions advertised by Washington Fine Wine & Spirits",
+    "bbox": [
+      71.99878692626953,
+      418.2381896972656,
+      532.89599609375,
+      437.1502685546875
+    ]
+  },
+  {
+    "page": 20,
+    "text": "LLC, which does business as Total Wine & More (Total Wine). Plaintiffs alleged",
+    "bbox": [
+      72.00204467773438,
+      450.516357421875,
+      532.06494140625,
+      469.42822265625
+    ]
+  },
+  {
+    "page": 20,
+    "text": "that the job listings, which were posted on Indeed.com, failed to state the wage",
+    "bbox": [
+      72.00204467773438,
+      482.6820068359375,
+      517.4296875,
+      501.5938720703125
+    ]
+  },
+  {
+    "page": 20,
+    "text": "scale for the positions. They sued Total Wine under RCW 49.58.110 on behalf of",
+    "bbox": [
+      72.00203704833984,
+      514.8475952148438,
+      531.3222045898438,
+      533.759521484375
+    ]
+  },
+  {
+    "page": 20,
+    "text": "themselves and other similarly situated applicants, seeking class certification and",
+    "bbox": [
+      72.00203704833984,
+      547.1255493164062,
+      529.72998046875,
+      566.0374755859375
+    ]
+  },
+  {
+    "page": 20,
+    "text": "statutory damages of $5,000 per class member, among other relief.",
+    "bbox": [
+      72.00204467773438,
+      579.2911987304688,
+      452.92266845703125,
+      598.203125
+    ]
+  },
+  {
+    "page": 20,
+    "text": "1 A factual dispute exists about whether Branson actually submitted an application. \nBranson v. Wash. Fine Wine & Spirits, LLC, No. 2:24-cv-00589-JHC, Dkt. 32 \n(defendant’s motion to bifurcate discovery).",
+    "bbox": [
+      72.00143432617188,
+      673.881591796875,
+      542.962646484375,
+      721.2114868164062
+    ]
+  },
+  {
+    "page": 21,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 21,
+    "text": "4",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 21,
+    "text": "After removing the case to federal court, Total Wine sought to bifurcate",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      514.3023681640625,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 21,
+    "text": "discovery and limit the first phase of discovery to the named plaintiffs’ individual",
+    "bbox": [
+      72.0014419555664,
+      139.12405395507812,
+      533.8024291992188,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 21,
+    "text": "claims. Total Wine argued that Branson and Burke are not “job applicants” within",
+    "bbox": [
+      72.00143432617188,
+      171.28970336914062,
+      535.528076171875,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 21,
+    "text": "the meaning of RCW 49.58.110(4) because they applied for the jobs not to obtain",
+    "bbox": [
+      72.00144958496094,
+      203.56765747070312,
+      532.5529174804688,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 21,
+    "text": "employment but only to obtain statutory damages awards. Plaintiffs, on the other",
+    "bbox": [
+      71.98745727539062,
+      235.73330688476562,
+      528.61328125,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 21,
+    "text": "hand, argue that the term “job applicant” unambiguously covers any person who",
+    "bbox": [
+      71.9874267578125,
+      267.8989562988281,
+      525.94287109375,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 21,
+    "text": "applies for a job, regardless of intent (though both named plaintiffs in this case",
+    "bbox": [
+      72.00146484375,
+      300.1769104003906,
+      516.6146850585938,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 21,
+    "text": "allege that they applied for the positions in good faith with the intent to gain",
+    "bbox": [
+      72.00146484375,
+      332.3425598144531,
+      501.68597412109375,
+      351.2544250488281
+    ]
+  },
+  {
+    "page": 21,
+    "text": "employment as long as the wage scale met their needs).",
+    "bbox": [
+      72.00146484375,
+      364.5082092285156,
+      386.55364990234375,
+      383.4200744628906
+    ]
+  },
+  {
+    "page": 21,
+    "text": "Several Western District of Washington federal judges have previously ruled",
+    "bbox": [
+      108.00003051757812,
+      403.8623352050781,
+      542.8046875,
+      422.7742004394531
+    ]
+  },
+  {
+    "page": 21,
+    "text": "that a job applicant under RCW 49.58.110(4) must allege at least “that they applied",
+    "bbox": [
+      72.0155029296875,
+      436.1402893066406,
+      542.4174194335938,
+      455.0521545410156
+    ]
+  },
+  {
+    "page": 21,
+    "text": "for the job with good-faith intent.” Floyd v. Insight Glob. LLC, No. 23-cv-1680-",
+    "bbox": [
+      72.00143432617188,
+      468.3059387207031,
+      521.2814331054688,
+      487.2178039550781
+    ]
+  },
+  {
+    "page": 21,
+    "text": "BJR, 2024 WL 2133370, at *8 (W.D. Wash. May 10, 2024) (court order), amended",
+    "bbox": [
+      72.00146484375,
+      500.4715881347656,
+      543.0225830078125,
+      519.3834838867188
+    ]
+  },
+  {
+    "page": 21,
+    "text": "on reconsideration, 2024 WL 3199858 (W.D. Wash. June 26, 2024) (court order);",
+    "bbox": [
+      72.01553344726562,
+      532.74951171875,
+      536.6834106445312,
+      551.6614379882812
+    ]
+  },
+  {
+    "page": 21,
+    "text": "see also Wright v. HP Inc., No. 2:24-cv-01261-MJP, 2024 WL 4678268 (W.D.",
+    "bbox": [
+      72.01556396484375,
+      564.9151611328125,
+      518.3443603515625,
+      583.8270874023438
+    ]
+  },
+  {
+    "page": 21,
+    "text": "Wash. Nov. 5, 2024) (court order). In this case, however, the federal court",
+    "bbox": [
+      72.01556396484375,
+      597.0807495117188,
+      490.7305603027344,
+      615.99267578125
+    ]
+  },
+  {
+    "page": 21,
+    "text": "determined that Washington courts have not yet decided the meaning of “job",
+    "bbox": [
+      72.015625,
+      629.3587036132812,
+      506.06231689453125,
+      648.2706298828125
+    ]
+  },
+  {
+    "page": 21,
+    "text": "applicant” in this statute. It therefore certified the following question to us: “What",
+    "bbox": [
+      72.015625,
+      661.5243530273438,
+      534.8934326171875,
+      680.436279296875
+    ]
+  },
+  {
+    "page": 21,
+    "text": "must a Plaintiff prove to be deemed a ‘job applicant’ within the meaning of RCW",
+    "bbox": [
+      72.02969360351562,
+      693.6900024414062,
+      532.8268432617188,
+      712.6019287109375
+    ]
+  },
+  {
+    "page": 22,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 22,
+    "text": "5",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 22,
+    "text": "49.58.110(4)? For example, must they prove that they are a ‘bona fide’ applicant?”",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      540.28173828125,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 22,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 2:24-cv-00589-JHC, Dkt. 44, at 2",
+    "bbox": [
+      72.01400756835938,
+      139.12405395507812,
+      541.9484252929688,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 22,
+    "text": "(Ord. Certifying Question to Wash. State Sup. Ct.).",
+    "bbox": [
+      72.0140380859375,
+      171.28970336914062,
+      366.03973388671875,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 22,
+    "text": "ANALYSIS",
+    "bbox": [
+      277.6860046386719,
+      210.75839233398438,
+      337.71002197265625,
+      229.6820526123047
+    ]
+  },
+  {
+    "page": 22,
+    "text": "The legislature enacted RCW 49.58.110 to provide wage and benefit",
+    "bbox": [
+      108.00157165527344,
+      250.11251831054688,
+      496.1964416503906,
+      269.0243835449219
+    ]
+  },
+  {
+    "page": 22,
+    "text": "information to individuals for whom that information is relevant—that is, to",
+    "bbox": [
+      72.00302124023438,
+      282.2781677246094,
+      501.3841247558594,
+      301.1900329589844
+    ]
+  },
+  {
+    "page": 22,
+    "text": "workers seeking a job offer. Interpreting the statute to cover individuals for whom",
+    "bbox": [
+      71.989013671875,
+      314.5561218261719,
+      535.585693359375,
+      333.4679870605469
+    ]
+  },
+  {
+    "page": 22,
+    "text": "that information is totally irrelevant—that is, persons with no interest in a job",
+    "bbox": [
+      71.989013671875,
+      346.7217712402344,
+      509.0710144042969,
+      365.6336364746094
+    ]
+  },
+  {
+    "page": 22,
+    "text": "offer—flouts that legislative intent. I would therefore answer the certified question",
+    "bbox": [
+      71.97494506835938,
+      378.8874206542969,
+      538.5440063476562,
+      397.7992858886719
+    ]
+  },
+  {
+    "page": 22,
+    "text": "as follows: a “job applicant” under RCW 49.58.110(4) is a person who responds to",
+    "bbox": [
+      71.98904418945312,
+      411.0530700683594,
+      540.2341918945312,
+      429.9649353027344
+    ]
+  },
+  {
+    "page": 22,
+    "text": "a job posting by submitting an application with the intent to gain an offer of",
+    "bbox": [
+      71.98904418945312,
+      443.3310241699219,
+      500.241455078125,
+      462.2428894042969
+    ]
+  },
+  {
+    "page": 22,
+    "text": "employment.",
+    "bbox": [
+      71.98904418945312,
+      475.4966735839844,
+      148.94227600097656,
+      494.4085388183594
+    ]
+  },
+  {
+    "page": 22,
+    "text": "I. \nThe most reasonable interpretation of RCW 49.58.110(4)’s plain \nlanguage in context is that “job applicant” means a person who submits a \njob application with the intent to obtain a job offer",
+    "bbox": [
+      89.98832702636719,
+      514.8507690429688,
+      539.5814819335938,
+      566.0406494140625
+    ]
+  },
+  {
+    "page": 22,
+    "text": "This case requires us to interpret the statutory term “job applicant.”  The",
+    "bbox": [
+      108.00164794921875,
+      570.4070434570312,
+      517.1104125976562,
+      589.3189697265625
+    ]
+  },
+  {
+    "page": 22,
+    "text": "“fundamental objective” of statutory interpretation is to “ascertain and carry out",
+    "bbox": [
+      72.00311279296875,
+      602.5726928710938,
+      523.4917602539062,
+      621.484619140625
+    ]
+  },
+  {
+    "page": 22,
+    "text": "the Legislature’s intent.” Dep’t of Ecology v. Campbell & Gwinn, LLC, 146 Wn.2d",
+    "bbox": [
+      72.00311279296875,
+      634.8506469726562,
+      541.0922241210938,
+      653.7625732421875
+    ]
+  },
+  {
+    "page": 22,
+    "text": "1, 9-10, 43 P.3d 4 (2002). To determine the plain meaning of a statute, we consider",
+    "bbox": [
+      71.98904418945312,
+      667.0162963867188,
+      541.5848999023438,
+      685.92822265625
+    ]
+  },
+  {
+    "page": 22,
+    "text": "“the text of the provision in question, the context of the statute in which the",
+    "bbox": [
+      71.98904418945312,
+      699.1819458007812,
+      498.07928466796875,
+      718.0938720703125
+    ]
+  },
+  {
+    "page": 23,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 23,
+    "text": "6",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 23,
+    "text": "provision is found, related provisions, amendments to the provision, and the",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      501.4542236328125,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 23,
+    "text": "statutory scheme as a whole.” Ass’n of Wash. Spirits & Wine Distribs. v. Wash.",
+    "bbox": [
+      72.0,
+      139.12405395507812,
+      519.5772705078125,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 23,
+    "text": "State Liquor Control Bd., 182 Wn.2d 342, 350, 340 P.3d 849 (2015) (citing",
+    "bbox": [
+      72.0,
+      171.28970336914062,
+      498.8190612792969,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 23,
+    "text": "Campbell & Gwinn, 146 Wn.2d at 9-10). If a statute’s meaning is plain on its face,",
+    "bbox": [
+      72.0,
+      203.55838012695312,
+      538.6884765625,
+      222.4702606201172
+    ]
+  },
+  {
+    "page": 23,
+    "text": "we will give effect to that meaning as an expression of legislative intent. Campbell",
+    "bbox": [
+      72.00003051757812,
+      235.72402954101562,
+      539.1306762695312,
+      254.6359100341797
+    ]
+  },
+  {
+    "page": 23,
+    "text": "& Gwinn, 146 Wn.2d at 9-10. If the statute is susceptible to more than one",
+    "bbox": [
+      72.00003051757812,
+      267.8896789550781,
+      492.8520202636719,
+      286.8015441894531
+    ]
+  },
+  {
+    "page": 23,
+    "text": "reasonable interpretation after this inquiry, it is ambiguous, and we may consider",
+    "bbox": [
+      72.01408386230469,
+      300.1676330566406,
+      529.284423828125,
+      319.0794982910156
+    ]
+  },
+  {
+    "page": 23,
+    "text": "extratextual materials to help determine legislative intent, including legislative",
+    "bbox": [
+      72.01408386230469,
+      332.3332824707031,
+      515.1221923828125,
+      351.2451477050781
+    ]
+  },
+  {
+    "page": 23,
+    "text": "history and agency interpretation. Five Corners Fam. Farmers v. State, 173 Wn.2d",
+    "bbox": [
+      72.01408386230469,
+      364.4989318847656,
+      539.7975463867188,
+      383.4107971191406
+    ]
+  },
+  {
+    "page": 23,
+    "text": "296, 306, 268 P.3d 892 (2011) (quoting Rest. Dev., Inc. v. Cananwill, Inc., 150",
+    "bbox": [
+      72.01412963867188,
+      396.6645812988281,
+      518.2152099609375,
+      415.5764465332031
+    ]
+  },
+  {
+    "page": 23,
+    "text": "Wn.2d 674, 682, 80 P.3d 598 (2003)); Bostain v. Food Express, Inc., 159 Wn.2d",
+    "bbox": [
+      72.0281982421875,
+      428.9425354003906,
+      527.591064453125,
+      447.8544006347656
+    ]
+  },
+  {
+    "page": 23,
+    "text": "700, 716, 153 P.3d 846 (2007) (collecting cases).",
+    "bbox": [
+      72.0,
+      461.0783996582031,
+      351.1573181152344,
+      479.9902648925781
+    ]
+  },
+  {
+    "page": 23,
+    "text": "A. Plain meaning in context shows the legislature intended to protect \nworkers seeking job opportunities",
+    "bbox": [
+      126.01187133789062,
+      500.4325256347656,
+      516.6132202148438,
+      535.5465698242188
+    ]
+  },
+  {
+    "page": 23,
+    "text": "The current version of RCW 49.58.110 provides, in relevant part:",
+    "bbox": [
+      108.01258850097656,
+      539.9129638671875,
+      478.486083984375,
+      558.8248901367188
+    ]
+  },
+  {
+    "page": 23,
+    "text": "(1) The employer must disclose in each posting for each job opening \nthe wage scale or salary range, and a general description of all of the \nbenefits and other compensation to be offered to the hired applicant. \nFor the purposes of this section, “posting” means any solicitation \nintended to recruit job applicants for a specific available position, \nincluding recruitment done directly by an employer or indirectly \nthrough a third party, and includes any postings done electronically, or",
+    "bbox": [
+      108.01260375976562,
+      579.26708984375,
+      507.4801940917969,
+      694.7601928710938
+    ]
+  },
+  {
+    "page": 24,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 24,
+    "text": "7",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 24,
+    "text": "with a printed hard copy, that includes qualifications for desired \napplicants.",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      469.8992919921875,
+      141.9460906982422
+    ]
+  },
+  {
+    "page": 24,
+    "text": ". . . .",
+    "bbox": [
+      125.99927520751953,
+      146.31253051757812,
+      153.98098754882812,
+      165.2244110107422
+    ]
+  },
+  {
+    "page": 24,
+    "text": "(4) A job applicant or an employee is entitled to the remedies in \nRCW 49.58.060 and 49.58.070 for violations of this section. . . .",
+    "bbox": [
+      108.0,
+      169.59085083007812,
+      487.3439636230469,
+      204.5785369873047
+    ]
+  },
+  {
+    "page": 24,
+    "text": "(Emphasis added.)",
+    "bbox": [
+      72.0014419555664,
+      208.94497680664062,
+      179.67420959472656,
+      227.8568572998047
+    ]
+  },
+  {
+    "page": 24,
+    "text": "Since the statute does not define the term “job applicant,” and it does not",
+    "bbox": [
+      108.00001525878906,
+      248.42544555664062,
+      519.9786987304688,
+      267.3373107910156
+    ]
+  },
+  {
+    "page": 24,
+    "text": "seem to be a term of art, we first consider dictionary definitions to determine its",
+    "bbox": [
+      72.00149536132812,
+      280.5910949707031,
+      522.2699584960938,
+      299.5029602050781
+    ]
+  },
+  {
+    "page": 24,
+    "text": "plain meaning. State v. Valdiglesias LaValle, 2 Wn.3d 310, 319, 535 P.3d 856",
+    "bbox": [
+      72.00152587890625,
+      312.7567443847656,
+      513.0023803710938,
+      331.6686096191406
+    ]
+  },
+  {
+    "page": 24,
+    "text": "(2023). As the majority notes, an “applicant” is “‘one who applies for something :",
+    "bbox": [
+      72.00151062011719,
+      344.81005859375,
+      535.714599609375,
+      364.2414245605469
+    ]
+  },
+  {
+    "page": 24,
+    "text": "one who makes a usu[ally] formal request esp[ecially] for something of benefit to",
+    "bbox": [
+      72.01553344726562,
+      377.2003479003906,
+      532.8057250976562,
+      396.1122131347656
+    ]
+  },
+  {
+    "page": 24,
+    "text": "himself.’” Majority at 6 (quoting WEBSTER’S THIRD NEW INTERNATIONAL",
+    "bbox": [
+      72.01554107666016,
+      409.3583984375,
+      488.2661437988281,
+      428.2778625488281
+    ]
+  },
+  {
+    "page": 24,
+    "text": "DICTIONARY 105 (2002)). Plaintiffs argue that the legislature’s use of the term “job",
+    "bbox": [
+      72.0,
+      441.6383972167969,
+      540.8748168945312,
+      460.5502624511719
+    ]
+  },
+  {
+    "page": 24,
+    "text": "applicant” without any modifiers indicates that the term means “an individual who",
+    "bbox": [
+      72.00900268554688,
+      473.8040466308594,
+      537.9630126953125,
+      492.7159118652344
+    ]
+  },
+  {
+    "page": 24,
+    "text": "applied to a job posting.” Opening Br. of Pls./Appellants (Opening Br.) at 59.",
+    "bbox": [
+      71.99496459960938,
+      505.9696960449219,
+      510.0149230957031,
+      524.881591796875
+    ]
+  },
+  {
+    "page": 24,
+    "text": "Plaintiffs note that the legislature used the modifier “bona fide” in other",
+    "bbox": [
+      71.98095703125,
+      538.2476196289062,
+      478.08795166015625,
+      557.1595458984375
+    ]
+  },
+  {
+    "page": 24,
+    "text": "employment statutes, suggesting that the legislature’s decision to omit such",
+    "bbox": [
+      71.98095703125,
+      570.4132690429688,
+      497.89141845703125,
+      589.3251953125
+    ]
+  },
+  {
+    "page": 24,
+    "text": "language from RCW 49.58.110(1) was intentional. Id. at 26-27.2",
+    "bbox": [
+      71.99502563476562,
+      602.5584106445312,
+      440.55194091796875,
+      621.4908447265625
+    ]
+  },
+  {
+    "page": 24,
+    "text": "2 See, e.g., RCW 49.58.020(3)(b) (providing a civil penalty for gender-based wage \ndiscrimination but excluding from the definition of “discrimination” differences in pay \nattributable to “bona fide job-related factor[s]” like education, training, experience, \nseniority or merit systems).",
+    "bbox": [
+      72.00143432617188,
+      645.1199951171875,
+      540.462646484375,
+      721.2062377929688
+    ]
+  },
+  {
+    "page": 25,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 25,
+    "text": "8",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 25,
+    "text": "Plaintiffs’ interpretation is certainly plausible. But when interpreting a",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      505.5623474121094,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 25,
+    "text": "statute, we must consider the words “in the context of the statute in which they",
+    "bbox": [
+      71.98739624023438,
+      139.12405395507812,
+      516.8126220703125,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 25,
+    "text": "appear, not in isolation or subject to all possible meanings found in a dictionary.”",
+    "bbox": [
+      72.00142669677734,
+      171.28970336914062,
+      530.8694458007812,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 25,
+    "text": "State v. Lilyblad, 163 Wn.2d 1, 9, 177 P.3d 686 (2008); Green v. Pierce County,",
+    "bbox": [
+      72.00142669677734,
+      203.56765747070312,
+      525.98486328125,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 25,
+    "text": "197 Wn.2d 841, 853, 487 P.3d 499 (2021) (citing Campbell & Gwinn, 146 Wn.2d",
+    "bbox": [
+      71.98739624023438,
+      235.73330688476562,
+      534.8428344726562,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 25,
+    "text": "at 11-12)). Thus, when interpreting statutory terms, we “‘take into consideration",
+    "bbox": [
+      71.9874267578125,
+      267.8989562988281,
+      524.7116088867188,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 25,
+    "text": "the meaning naturally attaching to them from the context, and . . . adopt the sense",
+    "bbox": [
+      71.98741912841797,
+      300.1769104003906,
+      531.6178588867188,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 25,
+    "text": "of the words which best harmonizes with the context.’” State v. Roggenkamp, 153",
+    "bbox": [
+      72.00149536132812,
+      332.3425598144531,
+      534.7613525390625,
+      351.2544250488281
+    ]
+  },
+  {
+    "page": 25,
+    "text": "Wn.2d 614, 623, 106 P.3d 196 (2005) (alteration in original) (internal quotation",
+    "bbox": [
+      72.00149536132812,
+      364.5082092285156,
+      522.330322265625,
+      383.4200744628906
+    ]
+  },
+  {
+    "page": 25,
+    "text": "marks omitted) (quoting State v. Jackson, 137 Wn.2d 712, 729, 976 P.2d 1229",
+    "bbox": [
+      72.00149536132812,
+      396.6738586425781,
+      514.9132080078125,
+      415.5857238769531
+    ]
+  },
+  {
+    "page": 25,
+    "text": "(1999)). We must therefore examine the term in the context of the statute, related",
+    "bbox": [
+      72.00151062011719,
+      428.9518127441406,
+      530.1493530273438,
+      447.8636779785156
+    ]
+  },
+  {
+    "page": 25,
+    "text": "statutory provisions, and the entire statutory scheme. Id.",
+    "bbox": [
+      72.00150299072266,
+      461.1174621582031,
+      393.1524658203125,
+      480.0293273925781
+    ]
+  },
+  {
+    "page": 25,
+    "text": "First, let’s step back to consider the overarching purpose of the EPOA’s",
+    "bbox": [
+      108.00006103515625,
+      500.4715881347656,
+      514.4412231445312,
+      519.3834838867188
+    ]
+  },
+  {
+    "page": 25,
+    "text": "statutory scheme. Fortunately, the legislature explained the EPOA’s purpose in its",
+    "bbox": [
+      71.98748779296875,
+      532.74951171875,
+      535.2232666015625,
+      551.6614379882812
+    ]
+  },
+  {
+    "page": 25,
+    "text": "statement of intent. The legislature enacted the EPOA to “address income",
+    "bbox": [
+      71.98748779296875,
+      564.9151611328125,
+      488.15704345703125,
+      583.8270874023438
+    ]
+  },
+  {
+    "page": 25,
+    "text": "disparities, employer discrimination, and retaliation practices, and to reflect the",
+    "bbox": [
+      71.97344970703125,
+      597.0807495117188,
+      519.675537109375,
+      615.99267578125
+    ]
+  },
+  {
+    "page": 25,
+    "text": "equal status of all workers in Washington state.” RCW 49.58.005(2). One stated",
+    "bbox": [
+      71.97344970703125,
+      629.3587036132812,
+      524.7607421875,
+      648.2706298828125
+    ]
+  },
+  {
+    "page": 25,
+    "text": "purpose of the law is to address the “gap in wages and advancement opportunities",
+    "bbox": [
+      71.97348022460938,
+      661.5243530273438,
+      533.815185546875,
+      680.436279296875
+    ]
+  },
+  {
+    "page": 25,
+    "text": "among workers in Washington, especially women.” RCW 49.58.005(1). The",
+    "bbox": [
+      71.97348022460938,
+      693.6900024414062,
+      505.3672180175781,
+      712.6019287109375
+    ]
+  },
+  {
+    "page": 26,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 26,
+    "text": "9",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      312.4800109863281,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 26,
+    "text": "requirement that employers provide wage and salary information to applicants and",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      537.45703125,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 26,
+    "text": "employees is part of this goal of moving “towards gender equality.” RCW",
+    "bbox": [
+      72.0,
+      139.12405395507812,
+      490.90179443359375,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 26,
+    "text": "49.58.005(4). These statements of intent show that the legislature wants to protect",
+    "bbox": [
+      72.0,
+      171.28970336914062,
+      534.3486328125,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 26,
+    "text": "workers seeking jobs and career advancement opportunities and to equalize",
+    "bbox": [
+      72.0,
+      203.56765747070312,
+      498.2152099609375,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 26,
+    "text": "bargaining power, especially for historically marginalized groups. These",
+    "bbox": [
+      72.0,
+      235.73330688476562,
+      481.9483337402344,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 26,
+    "text": "statements show no intent to benefit persons who are not actually seeking a job",
+    "bbox": [
+      72.0,
+      267.8989562988281,
+      518.4117431640625,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 26,
+    "text": "offer or career advancement opportunity.",
+    "bbox": [
+      72.01406860351562,
+      300.1769104003906,
+      305.3167419433594,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 26,
+    "text": "Next, we move to RCW 49.58.110, the specific statute at issue here.",
+    "bbox": [
+      108.01260375976562,
+      339.5310363769531,
+      493.3685302734375,
+      358.4429016113281
+    ]
+  },
+  {
+    "page": 26,
+    "text": "Originally, the statute provided that “[a]n individual” is entitled to remedies for",
+    "bbox": [
+      72.01406860351562,
+      371.6966857910156,
+      520.3099975585938,
+      390.6085510253906
+    ]
+  },
+  {
+    "page": 26,
+    "text": "violations of the disclosure law. Former RCW 49.58.110(5) (2019). But in 2022,",
+    "bbox": [
+      72.01406860351562,
+      403.8623352050781,
+      527.5700073242188,
+      422.7742004394531
+    ]
+  },
+  {
+    "page": 26,
+    "text": "the legislature amended the statute to limit the availability of relief: it removed the",
+    "bbox": [
+      72.01409912109375,
+      436.1402893066406,
+      537.15380859375,
+      455.0521545410156
+    ]
+  },
+  {
+    "page": 26,
+    "text": "term “individual” and replaced it with “[a] job applicant or an employee.” RCW",
+    "bbox": [
+      72.01412963867188,
+      468.3059387207031,
+      524.56689453125,
+      487.2178039550781
+    ]
+  },
+  {
+    "page": 26,
+    "text": "49.58.110(4); LAWS OF 2022, ch. 242, § 1. This change reflects legislative intent to",
+    "bbox": [
+      72.01412963867188,
+      500.4384460449219,
+      539.8848876953125,
+      519.3834838867188
+    ]
+  },
+  {
+    "page": 26,
+    "text": "limit relief to those who have some real stake in getting a job offer.",
+    "bbox": [
+      72.00314331054688,
+      532.7163696289062,
+      455.3992004394531,
+      551.6282958984375
+    ]
+  },
+  {
+    "page": 26,
+    "text": "The majority agrees that the EPOA is clearly intended to protect workers",
+    "bbox": [
+      108.00170135498047,
+      572.0704956054688,
+      520.2794189453125,
+      590.982421875
+    ]
+  },
+  {
+    "page": 26,
+    "text": "and those seeking work or advancement opportunities. Majority at 8-9. But the",
+    "bbox": [
+      72.00314331054688,
+      604.236083984375,
+      516.9939575195312,
+      623.1480102539062
+    ]
+  },
+  {
+    "page": 26,
+    "text": "majority fails to explain how its literal interpretation of “job applicant” furthers",
+    "bbox": [
+      72.00314331054688,
+      636.5140991210938,
+      519.9410400390625,
+      655.426025390625
+    ]
+  },
+  {
+    "page": 26,
+    "text": "that intent. Considering the term in the full context of the EPOA militates in favor",
+    "bbox": [
+      72.00314331054688,
+      668.6796875,
+      534.8740844726562,
+      687.5916137695312
+    ]
+  },
+  {
+    "page": 26,
+    "text": "of the conclusion that “job applicant” in RCW 49.58.110 means one of the people",
+    "bbox": [
+      72.0172119140625,
+      700.8453369140625,
+      534.1369018554688,
+      719.7572631835938
+    ]
+  },
+  {
+    "page": 27,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 27,
+    "text": "10",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 27,
+    "text": "whom the legislation was designed to protect: a person who has an interest in",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      508.3576965332031,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 27,
+    "text": "obtaining an offer of employment.",
+    "bbox": [
+      72.0,
+      139.12405395507812,
+      271.46630859375,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 27,
+    "text": "B. We avoid literal interpretation of undefined statutory terms that lead \nto absurd results",
+    "bbox": [
+      125.99786376953125,
+      178.47817993164062,
+      529.7083129882812,
+      213.4658660888672
+    ]
+  },
+  {
+    "page": 27,
+    "text": "Total Wine argues that plaintiffs’ interpretation of “job applicant” leads to",
+    "bbox": [
+      107.98453521728516,
+      217.95864868164062,
+      527.6121826171875,
+      236.8705291748047
+    ]
+  },
+  {
+    "page": 27,
+    "text": "absurd consequences. “Where the legislature provides no statutory definition and a",
+    "bbox": [
+      71.98597717285156,
+      250.12429809570312,
+      539.492919921875,
+      269.0361633300781
+    ]
+  },
+  {
+    "page": 27,
+    "text": "court gives a term its plain and ordinary meaning by reference to a dictionary, the",
+    "bbox": [
+      71.9859619140625,
+      282.2899475097656,
+      532.2930908203125,
+      301.2018127441406
+    ]
+  },
+  {
+    "page": 27,
+    "text": "court ‘will avoid literal reading of a statute which would result in unlikely, absurd,",
+    "bbox": [
+      71.9859619140625,
+      314.5679016113281,
+      537.7996826171875,
+      333.4797668457031
+    ]
+  },
+  {
+    "page": 27,
+    "text": "or strained consequences.’” Tingey v. Haisch, 159 Wn.2d 652, 663-64, 152 P.3d",
+    "bbox": [
+      71.9859619140625,
+      346.7335510253906,
+      525.0006713867188,
+      365.6454162597656
+    ]
+  },
+  {
+    "page": 27,
+    "text": "1020 (2007) (quoting Fraternal Ord. of Eagles, Tenino Aerie No. 564 v. Grand",
+    "bbox": [
+      71.98593139648438,
+      378.8992004394531,
+      519.7819213867188,
+      397.8110656738281
+    ]
+  },
+  {
+    "page": 27,
+    "text": "Aerie of Fraternal Ord. of Eagles, 148 Wn.2d 224, 239, 59 P.3d 655 (2002)). We",
+    "bbox": [
+      71.9859619140625,
+      411.0648498535156,
+      531.6079711914062,
+      429.9767150878906
+    ]
+  },
+  {
+    "page": 27,
+    "text": "do not presume that the legislature intends absurd results. State v. J.P., 149 Wn.2d",
+    "bbox": [
+      71.99996948242188,
+      443.3428039550781,
+      536.41943359375,
+      462.2546691894531
+    ]
+  },
+  {
+    "page": 27,
+    "text": "444, 450, 69 P.3d 318 (2003) (quoting State v. Delgado, 148 Wn.2d 723, 733, 63",
+    "bbox": [
+      72.00006103515625,
+      475.5084533691406,
+      529.8123779296875,
+      494.4203186035156
+    ]
+  },
+  {
+    "page": 27,
+    "text": "P.3d 792 (2003) (Madsen, J., dissenting)).",
+    "bbox": [
+      72.00009155273438,
+      507.6741027832031,
+      314.6674499511719,
+      526.5859985351562
+    ]
+  },
+  {
+    "page": 27,
+    "text": "But the majority’s literal interpretation of “job applicant” risks just such",
+    "bbox": [
+      107.99864196777344,
+      547.154541015625,
+      515.175537109375,
+      566.0664672851562
+    ]
+  },
+  {
+    "page": 27,
+    "text": "absurd consequences: it incentivizes persons with no interest in getting a job offer",
+    "bbox": [
+      72.00006103515625,
+      579.3201904296875,
+      534.4957885742188,
+      598.2321166992188
+    ]
+  },
+  {
+    "page": 27,
+    "text": "to search for noncompliant job postings for the purpose of obtaining a statutory",
+    "bbox": [
+      72.00003051757812,
+      611.48583984375,
+      519.6304321289062,
+      630.3977661132812
+    ]
+  },
+  {
+    "page": 27,
+    "text": "damages award. Depending on how popular a job posting is, employers could be",
+    "bbox": [
+      72.01412963867188,
+      643.7637939453125,
+      527.36376953125,
+      662.6757202148438
+    ]
+  },
+  {
+    "page": 27,
+    "text": "exposed to nearly limitless class action liability for a single noncompliant job",
+    "bbox": [
+      72.01412963867188,
+      675.929443359375,
+      509.1565856933594,
+      694.8413696289062
+    ]
+  },
+  {
+    "page": 28,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 28,
+    "text": "11",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 28,
+    "text": "posting.  I agree with Total Wine that it would be absurd to conclude that the",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      506.4062194824219,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 28,
+    "text": "legislature intended to incentivize plaintiffs to “‘seek[] employment’ at businesses",
+    "bbox": [
+      71.99998474121094,
+      139.12405395507812,
+      536.2242431640625,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 28,
+    "text": "where they have no real interest in working” or to “punish[] employers well",
+    "bbox": [
+      72.01400756835938,
+      171.28970336914062,
+      500.1583251953125,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 28,
+    "text": "beyond any conceivable calculation of the harm the EPOA was designed to",
+    "bbox": [
+      72.01400756835938,
+      203.56765747070312,
+      497.4429931640625,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 28,
+    "text": "address.” Answering Br. of Resp’t-Def. Wash. Fine Wine & Spirits, LLC at 30.",
+    "bbox": [
+      72.01400756835938,
+      235.73330688476562,
+      524.5794067382812,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 28,
+    "text": "To be sure, the prospect of exposure to a hefty damages award provides a",
+    "bbox": [
+      108.02664184570312,
+      275.0874328613281,
+      522.914306640625,
+      293.9992980957031
+    ]
+  },
+  {
+    "page": 28,
+    "text": "strong incentive for employers to comply with the law. Reply Br. of",
+    "bbox": [
+      72.028076171875,
+      307.3653869628906,
+      456.30572509765625,
+      326.2772521972656
+    ]
+  },
+  {
+    "page": 28,
+    "text": "Pls./Appellants (Reply Br.) at 14. But the majority’s decision to interpret “job",
+    "bbox": [
+      72.04214477539062,
+      339.5310363769531,
+      511.0309143066406,
+      358.4429016113281
+    ]
+  },
+  {
+    "page": 28,
+    "text": "applicant” so expansively that any person in the world can qualify as an",
+    "bbox": [
+      72.04217529296875,
+      371.6966857910156,
+      477.59613037109375,
+      390.6085510253906
+    ]
+  },
+  {
+    "page": 28,
+    "text": "applicant—regardless of whether they fall within the class to be protected or",
+    "bbox": [
+      72.04217529296875,
+      403.8623352050781,
+      503.5350646972656,
+      422.7742004394531
+    ]
+  },
+  {
+    "page": 28,
+    "text": "whether they have suffered any harm—goes too far. 3",
+    "bbox": [
+      72.04217529296875,
+      436.118408203125,
+      377.79193115234375,
+      455.0521545410156
+    ]
+  },
+  {
+    "page": 28,
+    "text": "3 It also silently decides a major constitutional question: can a legislatively created \nstatute grant a plaintiff the right to sue even though that plaintiff has suffered no harm or \nthreat of harm and even thought that plaintiff falls outside the class of people whom the \nstatute was designed to protect? The United States Supreme Court says no, under federal \nlaw: “Injury in fact is a constitutional requirement, and ‘[i]t is settled that Congress \ncannot erase Article III’s standing requirements by statutorily granting the right to sue to \na plaintiff who would not otherwise have standing.’” Spokeo, Inc. v. Robins, 578 U.S. \n330, 339, 136 S. Ct. 1540, 194 L. Ed. 2d 635 (2016) (alteration in original) (quoting \nRaines v. Byrd, 521 U.S. 811, 820 n.3, 117 S. Ct. 2312, 138 L. Ed. 2d 849 (1997)). \nWashington courts suggest that the answer is no, under Washington law: “Generally, one \nmust be protected by the provision of a statute to gain standing to sue for a violation of \nthe provision.” McFarland v. Tompkins, 34 Wn. App. 2d 280, 301, 567 P.3d 1128 (2025). \nWe typically interpret statutes to avoid any question about their constitutionality. Utter ex \nrel. State v. Bldg. Indus. Ass’n of Wash., 182 Wn.2d 398, 434, 341 P.3d 953 (2015) \n(citing State v. Robinson, 153 Wn.2d 689, 693-94, 107 P.3d 90 (2005)). The majority,",
+    "bbox": [
+      72.00143432617188,
+      480.5999755859375,
+      542.7604370117188,
+      721.1649780273438
+    ]
+  },
+  {
+    "page": 29,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 29,
+    "text": "12",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 29,
+    "text": "Plaintiffs contend that interpreting “job applicant” to require intent to accept",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      539.2865600585938,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 29,
+    "text": "an offer would be absurd because applicants cannot form intent to accept an offer",
+    "bbox": [
+      72.01548767089844,
+      139.12405395507812,
+      531.742919921875,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 29,
+    "text": "without knowing the compensation. Reply Br. at 10. I agree that defining “job",
+    "bbox": [
+      72.029541015625,
+      171.28970336914062,
+      513.0471801757812,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 29,
+    "text": "applicant” as one who applies with an already-formed intent to accept a job offer is",
+    "bbox": [
+      72.029541015625,
+      203.56765747070312,
+      542.2039794921875,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 29,
+    "text": "too limiting. But interpreting “job applicant” to mean a person with intent to obtain",
+    "bbox": [
+      72.04354858398438,
+      235.73330688476562,
+      542.35546875,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 29,
+    "text": "a job offer avoids that pitfall and furthers the EPOA’s purpose of equalizing",
+    "bbox": [
+      72.04351806640625,
+      267.8989562988281,
+      501.6592102050781,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 29,
+    "text": "negotiating power and protecting applicants who lack such power.",
+    "bbox": [
+      72.04354858398438,
+      300.1769104003906,
+      450.30926513671875,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 29,
+    "text": "Thus, statutory language in context, including the legislature’s statement of",
+    "bbox": [
+      108.04214477539062,
+      339.5310363769531,
+      533.454345703125,
+      358.4429016113281
+    ]
+  },
+  {
+    "page": 29,
+    "text": "intent, compels the conclusion that “job applicant” means a person who submits a",
+    "bbox": [
+      72.04359436035156,
+      371.6966857910156,
+      533.3783569335938,
+      390.6085510253906
+    ]
+  },
+  {
+    "page": 29,
+    "text": "job application with the intent to obtain a job offer. But even if the statute were",
+    "bbox": [
+      72.04360961914062,
+      403.8623352050781,
+      518.9243774414062,
+      422.7742004394531
+    ]
+  },
+  {
+    "page": 29,
+    "text": "ambiguous, legislative history and agency interpretation confirm that the",
+    "bbox": [
+      72.04359436035156,
+      436.1402893066406,
+      482.6939697265625,
+      455.0521545410156
+    ]
+  },
+  {
+    "page": 29,
+    "text": "legislature enacted this statute to protect workers seeking job opportunities, not",
+    "bbox": [
+      72.029541015625,
+      468.3059387207031,
+      519.1095581054688,
+      487.2178039550781
+    ]
+  },
+  {
+    "page": 29,
+    "text": "individuals seeking a statutory bounty unrelated to any harm suffered. I discuss this",
+    "bbox": [
+      72.029541015625,
+      500.4715881347656,
+      543.3468627929688,
+      519.3834838867188
+    ]
+  },
+  {
+    "page": 29,
+    "text": "in the next section.",
+    "bbox": [
+      72.029541015625,
+      532.74951171875,
+      181.26072692871094,
+      551.6614379882812
+    ]
+  },
+  {
+    "page": 29,
+    "text": "however, interprets the statute at issue in this case in a way that poses a serious question \nabout its constitutionality.",
+    "bbox": [
+      72.0,
+      675.0,
+      533.216552734375,
+      721.2134399414062
+    ]
+  },
+  {
+    "page": 30,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 30,
+    "text": "13",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 30,
+    "text": "II. \nEven if the statute is ambiguous, legislative history and agency \ninterpretation show that the legislature intended to protect workers \nseeking job opportunities, not to protect individuals seeking statutory \nbounties unrelated to harm suffered",
+    "bbox": [
+      90.0,
+      106.9583969116211,
+      517.41845703125,
+      174.0977020263672
+    ]
+  },
+  {
+    "page": 30,
+    "text": "If a statute is ambiguous, we may look to legislative history to determine",
+    "bbox": [
+      108.01335144042969,
+      178.46414184570312,
+      519.697021484375,
+      197.3760223388672
+    ]
+  },
+  {
+    "page": 30,
+    "text": "legislative intent. Five Corners Fam. Farmers, 173 Wn.2d at 306. And, while we",
+    "bbox": [
+      72.0147933959961,
+      210.74209594726562,
+      530.673583984375,
+      229.6539764404297
+    ]
+  },
+  {
+    "page": 30,
+    "text": "retain ultimate authority to interpret a statute, we may place weight on an agency’s",
+    "bbox": [
+      72.02883911132812,
+      242.90774536132812,
+      539.1002807617188,
+      261.8196105957031
+    ]
+  },
+  {
+    "page": 30,
+    "text": "interpretation of an ambiguous statute if “the particular agency is charged with the",
+    "bbox": [
+      72.02880859375,
+      275.0733947753906,
+      536.6602783203125,
+      293.9852600097656
+    ]
+  },
+  {
+    "page": 30,
+    "text": "administration and enforcement of the statute” and “the statute falls within the",
+    "bbox": [
+      72.02880859375,
+      307.3513488769531,
+      513.8551025390625,
+      326.2632141113281
+    ]
+  },
+  {
+    "page": 30,
+    "text": "agency’s special expertise.” Bostain, 159 Wn.2d at 716 (collecting cases). Here,",
+    "bbox": [
+      72.02880859375,
+      339.5169982910156,
+      523.8640747070312,
+      358.4288635253906
+    ]
+  },
+  {
+    "page": 30,
+    "text": "those sources—legislative history and agency interpretation—compel the",
+    "bbox": [
+      72.02883911132812,
+      371.6826477050781,
+      486.2860412597656,
+      390.5945129394531
+    ]
+  },
+  {
+    "page": 30,
+    "text": "conclusion that the legislature intended RCW 49.58.110 to protect job applicants",
+    "bbox": [
+      72.0147705078125,
+      403.8482971191406,
+      528.24755859375,
+      422.7601623535156
+    ]
+  },
+  {
+    "page": 30,
+    "text": "with a real interest in obtaining an offer of employment.",
+    "bbox": [
+      72.0147705078125,
+      436.1262512207031,
+      389.5574645996094,
+      455.0381164550781
+    ]
+  },
+  {
+    "page": 30,
+    "text": "A. Legislative history",
+    "bbox": [
+      126.01260375976562,
+      475.4803771972656,
+      255.6439208984375,
+      494.64495849609375
+    ]
+  },
+  {
+    "page": 30,
+    "text": "The legislative history for S.B. 5761,4 the 2022 bill that amended RCW",
+    "bbox": [
+      108.0,
+      514.83837890625,
+      512.4622192382812,
+      533.7503051757812
+    ]
+  },
+  {
+    "page": 30,
+    "text": "49.58.110 to include the “job applicant” limitation, supports the conclusion that the",
+    "bbox": [
+      72.0,
+      547.1183471679688,
+      542.2755737304688,
+      566.0302734375
+    ]
+  },
+  {
+    "page": 30,
+    "text": "legislature intended to protect workers by equalizing the playing field during the",
+    "bbox": [
+      72.0,
+      579.2783813476562,
+      526.05224609375,
+      598.1903076171875
+    ]
+  },
+  {
+    "page": 30,
+    "text": "job search and increasing workers’ bargaining power. S.B. 5761’s sponsor, former",
+    "bbox": [
+      72.0,
+      611.4383544921875,
+      537.5565185546875,
+      630.3502807617188
+    ]
+  },
+  {
+    "page": 30,
+    "text": "Senator Emily Randall, consistently used the term “job seekers,” meaning real",
+    "bbox": [
+      72.0,
+      643.7183837890625,
+      514.1870727539062,
+      662.6303100585938
+    ]
+  },
+  {
+    "page": 30,
+    "text": "4 S.B. 5761, 67th Leg., Reg. Sess. (Wash. 2022).",
+    "bbox": [
+      72.0,
+      689.8800048828125,
+      364.3077392578125,
+      721.2186889648438
+    ]
+  },
+  {
+    "page": 31,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 31,
+    "text": "14",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 31,
+    "text": "applicants, as opposed to someone who has no interest in a job offer.5 For example,",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      543.0319213867188,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 31,
+    "text": "during floor debates, the former senator explained that “we’ve got a lot of job",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      510.3092956542969,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 31,
+    "text": "seekers who are trying to make the right decisions for themselves and their",
+    "bbox": [
+      72.0,
+      171.27841186523438,
+      494.8694763183594,
+      190.19029235839844
+    ]
+  },
+  {
+    "page": 31,
+    "text": "families” and stated that the bill is about, in part, “job seekers who should be able",
+    "bbox": [
+      72.0,
+      203.55838012695312,
+      532.4293823242188,
+      222.4702606201172
+    ]
+  },
+  {
+    "page": 31,
+    "text": "to have all of the relevant information before they apply for a job.”6 Bill cosponsor",
+    "bbox": [
+      72.0,
+      235.71841430664062,
+      539.7839965820312,
+      254.6302947998047
+    ]
+  },
+  {
+    "page": 31,
+    "text": "Senator Lisa Wellman emphasized that the bill’s pay disclosure requirement would",
+    "bbox": [
+      72.0,
+      267.87841796875,
+      541.419189453125,
+      286.790283203125
+    ]
+  },
+  {
+    "page": 31,
+    "text": "help low-wage hourly workers decide if applying for a job and taking time off to",
+    "bbox": [
+      72.0,
+      300.1584167480469,
+      527.3707275390625,
+      319.0702819824219
+    ]
+  },
+  {
+    "page": 31,
+    "text": "travel to an interview would make financial sense.7",
+    "bbox": [
+      72.0,
+      332.31842041015625,
+      362.19000244140625,
+      351.23028564453125
+    ]
+  },
+  {
+    "page": 31,
+    "text": "Comments by other legislators—although given less weight than the",
+    "bbox": [
+      108.0,
+      371.67840576171875,
+      494.96917724609375,
+      390.59027099609375
+    ]
+  },
+  {
+    "page": 31,
+    "text": "sponsors’ statements, Wilmot v. Kaiser Alum. & Chem. Corp., 118 Wn.2d 46, 63,",
+    "bbox": [
+      72.0,
+      403.8384094238281,
+      531.0267333984375,
+      422.7502746582031
+    ]
+  },
+  {
+    "page": 31,
+    "text": "821 P.2d 18 (1991)—reflect the same concern about applicants who are actually",
+    "bbox": [
+      72.0,
+      436.118408203125,
+      525.0962524414062,
+      455.0302734375
+    ]
+  },
+  {
+    "page": 31,
+    "text": "pursuing job offers. See, e.g., testimony of former Representative Noel Frame",
+    "bbox": [
+      72.0,
+      468.2784118652344,
+      511.4899597167969,
+      487.1902770996094
+    ]
+  },
+  {
+    "page": 31,
+    "text": "5 Contemporaneous comments by the sponsors of a bill are “‘entitled to \nconsiderable weight.’” Wash. Bankers Ass’n v. Dep’t of Revenue, 198 Wn.2d 418, 445, \n495 P.3d 808 (2021) (quoting Carlin Commc’ns, Inc. v. Fed. Commc’ns Comm’n, 749 \nF.2d 113, 116 n.7 (2d Cir. 1984)); Wash. State Legislature v. Lowry, 131 Wn.2d 309, \n326, 931 P.2d 885 (1997).",
+    "bbox": [
+      72.00143432617188,
+      525.4800415039062,
+      528.1817626953125,
+      616.5642700195312
+    ]
+  },
+  {
+    "page": 31,
+    "text": "6 S. Floor Debate, ENGROSSED SUBSTITUTE S.B. 5761, 67th Leg., Reg. Sess., \n(Wash. Feb. 9, 2022), at 10 min., 44 sec. to 11 min., 15 sec., video recording by TVW, \nWashington State’s Public Affairs Network, https://tvw.org/video/senate-floor-debate-\nfebruary-9-2022021162/?eventID=2022021162.",
+    "bbox": [
+      72.00335693359375,
+      614.1019287109375,
+      526.0698852539062,
+      691.3262329101562
+    ]
+  },
+  {
+    "page": 31,
+    "text": "7 Id. at 16 min., 47 sec. to 17 min., 07 sec.",
+    "bbox": [
+      72.00335693359375,
+      688.7471923828125,
+      329.9961853027344,
+      721.2186889648438
+    ]
+  },
+  {
+    "page": 32,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 32,
+    "text": "15",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 32,
+    "text": "(explaining how both parties’ time is wasted when an applicant goes through",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      505.87823486328125,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 32,
+    "text": "rounds of interviews only to learn that the offered pay is inadequate).8",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      471.3919372558594,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 32,
+    "text": "The final bill reports for ENGROSSED SUBSTITUTE S.B. 5761, the 2022 bill",
+    "bbox": [
+      108.00863647460938,
+      178.47250366210938,
+      524.294921875,
+      197.3903045654297
+    ]
+  },
+  {
+    "page": 32,
+    "text": "that amended RCW 49.58.110, also support this conclusion.9 The final House and",
+    "bbox": [
+      72.00180053710938,
+      210.75637817382812,
+      534.4880981445312,
+      229.67027282714844
+    ]
+  },
+  {
+    "page": 32,
+    "text": "Senate bill reports both contain summaries of testimony (which would have been",
+    "bbox": [
+      72.00332641601562,
+      242.92404174804688,
+      529.4337158203125,
+      261.8359069824219
+    ]
+  },
+  {
+    "page": 32,
+    "text": "available to the full legislature when later voting on the bill) suggesting that the bill",
+    "bbox": [
+      72.00334167480469,
+      275.0896911621094,
+      542.9403076171875,
+      294.0015563964844
+    ]
+  },
+  {
+    "page": 32,
+    "text": "was intended to “help prospective employees make decisions” and avoid wasting",
+    "bbox": [
+      72.00334167480469,
+      307.3676452636719,
+      529.6513671875,
+      326.2795104980469
+    ]
+  },
+  {
+    "page": 32,
+    "text": "time applying for and interviewing for positions whose salary would be",
+    "bbox": [
+      72.00334167480469,
+      339.5332946777344,
+      476.1462097167969,
+      358.4451599121094
+    ]
+  },
+  {
+    "page": 32,
+    "text": "inadequate. S.B. REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 3. Both bill reports",
+    "bbox": [
+      72.00334167480469,
+      371.67840576171875,
+      540.6094970703125,
+      390.6108093261719
+    ]
+  },
+  {
+    "page": 32,
+    "text": "highlight the effect of the amendment on workers’ ability to negotiate. The House",
+    "bbox": [
+      72.00613403320312,
+      403.84405517578125,
+      533.8618774414062,
+      422.75592041015625
+    ]
+  },
+  {
+    "page": 32,
+    "text": "Bill Report notes that the amendment “allows a discussion at the start of the",
+    "bbox": [
+      72.00613403320312,
+      436.12200927734375,
+      500.5168762207031,
+      455.03387451171875
+    ]
+  },
+  {
+    "page": 32,
+    "text": "process instead of after an offer has been made, which will increase the ability to",
+    "bbox": [
+      72.00613403320312,
+      468.28765869140625,
+      528.5057373046875,
+      487.19952392578125
+    ]
+  },
+  {
+    "page": 32,
+    "text": "negotiate pay.” H.B. REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 2. The Senate",
+    "bbox": [
+      72.00613403320312,
+      500.4384460449219,
+      532.7095336914062,
+      519.365234375
+    ]
+  },
+  {
+    "page": 32,
+    "text": "Bill Report states that pay transparency is an equity issue, since “women and",
+    "bbox": [
+      71.99533081054688,
+      532.7163696289062,
+      506.0097351074219,
+      551.6282958984375
+    ]
+  },
+  {
+    "page": 32,
+    "text": "people of color . . . get punished for negotiating where white men are rewarded for",
+    "bbox": [
+      71.99531555175781,
+      564.8819580078125,
+      538.3284912109375,
+      583.7938842773438
+    ]
+  },
+  {
+    "page": 32,
+    "text": "8 H. Floor Debate, ENGROSSED SUBSTITUTE S.B. 5761, 67th Leg., Reg. Sess., \n(Wash. Mar. 1, 2022), at 1 hr., 14 min, 36 sec. to 1 hr., 17 min., 54 sec.,  \nhttps://tvw.org/video/house-floor-debate-march-1-2022031100/?eventID=2022031100.",
+    "bbox": [
+      71.9937744140625,
+      600.239990234375,
+      532.3200073242188,
+      676.3367919921875
+    ]
+  },
+  {
+    "page": 32,
+    "text": "9 “The court has frequently looked to final bill reports as part of an inquiry into \nlegislative history.” State v. Bash, 130 Wn.2d 594, 601, 925 P.2d 978 (1996) (plurality \nopinion) (citing State v. Silva-Baltazar, 125 Wn.2d 472, 479, 886 P.2d 138 (1994)).",
+    "bbox": [
+      72.00143432617188,
+      673.881591796875,
+      525.6974487304688,
+      721.2114868164062
+    ]
+  },
+  {
+    "page": 33,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 33,
+    "text": "16",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 33,
+    "text": "the same thing.” S.B. REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 3. These",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      509.43316650390625,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 33,
+    "text": "comments suggest that the bill was intended to protect real job seekers—",
+    "bbox": [
+      72.008544921875,
+      139.12405395507812,
+      480.8323669433594,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 33,
+    "text": "“prospective employees,” particularly those who have been historically",
+    "bbox": [
+      71.9945068359375,
+      171.28970336914062,
+      474.5592956542969,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 33,
+    "text": "disadvantaged, who need pay information to “negotiat[e]” with an employer to",
+    "bbox": [
+      71.9945068359375,
+      203.56765747070312,
+      516.7930297851562,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 33,
+    "text": "obtain fair compensation. Id.10 These comments also suggest that the bill was",
+    "bbox": [
+      71.9945068359375,
+      235.71841430664062,
+      508.6846618652344,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 33,
+    "text": "designed to apply to workers seeking to use a job offer for negotiating purposes.",
+    "bbox": [
+      72.00686645507812,
+      267.8840637207031,
+      528.39111328125,
+      286.7959289550781
+    ]
+  },
+  {
+    "page": 33,
+    "text": "These bill reports also show the reason that the legislature decided to replace",
+    "bbox": [
+      108.0,
+      307.3583984375,
+      541.6128540039062,
+      326.270263671875
+    ]
+  },
+  {
+    "page": 33,
+    "text": "RCW 49.58.110(4)’s term “individual” with the terms “job applicant or",
+    "bbox": [
+      72.0,
+      339.5184020996094,
+      476.57525634765625,
+      358.4302673339844
+    ]
+  },
+  {
+    "page": 33,
+    "text": "employee.” The Department of Labor & Industries (L&I) itself proposed this",
+    "bbox": [
+      72.0,
+      371.67840576171875,
+      506.79498291015625,
+      390.59027099609375
+    ]
+  },
+  {
+    "page": 33,
+    "text": "change specifically to limit the class of would-be plaintiffs, because without that",
+    "bbox": [
+      72.0,
+      403.8384094238281,
+      526.5704345703125,
+      422.7502746582031
+    ]
+  },
+  {
+    "page": 33,
+    "text": "modification, “anyone may file a complaint, not just applicants or employees.”",
+    "bbox": [
+      72.0,
+      436.118408203125,
+      516.8365478515625,
+      455.0302734375
+    ]
+  },
+  {
+    "page": 33,
+    "text": "S.B. REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 3. Once again, this strongly",
+    "bbox": [
+      72.0,
+      468.2784118652344,
+      521.7828369140625,
+      487.1902770996094
+    ]
+  },
+  {
+    "page": 33,
+    "text": "suggests that the legislature intended to narrow the class of persons entitled to a",
+    "bbox": [
+      72.0,
+      500.4384460449219,
+      521.63671875,
+      519.350341796875
+    ]
+  },
+  {
+    "page": 33,
+    "text": "remedy to those with a real stake in the matter.",
+    "bbox": [
+      72.0,
+      532.7183837890625,
+      337.4683532714844,
+      551.6303100585938
+    ]
+  },
+  {
+    "page": 33,
+    "text": "Plaintiffs note that the House and Senate each introduced a bill in January",
+    "bbox": [
+      108.0,
+      572.078369140625,
+      525.2128295898438,
+      590.9902954101562
+    ]
+  },
+  {
+    "page": 33,
+    "text": "2024 that would have amended RCW 49.58.110 to add a section defining “job",
+    "bbox": [
+      72.0,
+      604.2383422851562,
+      514.2938232421875,
+      623.1502685546875
+    ]
+  },
+  {
+    "page": 33,
+    "text": "10 See also S. REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 3, 67th Leg., Reg. \nSess. (Wash. 2022), https://lawfilesext.leg.wa.gov/biennium/2021-\n22/Pdf/Bill%20Reports/Senate/5761-\nS.E%20SBR%20HA%2022.pdf?q=20241007062537.",
+    "bbox": [
+      71.99710083007812,
+      645.1199951171875,
+      524.767578125,
+      721.2062377929688
+    ]
+  },
+  {
+    "page": 34,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 34,
+    "text": "17",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 34,
+    "text": "applicant” as “a person who has made and submitted a bona fide application for",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      522.3388061523438,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 34,
+    "text": "employment.” Opening Br. at 43 (citing S.B. 6241, 68th Leg., Reg. Sess. (Wash.",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      527.5433349609375,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 34,
+    "text": "2024); H.B. 2349, 68th Leg., Reg. Sess. (Wash. 2024)). Plaintiffs point out that",
+    "bbox": [
+      72.0,
+      171.27841186523438,
+      520.2269897460938,
+      190.19029235839844
+    ]
+  },
+  {
+    "page": 34,
+    "text": "neither bill advanced past nomination, id., suggesting to plaintiffs that the",
+    "bbox": [
+      72.0,
+      203.55838012695312,
+      488.1709899902344,
+      222.4702606201172
+    ]
+  },
+  {
+    "page": 34,
+    "text": "legislature endorsed a broad reading of “job applicant.”  But we “generally decline",
+    "bbox": [
+      72.0,
+      235.71841430664062,
+      538.54931640625,
+      254.6302947998047
+    ]
+  },
+  {
+    "page": 34,
+    "text": "to speculate as to why the Legislature rejects a proposed amendment,” “even where",
+    "bbox": [
+      72.0,
+      267.87841796875,
+      543.385986328125,
+      286.790283203125
+    ]
+  },
+  {
+    "page": 34,
+    "text": "an actual bill is before the Legislature.” In re Pers. Restraint of Andress, 147",
+    "bbox": [
+      72.0,
+      300.1584167480469,
+      505.5820007324219,
+      319.0702819824219
+    ]
+  },
+  {
+    "page": 34,
+    "text": "Wn.2d 602, 611, 56 P.3d 981 (2002) (citing Spokane County Health Dist. v.",
+    "bbox": [
+      72.0,
+      332.31842041015625,
+      501.0063171386719,
+      351.23028564453125
+    ]
+  },
+  {
+    "page": 34,
+    "text": "Brockett, 120 Wn.2d 140, 153, 839 P.2d 324 (1992)). Here, the legislature did not",
+    "bbox": [
+      72.0,
+      364.4783935546875,
+      534.4019165039062,
+      383.3902587890625
+    ]
+  },
+  {
+    "page": 34,
+    "text": "even “reject” the bills by vote; the bills failed to advance to a vote. Our precedent",
+    "bbox": [
+      72.0,
+      396.6383972167969,
+      532.05029296875,
+      415.5502624511719
+    ]
+  },
+  {
+    "page": 34,
+    "text": "bars us from giving any weight to these failed bills or the hypothetical reasons that",
+    "bbox": [
+      72.0,
+      428.91839599609375,
+      538.3275756835938,
+      447.83026123046875
+    ]
+  },
+  {
+    "page": 34,
+    "text": "they might have failed.",
+    "bbox": [
+      72.0,
+      461.0783996582031,
+      208.103759765625,
+      479.9902648925781
+    ]
+  },
+  {
+    "page": 34,
+    "text": "In sum, the legislative history strongly suggests intent to protect workers",
+    "bbox": [
+      108.0,
+      500.4384460449219,
+      518.7543334960938,
+      519.350341796875
+    ]
+  },
+  {
+    "page": 34,
+    "text": "actually seeking job offers, period.",
+    "bbox": [
+      72.0,
+      532.7183837890625,
+      273.375732421875,
+      551.6303100585938
+    ]
+  },
+  {
+    "page": 34,
+    "text": "B. L&I’s interpretation",
+    "bbox": [
+      126.0,
+      572.078369140625,
+      260.6913146972656,
+      591.2429809570312
+    ]
+  },
+  {
+    "page": 34,
+    "text": "The interpretation of the phrase “job applicant” by the very agency that",
+    "bbox": [
+      108.0,
+      611.4383544921875,
+      510.9453125,
+      630.3502807617188
+    ]
+  },
+  {
+    "page": 34,
+    "text": "proposed its addition to the statute—L&I—compels the same conclusion. While",
+    "bbox": [
+      72.0,
+      643.7183837890625,
+      525.134033203125,
+      662.6303100585938
+    ]
+  },
+  {
+    "page": 34,
+    "text": "we retain ultimate authority to interpret a statute, we may place weight on an",
+    "bbox": [
+      72.0,
+      675.8783569335938,
+      505.7054138183594,
+      694.790283203125
+    ]
+  },
+  {
+    "page": 35,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 35,
+    "text": "18",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 35,
+    "text": "agency’s interpretation of an ambiguous statute if “the particular agency is charged",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      540.944580078125,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 35,
+    "text": "with the administration and enforcement of the statute” and “the statute falls within",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      542.1575927734375,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 35,
+    "text": "the agency’s special expertise.” Bostain, 159 Wn.2d at 716; City of Redmond v.",
+    "bbox": [
+      72.0,
+      171.27841186523438,
+      520.4797973632812,
+      190.19029235839844
+    ]
+  },
+  {
+    "page": 35,
+    "text": "Cent. Puget Sound Growth Mgmt. Hr’gs Bd., 136 Wn.2d 38, 46, 959 P.2d 1091",
+    "bbox": [
+      72.0,
+      203.55838012695312,
+      520.89697265625,
+      222.4702606201172
+    ]
+  },
+  {
+    "page": 35,
+    "text": "(1998). L&I meets both requirements, so its interpretation of “job applicant” is",
+    "bbox": [
+      72.0,
+      235.71841430664062,
+      516.8714599609375,
+      254.6302947998047
+    ]
+  },
+  {
+    "page": 35,
+    "text": "persuasive.11",
+    "bbox": [
+      72.0,
+      267.87841796875,
+      151.23191833496094,
+      286.790283203125
+    ]
+  },
+  {
+    "page": 35,
+    "text": "“Although agency policies do not have the force of law, this court can look",
+    "bbox": [
+      108.0,
+      307.3583984375,
+      532.2946166992188,
+      326.270263671875
+    ]
+  },
+  {
+    "page": 35,
+    "text": "to them to interpret statutes with undefined terms.” Richardson v. Dep’t of Lab. &",
+    "bbox": [
+      72.0,
+      339.5184020996094,
+      535.2372436523438,
+      358.4302673339844
+    ]
+  },
+  {
+    "page": 35,
+    "text": "Indus., 6 Wn. App. 2d 896, 909 & n.38, 432 P.3d 841 (2018) (citing Stevens v.",
+    "bbox": [
+      72.0,
+      371.67840576171875,
+      515.9069213867188,
+      390.59027099609375
+    ]
+  },
+  {
+    "page": 35,
+    "text": "Brink’s Home Sec., Inc., 162 Wn.2d 42, 54, 169 P.3d 473 (2007) (Madsen, J.,",
+    "bbox": [
+      72.0,
+      403.8384094238281,
+      510.35015869140625,
+      422.7502746582031
+    ]
+  },
+  {
+    "page": 35,
+    "text": "concurring)). Total Wine points to L&I policy materials that support its contention",
+    "bbox": [
+      72.0,
+      436.118408203125,
+      538.4412841796875,
+      455.0302734375
+    ]
+  },
+  {
+    "page": 35,
+    "text": "that a “job applicant” under RCW 49.58.110(4) must be one who has a real interest",
+    "bbox": [
+      72.0,
+      468.2784118652344,
+      541.4696044921875,
+      487.1902770996094
+    ]
+  },
+  {
+    "page": 35,
+    "text": "in obtaining a job offer. For example, the cover sheet for the EPOA complaint",
+    "bbox": [
+      72.0,
+      500.4384460449219,
+      512.9052124023438,
+      519.350341796875
+    ]
+  },
+  {
+    "page": 35,
+    "text": "form states, “L&I will investigate complaints filed by applicants who have applied",
+    "bbox": [
+      72.0,
+      532.7183837890625,
+      538.3023071289062,
+      551.6303100585938
+    ]
+  },
+  {
+    "page": 35,
+    "text": "to a job in good faith with the intent of gaining employment.” WASH. DEP’T OF",
+    "bbox": [
+      72.0,
+      564.8783569335938,
+      516.2396240234375,
+      583.790283203125
+    ]
+  },
+  {
+    "page": 35,
+    "text": "11 The majority argues that we should not place weight on L&I’s interpretation of \n“job applicant” because the legislature did not grant L&I rulemaking authority with \nregard to RCW 49.58.110(4). Majority at 12; Reply Br. at 30. But the legislature did \ngrant rule making authority to L&I to enforce RCW 49.58.060. RCW 49.58.090. \nInterpreting “job applicant” is a necessary part of L&I’s enforcement of RCW 49.58.060, \nsince that statute applies to job applicants and employees. RCW 49.58.110(4).",
+    "bbox": [
+      72.0057601928711,
+      615.239990234375,
+      539.8098754882812,
+      721.1990356445312
+    ]
+  },
+  {
+    "page": 36,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 36,
+    "text": "19",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 36,
+    "text": "LAB. & INDUS., EQUAL PAY & OPPORTUNITIES ACT COMPLAINT FORM (July 2025),",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      536.0711059570312,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 36,
+    "text": "https://lni.wa.gov/forms-publications/F700-200-000.pdf [https://perma.cc/FH2P-",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      525.2532958984375,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 36,
+    "text": "2CWL]. Other L&I materials confirm that the agency “will investigate complaints",
+    "bbox": [
+      72.0,
+      171.27841186523438,
+      536.3984375,
+      190.19029235839844
+    ]
+  },
+  {
+    "page": 36,
+    "text": "filed only by applicants who have applied to jobs in good faith with the intent of",
+    "bbox": [
+      72.0,
+      203.55838012695312,
+      525.5596313476562,
+      222.4702606201172
+    ]
+  },
+  {
+    "page": 36,
+    "text": "gaining employment” and that “L&I will generally only assess damages when an",
+    "bbox": [
+      72.0,
+      235.71841430664062,
+      529.292724609375,
+      254.6302947998047
+    ]
+  },
+  {
+    "page": 36,
+    "text": "applicant can establish that they have been harmed by the posting.” Equal Pay &",
+    "bbox": [
+      72.0,
+      267.87841796875,
+      529.1227416992188,
+      286.790283203125
+    ]
+  },
+  {
+    "page": 36,
+    "text": "Opportunities Act Common Questions, WASH. DEP’T OF LAB. & INDUS.,",
+    "bbox": [
+      72.0,
+      300.1584167480469,
+      476.67388916015625,
+      319.0702819824219
+    ]
+  },
+  {
+    "page": 36,
+    "text": "https://lni.wa.gov/workers-rights/wages/equal-pay-opportunities-act/equal-pay-",
+    "bbox": [
+      72.0,
+      332.31842041015625,
+      516.8292846679688,
+      351.23028564453125
+    ]
+  },
+  {
+    "page": 36,
+    "text": "and-opportunities-act-qa (EPOA Q&A) [https://perma.cc/47JZ-DWRH].12 Those",
+    "bbox": [
+      72.0,
+      364.4783935546875,
+      530.0797729492188,
+      383.3902587890625
+    ]
+  },
+  {
+    "page": 36,
+    "text": "materials also state that “[a] formal complaint should be submitted if a person has",
+    "bbox": [
+      72.0,
+      396.6383972167969,
+      533.1481323242188,
+      415.5502624511719
+    ]
+  },
+  {
+    "page": 36,
+    "text": "applied to an available position in good faith with the intent of gaining",
+    "bbox": [
+      72.0,
+      428.91839599609375,
+      470.7333068847656,
+      447.83026123046875
+    ]
+  },
+  {
+    "page": 36,
+    "text": "employment and believes the job posting does not comply with the job posting",
+    "bbox": [
+      72.0,
+      461.0783996582031,
+      516.5654907226562,
+      479.9902648925781
+    ]
+  },
+  {
+    "page": 36,
+    "text": "requirements.” Id. By contrast, if a person “sees a job posting they believe does not",
+    "bbox": [
+      72.0,
+      493.2384033203125,
+      541.6859741210938,
+      512.1502685546875
+    ]
+  },
+  {
+    "page": 36,
+    "text": "comply with the [EPOA] pay transparency requirements, but they do not intend to",
+    "bbox": [
+      72.0,
+      525.5183715820312,
+      535.5462646484375,
+      544.4302978515625
+    ]
+  },
+  {
+    "page": 36,
+    "text": "12 L&I policy materials also state that “All applicants, including existing \nemployees, who apply to a posting recruiting Washington-based employees . . . are \nprotected by the law.” WASH. DEP’T OF LAB. & INDUS., ADMIN. POLICY ES.E.1, at 4 \n(L&I Employment Standards), https://www.lni.wa.gov/workers-rights/_docs/ese1.pdf \n[https://perma.cc/ZU66-GZA2]; Reply Br. at 31 (quoting EPOA Q&A). Plaintiffs argue \nthat this broad phrasing supports their expansive reading of “job applicant.” But read in \nthe context explained above, the most reasonable conclusion is that that L&I interprets \n“job applicant” as a person who needs to be “protected by the law”—that would be a \nperson with a real interest in obtaining a job offer.",
+    "bbox": [
+      72.00479125976562,
+      570.3599853515625,
+      532.1688842773438,
+      721.1970825195312
+    ]
+  },
+  {
+    "page": 37,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 37,
+    "text": "20",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 37,
+    "text": "apply for the available position or do not wish to file a formal complaint,” the",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      510.7206726074219,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 37,
+    "text": "person should submit a tip. Id. This language suggests that L&I interprets “job",
+    "bbox": [
+      72.0,
+      139.11837768554688,
+      514.9930419921875,
+      158.03025817871094
+    ]
+  },
+  {
+    "page": 37,
+    "text": "applicant” as a person with a real interest in obtaining a job offer.",
+    "bbox": [
+      72.0,
+      171.27841186523438,
+      445.5652160644531,
+      190.19029235839844
+    ]
+  },
+  {
+    "page": 37,
+    "text": "It is certainly true that in September 2024, L&I published preliminary draft",
+    "bbox": [
+      108.0,
+      210.75839233398438,
+      532.18505859375,
+      229.67027282714844
+    ]
+  },
+  {
+    "page": 37,
+    "text": "rule language that would have defined the term “applicant” as an individual “who",
+    "bbox": [
+      72.00143432617188,
+      242.92404174804688,
+      532.7747802734375,
+      261.8359069824219
+    ]
+  },
+  {
+    "page": 37,
+    "text": "submits in good faith an application for a job posting with the intent of gaining",
+    "bbox": [
+      72.00143432617188,
+      275.0896911621094,
+      517.2899780273438,
+      294.0015563964844
+    ]
+  },
+  {
+    "page": 37,
+    "text": "employment.” Pls./Appellants’ Statement of Additional Auths., Attach. A at 1.",
+    "bbox": [
+      72.00143432617188,
+      307.3676452636719,
+      516.1400756835938,
+      326.2795104980469
+    ]
+  },
+  {
+    "page": 37,
+    "text": "And in October 2024, seven members of the House of Representatives sent a",
+    "bbox": [
+      72.00143432617188,
+      339.5332946777344,
+      506.00311279296875,
+      358.4451599121094
+    ]
+  },
+  {
+    "page": 37,
+    "text": "public comment letter requesting that L&I amend its proposed definition because",
+    "bbox": [
+      72.0014419555664,
+      371.6989440917969,
+      530.5296630859375,
+      390.6108093261719
+    ]
+  },
+  {
+    "page": 37,
+    "text": "“[r]equiring a job applicant to prove subjective ‘intent’ adds a new element to the",
+    "bbox": [
+      72.00143432617188,
+      403.8645935058594,
+      531.5687255859375,
+      422.7764587402344
+    ]
+  },
+  {
+    "page": 37,
+    "text": "cause of action in order to access remedies [and] would frustrate a key purpose of",
+    "bbox": [
+      72.00143432617188,
+      436.1425476074219,
+      532.6751098632812,
+      455.0544128417969
+    ]
+  },
+  {
+    "page": 37,
+    "text": "the statute.” Id., Attach. B. After that, L&I removed the definition of “applicant”",
+    "bbox": [
+      72.00143432617188,
+      468.3081970214844,
+      527.3244018554688,
+      487.2200622558594
+    ]
+  },
+  {
+    "page": 37,
+    "text": "from its next draft. Id., Attach. C at 1.",
+    "bbox": [
+      71.98741149902344,
+      500.4738464355469,
+      290.9131774902344,
+      519.3857421875
+    ]
+  },
+  {
+    "page": 37,
+    "text": "The majority interprets L&I’s amendment to that draft rule language as an",
+    "bbox": [
+      108.00003051757812,
+      539.9542846679688,
+      527.2808837890625,
+      558.8662109375
+    ]
+  },
+  {
+    "page": 37,
+    "text": "indication that L&I does not interpret “job applicant” to mean a person with a real",
+    "bbox": [
+      71.97344970703125,
+      572.1199340820312,
+      534.9679565429688,
+      591.0318603515625
+    ]
+  },
+  {
+    "page": 37,
+    "text": "stake in obtaining a job. But L&I did not change the language on the EPOA",
+    "bbox": [
+      71.97344970703125,
+      604.2855834960938,
+      499.7862854003906,
+      623.197509765625
+    ]
+  },
+  {
+    "page": 37,
+    "text": "complaint form, on the informational Q&A website, or in the administrative policy",
+    "bbox": [
+      71.95938110351562,
+      636.5635375976562,
+      540.1485595703125,
+      655.4754638671875
+    ]
+  },
+  {
+    "page": 37,
+    "text": "statement discussed above. In those published materials, L&I continues to express",
+    "bbox": [
+      71.98745727539062,
+      668.7291870117188,
+      535.820068359375,
+      687.64111328125
+    ]
+  },
+  {
+    "page": 37,
+    "text": "the view that a job applicant is a person with a real stake in the application process.",
+    "bbox": [
+      71.98747253417969,
+      700.8948364257812,
+      541.6958618164062,
+      719.8067626953125
+    ]
+  },
+  {
+    "page": 38,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.987060546875,
+      34.76158905029297,
+      382.910400390625,
+      109.52396392822266
+    ]
+  },
+  {
+    "page": 38,
+    "text": "21",
+    "bbox": [
+      72.0,
+      724.598388671875,
+      315.9599914550781,
+      757.0440063476562
+    ]
+  },
+  {
+    "page": 38,
+    "text": "Further, statements by individual legislators that postdate enactment of a bill—like",
+    "bbox": [
+      72.0,
+      106.9583969116211,
+      539.5447387695312,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 38,
+    "text": "this letter from seven members of the House of Representatives written and sent",
+    "bbox": [
+      72.00003051757812,
+      139.12405395507812,
+      524.134521484375,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 38,
+    "text": "well after the enactment of RCW 49.58.110(4) and its “job applicant” limitation—",
+    "bbox": [
+      72.00003051757812,
+      171.28970336914062,
+      537.8150634765625,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 38,
+    "text": "“should not be viewed as a reflection of legislative intent.” Nelson v. McClatchy",
+    "bbox": [
+      72.00003051757812,
+      203.56765747070312,
+      525.1228637695312,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 38,
+    "text": "Newspapers, Inc., 131 Wn.2d 523, 532 n.5, 936 P.2d 1123 (1997) (legislators’",
+    "bbox": [
+      71.98599243164062,
+      235.73330688476562,
+      514.6967163085938,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 38,
+    "text": "statements about a bill several years after its passage “should not be viewed as a",
+    "bbox": [
+      71.98599243164062,
+      267.8989562988281,
+      524.2510375976562,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 38,
+    "text": "reflection of legislative intent” (citing State v. Leek, 26 Wn. App. 651, 657-58, 614",
+    "bbox": [
+      71.98599243164062,
+      300.1769104003906,
+      540.228515625,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 38,
+    "text": "P.2d 209 (1980))). Thus, I would decline to give these representatives’ statements,",
+    "bbox": [
+      71.97195434570312,
+      332.3425598144531,
+      537.1004638671875,
+      351.2544250488281
+    ]
+  },
+  {
+    "page": 38,
+    "text": "and L&I’s subsequent withdrawal of its proposed narrowing definition of",
+    "bbox": [
+      71.97195434570312,
+      364.5082092285156,
+      486.5830078125,
+      383.4200744628906
+    ]
+  },
+  {
+    "page": 38,
+    "text": "“applicant,” such dispositive weight.",
+    "bbox": [
+      71.971923828125,
+      396.6738586425781,
+      281.1679382324219,
+      415.5857238769531
+    ]
+  },
+  {
+    "page": 38,
+    "text": "CONCLUSION",
+    "bbox": [
+      269.5007019042969,
+      436.118408203125,
+      345.8699951171875,
+      455.0661926269531
+    ]
+  },
+  {
+    "page": 38,
+    "text": "The statutory language, context, statement of purpose, and history show that",
+    "bbox": [
+      108.00431823730469,
+      475.4725341796875,
+      538.7334594726562,
+      494.3843994140625
+    ]
+  },
+  {
+    "page": 38,
+    "text": "the legislature enacted the EPOA to protect workers seeking job offers. Those",
+    "bbox": [
+      71.99171447753906,
+      507.6381530761719,
+      511.94781494140625,
+      526.550048828125
+    ]
+  },
+  {
+    "page": 38,
+    "text": "sources also show that the legislature accomplished that goal by requiring",
+    "bbox": [
+      71.99172973632812,
+      539.9160766601562,
+      488.4743957519531,
+      558.8280029296875
+    ]
+  },
+  {
+    "page": 38,
+    "text": "employers to provide such workers with the pay and benefit information that is",
+    "bbox": [
+      71.9917221069336,
+      572.0817260742188,
+      518.062255859375,
+      590.99365234375
+    ]
+  },
+  {
+    "page": 38,
+    "text": "relevant to a job search or a salary negotiation. There is nothing in the statutory",
+    "bbox": [
+      72.00576782226562,
+      604.2473754882812,
+      520.0419921875,
+      623.1593017578125
+    ]
+  },
+  {
+    "page": 38,
+    "text": "language, context, statement of purpose, or legislative history suggesting that the",
+    "bbox": [
+      72.00576782226562,
+      636.5253295898438,
+      528.575439453125,
+      655.437255859375
+    ]
+  },
+  {
+    "page": 38,
+    "text": "legislature had any intent to incentivize individuals to search the web for",
+    "bbox": [
+      72.00576782226562,
+      668.6909790039062,
+      482.6211853027344,
+      687.6029052734375
+    ]
+  },
+  {
+    "page": 38,
+    "text": "noncompliant postings in order to reap a reward unrelated to actual harm.",
+    "bbox": [
+      72.00576782226562,
+      700.8566284179688,
+      490.34735107421875,
+      719.7685546875
+    ]
+  },
+  {
+    "page": 39,
+    "text": "Branson v. Wash. Fine Wine & Spirits, LLC, No. 103394-0 \n(Gordon McCloud, J., dissenting)",
+    "bbox": [
+      71.98703002929688,
+      34.76158905029297,
+      382.910400390625,
+      67.09676361083984
+    ]
+  },
+  {
+    "page": 39,
+    "text": "22",
+    "bbox": [
+      298.9200134277344,
+      724.598388671875,
+      315.9599914550781,
+      743.5103149414062
+    ]
+  },
+  {
+    "page": 39,
+    "text": "I therefore respectfully dissent. I would answer the certified question as",
+    "bbox": [
+      108.0,
+      106.9583969116211,
+      512.3577270507812,
+      125.87027740478516
+    ]
+  },
+  {
+    "page": 39,
+    "text": "follows: A “job applicant” is “a person who responds to a job posting by",
+    "bbox": [
+      72.0014419555664,
+      139.12405395507812,
+      482.03399658203125,
+      158.0359344482422
+    ]
+  },
+  {
+    "page": 39,
+    "text": "submitting an application with the intent to gain an offer of employment.” This",
+    "bbox": [
+      72.0014419555664,
+      171.28970336914062,
+      518.6517944335938,
+      190.2015838623047
+    ]
+  },
+  {
+    "page": 39,
+    "text": "interpretation is supported by the statutory text, context, legislative history, and",
+    "bbox": [
+      71.98739624023438,
+      203.56765747070312,
+      520.0545043945312,
+      222.4795379638672
+    ]
+  },
+  {
+    "page": 39,
+    "text": "relevant agency interpretation. This definition would ensure that the EPOA",
+    "bbox": [
+      71.98739624023438,
+      235.73330688476562,
+      496.27496337890625,
+      254.6451873779297
+    ]
+  },
+  {
+    "page": 39,
+    "text": "remains accessible to those whom it was intended to protect—real job applicants",
+    "bbox": [
+      71.97334289550781,
+      267.8989562988281,
+      527.8579711914062,
+      286.8108215332031
+    ]
+  },
+  {
+    "page": 39,
+    "text": "and employees who need pay information to make critical decisions. It would also",
+    "bbox": [
+      71.98741149902344,
+      300.1769104003906,
+      536.4165649414062,
+      319.0887756347656
+    ]
+  },
+  {
+    "page": 39,
+    "text": "ensure that the EPOA does not cause the unintended consequences that result from",
+    "bbox": [
+      71.9874267578125,
+      332.3425598144531,
+      539.0465087890625,
+      351.2544250488281
+    ]
+  },
+  {
+    "page": 39,
+    "text": "the majority’s conclusion.",
+    "bbox": [
+      71.98745727539062,
+      364.5082092285156,
+      224.77073669433594,
+      383.4200744628906
+    ]
+  },
+  {
+    "page": 39,
+    "text": "________________________",
+    "bbox": [
+      364.7349853515625,
+      439.201416015625,
+      532.038818359375,
+      458.11346435546875
+    ]
+  },
+  {
+    "page": 39,
+    "text": "_______________________",
+    "bbox": [
+      368.510986328125,
+      505.3044128417969,
+      528.7388305664062,
+      524.21630859375
+    ]
+  },
+  {
+    "page": 39,
+    "text": "_______________________",
+    "bbox": [
+      367.2019958496094,
+      568.7953491210938,
+      527.4298095703125,
+      587.707275390625
+    ]
+  }
+]

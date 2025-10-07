@@ -282,6 +282,14 @@ export function useUnifiedProgress() {
 
   const completeProgress = (resultData = null, route = null) => {
     console.log('Progress completed:', resultData, 'for route:', route);
+    
+    // Stop any active EventSource connections
+    if (progressState.verificationStream) {
+      console.log('Closing verification stream');
+      progressState.verificationStream.close();
+      progressState.verificationStream = null;
+    }
+    
     progressState.isActive = false;
     progressState.currentStep = 'Completed';
     progressState.totalProgress = 100;
@@ -306,6 +314,14 @@ export function useUnifiedProgress() {
 
   const resetProgress = () => {
     console.log('Resetting progress state');
+    
+    // Stop any active EventSource connections
+    if (progressState.verificationStream) {
+      console.log('Closing verification stream during reset');
+      progressState.verificationStream.close();
+      progressState.verificationStream = null;
+    }
+    
     Object.assign(progressState, {
       isActive: false,
       taskId: null,
@@ -503,11 +519,15 @@ export function useUnifiedProgress() {
   
   const stopVerificationStream = () => {
     if (progressState.verificationStream) {
+      console.log('Closing verification stream');
       progressState.verificationStream.close();
       progressState.verificationStream = null;
     }
     progressState.verificationStatus.status = 'idle';
     progressState.verificationStatus.isVerifying = false;
+    
+    // Also reset the verification results
+    progressState.verificationResults = null;
   };
   
   const updateVerificationStatus = (status) => {

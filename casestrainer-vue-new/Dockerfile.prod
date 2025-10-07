@@ -18,6 +18,7 @@ ENV NODE_ENV=production
 ENV VITE_APP_ENV=production
 ENV VITE_API_BASE_URL=/casestrainer/api/
 ENV VITE_APP_TITLE=CaseStrainer
+ENV VITE_COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
 
 # Build the app with production settings
 RUN npm run build

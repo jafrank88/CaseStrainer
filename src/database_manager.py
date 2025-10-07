@@ -254,7 +254,7 @@ class DatabaseManager:
                     conn = self.connection_pool.pop()
                     self.stats['connections_reused'] += 1
                 else:
-                    conn = sqlite3.connect(self.db_path, timeout=DEFAULT_REQUEST_TIMEOUT.0, check_same_thread=False)
+                    conn = sqlite3.connect(self.db_path, timeout=DEFAULT_REQUEST_TIMEOUT, check_same_thread=False)
                     conn.row_factory = sqlite3.Row
                     self.stats['connections_created'] += 1
             

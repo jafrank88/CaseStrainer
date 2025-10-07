@@ -34,6 +34,8 @@ class CitationResult:
     metadata: Optional[Dict[str, Any]] = None
     cluster_id: Optional[str] = None
     true_by_parallel: bool = False
+    is_pinpoint: bool = False
+    verification_citation: Optional[str] = None
 
     def __post_init__(self):
         if self.parallel_citations is None:

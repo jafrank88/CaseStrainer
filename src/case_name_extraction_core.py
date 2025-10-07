@@ -502,13 +502,13 @@ def initialize_extractor():
     """Initialize the unified extractor (called automatically)"""
     try:
         extractor = get_extractor()
-        print(f"✅ UnifiedCaseNameExtractorV2 initialized successfully")
-        print(f"✅ All extraction now goes through the unified extractor")
-        print(f"⚠️  Many functions are deprecated and will be removed in v3.0.0")
-        print(f"📚 Use extract_case_name_and_date() or extract_case_name_only() for new code")
+        print("UnifiedCaseNameExtractorV2 initialized successfully")
+        print("All extraction now goes through the unified extractor")
+        print("WARNING: Many functions are deprecated and will be removed in v3.0.0")
+        print("INFO: Use extract_case_name_and_date() or extract_case_name_only() for new code")
         return True
     except Exception as e:
-        print(f"❌ Failed to initialize UnifiedCaseNameExtractorV2: {e}")
+        print(f"ERROR: Failed to initialize UnifiedCaseNameExtractorV2: {e}")
         return False
 
 if __name__ != "__main__":
