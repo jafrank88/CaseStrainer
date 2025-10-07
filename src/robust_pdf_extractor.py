@@ -270,7 +270,7 @@ def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None) -> T
     return extractor.extract_text(pdf_path, max_pages)
 
 
-# Compatibility alias for old function name
+# Compatibility aliases for old function names
 def extract_text_from_pdf_smart(pdf_path: str, max_pages: Optional[int] = None) -> str:
     """
     Compatibility wrapper for extract_pdf_text_robust.
@@ -285,6 +285,20 @@ def extract_text_from_pdf_smart(pdf_path: str, max_pages: Optional[int] = None) 
     """
     text, _ = extract_pdf_text_robust(pdf_path, max_pages)
     return text
+
+
+def extract_text_from_pdf_ultra_fast(pdf_path: str) -> str:
+    """
+    Compatibility wrapper for fast PDF extraction.
+    Uses the same robust extraction as extract_text_from_pdf_smart.
+    
+    Args:
+        pdf_path: Path to PDF file
+    
+    Returns:
+        Extracted text as string
+    """
+    return extract_text_from_pdf_smart(pdf_path)
 
 
 if __name__ == "__main__":

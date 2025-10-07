@@ -334,7 +334,7 @@ class EnhancedSyncProcessor:
     def _extract_from_file(self, file_path: str, request_id: str) -> Dict[str, Any]:
         """Extract text from file input."""
         try:
-            from src.pdf_extraction_optimized import extract_text_from_pdf_smart
+            from src.robust_pdf_extractor import extract_text_from_pdf_smart
             
             path_obj = Path(file_path)
             if not path_obj.exists():
@@ -480,27 +480,9 @@ class EnhancedSyncProcessor:
         logger.info("Starting citation extraction...")
         
         try:
-            # First try the unified extraction architecture
-            try:
-                from src.unified_extraction_architecture import extract_case_name_and_year_unified
-                
-                # Normalize text to handle newlines and extra spaces
-                normalized_text = ' '.join(text.split())
-                
-                # Try to extract citations using the unified extractor
-                result = extract_case_name_and_year_unified(
-                    text=normalized_text,
-                    citation="",  # Will be extracted from text
-                    debug=True
-                )
-                
-                if result and 'citations' in result:
-                    logger.info(f"Found {len(result['citations'])} citations using unified extractor")
-                    return result['citations']
-                    
-            except Exception as e:
-                logger.warning(f"Unified extraction failed, falling back to regex: {str(e)}")
-                logger.debug(traceback.format_exc())
+            # FIXED: Use proper citation extraction that finds individual citations with positions
+            # The unified extractor is for individual citation processing, not bulk extraction
+            logger.info("Using basic regex extraction to find all citations with positions")
             
             # Fall back to regex-based extraction if unified extraction fails
             return self._extract_citations_basic_regex(text)
@@ -577,39 +559,193 @@ class EnhancedSyncProcessor:
         return False
     
     def _extract_citations_basic_regex(self, text: str) -> List:
-        """Basic regex extraction as fallback."""
+        """Enhanced regex extraction that distinguishes full vs pinpoint citations."""
         import re
         
-        patterns = [
-            # Washington State citations - comprehensive patterns
+        # FULL CITATION PATTERNS (for verification)
+        full_citation_patterns = [
+            # Washington State citations - full format
             r'\b\d+\s+Wn\.\s*2d\s+\d+',  # 200 Wn.2d 72
             r'\b\d+\s+Wn\.\s*3d\s+\d+',  # 200 Wn.3d 72
             r'\b\d+\s+Wn\.\s*App\.\s*\d+',  # 136 Wn. App. 104
-            r'\b\d+\s+Wn\.\s*App\.\s*\d+d\s+\d+',  # 33 Wn. App. 2d 75 (matches both 2d and 3d)
+            r'\b\d+\s+Wn\.\s*App\.\s*\d+d\s+\d+',  # 33 Wn. App. 2d 75
             
-            # Pacific Reporter citations
+            # Pacific Reporter citations - full format
             r'\b\d+\s+P\.\s*2d\s+\d+',   # 514 P.2d 643
             r'\b\d+\s+P\.\s*3d\s+\d+',   # 514 P.3d 643
             
-            # Federal citations
+            # Federal citations - full format
             r'\b\d+\s+F\.\s*2d\s+\d+',  # Federal 2d
             r'\b\d+\s+F\.\s*3d\s+\d+',  # Federal 3d
-            r'\b\d+\s+F\.\s*Supp\.\s*\d+',  # Federal Supp
+            r'\b\d+\s+F\.\s*4th\s+\d+',  # Federal 4th
+            r'\b\d+\s+F\.\s*Supp\.\s*\d*d?\s+\d+',  # Federal Supp
             
-            # Supreme Court citations
+            # Supreme Court citations - full format
             r'\b\d+\s+S\.\s*Ct\.\s*\d+',  # Supreme Court citations
             r'\b\d+\s+U\.S\.\s*\d+',  # U.S. Supreme Court citations
             r'\b\d+\s+L\.\s*Ed\.\s*\d+',  # Lawyers Edition
             r'\b\d+\s+L\.\s*Ed\.\s*2d\s+\d+',  # Lawyers Edition 2d
+            
+            # Generic reporter patterns - full format
+            r'\b\d+\s+[A-Z][A-Za-z]*\.\s*\d*d?\s+\d+',  # Generic Reporter Page
         ]
         
-        citations = []
-        for pattern in patterns:
-            matches = re.findall(pattern, text)
-            citations.extend(matches)
+        # PINPOINT CITATION PATTERNS (for context, not verification)
+        pinpoint_citation_patterns = [
+            # Federal citations with "at" - pinpoint format
+            r'\b\d+\s+F\.\s*2d\s+at\s+\d+',  # 158 F.2d at 682
+            r'\b\d+\s+F\.\s*3d\s+at\s+\d+',  # 158 F.3d at 682
+            r'\b\d+\s+F\.\s*4th\s+at\s+\d+',  # 158 F.4th at 682
+            r'\b\d+\s+F\.\s*Supp\.\s*\d*d?\s+at\s+\d+',  # Federal Supp at
+            
+            # Supreme Court citations with "at" - pinpoint format
+            r'\b\d+\s+U\.S\.\s+at\s+\d+',  # 510 U.S. at 578
+            r'\b\d+\s+S\.\s*Ct\.\s+at\s+\d+',  # Supreme Court at
+            r'\b\d+\s+L\.\s*Ed\.\s*2d\s+at\s+\d+',  # Lawyers Edition at
+            
+            # Washington State citations with "at" - pinpoint format
+            r'\b\d+\s+Wn\.\s*2d\s+at\s+\d+',  # 200 Wn.2d at 72
+            r'\b\d+\s+Wn\.\s*3d\s+at\s+\d+',  # 200 Wn.3d at 72
+            r'\b\d+\s+Wn\.\s*App\.\s+at\s+\d+',  # 136 Wn. App. at 104
+            
+            # Pacific Reporter citations with "at" - pinpoint format
+            r'\b\d+\s+P\.\s*2d\s+at\s+\d+',   # 514 P.2d at 643
+            r'\b\d+\s+P\.\s*3d\s+at\s+\d+',   # 514 P.3d at 643
+            
+            # Generic reporter patterns with "at" - pinpoint format
+            r'\b\d+\s+[A-Z][A-Za-z]*\.\s*\d*d?\s+at\s+\d+',  # Generic Reporter at Page
+        ]
         
-        logger.info(f"[EnhancedSyncProcessor] Basic regex found {len(citations)} citations")
+        # Combine patterns for detection
+        patterns = full_citation_patterns + pinpoint_citation_patterns
+        
+        from src.models import CitationResult
+        
+        citations = []
+        seen_citations = set()  # To avoid duplicates
+        
+        # Process full citations first (priority for verification)
+        for pattern in full_citation_patterns:
+            for match in re.finditer(pattern, text):
+                citation_text = match.group().strip()
+                
+                # Skip duplicates
+                if citation_text in seen_citations:
+                    continue
+                seen_citations.add(citation_text)
+                
+                # Create proper CitationResult object with position information
+                citation_result = CitationResult(
+                    citation=citation_text,
+                    start_index=match.start(),
+                    end_index=match.end(),
+                    extracted_case_name=None,  # Will be filled in later
+                    extracted_date=None,       # Will be filled in later
+                    verified=False,
+                    is_pinpoint=False,  # This is a full citation
+                    verification_citation=citation_text  # Use full citation for verification
+                )
+                citations.append(citation_result)
+        
+        # Process pinpoint citations (for context, but normalize for verification)
+        for pattern in pinpoint_citation_patterns:
+            for match in re.finditer(pattern, text):
+                citation_text = match.group().strip()
+                
+                # Skip duplicates
+                if citation_text in seen_citations:
+                    continue
+                seen_citations.add(citation_text)
+                
+                # Normalize pinpoint citation for verification
+                verification_citation = self._normalize_pinpoint_citation(citation_text)
+                
+                # Create proper CitationResult object with position information
+                citation_result = CitationResult(
+                    citation=citation_text,
+                    start_index=match.start(),
+                    end_index=match.end(),
+                    extracted_case_name=None,  # Will be filled in later
+                    extracted_date=None,       # Will be filled in later
+                    verified=False,
+                    is_pinpoint=True,  # This is a pinpoint citation
+                    verification_citation=verification_citation  # Use normalized citation for verification
+                )
+                citations.append(citation_result)
+        
+        logger.info(f"[EnhancedSyncProcessor] Enhanced regex found {len(citations)} citations ({len([c for c in citations if not getattr(c, 'is_pinpoint', False)])} full, {len([c for c in citations if getattr(c, 'is_pinpoint', False)])} pinpoint)")
         return citations
+    
+    def _normalize_pinpoint_citation(self, citation_text: str) -> str:
+        """Normalize pinpoint citation to full citation for verification."""
+        import re
+        
+        # Remove "at" and page number to get base citation
+        # Example: "146 Wn.2d at 9" -> "146 Wn.2d 1"
+        
+        # Washington State patterns
+        if re.search(r'\d+\s+Wn\.\s*2d\s+at\s+\d+', citation_text):
+            # Extract volume and reporter
+            match = re.search(r'(\d+\s+Wn\.\s*2d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"  # Default to page 1
+        
+        elif re.search(r'\d+\s+Wn\.\s*3d\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+Wn\.\s*3d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        elif re.search(r'\d+\s+Wn\.\s*App\.\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+Wn\.\s*App\.)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        # Pacific Reporter patterns
+        elif re.search(r'\d+\s+P\.\s*2d\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+P\.\s*2d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        elif re.search(r'\d+\s+P\.\s*3d\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+P\.\s*3d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        # Federal patterns
+        elif re.search(r'\d+\s+F\.\s*2d\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+F\.\s*2d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        elif re.search(r'\d+\s+F\.\s*3d\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+F\.\s*3d)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        elif re.search(r'\d+\s+F\.\s*4th\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+F\.\s*4th)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        # Supreme Court patterns
+        elif re.search(r'\d+\s+U\.S\.\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+U\.S\.)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        elif re.search(r'\d+\s+S\.\s*Ct\.\s+at\s+\d+', citation_text):
+            match = re.search(r'(\d+\s+S\.\s*Ct\.)\s+at\s+\d+', citation_text)
+            if match:
+                return match.group(1) + " 1"
+        
+        # Generic fallback - remove "at" and page number
+        else:
+            # Try to remove "at" and following number
+            normalized = re.sub(r'\s+at\s+\d+', ' 1', citation_text)
+            return normalized
+        
+        # Fallback to original if no pattern matches
+        return citation_text
     
     def _normalize_citations_local(self, citations: List, text: str) -> List:
         """Local citation normalization without API calls."""
@@ -676,7 +812,34 @@ class EnhancedSyncProcessor:
                     year = citation.get('extracted_date') or citation.get('extracted_year')
                     confidence_score = citation.get('confidence_score', 0.7)
                 else:
-                    case_name = self._extract_case_name_local(text, citation_text)
+                    # FIXED: Pass position information to avoid case name bleeding
+                    start_index = None
+                    end_index = None
+                    
+                    if isinstance(citation, dict):
+                        start_index = citation.get('start_index') or citation.get('start')
+                        end_index = citation.get('end_index') or citation.get('end')
+                    elif hasattr(citation, 'start_index'):
+                        start_index = getattr(citation, 'start_index', None)
+                        end_index = getattr(citation, 'end_index', None)
+                    
+                    case_name = self._extract_case_name_local(text, citation_text, start_index, end_index)
+                    
+                    # IMPROVED: If case name extraction failed, try alternative methods
+                    if not case_name or case_name == "N/A":
+                        # Try enhanced clustering extraction as fallback
+                        try:
+                            from src.unified_citation_clustering import UnifiedCitationClusterer
+                            clusterer = UnifiedCitationClusterer()
+                            enhanced_name = clusterer._extract_case_name_enhanced(
+                                citation, text, start_index, end_index, citation_text
+                            )
+                            if enhanced_name and enhanced_name != "N/A" and len(enhanced_name.strip()) > 3:
+                                case_name = enhanced_name
+                                logger.warning(f"SYNC_EXTRACTION_SUCCESS: Enhanced fallback found '{enhanced_name}' for {citation_text}")
+                        except Exception as e:
+                            logger.warning(f"SYNC_EXTRACTION_ERROR: Enhanced fallback failed for {citation_text}: {e}")
+                    
                     year = self._extract_year_local(text, citation_text)
                     
                     confidence_score = 0.7  # Start with good confidence
@@ -775,19 +938,25 @@ class EnhancedSyncProcessor:
             logger.error(f"Enhanced local extraction failed: {e}")
             return self._extract_names_years_basic(citations, text)
     
-    def _extract_case_name_local(self, text: str, citation: str) -> Optional[str]:
+    def _extract_case_name_local(self, text: str, citation: str, start_index: int = None, end_index: int = None) -> Optional[str]:
         """Extract case name from text context around citation using MASTER extraction function."""
         try:
             from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
             
-            citation_start = text.find(citation)
-            if citation_start == -1:
-                citation_with_newline = citation.replace(' ', '\n', 1)
-                citation_start = text.find(citation_with_newline)
-                if citation_start != -1:
-                    citation = citation_with_newline
+            # FIXED: Use provided start_index instead of searching for first occurrence
+            citation_start = start_index
+            citation_end = end_index
             
-            citation_end = citation_start + len(citation) if citation_start != -1 else None
+            # Fallback to search only if no position provided
+            if citation_start is None:
+                citation_start = text.find(citation)
+                if citation_start == -1:
+                    citation_with_newline = citation.replace(' ', '\n', 1)
+                    citation_start = text.find(citation_with_newline)
+                    if citation_start != -1:
+                        citation = citation_with_newline
+                
+                citation_end = citation_start + len(citation) if citation_start != -1 else None
             
             result = extract_case_name_and_date_master(
                 text=text, 
@@ -928,7 +1097,18 @@ class EnhancedSyncProcessor:
                 else:
                     citation_text = str(citation)
                 
-                case_name = self._extract_case_name_local(text, citation_text)
+                # FIXED: Pass position information to avoid case name bleeding
+                start_index = None
+                end_index = None
+                
+                if isinstance(citation, dict):
+                    start_index = citation.get('start_index') or citation.get('start')
+                    end_index = citation.get('end_index') or citation.get('end')
+                elif hasattr(citation, 'start_index'):
+                    start_index = getattr(citation, 'start_index', None)
+                    end_index = getattr(citation, 'end_index', None)
+                
+                case_name = self._extract_case_name_local(text, citation_text, start_index, end_index)
                 year = self._extract_year_local(text, citation_text)
                 
                 basic_citation = {
@@ -1054,6 +1234,92 @@ class EnhancedSyncProcessor:
                             setattr(citation, 'extracted_case_name', cluster_case_name)
                             setattr(citation, 'extracted_date', cluster_year)
 
+    # ------------------------------------------------------------------
+    # Helper utilities for selecting the best case name and year
+    # ------------------------------------------------------------------
+
+    def _score_case_name(self, name: str) -> float:
+        score = 0.0
+        lowered = name.lower()
+
+        if ' v. ' in lowered or lowered.startswith('state v') or lowered.startswith('people v'):
+            score += 2.0
+        if lowered.startswith('in re') or lowered.startswith('ex parte'):
+            score += 1.5
+
+        score += min(len(name) / 25.0, 2.0)
+
+        if 'unknown' in lowered:
+            score -= 1.0
+
+        return score
+
+    def _select_best_case_name(self, cluster: Dict[str, Any]) -> Optional[str]:
+        citations = cluster.get('citations', [])
+        candidates: List[Tuple[float, str]] = []
+
+        for citation in citations:
+            if isinstance(citation, dict):
+                options = [
+                    citation.get('canonical_name'),
+                    citation.get('extracted_case_name'),
+                    citation.get('cluster_case_name')
+                ]
+            else:
+                options = [
+                    getattr(citation, 'canonical_name', None),
+                    getattr(citation, 'extracted_case_name', None),
+                    getattr(citation, 'cluster_case_name', None)
+                ]
+
+            for name in options:
+                if not name or not isinstance(name, str):
+                    continue
+                cleaned = name.strip()
+                if cleaned and cleaned not in {'N/A', 'Unknown', 'Unknown Case'}:
+                    candidates.append((self._score_case_name(cleaned), cleaned))
+
+        if not candidates:
+            return None
+
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        return candidates[0][1]
+
+    def _extract_year_value(self, value: Optional[Any]) -> Optional[str]:
+        if not value or value in {'', 'N/A', 'Unknown'}:
+            return None
+        if isinstance(value, int):
+            return str(value)
+        if isinstance(value, str):
+            match = re.search(r'(19|20)\d{2}', value)
+            if match:
+                return match.group(0)
+        return None
+
+    def _select_best_case_year(self, cluster: Dict[str, Any]) -> Optional[str]:
+        citations = cluster.get('citations', [])
+        for field in ('canonical_date', 'extracted_date', 'cluster_year'):
+            years: List[str] = []
+            for citation in citations:
+                if isinstance(citation, dict):
+                    raw_value = citation.get(field)
+                else:
+                    raw_value = getattr(citation, field, None)
+                year = self._extract_year_value(raw_value)
+                if year:
+                    years.append(year)
+            if years:
+                from collections import Counter
+                return Counter(years).most_common(1)[0][0]
+        return None
+
+    def _should_replace_case_name(self, existing: Optional[str], candidate: Optional[str]) -> bool:
+        if not candidate:
+            return False
+        if not existing or existing in {'', 'N/A', 'Unknown', 'Unknown Case'}:
+            return True
+        return self._score_case_name(candidate) > self._score_case_name(existing)
+
     def _propagate_true_by_parallel_only(self, citations: List, clusters: List, request_id: str):
         """
         Propagate only true_by_parallel values from clusters to citations.
@@ -1068,6 +1334,15 @@ class EnhancedSyncProcessor:
             for cluster in clusters:
                 cluster_citations = cluster.get('citations', [])
                 cluster_has_verified = cluster.get('cluster_has_verified', False)
+                cluster_size = len(cluster_citations)
+                
+                # Determine best case name/year for this cluster
+                best_case_name = self._select_best_case_name(cluster)
+                if best_case_name:
+                    cluster['case_name'] = best_case_name
+                best_case_year = self._select_best_case_year(cluster)
+                if best_case_year:
+                    cluster['case_year'] = best_case_year
                 
                 logger.info(f"[EnhancedSyncProcessor {request_id}] Processing cluster: {cluster.get('cluster_id', 'unknown')}")
                 logger.info(f"[EnhancedSyncProcessor {request_id}]   Cluster citations: {cluster_citations}")
@@ -1353,10 +1628,14 @@ class EnhancedSyncProcessor:
                 cleaned_citation = citation_text.replace('\n', ' ').replace('\r', ' ').strip()
                 cleaned_citation = ' '.join(cleaned_citation.split())
                 
-                citation_texts.append(cleaned_citation)
+                # Use verification_citation if available (normalized for pinpoint citations)
+                verification_citation = getattr(citation, 'verification_citation', None) or citation.get('verification_citation', cleaned_citation)
+                is_pinpoint = getattr(citation, 'is_pinpoint', False) or citation.get('is_pinpoint', False)
+                
+                citation_texts.append(verification_citation)  # Use normalized citation for verification
                 extracted_case_names.append(citation.get('extracted_case_name'))
                 
-                logger.info(f"[EnhancedSyncProcessor {request_id}] Cleaned citation: '{citation_text}' -> '{cleaned_citation}'")
+                logger.info(f"[EnhancedSyncProcessor {request_id}] Citation: '{citation_text}' -> Verification: '{verification_citation}' (pinpoint: {is_pinpoint})")
             
             logger.info(f"[EnhancedSyncProcessor {request_id}] Attempting individual CourtListener Citation Lookup for each citation")
             courtlistener_results = []
@@ -1366,13 +1645,19 @@ class EnhancedSyncProcessor:
                 cleaned_citation = citation_text.replace('\n', ' ').replace('\r', ' ').strip()
                 cleaned_citation = ' '.join(cleaned_citation.split())
                 
-                logger.info(f"[EnhancedSyncProcessor {request_id}] Processing citation: '{cleaned_citation}'")
+                # Use verification_citation if available (normalized for pinpoint citations)
+                verification_citation = getattr(citation, 'verification_citation', None) or citation.get('verification_citation', cleaned_citation)
+                is_pinpoint = getattr(citation, 'is_pinpoint', False) or citation.get('is_pinpoint', False)
                 
-                individual_result = courtlistener_verifier.verify_citation_enhanced(cleaned_citation, citation.get('extracted_case_name'))
+                logger.info(f"[EnhancedSyncProcessor {request_id}] Processing citation: '{cleaned_citation}' -> Verification: '{verification_citation}' (pinpoint: {is_pinpoint})")
+                
+                individual_result = courtlistener_verifier.verify_citation_enhanced(verification_citation, citation.get('extracted_case_name'))
                 
                 if individual_result:
                     batch_format_result = {
-                        'citation': cleaned_citation,
+                        'citation': cleaned_citation,  # Keep original citation for display
+                        'verification_citation': verification_citation,  # Store normalized citation used for verification
+                        'is_pinpoint': is_pinpoint,  # Store pinpoint flag
                         'verified': individual_result.get('verified', False),
                         'canonical_name': individual_result.get('canonical_name'),
                         'canonical_date': individual_result.get('canonical_date'),
@@ -1633,9 +1918,10 @@ class EnhancedSyncProcessor:
                     
                     source = 'citation_object'
                     validation_method = 'object_extraction'
-                    canonical_name = None
-                    canonical_date = None
-                    canonical_url = url
+                    # FIXED: Check for canonical fields directly on citation object first
+                    canonical_name = getattr(citation, 'canonical_name', None)
+                    canonical_date = getattr(citation, 'canonical_date', None)
+                    canonical_url = getattr(citation, 'canonical_url', None) or url
                     is_verified = verified
                     
                     if hasattr(citation, 'verification_result') and citation.verification_result:
@@ -2242,8 +2528,13 @@ class EnhancedSyncProcessor:
                 if hasattr(citation, 'verification_result') and citation.verification_result:
                     verification_result = citation.verification_result
                     verification_canonical_name = verification_result.get('canonical_name')
+                    verification_source = verification_result.get('source', 'unknown')
                     
-                    if verification_canonical_name and current_extracted:
+                    # CRITICAL FIX: Only set canonical fields from verified API sources
+                    # Never use extracted data as canonical data (memory rule)
+                    trusted_api_sources = ['courtlistener_api', 'courtlistener', 'api_verified']
+                    
+                    if verification_canonical_name and current_extracted and verification_source in trusted_api_sources:
                         if self._are_case_names_similar(current_extracted, verification_canonical_name):
                             if hasattr(citation, 'canonical_name'):
                                 citation.canonical_name = verification_canonical_name
@@ -2251,6 +2542,8 @@ class EnhancedSyncProcessor:
                             logger.info(f"🎯 PRE-CLUSTERING: Updated canonical name: '{verification_canonical_name}' (keeping extracted: '{current_extracted}' for clustering)")
                         else:
                             logger.warning(f"⚠️ PRE-CLUSTERING: Verification result differs significantly: extracted='{current_extracted}' vs verification='{verification_canonical_name}' - keeping extracted")
+                    elif verification_canonical_name and verification_source not in trusted_api_sources:
+                        logger.warning(f"🚫 PRE-CLUSTERING: REJECTED canonical_name from untrusted source '{verification_source}': {verification_canonical_name}")
                 
             except Exception as e:
                 logger.error(f"Error applying canonical name to citation object: {e}")
