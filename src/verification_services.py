@@ -221,12 +221,39 @@ class CourtListenerService:
         result = self._create_fallback_result(citation, 'courtlistener_search')
         
         if 'results' in search_results and search_results['results']:
-            top_result = search_results['results'][0]
+            # CRITICAL FIX: Find the result that actually matches our citation
+            # Don't just take the first result - it might be wrong!
+            matching_result = None
             
-            verification_data = self._parse_verification_result(top_result)
-            result.update(verification_data)
-            result['verified'] = True
-            result['source'] = 'courtlistener_search'
+            # Normalize citation for comparison
+            normalized_citation = citation.strip().lower()
+            
+            for search_result in search_results['results']:
+                # Check if this result contains our citation
+                result_citations = search_result.get('citation', [])
+                if isinstance(result_citations, list):
+                    for result_cit in result_citations:
+                        if isinstance(result_cit, str) and normalized_citation in result_cit.lower():
+                            matching_result = search_result
+                            break
+                elif isinstance(result_citations, str):
+                    if normalized_citation in result_citations.lower():
+                        matching_result = search_result
+                        break
+                
+                if matching_result:
+                    break
+            
+            # If no exact match found, fall back to first result (old behavior)
+            if not matching_result and search_results['results']:
+                logger.warning(f"No exact citation match found for {citation}, using first result")
+                matching_result = search_results['results'][0]
+            
+            if matching_result:
+                verification_data = self._parse_verification_result(matching_result)
+                result.update(verification_data)
+                result['verified'] = True
+                result['source'] = 'courtlistener_search'
         
         return result
     
