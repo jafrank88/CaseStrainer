@@ -62,20 +62,29 @@ class APIDataPreferenceManager:
         
         improvements = []
         
+        # CRITICAL: NEVER overwrite extracted_case_name or extracted_date
+        # These must remain what was found in the user's text
+        # canonical_name and canonical_date are stored separately for reference
+        # This entire section is DISABLED to maintain data integrity
+        
         # Only prefer API data if verification was successful
         if self._is_verification_successful(verified, verification_status):
             
-            # Prefer canonical case name over extracted name
-            if canonical_name and self._should_prefer_canonical_name(extracted_name, canonical_name):
-                logger.debug(f"🔄 Preferring canonical name: '{canonical_name}' over extracted: '{extracted_name}'")
-                citation.extracted_case_name = canonical_name
-                improvements.append('case_name')
+            # DISABLED: Do NOT overwrite extracted_case_name
+            # Users need to find the exact text that was extracted from their document
+            # if canonical_name and self._should_prefer_canonical_name(extracted_name, canonical_name):
+            #     logger.debug(f"🔄 Preferring canonical name: '{canonical_name}' over extracted: '{extracted_name}'")
+            #     citation.extracted_case_name = canonical_name
+            #     improvements.append('case_name')
                 
-            # Prefer canonical date over extracted date
-            if canonical_date and self._should_prefer_canonical_date(extracted_date, canonical_date):
-                logger.debug(f"🔄 Preferring canonical date: '{canonical_date}' over extracted: '{extracted_date}'")
-                citation.extracted_date = canonical_date
-                improvements.append('date')
+            # DISABLED: Do NOT overwrite extracted_date
+            # Users need to find the exact text that was extracted from their document
+            # if canonical_date and self._should_prefer_canonical_date(extracted_date, canonical_date):
+            #     logger.debug(f"🔄 Preferring canonical date: '{canonical_date}' over extracted: '{extracted_date}'")
+            #     citation.extracted_date = canonical_date
+            #     improvements.append('date')
+            
+            pass  # Keep verification data in canonical fields only
         
         # Update statistics
         if improvements:

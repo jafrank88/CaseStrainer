@@ -2153,12 +2153,12 @@ class UnifiedCitationClusterer:
                     cluster_dict['canonical_name'] = cluster_canonical_name
                     # Use the canonical cluster name as the definitive case name
                     cluster_dict['case_name'] = cluster_canonical_name
-                    cluster_dict['extracted_case_name'] = cluster_canonical_name
+                    # CRITICAL: DO NOT overwrite extracted_case_name - it must be from user's text
                 if cluster_canonical_date:
                     cluster_dict['canonical_date'] = cluster_canonical_date
                     # Use the canonical cluster date as the definitive year
                     cluster_dict['year'] = cluster_canonical_date
-                    cluster_dict['extracted_date'] = cluster_canonical_date
+                    # CRITICAL: DO NOT overwrite extracted_date - it must be from user's text
                 if cluster_canonical_url:
                     cluster_dict['canonical_url'] = cluster_canonical_url
             

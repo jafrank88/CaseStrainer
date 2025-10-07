@@ -1028,12 +1028,15 @@ class UnifiedClusteringMaster:
             enhanced.is_in_cluster = parallel
             enhanced.cluster_members = members
 
+            # CRITICAL: NEVER overwrite extracted_case_name with canonical_name
+            # extracted_case_name must be what was found in the user's text
+            # canonical_name is stored separately for reference
             current_name = getattr(enhanced, 'extracted_case_name', None)
             if case_name and case_name != 'N/A' and self._should_replace_case_name(current_name, case_name):
-                enhanced.extracted_case_name = case_name
-                current_name = case_name
-            if verified_flag and canonical_name and canonical_name != 'N/A' and self._should_replace_case_name(current_name, canonical_name):
-                enhanced.extracted_case_name = canonical_name
+                # Only update if case_name came from extraction, not verification
+                if not verified_flag or case_name != canonical_name:
+                    enhanced.extracted_case_name = case_name
+                    current_name = case_name
 
             current_year = getattr(enhanced, 'extracted_date', None)
             if case_year and case_year != 'N/A' and (not current_year or current_year in ('', 'N/A', 'Unknown')):
@@ -1053,12 +1056,15 @@ class UnifiedClusteringMaster:
             enhanced['is_in_cluster'] = parallel
             enhanced['cluster_members'] = members
 
+            # CRITICAL: NEVER overwrite extracted_case_name with canonical_name
+            # extracted_case_name must be what was found in the user's text
+            # canonical_name is stored separately for reference
             current_name = enhanced.get('extracted_case_name')
             if case_name and case_name != 'N/A' and self._should_replace_case_name(current_name, case_name):
-                enhanced['extracted_case_name'] = case_name
-                current_name = case_name
-            if verified_flag and canonical_name and canonical_name != 'N/A' and self._should_replace_case_name(current_name, canonical_name):
-                enhanced['extracted_case_name'] = canonical_name
+                # Only update if case_name came from extraction, not verification
+                if not verified_flag or case_name != canonical_name:
+                    enhanced['extracted_case_name'] = case_name
+                    current_name = case_name
 
             current_year = enhanced.get('extracted_date')
             if case_year and case_year != 'N/A' and (not current_year or current_year in ('', 'N/A', 'Unknown')):
