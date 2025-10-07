@@ -228,6 +228,8 @@ export function useUnifiedProgress() {
     
     if (update.total_progress !== undefined && update.total_progress !== null) {
       progressState.totalProgress = Math.max(0, Math.min(100, update.total_progress));
+    } else if (update.overall_progress !== undefined && update.overall_progress !== null) {
+      progressState.totalProgress = Math.max(0, Math.min(100, update.overall_progress));
     }
     
     // Update elapsed time from backend if provided (check both snake_case and camelCase)
