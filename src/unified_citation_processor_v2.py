@@ -2746,12 +2746,16 @@ class UnifiedCitationProcessorV2:
                     if result.get('verified', False):
                         # Store verified data in canonical fields (per Memory fb7f9974)
                         citation.verified = True
-                        citation.canonical_name = result.get('canonical_name')
+                        new_canonical_name = result.get('canonical_name')
+                        citation.canonical_name = new_canonical_name
                         citation.canonical_date = result.get('canonical_date')
                         citation.canonical_url = result.get('canonical_url')
                         citation.verification_status = "verified"
                         citation.verification_source = result.get('source', 'UnifiedMaster')
                         verified_count += 1
+                        
+                        # CRITICAL LOGGING: Track canonical name assignment
+                        logger.info(f"[VERIFICATION-CANONICAL] {citation.citation} -> canonical_name='{new_canonical_name}' (extracted='{citation.extracted_case_name}')")
                         
                         # CRITICAL: NO CONTAMINATION - Keep original extracted values separate
                         # If extraction failed, keep it as "N/A" - do NOT use verified/canonical data
@@ -3522,11 +3526,22 @@ class UnifiedCitationProcessorV2:
         citations = self._filter_false_positive_citations(citations, text)
         logger.info(f"[UNIFIED_PIPELINE] After false positive filtering: {len(citations)} citations")
         
+        # CRITICAL FIX: Verify citations BEFORE clustering so clustering uses correct canonical names
+        if self.config.enable_verification and citations:
+            logger.info("[UNIFIED_PIPELINE] Phase 4.75: Verifying citations BEFORE clustering (CRITICAL)")
+            self._update_progress(67, "Verifying", "Verifying citations with external sources")
+            verified_citations = self._verify_citations_sync(citations, text)
+            citations = verified_citations
+            logger.info(f"[UNIFIED_PIPELINE] After pre-clustering verification: {len(citations)} citations")
+        else:
+            logger.info("[UNIFIED_PIPELINE] Phase 4.75: Skipping pre-clustering verification (disabled)")
+        
         logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system")
         self._update_progress(70, "Clustering", "Creating citation clusters")
         from src.unified_clustering_master import cluster_citations_unified_master
-        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=True)
-        logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering with validation")
+        # CRITICAL: Disable verification inside clustering since we already verified above
+        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=False)
+        logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering")
         
         # CRITICAL FIX: Update citation objects with cluster information immediately
         # This must happen BEFORE any serialization to ensure cluster data persists
@@ -3559,14 +3574,8 @@ class UnifiedCitationProcessorV2:
         
         logger.info(f"[UNIFIED_PIPELINE] Updated {updated_count} citations with cluster information")
         
-        if self.config.enable_verification and citations:
-            logger.info("[UNIFIED_PIPELINE] Phase 6: Verifying citations (enabled)")
-            self._update_progress(80, "Verifying", "Verifying citations with external sources")
-            verified_citations = self._verify_citations_sync(citations, text)
-            citations = verified_citations
-            logger.info(f"[UNIFIED_PIPELINE] After verification: {len(citations)} citations")
-        else:
-            logger.info("[UNIFIED_PIPELINE] Phase 6: Skipping verification (disabled)")
+        # REMOVED: Duplicate verification step - already done before clustering at Phase 4.75
+        logger.info("[UNIFIED_PIPELINE] Phase 6: Verification already completed before clustering")
         
         # Validate cluster consistency before returning results
         logger.info("[UNIFIED_PIPELINE] Phase 7: Validating cluster consistency")

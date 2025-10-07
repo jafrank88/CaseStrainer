@@ -957,6 +957,10 @@ class UnifiedClusteringMaster:
                 case_year = Counter(canonical_years).most_common(1)[0][0]
             else:
                 case_year = self._select_best_case_year(group)
+            
+            # CRITICAL LOGGING: Track what canonical names were found in this group
+            if canonical_names:
+                logger.info(f"[CLUSTER-CANONICAL] Group has {len(canonical_names)} verified canonical names: {canonical_names[:3]}... -> selected: '{case_name}'")
 
             if not case_name:
                 for citation in group:
