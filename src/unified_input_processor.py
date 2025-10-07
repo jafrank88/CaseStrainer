@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, Union
 from urllib.parse import urlparse
 from werkzeug.datastructures import FileStorage
 
-from src.pdf_extraction_optimized import extract_text_from_pdf_smart
+from src.robust_pdf_extractor import extract_text_from_pdf_smart
 from src.progress_manager import fetch_url_content
 from src.api.services.citation_service import CitationService
 
