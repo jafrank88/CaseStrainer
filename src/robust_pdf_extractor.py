@@ -10,6 +10,14 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+# Import footnote converter
+try:
+    from src.footnote_to_endnote_converter import convert_footnotes_to_endnotes
+    FOOTNOTE_CONVERTER_AVAILABLE = True
+except ImportError:
+    logger.warning("Footnote converter not available")
+    FOOTNOTE_CONVERTER_AVAILABLE = False
+
 class RobustPDFExtractor:
     """
     Robust PDF text extraction with multiple library fallbacks.
@@ -22,8 +30,15 @@ class RobustPDFExtractor:
     5. PyPDF2 - Legacy, least reliable
     """
 
-    def __init__(self):
+    def __init__(self, convert_footnotes: bool = True):
+        """
+        Initialize PDF extractor.
+        
+        Args:
+            convert_footnotes: Whether to convert footnotes to endnotes (improves citation extraction)
+        """
         self.available_libraries = self._check_available_libraries()
+        self.convert_footnotes = convert_footnotes and FOOTNOTE_CONVERTER_AVAILABLE
 
     def _check_available_libraries(self) -> List[str]:
         """Check which PDF libraries are available."""
@@ -97,6 +112,15 @@ class RobustPDFExtractor:
                     logger.info(f"✅ {library} succeeded: {len(text):,} chars, quality score: {quality_score}")
 
                     if quality_score >= 0.3:  # Acceptable quality
+                        # Convert footnotes to endnotes if enabled
+                        if self.convert_footnotes:
+                            try:
+                                text, footnote_count = convert_footnotes_to_endnotes(text, enable=True)
+                                if footnote_count > 0:
+                                    logger.info(f"📝 Converted {footnote_count} footnotes to endnotes")
+                            except Exception as e:
+                                logger.warning(f"Footnote conversion failed: {e}, using original text")
+                        
                         return text, library
                     else:
                         logger.warning(f"⚠️ {library} extracted text but quality is low ({quality_score:.2f})")
@@ -255,18 +279,19 @@ class RobustPDFExtractor:
 
 
 # Convenience function for easy use
-def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None) -> Tuple[str, str]:
+def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = True) -> Tuple[str, str]:
     """
     Convenience function to extract text from PDF with robust fallbacks.
 
     Args:
         pdf_path: Path to PDF file
         max_pages: Maximum pages to process (None for all)
+        convert_footnotes: Whether to convert footnotes to endnotes (improves citation extraction)
 
     Returns:
         Tuple of (extracted_text, library_used)
     """
-    extractor = RobustPDFExtractor()
+    extractor = RobustPDFExtractor(convert_footnotes=convert_footnotes)
     return extractor.extract_text(pdf_path, max_pages)
 
 
