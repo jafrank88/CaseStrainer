@@ -358,7 +358,13 @@ class UnifiedVerificationMaster:
             
             # citation-lookup returns clusters array directly
             if data.get('clusters') and len(data['clusters']) > 0:
-                cluster = data['clusters'][0]
+                # CRITICAL FIX: Find the cluster that actually contains our citation
+                # Don't blindly take the first one!
+                cluster = await self._find_matching_cluster(data['clusters'], citation)
+                
+                if not cluster:
+                    logger.warning(f"No matching cluster found for {citation}, using first cluster")
+                    cluster = data['clusters'][0]
                 
                 canonical_name = cluster.get('case_name')
                 canonical_date = cluster.get('date_filed')
@@ -404,6 +410,59 @@ class UnifiedVerificationMaster:
         except Exception as e:
             logger.warning(f"CourtListener lookup failed for {citation}: {e}")
             return VerificationResult(citation=citation, error=f"CourtListener lookup error: {e}")
+    
+    async def _find_matching_cluster(self, clusters: List[Dict[str, Any]], target_citation: str) -> Optional[Dict[str, Any]]:
+        """
+        Find the cluster that actually contains the target citation.
+        
+        This prevents the bug where we blindly take the first cluster when
+        CourtListener returns multiple clusters for a citation.
+        
+        Args:
+            clusters: List of cluster dictionaries from CourtListener
+            target_citation: The citation we're looking for (e.g., "521 U.S. 811")
+        
+        Returns:
+            The matching cluster, or None if no match found
+        """
+        if not clusters or not target_citation:
+            return None
+        
+        normalized_target = target_citation.strip().lower()
+        
+        for cluster in clusters:
+            try:
+                # Get the cluster's absolute URL to fetch full details
+                cluster_url = cluster.get('absolute_url')
+                if not cluster_url:
+                    continue
+                
+                # Fetch full cluster details to check citations
+                full_url = f"https://www.courtlistener.com{cluster_url}"
+                response = self.session.get(full_url, timeout=10)
+                
+                if response.status_code == 200:
+                    cluster_data = response.json()
+                    
+                    # Check if this cluster contains our target citation
+                    cluster_citations = cluster_data.get('citations', [])
+                    for cit in cluster_citations:
+                        if isinstance(cit, str):
+                            if normalized_target in cit.lower():
+                                logger.info(f"✅ Found matching cluster for {target_citation}")
+                                return cluster_data
+                        elif isinstance(cit, dict):
+                            cit_text = cit.get('cite', '') or cit.get('citation', '')
+                            if normalized_target in cit_text.lower():
+                                logger.info(f"✅ Found matching cluster for {target_citation}")
+                                return cluster_data
+            
+            except Exception as e:
+                logger.debug(f"Error checking cluster: {e}")
+                continue
+        
+        logger.warning(f"⚠️  No cluster found matching {target_citation}")
+        return None
     
     async def _verify_with_courtlistener_search(
         self, 
