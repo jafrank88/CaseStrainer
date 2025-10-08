@@ -317,18 +317,17 @@ class UnifiedExtractionArchitecture:
                     
                     # Simple validation
                     if len(case_name) > 5 and 'v.' in case_name:
-                        canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                        preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                        preferred_year = self._prefer_canonical_year("Unknown", canonical_meta)
+                        # CRITICAL: Do NOT set canonical_name during extraction!
+                        # canonical_name should ONLY be set during verification
                         return ExtractionResult(
-                            case_name=preferred_name,
-                            year=preferred_year,
+                            case_name=case_name,  # Use extracted name only
+                            year="Unknown",
                             confidence=0.9,
                             method=f"adjusted_context_pattern_{i+1}",
                             context=context[:100] + "..." if len(context) > 100 else context,
-                            debug_info={"canonical": canonical_meta},
-                            canonical_name=canonical_meta.get("canonical_name"),
-                            canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                            debug_info={},
+                            canonical_name=None,  # Never set during extraction
+                            canonical_year=None  # Never set during extraction
                         )
         
         if debug:
@@ -363,18 +362,16 @@ class UnifiedExtractionArchitecture:
                 if debug:
                     logger.warning(f"✅ STRING_CITATION: Found string citation pattern: '{case_name}'")
                 
-                canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                preferred_year = self._prefer_canonical_year("Unknown", canonical_meta)
+                # CRITICAL: Do NOT set canonical_name during extraction
                 return ExtractionResult(
-                    case_name=preferred_name,
-                    year=preferred_year,
+                    case_name=case_name,  # Use extracted name only
+                    year="Unknown",
                     confidence=0.9,
                     method="string_citation_parsing",
                     context=context[:100] + "...",
-                    debug_info={"canonical": canonical_meta},
-                    canonical_name=canonical_meta.get("canonical_name"),
-                    canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                    debug_info={},
+                    canonical_name=None,  # Never set during extraction
+                    canonical_year=None  # Never set during extraction
                 )
             
             return None
@@ -696,20 +693,18 @@ class UnifiedExtractionArchitecture:
                             year = self._extract_year_from_context(context, citation)
                             if debug:
                                 logger.warning(f"🧠 CONTEXT_FLOW: Returning case from context_pattern_{i+1}: '{case_name}'")
-                            canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                            preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                            preferred_year = self._prefer_canonical_year(year, canonical_meta)
+                            # CRITICAL: Do NOT set canonical_name during extraction
                             return ExtractionResult(
-                                case_name=preferred_name,
-                                year=preferred_year,
+                                case_name=case_name,
+                                year=year,
                                 confidence=0.95,
                                 method=f"context_pattern_{i+1}",
                                 start_index=start_index,
                                 end_index=end_index,
                                 context=context,
-                                debug_info={'pattern_used': pattern, 'match_distance': min_distance, 'canonical': canonical_meta},
-                                canonical_name=canonical_meta.get("canonical_name"),
-                                canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                                debug_info={'pattern_used': pattern, 'match_distance': min_distance},
+                                canonical_name=None,
+                                canonical_year=None
                             )
                         elif debug:
                             logger.warning(f"ðŸ” UNIFIED_EXTRACT: Case name failed validation: '{case_name}'")
@@ -754,20 +749,18 @@ class UnifiedExtractionArchitecture:
                         year = self._extract_year_from_context(context, citation)
                         if debug:
                             logger.warning(f"🧠 CONTEXT_FLOW: Returning case from pre_citation_pattern_{i+1}: '{case_name}'")
-                        canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                        preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                        preferred_year = self._prefer_canonical_year(year, canonical_meta)
+                        # CRITICAL: Do NOT set canonical_name during extraction
                         return ExtractionResult(
-                            case_name=preferred_name,
-                            year=preferred_year,
+                            case_name=case_name,
+                            year=year,
                             confidence=0.95,
                             method=f"pre_citation_pattern_{i+1}",
                             start_index=start_index,
                             end_index=end_index,
                             context=context,
-                            debug_info={'pattern_used': pattern, 'match_position': 'pre_citation', 'canonical': canonical_meta},
-                            canonical_name=canonical_meta.get("canonical_name"),
-                            canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                            debug_info={'pattern_used': pattern, 'match_position': 'pre_citation'},
+                            canonical_name=None,
+                            canonical_year=None
                         )
             
             # Fallback to original targeted approach
@@ -886,20 +879,18 @@ class UnifiedExtractionArchitecture:
                             if self._is_valid_case_name(case_name):
                                 year = self._extract_year_from_text(search_text, citation)
                                 
-                                canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                                preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                                preferred_year = self._prefer_canonical_year(year, canonical_meta)
+                                # CRITICAL: Do NOT set canonical_name during extraction
                                 return ExtractionResult(
-                                    case_name=preferred_name,
-                                    year=preferred_year,
+                                    case_name=case_name,
+                                    year=year,
                                     confidence=0.8,
                                     method=f"fallback_pattern_{i+1}",
                                     start_index=start_index,
                                     end_index=end_index,
                                     context=search_text[:100] + "...",
-                                    debug_info={'pattern_used': pattern, 'single_group': True, 'canonical': canonical_meta},
-                                    canonical_name=canonical_meta.get("canonical_name"),
-                                    canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                                    debug_info={'pattern_used': pattern, 'single_group': True},
+                                    canonical_name=None,
+                                    canonical_year=None
                                 )
                             continue
                         elif len(groups) >= 2:
@@ -921,20 +912,18 @@ class UnifiedExtractionArchitecture:
                         if self._is_valid_case_name(case_name):
                             year = self._extract_year_from_text(search_text, citation)
                             
-                            canonical_meta = self._get_canonical_metadata_for_citation(citation)
-                            preferred_name = self._prefer_canonical_name(case_name, canonical_meta)
-                            preferred_year = self._prefer_canonical_year(year, canonical_meta)
+                            # CRITICAL: Do NOT set canonical_name during extraction
                             return ExtractionResult(
-                                case_name=preferred_name,
-                                year=preferred_year,
+                                case_name=case_name,
+                                year=year,
                                 confidence=0.8,
                                 method=f"fallback_pattern_{i+1}",
                                 start_index=start_index,
                                 end_index=end_index,
                                 context=search_text,
-                                debug_info={'pattern_used': pattern, 'match_distance': min_distance, 'search_radius': search_radius, 'canonical': canonical_meta},
-                                canonical_name=canonical_meta.get("canonical_name"),
-                                canonical_year=self._extract_year_value(canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date"))
+                                debug_info={'pattern_used': pattern, 'match_distance': min_distance, 'search_radius': search_radius},
+                                canonical_name=None,
+                                canonical_year=None
                             )
             
             return ExtractionResult(
@@ -1358,19 +1347,18 @@ class UnifiedExtractionArchitecture:
             if use_fallback:
                 if debug:
                     logger.warning(f"🧠 FALLBACK: Using direct pattern recovery '{cleaned_fallback}' (overriding best='{cleaned_best_case}')")
-                preferred_name = self._prefer_canonical_name(cleaned_fallback, canonical_metadata)
-                preferred_year = self._prefer_canonical_year(year, canonical_metadata)
+                # CRITICAL: Do NOT set canonical_name during extraction
                 return ExtractionResult(
-                    case_name=preferred_name,
-                    year=preferred_year,
+                    case_name=cleaned_fallback,
+                    year=year,
                     confidence=0.9,
                     method="direct_citation_pattern",
                     start_index=start_index,
                     end_index=end_index,
                     context=extended_context,
-                    debug_info={"canonical": canonical_metadata},
-                    canonical_name=canonical_metadata.get("canonical_name"),
-                    canonical_year=self._extract_year_value(canonical_metadata.get("canonical_year"))
+                    debug_info={},
+                    canonical_name=None,
+                    canonical_year=None
                 )
 
         # If we found a good case name, return it
@@ -1378,19 +1366,18 @@ class UnifiedExtractionArchitecture:
             year = self._extract_year_from_context(context, citation)
             if debug:
                 logger.warning(f"🧠 INTELLIGENT_EXTRACT: Returning best candidate '{cleaned_best_case}' (confidence={best_confidence:.2f})")
-            preferred_name = self._prefer_canonical_name(cleaned_best_case, canonical_metadata)
-            preferred_year = self._prefer_canonical_year(year, canonical_metadata)
+            # CRITICAL: Do NOT set canonical_name during extraction
             return ExtractionResult(
-                case_name=preferred_name,
-                year=preferred_year,
+                case_name=cleaned_best_case,
+                year=year,
                 confidence=min(0.99, best_confidence),  # Cap confidence at 0.99
                 method="enhanced_intelligent_extraction",
                 start_index=start_index,
                 end_index=end_index,
                 context=context,
-                debug_info={"canonical": canonical_metadata},
-                canonical_name=canonical_metadata.get("canonical_name"),
-                canonical_year=self._extract_year_value(canonical_metadata.get("canonical_year") or canonical_metadata.get("canonical_date"))
+                debug_info={},
+                canonical_name=None,
+                canonical_year=None
             )
         
         if fallback_case:
@@ -1402,19 +1389,18 @@ class UnifiedExtractionArchitecture:
             if cleaned_fallback:
                 if debug:
                     logger.warning(f"🧠 FALLBACK: Using direct pattern recovery '{cleaned_fallback}' (best case invalid)")
-                preferred_name = self._prefer_canonical_name(cleaned_fallback, canonical_metadata)
-                preferred_year = self._prefer_canonical_year(year, canonical_metadata)
+                # CRITICAL: Do NOT set canonical_name during extraction
                 return ExtractionResult(
-                    case_name=preferred_name,
-                    year=preferred_year,
+                    case_name=cleaned_fallback,
+                    year=year,
                     confidence=0.8,
                     method="direct_citation_pattern",
                     start_index=start_index,
                     end_index=end_index,
                     context=context,
-                    debug_info={"canonical": canonical_metadata},
-                    canonical_name=canonical_metadata.get("canonical_name"),
-                    canonical_year=self._extract_year_value(canonical_metadata.get("canonical_year") or canonical_metadata.get("canonical_date"))
+                    debug_info={},
+                    canonical_name=None,
+                    canonical_year=None
                 )
         
         if debug:
