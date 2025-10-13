@@ -179,6 +179,51 @@ function Start-Development {
     Write-Host "- View logs with: .\cslaunch.ps1 logs" -ForegroundColor Cyan
 }
 
+# Build Vue frontend
+function Build-VueFrontend {
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n=== Building Vue Frontend ===" -ForegroundColor Cyan
+    
+    $vueDir = Join-Path $config.ProjectRoot "casestrainer-vue-new"
+    
+    if (-not (Test-Path $vueDir)) {
+        Write-Host "[WARNING] Vue directory not found at: $vueDir" -ForegroundColor Yellow
+        return $false
+    }
+    
+    Push-Location $vueDir
+    try {
+        Write-Host "Running npm run build..." -ForegroundColor Yellow
+        
+        # Check if node_modules exists
+        if (-not (Test-Path "node_modules")) {
+            Write-Host "Installing npm dependencies..." -ForegroundColor Yellow
+            npm install
+            if ($LASTEXITCODE -ne 0) {
+                throw "npm install failed"
+            }
+        }
+        
+        # Build Vue
+        npm run build
+        if ($LASTEXITCODE -ne 0) {
+            throw "npm build failed"
+        }
+        
+        Write-Host "Vue frontend build completed successfully!" -ForegroundColor Green
+        return $true
+    }
+    catch {
+        Write-Host "[ERROR] Vue build failed: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+    finally {
+        Pop-Location
+    }
+}
+
 # Start production environment
 function Start-Production {
     [CmdletBinding()]
@@ -188,22 +233,54 @@ function Start-Production {
         [switch]$Force
     )
     
+    Write-Host "`n`n===============================================" -ForegroundColor Yellow
+    Write-Host "=== UPDATED FAST-RESTART VERSION (v2.0) ===" -ForegroundColor Yellow
+    Write-Host "==============================================`n" -ForegroundColor Yellow
     Write-Host "`n=== Starting Production Environment ===" -ForegroundColor Cyan
     
-    # Check for existing containers
-    $containers = docker ps -a --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer_' }
-    
-    if ($containers -and -not $Force) {
-        Write-Host "[WARNING] Existing containers found. Use -Force to recreate them." -ForegroundColor Yellow
-        return
+    # Only build Vue frontend if explicitly requested with -Build flag
+    if ($Build) {
+        Write-Host "Building Vue frontend..." -ForegroundColor Yellow
+        if (-not (Build-VueFrontend)) {
+            Write-Host "[WARNING] Vue build failed or skipped. Continuing with existing build..." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "Skipping Vue frontend build (use -Build flag to rebuild frontend)" -ForegroundColor Yellow
     }
     
-    # Build containers if requested
+    # Check for existing containers (production uses hyphen, not underscore)
+    $containers = @(docker ps -a --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer-' })
+    $containerCount = $containers.Count
+    
+    Write-Host "`n[DEBUG] Found $containerCount existing CaseStrainer containers" -ForegroundColor DarkGray
+    
+    # Skip build by default since we use volume mounts (much faster!)
+    # Only rebuild Docker images when explicitly requested with -Build
     if ($Build) {
-        Write-Host "Building production containers..." -ForegroundColor Yellow
+        Write-Host "Building production containers (this will take 5-8 minutes)..." -ForegroundColor Yellow
         if (-not (Start-DockerBuild -DockerComposeFile $config.DockerComposeFile -DockerComposeFile $config.DockerComposeProdFile -NoCache:$NoCache)) {
             throw "Failed to build production containers"
         }
+        # After build, force recreate to use new images
+        $Force = $true
+    } else {
+        Write-Host "Skipping Docker image rebuild (using volume mounts for fast Python updates)" -ForegroundColor Green
+        Write-Host "  - To rebuild Docker images: ./cslaunch -Build" -ForegroundColor DarkGray
+        Write-Host "  - Your Python code changes take effect immediately via volume mounts" -ForegroundColor DarkGray
+    }
+    
+    # CRITICAL FIX: Check Count property, not array itself (empty arrays are truthy in PowerShell!)
+    if ($containerCount -gt 0 -and -not $Force) {
+        Write-Host "[INFO] Found $($containers.Count) existing containers. Performing quick restart..." -ForegroundColor Cyan
+        Write-Host "  This should take ~10-20 seconds..." -ForegroundColor DarkGray
+        docker-compose -f $config.DockerComposeFile -f $config.DockerComposeProdFile restart
+        if ($LASTEXITCODE -ne 0) {
+            throw "Failed to restart containers"
+        }
+        Write-Host "`n✅ Production environment restarted in seconds!" -ForegroundColor Green
+        Write-Host "- Application: http://localhost" -ForegroundColor Cyan
+        Write-Host "- Your Python changes from volume mounts are now active" -ForegroundColor DarkGray
+        return
     }
     
     # Start services
@@ -213,6 +290,13 @@ function Start-Production {
         "-f", $config.DockerComposeProdFile,
         "up", "-d"
     )
+    
+    # CRITICAL: Add --no-build to prevent automatic rebuilding during 'up'
+    # This ensures we only build when explicitly requested with -Build flag
+    if (-not $Build) {
+        $composeArgs += "--no-build"
+        Write-Host "  Using --no-build flag (skipping image rebuild)" -ForegroundColor DarkGray
+    }
     
     if ($Force) {
         $composeArgs += "--force-recreate"
@@ -266,7 +350,7 @@ function Get-ServiceStatus {
     Write-Host "`n=== Service Status ===" -ForegroundColor Cyan
     
     # Get all CaseStrainer containers
-    $containers = docker ps -a --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer_' }
+    $containers = docker ps -a --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer-' }
     
     if (-not $containers) {
         Write-Host "No CaseStrainer containers are running" -ForegroundColor Yellow
@@ -274,7 +358,7 @@ function Get-ServiceStatus {
     else {
         # Get detailed container info
         $containerInfo = docker ps -a --format '{{.Names}}\t{{.Status}}\t{{.Ports}}' | 
-            Where-Object { $_ -match 'casestrainer_' }
+            Where-Object { $_ -match 'casestrainer-' }
     
         if ($containerInfo) {
             Write-Host "`nContainers:" -ForegroundColor Yellow
@@ -327,10 +411,17 @@ function Show-Logs {
     Write-Host "`n=== Container Logs ===" -ForegroundColor Cyan
     
     foreach ($service in $Services) {
-        $containerName = "casestrainer_${service}_1"
+        # Try production naming first (casestrainer-service-prod)
+        $containerName = "casestrainer-${service}-prod"
         
         # Check if container exists
         $exists = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $containerName }
+        
+        # Fallback to dev naming if not found
+        if (-not $exists) {
+            $containerName = "casestrainer_${service}_1"
+            $exists = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $containerName }
+        }
         
         if (-not $exists) {
             Write-Host "[WARNING] Container $containerName not found" -ForegroundColor Yellow
