@@ -603,135 +603,15 @@ def fetch_url_content(url: str) -> str:
             'Upgrade-Insecure-Requests': '1',
         }
         
-        # CRITICAL: Convert CourtListener web URLs using CASE NAME instead of opinion ID
-        # Opinion IDs are unreliable and can point to wrong cases
-        if 'courtlistener.com' in url.lower():
-            from src.config import COURTLISTENER_API_KEY
-            
-            # Extract case name from URL slug instead of using opinion ID
-            # Example: https://www.courtlistener.com/opinion/10320728/robert-cassell-v-state-of-alaska-department-of-fish-game-board-of-game/
-            #       -> Search for "Robert Cassell v. State of Alaska Department of Fish Game Board of Game"
-            if '/opinion/' in url and '/api/' not in url:
-                import re
-                # Extract the slug (case name) from URL
-                slug_match = re.search(r'/opinion/\d+/([^/]+)', url)
-                if slug_match:
-                    slug = slug_match.group(1)
-                    # Convert slug to case name intelligently
-                    # "robert-cassell-v-state-of-alaska" -> "Robert Cassell v. State of Alaska"
-                    words = slug.split('-')
-                    case_name_parts = []
-                    lowercase_words = {'of', 'the', 'and', 'for', 'in', 'on', 'at', 'to', 'a', 'an'}
-                    
-                    for i, word in enumerate(words):
-                        if word == 'v' or word == 'vs':
-                            case_name_parts.append('v.')
-                        elif i > 0 and word.lower() in lowercase_words:
-                            # Keep lowercase for articles/prepositions (except first word)
-                            case_name_parts.append(word.lower())
-                        else:
-                            # Capitalize first letter, keep rest lowercase
-                            case_name_parts.append(word.capitalize())
-                    
-                    case_name = ' '.join(case_name_parts)
-                    
-                    # Extract just the main parties for search (before " v. ")
-                    party_match = re.match(r'([^v]+)\s+v\.\s+([^,]+)', case_name)
-                    if party_match:
-                        party1 = party_match.group(1).strip()
-                        party2 = party_match.group(2).strip()
-                        search_query = f"{party1} {party2}"
-                    else:
-                        search_query = case_name
-                    
-                    logger.info(f"🔄 CourtListener URL: Using case name from slug instead of opinion ID")
-                    logger.info(f"   Original URL: {url}")
-                    logger.info(f"   Extracted case name: {case_name}")
-                    logger.info(f"   Search query: {search_query}")
-                    
-                    if COURTLISTENER_API_KEY:
-                        try:
-                            # CRITICAL: Use proper API path via cluster to avoid mismatched data
-                            # Direct opinion API access can return wrong documents
-                            import requests
-                            import time
-                            search_url = f'https://www.courtlistener.com/api/rest/v4/search/?type=o&q={search_query}'
-                            search_headers = {
-                                'Authorization': f'Token {COURTLISTENER_API_KEY}',
-                                'Accept': 'application/json'
-                            }
-                            
-                            # RATE LIMIT HANDLING: Retry with exponential backoff on 429
-                            max_retries = 3
-                            retry_delay = 2  # Start with 2 seconds
-                            search_response = None
-                            
-                            for attempt in range(max_retries):
-                                try:
-                                    search_response = requests.get(search_url, headers=search_headers, timeout=10)
-                                    
-                                    if search_response.status_code == 429:
-                                        if attempt < max_retries - 1:
-                                            logger.warning(f"⚠️  Rate limited (429), retrying in {retry_delay}s (attempt {attempt + 1}/{max_retries})")
-                                            time.sleep(retry_delay)
-                                            retry_delay *= 2  # Exponential backoff
-                                            continue
-                                        else:
-                                            logger.error(f"❌ Rate limited after {max_retries} attempts, falling back to HTML scraping")
-                                            raise requests.exceptions.HTTPError("429 Too Many Requests")
-                                    
-                                    search_response.raise_for_status()
-                                    break  # Success, exit retry loop
-                                    
-                                except requests.exceptions.Timeout:
-                                    if attempt < max_retries - 1:
-                                        logger.warning(f"⚠️  Timeout, retrying in {retry_delay}s (attempt {attempt + 1}/{max_retries})")
-                                        time.sleep(retry_delay)
-                                        retry_delay *= 2
-                                        continue
-                                    raise
-                            
-                            search_data = search_response.json()
-                            
-                            if search_data.get('count', 0) > 0:
-                                # Get cluster_id from search result
-                                first_result = search_data['results'][0]
-                                cluster_id = first_result.get('cluster_id')
-                                
-                                if cluster_id:
-                                    # Fetch cluster to get sub_opinions
-                                    cluster_url = f"https://www.courtlistener.com/api/rest/v4/clusters/{cluster_id}/"
-                                    cluster_response = requests.get(cluster_url, headers=search_headers, timeout=10)
-                                    cluster_response.raise_for_status()
-                                    cluster_data = cluster_response.json()
-                                    
-                                    # Get the first sub-opinion URL
-                                    sub_opinions = cluster_data.get('sub_opinions', [])
-                                    if sub_opinions:
-                                        opinion_url = sub_opinions[0]  # This is the full API URL
-                                        logger.info(f"✅ Found case via cluster API: cluster_id={cluster_id}")
-                                        logger.info(f"   Using sub-opinion: {opinion_url}")
-                                        url = opinion_url
-                                    else:
-                                        logger.warning(f"⚠️  Cluster {cluster_id} has no sub_opinions")
-                                else:
-                                    logger.warning(f"⚠️  Search result doesn't have cluster_id")
-                            else:
-                                logger.warning(f"⚠️  Case name search returned 0 results, falling back to HTML scraping")
-                                # Keep original URL, will scrape HTML
-                        except Exception as e:
-                            logger.error(f"❌ Case name search failed: {e}, falling back to HTML scraping")
-                            # Keep original URL, will scrape HTML
-                    else:
-                        logger.warning(f"⚠️  No API key available, will scrape HTML")
-            
-            if COURTLISTENER_API_KEY:
-                headers['Authorization'] = f'Token {COURTLISTENER_API_KEY}'
-                if '/api/' in url:
-                    headers['Accept'] = 'application/json'  # Request JSON from API
-                logger.info(f"✅ Added CourtListener API key to request")
-            else:
-                logger.warning(f"⚠️  CourtListener URL detected but no API key available")
+        # OPTIMIZATION: For CourtListener opinion URLs, skip API search to avoid rate limits
+        # Just scrape the HTML directly - it's faster and has all the content we need
+        if 'courtlistener.com' in url.lower() and '/opinion/' in url and '/api/' not in url:
+            logger.info(f"🔄 CourtListener opinion URL detected - will scrape HTML directly (skipping API to avoid rate limits)")
+            # Keep original URL, will scrape HTML below
+            # No API search needed!
+        
+        # API search disabled for CourtListener opinion URLs (see above)
+        # This avoids rate limit errors and is faster
         
         if url.lower().endswith('.pdf'):
             headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
