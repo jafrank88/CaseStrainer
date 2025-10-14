@@ -374,8 +374,44 @@ class UnifiedVerificationMaster:
             try:
                 response = self.session.post(url, json=payload, timeout=30)
                 logger.error(f"[BATCH-API-DEBUG] Response status: {response.status_code}")
+                
+                # Handle 429 rate limit - fall back to enhanced fallback verifier
+                if response.status_code == 429:
+                    logger.warning(f"⚠️  CourtListener rate limited (429) - falling back to enhanced verifier for {len(citations)} citations")
+                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                    fallback = EnhancedFallbackVerifier()
+                    fallback_results = []
+                    for i, citation in enumerate(citations):
+                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                        fallback_result = await fallback.verify_citation_async(
+                            citation, 
+                            extracted_case_name=extracted_name,
+                            extracted_date=extracted_date
+                        )
+                        fallback_results.append(fallback_result)
+                    logger.info(f"✅ Fallback verification completed for {len(fallback_results)} citations")
+                    return fallback_results
+                
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
+                # Check if it's a 429 that wasn't caught above
+                if hasattr(e, 'response') and e.response.status_code == 429:
+                    logger.warning(f"⚠️  CourtListener rate limited (429) - falling back to enhanced verifier")
+                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                    fallback = EnhancedFallbackVerifier()
+                    fallback_results = []
+                    for i, citation in enumerate(citations):
+                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                        fallback_result = await fallback.verify_citation_async(
+                            citation,
+                            extracted_case_name=extracted_name,
+                            extracted_date=extracted_date
+                        )
+                        fallback_results.append(fallback_result)
+                    return fallback_results
+                
                 logger.error(f"[BATCH-API-DEBUG] HTTP Error: {e}")
                 logger.error(f"[BATCH-API-DEBUG] Response text: {response.text[:200]}")
                 raise

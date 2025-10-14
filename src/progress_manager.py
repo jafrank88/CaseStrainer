@@ -605,6 +605,10 @@ def fetch_url_content(url: str) -> str:
         
         # OPTIMIZATION: For CourtListener opinion URLs, convert to API endpoint
         # Web URLs return 202, but API endpoint returns JSON immediately with full text
+        # Store original URL for fallback if API is rate-limited
+        original_url = url
+        courtlistener_api_attempted = False
+        
         if 'courtlistener.com' in url.lower() and '/opinion/' in url and '/api/' not in url:
             import re
             # Extract opinion ID from URL: /opinion/10460933/robert-cassell-v-state...
@@ -617,6 +621,7 @@ def fetch_url_content(url: str) -> str:
                 logger.info(f"   Opinion ID: {opinion_id}")
                 logger.info(f"   API URL: {api_url}")
                 url = api_url
+                courtlistener_api_attempted = True
                 # Add API headers
                 from src.config import COURTLISTENER_API_KEY
                 if COURTLISTENER_API_KEY:
@@ -670,6 +675,24 @@ def fetch_url_content(url: str) -> str:
                     continue
                 else:
                     logger.error(f"❌ Still rate limited after {max_attempts} attempts")
+                    # FALLBACK: If this was a CourtListener API endpoint, try HTML scraping instead
+                    if courtlistener_api_attempted and original_url != url:
+                        logger.warning(f"🔄 Falling back to HTML scraping from original URL")
+                        logger.info(f"   Original URL: {original_url}")
+                        url = original_url
+                        # Reset headers for HTML scraping
+                        headers.pop('Authorization', None)
+                        headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                        # Try one more time with the original URL
+                        response = requests.get(url, headers=headers, timeout=DEFAULT_REQUEST_TIMEOUT, allow_redirects=True, stream=True)
+                        logger.info(f"Fallback response status: {response.status_code}")
+                        if response.status_code != 429:
+                            response.raise_for_status()
+                            break
+                        else:
+                            logger.error(f"❌ HTML fallback also rate limited")
+                    # If not CourtListener or fallback failed, raise the error
+                    response.raise_for_status()
             
             response.raise_for_status()
             break
