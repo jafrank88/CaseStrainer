@@ -1,6 +1,8 @@
 """
 Progress Bar Solutions for CaseStrainer Citation Processing
 Multiple approaches to provide real-time progress feedback to users
+Progress Manager for Citation Extraction Tasks
+AUTO-RELOAD LIVE TEST: This change should trigger immediate restart!
 """
 
 import os
@@ -9,13 +11,12 @@ from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_
 import sys
 import time
 import json
-import uuid
 import logging
-import threading
-import traceback
 import requests
-from urllib.parse import urlparse
-from typing import Dict, List, Any, Optional, Union, Tuple
+import json
+import time
+from datetime import datetime
+from typing import Dict, Any, Optional, List, Union, Tuple
 from datetime import datetime, timedelta
 from flask import Flask, jsonify, request, Response, stream_with_context
 
@@ -316,35 +317,43 @@ class ChunkedCitationProcessor:
         return processed
     
     async def _process_chunk(self, chunk: str, document_type: str) -> List[Dict]:
-        """Process a single chunk for citations using the canonical UnifiedCitationProcessorV2."""
+        """Process a single chunk for citations using the CLEAN extraction pipeline."""
         chunk_hash = hash(chunk) % 1000
         logger.info(f"[Chunk-{chunk_hash}] Starting chunk processing (size: {len(chunk)} chars)")
         
         try:
-            logger.info(f"[Chunk-{chunk_hash}] Importing EnhancedSyncProcessor...")
-            from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
+            logger.info(f"[Chunk-{chunk_hash}] Using CleanExtractionPipeline...")
+            from src.clean_extraction_pipeline import CleanExtractionPipeline
             
-            logger.info(f"[Chunk-{chunk_hash}] Creating ProcessingOptions...")
-            options = ProcessingOptions(
-                enable_async_verification=True,
-                enable_enhanced_verification=True,
-                enable_confidence_scoring=True
-            )
+            logger.info(f"[Chunk-{chunk_hash}] Creating clean pipeline...")
+            pipeline = CleanExtractionPipeline()
             
-            logger.info(f"[Chunk-{chunk_hash}] Creating processor instance...")
-            processor = EnhancedSyncProcessor(options)
-            
-            logger.info(f"[Chunk-{chunk_hash}] Starting process_any_input_enhanced()...")
+            logger.info(f"[Chunk-{chunk_hash}] Starting extract_citations()...")
             start_time = time.time()
             
-            results = processor.process_any_input_enhanced(
-                chunk, 
-                'text', 
-                {'wait_for_verification': True, 'chunk_index': chunk_hash}  # Wait for async verification to complete
-            )
+            # Extract citations using clean pipeline
+            citation_results = pipeline.extract_citations(chunk)
             
             process_time = time.time() - start_time
-            logger.info(f"[Chunk-{chunk_hash}] process_any_input_enhanced() completed in {process_time:.2f}s, got {len(results.get('citations', []))} citations")
+            logger.info(f"[Chunk-{chunk_hash}] extract_citations() completed in {process_time:.2f}s, got {len(citation_results)} citations")
+            
+            # Convert CitationResult objects to dicts
+            results = {'citations': []}
+            for cit_obj in citation_results:
+                results['citations'].append({
+                    'citation': cit_obj.citation,
+                    'extracted_case_name': cit_obj.extracted_case_name,
+                    'extracted_date': cit_obj.extracted_date,
+                    'start_index': cit_obj.start_index,
+                    'end_index': cit_obj.end_index,
+                    'method': cit_obj.method,
+                    'confidence': cit_obj.confidence,
+                    'metadata': cit_obj.metadata,
+                    'verified': False,  # Verification happens later
+                    'canonical_name': None,
+                    'canonical_date': None,
+                    'url': None
+                })
             
             citations = []
             raw_citations = results.get('citations', [])
@@ -531,7 +540,11 @@ class ChunkedCitationProcessor:
             )
             citation_objects.append(citation_obj)
         
-        clusters = cluster_citations_unified(citation_objects)
+        # CRITICAL: Enable verification in clustering
+        clusters = cluster_citations_unified(
+            citations=citation_objects,
+            enable_verification=True
+        )
         
         # CRITICAL FIX: Update citation objects with cluster information
         # This must happen BEFORE serialization to ensure cluster data persists
@@ -590,6 +603,136 @@ def fetch_url_content(url: str) -> str:
             'Upgrade-Insecure-Requests': '1',
         }
         
+        # CRITICAL: Convert CourtListener web URLs using CASE NAME instead of opinion ID
+        # Opinion IDs are unreliable and can point to wrong cases
+        if 'courtlistener.com' in url.lower():
+            from src.config import COURTLISTENER_API_KEY
+            
+            # Extract case name from URL slug instead of using opinion ID
+            # Example: https://www.courtlistener.com/opinion/10320728/robert-cassell-v-state-of-alaska-department-of-fish-game-board-of-game/
+            #       -> Search for "Robert Cassell v. State of Alaska Department of Fish Game Board of Game"
+            if '/opinion/' in url and '/api/' not in url:
+                import re
+                # Extract the slug (case name) from URL
+                slug_match = re.search(r'/opinion/\d+/([^/]+)', url)
+                if slug_match:
+                    slug = slug_match.group(1)
+                    # Convert slug to case name intelligently
+                    # "robert-cassell-v-state-of-alaska" -> "Robert Cassell v. State of Alaska"
+                    words = slug.split('-')
+                    case_name_parts = []
+                    lowercase_words = {'of', 'the', 'and', 'for', 'in', 'on', 'at', 'to', 'a', 'an'}
+                    
+                    for i, word in enumerate(words):
+                        if word == 'v' or word == 'vs':
+                            case_name_parts.append('v.')
+                        elif i > 0 and word.lower() in lowercase_words:
+                            # Keep lowercase for articles/prepositions (except first word)
+                            case_name_parts.append(word.lower())
+                        else:
+                            # Capitalize first letter, keep rest lowercase
+                            case_name_parts.append(word.capitalize())
+                    
+                    case_name = ' '.join(case_name_parts)
+                    
+                    # Extract just the main parties for search (before " v. ")
+                    party_match = re.match(r'([^v]+)\s+v\.\s+([^,]+)', case_name)
+                    if party_match:
+                        party1 = party_match.group(1).strip()
+                        party2 = party_match.group(2).strip()
+                        search_query = f"{party1} {party2}"
+                    else:
+                        search_query = case_name
+                    
+                    logger.info(f"🔄 CourtListener URL: Using case name from slug instead of opinion ID")
+                    logger.info(f"   Original URL: {url}")
+                    logger.info(f"   Extracted case name: {case_name}")
+                    logger.info(f"   Search query: {search_query}")
+                    
+                    if COURTLISTENER_API_KEY:
+                        try:
+                            # CRITICAL: Use proper API path via cluster to avoid mismatched data
+                            # Direct opinion API access can return wrong documents
+                            import requests
+                            import time
+                            search_url = f'https://www.courtlistener.com/api/rest/v4/search/?type=o&q={search_query}'
+                            search_headers = {
+                                'Authorization': f'Token {COURTLISTENER_API_KEY}',
+                                'Accept': 'application/json'
+                            }
+                            
+                            # RATE LIMIT HANDLING: Retry with exponential backoff on 429
+                            max_retries = 3
+                            retry_delay = 2  # Start with 2 seconds
+                            search_response = None
+                            
+                            for attempt in range(max_retries):
+                                try:
+                                    search_response = requests.get(search_url, headers=search_headers, timeout=10)
+                                    
+                                    if search_response.status_code == 429:
+                                        if attempt < max_retries - 1:
+                                            logger.warning(f"⚠️  Rate limited (429), retrying in {retry_delay}s (attempt {attempt + 1}/{max_retries})")
+                                            time.sleep(retry_delay)
+                                            retry_delay *= 2  # Exponential backoff
+                                            continue
+                                        else:
+                                            logger.error(f"❌ Rate limited after {max_retries} attempts, falling back to HTML scraping")
+                                            raise requests.exceptions.HTTPError("429 Too Many Requests")
+                                    
+                                    search_response.raise_for_status()
+                                    break  # Success, exit retry loop
+                                    
+                                except requests.exceptions.Timeout:
+                                    if attempt < max_retries - 1:
+                                        logger.warning(f"⚠️  Timeout, retrying in {retry_delay}s (attempt {attempt + 1}/{max_retries})")
+                                        time.sleep(retry_delay)
+                                        retry_delay *= 2
+                                        continue
+                                    raise
+                            
+                            search_data = search_response.json()
+                            
+                            if search_data.get('count', 0) > 0:
+                                # Get cluster_id from search result
+                                first_result = search_data['results'][0]
+                                cluster_id = first_result.get('cluster_id')
+                                
+                                if cluster_id:
+                                    # Fetch cluster to get sub_opinions
+                                    cluster_url = f"https://www.courtlistener.com/api/rest/v4/clusters/{cluster_id}/"
+                                    cluster_response = requests.get(cluster_url, headers=search_headers, timeout=10)
+                                    cluster_response.raise_for_status()
+                                    cluster_data = cluster_response.json()
+                                    
+                                    # Get the first sub-opinion URL
+                                    sub_opinions = cluster_data.get('sub_opinions', [])
+                                    if sub_opinions:
+                                        opinion_url = sub_opinions[0]  # This is the full API URL
+                                        logger.info(f"✅ Found case via cluster API: cluster_id={cluster_id}")
+                                        logger.info(f"   Using sub-opinion: {opinion_url}")
+                                        url = opinion_url
+                                    else:
+                                        logger.warning(f"⚠️  Cluster {cluster_id} has no sub_opinions")
+                                else:
+                                    logger.warning(f"⚠️  Search result doesn't have cluster_id")
+                            else:
+                                logger.warning(f"⚠️  Case name search returned 0 results, falling back to HTML scraping")
+                                # Keep original URL, will scrape HTML
+                        except Exception as e:
+                            logger.error(f"❌ Case name search failed: {e}, falling back to HTML scraping")
+                            # Keep original URL, will scrape HTML
+                    else:
+                        logger.warning(f"⚠️  No API key available, will scrape HTML")
+            
+            if COURTLISTENER_API_KEY:
+                headers['Authorization'] = f'Token {COURTLISTENER_API_KEY}'
+                if '/api/' in url:
+                    headers['Accept'] = 'application/json'  # Request JSON from API
+                logger.info(f"✅ Added CourtListener API key to request")
+            else:
+                logger.warning(f"⚠️  CourtListener URL detected but no API key available")
+        
         if url.lower().endswith('.pdf'):
             headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
         
@@ -633,6 +776,42 @@ def fetch_url_content(url: str) -> str:
             # If all methods fail, provide helpful error message
             logger.error("All PDF extraction methods failed")
             raise Exception("The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format. Please try a different document or contact support if the issue persists.")
+        
+        elif 'json' in content_type or 'application/json' in content_type:
+            # Handle JSON responses (e.g., from CourtListener API)
+            logger.info(f"Processing JSON response from API")
+            try:
+                import json
+                data = response.json()
+                
+                # Extract text from CourtListener API opinion response
+                if 'plain_text' in data:
+                    text = data['plain_text']
+                    logger.info(f"✅ Extracted opinion plain_text: {len(text)} characters")
+                    return text
+                elif 'html_with_citations' in data:
+                    # Fallback to HTML version
+                    from bs4 import BeautifulSoup
+                    html = data['html_with_citations']
+                    soup = BeautifulSoup(html, 'html.parser')
+                    text = soup.get_text(separator=' ', strip=True)
+                    logger.info(f"✅ Extracted from html_with_citations: {len(text)} characters")
+                    return text
+                elif 'html' in data:
+                    from bs4 import BeautifulSoup
+                    html = data['html']
+                    soup = BeautifulSoup(html, 'html.parser')
+                    text = soup.get_text(separator=' ', strip=True)
+                    logger.info(f"✅ Extracted from html field: {len(text)} characters")
+                    return text
+                else:
+                    # Return JSON as formatted string
+                    logger.warning(f"⚠️  JSON response doesn't contain expected text fields")
+                    logger.warning(f"   Available fields: {list(data.keys())}")
+                    return json.dumps(data, indent=2)
+            except Exception as e:
+                logger.error(f"Failed to parse JSON response: {e}")
+                return response.text
         
         elif 'html' in content_type:
             logger.info(f"Returning HTML content, length: {len(response.text)}")
@@ -1448,16 +1627,21 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 progress_tracker.start_step(1, 'Extracting citations from text...')
                 sync_progress_to_redis('extracting', 35, 'Extracting citations with clean pipeline...')  # FIX #21
                 
-                # Process the text through the clean extraction pipeline
-                logger.info(f"[Task {task_id}] Starting text processing with CLEAN PIPELINE...")
-                clean_result = extract_citations_production(text)
-                logger.info(f"[Task {task_id}] Clean pipeline extraction completed: status={clean_result.get('status')}")
-                logger.info(f"[Task {task_id}] Clean pipeline extracted {clean_result.get('total', 0)} citations")
+                # Process the text through the clean extraction pipeline WITH CLUSTERING + VERIFICATION
+                logger.info(f"[🔥🔥🔥 PROGRESS MANAGER 🔥🔥🔥] About to call extract_citations_with_clustering() with {len(text)} chars")
+                # CRITICAL FIX: Use FULL pipeline with clustering and verification
+                # instead of just extraction
+                from src.citation_extraction_endpoint import extract_citations_with_clustering
+                
+                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True")
+                result = extract_citations_with_clustering(text, enable_verification=True)
+                logger.error(f"[Task {task_id}] >>>>>>> extract_citations_with_clustering RETURNED: {len(result.get('citations', []))} citations")
                 
                 # Convert clean pipeline results to CitationResult objects
+                # CRITICAL FIX: Include verification fields from result
                 citations_found = []
-                if clean_result.get('status') == 'success':
-                    for cit_dict in clean_result['citations']:
+                if result.get('status') == 'success':
+                    for cit_dict in result['citations']:
                         citations_found.append(CitationResult(
                             citation=cit_dict['citation'],
                             extracted_case_name=cit_dict.get('extracted_case_name'),
@@ -1466,18 +1650,27 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             confidence=cit_dict.get('confidence', 0.9),
                             start_index=cit_dict.get('start_index'),
                             end_index=cit_dict.get('end_index'),
-                            metadata=cit_dict.get('metadata', {})
+                            metadata=cit_dict.get('metadata', {}),
+                            # CRITICAL: Include verification data (CitationResult doesn't have verification_source field)
+                            verified=cit_dict.get('verified', False),
+                            canonical_name=cit_dict.get('canonical_name'),
+                            canonical_date=cit_dict.get('canonical_date'),
+                            canonical_url=cit_dict.get('canonical_url')
                         ))
-                    logger.info(f"[Task {task_id}] Converted {len(citations_found)} citations to CitationResult objects")
+                    verified_count = sum(1 for c in citations_found if c.verified)
+                    logger.error(f"[Task {task_id}] >>>>>>> Converted {len(citations_found)} citations ({verified_count} verified) to CitationResult objects")
                 else:
-                    logger.error(f"[Task {task_id}] Clean pipeline returned non-success status: {clean_result.get('status')}")
-                    logger.error(f"[Task {task_id}] Clean pipeline error: {clean_result.get('error', 'Unknown error')}")
+                    logger.error(f"[Task {task_id}] Clean pipeline returned non-success status: {result.get('status')}")
+                    logger.error(f"[Task {task_id}] Clean pipeline error: {result.get('error', 'Unknown error')}")
+                
+                # Extract clusters from result
+                clusters_from_pipeline = result.get('clusters', [])
                 
                 result = {
                     'citations': citations_found,
-                    'clusters': []  # Clean pipeline doesn't create clusters
+                    'clusters': clusters_from_pipeline
                 }
-                logger.info(f"[Task {task_id}] Result dict created with {len(citations_found)} citations")
+                logger.info(f"[Task {task_id}] Result dict created with {len(citations_found)} citations and {len(clusters_from_pipeline)} clusters")
                 
                 progress_tracker.complete_step(1, 'Citation extraction completed')
                 progress_tracker.start_step(2, 'Analyzing and normalizing citations...')
@@ -1542,8 +1735,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     
                     logger.info(f"[Task {task_id}] Deduplication completed: {original_count} → {len(citation_dicts)} citations")
                     if len(citation_dicts) < original_count:
-                        logger.info(f"[Task {task_id}] Deduplication SUCCESS: "
-                                   f"({original_count - len(citation_dicts)} duplicates removed)")
+                        logger.info(f"[Task {task_id}] Removed {original_count - len(citation_dicts)} duplicate citations")
                     
                 except Exception as e:
                     logger.error(f"[Task {task_id}] Deduplication FAILED: {e}")
@@ -1560,9 +1752,31 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 
                 for cluster in clusters:
                     if hasattr(cluster, 'to_dict'):
-                        cluster_dicts.append(cluster.to_dict())
+                        cluster_dict = cluster.to_dict()
                     elif isinstance(cluster, dict):
-                        cluster_dicts.append(cluster)
+                        cluster_dict = cluster.copy()
+                    else:
+                        continue
+                    
+                    # CRITICAL FIX: Convert CitationResult objects inside cluster to dicts
+                    if 'citations' in cluster_dict and cluster_dict['citations']:
+                        converted_citations = []
+                        for cit in cluster_dict['citations']:
+                            if hasattr(cit, 'to_dict'):
+                                converted_citations.append(cit.to_dict())
+                            elif isinstance(cit, dict):
+                                converted_citations.append(cit)
+                            else:
+                                # Try to convert to dict manually
+                                converted_citations.append({
+                                    'citation': getattr(cit, 'citation', str(cit)),
+                                    'verified': getattr(cit, 'verified', False),
+                                    'extracted_case_name': getattr(cit, 'extracted_case_name', None),
+                                    'canonical_name': getattr(cit, 'canonical_name', None),
+                                })
+                        cluster_dict['citations'] = converted_citations
+                    
+                    cluster_dicts.append(cluster_dict)
 
                 # Apply cluster deduplication to async processing
                 logger.info(f"[Task {task_id}] Starting cluster deduplication of {len(cluster_dicts)} clusters")
@@ -1583,6 +1797,26 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
 
                 progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
                 progress_tracker.start_step(5, 'Verifying citations...')
+                
+                # CRITICAL FIX: Update top-level citations with verification data from clusters
+                # The clusters have the verified citations, but the top-level citations array doesn't
+                logger.info(f"[Task {task_id}] Syncing verification data from clusters to top-level citations")
+                citation_map = {c['citation']: c for c in citation_dicts}
+                verified_count_before = len([c for c in citation_dicts if c.get('verified', False)])
+                
+                for cluster in cluster_dicts:
+                    for cluster_citation in cluster.get('citations', []):
+                        citation_text = cluster_citation.get('citation')
+                        if citation_text in citation_map:
+                            # Update top-level citation with verification data from cluster
+                            if cluster_citation.get('verified'):
+                                citation_map[citation_text]['verified'] = True
+                                citation_map[citation_text]['canonical_name'] = cluster_citation.get('canonical_name')
+                                citation_map[citation_text]['canonical_date'] = cluster_citation.get('canonical_date')
+                                citation_map[citation_text]['canonical_url'] = cluster_citation.get('canonical_url')
+                
+                verified_count_after = len([c for c in citation_dicts if c.get('verified', False)])
+                logger.info(f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations")
                 
                 citation_result = {
                     'citations': citation_dicts,
