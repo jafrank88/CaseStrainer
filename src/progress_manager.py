@@ -622,6 +622,9 @@ def fetch_url_content(url: str) -> str:
                 if COURTLISTENER_API_KEY:
                     headers['Authorization'] = f'Token {COURTLISTENER_API_KEY}'
                     headers['Accept'] = 'application/json'
+                    logger.info(f"✅ Added CourtListener API authorization header")
+                else:
+                    logger.error(f"❌ COURTLISTENER_API_KEY is not set!")
             else:
                 logger.warning(f"⚠️  Could not extract opinion ID from URL")
         
