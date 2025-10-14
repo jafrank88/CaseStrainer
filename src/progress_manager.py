@@ -632,11 +632,11 @@ def fetch_url_content(url: str) -> str:
             headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
         
         
-        # Handle 202 (Accepted) responses with retry
-        # CourtListener sometimes returns 202 while page is being generated
+        # Handle 202 (Accepted) and 429 (Rate Limit) responses with retry
+        # CourtListener sometimes returns 202 while page is being generated or 429 when rate limited
         import time
-        max_attempts = 3
-        retry_delay = 3
+        max_attempts = 4
+        retry_delay = 5  # Start with 5 seconds
         
         for attempt in range(max_attempts):
             response = requests.get(
@@ -649,6 +649,7 @@ def fetch_url_content(url: str) -> str:
             
             logger.info(f"Response status: {response.status_code}")
             
+            # Handle 202 (Accepted) - page still generating
             if response.status_code == 202:
                 if attempt < max_attempts - 1:
                     logger.warning(f"⚠️  Got 202 Accepted - page still generating, retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})")
@@ -656,6 +657,16 @@ def fetch_url_content(url: str) -> str:
                     continue
                 else:
                     logger.error(f"❌ Still getting 202 after {max_attempts} attempts")
+            
+            # Handle 429 (Too Many Requests) - rate limited
+            elif response.status_code == 429:
+                if attempt < max_attempts - 1:
+                    logger.warning(f"⚠️  Rate limited (429), retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                    continue
+                else:
+                    logger.error(f"❌ Still rate limited after {max_attempts} attempts")
             
             response.raise_for_status()
             break
