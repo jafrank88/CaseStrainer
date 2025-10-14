@@ -603,12 +603,27 @@ def fetch_url_content(url: str) -> str:
             'Upgrade-Insecure-Requests': '1',
         }
         
-        # OPTIMIZATION: For CourtListener opinion URLs, skip API search to avoid rate limits
-        # Just scrape the HTML directly - it's faster and has all the content we need
+        # OPTIMIZATION: For CourtListener opinion URLs, convert to API endpoint
+        # Web URLs return 202, but API endpoint returns JSON immediately with full text
         if 'courtlistener.com' in url.lower() and '/opinion/' in url and '/api/' not in url:
-            logger.info(f"🔄 CourtListener opinion URL detected - will scrape HTML directly (skipping API to avoid rate limits)")
-            # Keep original URL, will scrape HTML below
-            # No API search needed!
+            import re
+            # Extract opinion ID from URL: /opinion/10460933/robert-cassell-v-state...
+            opinion_match = re.search(r'/opinion/(\d+)/', url)
+            if opinion_match:
+                opinion_id = opinion_match.group(1)
+                # Convert to API endpoint
+                api_url = f"https://www.courtlistener.com/api/rest/v4/opinions/{opinion_id}/"
+                logger.info(f"🔄 Converting CourtListener opinion URL to API endpoint")
+                logger.info(f"   Opinion ID: {opinion_id}")
+                logger.info(f"   API URL: {api_url}")
+                url = api_url
+                # Add API headers
+                from src.config import COURTLISTENER_API_KEY
+                if COURTLISTENER_API_KEY:
+                    headers['Authorization'] = f'Token {COURTLISTENER_API_KEY}'
+                    headers['Accept'] = 'application/json'
+            else:
+                logger.warning(f"⚠️  Could not extract opinion ID from URL")
         
         # API search disabled for CourtListener opinion URLs (see above)
         # This avoids rate limit errors and is faster
@@ -617,17 +632,33 @@ def fetch_url_content(url: str) -> str:
             headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
         
         
-        response = requests.get(
-            url,
-            headers=headers,
-            timeout=DEFAULT_REQUEST_TIMEOUT,  # 30 second timeout
-            allow_redirects=True,
-            stream=True  # Stream the response for large files
-        )
+        # Handle 202 (Accepted) responses with retry
+        # CourtListener sometimes returns 202 while page is being generated
+        import time
+        max_attempts = 3
+        retry_delay = 3
         
-        logger.info(f"Response status: {response.status_code}")
-        
-        response.raise_for_status()
+        for attempt in range(max_attempts):
+            response = requests.get(
+                url,
+                headers=headers,
+                timeout=DEFAULT_REQUEST_TIMEOUT,  # 30 second timeout
+                allow_redirects=True,
+                stream=True  # Stream the response for large files
+            )
+            
+            logger.info(f"Response status: {response.status_code}")
+            
+            if response.status_code == 202:
+                if attempt < max_attempts - 1:
+                    logger.warning(f"⚠️  Got 202 Accepted - page still generating, retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})")
+                    time.sleep(retry_delay)
+                    continue
+                else:
+                    logger.error(f"❌ Still getting 202 after {max_attempts} attempts")
+            
+            response.raise_for_status()
+            break
         
         content_type = response.headers.get('content-type', '').lower()
         logger.info(f"Content type: {content_type}")
