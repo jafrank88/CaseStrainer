@@ -69,13 +69,13 @@
           <!-- Line 1: Verifying Source (linked to canonical URL) -->
           <div class="cluster-line verifying-source">
             <strong>Verifying Source:</strong>
-            <template v-if="cluster.canonical_url">
-              <a :href="cluster.canonical_url" target="_blank" class="canonical-link">
-                {{ cluster.canonical_name || 'N/A' }}, {{ cluster.canonical_date || cluster.extracted_date || 'N/A' }}
+            <template v-if="cluster.citations?.[0]?.canonical_url">
+              <a :href="cluster.citations[0].canonical_url" target="_blank" class="canonical-link">
+                {{ cluster.citations[0].canonical_name || 'N/A' }}, {{ cluster.citations[0].canonical_date || cluster.citations[0].extracted_date || 'N/A' }}
               </a>
             </template>
             <template v-else>
-              {{ cluster.canonical_name || 'N/A' }}, {{ cluster.canonical_date || cluster.extracted_date || 'N/A' }}
+              {{ cluster.citations?.[0]?.canonical_name || 'N/A' }}, {{ cluster.citations?.[0]?.canonical_date || cluster.citations?.[0]?.extracted_date || 'N/A' }}
             </template>
             <span v-if="getClusterSource(cluster)" class="source-badge">
               ({{ getClusterSource(cluster) }})
@@ -85,7 +85,7 @@
           <!-- Line 2: Submitted Document -->
           <div class="cluster-line submitted-document">
             <strong>Submitted Document:</strong>
-            {{ cluster.extracted_case_name || 'N/A' }}, {{ cluster.extracted_date || 'N/A' }}
+            {{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}, {{ cluster.citations?.[0]?.extracted_date || 'N/A' }}
           </div>
           
           <!-- Lines 3+: Individual Citations with Status -->

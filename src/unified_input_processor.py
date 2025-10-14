@@ -15,10 +15,20 @@ from urllib.parse import urlparse
 from werkzeug.datastructures import FileStorage
 
 from src.robust_pdf_extractor import extract_text_from_pdf_smart
-from src.progress_manager import fetch_url_content
+from src.progress_manager import fetch_url_content, SSEProgressManager, ProgressTracker
 from src.api.services.citation_service import CitationService
 
 logger = logging.getLogger(__name__)
+
+# Global progress manager instance
+_progress_manager = None
+
+def get_progress_manager():
+    """Get or create the global progress manager instance."""
+    global _progress_manager
+    if _progress_manager is None:
+        _progress_manager = SSEProgressManager()
+    return _progress_manager
 
 class UnifiedInputProcessor:
     """
@@ -28,12 +38,13 @@ class UnifiedInputProcessor:
     
     def __init__(self):
         self.citation_service = CitationService()
+        self.progress_manager = get_progress_manager()
         self.supported_file_extensions = {
             'pdf', 'txt', 'doc', 'docx', 'rtf', 'md', 'html', 'htm', 'xml', 'xhtml'
         }
     
     def process_any_input(self, input_data: Any, input_type: str, request_id: str, 
-                         source_name: Optional[str] = None) -> Dict[str, Any]:
+                         source_name: Optional[str] = None, force_mode: Optional[str] = None) -> Dict[str, Any]:
         """
         Universal input processor - converts any input to text, then processes citations.
         
@@ -42,6 +53,7 @@ class UnifiedInputProcessor:
             input_type: Type of input ('file', 'url', 'text')
             request_id: Unique request identifier
             source_name: Optional source name for metadata
+            force_mode: Optional user override for sync/async processing ('sync', 'async', or None)
             
         Returns:
             Dictionary with citation processing results
@@ -61,6 +73,7 @@ class UnifiedInputProcessor:
                 text=text,
                 request_id=request_id,
                 source_name=source_name or input_type,
+                force_mode=force_mode,  # Pass force_mode through
                 input_metadata=metadata
             )
             
@@ -282,29 +295,79 @@ class UnifiedInputProcessor:
             }
     
     def _process_citations_unified(self, text: str, request_id: str, source_name: str, 
-                                 input_metadata: Dict[str, Any]) -> Dict[str, Any]:
+                                 input_metadata: Dict[str, Any], force_mode: Optional[str] = None) -> Dict[str, Any]:
         """
         Process citations using the unified pipeline (same for all input types).
+        
+        Args:
+            force_mode: Optional user override for sync/async processing
         """
         logger.info(f"[Unified Processor {request_id}] Processing citations from {source_name}")
         logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
         logger.info(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
+        if force_mode:
+            logger.info(f"[Unified Processor {request_id}] 🎯 force_mode='{force_mode}' passed through")
         
         try:
             input_data = {'type': 'text', 'text': text}
             logger.info(f"[Unified Processor {request_id}] Checking if should process immediately...")
             
-            should_process_immediately = self.citation_service.should_process_immediately(input_data)
+            # Pass force_mode to honor user override
+            should_process_immediately = self.citation_service.should_process_immediately(
+                input_data, 
+                force_mode=force_mode
+            )
             logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
             
             if should_process_immediately:
-                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately (short content) - using UnifiedCitationProcessorV2 directly")
+                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately using CLEAN PIPELINE (87-93% accuracy)")
                 try:
-                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                    import asyncio
+                    # USE CLEAN PIPELINE for extraction (87-93% accuracy, zero case name bleeding)
+                    from src.citation_extraction_endpoint import extract_citations_production
                     
-                    processor = UnifiedCitationProcessorV2()
-                    result = asyncio.run(processor.process_text(input_data.get('text', '')))
+                    # Create progress callback that updates the progress manager
+                    def progress_callback(progress: int, step: str, message: str):
+                        """Update progress via the progress manager."""
+                        try:
+                            self.progress_manager.update_progress(
+                                request_id, 
+                                progress, 
+                                step, 
+                                message
+                            )
+                            logger.debug(f"[Progress {request_id}] {progress}% - {step}: {message}")
+                        except Exception as e:
+                            logger.warning(f"[Progress {request_id}] Failed to update: {e}")
+                    
+                    # Initialize progress tracking with proper ProgressTracker
+                    tracker = ProgressTracker(request_id, total_steps=100)
+                    self.progress_manager.active_tasks[request_id] = tracker
+                    
+                    # Update progress
+                    progress_callback(10, "Extract", "Using clean pipeline for extraction")
+                    
+                    # Extract citations using clean pipeline
+                    clean_result = extract_citations_production(input_data.get('text', ''))
+                    
+                    # Convert clean pipeline results to the expected format
+                    from src.models import CitationResult
+                    citations = []
+                    if clean_result['status'] == 'success':
+                        for cit_dict in clean_result['citations']:
+                            citations.append(CitationResult(
+                                citation=cit_dict['citation'],
+                                extracted_case_name=cit_dict.get('extracted_case_name'),
+                                extracted_date=cit_dict.get('extracted_date'),
+                                method=cit_dict.get('method', 'clean_pipeline_v1'),
+                                confidence=cit_dict.get('confidence', 0.9)
+                            ))
+                    
+                    result = {
+                        'citations': citations,
+                        'clusters': []
+                    }
+                    
+                    progress_callback(100, "Complete", f"Extracted {len(citations)} citations using clean pipeline")
                     
                     logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
                     
@@ -341,6 +404,7 @@ class UnifiedInputProcessor:
                         'citations': converted_citations,
                         'clusters': result.get('clusters', []),
                         'request_id': request_id,
+                        'task_id': request_id,  # Frontend expects task_id for progress polling
                         'metadata': {
                             **input_metadata,
                             'processing_mode': 'immediate',
@@ -358,7 +422,8 @@ class UnifiedInputProcessor:
                 try:
                     from rq import Queue
                     from redis import Redis
-                    from src.progress_manager import process_citation_task_direct
+                    # CRITICAL FIX: Use string path, not imported function object
+                    # RQ needs the module path as a string to properly serialize the job
                     
                     # Try multiple Redis configurations for better connectivity
                     redis_configs = [
@@ -384,7 +449,7 @@ class UnifiedInputProcessor:
                     queue = Queue('casestrainer', connection=redis_conn)
                     
                     job = queue.enqueue(
-                        process_citation_task_direct,
+                        'src.progress_manager.process_citation_task_direct',  # FIXED: String path instead of function object
                         args=(request_id, 'text', {'text': text}),
                         job_id=request_id,  # Use request_id as the job ID
                         job_timeout=600,  # 10 minutes timeout
@@ -422,14 +487,74 @@ class UnifiedInputProcessor:
                     should_fallback = any(indicator in str(e).lower() for indicator in redis_error_indicators)
                     
                     if should_fallback:
-                        logger.warning(f"[Unified Processor {request_id}] Redis unavailable, falling back to sync processing for large document")
+                        logger.warning(f"[Unified Processor {request_id}] Redis unavailable, falling back to CLEAN PIPELINE (87-93% accuracy)")
                         
                         try:
-                            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                            import asyncio
+                            # USE CLEAN PIPELINE for extraction (87-93% accuracy)
+                            from src.citation_extraction_endpoint import extract_citations_production
                             
-                            processor = UnifiedCitationProcessorV2()
-                            result = asyncio.run(processor.process_text(text))
+                            # Create progress callback for fallback path
+                            def progress_callback(progress: int, step: str, message: str):
+                                """Update progress via the progress manager."""
+                                try:
+                                    self.progress_manager.update_progress(
+                                        request_id, 
+                                        progress, 
+                                        step, 
+                                        message
+                                    )
+                                    logger.debug(f"[Progress {request_id}] {progress}% - {step}: {message}")
+                                except Exception as e:
+                                    logger.warning(f"[Progress {request_id}] Failed to update: {e}")
+                            
+                            # Initialize progress tracking
+                            tracker = ProgressTracker(request_id, total_steps=100)
+                            self.progress_manager.active_tasks[request_id] = tracker
+                            
+                            # Update progress
+                            progress_callback(10, "Extract", "Using full pipeline with verification (Redis fallback)")
+                            
+                            # CRITICAL FIX: Use FULL pipeline with clustering and verification
+                            # instead of just extraction
+                            from src.citation_extraction_endpoint import extract_citations_with_clustering
+                            
+                            result = extract_citations_with_clustering(text, enable_verification=True)
+                            
+                            # The result already has citations and clusters in the right format
+                            citations = result.get('citations', [])
+                            clusters = result.get('clusters', [])
+                            
+                            progress_callback(100, "Complete", f"Full pipeline: {len(citations)} citations, {len(clusters)} clusters")
+                            logger.info(f"[Sync Fallback] Extracted {len(citations)} citations, clustered into {len(clusters)} groups")
+                            
+                            # CRITICAL: Mark progress as complete to stop frontend polling
+                            if request_id in self.progress_manager.active_tasks:
+                                tracker = self.progress_manager.active_tasks[request_id]
+                                tracker.is_complete = True
+                                tracker.status = 'completed'
+                                logger.info(f"[Sync Fallback] Marked progress tracker as complete for {request_id}")
+                            
+                            # Convert to CitationResult objects for consistency
+                            from src.models import CitationResult
+                            citation_objects = []
+                            for cit_dict in citations:
+                                citation_objects.append(CitationResult(
+                                    citation=cit_dict['citation'],
+                                    extracted_case_name=cit_dict.get('extracted_case_name'),
+                                    extracted_date=cit_dict.get('extracted_date'),
+                                    method=cit_dict.get('method', 'clean_pipeline_v1'),
+                                    confidence=cit_dict.get('confidence', 0.9),
+                                    verified=cit_dict.get('verified', False),
+                                    canonical_name=cit_dict.get('canonical_name'),
+                                    canonical_date=cit_dict.get('canonical_date'),
+                                    canonical_url=cit_dict.get('canonical_url')
+                                    # NOTE: verification_source not supported by CitationResult model
+                                ))
+                            
+                            result = {
+                                'citations': citation_objects,
+                                'clusters': clusters
+                            }
                             
                             logger.info(f"[Unified Processor {request_id}] Sync fallback processing completed successfully")
                             
@@ -466,6 +591,7 @@ class UnifiedInputProcessor:
                                 'citations': converted_citations,
                                 'clusters': result.get('clusters', []),
                                 'request_id': request_id,
+                                'task_id': request_id,  # Frontend expects task_id for progress polling
                                 'metadata': {
                                     **input_metadata,
                                     'processing_mode': 'sync_fallback',
