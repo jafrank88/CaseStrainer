@@ -2,8 +2,7 @@
 Async Verification Worker
 Handles background verification of citations using the fallback verifier.
 
-This worker is called by the EnhancedSyncProcessor to verify citations
-asynchronously without blocking the user interface.
+Provides asynchronous citation verification without blocking the user interface.
 """
 
 import os

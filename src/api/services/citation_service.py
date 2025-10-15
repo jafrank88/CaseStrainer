@@ -31,16 +31,27 @@ class CitationService:
         self._last_cache_cleanup = time.time()
         self._cache_cleanup_interval = 300  # Clean cache every 5 minutes
     
-    def determine_processing_mode(self, text: str) -> str:
+    def determine_processing_mode(self, text: str, force_mode: Optional[str] = None) -> str:
         """
         Unified function to determine processing mode based on text content size.
         
         Args:
             text: The actual text content to be processed
+            force_mode: Optional user override - 'sync', 'async', or None for automatic
             
         Returns:
-            'sync' or 'async' based on content size
+            'sync' or 'async' based on content size or user preference
         """
+        # USER OVERRIDE: Allow explicit sync/async selection
+        if force_mode:
+            force_mode_lower = force_mode.lower()
+            if force_mode_lower in ['sync', 'async']:
+                logger.info(f"🎯 USER OVERRIDE: force_mode='{force_mode_lower}' (ignoring text size)")
+                return force_mode_lower
+            else:
+                logger.warning(f"⚠️  Invalid force_mode='{force_mode}', falling back to automatic")
+        
+        # AUTOMATIC: Decide based on text size
         text_size = len(text)
         
         if text_size < self.SYNC_THRESHOLD:
@@ -138,12 +149,16 @@ class CitationService:
             logger.warning(f"Failed to fetch URL content: {e}")
             return None
     
-    def should_process_immediately(self, input_data: Dict) -> bool:
+    def should_process_immediately(self, input_data: Dict, force_mode: Optional[str] = None) -> bool:
         """
         DEPRECATED: Use extract_text_from_input() + determine_processing_mode() instead.
         
         This method is kept for backward compatibility but should be replaced
         with the new unified approach.
+        
+        Args:
+            input_data: Input data dictionary
+            force_mode: Optional user override - 'sync', 'async', or None for automatic
         """
         # Extract text first, then determine processing mode
         text = self.extract_text_from_input(input_data)
@@ -151,48 +166,23 @@ class CitationService:
             # If text extraction fails, default to async for better error handling
             return False
         
-        # Use unified routing decision
-        processing_mode = self.determine_processing_mode(text)
+        # Use unified routing decision with optional force_mode
+        processing_mode = self.determine_processing_mode(text, force_mode=force_mode)
         return processing_mode == 'sync'
     
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
-        """Process input immediately using the enhanced sync processor."""
+        """Process input immediately using the unified citation processor."""
         try:
-            from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
-            from src.config import get_citation_config, get_config_value
+            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            from src.config import get_citation_config
+            import asyncio
             
             # Get configuration
             config = get_citation_config()
             
-            # Get API key from environment
-            courtlistener_api_key = get_config_value('COURTLISTENER_API_KEY')
-            if courtlistener_api_key:
-                logger.info(f"[CitationService] Using CourtListener API key: {courtlistener_api_key[:8]}...{courtlistener_api_key[-8:]}")
-            else:
-                logger.warning("[CitationService] CourtListener API key not found in environment")
+            logger.info("[CitationService] Using UnifiedCitationProcessorV2 for immediate processing")
             
-            # Configure processor with unified thresholds
-            processor_options = ProcessingOptions(
-                enable_local_processing=True,
-                enable_async_verification=True,  # Re-enabled for proper async processing
-                enhanced_sync_threshold=self.SYNC_THRESHOLD,  # Use unified threshold
-                ultra_fast_threshold=self.ULTRA_FAST_THRESHOLD,  # Use unified threshold
-                clustering_threshold=self.CLUSTERING_THRESHOLD,  # Use unified threshold
-                enable_enhanced_verification=config.get('enable_verification', True),
-                enable_cross_validation=True,
-                enable_false_positive_prevention=True,
-                enable_confidence_scoring=config.get('verification_options', {}).get('enable_confidence_scoring', True),
-                min_confidence_threshold=config.get('verification_options', {}).get('min_confidence_threshold', 0.7),
-                courtlistener_api_key=courtlistener_api_key
-            )
-            
-            logger.info(f"[CitationService] Processing with verification: {processor_options.enable_enhanced_verification}")
-            if processor_options.enable_enhanced_verification:
-                logger.info("[CitationService] Citation verification is ENABLED")
-            else:
-                logger.warning("[CitationService] Citation verification is DISABLED - only basic extraction will be performed")
-            
-            processor = EnhancedSyncProcessor(processor_options)
+            processor = UnifiedCitationProcessorV2()
             
             # Extract text using unified approach
             text_content = self.extract_text_from_input(input_data)
@@ -204,9 +194,12 @@ class CitationService:
                 }
             
             logger.info(f"[CitationService] Processing {len(text_content)} characters for immediate processing")
-            result = processor.process_any_input_enhanced(text_content, 'text', {})
+            
+            # Process synchronously
+            result = asyncio.run(processor.process_text(text_content))
             
             result['processing_mode'] = 'immediate'
+            result['success'] = True
             
             if 'progress_data' not in result:
                 result['progress_data'] = {
@@ -224,7 +217,7 @@ class CitationService:
                     ]
                 }
             
-            logger.info(f"[CitationService] Immediate processing completed via EnhancedSyncProcessor in {result.get('processing_time', 0):.3f}s")
+            logger.info(f"[CitationService] Immediate processing completed via UnifiedCitationProcessorV2 in {result.get('processing_time', 0):.3f}s")
             return result
             
         except Exception as e:
@@ -613,7 +606,7 @@ class CitationService:
                         logger.info(f"[CitationService] Cache hit for text pattern, returning cached result in {time.time() - start_time:.3f}s")
                         return cached_result['result']
                 
-                logger.info(f"[CitationService] Processing text immediately with EnhancedSyncProcessor: {text[:100]}...")
+                logger.info(f"[CitationService] Processing text immediately with UnifiedCitationProcessorV2: {text[:100]}...")
                 
                 # Set up progress tracking
                 from src.progress_tracker import ProgressTracker
@@ -632,28 +625,17 @@ class CitationService:
                 progress_tracker.add_update_callback(progress_callback)
                 has_progress_tracking = True
                 
-                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
-                courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
-                processor_options = ProcessingOptions(
-                    enable_local_processing=True,
-                    enable_async_verification=True,
-                    enhanced_sync_threshold=15 * 1024,
-                    ultra_fast_threshold=500,
-                    clustering_threshold=300,
-                    enable_enhanced_verification=True,
-                    enable_cross_validation=True,
-                    enable_false_positive_prevention=True,
-                    enable_confidence_scoring=True,
-                    courtlistener_api_key=courtlistener_api_key
-                )
-                enhanced_processor = EnhancedSyncProcessor(processor_options)
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                import asyncio
+                
+                processor = UnifiedCitationProcessorV2()
                 
                 # Start progress tracking
                 progress_tracker.start_step(0, "Initializing processing")
                 progress_tracker.complete_step(0, "Initialization complete")
                 
                 progress_tracker.start_step(1, "Extracting citations")
-                enhanced_result = enhanced_processor.process_any_input_enhanced(text, 'text', {'wait_for_verification': True, 'progress_tracker': progress_tracker})
+                enhanced_result = asyncio.run(processor.process_text(text))
                 progress_tracker.complete_step(1, "Extraction complete")
                 
                 progress_tracker.start_step(2, "Analyzing citations")

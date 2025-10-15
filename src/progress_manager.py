@@ -762,8 +762,21 @@ def fetch_url_content(url: str) -> str:
                 return response.text
         
         elif 'html' in content_type:
-            logger.info(f"Returning HTML content, length: {len(response.text)}")
-            return response.text
+            logger.info(f"Processing HTML content")
+            try:
+                from bs4 import BeautifulSoup
+                soup = BeautifulSoup(response.text, 'html.parser')
+                # Remove script and style elements
+                for script in soup(["script", "style"]):
+                    script.decompose()
+                # Get text
+                text = soup.get_text(separator=' ', strip=True)
+                logger.info(f"✅ Extracted text from HTML: {len(text)} characters")
+                return text
+            except Exception as e:
+                logger.warning(f"Failed to parse HTML with BeautifulSoup: {e}")
+                logger.info(f"Returning raw HTML content, length: {len(response.text)}")
+                return response.text
         
         elif 'text/plain' in content_type:
             logger.info(f"Returning plain text content, length: {len(response.text)}")
@@ -772,7 +785,25 @@ def fetch_url_content(url: str) -> str:
         else:
             try:
                 logger.info(f"Attempting to decode unknown content type: {content_type}")
-                return response.text
+                text = response.text
+                
+                # Try to detect if it's HTML and parse it
+                if text.strip().startswith('<!DOCTYPE html') or text.strip().startswith('<html'):
+                    logger.info(f"Detected HTML in unknown content type, attempting to parse")
+                    try:
+                        from bs4 import BeautifulSoup
+                        soup = BeautifulSoup(text, 'html.parser')
+                        # Remove script and style elements
+                        for script in soup(["script", "style"]):
+                            script.decompose()
+                        # Get text
+                        parsed_text = soup.get_text(separator=' ', strip=True)
+                        logger.info(f"✅ Extracted text from HTML: {len(parsed_text)} characters")
+                        return parsed_text
+                    except Exception as e:
+                        logger.warning(f"Failed to parse as HTML: {e}")
+                
+                return text
             except UnicodeDecodeError:
                 logger.warning(f"Could not decode content as text: {content_type}")
                 return f"[Binary content from {url} - cannot be processed as text]"
@@ -878,614 +909,6 @@ def _extract_with_pdfplumber(pdf_content: bytes) -> str:
     except ImportError:
         raise Exception("pdfplumber not available")
 
-def create_progress_routes_DISABLED(app: Flask, progress_manager: SSEProgressManager, 
-                          citation_processor: ChunkedCitationProcessor):
-    """DISABLED: Create Flask routes for progress-enabled citation processing
-    
-    This function has been disabled to prevent route conflicts with vue_api_endpoints.py
-    The Vue API endpoints provide the same functionality with better integration.
-    """
-    # All routes in this function have been disabled to prevent conflicts
-    return  # Early return to skip all route registration
-    
-    logging.basicConfig(level=logging.DEBUG)
-    logger = logging.getLogger(__name__)
-    
-    # DISABLED: Duplicate route conflicts with vue_api_endpoints.py
-    # @app.route('/casestrainer/api/analyze', methods=['POST'])
-    def start_citation_analysis_DISABLED():
-        """Start citation analysis and return task ID
-        
-        Supports multiple input types:
-        1. File upload (multipart/form-data)
-        2. Direct text input (application/json)
-        3. URL to fetch content from (via 'url' parameter in JSON)
-        """
-        task_id = str(uuid.uuid4())
-        logger.info(f"=== Starting citation analysis for task {task_id} ===")
-        
-        try:
-            logger.info(f"[Task {task_id}] Request method: {request.method}")
-            logger.info(f"[Task {task_id}] Request URL: {request.url}")
-            logger.info(f"[Task {task_id}] Request headers: {dict(request.headers)}")
-            logger.info(f"[Task {task_id}] Content-Type: {request.content_type}")
-            logger.info(f"[Task {task_id}] Form data: {request.form}")
-            logger.info(f"[Task {task_id}] Files: {request.files}")
-            
-            json_data = request.get_json(silent=True, force=True)
-            if json_data:
-                logger.info(f"[Task {task_id}] JSON data received:")
-                sanitized_data = {k: v if k not in ['text', 'content'] else f'[content of length {len(str(v))}]' 
-                                for k, v in json_data.items()}
-                logger.info(f"[Task {task_id}] {sanitized_data}")
-                
-                for key, value in json_data.items():
-                    if key == 'text' and value and len(value) > 100:
-                        logger.info(f"[Task {task_id}] {key}: {value[:100]}... (truncated, total length: {len(value)})")
-                    elif key == 'url':
-                        logger.info(f"[Task {task_id}] URL provided: {value}")
-                    else:
-                        logger.info(f"[Task {task_id}] {key}: {value}")
-            else:
-                logger.info(f"[Task {task_id}] No JSON data in request")
-                
-            logger.info(f"[Task {task_id}] Python version: {sys.version}")
-            logger.info(f"[Task {task_id}] Working directory: {os.getcwd()}")
-            logger.info(f"[Task {task_id}] Module search path: {sys.path}")
-            
-            if request.form:
-                logger.info(f"[Task {task_id}] Form data received:")
-                for key, value in request.form.items():
-                    if key == 'text' and value and len(value) > 100:
-                        logger.info(f"[Task {task_id}] {key}: {value[:100]}... (truncated, total length: {len(value)})")
-                    else:
-                        logger.info(f"[Task {task_id}] {key}: {value}")
-            
-            if request.files:
-                logger.info(f"[Task {task_id}] Files received:")
-                for key, file in request.files.items():
-                    file_data = file.read(1024)
-                    logger.info(f"[Task {task_id}] {key}: {file.filename} ({file.content_type}, {len(file_data)} bytes)")
-                    file.seek(0)  # Reset file pointer after reading
-                logger.info("\nFiles in request:")
-                for key in request.files:
-                    file = request.files[key]
-                    file_content = file.read()
-                    logger.info(f"  {key}: {file.filename} ({file.content_type}, {len(file_content)} bytes)")
-                    file.seek(0)  # Reset file pointer
-            
-            if request.form:
-                logger.info("\nForm data:")
-                for key, value in request.form.items():
-                    logger.info(f"  {key}: {value}")
-            
-            json_data = None
-            if request.is_json:
-                try:
-                    json_data = request.get_json()
-                    logger.info("\nJSON data in request:")
-                    logger.info(json.dumps(json_data, indent=2))
-                except Exception as e:
-                    logger.error(f"Error parsing JSON: {str(e)}")
-                    return jsonify({'error': 'Invalid JSON data'}), 400
-            
-            logger.info("\nRequest environment:")
-            for key in ['CONTENT_TYPE', 'REQUEST_METHOD', 'PATH_INFO', 'QUERY_STRING']:
-                if key in request.environ:
-                    logger.info(f"  {key}: {request.environ[key]}")
-            
-            logger.info("\nRequest data (first 1000 chars):")
-            try:
-                data = request.get_data(as_text=True)
-                logger.info(data[:1000] + ('...' if len(data) > 1000 else ''))
-            except Exception as e:
-                logger.error(f"Error reading request data: {str(e)}")
-            
-            document_text = ''
-            document_type = 'legal_brief'
-            
-            if 'file' in request.files:
-                logger.info("Processing file upload")
-                file = request.files['file']
-                if file.filename == '':
-                    return jsonify({'error': 'No selected file'}), 400
-                    
-                filename = file.filename.lower() if file.filename else ''
-                if filename.endswith('.pdf'):
-                    try:
-                        import PyPDF2
-                        import io
-                        
-                        pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
-                        text_parts = []
-                        for page in pdf_reader.pages:
-                            text = page.extract_text()
-                            if text:
-                                text_parts.append(text)
-                        document_text = '\n\n'.join(text_parts)
-                        logger.info(f"Extracted {len(document_text)} characters from PDF")
-                    except Exception as e:
-                        logger.error(f"Error reading PDF: {str(e)}")
-                        return jsonify({'error': 'Error reading PDF file'}), 400
-                else:
-                    try:
-                        document_text = file.read().decode('utf-8')
-                    except UnicodeDecodeError:
-                        return jsonify({'error': 'Invalid file encoding. Please use UTF-8 encoded text files.'}), 400
-            else:
-                data = request.get_json()
-                if not data:
-                    logger.error("No data received in request")
-                    return jsonify({'error': 'No data received'}), 400
-                
-                if 'url' in data and data['url']:
-                    url = data['url'].strip()
-                    logger.info(f"Processing URL: {url}")
-                    
-                    try:
-                        parsed = urlparse(url)
-                        if not all([parsed.scheme, parsed.netloc]):
-                            return jsonify({'error': 'Invalid URL format'}), 400
-                        
-                        document_text = fetch_url_content(url)
-                        if not document_text.strip():
-                            return jsonify({'error': 'No content could be extracted from the URL'}), 400
-                            
-                        logger.info(f"Fetched {len(document_text)} characters from URL")
-                        document_type = data.get('document_type', 'legal_brief')
-                    except Exception as e:
-                        error_id = str(uuid.uuid4())
-                        logger.error(f"\n{'*'*80}")
-                        logger.error(f"ERROR ID: {error_id}")
-                        logger.error(f"Error in start_citation_analysis: {str(e)}")
-                        logger.error(f"Error type: {type(e).__name__}")
-                        logger.error("Traceback:")
-                        logger.error(traceback.format_exc())
-                        
-                        logger.error("Request details at time of error:")
-                        logger.error(f"  Method: {request.method}")
-                        logger.error(f"  URL: {request.url}")
-                        logger.error(f"  Content-Type: {request.content_type}")
-                        logger.error(f"  Headers: {dict(request.headers)}")
-                        
-                        if request.is_json:
-                            try:
-                                json_data = request.get_json()
-                                logger.error("  JSON data:")
-                                for key, value in json_data.items():
-                                    if key == 'text' and value and len(value) > 100:
-                                        logger.error(f"    {key}: {value[:100]}... (truncated, total length: {len(value)})")
-                                    else:
-                                        logger.error(f"    {key}: {value}")
-                            except Exception as json_err:
-                                logger.error(f"  Could not parse JSON data: {str(json_err)}")
-                        
-                        if request.files:
-                            logger.error("  Files in request:")
-                            for key, file in request.files.items():
-                                logger.error(f"    {key}: {file.filename} ({file.content_type}, {len(file.read(1024))} bytes)")
-                                file.seek(0)
-                        
-                        logger.error(f"{'*'*80}\n")
-                        
-                        return jsonify({
-                            "error": "An unexpected error occurred while processing your request",
-                            "error_id": error_id,
-                            "details": str(e),
-                            "type": type(e).__name__
-                        }), 500
-                else:
-                    document_text = data.get('text', '')
-                    document_type = data.get('document_type', 'legal_brief')
-            
-            if not document_text.strip():
-                logger.error("No document text provided in request")
-                return jsonify({'error': 'No document text provided, file was empty, or URL returned no content'}), 400
-            
-            logger.info(f"Starting analysis for document type: {document_type}")
-            
-            logger.info("\nDocument info before processing:")
-            logger.info(f"Document type: {document_type}")
-            logger.info(f"Document text length: {len(document_text)} characters")
-            logger.info(f"First 200 chars: {document_text[:200]}...")
-            
-            try:
-                logger.info("Using EnhancedSyncProcessor for immediate processing...")
-                from src.enhanced_sync_processor import EnhancedSyncProcessor, ProcessingOptions
-                
-                options = ProcessingOptions(
-                    enable_async_verification=True,
-                    enable_enhanced_verification=True,
-                    enable_confidence_scoring=True,
-                    courtlistener_api_key=os.getenv('COURTLISTENER_API_KEY')
-                )
-                
-                processor = EnhancedSyncProcessor(options)
-                
-                logger.info("Starting enhanced processing...")
-                start_time = time.time()
-                
-                results = processor.process_any_input_enhanced(
-                    input_data=document_text,
-                    input_type='text',
-                    options={
-                        'document_type': document_type,
-                        'enable_enhanced_verification': True,
-                        'enable_async_verification': True,
-                        'enable_clustering': True,
-                        'request_id': task_id
-                    }
-                )
-                
-                process_time = time.time() - start_time
-                logger.info(f"Enhanced processing completed in {process_time:.2f}s")
-                
-                logger.info(f"[Task {task_id}] Results keys: {list(results.keys()) if isinstance(results, dict) else 'Not a dict'}")
-                logger.info(f"[Task {task_id}] Results processing_mode: {results.get('processing_mode', 'NOT_FOUND')}")
-                logger.info(f"[Task {task_id}] Results processing_strategy: {results.get('processing_strategy', 'NOT_FOUND')}")
-                
-                response_data = {
-                    'result': results,
-                    'status': 'completed',
-                    'processing_time_ms': int(process_time * 1000),
-                    'document_length': len(document_text),
-                    'processing_mode': results.get('processing_mode', 'unknown'),  # Move to top level
-                    'request_id': task_id
-                }
-                
-                logger.info(f"[Task {task_id}] Response data processing_mode: {response_data['processing_mode']}")
-                logger.info(f"Returning completed results: {len(results.get('citations', []))} citations found")
-                return jsonify(response_data)
-                
-            except Exception as proc_error:
-                logger.error("Error in process_document_with_progress:")
-                logger.error(f"Error type: {type(proc_error).__name__}")
-                logger.error(f"Error message: {str(proc_error)}")
-                logger.error(f"Traceback:\n{traceback.format_exc()}")
-                raise proc_error
-            
-        except Exception as e:
-            error_trace = traceback.format_exc()
-            error_msg = f"Error in start_citation_analysis: {str(e)}\n{error_trace}"
-            logger.error("\n" + "!"*80)
-            logger.error("ERROR PROCESSING REQUEST")
-            logger.error("!"*80)
-            logger.error(error_msg)
-            logger.error("!"*80 + "\n")
-            
-            error_response = {
-                'error': 'Failed to start analysis',
-                'details': str(e),
-            }
-            
-            if app.debug:
-                error_response['traceback'] = error_trace.split('\n')  # type: ignore
-                error_response['request_info'] = {  # type: ignore
-                    'content_type': request.content_type,
-                    'method': request.method,
-                    'endpoint': request.endpoint,
-                }
-            
-            return jsonify(error_response), 500
-    
-    @app.route('/casestrainer/api/analyze/progress/<task_id>')
-    def get_progress(task_id: str):
-        """Get current progress for a task"""
-        try:
-            progress_data = progress_manager.get_progress(task_id)
-            return jsonify(progress_data)
-        except Exception as e:
-            logger.error(f"Error getting progress: {e}")
-            return jsonify({'error': 'Failed to get progress'}), 500
-    
-    @app.route('/casestrainer/api/analyze/results/<task_id>')
-    def get_results(task_id: str):
-        """Get final results for a completed task"""
-        try:
-            results = progress_manager.get_results(task_id)
-            return jsonify(results)
-        except Exception as e:
-            logger.error(f"Error getting results: {e}")
-            return jsonify({'error': 'Failed to get results'}), 500
-    
-    @app.route('/casestrainer/api/analyze/progress-stream/<task_id>')
-    def progress_stream(task_id: str):
-        """Server-Sent Events stream for real-time progress"""
-        def generate_progress_events():
-            """Generator for SSE progress events"""
-            while True:
-                try:
-                    progress_data = progress_manager.get_progress(task_id)
-                    
-                    if 'error' in progress_data:
-                        yield f"data: {json.dumps({'error': 'Task not found'})}\n\n"
-                        break
-                    
-                    yield f"data: {json.dumps(progress_data)}\n\n"
-                    
-                    if progress_data.get('status') in ['completed', 'failed']:
-                        final_results = progress_manager.get_results(task_id)
-                        yield f"data: {json.dumps(final_results)}\n\n"
-                        break
-                    
-                    time.sleep(0.5)  # Update every 500ms
-                    
-                except Exception as e:
-                    logger.error(f"Error in progress stream: {e}")
-                    yield f"data: {json.dumps({'error': str(e)})}\n\n"
-                    break
-        
-        return Response(
-            generate_progress_events(),
-            mimetype='text/event-stream',
-            headers={
-                'Cache-Control': 'no-cache',
-                'Connection': 'keep-alive',
-                'X-Accel-Buffering': 'no'  # Nginx compatibility
-            }
-        )
-
-
-
-frontend_js_example = '''
-// Frontend JavaScript for progress tracking
-class CitationProgressTracker {
-    constructor() {
-        this.taskId = null;
-        this.eventSource = null;
-        this.progressCallback = null;
-        this.completeCallback = null;
-    }
-    
-    // Method 1: Server-Sent Events (Recommended)
-    startAnalysisWithSSE(documentText, documentType, progressCallback, completeCallback) {
-        this.progressCallback = progressCallback;
-        this.completeCallback = completeCallback;
-        
-        // Start the analysis
-        fetch('/casestrainer/api/analyze', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                text: documentText,
-                document_type: documentType
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.task_id) {
-                this.taskId = data.task_id;
-                this.connectToProgressStream();
-            } else {
-                throw new Error(data.error || 'Failed to start analysis');
-            }
-        })
-        .catch(error => {
-            console.error('Error starting analysis:', error);
-            this.completeCallback({ error: error.message });
-        });
-    }
-    
-    connectToProgressStream() {
-        if (this.eventSource) {
-            this.eventSource.close();
-        }
-        
-        this.eventSource = new EventSource(
-            `/casestrainer/api/analyze/progress-stream/${this.taskId}`
-        );
-        
-        this.eventSource.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                if (data.error) {
-                    this.handleError(data.error);
-                    return;
-                }
-                
-                if (data.results) {
-                    // Final results received
-                    this.handleComplete(data);
-                } else {
-                    // Progress update
-                    this.handleProgress(data);
-                }
-                
-            } catch (error) {
-                console.error('Error parsing progress data:', error);
-            }
-        };
-        
-        this.eventSource.onerror = (error) => {
-            console.error('SSE connection error:', error);
-            this.eventSource.close();
-            // Fallback to polling
-            this.startPolling();
-        };
-    }
-    
-    // Method 2: Polling Fallback
-    startPolling() {
-        const pollInterval = setInterval(async () => {
-            try {
-                const response = await fetch(`/casestrainer/api/analyze/progress/${this.taskId}`);
-                const data = await response.json();
-                
-                if (data.error) {
-                    clearInterval(pollInterval);
-                    this.handleError(data.error);
-                    return;
-                }
-                
-                this.handleProgress(data);
-                
-                if (data.status === 'completed' || data.status === 'failed') {
-                    clearInterval(pollInterval);
-                    
-                    // Get final results
-                    const resultsResponse = await fetch(`/casestrainer/api/analyze/results/${this.taskId}`);
-                    const results = await resultsResponse.json();
-                    this.handleComplete(results);
-                }
-                
-            } catch (error) {
-                clearInterval(pollInterval);
-                this.handleError(error.message);
-            }
-        }, 1000); // Poll every second
-    }
-    
-    handleProgress(progressData) {
-        if (this.progressCallback) {
-            this.progressCallback({
-                progress: progressData.progress,
-                message: progressData.message,
-                currentStep: progressData.current_step,
-                totalSteps: progressData.total_steps,
-                resultsCount: progressData.results_count,
-                estimatedCompletion: progressData.estimated_completion
-            });
-        }
-        
-        // Update UI
-        this.updateProgressBar(progressData.progress);
-        this.updateStatusMessage(progressData.message);
-        
-        // Show partial results if available
-        if (progressData.partial_results) {
-            this.showPartialResults(progressData.partial_results);
-        }
-    }
-    
-    handleComplete(results) {
-        if (this.eventSource) {
-            this.eventSource.close();
-        }
-        
-        if (this.completeCallback) {
-            this.completeCallback(results);
-        }
-        
-        // Hide progress bar, show final results
-        this.hideProgressBar();
-        this.showFinalResults(results);
-    }
-    
-    handleError(error) {
-        if (this.eventSource) {
-            this.eventSource.close();
-        }
-        
-        console.error('Citation analysis error:', error);
-        this.hideProgressBar();
-        this.showError(error);
-    }
-    
-    updateProgressBar(progress) {
-        const progressBar = document.getElementById('citation-progress-bar');
-        if (progressBar) {
-            progressBar.style.width = `${progress}%`;
-            progressBar.setAttribute('aria-valuenow', progress);
-        }
-        
-        const progressText = document.getElementById('progress-text');
-        if (progressText) {
-            progressText.textContent = `${Math.round(progress)}%`;
-        }
-    }
-    
-    updateStatusMessage(message) {
-        const statusElement = document.getElementById('progress-status');
-        if (statusElement) {
-            statusElement.textContent = message;
-        }
-    }
-    
-    showPartialResults(partialResults) {
-        // Show citations as they're found
-        const partialContainer = document.getElementById('partial-results');
-        if (partialContainer && partialResults.length > 0) {
-            partialResults.forEach(citation => {
-                const citationElement = this.createCitationElement(citation);
-                partialContainer.appendChild(citationElement);
-            });
-        }
-    }
-    
-    createCitationElement(citation) {
-        const div = document.createElement('div');
-        div.className = 'citation-preview';
-        div.innerHTML = `
-            <div class="citation-case-name">${citation.case_name || 'Unknown Case'}</div>
-            <div class="citation-details">
-                <span class="year">${citation.year || 'No year'}</span>
-                <span class="confidence">Confidence: ${Math.round((citation.confidence_score || 0) * 100)}%</span>
-            </div>
-        `;
-        return div;
-    }
-    
-    hideProgressBar() {
-        const progressContainer = document.getElementById('progress-container');
-        if (progressContainer) {
-            progressContainer.style.display = 'none';
-        }
-    }
-    
-    showFinalResults(results) {
-        const resultsContainer = document.getElementById('final-results');
-        if (resultsContainer) {
-            resultsContainer.innerHTML = this.formatFinalResults(results);
-            resultsContainer.style.display = 'block';
-        }
-    }
-    
-    formatFinalResults(results) {
-        return `
-            <h3>Citation Analysis Complete</h3>
-            <p>Found ${results.results.length} citations</p>
-            <div class="citations-list">
-                ${results.results.map(citation => this.formatCitation(citation)).join('')}
-            </div>
-        `;
-    }
-    
-    showError(error) {
-        const errorContainer = document.getElementById('error-container');
-        if (errorContainer) {
-            errorContainer.innerHTML = `<div class="alert alert-danger">Error: ${error}</div>`;
-            errorContainer.style.display = 'block';
-        }
-    }
-}
-
-// Usage example
-const tracker = new CitationProgressTracker();
-
-document.getElementById('analyze-button').addEventListener('click', () => {
-    const documentText = document.getElementById('document-text').value;
-    const documentType = document.getElementById('document-type').value;
-    
-    // Show progress container
-    document.getElementById('progress-container').style.display = 'block';
-    
-    tracker.startAnalysisWithSSE(
-        documentText,
-        documentType,
-        // Progress callback
-        (progressData) => {
-            console.log('Progress:', progressData);
-        },
-        // Complete callback
-        (results) => {
-            console.log('Analysis complete:', results);
-        }
-    );
-});
-'''
-
-
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
     """
     Process citation task directly (for use with RQ workers).
@@ -1581,8 +1004,28 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 # instead of just extraction
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
                 
-                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True")
+                # Verification enabled - uses fallback sources if CourtListener is rate-limited
+                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True (with fallback sources)")
                 result = extract_citations_with_clustering(text, enable_verification=True)
+                
+                # Check if any citations show CourtListener rate limit messages
+                courtlistener_rate_limited = False
+                if result.get('citations'):
+                    for cit in result['citations']:
+                        error_msg = cit.get('error', '') or cit.get('verification_error', '')
+                        if 'heavy usage' in str(error_msg).lower() or 'try again' in str(error_msg).lower():
+                            courtlistener_rate_limited = True
+                            break
+                
+                # Add user notice if CourtListener is rate-limited
+                if courtlistener_rate_limited:
+                    if 'metadata' not in result:
+                        result['metadata'] = {}
+                    result['metadata']['verification_notice'] = (
+                        "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
+                        "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
+                        "CourtListener, please try again in a few minutes."
+                    )
                 logger.error(f"[Task {task_id}] >>>>>>> extract_citations_with_clustering RETURNED: {len(result.get('citations', []))} citations")
                 
                 # Convert clean pipeline results to CitationResult objects
