@@ -515,20 +515,33 @@ class UnifiedCaseExtractionMaster:
         # Looks for: [Capital letter]...text... v. ...text...$ ($ = end of string)
         
         # Try multiple patterns in priority order
+        # USER REQUESTED: Support "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
         patterns = [
-            # Pattern 1: "In re" cases - greedy match to end of string (USER FIX)
+            # Pattern 1: "In re" cases - greedy match to end of string
             r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
             
-            # Pattern 2: "In re" after sentence boundary (USER FIX)
+            # Pattern 2: "In the matter of" cases (full form)
+            r'(In\s+the\s+matter\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 3: "Matter of" cases (short form)
+            r'(Matter\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 4: "Ex parte" cases
+            r'(Ex\s+parte\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 5: "Estate of" cases
+            r'(Estate\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 6: "In re" after sentence boundary
             r'(?:^|[.!?]\s+)(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
             
-            # Pattern 3: Full case name with "v." - greedy match to end of string
+            # Pattern 7: Full case name with "v." - greedy match to end of string
             r'([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
             
-            # Pattern 4: After sentence boundary (period, question, exclamation)
+            # Pattern 8: After sentence boundary (period, question, exclamation)
             r'(?:^|[.!?]\s+)([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
             
-            # Pattern 5: After quotation mark
+            # Pattern 9: After quotation mark
             r'["\']?\s*([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
         ]
         
@@ -625,12 +638,20 @@ class UnifiedCaseExtractionMaster:
         # FIX #69 DEBUG: Always log validation attempts
         logger.error(f"[FIX #69 VALIDATE] Checking: '{text[:100] if text else 'None'}'")
         
-        # USER FIX: Allow "In re" cases in addition to " v. " cases
-        is_in_re_case = text and text.lower().startswith('in re ')
-        has_v_pattern = text and ' v. ' in text.lower()
+        # USER FIX: Allow special case types in addition to " v. " cases
+        # Support: "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
+        text_lower = text.lower() if text else ''
+        has_v_pattern = ' v. ' in text_lower
+        is_special_case = (
+            text_lower.startswith('in re ') or
+            text_lower.startswith('in the matter of ') or
+            text_lower.startswith('matter of ') or
+            text_lower.startswith('ex parte ') or
+            text_lower.startswith('estate of ')
+        )
         
-        if not text or (not has_v_pattern and not is_in_re_case):
-            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' or 'In re' in text")
+        if not text or (not has_v_pattern and not is_special_case):
+            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' or special case pattern in text")
             return False
         
         if len(text) < 10:
@@ -646,7 +667,8 @@ class UnifiedCaseExtractionMaster:
             logger.error(f"[FIX #69 VALIDATE] FAIL: Doesn't start with capital")
             return False
         
-        # USER FIX: Only validate plaintiff/defendant structure for " v. " cases, not "In re" cases
+        # USER FIX: Only validate plaintiff/defendant structure for " v. " cases
+        # For special cases, just validate they have content after the prefix
         if has_v_pattern:
             # Split into plaintiff and defendant
             v_lower = ' v. '
@@ -662,12 +684,24 @@ class UnifiedCaseExtractionMaster:
             if len(plaintiff.split()) < 1 or len(defendant.split()) < 1:
                 logger.error(f"[FIX #69 VALIDATE] FAIL: Plaintiff '{plaintiff}' or defendant '{defendant}' too short")
                 return False
-        elif is_in_re_case:
-            # For "In re" cases, just check it has more than "In re"
-            after_in_re = text[6:].strip()  # Skip "In re "
-            if len(after_in_re) < 5:  # At least a few chars after "In re"
-                logger.error(f"[FIX #69 VALIDATE] FAIL: 'In re' case too short after prefix")
-                return False
+        elif is_special_case:
+            # For special cases, validate content after prefix
+            # Find which prefix it is and check content after it
+            prefixes = {
+                'in re ': 6,
+                'in the matter of ': 17,
+                'matter of ': 10,
+                'ex parte ': 9,
+                'estate of ': 10
+            }
+            
+            for prefix, length in prefixes.items():
+                if text_lower.startswith(prefix):
+                    after_prefix = text[length:].strip()
+                    if len(after_prefix) < 5:  # At least a few chars after prefix
+                        logger.error(f"[FIX #69 VALIDATE] FAIL: '{prefix.strip()}' case too short after prefix")
+                        return False
+                    break
         
         # Check for obvious contamination
         contamination_indicators = [
@@ -676,7 +710,7 @@ class UnifiedCaseExtractionMaster:
             'in recent times', 'in this case', 'as discussed',
         ]
         
-        text_lower = text.lower()
+        # text_lower already defined above
         for indicator in contamination_indicators:
             if indicator in text_lower:
                 logger.error(f"[FIX #69 VALIDATE] FAIL: Contains contamination '{indicator}'")
@@ -1102,10 +1136,20 @@ class UnifiedCaseExtractionMaster:
             logger.error(f"[CONTAMINATION-DEBUG] Before cleaning: '{cleaned}'")
         
         # Remove common prefixes that indicate contamination
+        # USER FIX: Protect special case type prefixes from removal
         contamination_prefixes = [
-            r'^(?:In|The case of|As stated in|Citing|Following|See)\s+',
+            r'^(?:The case of|As stated in|Citing|Following|See)\s+',
             r'^(?:court held that|established|the defendant)\s*[.\s]*',
             r'^(?:of\s+law)[\s\.]*',
+            # Only remove "In " if NOT part of case type prefixes
+            # Protect: "In re", "In the matter of"
+            r'^In\s+(?!re\s|the\s+matter\s)',
+            # Only remove "Matter " if NOT "Matter of"
+            r'^Matter\s+(?!of\s)',
+            # Only remove "Estate " if NOT "Estate of"  
+            r'^Estate\s+(?!of\s)',
+            # Only remove "Ex " if NOT "Ex parte"
+            r'^Ex\s+(?!parte\s)',
         ]
         
         for prefix in contamination_prefixes:
