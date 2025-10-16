@@ -19,13 +19,15 @@ def register_blueprints(app):
     try:
         logger.info("Attempting to import Vue API blueprint...")
         try:
-            from src.vue_api_endpoints import vue_api as vue_api_blueprint
-            logger.info("✅ Successfully imported Vue API blueprint using absolute import")
+            # UPDATED: Using vue_api_endpoints_updated.py (has all production routes + syntax fixes)
+            from src.vue_api_endpoints_updated import vue_api as vue_api_blueprint
+            logger.info("✅ Successfully imported Vue API blueprint from UPDATED endpoints (production version)")
         except ImportError as e1:
-            logger.warning(f"Absolute import failed: {e1}")
+            logger.warning(f"Updated endpoints import failed: {e1}, trying legacy fallback...")
             try:
-                from ..vue_api_endpoints import vue_api as vue_api_blueprint
-                logger.info("✅ Successfully imported Vue API blueprint using relative import")
+                # Fallback to old endpoints (basic version)
+                from src.vue_api_endpoints import vue_api as vue_api_blueprint
+                logger.warning("⚠️  Using legacy vue_api_endpoints.py (fallback)")
             except ImportError as e2:
                 logger.error(f"All import attempts failed: {e1} / {e2}")
                 logger.error(f"Python path: {sys.path}")

@@ -186,6 +186,7 @@ def analyze():
     Returns:
         Response with analysis results or task status
     """
+    # Generate initial request_id (will be replaced if client provides one)
     request_id = str(uuid.uuid4())
     
     if _is_test_environment_request(request):
@@ -250,6 +251,11 @@ def analyze():
             try:
                 json_data = request.get_json(silent=True, force=True)
                 if json_data:
+                    # Check if client provided a request_id for progress tracking
+                    if 'client_request_id' in json_data:
+                        request_id = json_data['client_request_id']
+                        logger.info(f"[Request {request_id}] Using client-provided request_id for progress tracking")
+                    
                     sanitized_data = {}
                     for k, v in json_data.items():
                         if isinstance(v, str) and len(v) > 100:
@@ -608,11 +614,13 @@ def _format_response(result, request_id, metadata, start_time):
         response_data['metadata']['progress_data'] = result['progress_data']
     
     if 'task_id' in result:
+        # Add task_id to both top level AND inside result for frontend compatibility
         response_data.update({
             'task_id': result['task_id'],
             'status': result.get('status', 'processing'),
             'message': result.get('message', 'Request is being processed')
         })
+        response_data['result']['task_id'] = result['task_id']  # Also add inside result
     
     for key in ['message', 'warnings', 'debug', 'verification_status', 'async_verification_queued']:
         if key in result and key not in response_data:
@@ -789,12 +797,11 @@ def task_status(task_id):
                 return jsonify({
                     'status': 'completed',
                     'task_id': task_id,
-                    'result': {
-                        'citations': result.get('citations', []),
-                        'clusters': result.get('clusters', []),
-                        'statistics': result.get('statistics', {}),
-                        'metadata': result.get('metadata', {})
-                    },
+                    'is_finished': True,
+                    'citations': result.get('citations', []),
+                    'clusters': result.get('clusters', []),
+                    'statistics': result.get('statistics', {}),
+                    'metadata': result.get('metadata', {}),
                     'success': True
                 })
             else:
@@ -866,7 +873,7 @@ def task_status(task_id):
 
 @vue_api.route('/processing_progress', methods=['GET'])
 def processing_progress():
-    """Get current processing progress from ProgressTracker."""
+    """Get current processing progress from ProgressTracker or global progress manager."""
     request_id = request.args.get('request_id') or request.args.get('task_id')
     
     if not request_id:
@@ -879,6 +886,29 @@ def processing_progress():
         }), 400
     
     try:
+        # First try the global progress manager (for sync processing)
+        from src.unified_input_processor import get_progress_manager
+        global_progress_mgr = get_progress_manager()
+        
+        if request_id in global_progress_mgr.active_tasks:
+            progress_data = global_progress_mgr.get_progress(request_id)
+            logger.debug(f"[Progress API] Found progress in global manager: {progress_data}")
+            
+            if progress_data and 'error' not in progress_data:
+                return jsonify({
+                    'status': 'success',
+                    'request_id': request_id,
+                    'progress_percent': progress_data.get('progress', 0),
+                    'current_step': progress_data.get('current_step', 0),
+                    'total_steps': progress_data.get('total_steps', 100),
+                    'current_message': progress_data.get('message', 'Processing...'),
+                    'status_detail': progress_data.get('status', 'processing'),
+                    'is_complete': progress_data.get('status') == 'Complete',
+                    'processed_citations': progress_data.get('results_count', 0),
+                    'total_citations': progress_data.get('results_count', 0)
+                })
+        
+        # Fall back to local progress tracker (for async processing)
         progress_data = progress_tracker.get_progress(request_id)
         
         if progress_data:
@@ -1833,11 +1863,13 @@ def verification_stream(request_id):
         def generate():
             """Generate SSE events for verification progress"""
             try:
-                yield f"data: {json.dumps({
+                # Connection established event
+                connection_data = {
                     'type': 'connection_established',
                     'request_id': request_id,
                     'timestamp': datetime.utcnow().isoformat()
-                })}\n\n"
+                }
+                yield f"data: {json.dumps(connection_data)}\n\n"
                 
                 last_status = None
                 last_progress = 0
@@ -1847,12 +1879,13 @@ def verification_stream(request_id):
                         status = verification_manager.get_verification_status(request_id)
                         
                         if not status:
-                            yield f"data: {json.dumps({
+                            error_data = {
                                 'type': 'error',
                                 'message': 'Verification not found or not started',
                                 'request_id': request_id,
                                 'timestamp': datetime.utcnow().isoformat()
-                            })}\n\n"
+                            }
+                            yield f"data: {json.dumps(error_data)}\n\n"
                             break
                         
                         status_changed = (
@@ -1909,28 +1942,31 @@ def verification_stream(request_id):
                         
                     except Exception as e:
                         logger.error(f"Error in verification stream for {request_id}: {e}")
-                        yield f"data: {json.dumps({
+                        stream_error_data = {
                             'type': 'error',
                             'message': f'Stream error: {str(e)}',
                             'request_id': request_id,
                             'timestamp': datetime.utcnow().isoformat()
-                        })}\n\n"
+                        }
+                        yield f"data: {json.dumps(stream_error_data)}\n\n"
                         break
                 
-                yield f"data: {json.dumps({
+                stream_end_data = {
                     'type': 'stream_end',
                     'request_id': request_id,
                     'timestamp': datetime.utcnow().isoformat()
-                })}\n\n"
+                }
+                yield f"data: {json.dumps(stream_end_data)}\n\n"
                 
             except Exception as e:
                 logger.error(f"Fatal error in verification stream for {request_id}: {e}")
-                yield f"data: {json.dumps({
+                fatal_error_data = {
                     'type': 'fatal_error',
                     'message': f'Fatal stream error: {str(e)}',
                     'request_id': request_id,
                     'timestamp': datetime.utcnow().isoformat()
-                })}\n\n"
+                }
+                yield f"data: {json.dumps(fatal_error_data)}\n\n"
         
         return Response(
             generate(),
