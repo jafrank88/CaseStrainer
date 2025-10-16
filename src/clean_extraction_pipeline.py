@@ -47,34 +47,48 @@ class CleanExtractionPipeline:
         self.citation_patterns = self._build_citation_patterns()
     
     def _build_citation_patterns(self) -> Dict[str, re.Pattern]:
-        """Build regex patterns for citation detection."""
+        """Build regex patterns for citation detection (backup for eyecite)."""
         return {
             # Federal reporters
             'us_supreme': re.compile(r'\b\d+\s+U\.S\.\s+\d+\b', re.IGNORECASE),
             's_ct': re.compile(r'\b\d+\s+S\.\s*Ct\.\s+\d+\b', re.IGNORECASE),
-            'l_ed': re.compile(r'\b\d+\s+L\.\s*Ed\.?\s*2d\s+\d+\b', re.IGNORECASE),
+            'l_ed': re.compile(r'\b\d+\s+L\.\s*Ed\.?\s*(2d)?\s+\d+\b', re.IGNORECASE),
+            'f_supp': re.compile(r'\b\d+\s+F\.\s*Supp\.?\s*(2d|3d)?\s+\d+\b', re.IGNORECASE),
             'f_2d': re.compile(r'\b\d+\s+F\.\s*2d\s+\d+\b', re.IGNORECASE),
             'f_3d': re.compile(r'\b\d+\s+F\.\s*3d\s+\d+\b', re.IGNORECASE),
             'f_4th': re.compile(r'\b\d+\s+F\.\s*4th\s+\d+\b', re.IGNORECASE),
             
-            # State reporters
-            'wn_2d': re.compile(r'\b\d+\s+Wn\.2d\s+\d+\b', re.IGNORECASE),
-            'wn_app': re.compile(r'\b\d+\s+Wn\.\s*App\.?\s*2d\s+\d+\b', re.IGNORECASE),
+            # State reporters - Pacific
             'p_2d': re.compile(r'\b\d+\s+P\.\s*2d\s+\d+\b', re.IGNORECASE),
             'p_3d': re.compile(r'\b\d+\s+P\.\s*3d\s+\d+\b', re.IGNORECASE),
+            'p_general': re.compile(r'\b\d+\s+P\.\s+\d+\b', re.IGNORECASE),  # Older P. reporter
+            
+            # State reporters - Washington
+            'wn_2d': re.compile(r'\b\d+\s+Wn\.2d\s+\d+\b', re.IGNORECASE),
+            'wn_app': re.compile(r'\b\d+\s+Wn\.\s*App\.?\s*2d\s+\d+\b', re.IGNORECASE),
+            'wash_2d': re.compile(r'\b\d+\s+Wash\.2d\s+\d+\b', re.IGNORECASE),  # Alternate format
+            
+            # State reporters - California  
+            'cal_2d': re.compile(r'\b\d+\s+Cal\.\s*2d\s+\d+\b', re.IGNORECASE),
+            'cal_3d': re.compile(r'\b\d+\s+Cal\.\s*3d\s+\d+\b', re.IGNORECASE),
+            'cal_4th': re.compile(r'\b\d+\s+Cal\.\s*4th\s+\d+\b', re.IGNORECASE),
+            'cal_app': re.compile(r'\b\d+\s+Cal\.\s*App\.?\s*(2d|3d|4th|5th)?\s+\d+\b', re.IGNORECASE),
+            
+            # Neutral/Public Domain Citations (official state citations)
+            'neutral_nm': re.compile(r'\b20\d{2}-NM(?:CA)?-\d{1,5}\b', re.IGNORECASE),  # New Mexico
+            'neutral_nd': re.compile(r'\b20\d{2}\s+ND\s+\d{1,5}\b', re.IGNORECASE),  # North Dakota
+            'neutral_ok': re.compile(r'\b20\d{2}\s+OK\s+\d{1,5}\b', re.IGNORECASE),  # Oklahoma
+            'neutral_sd': re.compile(r'\b20\d{2}\s+SD\s+\d{1,5}\b', re.IGNORECASE),  # South Dakota
+            'neutral_ut': re.compile(r'\b20\d{2}\s+UT\s+\d{1,5}\b', re.IGNORECASE),  # Utah
+            'neutral_wi': re.compile(r'\b20\d{2}\s+WI\s+\d{1,5}\b', re.IGNORECASE),  # Wisconsin
+            'neutral_wy': re.compile(r'\b20\d{2}\s+WY\s+\d{1,5}\b', re.IGNORECASE),  # Wyoming
+            'neutral_mt': re.compile(r'\b20\d{2}\s+MT\s+\d{1,5}\b', re.IGNORECASE),  # Montana
         }
     
     def extract_citations(self, text: str) -> List[CitationResult]:
-        """
-        Main extraction pipeline - returns citations with case names extracted.
-        
-        Args:
-            text: Document text
-            
-        Returns:
-            List of CitationResult objects with extracted_case_name set
-        """
-        logger.info("[CLEAN-PIPELINE] Starting clean extraction pipeline")
+        """Extract citations with clean pipeline."""
+        logger.info(f"[CLEAN-PIPELINE] Starting clean extraction pipeline for {len(text)} chars")
+        logger.info(f"[CLEAN-PIPELINE] EYECITE_AVAILABLE = {EYECITE_AVAILABLE}")
         
         # Step 1: Find all citations
         all_citations = self._find_all_citations(text)
@@ -124,34 +138,117 @@ class CleanExtractionPipeline:
         
         return citations
     
+    def _clean_eyecite_case_name(self, case_name: str) -> str:
+        """Clean contamination from eyecite-extracted case names."""
+        if not case_name:
+            return case_name
+        
+        import re
+        cleaned = case_name.strip()
+        
+        # Remove descriptive legal phrases before the actual case name
+        # Pattern: "Collateral Order Doctrine\n\nOverruling Batzel v. Smith" -> "Batzel v. Smith"
+        
+        # Step 1: Remove status words at the beginning
+        status_words = r'^(?:overruling|superseding|superseded by|overruled by|reversed|affirming|affirmed|modifying|modified by)\s+'
+        cleaned = re.sub(status_words, '', cleaned, flags=re.IGNORECASE)
+        
+        # Step 2: If there's a "v." in the text, look for contamination before it
+        if ' v. ' in cleaned:
+            # Check for doctrine/rule/test/etc. words
+            contamination_words = ['doctrine', 'rule', 'test', 'standard', 'principle', 'holding']
+            has_contamination = any(word in cleaned.lower() for word in contamination_words)
+            
+            if has_contamination:
+                # Extract just the case name part
+                # Look for pattern: "Something Doctrine\n\nOverruling PartyName v. PartyName"
+                # We want to keep only "PartyName v. PartyName"
+                
+                # Try to find the last capital letter before " v. " as the start of plaintiff
+                case_match = re.search(r'\b([A-Z][\w\'\.\-]+(?:\s+[A-Z][\w\'\.\-]+)*)\s+v\.\s+([A-Z][\w\'\.\-,\s&]+)$', cleaned)
+                if case_match:
+                    plaintiff = case_match.group(1).strip()
+                    defendant = case_match.group(2).strip()
+                    
+                    # Make sure plaintiff isn't a contamination word
+                    if plaintiff.lower() not in contamination_words + ['overruling', 'affirming', 'reversed']:
+                        cleaned = f"{plaintiff} v. {defendant}"
+        
+        # Step 3: Remove any remaining newlines
+        cleaned = re.sub(r'\s+', ' ', cleaned)
+        
+        return cleaned.strip()
+    
     def _find_with_eyecite(self, text: str) -> List[CitationResult]:
         """Find citations using eyecite."""
+        logger.info(f"[EYECITE] Starting eyecite extraction for {len(text)} chars")
         citations = []
         
         try:
             found = get_citations(text)
+            found_list = list(found)
+            logger.info(f"[EYECITE] Eyecite found {len(found_list)} raw citations")
             
-            for cit_obj in found:
-                # Get citation text
-                cit_text = str(cit_obj)
+            for idx, cit_obj in enumerate(found_list):
+                # Filter out non-case citations
+                cit_type = type(cit_obj).__name__
                 
-                # Find position in text
-                start = text.find(cit_text)
-                if start == -1:
+                # Skip Id. citations and law citations
+                if cit_type in ['IdCitation', 'FullLawCitation', 'ShortCaseCitation', 'SupraCitation']:
                     continue
                 
-                end = start + len(cit_text)
+                # Get citation text and position using eyecite's span
+                cit_text = str(cit_obj)
+                
+                # Skip if contains statutory indicators
+                if any(indicator in cit_text for indicator in ['§', 'Code', 'Stat.', 'C.F.R.']):
+                    continue
+                
+                # Use eyecite's built-in span information (much more reliable than text.find!)
+                if hasattr(cit_obj, 'span') and cit_obj.span():
+                    start, end = cit_obj.span()
+                    # Get actual citation text from source
+                    cit_text = text[start:end]
+                else:
+                    # No span info - skip this citation
+                    continue
+                
+                # Try to extract case name and date from eyecite metadata (often more accurate)
+                eyecite_case_name = None
+                eyecite_date = None
+                
+                if hasattr(cit_obj, 'metadata') and cit_obj.metadata:
+                    plaintiff = getattr(cit_obj.metadata, 'plaintiff', None)
+                    defendant = getattr(cit_obj.metadata, 'defendant', None)
+                    year = getattr(cit_obj.metadata, 'year', None)
+                    
+                    if plaintiff and defendant:
+                        # Eyecite found both parties
+                        eyecite_case_name = f"{plaintiff} v. {defendant}"
+                        logger.info(f"[EYECITE-META] Raw from eyecite: {eyecite_case_name}")
+                        
+                        # CRITICAL: Clean contamination from eyecite extractions
+                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name)
+                        logger.info(f"[EYECITE-META] After cleaning: {eyecite_case_name}")
+                    elif plaintiff:
+                        eyecite_case_name = plaintiff
+                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name)
+                        logger.info(f"[EYECITE-META] Extracted plaintiff only: {eyecite_case_name}")
+                    
+                    if year:
+                        eyecite_date = str(year)
+                        logger.debug(f"[EYECITE-META] Extracted year: {eyecite_date}")
                 
                 # Create CitationResult
                 citation = CitationResult(
                     citation=cit_text,
                     start_index=start,
                     end_index=end,
-                    extracted_case_name=None,  # Will be filled by strict isolation
-                    extracted_date=None,       # Will be filled later
+                    extracted_case_name=eyecite_case_name,  # Use eyecite's extraction if available
+                    extracted_date=eyecite_date,            # Use eyecite's date if available
                     method="clean_pipeline_v1",
                     confidence=0.9,
-                    metadata={'detector': 'eyecite'}
+                    metadata={'detector': 'eyecite', 'type': cit_type, 'eyecite_extracted': bool(eyecite_case_name)}
                 )
                 
                 citations.append(citation)
@@ -213,19 +310,27 @@ class CleanExtractionPipeline:
     
     def _extract_all_case_names(self, text: str, citations: List[CitationResult]) -> None:
         """
-        Extract case names for ALL citations using ONLY strict context isolation.
+        Extract case names for citations that don't already have them.
         
-        This is the ONLY place where case names are set.
-        NO OTHER CODE PATH is allowed to set extracted_case_name.
+        Eyecite provides case names for many citations. We only need to extract
+        for citations where eyecite didn't find a case name.
         """
-        logger.info(f"[CLEAN-PIPELINE] Extracting case names for {len(citations)} citations using strict isolation")
+        logger.info(f"[CLEAN-PIPELINE] Extracting case names for {len(citations)} citations")
         
         success_count = 0
         fail_count = 0
+        skipped_count = 0
         
         for citation in citations:
             try:
-                # CRITICAL: Use ONLY strict context isolation
+                # Skip if eyecite already extracted a good case name
+                if citation.extracted_case_name and citation.extracted_case_name != "N/A" and len(citation.extracted_case_name) > 5:
+                    skipped_count += 1
+                    success_count += 1  # Count as success since we have a name
+                    logger.debug(f"[CLEAN-PIPELINE] Keeping eyecite name for {citation.citation}: '{citation.extracted_case_name}'")
+                    continue
+                
+                # Use strict context isolation for citations without names
                 case_name = extract_case_name_with_strict_isolation(
                     text=text,
                     citation_text=citation.citation,
@@ -237,23 +342,28 @@ class CleanExtractionPipeline:
                 if case_name:
                     citation.extracted_case_name = case_name
                     success_count += 1
-                    logger.debug(f"[CLEAN-PIPELINE] {citation.citation} → '{case_name}'")
+                    logger.debug(f"[CLEAN-PIPELINE] Extracted: {citation.citation} → '{case_name}'")
                 else:
                     citation.extracted_case_name = "N/A"
                     fail_count += 1
                     logger.warning(f"[CLEAN-PIPELINE] No name found for {citation.citation}")
                     
             except Exception as e:
-                citation.extracted_case_name = "N/A"
-                fail_count += 1
+                if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                    citation.extracted_case_name = "N/A"
+                    fail_count += 1
                 logger.error(f"[CLEAN-PIPELINE] Error extracting {citation.citation}: {e}")
         
-        logger.info(f"[CLEAN-PIPELINE] Extraction complete: {success_count} success, {fail_count} failed")
+        logger.info(f"[CLEAN-PIPELINE] Extraction complete: {success_count} with names ({skipped_count} from eyecite), {fail_count} failed")
     
     def _extract_all_dates(self, text: str, citations: List[CitationResult]) -> None:
-        """Extract dates for all citations using multiple pattern strategies."""
+        """Extract dates for citations that don't already have them from eyecite."""
         for citation in citations:
             try:
+                # Skip if eyecite already provided a date
+                if citation.extracted_date:
+                    continue
+                
                 if citation.start_index is not None and citation.end_index is not None:
                     # Search context around citation
                     search_start = max(0, citation.start_index - 100)
