@@ -1188,19 +1188,22 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
 
                 # CRITICAL FIX: Extract cluster-level canonical data from verified citations
                 # This happens AFTER verification, so verified citations now have canonical data
-                logger.info(f"[Task {task_id}] Extracting cluster canonical data from verified citations")
+                logger.error(f"[Task {task_id}] 🔍 CANONICAL DATA EXTRACTION: Processing {len(cluster_dicts)} clusters")
+                clusters_with_canonical = 0
                 for cluster_dict in cluster_dicts:
                     citations_in_cluster = cluster_dict.get('citations', [])
+                    logger.error(f"[Task {task_id}] 🔍 Cluster has {len(citations_in_cluster)} citations")
                     
                     # Find first verified citation with canonical data
                     best_verified = None
                     for cit in citations_in_cluster:
                         is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
                         canonical_name = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
+                        logger.error(f"[Task {task_id}] 🔍 Citation: verified={is_verified}, has_canonical={canonical_name is not None}")
                         
                         if is_verified and canonical_name:
                             best_verified = cit
-                            logger.info(f"✅ Found verified citation in cluster: {canonical_name}")
+                            logger.error(f"[Task {task_id}] ✅ Found verified citation with canonical: {canonical_name}")
                             break
                     
                     # Set cluster-level canonical data
@@ -1228,7 +1231,12 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                                     cit.true_by_parallel = True
                                     cit.canonical_name = cluster_dict['canonical_name']
                                     cit.canonical_date = cluster_dict['canonical_date']
-                                logger.info(f"✅ Propagated canonical data to parallel citation")
+                                logger.error(f"[Task {task_id}] ✅ Propagated canonical data to parallel citation")
+                        clusters_with_canonical += 1
+                    else:
+                        logger.error(f"[Task {task_id}] ⚠️  No verified citation with canonical data found in this cluster")
+                
+                logger.error(f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data")
 
                 progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
                 progress_tracker.start_step(5, 'Verifying citations...')
