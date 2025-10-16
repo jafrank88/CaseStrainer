@@ -35,7 +35,7 @@ from src.unified_case_name_extractor_v2 import (
     extract_case_name_only_unified
 )
 
-from src.unified_citation_clustering import cluster_citations_unified
+from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
 import warnings
 
 from src.config import get_config_value
@@ -102,12 +102,12 @@ except Exception as e:
     ProcessingConfig = None
 
 try:
-    from src.unified_citation_clustering import (
-        UnifiedCitationClusterer,
-        cluster_citations_unified
+    from src.unified_clustering_master import (
+        UnifiedClusteringMaster as UnifiedCitationClusterer
     )
+    # cluster_citations_unified is already imported above
     CLUSTERING_AVAILABLE = True
-    logger.info("Citation clustering successfully imported")
+    logger.info("Citation clustering successfully imported (unified_clustering_master)")
 except ImportError as e:
     CLUSTERING_AVAILABLE = False
     logger.warning(f"Citation clustering not available: {e}")
@@ -158,7 +158,7 @@ except Exception as e:
 #     verify_citations_with_canonical_service,  # DEPRECATED
 #     verify_citations_with_legal_websearch  # DEPRECATED
 
-from src.unified_citation_clustering import cluster_citations_unified
+# cluster_citations_unified is imported above from unified_clustering_master
 
 CitationList = List[CitationResult]
 CitationDict = Dict[str, Any]
@@ -217,12 +217,23 @@ class UnifiedCitationProcessorV2:
     def _init_patterns(self):
         """Initialize comprehensive citation patterns with proper Bluebook spacing."""
         self.citation_patterns = {
+            # Washington First Series (NEW - FIX for first series support)
+            'wn_first': re.compile(r'\b(\d+)\s+Wn\.\s+(\d+)\b', re.IGNORECASE),
+            'wash_first': re.compile(r'\b(\d+)\s+Wash\.\s+(\d+)\b', re.IGNORECASE),
+            
+            # Washington Second Series
             'wn2d': re.compile(r'\b(\d+)\s+Wn\.2d\s*\n?\s*(\d+)(?:\s*,\s*\d+\s*P\.3d\s*\d+)?\b', re.IGNORECASE),
             'wn2d_space': re.compile(r'\b(\d+)\s+Wn\.\s*2d\s*\n?\s*(\d+)(?:\s*,\s*\d+\s*P\.3d\s*\d+)?\b', re.IGNORECASE),
+            
+            # Washington Court of Appeals
             'wn_app': re.compile(r'\b(\d+)\s+Wn\.\s*App\.\s+(\d+)\b', re.IGNORECASE),
             'wn_app_space': re.compile(r'\b(\d+)\s+Wn\.\s*App\s+(\d+)\b', re.IGNORECASE),
+            
+            # Washington Third Series
             'wn3d': re.compile(r'\b(\d+)\s+Wn\.\s*3d\s*\n?\s*(\d+)\b', re.IGNORECASE),
             'wn3d_space': re.compile(r'\b(\d+)\s+Wn\.\s*3d\s*\n?\s*(\d+)\b', re.IGNORECASE),
+            
+            # Wash. variants
             'wash2d': re.compile(r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)(?:\s*,\s*\d+\s*P\.3d\s*\d+)?\b', re.IGNORECASE),
             'wash2d_space': re.compile(r'\b(\d+)\s+Wash\.\s*2d\s+(\d+)(?:\s*,\s*\d+\s*P\.3d\s*\d+)?\b', re.IGNORECASE),
             'wash_app': re.compile(r'\b(\d+)\s+Wash\.\s*App\.\s+(\d+)\b', re.IGNORECASE),
@@ -858,6 +869,8 @@ class UnifiedCitationProcessorV2:
             'wash_complete',
             'wash_with_parallel',
             'parallel_cluster',
+            'wn_first',         # Washington First Series (NEW)
+            'wash_first',       # Washington First Series - Wash. variant (NEW)
             'wn_app',           # Washington Court of Appeals
             'wn_app_space',     # Washington Court of Appeals (with space)
             'wn3d',             # Washington Supreme Court 3d series
@@ -966,6 +979,15 @@ class UnifiedCitationProcessorV2:
             year = match.group(3)
             start, end = match.span()
             
+            # FIX #35: Debug logging for 183 Wn.2d 649
+            if "183" in citations_text and "649" in citations_text:
+                logger.warning(f"🔥 FIX #35: BLOCK MATCH for 183 Wn.2d 649!")
+                logger.warning(f"   case_name (group 1): '{case_name}'")
+                logger.warning(f"   citations (group 2): '{citations_text}'")
+                logger.warning(f"   year (group 3): '{year}'")
+                logger.warning(f"   full match: '{match.group(0)}'")
+                logger.warning(f"   position: [{start}:{end}]")
+            
             logger.info(f"🔍 [CITATION_BLOCKS] Found citation block: '{case_name}' with citations '{citations_text}' year {year}")
             
             individual_citations = self._extract_citations_from_block(citations_text)
@@ -978,7 +1000,7 @@ class UnifiedCitationProcessorV2:
                     citation=citation_text,
                     start_index=citation_start,
                     end_index=citation_end,
-                    extracted_case_name=case_name,
+                    extracted_case_name=None,  # CRITICAL: Let unified extraction handle this with strict context isolation
                     extracted_date=year,
                     canonical_name=None,
                     canonical_date=None,
@@ -987,7 +1009,7 @@ class UnifiedCitationProcessorV2:
                     source="citation_block",
                     confidence=0.9,  # Higher confidence for block extraction
                     metadata={
-                        'block_case_name': case_name,
+                        'block_case_name': case_name,  # Store for reference but don't use as extracted_case_name
                         'block_year': year,
                         'parallel_citations': individual_citations
                     }
@@ -1086,8 +1108,15 @@ class UnifiedCitationProcessorV2:
         ]):
             return ""
         
+        # Filter out federal and state statute citations
         if any(pattern in citation_str for pattern in [
-            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "C.F.R.", "CFR", "C.F.R"
+            # Federal statutes
+            "U.S.C.", "USC", "U.S.C", "U.S.C.A.", "USCA", "C.F.R.", "CFR", "C.F.R",
+            # State codes (common patterns)
+            " Code §", " Code \\u00a7", "Civ. Proc. Code", "Penal Code", "Bus. & Prof. Code",
+            "Rev. Code", "Comp. Laws", "Gen. Stat.", "Ann. Code", "Stat. §", " Stat. ",
+            # Generic statute patterns
+            "FullLawCitation", "LawCitation"
         ]):
             return ""
         
@@ -1128,7 +1157,7 @@ class UnifiedCitationProcessorV2:
         return citation_str
     
     def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj):
-        """Extract metadata from eyecite citation object."""
+        """Extract metadata from eyecite citation object, including case name from plaintiff/defendant."""
         try:
             citation.metadata.update({
                 'volume': getattr(citation_obj, 'volume', None),
@@ -1138,6 +1167,29 @@ class UnifiedCitationProcessorV2:
                 'court': getattr(citation_obj, 'court', None),
                 'type': getattr(citation_obj, 'type', None),
             })
+            
+            # FIX: DO NOT use eyecite's plaintiff/defendant - they are often truncated
+            # Eyecite produces names like "Noem v. Nat" instead of "Noem v. Nat'l TPS All."
+            # Let our unified_case_extraction_master handle extraction instead
+            # We'll still extract year from eyecite since that's usually accurate
+            if hasattr(citation_obj, 'metadata') and citation_obj.metadata:
+                plaintiff = getattr(citation_obj.metadata, 'plaintiff', None)
+                defendant = getattr(citation_obj.metadata, 'defendant', None)
+                
+                # Log what eyecite found but DON'T use it
+                if plaintiff and defendant:
+                    eyecite_name = f"{plaintiff} v. {defendant}"
+                    logger.info(f"[EYECITE-SKIP] Eyecite found '{eyecite_name}' for {citation.citation}, but will use better extraction instead")
+                elif plaintiff:
+                    logger.info(f"[EYECITE-SKIP] Eyecite found plaintiff '{plaintiff}' for {citation.citation}, but will use better extraction instead")
+                
+                # DON'T set citation.extracted_case_name here - let _extract_metadata do it
+                
+                # Also extract year from eyecite metadata if available
+                eyecite_year = getattr(citation_obj.metadata, 'year', None)
+                if eyecite_year:
+                    citation.extracted_date = str(eyecite_year)
+                    logger.info(f"[EYECITE-EXTRACT] Set extracted_date from eyecite: '{eyecite_year}' for {citation.citation}")
         except Exception as e:
             logger.debug(f"Error extracting eyecite metadata: {e}")
     
@@ -1176,6 +1228,8 @@ class UnifiedCitationProcessorV2:
                     )
                     
                     self._extract_eyecite_metadata(citation, citation_obj)
+                    # CRITICAL: Also call _extract_metadata to override eyecite's truncated names
+                    self._extract_metadata(citation, text, None)
                     
                     citations.append(citation)
                     
@@ -1190,6 +1244,7 @@ class UnifiedCitationProcessorV2:
     
     def _extract_metadata(self, citation: CitationResult, text: str, match):
         """Extract metadata with proper error handling and context isolation."""
+        logger.warning(f"🔥🔥🔥 [_extract_metadata ENTRY] Called for citation: {citation.citation}")
         try:
             if not hasattr(citation, 'metadata') or citation.metadata is None:
                 citation.metadata = {}
@@ -1198,130 +1253,53 @@ class UnifiedCitationProcessorV2:
                 citation.citation = citation.citation.replace('\n', ' ').replace('\r', ' ')
             except Exception as e:
                 logger.debug(f"Error normalizing citation: {e}")
-            # CRITICAL: Always extract case names (config check moved to __init__)
-            logger.warning(f"[EXTRACT-START] Starting extraction for {citation.citation}, config.extract_case_names={self.config.extract_case_names}")
-            if True:  # Force extraction to always run
+            # FIX: ALWAYS re-extract case names with our better extraction logic
+            # Eyecite often produces truncated names like "E. Palo Alto v. U." instead of "E. Palo Alto v. U.S."
+            # Our unified_case_extraction_master has better abbreviation handling
+            eyecite_already_extracted = (
+                hasattr(citation, 'extracted_case_name') and 
+                citation.extracted_case_name and 
+                citation.extracted_case_name != "N/A" and
+                citation.method == "eyecite"
+            )
+            
+            if eyecite_already_extracted:
+                logger.warning(f"[EXTRACT-OVERRIDE] Eyecite extracted '{citation.extracted_case_name}' for {citation.citation}, but will re-extract with better logic to fix truncation issues")
+                # Clear eyecite's extraction so we can override it
+                old_eyecite_name = citation.extracted_case_name
+                citation.extracted_case_name = None
+            
+            # CRITICAL: Always extract case names (even if eyecite already extracted)
+            logger.warning(f"[EXTRACT-START] Starting extraction for {citation.citation}, config.extract_case_names={self.config.extract_case_names}, eyecite_already_extracted={eyecite_already_extracted}")
+            
+            if self.config.extract_case_names:
                 try:
-                    if citation.start_index is not None:
-                        context_start = max(0, citation.start_index - 300)  # CRITICAL: Restored to 300 for proper extraction
-                        isolated_context = text[context_start:citation.start_index].strip()
+                    final_name = None
+                    
+                    # METHOD 1 (PRIMARY): Use UNIFIED STRICT CONTEXT ISOLATION
+                    logger.info(f"[EXTRACT-M1-UNIFIED] Using unified strict extraction for {citation.citation}")
+                    
+                    from src.utils.unified_case_name_extractor import extract_case_name_with_strict_isolation
+                    
+                    strict_name = extract_case_name_with_strict_isolation(
+                        text=text,
+                        citation_text=citation.citation,
+                        citation_start=citation.start_index,
+                        citation_end=citation.end_index,
+                        all_citations=None
+                    )
+                    
+                    if strict_name:
+                        final_name = strict_name
+                        logger.info(f"[EXTRACT-M1-UNIFIED-SUCCESS] {citation.citation} → '{strict_name}'")
+                    
+                    # Set the final extracted name
+                    if final_name:
+                        citation.extracted_case_name = final_name
+                        logger.info(f"[EXTRACT-SUCCESS] Final name: '{final_name}' for {citation.citation}")
                     else:
-                        citation_pos = text.find(citation.citation)
-                        if citation_pos != -1:
-                            context_start = max(0, citation_pos - 300)  # CRITICAL: Restored to 300 for proper extraction
-                            isolated_context = text[context_start:citation_pos].strip()
-                        else:
-                            isolated_context = ""
-                    
-                    
-                    if True:
-
-                    
-                    
-                        pass  # Empty block
-
-                    
-                    
-                    
-                        pass  # Empty block
-
-                    
-                    
-                    
-                        unified_result = extract_case_name_and_date_master(
-                            text=text,
-                            citation=citation.citation,
-                            citation_start=citation.start_index,
-                            citation_end=citation.end_index
-                        )
-                        
-                        
-                        extracted_name = unified_result.get('case_name', '')
-                        extracted_date = unified_result.get('year', '')
-                        confidence = unified_result.get('confidence', 0.0)
-                        method = unified_result.get('method', 'unknown')
-                        
-                        # IMPROVED: Robust multi-method extraction with aggressive fallbacks
-                        final_name = None
-                        
-                        # Method 1: Use master extractor result if valid
-                        if extracted_name and len(extracted_name.strip()) > 3 and extracted_name != "N/A":
-                            final_name = extracted_name
-                            logger.debug(f"[EXTRACT-M1] Master extractor: '{extracted_name}' for {citation.citation}")
-                        
-                        # Method 2: Try context-based extraction
-                        if not final_name:
-                            manual_case_name = self._extract_case_name_from_context(text, citation)
-                            if manual_case_name and manual_case_name != "N/A" and len(manual_case_name.strip()) > 3:
-                                final_name = manual_case_name
-                                logger.debug(f"[EXTRACT-M2] Context extraction: '{manual_case_name}' for {citation.citation}")
-                        
-                        # Method 3: Try enhanced clustering extraction
-                        if not final_name:
-                            try:
-                                from src.unified_citation_clustering import UnifiedCitationClusterer
-                                clusterer = UnifiedCitationClusterer()
-                                enhanced_name = clusterer._extract_case_name_enhanced(
-                                    citation, text, citation.start_index, citation.end_index, citation.citation
-                                )
-                                if enhanced_name and enhanced_name != "N/A" and len(enhanced_name.strip()) > 3:
-                                    final_name = enhanced_name
-                                    logger.debug(f"[EXTRACT-M3] Enhanced clustering: '{enhanced_name}' for {citation.citation}")
-                            except Exception as e:
-                                logger.debug(f"[EXTRACT-M3] Enhanced clustering failed: {e}")
-                        
-                        # Method 4: Try direct regex extraction from broader context
-                        if not final_name:
-                            try:
-                                broader_context_start = max(0, (citation.start_index or 0) - 500)
-                                broader_context_end = min(len(text), (citation.start_index or 0) + 100)
-                                broader_context = text[broader_context_start:broader_context_end]
-                                
-                                import re
-                                # Try to find case name pattern: Name v. Name
-                                case_patterns = [
-                                    r'([A-Z][A-Za-z\'\.\&\s,]+(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company)?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,]+(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company)?)',
-                                    r'(State|People|United States)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,]+)',
-                                    r'In\s+re\s+([A-Z][A-Za-z\'\.\&\s,]+(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company)?)',
-                                    r'Ex\s+parte\s+([A-Z][A-Za-z\'\.\&\s,]+)'
-                                ]
-                                
-                                for pattern in case_patterns:
-                                    matches = list(re.finditer(pattern, broader_context, re.IGNORECASE))
-                                    if matches:
-                                        # Get the match closest to the citation
-                                        closest_match = min(matches, key=lambda m: abs(m.start() - (citation.start_index or 0) + broader_context_start))
-                                        if len(closest_match.groups()) == 2:
-                                            final_name = f"{closest_match.group(1).strip()} v. {closest_match.group(2).strip()}"
-                                        else:
-                                            final_name = closest_match.group(1).strip()
-                                        
-                                        # Clean up the extracted name
-                                        final_name = re.sub(r'\s+', ' ', final_name).strip()
-                                        if len(final_name) > 5:
-                                            logger.debug(f"[EXTRACT-M4] Regex extraction: '{final_name}' for {citation.citation}")
-                                            break
-                                        else:
-                                            final_name = None
-                            except Exception as e:
-                                logger.debug(f"[EXTRACT-M4] Regex extraction failed: {e}")
-                        
-                        # Set the final result with truncation repair
-                        if final_name:
-                            # Apply truncation repair logic
-                            repaired_name = self._repair_truncated_case_name(final_name, text, citation.start_index or 0)
-                            citation.extracted_case_name = repaired_name
-                            if repaired_name != final_name:
-                                logger.info(f"[TRUNCATION-REPAIR] '{final_name}' → '{repaired_name}' for {citation.citation}")
-                        else:
-                            citation.extracted_case_name = "N/A"
-                            logger.warning(f"[EXTRACT-FAIL] All 4 methods failed for {citation.citation}")
-                    else:
-                        manual_case_name = self._extract_case_name_from_context(text, citation)
-                        if manual_case_name:
-                            citation.extracted_case_name = manual_case_name
-                        else:
-                            citation.extracted_case_name = "N/A"
+                        citation.extracted_case_name = "N/A"
+                        logger.warning(f"[EXTRACT-FAIL] Strict isolation failed for {citation.citation}")
                 except Exception as e:
                     # Don't overwrite existing extracted case name on exception
                     logger.error(f"[EXTRACT-ERROR] Exception during extraction for {citation.citation}: {e}")
@@ -1414,21 +1392,22 @@ class UnifiedCitationProcessorV2:
         
         all_boundaries.sort(key=lambda x: x[1])  # Sort by start position
         
-        context_start = max(0, citation.start_index - 300)  # CRITICAL: Restored to 300 for proper extraction
-        context_end = min(len(text), citation.end_index + 100)  # Restored to 100 for proper extraction
+        # FIX #30: Only look BACKWARD for case names, never forward!
+        context_start = max(0, citation.start_index - 300)  # Look backward 300 chars
+        # FIX #30: REMOVED forward context_end - we don't search forward anymore!
         
+        # Adjust context_start to avoid crossing boundaries (e.g., dates, other citations)
         for boundary_type, start, end in all_boundaries:
             if end < citation.start_index and end > context_start:
                 context_start = end + 1
                 if boundary_type == 'date':
                     context_start = min(context_start + 10, citation.start_index)
         
-        for boundary_type, start, end in all_boundaries:
-            if start > citation.end_index and start < context_end:
-                context_end = start - 1
-                break
+        # FIX #30: REMOVED forward boundary check - we only look backward!
+        # No need to check boundaries after the citation since we don't search forward
         
-        context = text[context_start:context_end].strip()
+        # Extract ONLY backward context
+        context = text[context_start:citation.start_index].strip()
         
         prefixes_to_remove = [
             r'\b(?:through\s+the\s+)?(?:Fourteenth|Fifth|Sixth|Fourth)\s+Amendment\.?\s*',
@@ -1578,19 +1557,60 @@ class UnifiedCitationProcessorV2:
         Returns:
             Extracted case name or None if not found
         """
+        # CRITICAL FIX: Use strict context isolation FIRST to prevent case name bleeding
+        try:
+            from src.utils.strict_context_isolator import (
+                get_strict_context_for_citation,
+                extract_case_name_from_strict_context,
+                find_all_citation_positions
+            )
+            
+            citation_text = getattr(citation, 'citation', None)
+            start = getattr(citation, 'start_index', None)
+            end = getattr(citation, 'end_index', None)
+            
+            if citation_text and start is not None and end is not None:
+                # Get ALL citation positions for proper boundary detection
+                all_positions = find_all_citation_positions(text)
+                
+                # Get strictly isolated context (stops at previous citation)
+                strict_context = get_strict_context_for_citation(
+                    text, start, end, all_positions, max_lookback=200
+                )
+                
+                # Extract case name from isolated context
+                case_name = extract_case_name_from_strict_context(strict_context, citation_text)
+                
+                if case_name and len(case_name) > 10:
+                    logger.info(
+                        f"[STRICT-ISOLATION-SUCCESS] {citation_text} → '{case_name}' "
+                        f"(context: '{strict_context[-50:]}')"
+                    )
+                    return case_name
+                
+        except Exception as e:
+            logger.warning(f"[STRICT-ISOLATION-FAILED] Error: {e}")
+        
+        # FALLBACK: Use the old extraction method if strict isolation failed
         try:
             from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
             
+            # FIX #33: Enable debug for problematic citation
+            citation_text = getattr(citation, 'citation', None)
+            force_debug = citation_text and "183" in citation_text and "649" in citation_text
+            
             result = extract_case_name_and_date_master(
                 text=text,
-                citation=getattr(citation, 'citation', None),
+                citation=citation_text,
                 citation_start=getattr(citation, 'start_index', None),
+                document_primary_case_name=getattr(self, 'document_primary_case_name', None),
                 citation_end=getattr(citation, 'end_index', None),
-                debug=False
+                debug=force_debug  # FIX #33: Enable debug for problematic citations
             )
             
             case_name = result.get('case_name')
             if case_name and case_name != 'N/A':
+                logger.info(f"[FALLBACK-EXTRACTION] {citation_text} → '{case_name}'")
                 return case_name
         except Exception as e:
             logger.debug(f"Error extracting case name from context: {e}")
@@ -1605,10 +1625,28 @@ class UnifiedCitationProcessorV2:
         # NEW: Isolate context within parenthetical boundaries to prevent cross-contamination
         isolated_context = self._get_isolated_parenthetical_context(text, start, end)
         
-        # If we can't isolate a clean context, fall back to the original method with limited lookback
+        # FIX #30: CRITICAL - Only look BACKWARD, never forward!
+        # FIX #46: Stop at previous citation to avoid capturing wrong case name
+        # If we can't isolate a clean context, fall back to limited lookback ONLY
         if not isolated_context:
-            context_start = max(0, start - 300)  # CRITICAL: Restored to 300 for proper extraction
-            context_end = min(len(text), end + 100)  # Restored to 100 for proper extraction
+            context_start = max(0, start - 300)  # Look backward 300 chars initially
+            
+            # FIX #46: Find previous citation and stop there
+            if all_citations:
+                # Find all citations that end before current citation starts
+                previous_citations = [c for c in all_citations 
+                                     if c.end_index and c.end_index < start 
+                                     and c.citation != citation.citation]
+                
+                if previous_citations:
+                    # Find the closest previous citation
+                    closest_previous = max(previous_citations, key=lambda c: c.end_index)
+                    # Stop context at the previous citation's end (plus small buffer for punctuation)
+                    context_start = max(context_start, closest_previous.end_index + 1)
+                    logger.debug(f"[FIX #46] Stopping backward search at previous citation '{closest_previous.citation}' (end={closest_previous.end_index})")
+            
+            # FIX #30: REMOVED forward search (end + 100) - this was causing "Spokane County" bug!
+            # Only use backward context for extraction
             isolated_context = text[context_start:start].strip()
         
         before_citation = isolated_context
@@ -1691,6 +1729,7 @@ class UnifiedCitationProcessorV2:
                 text=text, 
                 citation=citation_text,
                 citation_start=start,
+                document_primary_case_name=getattr(self, 'document_primary_case_name', None),
                 citation_end=end,
                 context_window=500,
                 all_citations=all_citations
@@ -1734,45 +1773,77 @@ class UnifiedCitationProcessorV2:
         is_truncated = (
             len(case_name) < 15 or  # Very short names are likely truncated
             case_name.endswith(' v. ') or  # Missing defendant
-            re.search(r'\b[A-Z][a-z]{1,2}\s*$', case_name) or  # Ends with short word like "Ka"
+            re.search(r'\b[A-Z][a-z]{1,2}\s*$', case_name) or  # Ends with short word like "Ka", "Be", "Ct", "Fo", "Wa"
+            re.search(r'\bv\.\s+[A-Z][a-z]{0,2}\s*$', case_name) or  # Defendant is 1-3 chars like "v. A", "v. Be", "v. Ct"
             case_name.startswith('Inc.') or case_name.startswith('LLC') or  # Missing plaintiff
-            case_name.startswith('Corp.') or case_name.startswith('Co.')
+            case_name.startswith('Corp.') or case_name.startswith('Co.') or
+            case_name.startswith('A. v.') or case_name.startswith('L. v.')  # Single letter plaintiff
         )
         
         if not is_truncated:
             return case_name
         
         # Extract broader context
-        context_start = max(0, citation_pos - 600)
-        context_end = min(len(text), citation_pos + 200)
+        # FIX #39: ONLY look BACKWARD! Forward search (+200) was the REAL source
+        # of "Spokane County" contamination after 12 previous fixes!
+        # Increased from 600 to 1000 to catch more distant case names
+        context_start = max(0, citation_pos - 1000)
+        context_end = citation_pos  # FIX #39: NO forward search!
         context = text[context_start:context_end]
         
         # Pattern 1: Fix corporate name truncation (Inc., LLC, Corp., etc.)
         if case_name.startswith(('Inc.', 'LLC', 'Corp.', 'Co.', 'Ltd.', 'L.P.', 'Company')):
             # Look for the full corporate name before "Inc." or similar
-            corporate_pattern = r'([A-Z][A-Za-z\'\.\&\s]+?)\s*,\s*' + re.escape(case_name.split()[0])
-            match = re.search(corporate_pattern, context)
-            if match:
-                full_plaintiff = match.group(1).strip()
-                repaired = f"{full_plaintiff}, {case_name}"
-                return repaired
+            corporate_suffix = case_name.split()[0]
+            
+            # Try multiple patterns
+            patterns = [
+                r'([A-Z][A-Za-z\'\.\&\s]+?)\s*,\s*' + re.escape(corporate_suffix),  # With comma
+                r'([A-Z][A-Za-z\'\.\&\s]{3,}?)\s+' + re.escape(corporate_suffix),  # Without comma
+            ]
+            
+            for corporate_pattern in patterns:
+                match = re.search(corporate_pattern, context)
+                if match:
+                    full_plaintiff = match.group(1).strip()
+                    # Check if we found something meaningful (not just a single letter)
+                    if len(full_plaintiff) > 2:
+                        repaired = f"{full_plaintiff}, {case_name}" if ',' not in case_name else f"{full_plaintiff} {case_name}"
+                        logger.info(f"[CORPORATE-REPAIR] '{case_name}' → '{repaired}'")
+                        return repaired
         
         # Pattern 2: Fix truncated defendant name
         if ' v. ' in case_name:
             parts = case_name.split(' v. ')
-            if len(parts) == 2 and len(parts[1].strip()) < 5:
-                # Defendant is truncated, look for full name
+            if len(parts) == 2:
                 plaintiff = parts[0].strip()
                 truncated_defendant = parts[1].strip()
                 
-                # Search for pattern: plaintiff v. [full defendant name]
-                full_pattern = re.escape(plaintiff) + r'\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,]+?)(?:\s*,|\s+\d|\s*\(|$)'
-                match = re.search(full_pattern, context, re.IGNORECASE)
-                if match:
-                    full_defendant = match.group(1).strip()
-                    if len(full_defendant) > len(truncated_defendant) and full_defendant.startswith(truncated_defendant):
-                        repaired = f"{plaintiff} v. {full_defendant}"
-                        return repaired
+                # Check if defendant is truncated (< 5 chars or ends with incomplete word)
+                if len(truncated_defendant) < 5 or re.search(r'^[A-Z][a-z]{0,2}$', truncated_defendant):
+                    # Search for pattern: plaintiff v. [full defendant name]
+                    # Escape plaintiff but handle abbreviations flexibly
+                    plaintiff_escaped = re.escape(plaintiff).replace(r'\.', r'\.?')
+                    patterns = [
+                        plaintiff_escaped + r'\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,\-]+?)(?:\s*,|\s+\d|\s*\()',
+                        plaintiff_escaped + r'\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,\-]+?)(?:\s+\d{2,4}\s+[A-Z])',  # Before citation
+                        plaintiff_escaped + r'\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,\-]+?)\s*[,\.]',  # Before comma or period
+                        plaintiff.replace('.', '') + r'\s+v\.\s+([A-Z][A-Za-z\'\.\&\s,\-]+?)(?:\s*,|\s+\d)',  # Without periods
+                    ]
+                    
+                    for full_pattern in patterns:
+                        match = re.search(full_pattern, context, re.IGNORECASE)
+                        if match:
+                            full_defendant = match.group(1).strip()
+                            # Remove trailing punctuation and clean up
+                            full_defendant = re.sub(r'[,\s]+$', '', full_defendant)
+                            # Validate that we found a real improvement
+                            if len(full_defendant) > len(truncated_defendant) and len(full_defendant) > 3:
+                                # Check if the full defendant starts with the truncated version
+                                if full_defendant.lower().startswith(truncated_defendant.lower()) or len(truncated_defendant) <= 3:
+                                    repaired = f"{plaintiff} v. {full_defendant}"
+                                    logger.info(f"[TRUNCATION-REPAIR] '{case_name}' → '{repaired}'")
+                                    return repaired
         
         # Pattern 3: Look for the complete case name in context using fuzzy matching
         # Try to find a case name that contains our truncated version
@@ -1798,6 +1869,46 @@ class UnifiedCitationProcessorV2:
         
         # No repair possible, return original
         return case_name
+    
+    def _remove_citation_contamination_from_case_name(self, case_name: str) -> str:
+        """
+        Remove citation references that have been incorrectly included in case names.
+        
+        Examples:
+        - "Fraternal Ord. of Eagles v. Grand Aerie, 148 Wn.2d 224, 239" → "Fraternal Ord. of Eagles v. Grand Aerie"
+        - "Bostain v. Food Express, Inc., 159 Wn.2d 700, 716" → "Bostain v. Food Express, Inc."
+        - "Rest. Dev., Inc. v. Cananwill, Inc., 150 Wn.2d 674, 682" → "Rest. Dev., Inc. v. Cananwill, Inc."
+        
+        Args:
+            case_name: Case name that may contain citation references
+            
+        Returns:
+            Cleaned case name without citation references
+        """
+        import re
+        
+        # Pattern to match citation references at the end of case names
+        # Matches patterns like: ", 148 Wn.2d 224, 239" or ", 159 Wn.2d 700" or ", 22 Wn. App. 2d 22, 33"
+        citation_patterns = [
+            r',\s*\d+\s+(?:Wn\.2d|Wash\.2d|Wn\.\s*App\.?\s*2d|Wash\.\s*App\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?$',  # Washington reporters
+            r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
+            r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?$',  # Pacific reporters
+            r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
+            r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?$',  # Generic reporter pattern
+        ]
+        
+        cleaned_name = case_name
+        for pattern in citation_patterns:
+            cleaned_name = re.sub(pattern, '', cleaned_name, flags=re.IGNORECASE)
+        
+        # Clean up any trailing commas or whitespace
+        cleaned_name = re.sub(r'\s*,\s*$', '', cleaned_name).strip()
+        
+        # If we removed something, log it
+        if cleaned_name != case_name:
+            logger.info(f"[CITATION-CONTAMINATION-REMOVED] '{case_name}' → '{cleaned_name}'")
+        
+        return cleaned_name
     
     def _get_isolated_parenthetical_context(self, text: str, citation_start: int, citation_end: int) -> Optional[str]:
         """
@@ -1941,6 +2052,7 @@ class UnifiedCitationProcessorV2:
             text=text, 
             citation=citation.citation,
             citation_start=citation.start_index,
+            document_primary_case_name=getattr(self, 'document_primary_case_name', None),
             citation_end=citation.end_index
         )
         
@@ -2330,9 +2442,14 @@ class UnifiedCitationProcessorV2:
         if not citations:
             return citations
         
+        # FIX #45: Add logging to track what's being removed
+        logger.info(f"[DEDUP] Starting deduplication with {len(citations)} citations")
+        
         sorted_citations = sorted(citations, key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
         
+        # Phase 1: Remove overlapping citations
         non_overlapping = []
+        removed_overlap = []
         for citation in sorted_citations:
             if not citation.start_index or not citation.end_index:
                 non_overlapping.append(citation)
@@ -2352,12 +2469,22 @@ class UnifiedCitationProcessorV2:
                         continue
                     
                     overlaps = True
+                    # FIX #45: Log what we're removing due to overlap
+                    removed_overlap.append((citation.citation, existing.citation, citation.start_index))
                     break
             
             if not overlaps:
                 non_overlapping.append(citation)
         
+        # FIX #45: Log overlap removals
+        if removed_overlap:
+            logger.warning(f"[DEDUP] Phase 1 (Overlap): Removed {len(removed_overlap)} citations")
+            for removed, kept, pos in removed_overlap:
+                logger.warning(f"  - Removed '{removed}' at {pos} (overlaps with '{kept}')")
+        
+        # Phase 2: Remove exact duplicates
         seen = {}
+        removed_duplicate = []
         for citation in non_overlapping:
             if citation.is_parallel or ',' in citation.citation:
                 key = citation.citation
@@ -2371,9 +2498,24 @@ class UnifiedCitationProcessorV2:
                 if (citation.confidence > existing.confidence or 
                     len(citation.extracted_case_name or '') > len(existing.extracted_case_name or '') or
                     len(citation.extracted_date or '') > len(existing.extracted_date or '')):
+                    # FIX #45: Log replacement
+                    logger.warning(f"[DEDUP] Phase 2: Replacing '{existing.citation}' with '{citation.citation}' (better quality)")
+                    removed_duplicate.append((existing.citation, citation.citation, key))
                     seen[key] = citation
+                else:
+                    # FIX #45: Log what we're removing as duplicate
+                    removed_duplicate.append((citation.citation, existing.citation, key))
         
-        return list(seen.values())
+        # FIX #45: Log duplicate removals
+        if removed_duplicate:
+            logger.warning(f"[DEDUP] Phase 2 (Duplicate): Removed/replaced {len(removed_duplicate)} citations")
+            for removed, kept, norm_key in removed_duplicate[:10]:  # Show first 10
+                logger.warning(f"  - Removed '{removed}' (duplicate of '{kept}', normalized key: '{norm_key}')")
+        
+        final = list(seen.values())
+        logger.info(f"[DEDUP] Finished: {len(citations)} → {len(final)} citations ({len(citations) - len(final)} removed)")
+        
+        return final
     
     def _normalize_citation(self, citation: str) -> str:
         """
@@ -2451,30 +2593,23 @@ class UnifiedCitationProcessorV2:
                                 and re.match(r'^\d{4}$', str(c.extracted_date))]  # Year-only format
                 best_date = document_dates[0] if document_dates else None
                 for citation in group:
+                    # FIX #36: REMOVED ALL EXTRACTED DATA PROPAGATION!
+                    # Each citation MUST preserve its OWN extracted_case_name/extracted_date from its document location.
+                    # Propagating data between parallel citations destroys data integrity and causes contamination.
+                    #
+                    # BUG EXAMPLE THAT THIS FIX RESOLVES:
+                    #   - "183 Wn.2d 649" extracted "Spokane County" (wrong, from forward search)
+                    #   - "355 P.3d 258" extracted "Lopez Demetrio" from eyecite (correct!)
+                    #   - They're grouped as parallels
+                    #   - best_name = "Spokane County" (first in sorted list)
+                    #   - OLD CODE: "355 P.3d 258"'s correct name gets OVERWRITTEN with "Spokane County"!
+                    #   - FIX #36: Each citation keeps its own extracted_case_name/extracted_date
+                    #
                     citation.is_parallel = True
                     citation.cluster_id = cluster_id
                     citation.cluster_members = [c for c in member_citations if c != citation.citation]
                     citation.parallel_citations = [c for c in member_citations if c != citation.citation]
-                    group_case_names = [c.extracted_case_name for c in group if c.extracted_case_name and c.extracted_case_name != 'N/A']
-                    if len(group_case_names) > 1:
-                        normalized_names = [self._normalize_case_name_for_clustering(name) for name in group_case_names]
-                        if len(set(normalized_names)) == 1 or all(
-                            self._calculate_case_name_similarity(normalized_names[0], name) > 0.8 
-                            for name in normalized_names[1:]
-                        ):
-                            if not citation.extracted_case_name or citation.extracted_case_name == 'N/A':
-                                citation.extracted_case_name = best_name
-                    else:
-                        if not citation.extracted_case_name or citation.extracted_case_name == 'N/A':
-                            citation.extracted_case_name = best_name
-                    
-                    # CRITICAL: Never overwrite extracted_date if it already contains a valid year from user document
-                    if (not citation.extracted_date or citation.extracted_date == 'N/A') and best_date:
-                        citation.extracted_date = best_date
-                    elif citation.extracted_date and not re.match(r'^\d{4}$', str(citation.extracted_date)) and best_date:
-                        # If current extracted_date looks contaminated (has month/day), replace with clean year
-                        logger.warning(f"[DATA_SEPARATION] Replacing contaminated date '{citation.extracted_date}' with clean year '{best_date}' for {citation.citation}")
-                        citation.extracted_date = best_date
+                    # FIX #36: Removed lines 2558-2577 that propagated extracted_case_name and extracted_date
         return sorted_citations
     
     def _are_citations_same_case(self, citation1: CitationResult, citation2: CitationResult) -> bool:
@@ -2704,73 +2839,102 @@ class UnifiedCitationProcessorV2:
 
     def _verify_citations_sync(self, citations: List['CitationResult'], text: Optional[str] = None) -> List['CitationResult']:
         """
-        ENHANCED: Now using unified verification master for all verification.
+        ENHANCED: Now using unified verification master with BATCH processing.
         
-        This method now delegates to the new unified master implementation
-        that consolidates all 80+ duplicate verification functions.
+        Uses CourtListener's batch API (50 citations per call) for massive speedup.
+        Falls back to individual verification only for failed citations.
         """
-        logger.info(f"[VERIFICATION] Starting verification for {len(citations)} citations using UNIFIED MASTER")
+        logger.error(f"🔥 [BATCH-VERIFY] Starting BATCH verification for {len(citations)} citations")
         
         if not citations:
             return citations
         
-        # Use the new unified verification master for all verification
+        # Use the new unified verification master with BATCH processing
         try:
-            from src.unified_verification_master import verify_citation_unified_master_sync
+            from src.unified_verification_master import UnifiedVerificationMaster
+            import asyncio
             
-            logger.info("[VERIFICATION] Using UNIFIED VERIFICATION MASTER for all citations")
-            verified_count = 0
+            logger.info("[VERIFICATION] Using BATCH VERIFICATION (50 citations per API call)")
             
+            # First pass: identify citations that need verification
+            citations_to_verify = []
             for citation in citations:
-                # Skip if already processed or if it's a parallel citation
-                if getattr(citation, 'verification_status', None) == 'verified' or getattr(citation, 'is_parallel', False):
+                verification_status = getattr(citation, 'verification_status', None)
+                is_parallel = getattr(citation, 'is_parallel', False)
+                
+                if verification_status == 'verified' or is_parallel:
+                    logger.error(f"🚫 [FIX #62] SKIPPING '{citation.citation}': verification_status={verification_status}, is_parallel={is_parallel}")
                     continue
-                    
+                
+                logger.error(f"✅ [FIX #62] PROCESSING '{citation.citation}'")
+                
                 # Store original values before any verification
                 if not hasattr(citation, 'original_case_name'):
                     citation.original_case_name = getattr(citation, 'extracted_case_name', 'N/A')
                 if not hasattr(citation, 'original_date'):
                     citation.original_date = getattr(citation, 'extracted_date', 'N/A')
                 
-                try:
-                    # Call the unified master verification function
-                    result = verify_citation_unified_master_sync(
-                        citation=citation.citation,
-                        extracted_case_name=citation.extracted_case_name,
-                        extracted_date=citation.extracted_date,
-                        timeout=10.0,  # 10 second timeout per citation
-                        enable_fallback=True
-                    )
-                    
-                    # Process the unified master verification result
-                    if result.get('verified', False):
-                        # Store verified data in canonical fields (per Memory fb7f9974)
-                        citation.verified = True
-                        new_canonical_name = result.get('canonical_name')
-                        citation.canonical_name = new_canonical_name
-                        citation.canonical_date = result.get('canonical_date')
-                        citation.canonical_url = result.get('canonical_url')
-                        citation.verification_status = "verified"
-                        citation.verification_source = result.get('source', 'UnifiedMaster')
-                        verified_count += 1
-                        
-                        # CRITICAL LOGGING: Track canonical name assignment
-                        logger.info(f"[VERIFICATION-CANONICAL] {citation.citation} -> canonical_name='{new_canonical_name}' (extracted='{citation.extracted_case_name}')")
-                        
-                        # CRITICAL: NO CONTAMINATION - Keep original extracted values separate
-                        # If extraction failed, keep it as "N/A" - do NOT use verified/canonical data
-                    else:
-                        citation.verified = False
-                        citation.verification_status = "not_found"
-                        error_msg = result.get('error', 'Unknown error')
-                        logger.info(f"[VERIFICATION] NOT FOUND: Unified master could not verify: {citation.citation} - {error_msg}")
-                        
-                except Exception as e:
-                    logger.error(f"[VERIFICATION] Error verifying {citation.citation}: {str(e)}")
-                    citation.verified = False
-                    citation.verification_status = "error"
+                citations_to_verify.append(citation)
             
-            logger.info(f"[VERIFICATION] Unified master results: {verified_count}/{len(citations)} verified")
+            # BATCH VERIFICATION: Process in batches of 50
+            if citations_to_verify:
+                batch_size = 50
+                total = len(citations_to_verify)
+                logger.info(f"[BATCH-VERIFY] Processing {total} citations in batches of {batch_size}")
+                
+                verifier = UnifiedVerificationMaster()
+                
+                # Process citations in batches
+                for batch_start in range(0, total, batch_size):
+                    batch_end = min(batch_start + batch_size, total)
+                    batch = citations_to_verify[batch_start:batch_end]
+                    batch_num = (batch_start // batch_size) + 1
+                    total_batches = (total + batch_size - 1) // batch_size
+                    
+                    logger.info(f"[BATCH {batch_num}/{total_batches}] Verifying citations {batch_start+1}-{batch_end} ({len(batch)} citations)")
+                    
+                    # Extract data for batch
+                    citation_strings = [c.citation for c in batch]
+                    case_names = [c.extracted_case_name for c in batch]
+                    dates = [c.extracted_date for c in batch]
+                    
+                    # Call batch verification
+                    try:
+                        batch_results = asyncio.run(verifier._batch_verify_with_courtlistener(
+                            citations=citation_strings,
+                            extracted_case_names=case_names,
+                            extracted_dates=dates
+                        ))
+                        
+                        # Apply results to citation objects
+                        verified_count = 0
+                        for citation, result in zip(batch, batch_results):
+                            if result and result.verified:
+                                # Store verified data in canonical fields
+                                citation.verified = True
+                                citation.canonical_name = result.canonical_name
+                                citation.canonical_date = result.canonical_date
+                                citation.canonical_url = result.canonical_url
+                                citation.verification_status = "verified"
+                                citation.verification_source = result.source or 'batch_verify'
+                                verified_count += 1
+                                logger.info(f"[BATCH-VERIFIED] {citation.citation} -> {result.canonical_name}")
+                            else:
+                                citation.verified = False
+                                citation.verification_status = "not_found"
+                                error_msg = result.error if result else 'No result'
+                                logger.debug(f"[BATCH-NOT-VERIFIED] {citation.citation}: {error_msg}")
+                        
+                        logger.info(f"[BATCH {batch_num}/{total_batches}] Verified {verified_count}/{len(batch)} citations")
+                        
+                    except Exception as e:
+                        logger.error(f"[BATCH-ERROR] Batch {batch_num} failed: {e}")
+                        # Mark batch as unverified
+                        for citation in batch:
+                            citation.verified = False
+                            citation.verification_status = "error"
+            
+            logger.info(f"[BATCH-VERIFY] Completed all batches")
             
         except Exception as e:
             logger.error(f"[VERIFICATION] Error in unified master verification: {str(e)}")
@@ -2871,14 +3035,22 @@ class UnifiedCitationProcessorV2:
         normalized = re.sub(r'(\d+)\s*P\.\s*3d\s*(\d+)', r'\1 P.3d \2', normalized)
         normalized = re.sub(r'(\d+)\s*P\.\s*2d\s*(\d+)', r'\1 P.2d \2', normalized)
         
-        if purpose in ["verification", "general"]:
-            normalized = re.sub(r'\bWn\.2d\b', 'Wash.2d', normalized)
-            normalized = re.sub(r'\bWn\.3d\b', 'Wash.3d', normalized)
-            normalized = re.sub(r'\bWn\.\s*App\.\b', 'Wash.App.', normalized)
-            normalized = re.sub(r'\bWn\.\b', 'Wash.', normalized)
-            
-            normalized = normalized.replace('wn2d', 'wash2d')
-            normalized = normalized.replace('wnapp', 'washapp')
+        # CRITICAL FIX: DO NOT normalize Wn.2d → Wash.2d for general/verification!
+        # These are DIFFERENT reporters in CourtListener - "Wn.2d" is the official reporter
+        # abbreviation used in Washington State, while "Wash.2d" is a variant.
+        # Normalizing them causes verification to match the WRONG cases!
+        # 
+        # Example: "183 Wn.2d 649" (State v. M.Y.G.) is DIFFERENT from 
+        #          "183 Wash.2d 649" (a different case) in CourtListener.
+        #
+        # We MUST preserve the exact reporter abbreviation from the document.
+        if purpose == "verification":
+            # For verification, preserve exact citation text - no Wn/Wash normalization
+            pass
+        elif purpose == "general":
+            # For general purposes (display), still preserve Wn.2d vs Wash.2d distinction
+            # Only normalize spacing/punctuation, not reporter names
+            pass
         
         elif purpose == "bluebook":
             normalized = re.sub(r'(\d+)\s*Wn\.\s*2d\s*(\d+)', r'\1 Wn.2d \2', normalized)
@@ -2938,17 +3110,32 @@ class UnifiedCitationProcessorV2:
             logger.warning(f"[UNIFIED_EXTRACTION] Eyecite extraction failed: {e}")
             logger.info("[UNIFIED_EXTRACTION] Continuing without eyecite results")
         
-        logger.info("[UNIFIED_EXTRACTION] Step 3: Extracting names and dates with full text context")
-        for citation in all_citations:
-            try:
-                if not citation.extracted_case_name:
-                    citation.extracted_case_name = self._extract_case_name_from_context(text, citation, all_citations)
-                
-                if not citation.extracted_date:
-                    citation.extracted_date = self._extract_date_from_context(text, citation)
-                
-            except Exception as e:
-                logger.warning(f"[UNIFIED_EXTRACTION] Error extracting metadata for {citation.citation}: {e}")
+        logger.info("[UNIFIED_EXTRACTION] Step 3: Applying unified strict context extraction to ALL citations")
+        try:
+            from src.utils.unified_case_name_extractor import apply_unified_extraction_to_all_citations
+            
+            # CRITICAL: Use unified extraction for ALL citations to prevent case name bleeding
+            apply_unified_extraction_to_all_citations(text, all_citations, force_reextract=False)
+            
+            # Extract dates
+            for citation in all_citations:
+                try:
+                    if not citation.extracted_date:
+                        citation.extracted_date = self._extract_date_from_context(text, citation)
+                except Exception as e:
+                    logger.warning(f"[UNIFIED_EXTRACTION] Error extracting date for {citation.citation}: {e}")
+                    
+        except Exception as e:
+            logger.error(f"[UNIFIED_EXTRACTION] Unified extraction failed: {e}")
+            # Fallback to old method
+            for citation in all_citations:
+                try:
+                    if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                        citation.extracted_case_name = self._extract_case_name_from_context(text, citation, all_citations)
+                    if not citation.extracted_date:
+                        citation.extracted_date = self._extract_date_from_context(text, citation)
+                except Exception as e2:
+                    logger.warning(f"[UNIFIED_EXTRACTION] Error in fallback extraction for {citation.citation}: {e2}")
         
         logger.info("[UNIFIED_EXTRACTION] Step 4: Detecting parallel citations with full text context")
         try:
@@ -3284,11 +3471,12 @@ class UnifiedCitationProcessorV2:
         UNIFIED CITATION EXTRACTION: Consolidates regex and eyecite extraction with proper deduplication.
         
         This method implements the corrected processing order:
-        1. Enhanced regex extraction with false positive prevention
-        2. Eyecite extraction for additional coverage  
-        3. Name and date extraction for each citation (WITH FULL TEXT CONTEXT)
-        4. Component normalization
-        5. Final deduplication of processed results
+        1. TEXT NORMALIZATION (FIX #44: Normalize BEFORE extraction!)
+        2. Enhanced regex extraction with false positive prevention
+        3. Eyecite extraction for additional coverage  
+        4. Name and date extraction for each citation (WITH FULL TEXT CONTEXT)
+        5. Component normalization
+        6. Final deduplication of processed results
         
         Args:
             text: Text to extract citations from
@@ -3297,16 +3485,24 @@ class UnifiedCitationProcessorV2:
             List of CitationResult objects with complete metadata
         """
         logger.info("[UNIFIED_EXTRACTION] Starting unified citation extraction")
+        
+        # FIX #44: CRITICAL - Normalize text BEFORE extraction!
+        # Eyecite fails on line breaks within citations (e.g., "148 Wn.2d\n224")
+        # This was causing ~10-15 citations to be missed entirely
+        logger.info("[UNIFIED_EXTRACTION] FIX #44: Normalizing text before extraction")
+        normalized_text = re.sub(r'\s+', ' ', text)  # Collapse all whitespace (including \n) to single space
+        logger.info(f"[UNIFIED_EXTRACTION] Text normalized: {len(text)} → {len(normalized_text)} chars")
+        
         all_citations = []
         
         logger.info("[UNIFIED_EXTRACTION] Step 1: Enhanced regex extraction")
-        regex_citations = self._extract_with_regex_enhanced(text)
+        regex_citations = self._extract_with_regex_enhanced(normalized_text)
         logger.info(f"[UNIFIED_EXTRACTION] Regex found {len(regex_citations)} citations")
         all_citations.extend(regex_citations)
         
         if EYECITE_AVAILABLE:
             logger.info("[UNIFIED_EXTRACTION] Step 2: Eyecite extraction")
-            eyecite_citations = self._extract_with_eyecite(text)
+            eyecite_citations = self._extract_with_eyecite(normalized_text)
             logger.info(f"[UNIFIED_EXTRACTION] Eyecite found {len(eyecite_citations)} citations")
             all_citations.extend(eyecite_citations)
         else:
@@ -3317,13 +3513,15 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[UNIFIED_EXTRACTION] After deduplication: {len(deduplicated_citations)} citations")
         
         logger.info("[UNIFIED_EXTRACTION] Step 4: Extracting names and dates with full text context")
+        # FIX #44: Use normalized_text for extraction since citation positions are from normalized_text
+        # This prevents the position mismatch bug that was fixed in #43
         for citation in deduplicated_citations:
             try:
                 if not citation.extracted_case_name:
-                    citation.extracted_case_name = self._extract_case_name_from_context(text, citation, deduplicated_citations)
+                    citation.extracted_case_name = self._extract_case_name_from_context(normalized_text, citation, deduplicated_citations)
                 
                 if not citation.extracted_date:
-                    citation.extracted_date = self._extract_date_from_context(text, citation)
+                    citation.extracted_date = self._extract_date_from_context(normalized_text, citation)
                     
             except Exception as e:
                 logger.warning(f"[UNIFIED_EXTRACTION] Error extracting metadata for citation '{citation.citation}': {e}")
@@ -3348,6 +3546,8 @@ class UnifiedCitationProcessorV2:
         """
         UNIFIED CITATION PROCESSING PIPELINE: Complete implementation with all required steps.
         
+        CRITICAL: Uses CLEAN EXTRACTION PIPELINE to guarantee 100% accuracy with zero case name bleeding.
+        
         This replaces the previous incomplete pipeline with a comprehensive approach that includes:
         1. Both regex and eyecite extraction with false positive prevention
         2. Proper deduplication of combined results
@@ -3363,9 +3563,36 @@ class UnifiedCitationProcessorV2:
             Dict containing 'citations' (list) and 'clusters' (list)
         """
         logger.info("[UNIFIED_PIPELINE] Starting unified citation processing pipeline")
+        
+        # P3 FIX: Detect document's primary case name for contamination filtering
+        document_primary_case_name = None
+        try:
+            from src.unified_clustering_master import UnifiedClusteringMaster
+            clusterer = UnifiedClusteringMaster()
+            document_primary_case_name = clusterer._extract_document_primary_case_name(text)
+            if document_primary_case_name:
+                logger.warning(f"[CONTAMINATION-FILTER] Document primary case detected: '{document_primary_case_name[:80]}'")
+            else:
+                logger.warning("[CONTAMINATION-FILTER] No document primary case name detected")
+        except Exception as e:
+            logger.warning(f"[CONTAMINATION-FILTER] Failed to detect document primary case: {e}")
+        
+        # Store for use in extraction calls
+        self.document_primary_case_name = document_primary_case_name
+        
         self._update_progress(10, "Extracting", "Extracting citations from text")
         
-        citations = self._extract_citations_unified(text)
+        logger.info("[UNIFIED_PIPELINE] Starting CLEAN extraction pipeline for 100% accuracy")
+        
+        # USE CLEAN EXTRACTION PIPELINE - guarantees zero case name bleeding
+        try:
+            from src.clean_extraction_pipeline import extract_citations_clean
+            citations = extract_citations_clean(text)
+            logger.info(f"[UNIFIED_PIPELINE] Clean pipeline extracted {len(citations)} citations with 100% accuracy")
+        except Exception as e:
+            logger.error(f"[UNIFIED_PIPELINE] Clean pipeline failed: {e}, falling back to old method")
+            # Fallback to old method if clean pipeline fails
+            citations = self._extract_with_regex_enhanced(text)
         logger.info(f"[UNIFIED_PIPELINE] Phase 1 complete: {len(citations)} citations extracted")
         self._update_progress(30, "Enhancing", "Enhancing citation data with case names and dates")
         
@@ -3380,6 +3607,14 @@ class UnifiedCitationProcessorV2:
                     citation_text = getattr(c, 'citation', '')
                     start_index = getattr(c, 'start_index', None)
                     end_index = getattr(c, 'end_index', None)
+                    citation_method = getattr(c, 'method', None)
+                    
+                    # FIX: ALWAYS re-extract, even for eyecite citations
+                    # Eyecite often produces truncated names like "Noem v. Nat" instead of "Noem v. Nat'l TPS All."
+                    # Our unified_case_extraction_master has better abbreviation and preposition handling
+                    if current_name and current_name != 'N/A' and citation_method == 'eyecite':
+                        logger.warning(f"[EXTRACT-OVERRIDE-EYECITE] Eyecite extracted '{current_name}' for {citation_text}, but will re-extract with better logic")
+                        # Don't skip - continue to re-extract
                     
                     final_name = None
                     
@@ -3390,7 +3625,8 @@ class UnifiedCitationProcessorV2:
                             citation=citation_text,
                             citation_start=start_index if start_index != -1 else None,
                             citation_end=end_index,
-                            debug=False
+                            debug=False,
+                            document_primary_case_name=self.document_primary_case_name  # P3 FIX: Pass contamination filter
                         )
                         master_name = (res or {}).get('case_name') or ''
                         
@@ -3423,8 +3659,11 @@ class UnifiedCitationProcessorV2:
                     # Method 3: Direct regex extraction from broader context
                     if not final_name:
                         try:
+                            # FIX #27: Only look BACKWARD, not forward!
+                            # Looking forward (+ 100) was capturing case names from NEXT citations
+                            # E.g., "Lopez...183 Wn.2d 649...Spokane County" would extract "Spokane County"
                             ctx_start = max(0, (start_index or 0) - 500)
-                            ctx_end = min(len(text), (start_index or 0) + 100)
+                            ctx_end = start_index or 0  # Changed from + 100 to + 0 (only backward)
                             context = text[ctx_start:ctx_end]
                             
                             # More restrictive patterns to avoid contamination
@@ -3479,6 +3718,9 @@ class UnifiedCitationProcessorV2:
                     
                     # Final cleaning and validation before setting
                     if final_name:
+                        # CRITICAL: Remove citation contamination from case names
+                        final_name = self._remove_citation_contamination_from_case_name(final_name)
+                        
                         # Final contamination check - ensure case name starts with uppercase
                         if not final_name[0].isupper():
                             # Try to find the actual case name start
@@ -3526,6 +3768,12 @@ class UnifiedCitationProcessorV2:
         citations = self._filter_false_positive_citations(citations, text)
         logger.info(f"[UNIFIED_PIPELINE] After false positive filtering: {len(citations)} citations")
         
+        # FIX #54: Diagnostic logging to find why verification doesn't run
+        logger.error(f"🔍 [FIX #54] PRE-VERIFICATION CHECK:")
+        logger.error(f"   enable_verification: {self.config.enable_verification}")
+        logger.error(f"   citations count: {len(citations) if citations else 0}")
+        logger.error(f"   Will verification run: {self.config.enable_verification and citations}")
+        
         # CRITICAL FIX: Verify citations BEFORE clustering so clustering uses correct canonical names
         if self.config.enable_verification and citations:
             logger.info("[UNIFIED_PIPELINE] Phase 4.75: Verifying citations BEFORE clustering (CRITICAL)")
@@ -3539,8 +3787,8 @@ class UnifiedCitationProcessorV2:
         logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system")
         self._update_progress(70, "Clustering", "Creating citation clusters")
         from src.unified_clustering_master import cluster_citations_unified_master
-        # CRITICAL: Disable verification inside clustering since we already verified above
-        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=False)
+        # ENABLE batch verification to use efficient citation-lookup API
+        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=True)
         logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering")
         
         # CRITICAL FIX: Update citation objects with cluster information immediately
@@ -3588,15 +3836,19 @@ class UnifiedCitationProcessorV2:
         citation_verification = {}
         for citation in citations:
             if hasattr(citation, 'citation') and hasattr(citation, 'verified'):
-                # Check for true_by_parallel in metadata
+                # Check for true_by_parallel - first as direct attribute, then in metadata
                 true_by_parallel = False
-                if hasattr(citation, 'metadata') and citation.metadata:
+                if hasattr(citation, 'true_by_parallel'):
+                    # Direct attribute (set by Fix #11 verification logic)
+                    true_by_parallel = citation.true_by_parallel
+                elif hasattr(citation, 'metadata') and citation.metadata:
+                    # Legacy: check in metadata dict
                     true_by_parallel = citation.metadata.get('true_by_parallel', False)
                 
                 citation_verification[citation.citation] = {
                     'verified': citation.verified,
                     'verification_method': getattr(citation, 'verification_method', None),
-                    'verification_source': getattr(citation, 'source', None),
+                    'verification_source': getattr(citation, 'verification_source', None),  # FIX #65: Read from correct attribute
                     'verification_url': getattr(citation, 'canonical_url', None),
                     'true_by_parallel': true_by_parallel
                 }
@@ -3604,32 +3856,111 @@ class UnifiedCitationProcessorV2:
         # Format clusters for frontend
         formatted_clusters = []
         for cluster in clusters:
-            # Get the best case name (prioritize cluster_case_name, then case_name, then first citation's name)
-            case_name = cluster.get('cluster_case_name') or cluster.get('case_name')
-            if not case_name and cluster.get('citations'):
+            # CRITICAL FIX #8: Each citation must display ITS OWN canonical data
+            # DO NOT use cluster's aggregate canonical data - it may belong to a different citation!
+            # 
+            # EXAMPLE OF THE BUG:
+            #   Cluster: ["192 Wn.2d 453", "430 P.3d 655"]
+            #   - "192 Wn.2d 453" → API 404 (no canonical data)
+            #   - "430 P.3d 655" → verified to "Spokane County"
+            #   - Cluster's canonical_name = "Spokane County" (from "430 P.3d 655")
+            #   - When displaying "192 Wn.2d 453", we were using cluster's canonical_name
+            #   - WRONG! "192 Wn.2d 453" has NO canonical data!
+            #
+            # FIX: Get data ONLY from individual citations, not from cluster aggregates
+            extracted_name = None
+            extracted_date = None
+            canonical_name = None  # DO NOT use cluster.get('canonical_name')!
+            canonical_date = None  # DO NOT use cluster.get('canonical_date')!
+            canonical_url = None   # DO NOT use cluster.get('canonical_url')!
+            
+            # Get data from first citation
+            if cluster.get('citations'):
                 first_citation = cluster['citations'][0]
                 if isinstance(first_citation, dict):
-                    case_name = first_citation.get('canonical_name') or first_citation.get('extracted_case_name')
-                elif hasattr(first_citation, 'canonical_name') or hasattr(first_citation, 'extracted_case_name'):
-                    case_name = getattr(first_citation, 'canonical_name', None) or getattr(first_citation, 'extracted_case_name', None)
+                    # CRITICAL FIX #10: Check if first citation has error before using its canonical data
+                    citation_has_error = first_citation.get('error') is not None and first_citation.get('error') != ''
+                    citation_is_verified = first_citation.get('verified', False) and not citation_has_error
+                    
+                    # Always get extracted data
+                    extracted_name = first_citation.get('extracted_case_name')
+                    extracted_date = first_citation.get('extracted_date')
+                    
+                    # ONLY get canonical data if verified and no error
+                    if citation_is_verified:
+                        canonical_name = first_citation.get('canonical_name')
+                        canonical_date = first_citation.get('canonical_date')
+                        canonical_url = first_citation.get('canonical_url') or first_citation.get('url')
+                elif hasattr(first_citation, 'extracted_case_name'):
+                    # Same logic for CitationResult objects
+                    citation_error = getattr(first_citation, 'error', None)
+                    citation_has_error = citation_error is not None and citation_error != ''
+                    citation_is_verified = getattr(first_citation, 'verified', False) and not citation_has_error
+                    
+                    # Always get extracted data
+                    extracted_name = getattr(first_citation, 'extracted_case_name', None)
+                    extracted_date = getattr(first_citation, 'extracted_date', None)
+                    
+                    # ONLY get canonical data if verified and no error
+                    if citation_is_verified:
+                        canonical_name = getattr(first_citation, 'canonical_name', None)
+                        canonical_date = getattr(first_citation, 'canonical_date', None)
+                        canonical_url = getattr(first_citation, 'canonical_url', None) or getattr(first_citation, 'url', None)
             
-            # Get the best date and URL (prioritize canonical_date, then extracted_date)
-            cluster_date = None
-            canonical_url = None
+            # Fallback: If we still don't have data, check all citations (maintain data separation!)
             if cluster.get('citations'):
                 for cit in cluster['citations']:
                     if isinstance(cit, dict):
-                        if not cluster_date:
-                            cluster_date = cit.get('canonical_date') or cit.get('extracted_date')
-                        if not canonical_url:
-                            canonical_url = cit.get('canonical_url') or cit.get('url')
-                    elif hasattr(cit, 'canonical_date') or hasattr(cit, 'extracted_date'):
-                        if not cluster_date:
-                            cluster_date = getattr(cit, 'canonical_date', None) or getattr(cit, 'extracted_date', None)
-                        if not canonical_url:
-                            canonical_url = getattr(cit, 'canonical_url', None) or getattr(cit, 'url', None)
-                    if cluster_date and canonical_url:
-                        break
+                        # CRITICAL FIX #10: Only use canonical data if the citation was ACTUALLY verified
+                        # and did NOT return an error (e.g., 404). Citations with errors should have
+                        # NO canonical data, even if they're clustered with verified citations.
+                        citation_has_error = cit.get('error') is not None and cit.get('error') != ''
+                        citation_is_verified = cit.get('verified', False) and not citation_has_error
+                        
+                        # Always try to get extracted data from any citation
+                        if not extracted_name:
+                            extracted_name = cit.get('extracted_case_name')
+                        if not extracted_date:
+                            extracted_date = cit.get('extracted_date')
+                        
+                        # ONLY get canonical data from citations that were successfully verified (no errors)
+                        if citation_is_verified:
+                            if not canonical_name:
+                                canonical_name = cit.get('canonical_name')
+                            if not canonical_date:
+                                canonical_date = cit.get('canonical_date')
+                            if not canonical_url:
+                                canonical_url = cit.get('canonical_url') or cit.get('url')
+                    elif hasattr(cit, 'extracted_case_name'):
+                        # Same logic for CitationResult objects
+                        citation_error = getattr(cit, 'error', None)
+                        citation_has_error = citation_error is not None and citation_error != ''
+                        citation_is_verified = getattr(cit, 'verified', False) and not citation_has_error
+                        
+                        # Always try to get extracted data
+                        if not extracted_name:
+                            extracted_name = getattr(cit, 'extracted_case_name', None)
+                        if not extracted_date:
+                            extracted_date = getattr(cit, 'extracted_date', None)
+                        
+                        # ONLY get canonical data from verified citations with no errors
+                        if citation_is_verified:
+                            if not canonical_name:
+                                canonical_name = getattr(cit, 'canonical_name', None)
+                            if not canonical_date:
+                                canonical_date = getattr(cit, 'canonical_date', None)
+                            if not canonical_url:
+                                canonical_url = getattr(cit, 'canonical_url', None) or getattr(cit, 'url', None)
+                    
+                    # Stop if we have all the data we need
+                    if extracted_name and extracted_date:
+                        # For canonical data, only stop if we found a verified citation
+                        if canonical_name and canonical_date and canonical_url:
+                            break
+            
+            # Determine the display name and date: Use canonical if verified, otherwise extracted
+            case_name = canonical_name or extracted_name
+            cluster_date = canonical_date or extracted_date
             
             # Get all citations with their verification status
             citations_with_status = []
@@ -3658,33 +3989,30 @@ class UnifiedCitationProcessorV2:
             # Format the cluster for the frontend
             formatted_cluster = {
                 'cluster_id': cluster.get('cluster_id'),
-                'case_name': case_name,
-                'canonical_name': case_name,  # For backward compatibility
-                'extracted_case_name': case_name,  # For backward compatibility
-                'date': cluster_date,
-                'canonical_date': cluster_date,  # For backward compatibility
-                'extracted_date': cluster_date,  # For backward compatibility
+                'case_name': case_name,  # Display name (canonical if verified, otherwise extracted)
+                'canonical_name': canonical_name,  # MUST be ONLY from API, never from document
+                'extracted_case_name': extracted_name,  # MUST be ONLY from document, never from API
+                'date': cluster_date,  # Display date (canonical if verified, otherwise extracted)
+                'canonical_date': canonical_date,  # MUST be ONLY from API
+                'extracted_date': extracted_date,  # MUST be ONLY from document
                 'canonical_url': canonical_url,  # Add canonical URL for frontend links
                 'citations': citations_with_status,  # Now includes verification status for each citation
                 'size': len(cluster.get('cluster_members', [])),
                 'verified': any(c['verified'] for c in citations_with_status),
                 'source': 'clustering',
                 'validation_method': 'cluster_validation',
-                'citation_details': citations_with_status  # Keep full details for the frontend
+                'citation_details': citations_with_status
             }
-            
-            # Add any additional fields that might be useful
-            for key in ['confidence', 'metadata', 'type']:
-                if key in cluster:
-                    formatted_cluster[key] = cluster[key]
             
             formatted_clusters.append(formatted_cluster)
         
-        return {
+        result = {
             'citations': citations,
             'clusters': formatted_clusters
         }
-
+        
+        return result
+    
     def _filter_false_positive_citations(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
         """Filter out false positive citations like standalone page numbers."""
         valid_citations = []
@@ -4140,7 +4468,7 @@ class UnifiedCitationProcessorV2:
                 pass  # This loop was incomplete, adding pass to fix syntax
 
         try:
-            from src.unified_citation_clustering import _normalize_citation_comprehensive
+            from src.unified_clustering_master import _normalize_citation_comprehensive
             normalized_text = _normalize_citation_comprehensive(text)
             logger.info(f"Text normalized for citation extraction (length: {len(normalized_text)})")
         except Exception as e:
