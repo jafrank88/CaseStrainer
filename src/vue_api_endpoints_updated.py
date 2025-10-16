@@ -23,7 +23,7 @@ from src.database_manager import get_database_manager
 from src.data_separation_validator import validate_data_separation, enforce_data_separation, restore_extracted_name_if_contaminated
 
 from src.rq_worker import process_citation_task_direct
-from src.unified_input_processor import UnifiedInputProcessor
+# UnifiedInputProcessor is imported locally where needed to avoid startup issues
 
 logger = logging.getLogger(__name__)
 
@@ -265,8 +265,6 @@ def analyze():
             except Exception as e:
                 logger.warning(f"[Request {request_id}] Failed to parse JSON data: {str(e)}")
         
-        processor = UnifiedInputProcessor()
-        
         input_data = None
         input_type = None
         
@@ -394,24 +392,7 @@ def analyze():
             logger.info(f"[Request {request_id}] Processing {input_type} input")
             
             try:
-                from src.unified_sync_processor import UnifiedSyncProcessor
-                
-                from src.unified_sync_processor import ProcessingOptions
-                
-                courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
-                
-                processor_options = ProcessingOptions(
-                    enable_local_processing=True,
-                    enable_async_verification=True,
-                    enhanced_sync_threshold=5 * 1024,  # Must match CitationService.SYNC_THRESHOLD
-                    ultra_fast_threshold=500,  # Must match CitationService.ULTRA_FAST_THRESHOLD
-                    clustering_threshold=300,  # Must match CitationService.CLUSTERING_THRESHOLD
-                    enable_enhanced_verification=True,
-                    enable_cross_validation=True,
-                    enable_false_positive_prevention=True,
-                    enable_confidence_scoring=True,
-                    courtlistener_api_key=courtlistener_api_key
-                )
+                from src.unified_input_processor import UnifiedInputProcessor
                 
                 progress_data = {
                     'current_step': 0,
@@ -446,14 +427,14 @@ def analyze():
                     except Exception as e:
                         logger.warning(f"[Request {request_id}] Progress callback error: {e}")
                 
-                processor = UnifiedSyncProcessor(processor_options, progress_callback)
+                processor = UnifiedInputProcessor()
                 
-                logger.info(f"[Request {request_id}] Using UnifiedSyncProcessor for {input_type} input")
+                logger.info(f"[Request {request_id}] Using UnifiedInputProcessor for {input_type} input")
                 
-                progress_tracker.update_progress(request_id, 0, 20, "Started enhanced sync processing")
+                progress_tracker.update_progress(request_id, 0, 20, "Started processing")
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                result = processor.process_any_input_enhanced(input_data, input_type, None)  # Use default options
+                result = processor.process_any_input(input_data, input_type, request_id)
                 
                 progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
                 time.sleep(0.1)  # Small delay for frontend to see progress
