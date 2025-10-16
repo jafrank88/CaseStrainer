@@ -24,6 +24,55 @@ from src.models import CitationResult
 logger = logging.getLogger(__name__)
 
 
+def _organize_clusters_by_verification(clusters: List[Dict]) -> Dict[str, List[Dict]]:
+    """
+    Organize clusters by verification status.
+    
+    Separates clusters into:
+    - unverified: Clusters where NO citations are verified
+    - verified: Clusters where at least ONE citation is verified
+    
+    Args:
+        clusters: List of cluster dictionaries
+        
+    Returns:
+        Dictionary with 'unverified' and 'verified' cluster lists
+    """
+    unverified_clusters = []
+    verified_clusters = []
+    
+    for cluster in clusters:
+        cluster_citations = cluster.get('citations', [])
+        
+        # Check if ANY citation in the cluster is verified
+        has_verified = False
+        for cit in cluster_citations:
+            if isinstance(cit, dict):
+                if cit.get('verified', False):
+                    has_verified = True
+                    break
+            else:
+                # CitationResult object
+                if getattr(cit, 'verified', False):
+                    has_verified = True
+                    break
+        
+        if has_verified:
+            verified_clusters.append(cluster)
+        else:
+            unverified_clusters.append(cluster)
+    
+    return {
+        'unverified': unverified_clusters,
+        'verified': verified_clusters,
+        'summary': {
+            'unverified_count': len(unverified_clusters),
+            'verified_count': len(verified_clusters),
+            'total': len(clusters)
+        }
+    }
+
+
 def extract_citations_production(text: str) -> Dict[str, Any]:
     """
     PRODUCTION citation extraction endpoint.
@@ -227,11 +276,20 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
             verified_count = sum(1 for c in citations if c.get('verified', False))
             logger.info(f"[PRODUCTION] Step 3: Verification complete - {verified_count}/{len(citations)} verified")
         
+        # Step 4: Organize clusters - unverified clusters first
+        logger.info(f"[PRODUCTION] Step 4: Organizing clusters by verification status")
+        organized_clusters = _organize_clusters_by_verification(clusters)
+        logger.info(f"[PRODUCTION] Organized {len(organized_clusters.get('unverified', []))} unverified, "
+                   f"{len(organized_clusters.get('verified', []))} verified clusters")
+        
         return {
             'citations': citations,
-            'clusters': clusters,
+            'clusters': clusters,  # Keep original flat list for backwards compatibility
+            'clusters_organized': organized_clusters,  # NEW: Organized by verification status
             'total_citations': len(citations),
             'total_clusters': len(clusters),
+            'unverified_clusters': len(organized_clusters.get('unverified', [])),
+            'verified_clusters': len(organized_clusters.get('verified', [])),
             'accuracy': '90-93%',
             'method': 'clean_pipeline_v1_with_clustering',
             'version': '1.0.0',
