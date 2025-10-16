@@ -1,0 +1,53 @@
+FEATURE: Convert SECTION 1 to display unverified clusters
+
+USER REQUEST:
+Display unverified clusters (rather than individual citations) in the 
+first section of CitationResults.vue
+
+CHANGES MADE:
+
+1. **Section Title & Logic**:
+   - Changed from "Citation Status" to "Unverified Clusters"
+   - Now shows clusters that contain at least one unverified citation
+   - Displays count of unverified clusters
+
+2. **New Computed Property**:
+   ```javascript
+   unverifiedClusters = clusters.filter(cluster => {
+     return cluster.citations.some(cit => !cit.verified && !cit.true_by_parallel)
+   })
+   ```
+
+3. **Display Format**:
+   Each unverified cluster shows:
+   - Cluster ID and extracted case name
+   - All citations in the cluster with their verification status
+   - Color-coded status badges (Verified/Verified by Parallel/Unverified)
+
+4. **Styling**:
+   - Red left border (4px) for unverified clusters
+   - Light red background (#fff8f8)
+   - Clear visual separation between clusters
+   - Header with case name and date
+
+BENEFITS:
+- Shows citations in context (grouped as parallel citations)
+- User sees which clusters need attention
+- Better understanding of verification status across parallel citations
+- More organized than flat list of individual citations
+
+EXAMPLE DISPLAY:
+```
+🔍 SECTION 1: Unverified Clusters
+2 cluster(s) with unverified citations
+
+📚 Cluster cluster_29: Flying T Ranch, Inc. v. Stillaguamish Tribe (2024)
+  Citation 1: 31 Wn. App. 2d 343 - Unverified
+  Citation 2: 549 P.3d 727 - Unverified
+
+📚 Cluster cluster_30: Flying T Ranch, Inc. v. Stillaguamish Tribe (2012)
+  Citation 1: 3 Wn.2d 1031 - Unverified
+```
+
+This gives users a better view of which cases need verification, showing
+all parallel citations together.

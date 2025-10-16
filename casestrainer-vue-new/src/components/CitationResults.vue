@@ -1,20 +1,28 @@
 <template>
   <div class="citation-results">
-    <!-- SECTION 1: Citations That Need Attention OR Celebration (SHOW FIRST) -->
-    <div v-if="(unverifiedCitations?.length || 0) > 0" class="results-content">
+    <!-- SECTION 1: Unverified Clusters (SHOW FIRST) -->
+    <div v-if="(unverifiedClusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
-        <h2>🔍 SECTION 1: Citation Status</h2>
-        <p>{{ unverifiedCitations?.length || 0 }} citation(s) not directly verified</p>
+        <h2>🔍 SECTION 1: Unverified Clusters</h2>
+        <p>{{ unverifiedClusters?.length || 0 }} cluster(s) with unverified citations</p>
       </div>
       
-      <div class="citations-grid">
-        <div v-for="citation in unverifiedCitations" :key="citation.citation" class="citation-card">
-          <div class="citation-text">{{ citation.citation }}</div>
-          <div class="citation-details">
-            <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
-            <div><strong>Status:</strong> 
-              <span :style="{ color: citation.true_by_parallel ? '#FF9800' : 'red' }">
-                {{ citation.true_by_parallel ? '✅ VERIFIED BY PARALLEL' : '❌ UNVERIFIED' }}
+      <div class="clusters-list">
+        <div v-for="cluster in unverifiedClusters" :key="cluster.cluster_id" class="cluster-item unverified-cluster">
+          <!-- Cluster Header -->
+          <div class="cluster-line cluster-header-line">
+            <strong>📚 Cluster {{ cluster.cluster_id }}:</strong>
+            <span class="cluster-case-name">{{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}</span>
+            <span v-if="cluster.citations?.[0]?.extracted_date" class="cluster-date">({{ cluster.citations[0].extracted_date }})</span>
+          </div>
+          
+          <!-- Citations in Cluster -->
+          <div class="cluster-citations">
+            <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
+              <strong>Citation {{ index + 1 }}:</strong>
+              <span class="citation-text">{{ citation.citation }}</span>
+              <span class="citation-status" :class="getCitationStatusClass(citation)">
+                {{ getCitationStatusText(citation) }}
               </span>
             </div>
           </div>
@@ -190,6 +198,17 @@ export default {
       return citations.value?.filter(c => !c.verified && c.true_by_parallel) || []
     })
     
+    // NEW: Unverified clusters (clusters with at least one unverified citation)
+    const unverifiedClusters = computed(() => {
+      if (!clusters.value || clusters.value.length === 0) return []
+      
+      return clusters.value.filter(cluster => {
+        const clusterCitations = cluster.citations || []
+        // A cluster is "unverified" if it has at least one citation that is not verified and not true_by_parallel
+        return clusterCitations.some(cit => !cit.verified && !cit.true_by_parallel)
+      })
+    })
+    
     const allCitationsVerified = computed(() => {
       return citations.value?.length > 0 && unverifiedCitations.value.length === 0
     })
@@ -243,6 +262,8 @@ export default {
       clusters,
       verifiedCitations,
       unverifiedCitations,
+      verifiedByParallelCitations,
+      unverifiedClusters,
       allCitationsVerified,
       getClusterSource,
       getClusterCitations,
@@ -306,6 +327,28 @@ export default {
   border-radius: 8px;
   padding: 20px;
   background: #f9f9f9;
+}
+
+.unverified-cluster {
+  border-left: 4px solid #f44336;
+  background: #fff8f8;
+}
+
+.cluster-header-line {
+  font-size: 1.1em;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.cluster-case-name {
+  color: #333;
+  font-weight: 500;
+}
+
+.cluster-date {
+  color: #666;
+  font-size: 0.9em;
 }
 
 .cluster-line {
