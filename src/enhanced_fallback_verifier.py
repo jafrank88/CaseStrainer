@@ -668,12 +668,14 @@ class EnhancedFallbackVerifier:
         )
         
         # Delegate to the new master implementation
+        # CRITICAL FIX: NEVER enable fallback when we're already IN the fallback path
+        # This prevents infinite recursion: master → fallback → master → fallback → ...
         from src.unified_verification_master import verify_citation_unified_master
         return await verify_citation_unified_master(
             citation=citation_text,
             extracted_case_name=extracted_case_name,
             extracted_date=extracted_date,
-            enable_fallback=not has_courtlistener_data
+            enable_fallback=False  # FIXED: Prevent recursive fallback calls
         )
     
     def verify_citation_sync(self, citation_text: str, extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None) -> Dict:

@@ -86,6 +86,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - RQ_WORKER_AUTORELOAD=true
       - WORKER_ID=1
     volumes:
       - ./src:/app/src
@@ -128,6 +129,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - RQ_WORKER_AUTORELOAD=true
       - WORKER_ID=2
     volumes:
       - ./src:/app/src
@@ -170,6 +172,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - RQ_WORKER_AUTORELOAD=true
       - WORKER_ID=3
     volumes:
       - ./src:/app/src
@@ -239,9 +242,16 @@ services:
       - NGINX_HOST=wolf.law.uw.edu
       - NGINX_PORT=80
       - NGINX_ENTRYPOINT_QUIET_LOGS=1
-    # Start Nginx with our config
+    # Start Nginx with our config - wait for backend DNS propagation first
     command: >
-      sh -c "nginx -t &&
+      sh -c "echo 'Waiting for backend DNS...' &&
+             for i in 1 2 3 4 5; do 
+               if wget -q --spider --timeout=2 http://casestrainer-backend-prod:5000/casestrainer/api/health; then 
+                 echo 'Backend reachable!'; break; 
+               fi; 
+               echo 'Waiting...'; sleep 2; 
+             done &&
+             nginx -t &&
              nginx -g 'daemon off;'"
     depends_on:
       backend:
