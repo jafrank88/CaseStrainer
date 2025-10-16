@@ -211,10 +211,19 @@ class RobustPDFExtractor:
         from io import StringIO
         import logging as pdfminer_logging
         
-        # USER OPTIMIZATION: Disable verbose PDFMiner logging for speed
-        pdfminer_logger = pdfminer_logging.getLogger('pdfminer')
-        original_level = pdfminer_logger.level
-        pdfminer_logger.setLevel(pdfminer_logging.WARNING)  # Suppress DEBUG spam
+        # USER FIX: Disable ALL PDFMiner sub-loggers (psparser, cmapdb, pdfinterp, etc.)
+        # This is critical - PDFMiner creates massive DEBUG spam that slows everything down
+        pdfminer_loggers = [
+            pdfminer_logging.getLogger('pdfminer'),
+            pdfminer_logging.getLogger('pdfminer.psparser'),
+            pdfminer_logging.getLogger('pdfminer.cmapdb'),
+            pdfminer_logging.getLogger('pdfminer.pdfinterp'),
+            pdfminer_logging.getLogger('pdfminer.pdfpage'),
+            pdfminer_logging.getLogger('pdfminer.converter'),
+        ]
+        original_levels = [logger.level for logger in pdfminer_loggers]
+        for logger in pdfminer_loggers:
+            logger.setLevel(pdfminer_logging.ERROR)  # Only show errors
         
         try:
             laparams = LAParams(
@@ -236,8 +245,9 @@ class RobustPDFExtractor:
 
             return text
         finally:
-            # Restore original logging level
-            pdfminer_logger.setLevel(original_level)
+            # Restore original logging levels for all loggers
+            for logger, original_level in zip(pdfminer_loggers, original_levels):
+                logger.setLevel(original_level)
 
     def _extract_pdfplumber(self, pdf_path: str, max_pages: Optional[int]) -> str:
         """Extract text using PDFPlumber - Good for structured documents."""
