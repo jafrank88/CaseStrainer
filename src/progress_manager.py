@@ -982,14 +982,14 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             try:
                 progress_tracker.start_step(0, 'Initializing async processing...')
                 
-                logger.info(f"[Task {task_id}] Importing clean pipeline...")
-                from src.citation_extraction_endpoint import extract_citations_production
+                logger.info(f"[Task {task_id}] Importing production pipeline with clustering and verification...")
+                from src.citation_extraction_endpoint import extract_citations_with_clustering
                 from src.models import CitationResult
                 
                 progress_tracker.update_step(0, 50, 'Loading processing modules...')
-                sync_progress_to_redis('loading', 25, 'Loading clean pipeline...')  # FIX #21
+                sync_progress_to_redis('loading', 25, 'Loading pipeline with verification...')  # FIX #21
                 
-                logger.info(f"[Task {task_id}] Using CLEAN PIPELINE for extraction (87-93% accuracy)...")
+                logger.info(f"[Task {task_id}] Using FULL PIPELINE with clustering and batch verification...")
                 
                 progress_tracker.update_step(0, 75, 'Initializing processor...')
                 sync_progress_to_redis('initializing', 30, 'Initializing clean pipeline...')  # FIX #21
