@@ -2,6 +2,24 @@
 """
 Unified Citation Processor v2 - Consolidated Citation Extraction and Processing
 
+⚠️  DEPRECATION NOTICE ⚠️
+================================================================================
+This module is being phased out in favor of clean_extraction_pipeline.py
+
+Citation patterns defined in this file are DEPRECATED. All new pattern 
+definitions should go in src/citation_patterns.py (single source of truth).
+
+The clean_extraction_pipeline.py now uses shared patterns from citation_patterns.py
+and should be the primary extraction method for production use.
+
+This file will be kept temporarily for:
+1. Legacy code that still imports from it
+2. Features not yet migrated to clean_extraction_pipeline.py
+3. Backwards compatibility
+
+Future Development: Use clean_extraction_pipeline.py + citation_patterns.py
+================================================================================
+
 This module consolidates the best parts of all existing citation extraction implementations:
 - EnhancedRegexExtractor from unified_citation_processor.py
 - CitationExtractor from citation_extractor.py  

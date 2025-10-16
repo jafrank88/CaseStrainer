@@ -18,6 +18,7 @@ import re
 from typing import List, Dict, Any, Optional
 from src.models import CitationResult
 from src.utils.unified_case_name_extractor import extract_case_name_with_strict_isolation
+from src.citation_patterns import CitationPatterns  # CONSOLIDATED: Import shared patterns
 
 logger = logging.getLogger(__name__)
 
@@ -41,49 +42,23 @@ class CleanExtractionPipeline:
     3. Extract case names using ONLY strict context isolation
     4. Extract dates
     5. Return results
+    
+    IMPORTANT: Citation patterns are now imported from citation_patterns.py
+    (single source of truth). Do NOT define patterns here.
     """
     
     def __init__(self):
-        self.citation_patterns = self._build_citation_patterns()
+        # CONSOLIDATED: Use shared citation patterns instead of local definitions
+        self.citation_patterns = CitationPatterns.get_compiled_patterns()
+        logger.info("[CLEAN-PIPELINE] Using shared citation patterns from citation_patterns.py")
     
     def _build_citation_patterns(self) -> Dict[str, re.Pattern]:
-        """Build regex patterns for citation detection (backup for eyecite)."""
-        return {
-            # Federal reporters
-            'us_supreme': re.compile(r'\b\d+\s+U\.S\.\s+\d+\b', re.IGNORECASE),
-            's_ct': re.compile(r'\b\d+\s+S\.\s*Ct\.\s+\d+\b', re.IGNORECASE),
-            'l_ed': re.compile(r'\b\d+\s+L\.\s*Ed\.?\s*(2d)?\s+\d+\b', re.IGNORECASE),
-            'f_supp': re.compile(r'\b\d+\s+F\.\s*Supp\.?\s*(2d|3d)?\s+\d+\b', re.IGNORECASE),
-            'f_2d': re.compile(r'\b\d+\s+F\.\s*2d\s+\d+\b', re.IGNORECASE),
-            'f_3d': re.compile(r'\b\d+\s+F\.\s*3d\s+\d+\b', re.IGNORECASE),
-            'f_4th': re.compile(r'\b\d+\s+F\.\s*4th\s+\d+\b', re.IGNORECASE),
-            
-            # State reporters - Pacific
-            'p_2d': re.compile(r'\b\d+\s+P\.\s*2d\s+\d+\b', re.IGNORECASE),
-            'p_3d': re.compile(r'\b\d+\s+P\.\s*3d\s+\d+\b', re.IGNORECASE),
-            'p_general': re.compile(r'\b\d+\s+P\.\s+\d+\b', re.IGNORECASE),  # Older P. reporter
-            
-            # State reporters - Washington
-            'wn_2d': re.compile(r'\b\d+\s+Wn\.2d\s+\d+\b', re.IGNORECASE),
-            'wn_app': re.compile(r'\b\d+\s+Wn\.\s*App\.?\s*2d\s+\d+\b', re.IGNORECASE),
-            'wash_2d': re.compile(r'\b\d+\s+Wash\.2d\s+\d+\b', re.IGNORECASE),  # Alternate format
-            
-            # State reporters - California  
-            'cal_2d': re.compile(r'\b\d+\s+Cal\.\s*2d\s+\d+\b', re.IGNORECASE),
-            'cal_3d': re.compile(r'\b\d+\s+Cal\.\s*3d\s+\d+\b', re.IGNORECASE),
-            'cal_4th': re.compile(r'\b\d+\s+Cal\.\s*4th\s+\d+\b', re.IGNORECASE),
-            'cal_app': re.compile(r'\b\d+\s+Cal\.\s*App\.?\s*(2d|3d|4th|5th)?\s+\d+\b', re.IGNORECASE),
-            
-            # Neutral/Public Domain Citations (official state citations)
-            'neutral_nm': re.compile(r'\b20\d{2}-NM(?:CA)?-\d{1,5}\b', re.IGNORECASE),  # New Mexico
-            'neutral_nd': re.compile(r'\b20\d{2}\s+ND\s+\d{1,5}\b', re.IGNORECASE),  # North Dakota
-            'neutral_ok': re.compile(r'\b20\d{2}\s+OK\s+\d{1,5}\b', re.IGNORECASE),  # Oklahoma
-            'neutral_sd': re.compile(r'\b20\d{2}\s+SD\s+\d{1,5}\b', re.IGNORECASE),  # South Dakota
-            'neutral_ut': re.compile(r'\b20\d{2}\s+UT\s+\d{1,5}\b', re.IGNORECASE),  # Utah
-            'neutral_wi': re.compile(r'\b20\d{2}\s+WI\s+\d{1,5}\b', re.IGNORECASE),  # Wisconsin
-            'neutral_wy': re.compile(r'\b20\d{2}\s+WY\s+\d{1,5}\b', re.IGNORECASE),  # Wyoming
-            'neutral_mt': re.compile(r'\b20\d{2}\s+MT\s+\d{1,5}\b', re.IGNORECASE),  # Montana
-        }
+        """
+        DEPRECATED: This method is kept for backwards compatibility only.
+        Now returns shared patterns from citation_patterns.py
+        """
+        logger.warning("[CLEAN-PIPELINE] _build_citation_patterns() is deprecated - using shared patterns")
+        return CitationPatterns.get_compiled_patterns()
     
     def extract_citations(self, text: str) -> List[CitationResult]:
         """Extract citations with clean pipeline."""

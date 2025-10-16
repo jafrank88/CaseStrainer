@@ -19,6 +19,7 @@ This module provides strict context boundaries by:
 import re
 import logging
 from typing import List, Tuple, Optional, Dict, Any
+from src.citation_patterns import CitationPatterns  # CONSOLIDATED: Import shared patterns
 
 logger = logging.getLogger(__name__)
 
@@ -27,26 +28,46 @@ def find_all_citation_positions(text: str) -> List[Tuple[int, int, str]]:
     """
     Find all citation positions in the text.
     
+    IMPORTANT: Now uses shared citation patterns from citation_patterns.py
+    
     Returns:
         List of (start_pos, end_pos, citation_text) tuples
     """
     citations = []
     
-    # Patterns for common citation formats
-    patterns = [
-        # Federal reporters: 123 U.S. 456, 123 S. Ct. 456, 123 F.3d 456
-        r'\b\d+\s+(?:U\.S\.|S\.\s*Ct\.|F\.\s*2d|F\.\s*3d|F\.\s*4th|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?\s*3d|L\.\s*Ed\.?\s*2d)\s+\d+',
-        # State reporters: 123 Wash.2d 456, 123 P.3d 456
-        r'\b\d+\s+(?:Wash\.2d|Wn\.2d|Wn\.\s*App\.?\s*2d|P\.\s*2d|P\.\s*3d|P\.)\s+\d+',
-        # Cal. reporters: 123 Cal.3d 456
-        r'\b\d+\s+(?:Cal\.\s*2d|Cal\.\s*3d|Cal\.\s*4th|Cal\.\s*5th|Cal\.\s*App\.?\s*2d|Cal\.\s*App\.?\s*3d)\s+\d+',
-        # Neutral/Public Domain Citations: 2017-NM-007, 2017 ND 123, etc.
-        r'\b20\d{2}-(?:NM|NMCA)-\d{1,5}\b',  # New Mexico (hyphenated)
-        r'\b20\d{2}\s+(?:ND|OK|SD|UT|WI|WY|MT)\s+\d{1,5}\b',  # Other states (space-separated)
+    # CONSOLIDATED: Use shared patterns instead of local definitions
+    compiled_patterns = CitationPatterns.get_compiled_patterns()
+    
+    # Use subset of patterns relevant for boundary detection
+    boundary_patterns = [
+        compiled_patterns['us_supreme'],
+        compiled_patterns['s_ct'],
+        compiled_patterns['l_ed_2d'],
+        compiled_patterns['f_2d'],
+        compiled_patterns['f_3d'],
+        compiled_patterns['f_4th'],
+        compiled_patterns['f_supp_2d'],
+        compiled_patterns['p_2d'],
+        compiled_patterns['p_3d'],
+        compiled_patterns['wn_2d'],
+        compiled_patterns['wash_2d'],
+        compiled_patterns['wn_app'],
+        compiled_patterns['cal_2d'],
+        compiled_patterns['cal_3d'],
+        compiled_patterns['cal_4th'],
+        # Neutral citations
+        compiled_patterns['neutral_nm'],
+        compiled_patterns['neutral_nd'],
+        compiled_patterns['neutral_ok'],
+        compiled_patterns['neutral_sd'],
+        compiled_patterns['neutral_ut'],
+        compiled_patterns['neutral_wi'],
+        compiled_patterns['neutral_wy'],
+        compiled_patterns['neutral_mt'],
     ]
     
-    for pattern in patterns:
-        for match in re.finditer(pattern, text, re.IGNORECASE):
+    for pattern in boundary_patterns:
+        for match in pattern.finditer(text):
             citations.append((match.start(), match.end(), match.group(0)))
     
     # Sort by position
