@@ -531,23 +531,23 @@ class UnifiedVerificationMaster:
                 logger.error(f"[BATCH-DEBUG] {citation}: matched_cluster={'YES' if matched_cluster else 'NO'}")
                 
                 if matched_cluster:
-                    # CRITICAL FIX: Extract case_name from docket if not at top level
-                    # CourtListener API sometimes returns case_name at top level, sometimes nested in docket
-                    canonical_name = matched_cluster.get('case_name')
-                    canonical_date = matched_cluster.get('date_filed')
+                    # CRITICAL FIX: Try both camelCase and snake_case field names
+                    # CourtListener v4 API uses different formats: batch lookup may use snake_case, search uses camelCase
+                    canonical_name = matched_cluster.get('caseName') or matched_cluster.get('case_name')
+                    canonical_date = matched_cluster.get('dateFiled') or matched_cluster.get('date_filed')
                     
-                    # If not at top level, try to extract from docket object
+                    # If not at top level, try to extract from docket object (try both formats)
                     if not canonical_name:
                         docket = matched_cluster.get('docket', {})
                         if isinstance(docket, dict):
-                            canonical_name = docket.get('case_name')
+                            canonical_name = docket.get('caseName') or docket.get('case_name')
                             if not canonical_date:
-                                canonical_date = docket.get('date_filed')
+                                canonical_date = docket.get('dateFiled') or docket.get('date_filed')
                             logger.error(f"🔍 [DOCKET-EXTRACT] {citation}: Extracted from docket - case_name={canonical_name}")
                         else:
                             logger.warning(f"⚠️ [DOCKET-EXTRACT] {citation}: docket is not a dict, type={type(docket)}")
                     else:
-                        logger.error(f"🔍 [TOP-LEVEL] {citation}: Found case_name at top level = {canonical_name}")
+                        logger.error(f"🔍 [TOP-LEVEL] {citation}: Found case_name = {canonical_name}")
                     
                     canonical_url = f"https://www.courtlistener.com{matched_cluster.get('absolute_url', '')}"
                     
@@ -699,22 +699,23 @@ class UnifiedVerificationMaster:
                         error="No matching cluster found or cluster rejected due to low similarity/N/A extraction"
                     )
                 
-                # CRITICAL FIX: Extract from docket if not at top level (same as batch & search)
-                canonical_name = cluster.get('case_name')
-                canonical_date = cluster.get('date_filed')
+                # CRITICAL FIX: Use camelCase field names for search API responses
+                # CourtListener v4 Search API returns caseName/dateFiled (camelCase), not case_name/date_filed
+                canonical_name = cluster.get('caseName') or cluster.get('case_name')
+                canonical_date = cluster.get('dateFiled') or cluster.get('date_filed')
                 
-                # If not at top level, try docket object
+                # If not found, try docket object (might have either format)
                 if not canonical_name:
                     docket = cluster.get('docket', {})
                     if isinstance(docket, dict):
-                        canonical_name = docket.get('case_name')
+                        canonical_name = docket.get('caseName') or docket.get('case_name')
                         if not canonical_date:
-                            canonical_date = docket.get('date_filed')
+                            canonical_date = docket.get('dateFiled') or docket.get('date_filed')
                         logger.error(f"🔍 [DOCKET-EXTRACT-ASYNC] {citation}: Extracted from docket - case_name={canonical_name}")
                     else:
                         logger.warning(f"⚠️ [DOCKET-EXTRACT-ASYNC] {citation}: docket is not a dict, type={type(docket)}")
                 else:
-                    logger.error(f"🔍 [TOP-LEVEL-ASYNC] {citation}: Found case_name at top level = {canonical_name}")
+                    logger.error(f"🔍 [TOP-LEVEL-ASYNC] {citation}: Found case_name = {canonical_name}")
                 
                 canonical_url = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
                 
