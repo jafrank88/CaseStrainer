@@ -394,9 +394,9 @@ def analyze():
             logger.info(f"[Request {request_id}] Processing {input_type} input")
             
             try:
-                from src.enhanced_sync_processor import EnhancedSyncProcessor
+                from src.unified_sync_processor import UnifiedSyncProcessor
                 
-                from src.enhanced_sync_processor import ProcessingOptions
+                from src.unified_sync_processor import ProcessingOptions
                 
                 courtlistener_api_key = os.getenv('COURTLISTENER_API_KEY')
                 
@@ -446,9 +446,9 @@ def analyze():
                     except Exception as e:
                         logger.warning(f"[Request {request_id}] Progress callback error: {e}")
                 
-                processor = EnhancedSyncProcessor(processor_options, progress_callback)
+                processor = UnifiedSyncProcessor(processor_options, progress_callback)
                 
-                logger.info(f"[Request {request_id}] Using EnhancedSyncProcessor for {input_type} input")
+                logger.info(f"[Request {request_id}] Using UnifiedSyncProcessor for {input_type} input")
                 
                 progress_tracker.update_progress(request_id, 0, 20, "Started enhanced sync processing")
                 time.sleep(0.1)  # Small delay for frontend to see progress
