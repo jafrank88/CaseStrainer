@@ -711,7 +711,7 @@ def fetch_url_content(url: str) -> str:
                 
                 try:
                     logger.info(f"Extracting PDF from URL using extract_text_from_pdf_smart()")
-                    from src.utils.text_extraction import extract_text_from_pdf_smart
+                    from src.robust_pdf_extractor import extract_text_from_pdf_smart
                     result = extract_text_from_pdf_smart(temp_pdf_path)
                     
                     if result and len(result.strip()) > 0:
