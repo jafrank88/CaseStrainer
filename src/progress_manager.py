@@ -1280,8 +1280,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             cluster_dict['verification_source'] = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
                             cluster_dict['verification_status'] = 'verified'
                         
-                        # Propagate canonical data to unverified parallel citations
-                        logger.error(f"[Task {task_id}] 🔄 PROPAGATION: Checking {len(citations_in_cluster)} citations for propagation")
+                        # NEW REQUIREMENT: Do NOT propagate canonical data - keep independent per citation
+                        # Only set true_by_parallel flag for unverified citations
+                        # Canonical names can differ by source (CourtListener vs Justia vs etc)
+                        logger.error(f"[Task {task_id}] 🔄 MARKING PARALLEL: Checking {len(citations_in_cluster)} citations")
                         unverified_count = 0
                         for idx, cit in enumerate(citations_in_cluster):
                             cit_is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
@@ -1290,21 +1292,18 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             
                             if not cit_is_verified:
                                 unverified_count += 1
+                                # ONLY set true_by_parallel flag - do NOT copy canonical data
                                 if isinstance(cit, dict):
                                     cit['true_by_parallel'] = True
-                                    cit['canonical_name'] = cluster_dict['canonical_name']
-                                    cit['canonical_date'] = cluster_dict['canonical_date']
-                                    logger.error(f"[Task {task_id}] ✅ Propagated to {cit_text} (dict)")
+                                    logger.error(f"[Task {task_id}] ✅ Marked as parallel: {cit_text} (dict)")
                                 else:
                                     cit.true_by_parallel = True
-                                    cit.canonical_name = cluster_dict['canonical_name']
-                                    cit.canonical_date = cluster_dict['canonical_date']
-                                    logger.error(f"[Task {task_id}] ✅ Propagated to {cit_text} (object)")
+                                    logger.error(f"[Task {task_id}] ✅ Marked as parallel: {cit_text} (object)")
                         
                         if unverified_count > 0:
-                            logger.error(f"[Task {task_id}] 📊 Propagated canonical data to {unverified_count} unverified parallel citations")
+                            logger.error(f"[Task {task_id}] 📊 Marked {unverified_count} unverified citations as true_by_parallel")
                         else:
-                            logger.error(f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified - no propagation needed")
+                            logger.error(f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified")
                         clusters_with_canonical += 1
                     else:
                         logger.error(f"[Task {task_id}] ⚠️  No verified citation with canonical data found in this cluster")

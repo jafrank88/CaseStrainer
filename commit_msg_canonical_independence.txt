@@ -1,0 +1,66 @@
+FIX: Stop propagating canonical names - keep independent per source
+
+USER REQUIREMENT CLARIFICATION:
+"We want the extracted case name in the parallel citations to be the 
+same and from the document, but not the canonical case name, as parallel 
+citations can be verified by different sources that have different 
+canonical names"
+
+WHAT THIS MEANS:
+✅ extracted_case_name: SAME across parallel citations (from document)
+❌ canonical_name: INDEPENDENT per citation (from verification source)
+
+PROBLEM:
+The code was propagating canonical_name to unverified citations in the
+same cluster. This was WRONG because:
+- 549 P.3d 727 verified by CourtListener P.3d API
+- 31 Wn. App. 2d 343 verified by CourtListener Wn. App. API
+- These may return slightly different canonical names!
+
+Example:
+- CourtListener P.3d: "Flying T Ranch, Inc. v. Stillaguamish Tribe"
+- CourtListener Wn. App.: "Flying T Ranch Inc v. Stillaguamish Tribe"
+  (note: different punctuation, slightly different format)
+
+SOLUTION:
+Modified progress_manager.py canonical data section:
+- ✅ KEEP: extracted_case_name propagation (lines 1203-1248)
+- ❌ REMOVE: canonical_name propagation (lines 1283-1301)
+- ✅ KEEP: true_by_parallel flag for unverified citations
+
+BEFORE:
+```python
+if not cit_is_verified:
+    cit['canonical_name'] = cluster_dict['canonical_name']  # ❌ WRONG!
+    cit['canonical_date'] = cluster_dict['canonical_date']  # ❌ WRONG!
+    cit['true_by_parallel'] = True
+```
+
+AFTER:
+```python
+if not cit_is_verified:
+    cit['true_by_parallel'] = True  # ✅ Only mark as parallel
+    # Do NOT copy canonical data - each source has its own
+```
+
+BEHAVIOR:
+For parallel citations like 31 Wn. App. 2d 343 + 549 P.3d 727:
+
+1. **extracted_case_name**: SAME for both
+   - Both get: "Flying T Ranch, Inc. v. Stillaguamish Tribe"
+   - (Best one from document text)
+
+2. **canonical_name**: DIFFERENT for each  
+   - 31 Wn. App. 2d 343: From CourtListener Wn. App. 2d API
+   - 549 P.3d 727: From CourtListener P.3d API
+   - May have slight differences in formatting/punctuation
+
+3. **true_by_parallel**: Set for unverified citations
+   - Indicates "verified by association with parallel citation"
+   - But keeps its own canonical data (or null if unverified)
+
+BENEFITS:
+- Respects different verification sources
+- Allows for slight variations in canonical names by reporter
+- More accurate representation of source data
+- User can see which source verified each citation
