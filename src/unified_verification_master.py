@@ -531,14 +531,24 @@ class UnifiedVerificationMaster:
                 logger.error(f"[BATCH-DEBUG] {citation}: matched_cluster={'YES' if matched_cluster else 'NO'}")
                 
                 if matched_cluster:
-                    # DEBUG: Log what fields the API actually returns
-                    logger.error(f"🔍 [API-RESPONSE] {citation}: matched_cluster keys = {list(matched_cluster.keys())[:10]}")
-                    logger.error(f"🔍 [API-RESPONSE] {citation}: case_name = {matched_cluster.get('case_name')}")
-                    logger.error(f"🔍 [API-RESPONSE] {citation}: caseName = {matched_cluster.get('caseName')}")
-                    logger.error(f"🔍 [API-RESPONSE] {citation}: cluster_name = {matched_cluster.get('cluster_name')}")
-                    
+                    # CRITICAL FIX: Extract case_name from docket if not at top level
+                    # CourtListener API sometimes returns case_name at top level, sometimes nested in docket
                     canonical_name = matched_cluster.get('case_name')
                     canonical_date = matched_cluster.get('date_filed')
+                    
+                    # If not at top level, try to extract from docket object
+                    if not canonical_name:
+                        docket = matched_cluster.get('docket', {})
+                        if isinstance(docket, dict):
+                            canonical_name = docket.get('case_name')
+                            if not canonical_date:
+                                canonical_date = docket.get('date_filed')
+                            logger.error(f"🔍 [DOCKET-EXTRACT] {citation}: Extracted from docket - case_name={canonical_name}")
+                        else:
+                            logger.warning(f"⚠️ [DOCKET-EXTRACT] {citation}: docket is not a dict, type={type(docket)}")
+                    else:
+                        logger.error(f"🔍 [TOP-LEVEL] {citation}: Found case_name at top level = {canonical_name}")
+                    
                     canonical_url = f"https://www.courtlistener.com{matched_cluster.get('absolute_url', '')}"
                     
                     # CRITICAL: Validate that canonical name makes sense with extracted name
