@@ -121,6 +121,21 @@ class CleanExtractionPipeline:
         import re
         cleaned = case_name.strip()
         
+        # CRITICAL: Remove embedded citations from case names (e.g., "2017-NM-007")
+        # This prevents case name bleeding when eyecite includes citations in the name
+        citation_patterns = [
+            r',\s*\d+\s+(?:Wn\.2d|Wash\.2d|Wn\.\s*App\.?\s*2d|Wash\.\s*App\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
+            r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
+            r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
+            r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
+            r',\s*20\d{2}-(?:NM|ND|OK|SD|UT|WI|WY|MT)(?:CA)?-\d{1,5}(?:\s*\(\d{4}\))?$',  # Neutral citations
+            r',\s*20\d{2}\s+(?:ND|OK|SD|UT|WI|WY|MT)\s+\d{1,5}(?:\s*\(\d{4}\))?$',  # Space-separated neutral
+            r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Generic pattern
+        ]
+        
+        for pattern in citation_patterns:
+            cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+        
         # Remove descriptive legal phrases before the actual case name
         # Pattern: "Collateral Order Doctrine\n\nOverruling Batzel v. Smith" -> "Batzel v. Smith"
         
@@ -151,6 +166,9 @@ class CleanExtractionPipeline:
         
         # Step 3: Remove any remaining newlines
         cleaned = re.sub(r'\s+', ' ', cleaned)
+        
+        # Step 4: Clean up trailing commas
+        cleaned = re.sub(r'\s*,\s*$', '', cleaned)
         
         return cleaned.strip()
     
@@ -306,12 +324,13 @@ class CleanExtractionPipeline:
                     continue
                 
                 # Use strict context isolation for citations without names
+                # CRITICAL: Pass full citation list so isolator can identify boundaries
                 case_name = extract_case_name_with_strict_isolation(
                     text=text,
                     citation_text=citation.citation,
                     citation_start=citation.start_index,
                     citation_end=citation.end_index,
-                    all_citations=None
+                    all_citations=citations  # Pass full list for proper boundary detection
                 )
                 
                 if case_name:
