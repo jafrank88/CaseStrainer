@@ -701,29 +701,39 @@ def fetch_url_content(url: str) -> str:
         logger.info(f"Content type: {content_type}")
         
         if 'pdf' in content_type or url.lower().endswith('.pdf'):
-            # Try multiple PDF extraction methods for robustness
-            extraction_methods = [
-                ('PyPDF2', _extract_with_pypdf2),
-                ('pdfminer', _extract_with_pdfminer),
-                ('pdfplumber', _extract_with_pdfplumber)
-            ]
+            # USER FIX: Use the same PDF extraction pipeline as file uploads for consistency
+            # Save PDF content to temporary file and use extract_text_from_pdf_smart()
+            import tempfile
+            import os
             
-            for method_name, method_func in extraction_methods:
+            try:
+                # Save PDF content to temp file
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+                    temp_pdf.write(response.content)
+                    temp_pdf_path = temp_pdf.name
+                
                 try:
-                    logger.info(f"Trying PDF extraction with {method_name}")
-                    result = method_func(response.content)
+                    logger.info(f"Extracting PDF from URL using extract_text_from_pdf_smart()")
+                    from src.utils.text_extraction import extract_text_from_pdf_smart
+                    result = extract_text_from_pdf_smart(temp_pdf_path)
+                    
                     if result and len(result.strip()) > 0:
-                        logger.info(f"Successfully extracted {len(result)} characters using {method_name}")
+                        logger.info(f"Successfully extracted {len(result)} characters from URL PDF")
                         return result
                     else:
-                        logger.warning(f"{method_name} returned empty content")
-                except Exception as e:
-                    logger.warning(f"{method_name} extraction failed: {str(e)}")
-                    continue
-            
-            # If all methods fail, provide helpful error message
-            logger.error("All PDF extraction methods failed")
-            raise Exception("The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format. Please try a different document or contact support if the issue persists.")
+                        logger.error("PDF extraction returned empty content")
+                        raise Exception("The PDF document appears to be empty or unreadable")
+                        
+                finally:
+                    # Clean up temp file
+                    try:
+                        os.unlink(temp_pdf_path)
+                    except OSError:
+                        pass
+                        
+            except Exception as e:
+                logger.error(f"PDF extraction from URL failed: {str(e)}")
+                raise Exception(f"The PDF document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format.")
         
         elif 'json' in content_type or 'application/json' in content_type:
             # Handle JSON responses (e.g., from CourtListener API)
