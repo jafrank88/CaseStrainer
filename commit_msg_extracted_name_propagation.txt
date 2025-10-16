@@ -1,0 +1,31 @@
+FEATURE: Propagate best extracted name within clusters
+
+User requirement: Within each cluster, use the BEST extracted case name 
+for all citations, while keeping canonical names independent.
+
+RATIONALE:
+- Extracted name = Our best guess from document text (should be consistent)
+- Canonical name = API-verified official name (can vary by reporter)
+
+IMPLEMENTATION:
+In progress_manager.py cluster processing:
+1. Find BEST extracted name in cluster (longest, most complete)
+2. Detect truncated/contaminated names:
+   - Starts with "Inc. v." (lost company name)
+   - Ends with citation text (boundary contamination)
+3. Propagate best extracted name to ALL citations in cluster
+4. Keep canonical names INDEPENDENT (don't propagate those)
+
+EXAMPLE:
+Cluster with 2 citations:
+- 31 Wn. App. 2d 343: extracted = "Inc. v. Stillaguamish..." (TRUNCATED)
+- 549 P.3d 727: extracted = "Flying T Ranch, Inc. v. Stillaguamish..." (GOOD)
+
+After propagation:
+- BOTH get: extracted = "Flying T Ranch, Inc. v. Stillaguamish..."
+- BUT canonical names remain independent per verification source
+
+BENEFITS:
+- Consistent extracted names within clusters
+- Fixes truncation/contamination issues automatically
+- Respects that different reporters may have different official names

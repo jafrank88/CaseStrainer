@@ -1200,6 +1200,53 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     logger.error(f"[Task {task_id}] Cluster deduplication FAILED: {e}")
                     # Continue with original clusters if deduplication fails
 
+                # NEW FIX: Propagate BEST extracted name within each cluster
+                # User requirement: extracted_name should use the best, canonical should be independent
+                logger.error(f"[Task {task_id}] 📝 EXTRACTED NAME PROPAGATION: Processing {len(cluster_dicts)} clusters")
+                for cluster_dict in cluster_dicts:
+                    citations_in_cluster = cluster_dict.get('citations', [])
+                    
+                    if len(citations_in_cluster) > 1:
+                        # Find the BEST extracted case name (longest, most complete, no truncation)
+                        best_extracted_name = None
+                        best_name_length = 0
+                        
+                        for cit in citations_in_cluster:
+                            extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
+                            
+                            if extracted and extracted != 'N/A':
+                                # Score the extracted name quality
+                                name_length = len(extracted)
+                                
+                                # Penalize if it looks truncated or contaminated
+                                is_truncated = (
+                                    extracted.startswith('Inc. v.') or  # Lost company name
+                                    ', ' in extracted[-20:] and any(char.isdigit() for char in extracted[-20:])  # Has citation contamination
+                                )
+                                
+                                if not is_truncated and name_length > best_name_length:
+                                    best_extracted_name = extracted
+                                    best_name_length = name_length
+                        
+                        # Propagate best extracted name to ALL citations in cluster
+                        if best_extracted_name:
+                            logger.error(f"[Task {task_id}] 📝 Best extracted name: '{best_extracted_name}' (length: {best_name_length})")
+                            propagated_count = 0
+                            
+                            for cit in citations_in_cluster:
+                                current_extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
+                                
+                                # Only propagate if current name is worse than best
+                                if current_extracted != best_extracted_name:
+                                    if isinstance(cit, dict):
+                                        cit['extracted_case_name'] = best_extracted_name
+                                    else:
+                                        cit.extracted_case_name = best_extracted_name
+                                    propagated_count += 1
+                            
+                            if propagated_count > 0:
+                                logger.error(f"[Task {task_id}] ✅ Propagated best extracted name to {propagated_count} citations in cluster")
+                
                 # CRITICAL FIX: Extract cluster-level canonical data from verified citations
                 # This happens AFTER verification, so verified citations now have canonical data
                 logger.error(f"[Task {task_id}] 🔍 CANONICAL DATA EXTRACTION: Processing {len(cluster_dicts)} clusters")
