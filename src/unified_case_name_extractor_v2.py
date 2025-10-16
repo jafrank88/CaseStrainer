@@ -127,22 +127,50 @@ class UnifiedCaseNameExtractorV2:
         # Define common corporate suffixes for reuse
         corp_suffixes = r'(?:LLC|Inc|Corp|Co|Ltd|L\.P\.?|L\.L\.C\.?|P\.C\.?|P\.A\.?|S\.A\.?|GmbH|AG|SE|K\.K\.?|Y\.K\.?|N\.V\.?|A\/S|A\.B\.?|S\.P\.A\.?|S\.A\.R\.L\.?|S\.A\.S\.?|B\.V\.?|A\.S\.?|A\.B\.?|A\.G\.?|S\.A\.?|S\.P\.A\.?|S\.A\.S\.?|S\.A\.R\.L\.?|S\.A\.B\.?|S\.A\.I\.C\.?|S\.A\.I\.E\.?|S\.A\.L\.?|S\.A\.M\.?|S\.A\.N\.?|S\.A\.O\.?|S\.A\.P\.?|S\.A\.Q\.?|S\.A\.R\.A\.?|S\.A\.S\.?|S\.A\.T\.?|S\.A\.U\.?|S\.A\.V\.?|S\.A\.W\.?|S\.A\.X\.?|S\.A\.Y\.?|S\.A\.Z\.?)'
         
+        # Define common legal abbreviations that must be treated as single units
+        # CRITICAL: These prevent truncation like "U.S." -> "U." or "Sec'y" -> "Se"
+        legal_abbrev = r'(?:U\.S\.|Sec\'y|Gov\'t|Dep\'t|Att\'y|Dist\.|Comm\'r|Ass\'n|Bd\.|Comm\'n|Div\.|Sch\.|Univ\.|Coll\.)'
+        
+        # Define word component that handles abbreviations and prepositions
+        # This matches: regular words, abbreviations (U.S.), possessives (Sec'y), and prepositions (of, for, the)
+        word_component = r'(?:' + legal_abbrev + r'|[A-Z][a-z]+(?:\'[a-z]+)?|[A-Z]\.(?:[A-Z]\.)*|of|for|the|and|&)'
+        
+        # Party name pattern: one or more word components with spaces
+        party_pattern = word_component + r'(?:\s+' + word_component + r')*'
+        
         self.patterns = [
+            # PRIORITY 1: Legal abbreviation-aware pattern (HIGHEST CONFIDENCE)
+            # Handles: "E. Palo Alto v. U.S. Dep't", "Tootle v. Sec'y of Navy", "Department of Education v. California"
+            {
+                'name': 'legal_abbrev_aware_pattern',
+                'pattern': f'({party_pattern})\\s+v\\.\\s+({party_pattern})(?=\\s*,?\\s*(?:\\d|\\[|\\(|$))',
+                'confidence': 0.99,
+                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
+                'description': 'Abbreviation-aware pattern that handles U.S., Sec\'y, Dep\'t, and prepositions like "of"'
+            },
+            # PRIORITY 2: United States specific pattern
+            {
+                'name': 'party_v_united_states',
+                'pattern': r'([A-Z][a-zA-Z\',\.\s&]+?)\s+v\.\s+(U\.S\.|United\s+States)(?:\s+(?:Dep\'t|Department)\s+of\s+[A-Z][a-zA-Z\s]+)?(?=\s*,?\s*(?:\d|\[|\(|$))',
+                'confidence': 0.98,
+                'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
+                'description': 'Special pattern for United States and its departments'
+            },
             # Enhanced corporate name pattern
             {
                 'name': 'corporate_v_party_extended',
-                'pattern': f'([A-Z][a-zA-Z\\\',\\.\\s&]+?(?:\\s+{corp_suffixes})?)\\s+v\\.\\s+([A-Z][a-zA-Z\\\',\\.\\s&]+)(?=\\s*(?:\\d|\\[|\\(|$))',
+                'pattern': f'([A-Z][a-zA-Z\',\\.\\s&]+?(?:\\s+{corp_suffixes})?)\\s+v\\.\\s+([A-Z][a-zA-Z\',\\.\\s&]+)(?=\\s*,?\\s*(?:\\d|\\[|\\(|$))',
                 'confidence': 0.96,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
                 'description': 'Extended pattern for corporate entities with various legal suffixes'
             },
-            # Enhanced party name pattern
+            # Enhanced party name pattern with prepositions
             {
                 'name': 'party_v_party_extended',
-                'pattern': r'([A-Z][a-zA-Z\',\.\s&]+?)\s+v\.\s+([A-Z][a-zA-Z\',\.\s&]+?)(?=\s*(?:\d|\[|\(|$))',
+                'pattern': r'([A-Z][a-zA-Z\',\.\s&]+(?:\s+(?:of|for|the)\s+[A-Z][a-zA-Z\',\.\s&]+)*)\s+v\.\s+([A-Z][a-zA-Z\',\.\s&]+(?:\s+(?:of|for|the)\s+[A-Z][a-zA-Z\',\.\s&]+)*)(?=\s*,?\s*(?:\d|\[|\(|$))',
                 'confidence': 0.95,
                 'format': lambda m: f"{m.group(1).strip()} v. {m.group(2).strip()}",
-                'description': 'Extended pattern for party names with better boundary detection'
+                'description': 'Extended pattern for party names with prepositions like "Department of Education"'
             },
             # Enhanced State/People v. Party pattern
             {
@@ -519,12 +547,14 @@ class UnifiedCaseNameExtractorV2:
         surrounding legal discussion text.
         """
         try:
-            # Use a more focused context window - prioritize text before the citation
-            context_before = 150  # Reduced from 200 to focus on closer text
-            context_after = 30    # Reduced from 50 as most case names appear before citations
+            # FIX #27B: Only look BACKWARD, not forward!
+            # Looking forward was capturing case names from NEXT citations
+            # E.g., "Lopez...183 Wn.2d 649...Spokane County" would extract "Spokane County"
+            context_before = 150  # Search backward for case name
+            context_after = 0     # Changed from 30 to 0 - don't look forward!
             
             context_start = max(0, citation_start - context_before)
-            context_end = min(len(text), citation_end + context_after)
+            context_end = citation_start  # Changed from citation_end + context_after
             context = text[context_start:context_end]
             
             if debug:
@@ -662,8 +692,10 @@ class UnifiedCaseNameExtractorV2:
     def _extract_pattern_based(self, text: str, citation: str, citation_start: int, citation_end: int, debug: bool) -> Optional[ExtractionResult]:
         """Pattern-based extraction: use citation boundaries and pattern matching"""
         try:
+            # FIX #27B: Only look BACKWARD, not forward!
+            # Looking forward (+ 100) was capturing case names from NEXT citations
             search_start = max(0, citation_start - 400)
-            search_end = min(len(text), citation_end + 100)
+            search_end = citation_start  # Changed from citation_end + 100
             search_text = text[search_start:search_end]
             
             for pattern_info in self.patterns:
@@ -805,6 +837,16 @@ class UnifiedCaseNameExtractorV2:
         defendant = self._clean_party_name(match.group(2))
         
         contamination_phrases = [
+            # CRITICAL: Remove citation text patterns FIRST (before other cleaning)
+            r',\s*\d+\s+Wn\.\s*(?:App\.)?\s*\d+d?\s+\d+.*$',  # ", 31 Wn. App. 2d 343, 359-62"
+            r',\s*\d+\s+[A-Z][a-z]*\.?\s*\d+d?\s+\d+.*$',  # ", 123 F.3d 456" etc
+            r',\s*\[\d+\s+U\.S\..*$',  # ", [21 U.S." etc
+            
+            # Signal words at START of name (Id., For example, etc.)
+            r'^Id\.\s*',  # "Id." at start
+            r'^For\s+example,?\s+(in\s+)?',  # "For example, in"
+            r'^See\s+(also,?)?\s*',  # "See" or "See also"
+            
             # Legal analysis phrases
             r'\b(de\s+novo)\b', r'\b(questions?\s+of\s+law)\b', r'\b(statutory\s+interpretation)\b',
             r'\b(in\s+light\s+of)\b', r'\b(the\s+record\s+certified)\b', r'\b(federal\s+court)\b',
@@ -928,6 +970,18 @@ class UnifiedCaseNameExtractorV2:
         
         # Both parties must have at least one word character
         if not re.search(r'\w', plaintiff) or not re.search(r'\w', defendant):
+            return False
+        
+        # CRITICAL: Reject truncated names that start with lowercase
+        # e.g., "agit Indian Tribe" is clearly truncated from "Upper Skagit Indian Tribe"
+        if plaintiff and plaintiff[0].islower():
+            return False
+        if defendant and defendant[0].islower():
+            return False
+        
+        # CRITICAL: Reject party names that are too short (likely truncated)
+        # e.g., "Mgmt." without company prefix, "Co." without company name
+        if len(plaintiff) < 3 or len(defendant) < 3:
             return False
             
         # Check for common contamination patterns that might have been missed
@@ -1077,28 +1131,53 @@ def extract_case_name_and_date_unified(
                 
                 if is_plaintiff:
                     # For plaintiff (working backwards), collect all valid words
+                    # CRITICAL FIX: Be MUCH less restrictive to prevent truncation
                     for word in reversed(words):
-                        if (word and len(word) >= 1 and (
-                            word[0].isupper() or 
-                            word.lower() in ['v.', 'vs.', '&', 'of', 'the', 'and', 'inc', 'llc', 'corp', 'ltd', 'co.', 'bros.', 'farms', 'state'] or
-                            "'" in word or '.' in word or
-                            word.isalpha()  # FIXED: Include all alphabetic words to prevent truncation
-                        )):
+                        # Stop ONLY on clear boundaries
+                        if word.lower() in ['citing', 'see', 'compare', 'but', 'however', 'holding', 'held',
+                                           'reversed', 'affirmed', 'remanded', 'in', 'on', 'from', 'with']:
+                            break  # Clear boundary - we've moved past the case name
+                        
+                        # Stop if we hit a number (likely a citation or page number)
+                        if word.isdigit() or (len(word) > 0 and word[0].isdigit()):
+                            break
+                        
+                        # Stop if we hit parentheses (likely a year or citation)
+                        if word.startswith('(') or word.endswith(')'):
+                            break
+                        
+                        # Otherwise, collect the word if it has at least 2 characters
+                        # This is MUCH less restrictive than before - prevents truncation
+                        if word and len(word) >= 2:
                             clean_words.insert(0, word)
-                        # FIXED: Don't break early - continue collecting valid words
+                        # Single character words only if they're meaningful
+                        elif word and len(word) == 1 and word.upper() in ['A', 'I']:
+                            clean_words.insert(0, word)
                 else:
-                    # For defendant (working forwards), collect all valid words  
+                    # For defendant (working forwards), collect all valid words
+                    # CRITICAL FIX: Be MUCH less restrictive to prevent truncation
                     for word in words:
-                        if (word and len(word) >= 1 and (
-                            word[0].isupper() or 
-                            word.lower() in ['&', 'of', 'the', 'and', 'inc', 'llc', 'corp', 'ltd', 'co.', 'bros.', 'farms', 'fish', 'wildlife', 'dep\'t', 'state'] or
-                            "'" in word or '.' in word or
-                            word.isalpha()  # FIXED: Include all alphabetic words to prevent truncation
-                        )):
+                        # Stop ONLY on clear boundaries that indicate end of case name
+                        if word.lower() in ['at', 'page', 'pp.', 'para.', 'paragraph', 'section', 'sec.', '§', 
+                                           'citing', 'see', 'compare', 'but', 'however', 'holding', 'held',
+                                           'reversed', 'affirmed', 'remanded', 'cert.', 'denied', 'granted']:
+                            break  # Clear boundary - we've moved past the case name
+                        
+                        # Stop if we hit a number (likely a citation or page number)
+                        if word.isdigit() or (len(word) > 0 and word[0].isdigit()):
+                            break
+                        
+                        # Stop if we hit parentheses (likely a year or citation)
+                        if word.startswith('(') or word.endswith(')'):
+                            break
+                        
+                        # Otherwise, collect the word if it has at least 2 characters
+                        # This is MUCH less restrictive than before - prevents truncation
+                        if word and len(word) >= 2:
                             clean_words.append(word)
-                        # FIXED: Only break on clearly invalid patterns, not just non-matching words
-                        elif word.lower() in ['at', 'page', 'pp.', 'para.', 'section', 'sec.', '§']:
-                            break  # These indicate we've moved past the case name
+                        # Single character words only if they're meaningful
+                        elif word and len(word) == 1 and word.upper() in ['A', 'I']:
+                            clean_words.append(word)
                 
                 return ' '.join(clean_words) if clean_words else text_part
             
@@ -1268,7 +1347,8 @@ def extract_case_name_and_date_master(
     citation_end: Optional[int] = None,
     debug: bool = False,
     context_window: Optional[int] = None,
-    all_citations: Optional[List] = None
+    all_citations: Optional[List] = None,
+    document_primary_case_name: Optional[str] = None  # P3 FIX: Add contamination filter parameter
 ) -> Dict[str, Any]:
     """
     DEPRECATED: Use extract_case_name_and_date_unified_master() instead.
@@ -1293,7 +1373,8 @@ def extract_case_name_and_date_master(
         citation=citation,
         start_index=citation_start,
         end_index=citation_end,
-        debug=debug
+        debug=debug,
+        document_primary_case_name=document_primary_case_name  # P3 FIX: Pass contamination filter
     )
 
 def _classify_citation_context(context_text: str, citation_position: int, citation: str) -> str:

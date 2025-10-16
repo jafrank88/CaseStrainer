@@ -2099,6 +2099,17 @@ class UnifiedClusteringMaster:
                             # Don't change verified status - keep it False
                         logger.info(f"✅ Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
             
+            # CRITICAL FIX: Extract cluster-level canonical data from verified citations
+            cluster_canonical_name = None
+            cluster_canonical_date = None
+            cluster_verification_source = None
+            
+            # Find first verified citation with canonical data
+            if best_verified:
+                cluster_canonical_name = getattr(best_verified, 'canonical_name', None)
+                cluster_canonical_date = getattr(best_verified, 'canonical_date', None)
+                cluster_verification_source = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
+            
             formatted_cluster = {
                 'cluster_id': cluster_id,
                 'cluster_case_name': best_name or 'N/A',
@@ -2106,8 +2117,10 @@ class UnifiedClusteringMaster:
                 'cluster_size': cluster.get('size', 0),
                 'citations': citations,
                 'confidence': cluster.get('confidence', 0.0),
-                'verification_status': cluster.get('verification_status', 'not_verified'),
-                'verification_source': cluster.get('verification_source', None),
+                'verification_status': 'verified' if best_verified else 'not_verified',
+                'verification_source': cluster_verification_source,
+                'canonical_name': cluster_canonical_name,
+                'canonical_date': cluster_canonical_date,
                 'metadata': cluster.get('metadata', {}),
                 'cluster_members': []
             }
