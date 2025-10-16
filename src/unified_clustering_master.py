@@ -267,6 +267,8 @@ class UnifiedClusteringMaster:
         if self.document_primary_case_name:
             logger.warning(f"[CONTAMINATION-FILTER] Document primary case detected: '{self.document_primary_case_name}'")
         
+        # CRITICAL: Use ERROR level to ensure this appears in logs
+        logger.error(f"🎯 [CLUSTER-ENTRY] Starting clustering: {len(citations)} citations, verification={enable_verification}")
         logger.info(f"🎯 MASTER_CLUSTER: Starting clustering for {len(citations)} citations (verification: {enable_verification})")
         
         if not citations:
