@@ -842,10 +842,16 @@ class UnifiedCaseNameExtractorV2:
             r',\s*\d+\s+[A-Z][a-z]*\.?\s*\d+d?\s+\d+.*$',  # ", 123 F.3d 456" etc
             r',\s*\[\d+\s+U\.S\..*$',  # ", [21 U.S." etc
             
+            # FIX: Procedural phrases that are NOT case names
+            r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)\s+(and|or)\s+(vacated|remanded|reversed|affirmed|dismissed|granted|denied).*$',
+            r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)(\s+in\s+part)?(\s+and\s+\w+)?$',
+            
             # Signal words at START of name (Id., For example, etc.)
-            r'^Id\.\s*',  # "Id." at start
+            r'^Id\.\s*(For\s+example,?\s*)?(in\s+)?',  # "Id." optionally followed by "For example, in"
             r'^For\s+example,?\s+(in\s+)?',  # "For example, in"
             r'^See\s+(also,?)?\s*',  # "See" or "See also"
+            r'^E\.g\.,?\s*',  # "E.g." at start
+            r'^Cf\.\s*',  # "Cf." at start
             
             # Legal analysis phrases
             r'\b(de\s+novo)\b', r'\b(questions?\s+of\s+law)\b', r'\b(statutory\s+interpretation)\b',
@@ -883,6 +889,15 @@ class UnifiedCaseNameExtractorV2:
         
         plaintiff = re.sub(r'\s+', ' ', plaintiff).strip()
         defendant = re.sub(r'\s+', ' ', defendant).strip()
+        
+        # FIX: Reject if either party is empty or purely punctuation after cleaning
+        if not plaintiff or not defendant or len(plaintiff) < 2 or len(defendant) < 2:
+            return ""
+        
+        # FIX: Reject if result is purely procedural/signal words (what's left after cleaning)
+        procedural_only = r'^(and|or|the|in|of|at|by|for|to|from)$'
+        if re.match(procedural_only, plaintiff, re.IGNORECASE) or re.match(procedural_only, defendant, re.IGNORECASE):
+            return ""
         
         plaintiff = self._extract_last_case_name_part(plaintiff)
         defendant = self._extract_last_case_name_part(defendant)
@@ -1104,6 +1119,17 @@ def extract_case_name_and_date_unified(
             defendant = match.group(2).strip()
             
             contamination_phrases = [
+                # FIX: Procedural phrases that are NOT case names
+                r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)\s+(and|or)\s+(vacated|remanded|reversed|affirmed|dismissed|granted|denied).*$',
+                r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)(\s+in\s+part)?(\s+and\s+\w+)?$',
+                
+                # Signal words at START
+                r'^Id\.\s*(For\s+example,?\s*)?(in\s+)?',
+                r'^For\s+example,?\s+(in\s+)?',
+                r'^See\s+(also,?)?\s*',
+                r'^E\.g\.,?\s*',
+                r'^Cf\.\s*',
+                
                 r'\b(de\s+novo)\b', r'\b(questions?\s+of\s+law)\b', r'\b(statutory\s+interpretation)\b',
                 r'\b(in\s+light\s+of)\b', r'\b(the\s+record\s+certified)\b', r'\b(federal\s+court)\b',
                 r'\b(this\s+court\s+reviews?)\b', r'\b(we\s+review)\b', r'\b(certified\s+questions?)\b',
@@ -1120,6 +1146,10 @@ def extract_case_name_and_date_unified(
             
             plaintiff = re.sub(r'\s+', ' ', plaintiff).strip()
             defendant = re.sub(r'\s+', ' ', defendant).strip()
+            
+            # FIX: Reject if either party is empty after cleaning
+            if not plaintiff or not defendant or len(plaintiff) < 2 or len(defendant) < 2:
+                return "N/A"
             
             def extract_case_name_part(text_part, is_plaintiff=True):
                 """Extract clean case name from potentially contaminated text - FIXED to prevent truncation"""
