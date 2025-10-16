@@ -2469,3 +2469,1093 @@ STILLAGUAMI...
 2025-10-16 20:11:35 - src.app_final_vue - INFO - [RESPONSE #80] GET vue_api.health_check -> 200 (449 chars)
 2025-10-16 20:12:05 - src.app_final_vue - INFO - [RESPONSE #81] GET vue_api.health_check -> 200 (449 chars)
 2025-10-16 20:12:35 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
+2025-10-16 20:12:37 - root - INFO - Configured case_name_extraction logger to level: INFO (20)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - === Logging Configuration ===
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Python version: 3.10.19 (main, Oct  9 2025, 22:46:17) [GCC 14.2.0]
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Working directory: /app
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Configuration loaded successfully
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Creating new Flask application instance
+2025-10-16 20:12:37 - src.app_final_vue - INFO - 🔍 Starting memory monitoring...
+2025-10-16 20:12:37 - src.memory_monitor - INFO - Memory monitoring started (threshold: 1024MB, interval: 60s)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - ✅ Memory monitoring started
+2025-10-16 20:12:37 - src.app_final_vue - INFO - === STARTING BLUEPRINT REGISTRATION ===
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Current working directory: /app
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-16 20:12:37 - src.api.blueprints - INFO - === REGISTERING BLUEPRINTS ===
+2025-10-16 20:12:37 - src.api.blueprints - INFO - Current working directory: /app
+2025-10-16 20:12:37 - src.api.blueprints - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-16 20:12:37 - src.api.blueprints - INFO - Attempting to import Vue API blueprint...
+2025-10-16 20:12:37 - root - WARNING - [DEBUG] sys.executable: /usr/local/bin/python3.10
+2025-10-16 20:12:37 - root - WARNING - [DEBUG] sys.path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-16 20:12:37 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:12:37 - src.api.blueprints - INFO - ✅ Successfully imported Vue API blueprint from UPDATED endpoints (production version)
+2025-10-16 20:12:37 - src.api.blueprints - INFO - Blueprint details: <Blueprint 'vue_api'>
+2025-10-16 20:12:37 - src.api.blueprints - INFO - - Name: vue_api
+2025-10-16 20:12:37 - src.api.blueprints - INFO - - Import Name: src.vue_api_endpoints_updated
+2025-10-16 20:12:37 - src.api.blueprints - INFO - Registering Vue API blueprint...
+2025-10-16 20:12:37 - src.api.blueprints - INFO - ✅ Vue API blueprint registered successfully
+2025-10-16 20:12:37 - src.api.blueprints - INFO - 
+=== CURRENTLY REGISTERED BLUEPRINTS ===
+2025-10-16 20:12:37 - src.api.blueprints - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-10-16 20:12:37 - src.api.blueprints - INFO -   - URL Prefix: None
+2025-10-16 20:12:37 - src.api.blueprints - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-10-16 20:12:37 - src.app_final_vue - INFO - ✅ Successfully registered all blueprints
+2025-10-16 20:12:37 - src.app_final_vue - INFO - ✅ Vue API blueprint registered successfully
+2025-10-16 20:12:37 - src.app_final_vue - INFO - === REGISTERED BLUEPRINTS ===
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-10-16 20:12:37 - src.app_final_vue - INFO -   - URL Prefix: None
+2025-10-16 20:12:37 - src.app_final_vue - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-10-16 20:12:37 - src.app_final_vue - INFO - 
+=== REGISTERED ROUTES ===
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - static: /casestrainer/<path:filename> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.analyze: /casestrainer/api/analyze (OPTIONS, POST)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.progress_stream: /casestrainer/api/analyze/progress-stream/<request_id> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.verification_results: /casestrainer/api/analyze/verification-results/<request_id> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.verification_status: /casestrainer/api/analyze/verification-status/<request_id> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.verification_stream: /casestrainer/api/analyze/verification-stream/<request_id> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.health_check_alias: /casestrainer/api/casestrainer/api/health (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.db_stats: /casestrainer/api/db_stats (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.processing_progress: /casestrainer/api/processing_progress (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - - vue_api.task_status: /casestrainer/api/task_status/<task_id> (GET, OPTIONS, HEAD)
+2025-10-16 20:12:37 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu', 'http://localhost:5000', 'http://localhost:8080']
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Upload directory ready: /app/uploads
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Secure upload directory setup completed: /app/uploads
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Application routes registered
+2025-10-16 20:12:37 - src.app_final_vue - INFO - === REGISTERED ROUTES ===
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/<path:filename> -> Endpoint: static
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/health -> Endpoint: vue_api.health_check
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health -> vue_api.health_check (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/casestrainer/api/health -> Endpoint: vue_api.health_check_alias
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/casestrainer/api/health -> vue_api.health_check_alias (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/db_stats -> Endpoint: vue_api.db_stats
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/db_stats -> vue_api.db_stats (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: vue_api.analyze
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> vue_api.analyze (methods: {'OPTIONS', 'POST'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/task_status/<task_id> -> Endpoint: vue_api.task_status
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/task_status/<task_id> -> vue_api.task_status (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/processing_progress -> Endpoint: vue_api.processing_progress
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/processing_progress -> vue_api.processing_progress (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<request_id> -> Endpoint: vue_api.progress_stream
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<request_id> -> vue_api.progress_stream (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-stream/<request_id> -> Endpoint: vue_api.verification_stream
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-stream/<request_id> -> vue_api.verification_stream (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-status/<request_id> -> Endpoint: vue_api.verification_status
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-status/<request_id> -> vue_api.verification_status (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-results/<request_id> -> Endpoint: vue_api.verification_results
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-results/<request_id> -> vue_api.verification_results (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/ -> Endpoint: serve_vue_app
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/<path:path> -> Endpoint: serve_vue_app
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /test -> Endpoint: test
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/routes -> Endpoint: list_routes
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/routes -> list_routes (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/memory -> Endpoint: memory_status
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory -> memory_status (methods: {'GET', 'OPTIONS', 'HEAD'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Route: /casestrainer/api/memory/force-gc -> Endpoint: force_garbage_collection
+2025-10-16 20:12:37 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory/force-gc -> force_garbage_collection (methods: {'OPTIONS', 'POST'})
+2025-10-16 20:12:37 - src.app_final_vue - INFO - Flask application created successfully
+2025-10-16 20:12:37 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-10-16 20:12:41 - src.database_manager - INFO - Updated existing citations table schema
+2025-10-16 20:12:41 - src.database_manager - INFO - Database indexes created/verified
+2025-10-16 20:12:41 - src.database_manager - INFO - Database initialized with optimizations: /app/data/citations.db
+2025-10-16 20:12:41 - src.app_final_vue - INFO - [RESPONSE #1] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:13:11 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:13:41 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:14:12 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 3127b57d-1e51-4d1c-b3c9-a230292b38bd] ===
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request 3127b57d-1e51-4d1c-b3c9-a230292b38bd] Method: POST
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request 3127b57d-1e51-4d1c-b3c9-a230292b38bd] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request 3127b57d-1e51-4d1c-b3c9-a230292b38bd] Content-Type: application/json
+2025-10-16 20:14:35 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request debug-test-logging] Using client-provided request_id for progress tracking
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request debug-test-logging] Processing JSON input
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request debug-test-logging] Processing url input
+2025-10-16 20:14:35 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:14:35 - src.vue_api_endpoints_updated - INFO - [Request debug-test-logging] Using UnifiedInputProcessor for url input
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🚀 process_any_input CALLED!
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Processing url input
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Input data type: <class 'str'>
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Input data length: 50
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Source name: None, Force mode: None
+2025-10-16 20:14:35 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 📥 Calling _extract_text_from_input...
+2025-10-16 20:14:35 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Extracting text from URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:14:35 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Validating URL...
+2025-10-16 20:14:35 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] URL validation passed, fetching content...
+2025-10-16 20:14:35 - src.progress_manager - INFO - Fetching URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:14:35 - src.progress_manager - INFO - Response status: 200
+2025-10-16 20:14:35 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-16 20:14:35 - src.progress_manager - INFO - Trying PDF extraction with PyPDF2
+2025-10-16 20:14:40 - src.progress_manager - INFO - Successfully extracted 59707 characters using PyPDF2
+2025-10-16 20:14:40 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Content fetched, length: 59707
+2025-10-16 20:14:40 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Successfully extracted 59707 characters from URL
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] ✅ _extract_text_from_input returned: success=True
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🎬 _process_citations_unified CALLED!
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Processing citations from url
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Text length: 59707 characters
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Text preview: IN THE SUPREME CO
+URT OF THE STATE OF WASHINGTON 
+FLYING T RANCH, 
+INC., a Washington ) 
+corporation, ) 
+) 
+Petitioner,   ) 
+) 
+) 
+v. ) No. 103430-0 
+En Banc 
+Filed: October 9, 2 025   
+) 
+STILLAGUAMI...
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] Input metadata: {'input_type': 'url', 'url': 'https://www.courts.wa.gov/opinions/pdf/1034300.pdf', 'url_domain': 'www.courts.wa.gov', 'content_length': 59707, 'source': 'url_fetch'}
+2025-10-16 20:14:40 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Checking if should process immediately...
+2025-10-16 20:14:40 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-16 20:14:40 - src.api.services.citation_service - INFO - Text size 59707 bytes >= 5120 bytes - using ASYNC processing
+2025-10-16 20:14:40 - src.unified_input_processor - INFO - [Unified Processor debug-test-logging] Should process immediately: False
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 📝 Text length: 59707 chars
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 📋 Source: url, Input type from metadata: url
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] ✅ Imported RQ and Redis modules
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🔍 Trying 3 Redis configurations...
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 🎯 Creating queue 'casestrainer'...
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] ✅ Queue created successfully
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] 📤 About to enqueue job...
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging]    Function: src.progress_manager.process_citation_task_direct
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging]    Args: (debug-test-logging, 'text', {text: 59707 chars})
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging]    Job ID: debug-test-logging
+2025-10-16 20:14:40 - rq.queue - DEBUG - Pushed job debug-test-logging into casestrainer
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging] ✅ Task enqueued successfully!
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging]    Job ID: debug-test-logging
+2025-10-16 20:14:40 - src.unified_input_processor - ERROR - [Unified Processor debug-test-logging]    Job status: queued
+2025-10-16 20:14:40 - src.vue_api_endpoints_updated - INFO - [Request debug-test-logging] Request completed successfully in 4873ms
+2025-10-16 20:14:40 - src.app_final_vue - INFO - [RESPONSE #5] POST vue_api.analyze -> 200 (1485 chars)
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:41 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:41 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:42 - src.app_final_vue - INFO - [RESPONSE #7] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:42 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:42 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:42 - src.app_final_vue - INFO - [RESPONSE #8] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:43 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:43 - src.app_final_vue - INFO - [RESPONSE #9] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:44 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:44 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:44 - src.app_final_vue - INFO - [RESPONSE #10] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:45 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:45 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:46 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:46 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:46 - src.app_final_vue - INFO - [RESPONSE #12] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:48 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:48 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:48 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:49 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:49 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:50 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:50 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:50 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:51 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:51 - src.app_final_vue - INFO - [RESPONSE #16] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:52 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:52 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:52 - src.app_final_vue - INFO - [RESPONSE #17] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:53 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:53 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:53 - src.app_final_vue - INFO - [RESPONSE #18] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:54 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:54 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:54 - src.app_final_vue - INFO - [RESPONSE #19] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:55 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:55 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:55 - src.app_final_vue - INFO - [RESPONSE #20] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:56 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:56 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:56 - src.app_final_vue - INFO - [RESPONSE #21] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:57 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:57 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:57 - src.app_final_vue - INFO - [RESPONSE #22] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:58 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:58 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:58 - src.app_final_vue - INFO - [RESPONSE #23] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:14:59 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:14:59 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:14:59 - src.app_final_vue - INFO - [RESPONSE #24] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:00 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:00 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:00 - src.app_final_vue - INFO - [RESPONSE #25] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:01 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:01 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:01 - src.app_final_vue - INFO - [RESPONSE #26] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:02 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:02 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:03 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:03 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:03 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:03 - src.app_final_vue - INFO - [RESPONSE #27] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:04 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:04 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:04 - src.app_final_vue - INFO - [RESPONSE #28] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:05 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:05 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:05 - src.app_final_vue - INFO - [RESPONSE #29] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:06 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:06 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:06 - src.app_final_vue - INFO - [RESPONSE #30] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:07 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:07 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:07 - src.app_final_vue - INFO - [RESPONSE #31] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:08 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:08 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:08 - src.app_final_vue - INFO - [RESPONSE #32] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:09 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:09 - src.app_final_vue - INFO - [RESPONSE #33] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:10 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:10 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:10 - src.app_final_vue - INFO - [RESPONSE #34] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:11 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:11 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:11 - src.app_final_vue - INFO - [RESPONSE #35] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:12 - src.app_final_vue - INFO - [RESPONSE #36] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:12 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:12 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:12 - src.app_final_vue - INFO - [RESPONSE #37] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:13 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:13 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:13 - src.app_final_vue - INFO - [RESPONSE #38] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:14 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:14 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:14 - src.app_final_vue - INFO - [RESPONSE #39] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:15 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:15 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:15 - src.app_final_vue - INFO - [RESPONSE #40] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:16 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:16 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:16 - src.app_final_vue - INFO - [RESPONSE #41] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:17 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:17 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:17 - src.app_final_vue - INFO - [RESPONSE #42] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:19 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:19 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:19 - src.app_final_vue - INFO - [RESPONSE #43] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:20 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:20 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:20 - src.app_final_vue - INFO - [RESPONSE #44] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:21 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:21 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:21 - src.app_final_vue - INFO - [RESPONSE #45] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:22 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:22 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:22 - src.app_final_vue - INFO - [RESPONSE #46] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:23 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:23 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:23 - src.app_final_vue - INFO - [RESPONSE #47] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:24 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:24 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:24 - src.app_final_vue - INFO - [RESPONSE #48] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:25 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: started
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: False
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: True
+2025-10-16 20:15:25 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:25 - src.app_final_vue - INFO - [RESPONSE #49] GET vue_api.task_status -> 200 (145 chars)
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:15:26 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: finished
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: True
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: False
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result type: <class 'dict'>
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging citations count: 0
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging clusters count: 0
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging success: True
+2025-10-16 20:15:26 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: completed
+2025-10-16 20:15:26 - src.app_final_vue - INFO - [RESPONSE #50] GET vue_api.task_status -> 200 (192886 chars)
+2025-10-16 20:15:42 - src.app_final_vue - INFO - [RESPONSE #51] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:16:12 - src.app_final_vue - INFO - [RESPONSE #52] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 1822f62e-5749-40c9-9167-04e7ed1f9dc5] ===
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request 1822f62e-5749-40c9-9167-04e7ed1f9dc5] Method: POST
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request 1822f62e-5749-40c9-9167-04e7ed1f9dc5] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request 1822f62e-5749-40c9-9167-04e7ed1f9dc5] Content-Type: application/json
+2025-10-16 20:16:20 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request client-1760645780544-8s4ebsqxh] Using client-provided request_id for progress tracking
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request client-1760645780544-8s4ebsqxh] Processing JSON input
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request client-1760645780544-8s4ebsqxh] Processing url input
+2025-10-16 20:16:20 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:16:20 - src.vue_api_endpoints_updated - INFO - [Request client-1760645780544-8s4ebsqxh] Using UnifiedInputProcessor for url input
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🚀 process_any_input CALLED!
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Processing url input
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Input data type: <class 'str'>
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Input data length: 50
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Source name: None, Force mode: None
+2025-10-16 20:16:20 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 📥 Calling _extract_text_from_input...
+2025-10-16 20:16:20 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Extracting text from URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:16:20 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Validating URL...
+2025-10-16 20:16:20 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] URL validation passed, fetching content...
+2025-10-16 20:16:20 - src.progress_manager - INFO - Fetching URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:16:20 - src.progress_manager - INFO - Response status: 200
+2025-10-16 20:16:20 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-16 20:16:20 - src.progress_manager - INFO - Trying PDF extraction with PyPDF2
+2025-10-16 20:16:22 - src.app_final_vue - INFO - [RESPONSE #53] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:23 - src.progress_manager - INFO - Successfully extracted 59707 characters using PyPDF2
+2025-10-16 20:16:23 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Content fetched, length: 59707
+2025-10-16 20:16:23 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Successfully extracted 59707 characters from URL
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] ✅ _extract_text_from_input returned: success=True
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🎬 _process_citations_unified CALLED!
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Processing citations from url
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Text length: 59707 characters
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Text preview: IN THE SUPREME CO
+URT OF THE STATE OF WASHINGTON 
+FLYING T RANCH, 
+INC., a Washington ) 
+corporation, ) 
+) 
+Petitioner,   ) 
+) 
+) 
+v. ) No. 103430-0 
+En Banc 
+Filed: October 9, 2 025   
+) 
+STILLAGUAMI...
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] Input metadata: {'input_type': 'url', 'url': 'https://www.courts.wa.gov/opinions/pdf/1034300.pdf', 'url_domain': 'www.courts.wa.gov', 'content_length': 59707, 'source': 'url_fetch'}
+2025-10-16 20:16:23 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Checking if should process immediately...
+2025-10-16 20:16:23 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-16 20:16:23 - src.api.services.citation_service - INFO - Text size 59707 bytes >= 5120 bytes - using ASYNC processing
+2025-10-16 20:16:23 - src.unified_input_processor - INFO - [Unified Processor client-1760645780544-8s4ebsqxh] Should process immediately: False
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 📝 Text length: 59707 chars
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 📋 Source: url, Input type from metadata: url
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] ✅ Imported RQ and Redis modules
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🔍 Trying 3 Redis configurations...
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 🎯 Creating queue 'casestrainer'...
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] ✅ Queue created successfully
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] 📤 About to enqueue job...
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh]    Function: src.progress_manager.process_citation_task_direct
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh]    Args: (client-1760645780544-8s4ebsqxh, 'text', {text: 59707 chars})
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh]    Job ID: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:23 - rq.queue - DEBUG - Pushed job client-1760645780544-8s4ebsqxh into casestrainer
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh] ✅ Task enqueued successfully!
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh]    Job ID: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:23 - src.unified_input_processor - ERROR - [Unified Processor client-1760645780544-8s4ebsqxh]    Job status: queued
+2025-10-16 20:16:23 - src.app_final_vue - INFO - [RESPONSE #54] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - [Request client-1760645780544-8s4ebsqxh] Request completed successfully in 3136ms
+2025-10-16 20:16:23 - src.app_final_vue - INFO - [RESPONSE #55] POST vue_api.analyze -> 200 (1532 chars)
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:23 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:23 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:23 - src.app_final_vue - INFO - [RESPONSE #56] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:23 - src.app_final_vue - INFO - [RESPONSE #57] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:25 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:25 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:25 - src.app_final_vue - INFO - [RESPONSE #58] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:25 - src.app_final_vue - INFO - [RESPONSE #59] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:27 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:27 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:27 - src.app_final_vue - INFO - [RESPONSE #60] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:27 - src.app_final_vue - INFO - [RESPONSE #61] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:29 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:29 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:29 - src.app_final_vue - INFO - [RESPONSE #62] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:29 - src.app_final_vue - INFO - [RESPONSE #63] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:31 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:31 - src.app_final_vue - INFO - [RESPONSE #64] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:31 - src.app_final_vue - INFO - [RESPONSE #65] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:33 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:33 - src.app_final_vue - INFO - [RESPONSE #66] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:33 - src.app_final_vue - INFO - [RESPONSE #67] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:35 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:35 - src.app_final_vue - INFO - [RESPONSE #68] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:35 - src.app_final_vue - INFO - [RESPONSE #69] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:37 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:37 - src.app_final_vue - INFO - [RESPONSE #70] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:37 - src.app_final_vue - INFO - [RESPONSE #71] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:39 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:39 - src.app_final_vue - INFO - [RESPONSE #72] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:39 - src.app_final_vue - INFO - [RESPONSE #73] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:41 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:41 - src.app_final_vue - INFO - [RESPONSE #74] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:41 - src.app_final_vue - INFO - [RESPONSE #75] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:42 - src.app_final_vue - INFO - [RESPONSE #76] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:43 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:43 - src.app_final_vue - INFO - [RESPONSE #77] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:43 - src.app_final_vue - INFO - [RESPONSE #78] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:45 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:45 - src.app_final_vue - INFO - [RESPONSE #79] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:45 - src.app_final_vue - INFO - [RESPONSE #80] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:47 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:47 - src.app_final_vue - INFO - [RESPONSE #81] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:47 - src.app_final_vue - INFO - [RESPONSE #82] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:49 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:49 - src.app_final_vue - INFO - [RESPONSE #83] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:49 - src.app_final_vue - INFO - [RESPONSE #84] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:51 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:51 - src.app_final_vue - INFO - [RESPONSE #85] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:51 - src.app_final_vue - INFO - [RESPONSE #86] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:53 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:53 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:53 - src.app_final_vue - INFO - [RESPONSE #87] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:53 - src.app_final_vue - INFO - [RESPONSE #88] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:55 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:55 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:55 - src.app_final_vue - INFO - [RESPONSE #89] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:55 - src.app_final_vue - INFO - [RESPONSE #90] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:57 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:57 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:57 - src.app_final_vue - INFO - [RESPONSE #91] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:57 - src.app_final_vue - INFO - [RESPONSE #92] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:16:59 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:16:59 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:16:59 - src.app_final_vue - INFO - [RESPONSE #93] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:16:59 - src.app_final_vue - INFO - [RESPONSE #94] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:17:01 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: started
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: False
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: True
+2025-10-16 20:17:01 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:17:01 - src.app_final_vue - INFO - [RESPONSE #95] GET vue_api.task_status -> 200 (157 chars)
+2025-10-16 20:17:01 - src.app_final_vue - INFO - [RESPONSE #96] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760645780544-8s4ebsqxh
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:17:03 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: finished
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh meta: {}
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_finished: True
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_failed: False
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_started: False
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh is_queued: False
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh result type: <class 'dict'>
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh citations count: 0
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh clusters count: 0
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh success: True
+2025-10-16 20:17:03 - src.vue_api_endpoints_updated - INFO - Job client-1760645780544-8s4ebsqxh status: completed
+2025-10-16 20:17:03 - src.app_final_vue - INFO - [RESPONSE #97] GET vue_api.task_status -> 200 (192898 chars)
+2025-10-16 20:17:13 - src.app_final_vue - INFO - [RESPONSE #98] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:17:43 - src.app_final_vue - INFO - [RESPONSE #99] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:18:13 - src.app_final_vue - INFO - [RESPONSE #100] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:18:43 - src.app_final_vue - INFO - [RESPONSE #101] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:19:13 - src.app_final_vue - INFO - [RESPONSE #102] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:19:43 - src.app_final_vue - INFO - [RESPONSE #103] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:20:13 - src.app_final_vue - INFO - [RESPONSE #104] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:20:27 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:20:27 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:20:27 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:20:28 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: finished
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: True
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: False
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result type: <class 'dict'>
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging citations count: 0
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging clusters count: 0
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging success: True
+2025-10-16 20:20:28 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: completed
+2025-10-16 20:20:28 - src.app_final_vue - INFO - [RESPONSE #105] GET vue_api.task_status -> 200 (192886 chars)
+2025-10-16 20:20:44 - src.app_final_vue - INFO - [RESPONSE #106] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: debug-test-logging
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:21:09 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: finished
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging meta: {}
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_finished: True
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_failed: False
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_started: False
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging is_queued: False
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result type: <class 'dict'>
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging citations count: 0
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging clusters count: 0
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging success: True
+2025-10-16 20:21:09 - src.vue_api_endpoints_updated - INFO - Job debug-test-logging status: completed
+2025-10-16 20:21:09 - src.app_final_vue - INFO - [RESPONSE #107] GET vue_api.task_status -> 200 (192886 chars)
+2025-10-16 20:21:14 - src.app_final_vue - INFO - [RESPONSE #108] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:21:37 - src.memory_monitor - INFO - Memory usage: 67.3MB (0.4%)
+2025-10-16 20:21:44 - src.app_final_vue - INFO - [RESPONSE #109] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:22:14 - src.app_final_vue - INFO - [RESPONSE #110] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:22:44 - src.app_final_vue - INFO - [RESPONSE #111] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:23:14 - src.app_final_vue - INFO - [RESPONSE #112] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:23:45 - src.app_final_vue - INFO - [RESPONSE #113] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:24:15 - src.app_final_vue - INFO - [RESPONSE #114] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:24:45 - src.app_final_vue - INFO - [RESPONSE #115] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:25:15 - src.app_final_vue - INFO - [RESPONSE #116] GET vue_api.health_check -> 200 (449 chars)

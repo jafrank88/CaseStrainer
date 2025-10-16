@@ -30,3 +30,439 @@
 2025-10-16 19:48:32,781 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-10-16 19:58:26,261 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-10-16 20:12:36,905 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 13:34:12,150 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to d:\dev/casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 13:34:12,812 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-10-16 13:34:12,871 - src.unified_citation_processor_v2 - WARNING - Comprehensive websearch engine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-16 13:34:12,897 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-10-16 13:34:12,911 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-10-16 13:34:12,911 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported (unified_clustering_master)
+2025-10-16 13:34:12,927 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'if' statement on line 486 (citation_clustering.py, line 487)
+2025-10-16 13:34:12,941 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'if' statement on line 498 (canonical_case_name_service.py, line 499)
+2025-10-16 13:34:12,942 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-10-16 13:34:12,942 - src.unified_citation_processor_v2 - WARNING - [CONFIG-CHECK] extract_case_names=True, extract_dates=True
+2025-10-16 13:34:12,956 - src.unified_citation_processor_v2 - WARNING - ComprehensiveWebSearchEngine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-16 13:34:12,956 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-10-16 13:34:12,957 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:34:12,958 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-10-16 13:34:12,962 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-16 13:34:12,963 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:12,964 - src.unified_citation_processor_v2 - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:12,964 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting CLEAN extraction pipeline for 100% accuracy
+2025-10-16 13:34:13,014 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Using shared citation patterns from citation_patterns.py
+2025-10-16 13:34:13,014 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Starting clean extraction pipeline for 79 chars
+2025-10-16 13:34:13,014 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] EYECITE_AVAILABLE = True
+2025-10-16 13:34:13,014 - src.clean_extraction_pipeline - INFO - [EYECITE] Starting eyecite extraction for 79 chars
+2025-10-16 13:34:13,059 - src.clean_extraction_pipeline - INFO - [EYECITE] Eyecite found 1 raw citations
+2025-10-16 13:34:13,059 - src.clean_extraction_pipeline - INFO - [EYECITE-META] Raw from eyecite: Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007
+2025-10-16 13:34:13,064 - src.clean_extraction_pipeline - INFO - [EYECITE-META] After cleaning: Hamaatsa, Inc. v. Pueblo of San Felipe
+2025-10-16 13:34:13,064 - src.clean_extraction_pipeline - DEBUG - [EYECITE-META] Extracted year: 2016
+2025-10-16 13:34:13,064 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Eyecite found 1 citations
+2025-10-16 13:34:13,065 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Regex found 2 citations
+2025-10-16 13:34:13,065 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 1: Found 2 total citations
+2025-10-16 13:34:13,065 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 2: 2 after deduplication
+2025-10-16 13:34:13,065 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extracting case names for 2 citations
+2025-10-16 13:34:13,065 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Keeping eyecite name for 388 P.3d 977: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,065 - src.utils.unified_case_name_extractor - INFO - [UNIFIED-EXTRACT] Starting strict extraction for 2017-NM-007 at pos 41-52
+2025-10-16 13:34:13,066 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Found 2 citation positions
+2025-10-16 13:34:13,066 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Found 2 total citation positions in document
+2025-10-16 13:34:13,066 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Citation at 41-52: context from 1 to 41 (39 chars)
+2025-10-16 13:34:13,066 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Isolated context for 2017-NM-007: 39 chars
+2025-10-16 13:34:13,072 - src.utils.strict_context_isolator - INFO - [STRICT-EXTRACT] Extracted 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007 using pattern 1
+2025-10-16 13:34:13,213 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extraction complete: 2 with names (1 from eyecite), 0 failed
+2025-10-16 13:34:13,213 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 3: Case names extracted for all citations
+2025-10-16 13:34:13,214 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Found (YYYY) after: 2016
+2025-10-16 13:34:13,214 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 4: Dates extracted for all citations
+2025-10-16 13:34:13,214 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Pipeline complete: 2 citations
+2025-10-16 13:34:13,214 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Clean pipeline extracted 2 citations with 100% accuracy
+2025-10-16 13:34:13,214 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 2 citations extracted
+2025-10-16 13:34:13,290 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 13:34:13,842 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 13:34:13,884 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 13:34:13,885 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '388 P.3d 977', Start: 54, Text len: 79
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '7-NM-007, '
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '388 P.3d 977, 985 (2016)
+'
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 52 (citation at 54)
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 52 chars
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007'
+2025-10-16 13:34:13,896 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 51 chars
+2025-10-16 13:34:13,900 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 13:34:13,901 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007'
+2025-10-16 13:34:13,901 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 54
+2025-10-16 13:34:13,909 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,909 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,909 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,909 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,910 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:13,919 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,924 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,925 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,925 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,925 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,925 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:13,933 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,935 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,936 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,936 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,936 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,936 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:13,944 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,946 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,946 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,946 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,946 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,946 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:13,955 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,957 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,957 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,957 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,957 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,957 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:13,966 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,974 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 54
+2025-10-16 13:34:13,981 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 79
+2025-10-16 13:34:13,982 - src.unified_citation_processor_v2 - DEBUG - [EXTRACT-M1] Master: 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 388 P.3d 977
+2025-10-16 13:34:13,983 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 388 P.3d 977
+2025-10-16 13:34:13,983 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '2017-NM-007', Start: 41, Text len: 79
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'n Felipe, '
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '2017-NM-007, 388 P.3d 977, 985 (2016)
+'
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 39 (citation at 41)
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 39 chars
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,992 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 38 chars
+2025-10-16 13:34:13,993 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,993 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,994 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,994 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:13,994 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:13,994 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:13,994 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:14,004 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,004 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,004 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 2 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,005 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:14,014 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,014 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,014 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,015 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:34:14,024 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 41
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 41
+2025-10-16 13:34:14,025 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 79
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - DEBUG - [EXTRACT-M1] Master: 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 2 citations for parallel relationships
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found parallel group: ['388 P.3d 977', '2017-NM-007']
+2025-10-16 13:34:14,026 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 1 parallel groups
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 2 citations
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 2 citations
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 2 citations
+2025-10-16 13:34:14,027 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-10-16 13:34:14,034 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 2 citations
+2025-10-16 13:34:14,041 - src.unified_citation_processor_v2 - ERROR -    enable_verification: True
+2025-10-16 13:34:14,041 - src.unified_citation_processor_v2 - ERROR -    citations count: 2
+2025-10-16 13:34:14,041 - src.unified_citation_processor_v2 - ERROR -    Will verification run: [CitationResult(citation='388 P.3d 977', extracted_case_name='Hamaatsa, Inc. v. Pueblo of San Felipe', extracted_date='2016', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.9, method='clean_pipeline_v1', pattern='', context='', start_index=54, end_index=66, is_parallel=True, is_cluster=False, parallel_citations=['2017-NM-007'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'eyecite', 'type': 'FullCaseCitation', 'eyecite_extracted': True}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None), CitationResult(citation='2017-NM-007', extracted_case_name='Hamaatsa, Inc. v. Pueblo of San Felipe', extracted_date='2016', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.8, method='clean_pipeline_v1', pattern='', context='', start_index=41, end_index=52, is_parallel=True, is_cluster=False, parallel_citations=['388 P.3d 977'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'regex', 'pattern': 'neutral_nm'}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None)]
+2025-10-16 13:34:14,042 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.75: Verifying citations BEFORE clustering (CRITICAL)
+2025-10-16 13:34:14,197 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Using BATCH VERIFICATION (50 citations per API call)
+2025-10-16 13:34:14,217 - src.unified_citation_processor_v2 - INFO - [BATCH-VERIFY] Completed all batches
+2025-10-16 13:34:14,218 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After pre-clustering verification: 2 citations
+2025-10-16 13:34:14,218 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system
+2025-10-16 13:34:14,219 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-16 13:34:14,219 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:14,219 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:34:14,241 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 1 - Detecting parallel citations
+2025-10-16 13:34:14,288 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 parallel groups
+2025-10-16 13:34:14,308 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 2 - Extracting and propagating metadata
+2025-10-16 13:34:14,328 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Enhanced 2 citations
+2025-10-16 13:34:14,328 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 3 - Creating final clusters
+2025-10-16 13:34:14,328 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 final clusters
+2025-10-16 13:34:14,328 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4 - Applying verification
+2025-10-16 13:34:14,351 - src.unified_verification_master - INFO - UnifiedVerificationMaster initialized - API key loaded (length: 40)
+2025-10-16 13:34:14,352 - src.unified_verification_master - INFO - All duplicate verifiers deprecated
+2025-10-16 13:34:14,352 - src.unified_verification_master - INFO - Max verification retries set to: 3
+2025-10-16 13:34:14,357 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:34:14,416 - src.unified_verification_master - INFO - Processing batch 1/1 (2 citations)
+2025-10-16 13:34:14,418 - src.unified_verification_master - INFO -  Normalized 2 citations for batch verification
+2025-10-16 13:34:14,418 - src.unified_verification_master - INFO -    Dash-separated citations normalized
+2025-10-16 13:34:14,418 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Sending 2 citations
+2025-10-16 13:34:14,418 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3: ['388 P.3d 977', '2017 NM 007']
+2025-10-16 13:34:14,418 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] API Key set: True
+2025-10-16 13:34:14,419 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Session has Auth header: True
+2025-10-16 13:34:14,419 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Auth header: Token 443a87912e4f44...
+2025-10-16 13:34:14,426 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-10-16 13:34:14,966 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 357
+2025-10-16 13:34:14,967 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Response status: 200
+2025-10-16 13:34:14,967 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Received 2 results
+2025-10-16 13:34:14,967 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3 returned: ['388 P.3d 977', '2017 NM 007']
+2025-10-16 13:34:14,968 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 388 P.3d 977: status=404, clusters=0
+2025-10-16 13:34:14,968 - src.unified_verification_master - ERROR - [BATCH-DEBUG] Citation '388 P.3d 977' returned 404 or no clusters: Citation not found: '388 P.3d 977'
+2025-10-16 13:34:14,968 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 2017-NM-007: status=404, clusters=0
+2025-10-16 13:34:14,968 - src.unified_verification_master - ERROR - [BATCH-DEBUG] Citation '2017-NM-007' returned 404 or no clusters: Citation not found: '2017 NM 007'
+2025-10-16 13:34:15,095 - src.enhanced_fallback_verifier - INFO - Running verification in thread pool for 388 P.3d 977 (within event loop)
+2025-10-16 13:34:15,096 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:34:15,157 - src.unified_verification_master - ERROR -    Payload: {'text': '388 P.3d 977'}
+2025-10-16 13:34:15,157 - src.unified_verification_master - ERROR -    Headers: Authorization=Token
+2025-10-16 13:34:15,593 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-10-16 13:34:15,615 - src.unified_verification_master - DEBUG - API returned 404 for '388 P.3d 977': Citation not found: '388 P.3d 977'
+2025-10-16 13:34:15,807 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=388+P.3d+977&type=o&format=json HTTP/1.1" 200 None
+2025-10-16 13:34:16,050 - src.enhanced_fallback_verifier - INFO - Running verification in thread pool for 2017-NM-007 (within event loop)
+2025-10-16 13:34:16,051 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:34:16,112 - src.unified_verification_master - ERROR -    Payload: {'text': '2017 NM 007'}
+2025-10-16 13:34:16,112 - src.unified_verification_master - ERROR -    Headers: Authorization=Token
+2025-10-16 13:34:16,633 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 177
+2025-10-16 13:34:16,651 - src.unified_verification_master - DEBUG - API returned 404 for '2017-NM-007': Citation not found: '2017 NM 007'
+2025-10-16 13:34:16,780 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=2017-NM-007&type=o&format=json HTTP/1.1" 200 None
+2025-10-16 13:34:16,855 - src.unified_clustering_master - ERROR - [BATCH-VERIFY-DEBUG] Verified: 0/2
+2025-10-16 13:34:16,855 - src.unified_clustering_master - ERROR -   - 388 P.3d 977: verified=False, source=Citation not found: '388 P.3d 977'
+2025-10-16 13:34:16,855 - src.unified_clustering_master - ERROR -   - 2017-NM-007: verified=False, source=Citation not found: '2017 NM 007'
+2025-10-16 13:34:16,906 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4.5 - Validating canonical consistency (Fix #22)
+2025-10-16 13:34:16,931 - src.unified_clustering_master - INFO - MASTER_CLUSTER: After canonical validation: 1 clusters
+2025-10-16 13:34:16,931 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5 - Merging and deduplicating
+2025-10-16 13:34:16,932 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Final result: 1 clusters
+2025-10-16 13:34:16,932 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5.5 - Validating cluster integrity
+2025-10-16 13:34:16,939 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Validated 1 clusters
+2025-10-16 13:34:16,969 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using MASTER clustering
+2025-10-16 13:34:16,969 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5.5: Updating citations with cluster information
+2025-10-16 13:34:16,969 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Updated 2 citations with cluster information
+2025-10-16 13:34:16,969 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verification already completed before clustering
+2025-10-16 13:34:16,969 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 7: Validating cluster consistency
+2025-10-16 13:34:16,970 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 2 final citations, 1 clusters
+2025-10-16 13:37:02,913 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to d:\dev/casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 13:37:03,482 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-10-16 13:37:03,543 - src.unified_citation_processor_v2 - WARNING - Comprehensive websearch engine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-16 13:37:03,546 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-10-16 13:37:03,554 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-10-16 13:37:03,555 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported (unified_clustering_master)
+2025-10-16 13:37:03,571 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'if' statement on line 486 (citation_clustering.py, line 487)
+2025-10-16 13:37:03,587 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'if' statement on line 498 (canonical_case_name_service.py, line 499)
+2025-10-16 13:37:03,588 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-10-16 13:37:03,588 - src.unified_citation_processor_v2 - WARNING - [CONFIG-CHECK] extract_case_names=True, extract_dates=True
+2025-10-16 13:37:03,603 - src.unified_citation_processor_v2 - WARNING - ComprehensiveWebSearchEngine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-16 13:37:03,603 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-10-16 13:37:03,604 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:37:03,605 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-10-16 13:37:03,610 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-16 13:37:03,611 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,611 - src.unified_citation_processor_v2 - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,611 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting CLEAN extraction pipeline for 100% accuracy
+2025-10-16 13:37:03,635 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Using shared citation patterns from citation_patterns.py
+2025-10-16 13:37:03,635 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Starting clean extraction pipeline for 79 chars
+2025-10-16 13:37:03,635 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] EYECITE_AVAILABLE = True
+2025-10-16 13:37:03,635 - src.clean_extraction_pipeline - INFO - [EYECITE] Starting eyecite extraction for 79 chars
+2025-10-16 13:37:03,684 - src.clean_extraction_pipeline - INFO - [EYECITE] Eyecite found 1 raw citations
+2025-10-16 13:37:03,684 - src.clean_extraction_pipeline - INFO - [EYECITE-META] Raw from eyecite: Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007
+2025-10-16 13:37:03,689 - src.clean_extraction_pipeline - INFO - [EYECITE-META] After cleaning: Hamaatsa, Inc. v. Pueblo of San Felipe
+2025-10-16 13:37:03,689 - src.clean_extraction_pipeline - DEBUG - [EYECITE-META] Extracted year: 2016
+2025-10-16 13:37:03,689 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Eyecite found 1 citations
+2025-10-16 13:37:03,690 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Regex found 2 citations
+2025-10-16 13:37:03,690 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 1: Found 2 total citations
+2025-10-16 13:37:03,690 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 2: 2 after deduplication
+2025-10-16 13:37:03,690 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extracting case names for 2 citations
+2025-10-16 13:37:03,690 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Keeping eyecite name for 388 P.3d 977: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,690 - src.utils.unified_case_name_extractor - INFO - [UNIFIED-EXTRACT] Starting strict extraction for 2017-NM-007 at pos 41-52
+2025-10-16 13:37:03,690 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Found 2 citation positions
+2025-10-16 13:37:03,691 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Found 2 total citation positions in document
+2025-10-16 13:37:03,691 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Citation at 41-52: context from 1 to 41 (39 chars)
+2025-10-16 13:37:03,691 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Isolated context for 2017-NM-007: 39 chars
+2025-10-16 13:37:03,697 - src.utils.strict_context_isolator - INFO - [STRICT-EXTRACT] Extracted 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007 using pattern 1
+2025-10-16 13:37:03,728 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extraction complete: 2 with names (1 from eyecite), 0 failed
+2025-10-16 13:37:03,728 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 3: Case names extracted for all citations
+2025-10-16 13:37:03,729 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Found (YYYY) after: 2016
+2025-10-16 13:37:03,729 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 4: Dates extracted for all citations
+2025-10-16 13:37:03,729 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Pipeline complete: 2 citations
+2025-10-16 13:37:03,729 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Clean pipeline extracted 2 citations with 100% accuracy
+2025-10-16 13:37:03,729 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 2 citations extracted
+2025-10-16 13:37:03,740 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 13:37:03,877 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 13:37:03,885 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 13:37:03,885 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,897 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '388 P.3d 977', Start: 54, Text len: 79
+2025-10-16 13:37:03,897 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '7-NM-007, '
+2025-10-16 13:37:03,898 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '388 P.3d 977, 985 (2016)
+'
+2025-10-16 13:37:03,898 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 52 (citation at 54)
+2025-10-16 13:37:03,898 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 52 chars
+2025-10-16 13:37:03,898 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007'
+2025-10-16 13:37:03,898 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 51 chars
+2025-10-16 13:37:03,902 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 13:37:03,903 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007'
+2025-10-16 13:37:03,903 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 54
+2025-10-16 13:37:03,910 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,910 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,910 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:03,910 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,911 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:03,919 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,923 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,924 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,924 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:03,924 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,924 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:03,934 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,936 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,936 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,936 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:03,936 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,936 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:03,947 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,950 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,950 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,950 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:03,951 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,951 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:03,960 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,962 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,962 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:03,963 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:03,963 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,963 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:03,972 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:03,983 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 54
+2025-10-16 13:37:03,990 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 79
+2025-10-16 13:37:03,992 - src.unified_citation_processor_v2 - DEBUG - [EXTRACT-M1] Master: 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 388 P.3d 977
+2025-10-16 13:37:03,992 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 388 P.3d 977
+2025-10-16 13:37:03,992 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,002 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '2017-NM-007', Start: 41, Text len: 79
+2025-10-16 13:37:04,002 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'n Felipe, '
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '2017-NM-007, 388 P.3d 977, 985 (2016)
+'
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 39 (citation at 41)
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 39 chars
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 38 chars
+2025-10-16 13:37:04,003 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,004 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,004 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,004 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,005 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:04,005 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,005 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:04,015 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,015 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 2 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,016 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:04,027 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,027 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,027 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,027 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,028 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,028 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'Hamaatsa, Inc. v. Pueblo of San Felipe' against primary 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,028 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-16 13:37:04,028 - src.unified_case_extraction_master - WARNING -   Extracted: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,028 - src.unified_case_extraction_master - WARNING -   Matched word: 'hamaatsa' from plaintiff 'hamaatsa inc'
+2025-10-16 13:37:04,036 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,037 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,037 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 13:37:04,037 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'Hamaatsa, Inc. v. Pueblo of San Felipe'
+2025-10-16 13:37:04,037 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 41
+2025-10-16 13:37:04,037 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 41
+2025-10-16 13:37:04,038 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 79
+2025-10-16 13:37:04,038 - src.unified_citation_processor_v2 - DEBUG - [EXTRACT-M1] Master: 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007
+2025-10-16 13:37:04,038 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'Hamaatsa, Inc. v. Pueblo of San Felipe' for 2017-NM-007
+2025-10-16 13:37:04,038 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-10-16 13:37:04,039 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 2 citations for parallel relationships
+2025-10-16 13:37:04,039 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found parallel group: ['388 P.3d 977', '2017-NM-007']
+2025-10-16 13:37:04,039 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 1 parallel groups
+2025-10-16 13:37:04,039 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 2 citations
+2025-10-16 13:37:04,039 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-10-16 13:37:04,040 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 2 citations
+2025-10-16 13:37:04,040 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-10-16 13:37:04,040 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 2 citations
+2025-10-16 13:37:04,040 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-10-16 13:37:04,047 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 2 citations
+2025-10-16 13:37:04,054 - src.unified_citation_processor_v2 - ERROR -    enable_verification: True
+2025-10-16 13:37:04,054 - src.unified_citation_processor_v2 - ERROR -    citations count: 2
+2025-10-16 13:37:04,055 - src.unified_citation_processor_v2 - ERROR -    Will verification run: [CitationResult(citation='388 P.3d 977', extracted_case_name='Hamaatsa, Inc. v. Pueblo of San Felipe', extracted_date='2016', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.9, method='clean_pipeline_v1', pattern='', context='', start_index=54, end_index=66, is_parallel=True, is_cluster=False, parallel_citations=['2017-NM-007'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'eyecite', 'type': 'FullCaseCitation', 'eyecite_extracted': True}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None), CitationResult(citation='2017-NM-007', extracted_case_name='Hamaatsa, Inc. v. Pueblo of San Felipe', extracted_date='2016', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.8, method='clean_pipeline_v1', pattern='', context='', start_index=41, end_index=52, is_parallel=True, is_cluster=False, parallel_citations=['388 P.3d 977'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'regex', 'pattern': 'neutral_nm'}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None)]
+2025-10-16 13:37:04,055 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.75: Verifying citations BEFORE clustering (CRITICAL)
+2025-10-16 13:37:04,072 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Using BATCH VERIFICATION (50 citations per API call)
+2025-10-16 13:37:04,089 - src.unified_citation_processor_v2 - INFO - [BATCH-VERIFY] Completed all batches
+2025-10-16 13:37:04,089 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After pre-clustering verification: 2 citations
+2025-10-16 13:37:04,089 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system
+2025-10-16 13:37:04,089 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-16 13:37:04,089 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,089 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)'
+2025-10-16 13:37:04,108 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 1 - Detecting parallel citations
+2025-10-16 13:37:04,153 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 parallel groups
+2025-10-16 13:37:04,168 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 2 - Extracting and propagating metadata
+2025-10-16 13:37:04,189 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Enhanced 2 citations
+2025-10-16 13:37:04,189 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 3 - Creating final clusters
+2025-10-16 13:37:04,189 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 final clusters
+2025-10-16 13:37:04,189 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4 - Applying verification
+2025-10-16 13:37:04,217 - src.unified_verification_master - INFO - UnifiedVerificationMaster initialized - API key loaded (length: 40)
+2025-10-16 13:37:04,218 - src.unified_verification_master - INFO - All duplicate verifiers deprecated
+2025-10-16 13:37:04,218 - src.unified_verification_master - INFO - Max verification retries set to: 3
+2025-10-16 13:37:04,224 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:37:04,242 - src.unified_verification_master - INFO - Processing batch 1/1 (2 citations)
+2025-10-16 13:37:04,243 - src.unified_verification_master - INFO -  Normalized 2 citations for batch verification
+2025-10-16 13:37:04,243 - src.unified_verification_master - INFO -    Dash-separated citations normalized
+2025-10-16 13:37:04,243 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Sending 2 citations
+2025-10-16 13:37:04,243 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3: ['388 P.3d 977', '2017 NM 007']
+2025-10-16 13:37:04,243 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] API Key set: True
+2025-10-16 13:37:04,243 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Session has Auth header: True
+2025-10-16 13:37:04,243 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Auth header: Token 443a87912e4f44...
+2025-10-16 13:37:04,248 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.courtlistener.com:443
+2025-10-16 13:37:04,791 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 357
+2025-10-16 13:37:04,792 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Response status: 200
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Received 2 results
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3 returned: ['388 P.3d 977', '2017 NM 007']
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 388 P.3d 977: status=404, clusters=0
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-DEBUG] Citation '388 P.3d 977' returned 404 or no clusters: Citation not found: '388 P.3d 977'
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 2017-NM-007: status=404, clusters=0
+2025-10-16 13:37:04,793 - src.unified_verification_master - ERROR - [BATCH-DEBUG] Citation '2017-NM-007' returned 404 or no clusters: Citation not found: '2017 NM 007'
+2025-10-16 13:37:04,840 - src.enhanced_fallback_verifier - INFO - Running verification in thread pool for 388 P.3d 977 (within event loop)
+2025-10-16 13:37:04,841 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:37:04,892 - src.unified_verification_master - ERROR -    Payload: {'text': '388 P.3d 977'}
+2025-10-16 13:37:04,892 - src.unified_verification_master - ERROR -    Headers: Authorization=Token
+2025-10-16 13:37:04,973 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 180
+2025-10-16 13:37:04,994 - src.unified_verification_master - DEBUG - API returned 404 for '388 P.3d 977': Citation not found: '388 P.3d 977'
+2025-10-16 13:37:05,269 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=388+P.3d+977&type=o&format=json HTTP/1.1" 200 None
+2025-10-16 13:37:05,571 - src.enhanced_fallback_verifier - INFO - Running verification in thread pool for 2017-NM-007 (within event loop)
+2025-10-16 13:37:05,573 - asyncio - DEBUG - Using proactor: IocpProactor
+2025-10-16 13:37:05,658 - src.unified_verification_master - ERROR -    Payload: {'text': '2017 NM 007'}
+2025-10-16 13:37:05,659 - src.unified_verification_master - ERROR -    Headers: Authorization=Token
+2025-10-16 13:37:05,996 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "POST /api/rest/v4/citation-lookup/ HTTP/1.1" 200 177
+2025-10-16 13:37:06,017 - src.unified_verification_master - DEBUG - API returned 404 for '2017-NM-007': Citation not found: '2017 NM 007'
+2025-10-16 13:37:06,154 - urllib3.connectionpool - DEBUG - https://www.courtlistener.com:443 "GET /api/rest/v4/search/?q=2017-NM-007&type=o&format=json HTTP/1.1" 200 None
+2025-10-16 13:37:06,238 - src.unified_clustering_master - ERROR - [BATCH-VERIFY-DEBUG] Verified: 0/2
+2025-10-16 13:37:06,239 - src.unified_clustering_master - ERROR -   - 388 P.3d 977: verified=False, source=Citation not found: '388 P.3d 977'
+2025-10-16 13:37:06,239 - src.unified_clustering_master - ERROR -   - 2017-NM-007: verified=False, source=Citation not found: '2017 NM 007'
+2025-10-16 13:37:06,294 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4.5 - Validating canonical consistency (Fix #22)
+2025-10-16 13:37:06,325 - src.unified_clustering_master - INFO - MASTER_CLUSTER: After canonical validation: 1 clusters
+2025-10-16 13:37:06,325 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5 - Merging and deduplicating
+2025-10-16 13:37:06,325 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Final result: 1 clusters
+2025-10-16 13:37:06,326 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5.5 - Validating cluster integrity
+2025-10-16 13:37:06,335 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Validated 1 clusters
+2025-10-16 13:37:06,368 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using MASTER clustering
+2025-10-16 13:37:06,368 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5.5: Updating citations with cluster information
+2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Updated 2 citations with cluster information
+2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verification already completed before clustering
+2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 7: Validating cluster consistency
+2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 2 final citations, 1 clusters

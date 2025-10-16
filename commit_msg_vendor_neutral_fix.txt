@@ -1,0 +1,48 @@
+FIX: Add missing citations from clusters to top-level array
+
+ISSUE:
+Vendor-neutral citations (like 2017-NM-007) were being extracted and 
+clustered correctly, but NOT appearing in the main citations list.
+
+DISCOVERY:
+- Citation extracted: ✅
+- Clustered with 388 P.3d 977: ✅  
+- In top-level citations array: ❌
+
+ROOT CAUSE:
+The sync logic only updated EXISTING citations in the top-level array.
+If a citation only existed in a cluster (not in the initial extraction),
+it would never be added to the main citations list.
+
+This affected vendor-neutral citations which:
+- May be extracted during clustering
+- Appear in cluster.citations but not in top-level citations[]
+
+SOLUTION:
+Modified progress_manager.py cluster sync logic to:
+1. Update existing citations (as before)
+2. ADD missing citations from clusters to top-level array
+3. Log how many citations were added
+
+CODE CHANGE:
+```python
+if citation_text in citation_map:
+    # Update existing citation
+    ...
+else:
+    # NEW: Add missing citation from cluster
+    citation_dicts.append(cluster_citation)
+    citation_map[citation_text] = cluster_citation
+    citations_added += 1
+```
+
+EXPECTED RESULT:
+User will now see ALL citations including vendor-neutral formats:
+- 2017-NM-007 (New Mexico vendor-neutral)
+- 388 P.3d 977 (reporter)
+- Both in clusters AND main citations array
+
+TESTING:
+User's PDF (1034300.pdf) contains Hamaatsa case citation:
+- Before: Only 388 P.3d 977 in main list (46 citations)
+- After: Both 2017-NM-007 AND 388 P.3d 977 (47 citations)

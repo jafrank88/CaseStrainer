@@ -1315,24 +1315,35 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 progress_tracker.start_step(5, 'Verifying citations...')
                 
                 # CRITICAL FIX: Update top-level citations with verification data from clusters
-                # The clusters have the verified citations, but the top-level citations array doesn't
+                # AND add any citations that are only in clusters (like vendor-neutral citations)
                 logger.info(f"[Task {task_id}] Syncing verification data from clusters to top-level citations")
                 citation_map = {c['citation']: c for c in citation_dicts}
                 verified_count_before = len([c for c in citation_dicts if c.get('verified', False)])
+                citations_added = 0
                 
                 for cluster in cluster_dicts:
                     for cluster_citation in cluster.get('citations', []):
                         citation_text = cluster_citation.get('citation')
+                        
                         if citation_text in citation_map:
-                            # Update top-level citation with verification data from cluster
+                            # Update existing top-level citation with verification data from cluster
                             if cluster_citation.get('verified'):
                                 citation_map[citation_text]['verified'] = True
                                 citation_map[citation_text]['canonical_name'] = cluster_citation.get('canonical_name')
                                 citation_map[citation_text]['canonical_date'] = cluster_citation.get('canonical_date')
                                 citation_map[citation_text]['canonical_url'] = cluster_citation.get('canonical_url')
+                        else:
+                            # NEW FIX: Add missing citation from cluster to top-level array
+                            # This happens with vendor-neutral citations that may only appear in clusters
+                            logger.info(f"[Task {task_id}] Adding missing citation from cluster: {citation_text}")
+                            citation_dicts.append(cluster_citation)
+                            citation_map[citation_text] = cluster_citation
+                            citations_added += 1
                 
                 verified_count_after = len([c for c in citation_dicts if c.get('verified', False)])
                 logger.info(f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations")
+                if citations_added > 0:
+                    logger.info(f"[Task {task_id}] Added {citations_added} citations from clusters to top-level array")
                 
                 citation_result = {
                     'citations': citation_dicts,
