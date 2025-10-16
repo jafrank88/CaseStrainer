@@ -1,0 +1,81 @@
+FIX: Add deduplication within clusters to prevent duplicate citations
+
+CRITICAL BUG DISCOVERED:
+User reported seeing duplicate citations within clusters:
+```
+📚 Cluster cluster_32: State v. Wallahee, 3 Wn.3d 179, 187-88 (2024)
+  Citation 1: 3 Wn.3d 179 - Unverified
+  Citation 2: 548 P.3d 200 - Unverified
+  Citation 3: 3 Wn.3d 179 - Unverified  ← DUPLICATE!
+  Citation 4: 548 P.3d 200 - Unverified  ← DUPLICATE!
+```
+
+ROOT CAUSE:
+The same citation can appear multiple times in a legal document
+(e.g., "3 Wn.3d 179" cited on page 1 and page 10). The extraction
+pipeline correctly identifies each instance, they all get grouped
+into the same cluster (because they reference the same case), but
+there was NO deduplication happening WITHIN each cluster.
+
+CODE LOCATION:
+File: src/unified_clustering_master.py
+Method: UnifiedClusteringMaster.cluster_citations()
+Line: ~1515
+
+The bug was here:
+```python
+cluster = {
+    'cluster_id': f"cluster_{i+1}",
+    'cluster_key': cluster_key,
+    'citations': citations,  # ← NO DEDUPLICATION!
+    'size': len(citations),
+    ...
+}
+```
+
+THE FIX:
+1. Added new method: _deduplicate_cluster_citations()
+   - Deduplicates by citation text (e.g., "3 Wn.3d 179")
+   - Preserves the BEST quality version when duplicates exist
+   - Quality preference: verified > unverified, has extracted name > N/A
+
+2. Modified cluster creation to use deduplicated citations:
+```python
+# CRITICAL FIX: Deduplicate citations within the cluster
+deduplicated_citations = self._deduplicate_cluster_citations(citations)
+
+cluster = {
+    'cluster_id': f"cluster_{i+1}",
+    'cluster_key': cluster_key,
+    'citations': deduplicated_citations,  # ← FIXED!
+    'size': len(deduplicated_citations),
+    ...
+}
+```
+
+DEDUPLICATION LOGIC:
+- Key: Citation text (unique identifier)
+- When duplicates found, keep the better quality one:
+  * Verified citation > Unverified citation (+2 points)
+  * Has extracted case name > N/A (+1 point)
+  * Higher score wins
+
+EXPECTED RESULT:
+After fix, cluster_32 should show:
+```
+📚 Cluster cluster_32: State v. Wallahee, 3 Wn.3d 179, 187-88 (2024)
+  Citation 1: 3 Wn.3d 179 - Unverified
+  Citation 2: 548 P.3d 200 - Unverified
+```
+
+Only 2 citations (not 4), no duplicates!
+
+IMPACT:
+- Cleaner cluster display
+- Accurate citation counts
+- Better user experience
+- Prevents confusion about duplicate citations
+
+This fix addresses the first critical issue from the user's debug request.
+The other issues (N/A case names, missing verified parallels) are separate
+bugs that need investigation.

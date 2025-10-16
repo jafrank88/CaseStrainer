@@ -1509,11 +1509,15 @@ class UnifiedClusteringMaster:
             
             cluster_key = f"{normalized_name}_{normalized_year}"
             
+            # CRITICAL FIX: Deduplicate citations within the cluster
+            # Same citation can appear multiple times in document, leading to duplicates in cluster
+            deduplicated_citations = self._deduplicate_cluster_citations(citations)
+            
             cluster = {
                 'cluster_id': f"cluster_{i+1}",
                 'cluster_key': cluster_key,
-                'citations': citations,
-                'size': len(citations),
+                'citations': deduplicated_citations,
+                'size': len(deduplicated_citations),
                 # FIX #17: Store ONLY extracted data, NEVER canonical
                 'case_name': extracted_name,  # Pure extracted from document
                 'case_year': extracted_date,  # Pure extracted from document
@@ -1564,6 +1568,64 @@ class UnifiedClusteringMaster:
             }
         
         return None
+    
+    def _deduplicate_cluster_citations(self, citations: List[Any]) -> List[Any]:
+        """
+        Deduplicate citations within a cluster.
+        
+        The same citation can appear multiple times in a document (e.g., "3 Wn.3d 179" cited twice).
+        This method removes exact duplicates while preserving the best quality version.
+        
+        Deduplication key: citation text
+        Quality preference: verified > unverified, has extracted_case_name > N/A
+        """
+        if not citations or len(citations) <= 1:
+            return citations
+        
+        seen = {}
+        for citation in citations:
+            # Get citation text (the unique key)
+            if hasattr(citation, 'citation'):
+                cit_text = citation.citation
+            elif hasattr(citation, 'get'):
+                cit_text = citation.get('citation', '')
+            else:
+                continue
+            
+            if not cit_text:
+                continue
+            
+            # Check if we've seen this citation before
+            if cit_text in seen:
+                existing = seen[cit_text]
+                
+                # Prefer verified over unverified
+                cit_verified = getattr(citation, 'verified', False) if hasattr(citation, 'verified') else citation.get('verified', False) if hasattr(citation, 'get') else False
+                existing_verified = getattr(existing, 'verified', False) if hasattr(existing, 'verified') else existing.get('verified', False) if hasattr(existing, 'get') else False
+                
+                # Prefer citations with extracted case names
+                cit_name = getattr(citation, 'extracted_case_name', 'N/A') if hasattr(citation, 'extracted_case_name') else citation.get('extracted_case_name', 'N/A') if hasattr(citation, 'get') else 'N/A'
+                existing_name = getattr(existing, 'extracted_case_name', 'N/A') if hasattr(existing, 'extracted_case_name') else existing.get('extracted_case_name', 'N/A') if hasattr(existing, 'get') else 'N/A'
+                
+                # Quality score: verified (2 points) + has name (1 point)
+                cit_score = (2 if cit_verified else 0) + (1 if cit_name and cit_name != 'N/A' else 0)
+                existing_score = (2 if existing_verified else 0) + (1 if existing_name and existing_name != 'N/A' else 0)
+                
+                # Keep the better quality citation
+                if cit_score > existing_score:
+                    logger.debug(f"[DEDUP_CLUSTER] Replacing '{cit_text}' (score {cit_score} > {existing_score})")
+                    seen[cit_text] = citation
+                else:
+                    logger.debug(f"[DEDUP_CLUSTER] Keeping existing '{cit_text}' (score {existing_score} >= {cit_score})")
+            else:
+                seen[cit_text] = citation
+        
+        deduplicated = list(seen.values())
+        
+        if len(deduplicated) < len(citations):
+            logger.info(f"[DEDUP_CLUSTER] Removed {len(citations) - len(deduplicated)} duplicate citations within cluster ({len(citations)} → {len(deduplicated)})")
+        
+        return deduplicated
     
     def _should_add_to_cluster(self, citation: Any, existing_citations: List[Any]) -> bool:
         """Validate if a citation should be added to an existing cluster.
