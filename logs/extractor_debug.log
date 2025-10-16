@@ -467,3 +467,4 @@ Hamaatsa, Inc. v. Pueblo of San Felipe'
 2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 7: Validating cluster consistency
 2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 2 final citations, 1 clusters
 2025-10-16 20:46:05,277 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:05:48,630 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log

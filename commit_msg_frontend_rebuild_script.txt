@@ -1,0 +1,69 @@
+FIX: Add frontend rebuild script (cslaunch doesn't rebuild Vue)
+
+ISSUE DISCOVERED:
+User correctly identified that cslaunch does NOT rebuild the frontend.
+After committing Vue component changes (CitationResults.vue), the user
+still saw the old version because:
+
+1. cslaunch only rebuilds backend + workers
+2. Frontend rebuild check in cslaunch.ps1 looks at wrong path
+3. No easy way to rebuild just frontend
+
+EVIDENCE:
+User saw "SECTION 1: Citation Status" (old) instead of 
+"SECTION 1: Unverified Clusters" (new) even after running cslaunch.
+
+ROOT CAUSE:
+cslaunch.ps1 lines 20-33 check for frontend changes but:
+- Check path: static\vue\index.html (doesn't exist)
+- Should check: casestrainer-vue-new/src/components/*.vue
+- Or just always rebuild frontend when Vue files change
+
+SOLUTION:
+Created new script: rebuild-frontend.ps1 / rebuild-frontend.bat
+
+USAGE:
+```bash
+# After making Vue component changes:
+./rebuild-frontend
+
+# Or if you prefer:
+powershell rebuild-frontend.ps1
+```
+
+WHAT IT DOES:
+1. npm run build (in casestrainer-vue-new/)
+2. docker-compose up -d --build frontend-prod
+3. Wait for frontend ready
+4. Display success message
+
+BENEFITS:
+- Fast: Only rebuilds frontend (~30s vs 2min full rebuild)
+- Clear: Tells user exactly what's happening
+- Simple: One command to rebuild Vue changes
+- No backend restart: Backend stays running
+
+WORKFLOW CHANGES:
+
+**Backend changes:**
+```bash
+./cslaunch  # Rebuilds backend + workers
+```
+
+**Frontend changes:**
+```bash  
+./rebuild-frontend  # Rebuilds Vue app only
+```
+
+**Both:**
+```bash
+./cslaunch --Build  # Full rebuild
+```
+
+TODO (Future):
+- Fix cslaunch.ps1 frontend detection to watch Vue source files
+- Consider auto-detecting which changed (backend vs frontend)
+- Add hot-reload for Vue development mode
+
+USER IMPACT:
+User's Vue changes will now be visible after running ./rebuild-frontend
