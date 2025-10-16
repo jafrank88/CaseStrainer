@@ -1901,12 +1901,13 @@ class UnifiedCitationProcessorV2:
         # Pattern to match citation references at the end of case names
         # Matches patterns like: ", 148 Wn.2d 224, 239" or ", 159 Wn.2d 700" or ", 22 Wn. App. 2d 22, 33"
         citation_patterns = [
-            r',\s*\d+\s+(?:Wn\.2d|Wash\.2d|Wn\.\s*App\.?\s*2d|Wash\.\s*App\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?$',  # Washington reporters
-            r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
-            r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?$',  # Pacific reporters
-            r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
-            r',\s*20\d{2}-(?:NM|ND|OK|SD|UT|WI|WY|MT)(?:CA)?-\d{1,5}(?:\s*,\s*\d+)?$',  # Neutral citations (2017-NM-007, etc.)
-            r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?$',  # Generic reporter pattern
+            r',\s*\d+\s+(?:Wn\.2d|Wash\.2d|Wn\.\s*App\.?\s*2d|Wash\.\s*App\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Washington reporters
+            r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Federal reporters
+            r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Pacific reporters
+            r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Federal reporters
+            r',\s*20\d{2}-(?:NM|ND|OK|SD|UT|WI|WY|MT)(?:CA)?-\d{1,5}(?:\s*\(\d{4}\))?$',  # Neutral citations (2017-NM-007, etc.)
+            r',\s*20\d{2}\s+(?:ND|OK|SD|UT|WI|WY|MT)\s+\d{1,5}(?:\s*\(\d{4}\))?$',  # Neutral citations space-separated
+            r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Generic reporter pattern
         ]
         
         cleaned_name = case_name
