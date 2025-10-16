@@ -1741,27 +1741,18 @@ class UnifiedClusteringMaster:
             
             # Apply results back to citations
             for idx, (cit_info, result) in enumerate(zip(all_citations, batch_results)):
+                cluster_idx = cit_info['cluster_idx']
+                cit_idx = cit_info['cit_idx']
+                cluster = clusters[cluster_idx]
+                citations = cluster.get('citations', [])
+                citation_obj = citations[cit_idx]
+                citation_text = cit_info['citation']
+                
                 if result.verified:
-                    cluster_idx = cit_info['cluster_idx']
-                    cit_idx = cit_info['cit_idx']
-                    cluster = clusters[cluster_idx]
-                    citations = cluster.get('citations', [])
-                    
-                    # DIAGNOSTIC: Log what we're about to apply
-                    citation_text = cit_info['citation']
-                    logger.error(f"🔧 [APPLY-VERIFICATION] Citation: {citation_text}")
+                    # VERIFIED: Apply canonical data
+                    logger.error(f"🔧 [APPLY-VERIFICATION] Citation: {citation_text} - VERIFIED")
                     logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
                     logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
-                    logger.error(f"   📝 result.verified = {result.verified}")
-                    
-                    # CRITICAL FIX: Apply verification to the specific citation that was verified
-                    citation_obj = citations[cit_idx]
-                    
-                    # DIAGNOSTIC: Log what we have BEFORE
-                    if hasattr(citation_obj, '__dict__'):
-                        logger.error(f"   🔍 BEFORE (object): canonical_name = {getattr(citation_obj, 'canonical_name', 'NOT_SET')}")
-                    elif isinstance(citation_obj, dict):
-                        logger.error(f"   🔍 BEFORE (dict): canonical_name = {citation_obj.get('canonical_name', 'NOT_SET')}")
                     
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = True
@@ -1769,18 +1760,31 @@ class UnifiedClusteringMaster:
                         citation_obj.canonical_date = result.canonical_date
                         citation_obj.canonical_url = result.canonical_url
                         citation_obj.verification_source = result.source
-                        logger.error(f"   ✅ AFTER (object): canonical_name = {citation_obj.canonical_name}")
+                        logger.error(f"   ✅ AFTER (object): verified=True, canonical_name = {citation_obj.canonical_name}")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = True
                         citation_obj['canonical_name'] = result.canonical_name
                         citation_obj['canonical_date'] = result.canonical_date
                         citation_obj['canonical_url'] = result.canonical_url
                         citation_obj['verification_source'] = result.source
-                        logger.error(f"   ✅ AFTER (dict): canonical_name = {citation_obj['canonical_name']}")
-                    else:
-                        logger.error(f"   ❌ UNKNOWN TYPE: {type(citation_obj)}")
+                        logger.error(f"   ✅ AFTER (dict): verified=True, canonical_name = {citation_obj['canonical_name']}")
+                else:
+                    # UNVERIFIED: Mark as unverified, store error
+                    logger.error(f"❌ [APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
+                    logger.error(f"   ⚠️ Error: {result.error}")
                     
-                    logger.info(f"MASTER_CLUSTER: Verified citation {cit_info['citation']} -> {result.canonical_name}")
+                    if hasattr(citation_obj, '__dict__'):
+                        citation_obj.verified = False
+                        citation_obj.verification_error = result.error
+                        citation_obj.canonical_name = None
+                        citation_obj.canonical_date = None
+                        logger.error(f"   ❌ AFTER (object): verified=False, will need true_by_parallel")
+                    elif isinstance(citation_obj, dict):
+                        citation_obj['verified'] = False
+                        citation_obj['verification_error'] = result.error
+                        citation_obj['canonical_name'] = None
+                        citation_obj['canonical_date'] = None
+                        logger.error(f"   ❌ AFTER (dict): verified=False, will need true_by_parallel")
         
         except ImportError:
             logger.warning("MASTER_CLUSTER: Verification master not available, skipping verification")
