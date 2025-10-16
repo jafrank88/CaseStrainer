@@ -838,9 +838,17 @@ class UnifiedCaseNameExtractorV2:
         
         contamination_phrases = [
             # CRITICAL: Remove citation text patterns FIRST (before other cleaning)
-            r',\s*\d+\s+Wn\.\s*(?:App\.)?\s*\d+d?\s+\d+.*$',  # ", 31 Wn. App. 2d 343, 359-62"
-            r',\s*\d+\s+[A-Z][a-z]*\.?\s*\d+d?\s+\d+.*$',  # ", 123 F.3d 456" etc
+            # These must be VERY aggressive to catch all citation formats
+            r',\s*\d+\s+Wn\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',  # ", 31 Wn. App. 2d 343, 359-62"
+            r',\s*\d+\s+Wash\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',  # ", 31 Wash. 2d 343"
+            r',\s*\d+\s+U\.S\.?\s+\d+.*$',  # ", 502 U.S. 251, 255"
+            r',\s*\d+\s+S\.\s*Ct\.?\s+\d+.*$',  # ", 112 S. Ct. 683"
+            r',\s*\d+\s+L\.\s*Ed\.?\s*\d*d?\s+\d+.*$',  # ", 116 L. Ed. 2d 687"
+            r',\s*\d+\s+F\.?\s*(?:\d+d?|Supp\.?)?\s+\d+.*$',  # ", 761 F.3d 218" or ", 12 F. Supp. 2d 999"
+            r',\s*\d+\s+P\.?\s*\d*d?\s+\d+.*$',  # ", 549 P.3d 727"
+            r',\s*\d+\s+[A-Z][a-z]*\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',  # Generic: ", 123 Xyz. 456"
             r',\s*\[\d+\s+U\.S\..*$',  # ", [21 U.S." etc
+            r',\s*\d+\s+(?:Wheat\.|Pet\.|How\.|Wall\.|Black\.|Cranch).*$',  # Old reporters
             
             # FIX: Procedural phrases that are NOT case names
             r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)\s+(and|or)\s+(vacated|remanded|reversed|affirmed|dismissed|granted|denied).*$',
@@ -1119,6 +1127,18 @@ def extract_case_name_and_date_unified(
             defendant = match.group(2).strip()
             
             contamination_phrases = [
+                # CRITICAL: Remove citation text patterns FIRST
+                r',\s*\d+\s+Wn\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',
+                r',\s*\d+\s+Wash\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',
+                r',\s*\d+\s+U\.S\.?\s+\d+.*$',
+                r',\s*\d+\s+S\.\s*Ct\.?\s+\d+.*$',
+                r',\s*\d+\s+L\.\s*Ed\.?\s*\d*d?\s+\d+.*$',
+                r',\s*\d+\s+F\.?\s*(?:\d+d?|Supp\.?)?\s+\d+.*$',
+                r',\s*\d+\s+P\.?\s*\d*d?\s+\d+.*$',
+                r',\s*\d+\s+[A-Z][a-z]*\.?\s*(?:App\.?)?\s*\d+d?\s+\d+.*$',
+                r',\s*\[\d+\s+U\.S\..*$',
+                r',\s*\d+\s+(?:Wheat\.|Pet\.|How\.|Wall\.|Black\.|Cranch).*$',
+                
                 # FIX: Procedural phrases that are NOT case names
                 r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)\s+(and|or)\s+(vacated|remanded|reversed|affirmed|dismissed|granted|denied).*$',
                 r'^(vacated|remanded|reversed|affirmed|dismissed|granted|denied)(\s+in\s+part)?(\s+and\s+\w+)?$',
