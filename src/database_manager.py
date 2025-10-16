@@ -23,7 +23,7 @@ import hashlib
 import tempfile
 import gzip
 from pathlib import Path
-from src.config import DATABASE_FILE
+from src.config import DATABASE_FILE, DEFAULT_REQUEST_TIMEOUT
 
 logger = logging.getLogger(__name__)
 
