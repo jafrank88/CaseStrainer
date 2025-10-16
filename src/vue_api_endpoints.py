@@ -11,6 +11,7 @@ import uuid
 import logging
 import time
 import json
+import traceback
 from datetime import datetime
 from flask import Blueprint, request, jsonify, current_app, g, Response
 from werkzeug.utils import secure_filename
@@ -95,16 +96,12 @@ def analyze_text():
     """
     request_id = str(uuid.uuid4())
     logger.info(f"[Request {request_id}] ===== Starting analyze request =====")
-    logger.info(f"[Request {request_id}] Method: {request.method}")
-    logger.info(f"[Request {request_id}] Content-Type: {request.content_type}")
     
     try:
         data = None
         if request.content_type and 'application/json' in request.content_type:
-            logger.info(f"[Request {request_id}] Attempting to parse JSON data")
             try:
                 data = request.get_json()
-                logger.info(f"[Request {request_id}] JSON parsing successful: {data}")
             except Exception as e:
                 logger.error(f"[Request {request_id}] JSON parsing failed: {str(e)}")
                 return jsonify({
@@ -123,7 +120,8 @@ def analyze_text():
             data = {
                 'text': text_content,
                 'url': url_content,
-                'type': request.form.get('type', 'text')
+                'type': request.form.get('type', 'text'),
+                'force_mode': request.form.get('force_mode')  # FIX #53: Extract force_mode from form data
             }
         
         # Check for file upload first
@@ -191,7 +189,6 @@ def analyze_text():
                 from src.progress_manager import fetch_url_content
                 input_data = fetch_url_content(url)
                 input_type = 'text'  # Convert to text processing
-                logger.info(f"[Request {request_id}] Extracted {len(input_data)} characters from URL, processing as text")
             except Exception as e:
                 logger.error(f"[Request {request_id}] URL extraction failed: {e}")
                 return jsonify({'error': f'{str(e)}'}), 400
@@ -215,6 +212,7 @@ def analyze_text():
             logger.info(f"[Request {request_id}] Started initial step, progress: {progress_tracker.overall_progress}%")
             
             # Check if this should be processed immediately (sync) or queued (async)
+            # NEW FEATURE: User can force sync/async mode via 'force_mode' parameter
             from src.api.services.citation_service import CitationService
             citation_service = CitationService()
             
@@ -222,7 +220,15 @@ def analyze_text():
             if input_type == 'text':
                 input_data_for_check['text'] = input_data
             
-            should_process_immediately = citation_service.should_process_immediately(input_data_for_check)
+            # Extract optional force_mode parameter (user override)
+            force_mode = data.get('force_mode')  # Can be 'sync', 'async', or None (auto)
+            if force_mode:
+                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
+            
+            should_process_immediately = citation_service.should_process_immediately(
+                input_data_for_check, 
+                force_mode=force_mode
+            )
             
             if should_process_immediately:
                 # Sync processing with real-time progress
@@ -240,7 +246,8 @@ def analyze_text():
                 result = processor.process_any_input(
                     input_data=input_data,
                     input_type=input_type,
-                    request_id=request_id
+                    request_id=request_id,
+                    force_mode=force_mode  # Pass force_mode through
                 )
                 
                 progress_tracker.update_step(1, 90, 'Citation extraction nearly complete...')
@@ -275,6 +282,16 @@ def analyze_text():
                 if 'metadata' not in result:
                     result['metadata'] = {}
                 result['metadata']['processing_mode'] = 'immediate'
+                result['metadata']['sync_complete'] = True  # Flag for frontend to not poll
+                if force_mode:
+                    result['metadata']['force_mode'] = force_mode  # User override
+                
+                # Add progress endpoint even for sync (for consistency)
+                result['progress_endpoint'] = f'/casestrainer/api/analyze/progress/{request_id}'
+                result['task_id'] = request_id  # For consistency with async
+                
+                # Log completion
+                logger.info(f"[Request {request_id}] Sync processing completed immediately")
                 
             else:
                 # Async processing - return task info immediately
@@ -288,7 +305,8 @@ def analyze_text():
                 result = processor.process_any_input(
                     input_data=input_data,
                     input_type=input_type,
-                    request_id=request_id
+                    request_id=request_id,
+                    force_mode=force_mode  # Pass force_mode through
                 )
                 
                 # Check if we got a sync fallback result or actual async task
@@ -302,6 +320,12 @@ def analyze_text():
                     result['progress_data'] = progress_tracker.get_progress_data()
                     result['progress_endpoint'] = f'/casestrainer/api/analyze/progress/{task_id}'
                     result['progress_stream'] = f'/casestrainer/api/analyze/progress-stream/{task_id}'
+                    
+                    # Add force_mode to metadata if specified
+                    if force_mode:
+                        if 'metadata' not in result:
+                            result['metadata'] = {}
+                        result['metadata']['force_mode'] = force_mode
                     
                 elif processing_mode == 'sync_fallback':
                     # Sync fallback - treat like immediate processing
@@ -368,6 +392,7 @@ def analyze_text():
                 'message': result.get('message', 'Analysis completed'),
                 'metadata': result.get('metadata', {}),
                 'request_id': request_id,
+                'task_id': result.get('task_id'),  # CRITICAL: Include task_id for async job tracking
                 'processing_time_ms': int(process_time * 1000),
                 'document_length': document_length,
                 'progress_data': result.get('progress_data', {})
@@ -683,6 +708,18 @@ def _get_redis_task_results(task_id):
         
         redis_url = os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
         redis_conn = redis.from_url(redis_url)
+        
+        # FIX #21: Try RQ's actual result key first (pickled data)
+        try:
+            import pickle
+            result_key = f'rq:results:{task_id}'
+            result_data = redis_conn.get(result_key)
+            if result_data:
+                result = pickle.loads(result_data)
+                logger.info(f"✅ FIX #21: Found pickled task result in Redis: {result_key}")
+                return result
+        except Exception as pickle_error:
+            logger.debug(f"No pickled result found: {pickle_error}")
         
         # Try different Redis keys where results might be stored
         keys_to_try = [

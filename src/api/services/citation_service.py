@@ -157,24 +157,22 @@ class CitationService:
         with the new unified approach.
         
         Args:
-            input_data: Input data dictionary
+            input_data: Input_data dictionary
             force_mode: Optional user override - 'sync', 'async', or None for automatic
         """
-        # TEMPORARY FIX: Force sync processing until async worker issue is resolved
-        # Workers are stuck and not processing jobs from the queue
-        logger.warning("[CitationService] FORCING SYNC PROCESSING - async workers not functioning")
-        return True
+        # ASYNC WORKERS FIXED: Re-enable automatic routing
+        # Workers are now functioning correctly after cleaning up stale registrations
+        logger.info("[CitationService] Using automatic sync/async routing based on content size")
         
-        # Original logic (commented out until async workers are fixed):
-        # # Extract text first, then determine processing mode
-        # text = self.extract_text_from_input(input_data)
-        # if text is None:
-        #     # If text extraction fails, default to async for better error handling
-        #     return False
-        # 
-        # # Use unified routing decision with optional force_mode
-        # processing_mode = self.determine_processing_mode(text, force_mode=force_mode)
-        # return processing_mode == 'sync'
+        # Extract text first, then determine processing mode
+        text = self.extract_text_from_input(input_data)
+        if text is None:
+            # If text extraction fails, default to async for better error handling
+            return False
+        
+        # Use unified routing decision with optional force_mode
+        processing_mode = self.determine_processing_mode(text, force_mode=force_mode)
+        return processing_mode == 'sync'
     
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
         """Process input immediately using the unified citation processor."""
