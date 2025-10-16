@@ -71,12 +71,12 @@ class CitationResult:
         logger = logging.getLogger(__name__)
         logger.debug(f"DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
         
-        # FIXED: If we have canonical information, the citation should be considered verified
-        verified_status = self.verified
-        if not verified_status and (canonical_name and canonical_name != 'N/A' or self.canonical_url):
-            verified_status = True
-            logger.debug(f"VERIFICATION_FIX: Set verified=True for {self.citation} due to canonical info")
-            
+        # CRITICAL FIX: DO NOT override verified status!
+        # A citation with verified=False should stay False even if it has canonical data
+        # This is because canonical data can come from true_by_parallel propagation
+        # (unverified citation inherits canonical data from verified parallel citation)
+        verified_status = self.verified  # Use the actual verification status
+        
         result = {
             'citation': self.citation,
             # REMOVED: case_name field to prevent contamination
@@ -86,7 +86,7 @@ class CitationResult:
             'canonical_date': self.canonical_date,
             'canonical_url': self.canonical_url,
             'cluster_case_name': cluster_case_name,  # FIXED: Add cluster_case_name field
-            'verified': verified_status,  # FIXED: Use corrected verification status
+            'verified': verified_status,  # Use actual verification status (not overridden)
             'url': self.url,
             'court': self.court,
             'docket_number': self.docket_number,
