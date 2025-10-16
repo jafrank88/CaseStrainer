@@ -1834,7 +1834,32 @@ class UnifiedClusteringMaster:
                 validated_clusters.append(cluster)
                 continue
             
+            # CRITICAL FIX: Check proximity FIRST - if citations are close together, TRUST the clustering!
+            # Parallel citations are typically within 50-200 characters of each other
+            positions = []
+            for citation in citations:
+                pos = None
+                if hasattr(citation, 'start_index'):
+                    pos = citation.start_index
+                elif isinstance(citation, dict):
+                    pos = citation.get('start_index')
+                if pos is not None:
+                    positions.append(pos)
+            
+            # If citations are in close proximity (<= 200 chars), they're definitely parallel!
+            # SKIP all P5_FIX validation that might incorrectly split them
+            if len(positions) >= 2:
+                sorted_positions = sorted(positions)
+                max_distance = sorted_positions[-1] - sorted_positions[0]
+                if max_distance <= 200:
+                    logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars - SKIPPING P5_FIX validation (definitely parallel)")
+                    validated_clusters.append(cluster)
+                    continue
+                else:
+                    logger.error(f"⚠️ [PROXIMITY-CHECK] Cluster with {len(citations)} citations spread over {max_distance} chars - APPLYING P5_FIX validation")
+            
             # P5 FIX ENHANCED: Comprehensive false clustering detection
+            # Only run this for non-proximate citations
             # Collect citation metadata for validation
             citation_metadata = []
             reporter_volumes = {}  # {reporter: set of volumes}
