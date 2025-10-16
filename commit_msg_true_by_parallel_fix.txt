@@ -1,0 +1,77 @@
+FIX: Correct true_by_parallel logic to work with ANY verified citation
+
+USER REQUIREMENT:
+"If a cluster has any verified citations, all unverified citations in 
+that cluster should become 'true_by_parallel'"
+
+PROBLEM WITH OLD LOGIC:
+The code only set true_by_parallel IF a verified citation had canonical data.
+
+Old logic (WRONG):
+```python
+if is_verified and canonical_name:  # Required BOTH verified AND canonical
+    best_verified = cit
+    # ... then mark unverified as true_by_parallel
+```
+
+This failed when:
+- Citation verified successfully BUT
+- Canonical data fetch failed (404, API error, etc.)
+- Result: Unverified parallel citations not marked as true_by_parallel
+
+REAL-WORLD EXAMPLE:
+Cluster with 2 citations:
+- Citation A: verified=True, canonical_name=None (verification succeeded but no canonical data)
+- Citation B: verified=False
+
+OLD BEHAVIOR: Citation B NOT marked as true_by_parallel (wrong!)
+NEW BEHAVIOR: Citation B IS marked as true_by_parallel (correct!)
+
+THE FIX:
+Separated the logic into 4 clear steps:
+
+STEP 1: Check if cluster has ANY verified citation (for true_by_parallel)
+```python
+has_any_verified = False
+for cit in citations_in_cluster:
+    is_verified = cit.get('verified', False)
+    if is_verified:
+        has_any_verified = True
+        break
+```
+
+STEP 2: Find verified citation WITH canonical data (for cluster metadata)
+```python
+best_verified = None
+for cit in citations_in_cluster:
+    if is_verified and canonical_name:
+        best_verified = cit
+        break
+```
+
+STEP 3: Set cluster-level canonical data (if available)
+```python
+if best_verified:
+    cluster_dict['canonical_name'] = ...
+```
+
+STEP 4: Mark unverified as true_by_parallel based on STEP 1 (not STEP 2!)
+```python
+if has_any_verified:  # ← Uses STEP 1, not STEP 2!
+    for cit in citations_in_cluster:
+        if not cit_is_verified:
+            cit['true_by_parallel'] = True
+```
+
+KEY INSIGHT:
+- true_by_parallel depends on: ANY verified citation (STEP 1)
+- Cluster canonical data depends on: verified citation WITH canonical (STEP 2)
+- These are DIFFERENT conditions!
+
+IMPACT:
+- More accurate parallel citation verification
+- Unverified parallel citations properly marked even when canonical data missing
+- Consistent with user's understanding of parallel citations
+
+FILE: src/progress_manager.py
+Lines: 1258-1317

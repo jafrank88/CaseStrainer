@@ -1255,7 +1255,15 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     citations_in_cluster = cluster_dict.get('citations', [])
                     logger.error(f"[Task {task_id}] 🔍 Cluster has {len(citations_in_cluster)} citations")
                     
-                    # Find first verified citation with canonical data
+                    # STEP 1: Check if cluster has ANY verified citation (for true_by_parallel)
+                    has_any_verified = False
+                    for cit in citations_in_cluster:
+                        is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                        if is_verified:
+                            has_any_verified = True
+                            break
+                    
+                    # STEP 2: Find first verified citation WITH canonical data (for cluster metadata)
                     best_verified = None
                     for cit in citations_in_cluster:
                         is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
@@ -1267,7 +1275,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             logger.error(f"[Task {task_id}] ✅ Found verified citation with canonical: {canonical_name}")
                             break
                     
-                    # Set cluster-level canonical data
+                    # STEP 3: Set cluster-level canonical data (if available)
                     if best_verified:
                         if isinstance(best_verified, dict):
                             cluster_dict['canonical_name'] = best_verified.get('canonical_name')
@@ -1279,11 +1287,12 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             cluster_dict['canonical_date'] = getattr(best_verified, 'canonical_date', None)
                             cluster_dict['verification_source'] = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
                             cluster_dict['verification_status'] = 'verified'
-                        
-                        # NEW REQUIREMENT: Do NOT propagate canonical data - keep independent per citation
-                        # Only set true_by_parallel flag for unverified citations
-                        # Canonical names can differ by source (CourtListener vs Justia vs etc)
-                        logger.error(f"[Task {task_id}] 🔄 MARKING PARALLEL: Checking {len(citations_in_cluster)} citations")
+                        clusters_with_canonical += 1
+                    
+                    # STEP 4: Mark unverified citations as true_by_parallel if cluster has ANY verified citation
+                    # USER REQUIREMENT: If cluster has ANY verified citation, ALL unverified become true_by_parallel
+                    if has_any_verified:
+                        logger.error(f"[Task {task_id}] 🔄 MARKING PARALLEL: Cluster has verified citation(s), marking unverified as true_by_parallel")
                         unverified_count = 0
                         for idx, cit in enumerate(citations_in_cluster):
                             cit_is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
@@ -1304,9 +1313,8 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             logger.error(f"[Task {task_id}] 📊 Marked {unverified_count} unverified citations as true_by_parallel")
                         else:
                             logger.error(f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified")
-                        clusters_with_canonical += 1
                     else:
-                        logger.error(f"[Task {task_id}] ⚠️  No verified citation with canonical data found in this cluster")
+                        logger.error(f"[Task {task_id}] ⚠️  No verified citations in this cluster - cannot mark as true_by_parallel")
                 
                 logger.error(f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data")
 
