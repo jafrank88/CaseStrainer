@@ -1850,15 +1850,36 @@ class UnifiedClusteringMaster:
                 if pos is not None:
                     positions.append(pos)
             
-            # If citations are in close proximity (<= 200 chars), they're definitely parallel!
-            # SKIP all P5_FIX validation that might incorrectly split them
+            # If citations are in close proximity (<= 200 chars), they're LIKELY parallel
+            # BUT still check canonical names to prevent grouping different cases!
             if len(positions) >= 2:
                 sorted_positions = sorted(positions)
                 max_distance = sorted_positions[-1] - sorted_positions[0]
                 if max_distance <= 200:
-                    logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars - SKIPPING P5_FIX validation (definitely parallel)")
-                    validated_clusters.append(cluster)
-                    continue
+                    # Proximity suggests parallel, but verify canonical names match
+                    canonical_names = set()
+                    for citation in citations:
+                        if hasattr(citation, 'canonical_name'):
+                            canon = citation.canonical_name
+                        elif isinstance(citation, dict):
+                            canon = citation.get('canonical_name')
+                        else:
+                            canon = None
+                        
+                        if canon and canon != 'N/A':
+                            canonical_names.add(canon)
+                    
+                    # If we have multiple different canonical names, these are DIFFERENT cases!
+                    if len(canonical_names) > 1:
+                        logger.error(
+                            f"🚫 [PROXIMITY-OVERRIDE-FAILED] Citations within {max_distance} chars BUT have different canonical names: {canonical_names}. "
+                            f"These are DIFFERENT cases incorrectly grouped by proximity. Applying P5_FIX validation..."
+                        )
+                        # Continue to P5_FIX validation below
+                    else:
+                        logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars and matching canonical names - definitely parallel")
+                        validated_clusters.append(cluster)
+                        continue
                 else:
                     logger.error(f"⚠️ [PROXIMITY-CHECK] Cluster with {len(citations)} citations spread over {max_distance} chars - APPLYING P5_FIX validation")
             
