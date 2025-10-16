@@ -861,21 +861,26 @@ class UnifiedVerificationMaster:
         
         for cluster in clusters:
             try:
-                # Get the cluster's absolute URL to fetch full details
-                cluster_url = cluster.get('absolute_url')
+                # CRITICAL FIX: Use resource_uri (API endpoint), not absolute_url (web page)
+                # resource_uri = "https://www.courtlistener.com/api/rest/v4/clusters/xxx/"
+                # absolute_url = "/opinion/xxx/case-name/" (returns HTML, not JSON!)
+                cluster_url = cluster.get('resource_uri') or cluster.get('absolute_url')
                 if not cluster_url:
-                    logger.error(f"🚫 [FIX #55] No absolute_url in cluster!")
+                    logger.error(f"🚫 [FIX #55] No resource_uri or absolute_url in cluster!")
                     continue
                 
                 # Fetch full cluster details to check citations
-                full_url = f"https://www.courtlistener.com{cluster_url}"
+                # resource_uri already includes full URL, absolute_url needs domain prepended
+                if cluster_url.startswith('http'):
+                    full_url = cluster_url  # Already complete
+                else:
+                    full_url = f"https://www.courtlistener.com{cluster_url}"
                 logger.error(f"🌐 [FIX #55] Fetching cluster details from: {full_url}")
                 response = self.session.get(full_url, timeout=20)  # FIX #66: Increased from 10s to 20s
                 logger.error(f"📡 [FIX #55] Response status: {response.status_code}")
                 
-                # CRITICAL FIX: Accept both 200 (OK) and 202 (Accepted)
-                # CourtListener API returns 202 for successful requests
-                if response.status_code in [200, 202]:
+                # ONLY accept 200 (OK) - 202 (Accepted) means processing, no data yet
+                if response.status_code == 200:
                     cluster_data = response.json()
                     
                     # Check if this cluster contains our target citation (EXACT match, not substring)
