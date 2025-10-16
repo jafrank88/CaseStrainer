@@ -873,7 +873,9 @@ class UnifiedVerificationMaster:
                 response = self.session.get(full_url, timeout=20)  # FIX #66: Increased from 10s to 20s
                 logger.error(f"📡 [FIX #55] Response status: {response.status_code}")
                 
-                if response.status_code == 200:
+                # CRITICAL FIX: Accept both 200 (OK) and 202 (Accepted)
+                # CourtListener API returns 202 for successful requests
+                if response.status_code in [200, 202]:
                     cluster_data = response.json()
                     
                     # Check if this cluster contains our target citation (EXACT match, not substring)
