@@ -2073,8 +2073,10 @@ class UnifiedClusteringMaster:
             for cit in citations:
                 is_verified = getattr(cit, 'verified', False)
                 has_canonical = getattr(cit, 'canonical_name', None) is not None
+                logger.info(f"🔍 CLUSTER_FORMAT: Checking citation {getattr(cit, 'citation', str(cit))[:50]} - verified={is_verified}, has_canonical={has_canonical}")
                 if is_verified and has_canonical:
                     best_verified = cit
+                    logger.info(f"✅ CLUSTER_FORMAT: Found best_verified citation: {best_verified.citation} with canonical_name={best_verified.canonical_name}")
                     break
             
             # Propagate canonical data to unverified parallel citations
@@ -2109,6 +2111,9 @@ class UnifiedClusteringMaster:
                 cluster_canonical_name = getattr(best_verified, 'canonical_name', None)
                 cluster_canonical_date = getattr(best_verified, 'canonical_date', None)
                 cluster_verification_source = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
+                logger.info(f"📋 CLUSTER_FORMAT: Setting cluster canonical data - name={cluster_canonical_name}, date={cluster_canonical_date}, source={cluster_verification_source}")
+            else:
+                logger.warning(f"⚠️ CLUSTER_FORMAT: No best_verified found for cluster {cluster_id} with {len(citations)} citations")
             
             formatted_cluster = {
                 'cluster_id': cluster_id,
