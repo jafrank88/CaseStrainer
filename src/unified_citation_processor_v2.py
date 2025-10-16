@@ -888,6 +888,15 @@ class UnifiedCitationProcessorV2:
             'wn3d_space',       # Washington Supreme Court 3d series (with space)
             'wash_app',         # Washington Court of Appeals (Wash.)
             'wash_app_space',   # Washington Court of Appeals (Wash. with space)
+            # Neutral/Public Domain Citations (MUST be in priority list!)
+            'neutral_nm',       # New Mexico neutral citations (2017-NM-007)
+            'neutral_nd',       # North Dakota
+            'neutral_ok',       # Oklahoma
+            'neutral_sd',       # South Dakota
+            'neutral_ut',       # Utah
+            'neutral_wi',       # Wisconsin
+            'neutral_wy',       # Wyoming
+            'neutral_mt',       # Montana
         ]
         for pattern_name in priority_patterns:
             if pattern_name in self.citation_patterns:
