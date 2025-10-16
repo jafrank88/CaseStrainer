@@ -1,0 +1,82 @@
+FIX: Date extraction incorrectly picking up year from previous citation
+
+USER BUG REPORT:
+Two Hamaatsa clusters appearing when they should be one:
+- cluster_14_vol2: Hamaatsa, Inc. v. Pueblo of San Felipe (2011) - 388 P.3d 977
+- cluster_68: Hamaatsa, Inc. v. Pueblo of San Felipe (2016) - 2017-NM-007
+
+ACTUAL CITATION IN DOCUMENT:
+```
+... (2011); Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)
+```
+
+This is ONE case with year (2016), not two different cases!
+
+ROOT CAUSE:
+The _extract_date_from_case_context() function was:
+1. Creating context window BEFORE the case name (case_pos - 100)
+2. This included "(2011);" from the PREVIOUS citation
+3. Finding years in order of appearance
+4. Returning (2011) instead of (2016)
+
+OLD LOGIC (WRONG):
+```python
+context_start = case_pos - 100  # ← Includes previous citation!
+context_end = case_pos + len(case_name) + 200
+context = text[context_start:context_end]
+# Searches for years in context
+# Finds: (2011), (2016)
+# Returns FIRST: (2011) ❌
+```
+
+NEW LOGIC (CORRECT):
+```python
+# Search AFTER the citation, not before case name
+search_start = citation_end  # ← Start after citation
+search_end = citation_end + 100
+context_after = text[search_start:search_end]
+
+# Respect citation boundaries (semicolon, period)
+# Look for (YYYY) pattern immediately after citation
+# Only search within current citation's scope
+```
+
+FIX STRATEGY:
+1. **Look AFTER citation**: Start from citation_end, not before case_name
+2. **Respect boundaries**: Stop at semicolons, periods, newlines
+3. **Prioritize proximity**: Year within 20 chars of citation gets highest priority
+4. **Bounded search**: Don't cross into next citation's territory
+
+EXAMPLE PROCESSING:
+```
+Input: "... (2011); Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977, 985 (2016)"
+
+For citation: "388 P.3d 977"
+  citation_end = position after "977"
+  context_after = ", 985 (2016)"
+  Found: (2016) ✓
+  Distance from citation: < 20 chars ✓
+  Result: extracted_date = "2016" ✓
+```
+
+CLUSTERING IMPACT:
+After fix, both citations get year 2016:
+- 2017-NM-007: extracted_date = 2016 ✓
+- 388 P.3d 977: extracted_date = 2016 ✓
+→ Same cluster_key: "hamaatsa_inc_v_pueblo_of_san_felipe_2016"
+→ ONE cluster (correct!)
+
+EDGE CASES HANDLED:
+1. Year in parentheses immediately after citation: `977 (2016)` ✓
+2. Year after page number: `977, 985 (2016)` ✓
+3. Multiple citations in sequence: Respects semicolon boundaries ✓
+4. Bare year without parens: Accepted only if very close (< 30 chars) ✓
+
+FILE MODIFIED:
+- src/unified_case_name_extractor_v2.py: _extract_date_from_case_context()
+
+EXPECTED RESULTS:
+- Hamaatsa citations now cluster together
+- Reduced false clustering from year contamination
+- Better handling of serial citations with different years
+- More accurate year extraction overall

@@ -1026,36 +1026,60 @@ class UnifiedCaseNameExtractorV2:
         return True
         
     def _extract_date_from_case_context(self, text: str, case_name: str, citation_start: int, citation_end: int) -> Dict[str, str]:
-        """Extract date from context around case name"""
+        """
+        Extract date from context around case name.
+        
+        FIX: Look AFTER the citation for the year, not before case name.
+        This prevents picking up years from previous citations.
+        
+        Example: "... (2011); Hamaatsa v. Felipe, 388 P.3d 977 (2016)"
+                  Should get 2016, not 2011!
+        """
         try:
-            case_pos = text.find(case_name)
-            if case_pos == -1:
-                return {'date': '', 'year': ''}
+            # CRITICAL FIX: Search for year AFTER the citation, not before case name
+            # This respects citation boundaries and avoids picking up previous citation's year
             
-            context_start = max(0, case_pos - 100)
-            context_end = min(len(text), case_pos + len(case_name) + 200)  # Reduced from 500 to 200
-            context = text[context_start:context_end]
+            # Step 1: Find the end of the current citation cluster
+            # Look from citation_end forward until we hit a citation boundary (semicolon, period, newline)
+            search_start = citation_end
+            search_end = min(len(text), citation_end + 100)  # Look 100 chars after citation
+            context_after = text[search_start:search_end]
             
-            year_patterns = [
-                r'\((\d{4})\)',  # (2022) - highest priority
-                r'(\d{4})',      # 2022 - medium priority
-            ]
+            # Step 2: Look for (YYYY) pattern immediately after citation (highest priority)
+            year_in_parens = re.search(r'\((\d{4})\)', context_after)
+            if year_in_parens:
+                year = year_in_parens.group(1)
+                if 1900 <= int(year) <= 2030:
+                    # Check it's close to citation (within 20 chars)
+                    if year_in_parens.start() < 20:
+                        return {'date': year, 'year': year}
             
-            for pattern in year_patterns:
-                matches = re.finditer(pattern, context)
-                for match in matches:
-                    year = match.group(1) if match.groups() else match.group(0)
-                    if 1900 <= int(year) <= 2030:
-                        match_pos = match.start()
-                        case_pos_in_context = case_pos - context_start
-                        distance = abs(match_pos - case_pos_in_context)
-                        
-                        if distance < 300:  # Only accept dates within 300 characters
-                            return {'date': year, 'year': year}
+            # Step 3: If no year found after citation, look in broader context
+            # But stop at citation boundaries (semicolon, period)
+            boundary_match = re.search(r'[;.\n]', context_after)
+            if boundary_match:
+                # Only search up to the boundary
+                context_after = context_after[:boundary_match.start()]
+            
+            # Look for any year in this bounded context
+            year_pattern = r'\((\d{4})\)'
+            matches = re.finditer(year_pattern, context_after)
+            for match in matches:
+                year = match.group(1)
+                if 1900 <= int(year) <= 2030:
+                    return {'date': year, 'year': year}
+            
+            # Step 4: Last resort - look for bare year (no parens) but very close to citation
+            bare_year = re.search(r'\b(\d{4})\b', context_after[:30])  # Only first 30 chars
+            if bare_year:
+                year = bare_year.group(1)
+                if 1900 <= int(year) <= 2030:
+                    return {'date': year, 'year': year}
             
             return {'date': '', 'year': ''}
             
         except Exception as e:
+            logger.error(f"Error extracting date from context: {e}")
             return {'date': '', 'year': ''}
 
 _unified_extractor = None
