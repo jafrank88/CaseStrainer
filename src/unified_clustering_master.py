@@ -1674,20 +1674,38 @@ class UnifiedClusteringMaster:
                     cluster = clusters[cluster_idx]
                     citations = cluster.get('citations', [])
                     
+                    # DIAGNOSTIC: Log what we're about to apply
+                    citation_text = cit_info['citation']
+                    logger.error(f"🔧 [APPLY-VERIFICATION] Citation: {citation_text}")
+                    logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
+                    logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
+                    logger.error(f"   📝 result.verified = {result.verified}")
+                    
                     # CRITICAL FIX: Apply verification to the specific citation that was verified
                     citation_obj = citations[cit_idx]
+                    
+                    # DIAGNOSTIC: Log what we have BEFORE
+                    if hasattr(citation_obj, '__dict__'):
+                        logger.error(f"   🔍 BEFORE (object): canonical_name = {getattr(citation_obj, 'canonical_name', 'NOT_SET')}")
+                    elif isinstance(citation_obj, dict):
+                        logger.error(f"   🔍 BEFORE (dict): canonical_name = {citation_obj.get('canonical_name', 'NOT_SET')}")
+                    
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = True
                         citation_obj.canonical_name = result.canonical_name
                         citation_obj.canonical_date = result.canonical_date
                         citation_obj.canonical_url = result.canonical_url
                         citation_obj.verification_source = result.source
+                        logger.error(f"   ✅ AFTER (object): canonical_name = {citation_obj.canonical_name}")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = True
                         citation_obj['canonical_name'] = result.canonical_name
                         citation_obj['canonical_date'] = result.canonical_date
                         citation_obj['canonical_url'] = result.canonical_url
                         citation_obj['verification_source'] = result.source
+                        logger.error(f"   ✅ AFTER (dict): canonical_name = {citation_obj['canonical_name']}")
+                    else:
+                        logger.error(f"   ❌ UNKNOWN TYPE: {type(citation_obj)}")
                     
                     logger.info(f"MASTER_CLUSTER: Verified citation {cit_info['citation']} -> {result.canonical_name}")
         

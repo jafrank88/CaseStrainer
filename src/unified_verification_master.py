@@ -699,8 +699,23 @@ class UnifiedVerificationMaster:
                         error="No matching cluster found or cluster rejected due to low similarity/N/A extraction"
                     )
                 
+                # CRITICAL FIX: Extract from docket if not at top level (same as batch & search)
                 canonical_name = cluster.get('case_name')
                 canonical_date = cluster.get('date_filed')
+                
+                # If not at top level, try docket object
+                if not canonical_name:
+                    docket = cluster.get('docket', {})
+                    if isinstance(docket, dict):
+                        canonical_name = docket.get('case_name')
+                        if not canonical_date:
+                            canonical_date = docket.get('date_filed')
+                        logger.error(f"🔍 [DOCKET-EXTRACT-ASYNC] {citation}: Extracted from docket - case_name={canonical_name}")
+                    else:
+                        logger.warning(f"⚠️ [DOCKET-EXTRACT-ASYNC] {citation}: docket is not a dict, type={type(docket)}")
+                else:
+                    logger.error(f"🔍 [TOP-LEVEL-ASYNC] {citation}: Found case_name at top level = {canonical_name}")
+                
                 canonical_url = f"https://www.courtlistener.com{cluster.get('absolute_url', '')}"
                 
                 # IMPROVEMENT: Detect and handle truncated canonical names
