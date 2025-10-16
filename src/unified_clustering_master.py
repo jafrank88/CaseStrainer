@@ -2067,8 +2067,8 @@ class UnifiedClusteringMaster:
                 if inferred_year:
                     best_year = inferred_year
             
-            # CRITICAL FIX: Propagate verification data to parallel citations
-            # Find the best verified citation with canonical data
+            # CRITICAL FIX: Propagate canonical data to parallel citations
+            # Find the first verified citation with canonical data
             best_verified = None
             for cit in citations:
                 is_verified = getattr(cit, 'verified', False)
@@ -2078,26 +2078,26 @@ class UnifiedClusteringMaster:
                     break
             
             # Propagate canonical data to unverified parallel citations
+            # IMPORTANT: Keep verified=False, only set true_by_parallel=True
             if best_verified and len(citations) > 1:
                 for cit in citations:
                     is_verified = getattr(cit, 'verified', False)
                     if not is_verified:
-                        # Mark as verified via parallel citation
+                        # Mark as true_by_parallel but keep verified=False
+                        # Each citation is independently verified
                         if hasattr(cit, '__dict__'):
-                            cit.verified = True
                             cit.true_by_parallel = True
                             cit.canonical_name = getattr(best_verified, 'canonical_name', None)
                             cit.canonical_date = getattr(best_verified, 'canonical_date', None)
                             cit.canonical_url = getattr(best_verified, 'canonical_url', None)
-                            cit.verification_source = 'parallel_propagation'
+                            # Don't change verified status - keep it False
                         elif isinstance(cit, dict):
-                            cit['verified'] = True
                             cit['true_by_parallel'] = True
                             cit['canonical_name'] = getattr(best_verified, 'canonical_name', None)
                             cit['canonical_date'] = getattr(best_verified, 'canonical_date', None)
                             cit['canonical_url'] = getattr(best_verified, 'canonical_url', None)
-                            cit['verification_source'] = 'parallel_propagation'
-                        logger.info(f"✅ Propagated verification from verified citation to parallel: {getattr(cit, 'citation', str(cit))}")
+                            # Don't change verified status - keep it False
+                        logger.info(f"✅ Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
             
             formatted_cluster = {
                 'cluster_id': cluster_id,
