@@ -516,13 +516,19 @@ class UnifiedCaseExtractionMaster:
         
         # Try multiple patterns in priority order
         patterns = [
-            # Pattern 1: Full case name with "v." - greedy match to end of string
+            # Pattern 1: "In re" cases - greedy match to end of string (USER FIX)
+            r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 2: "In re" after sentence boundary (USER FIX)
+            r'(?:^|[.!?]\s+)(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            
+            # Pattern 3: Full case name with "v." - greedy match to end of string
             r'([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
             
-            # Pattern 2: After sentence boundary (period, question, exclamation)
+            # Pattern 4: After sentence boundary (period, question, exclamation)
             r'(?:^|[.!?]\s+)([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
             
-            # Pattern 3: After quotation mark
+            # Pattern 5: After quotation mark
             r'["\']?\s*([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
         ]
         
@@ -603,7 +609,7 @@ class UnifiedCaseExtractionMaster:
         FIX #69: Validate that extracted text looks like a real case name.
         
         Checks:
-        1. Contains " v. " (plaintiff v. defendant)
+        1. Contains " v. " (plaintiff v. defendant) OR starts with "In re" (USER FIX)
         2. Starts with capital letter
         3. Has reasonable length (10-200 chars)
         4. Doesn't contain obvious contamination
@@ -619,8 +625,12 @@ class UnifiedCaseExtractionMaster:
         # FIX #69 DEBUG: Always log validation attempts
         logger.error(f"[FIX #69 VALIDATE] Checking: '{text[:100] if text else 'None'}'")
         
-        if not text or ' v. ' not in text.lower():
-            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' in text")
+        # USER FIX: Allow "In re" cases in addition to " v. " cases
+        is_in_re_case = text and text.lower().startswith('in re ')
+        has_v_pattern = text and ' v. ' in text.lower()
+        
+        if not text or (not has_v_pattern and not is_in_re_case):
+            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' or 'In re' in text")
             return False
         
         if len(text) < 10:
@@ -636,20 +646,28 @@ class UnifiedCaseExtractionMaster:
             logger.error(f"[FIX #69 VALIDATE] FAIL: Doesn't start with capital")
             return False
         
-        # Split into plaintiff and defendant
-        v_lower = ' v. '
-        if v_lower not in text.lower():
-            return False
-        
-        # Find "v." case-insensitively
-        v_pos = text.lower().find(v_lower)
-        plaintiff = text[:v_pos].strip()
-        defendant = text[v_pos + len(v_lower):].strip()
-        
-        # Both parts should have at least one word
-        if len(plaintiff.split()) < 1 or len(defendant.split()) < 1:
-            logger.error(f"[FIX #69 VALIDATE] FAIL: Plaintiff '{plaintiff}' or defendant '{defendant}' too short")
-            return False
+        # USER FIX: Only validate plaintiff/defendant structure for " v. " cases, not "In re" cases
+        if has_v_pattern:
+            # Split into plaintiff and defendant
+            v_lower = ' v. '
+            if v_lower not in text.lower():
+                return False
+            
+            # Find "v." case-insensitively
+            v_pos = text.lower().find(v_lower)
+            plaintiff = text[:v_pos].strip()
+            defendant = text[v_pos + len(v_lower):].strip()
+            
+            # Both parts should have at least one word
+            if len(plaintiff.split()) < 1 or len(defendant.split()) < 1:
+                logger.error(f"[FIX #69 VALIDATE] FAIL: Plaintiff '{plaintiff}' or defendant '{defendant}' too short")
+                return False
+        elif is_in_re_case:
+            # For "In re" cases, just check it has more than "In re"
+            after_in_re = text[6:].strip()  # Skip "In re "
+            if len(after_in_re) < 5:  # At least a few chars after "In re"
+                logger.error(f"[FIX #69 VALIDATE] FAIL: 'In re' case too short after prefix")
+                return False
         
         # Check for obvious contamination
         contamination_indicators = [

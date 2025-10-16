@@ -1,0 +1,81 @@
+FIX: Add "In re" pattern support and fix date extraction from wrong citation
+
+USER ISSUES:
+1. Many case names showing as "N/A" in unverified clusters
+2. "In re Dependency of G.J.A." showing as "N/A"
+3. Hamaatsa case showing wrong year (2011 instead of 2016)
+4. Long tribal case names failing extraction
+
+ROOT CAUSES FOUND:
+1. Comma-anchor extraction had NO patterns for "In re" cases
+2. Validation logic required " v. " pattern, rejecting ALL "In re" cases
+3. Date extraction looking BEFORE case name instead of AFTER citation
+
+FIXES IMPLEMENTED:
+
+**FIX #1: Add "In re" patterns to comma-anchor extraction**
+File: unified_case_extraction_master.py (_extract_with_comma_anchor)
+Added patterns:
+```python
+# Pattern 1: "In re" cases - greedy match to end of string
+r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+
+# Pattern 2: "In re" after sentence boundary
+r'(?:^|[.!?]\s+)(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+```
+
+**FIX #2: Allow "In re" cases in validation**
+File: unified_case_extraction_master.py (_looks_like_case_name)
+Changed:
+```python
+# OLD: Required " v. " for all cases
+if not text or ' v. ' not in text.lower():
+    return False
+
+# NEW: Allow "In re" OR " v. "
+is_in_re_case = text and text.lower().startswith('in re ')
+has_v_pattern = text and ' v. ' in text.lower()
+
+if not text or (not has_v_pattern and not is_in_re_case):
+    return False
+```
+
+Also added special validation for "In re" cases:
+```python
+elif is_in_re_case:
+    # For "In re" cases, just check it has more than "In re"
+    after_in_re = text[6:].strip()
+    if len(after_in_re) < 5:
+        return False
+```
+
+**FIX #3: Date extraction from wrong citation (already committed)**
+File: unified_case_name_extractor_v2.py (_extract_date_from_case_context)
+Fixed to look AFTER citation instead of BEFORE case name to avoid picking up
+previous citation's year.
+
+TEST RESULTS:
+✓ "Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians" - PASS (was truncating to "Inc. v.")
+✓ "Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin" - PASS (long name)
+✓ "Kiowa Tribe v. Mfg. Techs., Inc." - PASS (corporate name with Inc.)
+✗ "In re Dependency of G.J.A." - Still failing (needs more investigation)
+
+PARTIAL SUCCESS:
+- Long case names: FIXED ✓
+- Corporate names with Inc.: FIXED ✓  
+- Date extraction: FIXED ✓
+- "In re" cases: PARTIALLY FIXED (pattern matching works, but extraction still fails)
+
+REMAINING WORK:
+The "In re" case is still returning "N/A" despite pattern matching and passing validation.
+Further debugging needed to find where extraction is failing in the pipeline.
+
+FILES MODIFIED:
+- src/unified_case_extraction_master.py: Added "In re" patterns and validation
+- src/unified_case_name_extractor_v2.py: Fixed date extraction (previous commit)
+
+IMPACT:
+- Better extraction for corporate names with Inc., LLC, etc.
+- Better extraction for long tribal and organizational names
+- Correct year extraction for parallel citations
+- Foundation for "In re" case support (needs completion)
