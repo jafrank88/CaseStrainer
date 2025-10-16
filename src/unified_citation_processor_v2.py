@@ -278,6 +278,17 @@ class UnifiedCitationProcessorV2:
             'simple_p2d': re.compile(r'\b(\d+)\s+P\.2d\s+(\d+)\b', re.IGNORECASE),
             'lexis': re.compile(r'\b(\d{4})\s+[A-Za-z\.\s]+LEXIS\s+(\d{1,12})\b', re.IGNORECASE),
             'lexis_alt': re.compile(r'\b(\d{4})\s+LEXIS\s+(\d{1,12})\b', re.IGNORECASE),
+            
+            # Neutral/Public Domain Citations (Year-State-Number format)
+            # These are official state citations used by many states
+            'neutral_nm': re.compile(r'\b(20\d{2})-NM(?:CA)?-(\d{1,5})\b', re.IGNORECASE),  # New Mexico: 2017-NM-007
+            'neutral_nd': re.compile(r'\b(20\d{2})\s+ND\s+(\d{1,5})\b', re.IGNORECASE),  # North Dakota
+            'neutral_ok': re.compile(r'\b(20\d{2})\s+OK\s+(\d{1,5})\b', re.IGNORECASE),  # Oklahoma
+            'neutral_sd': re.compile(r'\b(20\d{2})\s+SD\s+(\d{1,5})\b', re.IGNORECASE),  # South Dakota
+            'neutral_ut': re.compile(r'\b(20\d{2})\s+UT\s+(\d{1,5})\b', re.IGNORECASE),  # Utah
+            'neutral_wi': re.compile(r'\b(20\d{2})\s+WI\s+(\d{1,5})\b', re.IGNORECASE),  # Wisconsin
+            'neutral_wy': re.compile(r'\b(20\d{2})\s+WY\s+(\d{1,5})\b', re.IGNORECASE),  # Wyoming
+            'neutral_mt': re.compile(r'\b(20\d{2})\s+MT\s+(\d{1,5})\b', re.IGNORECASE),  # Montana
         }
         
         self.pinpoint_pattern = re.compile(r'\b(?:at\s+)?(\d+)\b', re.IGNORECASE)
@@ -1894,6 +1905,7 @@ class UnifiedCitationProcessorV2:
             r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
             r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?$',  # Pacific reporters
             r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?$',  # Federal reporters
+            r',\s*20\d{2}-(?:NM|ND|OK|SD|UT|WI|WY|MT)(?:CA)?-\d{1,5}(?:\s*,\s*\d+)?$',  # Neutral citations (2017-NM-007, etc.)
             r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?$',  # Generic reporter pattern
         ]
         
