@@ -1336,7 +1336,7 @@ class UnifiedVerificationMaster:
                         logger.warning(f"   This is likely a different case with the same citation!")
                         return None  # Reject date mismatches
         
-        logger.info(f"✅ Selected cluster with similarity {best_similarity:.2f}: {best_cluster.get('case_name')}")
+        logger.info(f"✅ Selected cluster with composite score {best_score:.2f}: {best_cluster.get('case_name')}")
         return best_cluster
     
     def _detect_jurisdiction_from_citation(self, citation: str) -> Optional[str]:
