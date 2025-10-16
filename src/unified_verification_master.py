@@ -1489,8 +1489,23 @@ class UnifiedVerificationMaster:
                 best_result = self._find_best_search_result(data['results'], citation, extracted_case_name, extracted_date)
                 
                 if best_result:
-                    canonical_name = best_result.get('caseName')
+                    # CRITICAL FIX: Extract from docket if not at top level (same as batch lookup)
+                    canonical_name = best_result.get('caseName')  # Search API uses camelCase
                     canonical_date = best_result.get('dateFiled')
+                    
+                    # If not at top level, try docket object
+                    if not canonical_name:
+                        docket = best_result.get('docket', {})
+                        if isinstance(docket, dict):
+                            canonical_name = docket.get('case_name') or docket.get('caseName')
+                            if not canonical_date:
+                                canonical_date = docket.get('date_filed') or docket.get('dateFiled')
+                            logger.error(f"🔍 [DOCKET-EXTRACT-SEARCH] {citation}: Extracted from docket - case_name={canonical_name}")
+                        else:
+                            logger.warning(f"⚠️ [DOCKET-EXTRACT-SEARCH] {citation}: docket is not a dict, type={type(docket)}")
+                    else:
+                        logger.error(f"🔍 [TOP-LEVEL-SEARCH] {citation}: Found caseName at top level = {canonical_name}")
+                    
                     canonical_url = f"https://www.courtlistener.com{best_result.get('absolute_url', '')}"
                     
                     # FIX #60B: Validate jurisdiction BEFORE accepting Search API results
