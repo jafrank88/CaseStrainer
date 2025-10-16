@@ -1270,6 +1270,63 @@ class UnifiedClusteringMaster:
                         case_year = year_value
                         break
 
+            # CRITICAL FIX: Standardize extracted names within cluster to prevent validation splits
+            # Collect all extracted names and pick the best one (longest, most complete)
+            extracted_names = []
+            extracted_dates = []
+            for citation in group:
+                if isinstance(citation, dict):
+                    extracted_name = citation.get('extracted_case_name')
+                    extracted_date = citation.get('extracted_date')
+                else:
+                    extracted_name = getattr(citation, 'extracted_case_name', None)
+                    extracted_date = getattr(citation, 'extracted_date', None)
+                
+                if extracted_name and extracted_name != 'N/A':
+                    extracted_names.append(extracted_name)
+                if extracted_date and extracted_date != 'N/A':
+                    extracted_dates.append(extracted_date)
+            
+            # Pick best extracted name (longest, most complete)
+            best_extracted_name = None
+            if extracted_names:
+                best_extracted_name = max(extracted_names, key=lambda n: (len(n), n))
+                logger.error(f"🔧 [STANDARDIZE-CLUSTER] Group has {len(extracted_names)} extracted names → using best: '{best_extracted_name}'")
+                if len(set(extracted_names)) > 1:
+                    logger.error(f"   Variations: {list(set(extracted_names))}")
+            
+            # Pick best extracted year (most common)
+            best_extracted_year = None
+            if extracted_dates:
+                from collections import Counter
+                # Extract years from all dates
+                years = [self._extract_year_value(d) for d in extracted_dates]
+                years = [y for y in years if y]  # Remove None values
+                if years:
+                    best_extracted_year = Counter(years).most_common(1)[0][0]
+                    logger.error(f"🔧 [STANDARDIZE-CLUSTER] Group has {len(years)} extracted years → using best: '{best_extracted_year}'")
+            
+            # PROPAGATE best extracted name and year to ALL citations in cluster
+            # This ensures validation won't split the cluster due to extraction variations
+            for citation in group:
+                if best_extracted_name:
+                    if isinstance(citation, dict):
+                        old_name = citation.get('extracted_case_name')
+                        citation['extracted_case_name'] = best_extracted_name
+                        if old_name and old_name != best_extracted_name:
+                            logger.error(f"   📝 Updated '{old_name}' → '{best_extracted_name}'")
+                    else:
+                        old_name = getattr(citation, 'extracted_case_name', None)
+                        citation.extracted_case_name = best_extracted_name
+                        if old_name and old_name != best_extracted_name:
+                            logger.error(f"   📝 Updated '{old_name}' → '{best_extracted_name}'")
+                
+                if best_extracted_year:
+                    if isinstance(citation, dict):
+                        citation['extracted_date'] = best_extracted_year
+                    else:
+                        citation.extracted_date = best_extracted_year
+
             for citation in group:
                 enhanced_citation = self._create_enhanced_citation(citation, case_name, case_year, group)
                 enhanced_citations.append(enhanced_citation)
