@@ -1149,41 +1149,37 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     else:
                         continue
                     
-                    # CRITICAL FIX: Update cluster citations with verified data from citation_dicts
-                    # The clusters have old unverified citations, but citation_dicts has the verified ones
+                    # CRITICAL FIX: DON'T replace citations from clusters!
+                    # The clusters have UPDATED citations from batch verification with verified=True/False set correctly
+                    # citation_dicts has OLD citations from before clustering/verification
+                    # We need to KEEP the citations from clusters as they have the latest verification status
+                    
+                    # Just convert citation objects to dicts if needed
                     if 'citations' in cluster_dict and cluster_dict['citations']:
-                        # Create a map of citation text -> verified citation dict
-                        citation_lookup = {c['citation']: c for c in citation_dicts}
-                        
                         converted_citations = []
                         for cit in cluster_dict['citations']:
-                            # Get the citation text
-                            if hasattr(cit, 'citation'):
-                                cit_text = cit.citation
+                            if hasattr(cit, 'to_dict'):
+                                converted_citations.append(cit.to_dict())
                             elif isinstance(cit, dict):
-                                cit_text = cit.get('citation', '')
+                                converted_citations.append(cit)
                             else:
-                                cit_text = str(cit)
-                            
-                            # Use the VERIFIED version from citation_dicts if available
-                            if cit_text in citation_lookup:
-                                converted_citations.append(citation_lookup[cit_text])
-                            else:
-                                # Fallback to old conversion logic
-                                if hasattr(cit, 'to_dict'):
-                                    converted_citations.append(cit.to_dict())
-                                elif isinstance(cit, dict):
-                                    converted_citations.append(cit)
-                                else:
-                                    converted_citations.append({
-                                        'citation': cit_text,
-                                        'verified': getattr(cit, 'verified', False),
-                                        'extracted_case_name': getattr(cit, 'extracted_case_name', None),
-                                        'canonical_name': getattr(cit, 'canonical_name', None),
-                                    })
+                                # Manual conversion for citation objects
+                                cit_text = getattr(cit, 'citation', str(cit))
+                                converted_citations.append({
+                                    'citation': cit_text,
+                                    'verified': getattr(cit, 'verified', False),
+                                    'extracted_case_name': getattr(cit, 'extracted_case_name', None),
+                                    'extracted_date': getattr(cit, 'extracted_date', None),
+                                    'canonical_name': getattr(cit, 'canonical_name', None),
+                                    'canonical_date': getattr(cit, 'canonical_date', None),
+                                    'canonical_url': getattr(cit, 'canonical_url', None),
+                                    'verification_source': getattr(cit, 'verification_source', None),
+                                    'verification_error': getattr(cit, 'verification_error', None),
+                                    'true_by_parallel': getattr(cit, 'true_by_parallel', False),
+                                })
                         
                         cluster_dict['citations'] = converted_citations
-                        logger.error(f"[Task {task_id}] ✅ Updated cluster with {len(converted_citations)} citations from citation_lookup")
+                        logger.error(f"[Task {task_id}] ✅ Converted cluster with {len(converted_citations)} citations (preserving verification status)")
                     
                     cluster_dicts.append(cluster_dict)
 
