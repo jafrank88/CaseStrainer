@@ -1,0 +1,72 @@
+PHASE 1: Consolidate citation patterns - Single source of truth
+
+PROBLEM IDENTIFIED:
+Citation patterns were duplicated across 3+ files, causing maintenance 
+nightmares. The neutral citation fix required changes to 4 different files
+because patterns were defined separately in each module.
+
+SOLUTION - PHASE 1 CONSOLIDATION:
+Created a centralized citation_patterns.py module as the SINGLE source of
+truth for ALL citation regex patterns across the entire codebase.
+
+FILES MODIFIED:
+
+1. ✅ src/citation_patterns.py (ENHANCED)
+   - Created comprehensive CitationPatterns class
+   - All patterns organized by category (Federal, State, Neutral, etc.)
+   - Includes all patterns from multiple sources
+   - Provides get_compiled_patterns() method
+   - Maintains backwards compatibility with legacy code
+
+2. ✅ src/clean_extraction_pipeline.py (UPDATED)
+   - Now imports patterns from citation_patterns.py
+   - Removed local pattern definitions (80+ lines)
+   - Added deprecation warning to _build_citation_patterns()
+   - Cleaner code, single source of truth
+
+3. ✅ src/utils/strict_context_isolator.py (UPDATED)
+   - Now imports patterns from citation_patterns.py
+   - Removed local pattern definitions
+   - Uses subset of patterns for boundary detection
+   - Consistent with other modules
+
+4. ✅ src/unified_citation_processor_v2.py (DEPRECATED)
+   - Added prominent deprecation notice in docstring
+   - Marks this file as being phased out
+   - Directs future development to clean_extraction_pipeline.py
+   - Kept for backwards compatibility only
+
+BENEFITS:
+
+1. **Single Source of Truth**: 
+   - All patterns defined in ONE place
+   - Changes propagate automatically
+   - No more hunting through multiple files
+
+2. **Maintainability**:
+   - Future pattern additions: ONE file
+   - Bug fixes: ONE location
+   - Consistent behavior across all pipelines
+
+3. **Clarity**:
+   - Clear which code is production (clean_extraction_pipeline.py)
+   - Clear which code is deprecated (unified_citation_processor_v2.py)
+   - Clear where patterns are defined (citation_patterns.py)
+
+4. **Reduces Duplication**:
+   - Eliminated ~200 lines of duplicate pattern definitions
+   - Prevents future pattern drift between modules
+
+IMPACT:
+- No functional changes (backwards compatible)
+- No breaking changes to existing code
+- Sets foundation for Phase 2 (deeper consolidation)
+- Prevents future issues like the neutral citation bug
+
+NEXT STEPS (Phase 2):
+- Merge unique features from unified_citation_processor_v2.py
+- Remove deprecated code after thorough testing
+- Further streamline extraction pipeline
+
+This is a foundational architectural improvement that will make 
+CaseStrainer much easier to maintain and extend going forward.

@@ -1,0 +1,28 @@
+CRITICAL FIX: Extract cluster canonical data AFTER verification
+
+ROOT CAUSE IDENTIFIED from worker logs:
+- Verification happens AFTER cluster formatting
+- My fixes in _format_clusters_for_output() ran before citations were verified
+- Result: No verified citations found, no canonical data extracted
+
+SOLUTION: Move canonical data extraction to progress_manager.py
+- Happens AFTER verification when citations have canonical data
+- Lines 1189-1231 in progress_manager.py
+
+Changes:
+1. Extract cluster canonical data from verified citations
+2. Set cluster verification_status, canonical_name, canonical_date
+3. Propagate canonical data to unverified parallel citations
+4. Set true_by_parallel=True for parallels (keep verified=False)
+
+Expected Results:
+- Clusters should show "Verifying Source: [Canonical Name]"
+- Parallel citations get canonical data with true_by_parallel=True
+- Verified parallel citations stay verified=False
+
+Files Modified:
+- src/progress_manager.py: Added post-verification canonical data extraction
+- ASYNC_ISSUES_TODO.md: Documented root cause and solution
+- src/unified_clustering_master.py: Added diagnostic logging (kept for debugging)
+
+Testing: Resubmit PDF to verify clusters now have canonical data

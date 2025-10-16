@@ -1,0 +1,24 @@
+FIX Issue 2: Reduce name truncation by increasing context window
+
+Problem: Case names truncated mid-word or missing beginning
+- "agit Indian Tribe" (missing "Upper Sk")
+- "Mgmt., LLC" (missing company name)
+
+Solution (unified_case_name_extractor_v2.py):
+1. Increased context window from 150 to 400 characters
+   - Line 554: Primary extraction context_before = 400
+   - Line 1094: Secondary extraction context_size = 400
+2. Added logging when truncation detected
+   - Warns when names start with lowercase
+   - Helps track remaining truncation cases
+
+Impact:
+- Larger context captures more text before citations
+- Should significantly reduce truncation frequency
+- Logging helps identify remaining edge cases
+
+Note: This doesn't eliminate ALL truncation (would need more complex
+logic), but should handle the majority of cases where truncation occurs
+because the window was too small.
+
+Time: 25 minutes

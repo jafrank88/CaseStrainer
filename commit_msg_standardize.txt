@@ -1,0 +1,26 @@
+CRITICAL FIX: Standardize extracted names within clusters to prevent splits
+
+Root cause: Validation step was splitting clusters because citations had
+slightly different extracted_case_names due to extraction variations.
+
+Example bug:
+- Cluster: [6 Pet. 515, 8 L. Ed. 483] (Worcester v. Georgia parallels)
+- Citation 1 extracted: "Worcester v. Georgia"
+- Citation 2 extracted: "Worcester v. State of Georgia" 
+- Validation saw "2 different extracted names" → SPLIT cluster
+
+Solution: Standardize extracted data within each cluster
+- Collect all extracted_case_names from cluster
+- Pick BEST one (longest, most complete)
+- Propagate to ALL citations in cluster
+- Same for extracted_year (most common)
+
+Result: All citations in cluster now have IDENTICAL extracted data
+- Validation sees "1 extracted name" → KEEPS cluster intact!
+- true_by_parallel will now work (unverified parallels with verified)
+- Proper cluster grouping maintained
+
+This follows user's brilliant suggestion to use best extracted data
+rather than letting extraction variations break clustering.
+
+Expected: Cluster count drops from ~120 to ~70, true_by_parallel works!

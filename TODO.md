@@ -4,13 +4,25 @@
 
 ### 🎯 High Priority
 
-#### 1. Progress Indicators Not Working
-- **Issue**: Spinner is not spinning and progress bar is not moving during "Extract Names" step
+#### 1. HomeView Spinner Not Animating
+- **Issue**: Processing spinner in HomeView.vue is not spinning/animating
 - **Status**: 🔴 OPEN
-- **Description**: When processing citations, the frontend shows "Extract Names" but the spinner doesn't animate and progress bar remains static
-- **Impact**: Poor user experience - users can't tell if the system is working or stuck
+- **Description**: The spinner shows up during document processing but doesn't rotate - appears static
+- **Impact**: Poor user experience - users can't tell if processing is active
+- **Location**: `casestrainer-vue-new/src/views/HomeView.vue`
+- **Attempted Fixes**: 
+  - Added `!important` to CSS animation properties
+  - Replaced with simple text indicator "⏳ Processing Your Document..."
+- **Current Workaround**: Using text-based indicator instead of animated spinner
+- **Notes**: CSS animation may have browser-specific issues or conflicting styles
+
+#### 2. Progress Indicators Not Working (Legacy Issue)
+- **Issue**: Progress bar is not moving during "Extract Names" step
+- **Status**: 🟡 PARTIALLY RESOLVED
+- **Description**: When processing citations, progress bar remains static
+- **Impact**: Poor user experience - users can't tell progress
 - **Location**: Frontend progress tracking components
-- **Notes**: This appears to be related to the backend hanging during enhanced fallback verification
+- **Notes**: Backend hanging issue was resolved, but frontend animation still needs work
 
 #### 2. Progress Step Stuck at "Extract Names"
 - **Issue**: Processing gets stuck at "Extract Names" step with NaN% progress
@@ -20,6 +32,28 @@
 - **Frontend Impact**: Progress tracking needs to handle backend timeouts gracefully
 
 ## Backend Issues
+
+### 🎯 High Priority
+
+#### 1. Case Name Extraction - Low Verification Rate
+- **Issue**: Only 31.7% of citations are being verified (19/60)
+- **Status**: 🟡 IN PROGRESS
+- **Description**: Case name extraction is capturing contaminated/truncated names
+- **Examples of Problems**:
+  - "Collateral Order Doctrine Overruling Batzel v. Smith" (includes explanatory text)
+  - "Cohen v. Be" (truncated - should be "Cohen v. Beneficial Industrial Loan Corp.")
+  - "Gasperini v. Ct" (truncated - should include full defendant name)
+- **Recent Improvements**:
+  - ✅ Added smart backward-walking algorithm to find case name start
+  - ✅ Captures everything between "v." and citation (including commas)
+  - ✅ Rejects obviously truncated names (v. Ct, v. Bl, v. Wa, etc.)
+  - ✅ Minimum 5-character validation for party names
+- **Still Needed**:
+  - Remove citation signals and explanatory text before case names
+  - Better handling of "In re" and "Ex parte" cases
+  - Improve detection of sentence boundaries
+- **Test Case**: `D:\dev\casestrainer\24-2626.pdf` (60 citations, 67 clusters)
+- **Target**: Increase verification rate from 31.7% to 60%+
 
 ### ✅ Completed
 

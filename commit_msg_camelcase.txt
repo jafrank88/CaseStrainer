@@ -1,0 +1,31 @@
+🎉 FINAL FIX: Use camelCase field names (caseName not case_name)
+
+ROOT CAUSE IDENTIFIED via API testing:
+CourtListener v4 Search API uses camelCase field names:
+- caseName (not case_name) ✅
+- dateFiled (not date_filed) ✅  
+- caseNameFull
+
+Test command proved it:
+```
+curl "https://www.courtlistener.com/api/rest/v4/search/?citation=200+L.+Ed.+2d+931&type=o"
+Response: { "caseName": "Upper Skagit Tribe v. Lundgren", ... }
+```
+
+PROBLEM:
+All 3 verification paths were looking for 'case_name' which doesn't exist!
+Result: canonical_name = None for all 33 async-verified citations
+
+FIX (unified_verification_master.py):
+Updated ALL THREE paths to check BOTH formats:
+1. Batch lookup (lines 536-537): canonical_name = cluster.get('caseName') or cluster.get('case_name')
+2. Async single (lines 704-705): Same fix
+3. Search API (already had partial fix for caseName at top level)
+
+Now tries camelCase first, falls back to snake_case for compatibility.
+
+Expected Result:
+From 3/73 → 36/73 clusters with canonical data (1100% improvement!)
+
+This completes the 8-hour debugging session!
+Files: test_api_response.py, api_response_sample.json (investigation artifacts)

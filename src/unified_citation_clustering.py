@@ -444,12 +444,6 @@ class UnifiedCitationClusterer:
             if extracted_case_name == "N/A" and raw_case_name and raw_case_name != "N/A":
                 logger.warning(f"🚫 CONTAMINATION: Filtered contaminated case name: '{raw_case_name[:100]}...'")
 
-            preferred_case_name = prefer_canonical_name(
-                extracted_case_name,
-                {"canonical_name": canonical_name} if canonical_name else {},
-                lambda name: name and name != "N/A"
-            )
-
             # IMPROVED: Extract year with better validation
             year = None
             
@@ -479,14 +473,19 @@ class UnifiedCitationClusterer:
                 {"canonical_year": canonical_year} if canonical_year else {}
             )
 
-            # IMPROVED: Better fallback logic for case names
-            if not preferred_case_name or preferred_case_name == "N/A":
+            # IMPROVED: Better fallback logic for case names (only from document extraction)
+            # CRITICAL: extracted_case_name must ONLY contain text from the user's document
+            if not extracted_case_name or extracted_case_name == "N/A":
                 for citation in sorted_group:
                     extracted_name = self._extract_case_name_from_citation(citation, text)
                     if extracted_name and extracted_name != "N/A" and len(extracted_name) > 5:
-                        preferred_case_name = extracted_case_name = extracted_name
-                        logger.warning(f"🔄 METADATA: Using fallback case name '{preferred_case_name}' from citation {sorted_group.index(citation)}")
+                        extracted_case_name = extracted_name
+                        logger.warning(f"🔄 METADATA: Using fallback case name '{extracted_case_name}' from citation {sorted_group.index(citation)}")
                         break
+            
+            # CRITICAL FIX: preferred_case_name is for display/UI only, uses canonical if available
+            # It should NEVER be used to populate the extracted_case_name field
+            preferred_case_name = canonical_name if canonical_name and canonical_name != "N/A" else extracted_case_name
             
             # IMPROVED: Better fallback logic for years
             if not preferred_year or preferred_year == "N/A":
@@ -513,17 +512,27 @@ class UnifiedCitationClusterer:
 
             for citation in sorted_group:
                 if isinstance(citation, dict):
+                    # CRITICAL FIX: Only use extracted_case_name (from document), NEVER canonical_name
                     if not citation.get('extracted_case_name') or citation.get('extracted_case_name') == "N/A":
-                        citation['extracted_case_name'] = preferred_case_name or extracted_case_name or "N/A"
-                    citation['extracted_date'] = preferred_year or year or "N/A"
+                        citation['extracted_case_name'] = extracted_case_name or "N/A"
+                    # CRITICAL: Only set extracted_date if it's empty AND we have a clean year (not full ISO date)
+                    if not citation.get('extracted_date') or citation.get('extracted_date') == "N/A":
+                        clean_year = year if year and re.match(r'^\d{4}$', str(year)) else None
+                        if clean_year:
+                            citation['extracted_date'] = clean_year
                     if canonical_name and canonical_name != "N/A":
                         citation['canonical_name'] = canonical_name
                     if canonical_year and canonical_year != "N/A":
                         citation['canonical_year'] = canonical_year
                 elif hasattr(citation, 'extracted_case_name'):
+                    # CRITICAL FIX: Only use extracted_case_name (from document), NEVER canonical_name
                     if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
-                        citation.extracted_case_name = preferred_case_name or extracted_case_name or "N/A"
-                    citation.extracted_date = preferred_year or year or "N/A"
+                        citation.extracted_case_name = extracted_case_name or "N/A"
+                    # CRITICAL: Only set extracted_date if it's empty AND we have a clean year (not full ISO date)
+                    if not citation.extracted_date or citation.extracted_date == "N/A":
+                        clean_year = year if year and re.match(r'^\d{4}$', str(year)) else None
+                        if clean_year:
+                            citation.extracted_date = clean_year
                     if canonical_name and canonical_name != "N/A":
                         citation.canonical_name = canonical_name
                     if canonical_year and canonical_year != "N/A":
@@ -713,24 +722,32 @@ class UnifiedCitationClusterer:
         if distance > self.proximity_threshold:
             return False
         
-        # Check if they have the same case name (if available)
+        # FIX #58: STRICT extracted name/date matching required
+        # Both citations MUST have extracted names to cluster together
         case1 = get_case_name(citation1)
         case2 = get_case_name(citation2)
         
-        if case1 and case2 and case1 != 'N/A' and case2 != 'N/A':
-            # If both have case names, they should match
-            similarity = self._calculate_name_similarity(case1, case2)
-            if similarity < self.case_name_similarity_threshold:
-                return False
+        # Reject if either citation lacks extracted name
+        if not case1 or not case2 or case1 == 'N/A' or case2 == 'N/A':
+            return False  # Cannot cluster without extracted names
         
-        # Check if they have the same year (if available)
+        # Names must match (high similarity required)
+        similarity = self._calculate_name_similarity(case1, case2)
+        if similarity < self.case_name_similarity_threshold:
+            return False
+        
+        # FIX #58: STRICT year matching required  
+        # Both citations MUST have extracted years to cluster together
         year1 = get_year(citation1)
         year2 = get_year(citation2)
         
-        if year1 and year2 and year1 != 'N/A' and year2 != 'N/A':
-            # If both have years, they should match
-            if year1 != year2:
-                return False
+        # Reject if either citation lacks extracted year
+        if not year1 or not year2 or year1 == 'N/A' or year2 == 'N/A':
+            return False  # Cannot cluster without extracted years
+        
+        # Years must match exactly
+        if year1 != year2:
+            return False
         
         # Additional check for Washington citations specifically
         if 'wn' in citation1_text.lower() or 'wn' in citation2_text.lower():
@@ -955,8 +972,12 @@ class UnifiedCitationClusterer:
                 if sample_reporter == 'wl':
                     metadata_cluster_key = f"wl_{sample_citation_text.replace(' ', '_')}"
                 elif sample_name != 'N/A' and sample_year != 'N/A':
-                    normalized_name = self._normalize_case_name_for_clustering(sample_name)
-                    metadata_cluster_key = f"{normalized_name}_{sample_year}"
+                    from src.utils.clustering_utils import create_cluster_key_from_extracted_data
+                    metadata_cluster_key = create_cluster_key_from_extracted_data(
+                        sample_name,
+                        sample_year,
+                        sample_citation_text
+                    )
                 else:
                     metadata_cluster_key = cluster_key
                 
@@ -1032,8 +1053,12 @@ class UnifiedCitationClusterer:
             end_index = getattr(citation, 'end_index', getattr(citation, 'end', None))
             citation_text = getattr(citation, 'citation', '')
             
+        # FIX: DO NOT trust existing_name - it may be truncated from eyecite
+        # Always re-extract to get complete names like "Noem v. Nat'l TPS All." instead of "Noem v. Nat"
+        # The existing name logic was returning truncated names before better extraction could run
+        import re
         if existing_name and existing_name != "N/A":
-            return existing_name
+            logger.info(f"[CLUSTERING-REEXTRACT] Ignoring existing name '{existing_name}' and re-extracting for better results")
         
         # IMPROVED: Use enhanced context extraction with better patterns
         extracted_name = self._extract_case_name_enhanced(citation, text, start_index, end_index, citation_text)
@@ -1866,9 +1891,11 @@ class UnifiedCitationClusterer:
         
         CRITICAL: Only propagate within actual parallel citation groups of the SAME case.
         """
+        logger.error(f"🔥 [FIX #58 TRACE] _apply_core_clustering_logic called with {len(citations)} citations")
         clusters = {}
         
         parallel_groups = self._group_by_parallel_relationships(citations)
+        logger.error(f"🔥 [FIX #58 TRACE] Created {len(parallel_groups)} parallel groups")
         
         for group in parallel_groups:
             if len(group) < 2:
@@ -1880,10 +1907,13 @@ class UnifiedCitationClusterer:
                     case_name.strip().upper() != 'N/A' and 
                     year.strip().upper() != 'N/A'):
                     
-                    # Clean case name before creating cluster key
-                    from src.utils.case_name_cleaner import clean_extracted_case_name
-                    cleaned_case_name = clean_extracted_case_name(case_name)
-                    cluster_key = f"{cleaned_case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
+                    # CRITICAL: Use clustering utility to create key from extracted data only
+                    from src.utils.clustering_utils import create_cluster_key_from_extracted_data
+                    cluster_key = create_cluster_key_from_extracted_data(
+                        case_name,
+                        year,
+                        getattr(citation, 'citation', '')
+                    )
                     if cluster_key not in clusters:
                         clusters[cluster_key] = []
                     clusters[cluster_key].append(citation)
@@ -1919,7 +1949,13 @@ class UnifiedCitationClusterer:
                 if not getattr(citation, 'extracted_date', None) or getattr(citation, 'extracted_date', None) == "N/A":
                     citation.extracted_date = year
             
-            cluster_key = f"{case_name}_{year}".replace(' ', '_').replace('.', '_').replace('/', '_')
+            # CRITICAL: Use clustering utility to create key from extracted data only
+            from src.utils.clustering_utils import create_cluster_key_from_extracted_data
+            cluster_key = create_cluster_key_from_extracted_data(
+                case_name,
+                year,
+                sorted_group[0].citation if sorted_group and hasattr(sorted_group[0], 'citation') else ''
+            )
             if cluster_key not in clusters:
                 clusters[cluster_key] = []
             clusters[cluster_key].extend(sorted_group)
@@ -1937,6 +1973,7 @@ class UnifiedCitationClusterer:
         Only group citations that are explicitly marked as parallel AND
         have compatible case names.
         """
+        logger.error(f"🔥 [FIX #58 TRACE] _group_by_parallel_relationships called with {len(citations)} citations")
         citation_lookup = {c.citation: c for c in citations}
         visited = set()
         groups = []
@@ -1955,36 +1992,41 @@ class UnifiedCitationClusterer:
                 if parallel_cite in citation_lookup and parallel_cite not in visited:
                     parallel_citation = citation_lookup[parallel_cite]
                     
-                    # FIXED: Check both extracted and canonical names for compatibility
+                    # FIX #58B: Use ONLY extracted names for clustering (never canonical!)
                     citation_extracted = getattr(citation, 'extracted_case_name', None)
-                    citation_canonical = getattr(citation, 'canonical_name', None)
                     parallel_extracted = getattr(parallel_citation, 'extracted_case_name', None)
-                    parallel_canonical = getattr(parallel_citation, 'canonical_name', None)
+                    citation_year = getattr(citation, 'extracted_date', None)
+                    parallel_year = getattr(parallel_citation, 'extracted_date', None)
                     
-                    # Get the best available names
-                    citation_name = citation_canonical if citation_canonical and citation_canonical != "N/A" else citation_extracted
-                    parallel_name = parallel_canonical if parallel_canonical and parallel_canonical != "N/A" else parallel_extracted
+                    # STRICT: Both citations MUST have extracted names to cluster
+                    if not citation_extracted or not parallel_extracted or citation_extracted == "N/A" or parallel_extracted == "N/A":
+                        logger.error(f"🚫 [FIX #58B] Rejecting - missing extracted names: '{citation_extracted}' vs '{parallel_extracted}'")
+                        continue  # Cannot cluster without extracted names
                     
-                    # Only reject if we have clear evidence they're different cases
-                    if (citation_name and parallel_name and 
-                        citation_name != "N/A" and parallel_name != "N/A" and
-                        not self._are_case_names_compatible(citation_name, parallel_name)):
-                        logger.warning(f"CLUSTERING_FIX: Rejecting parallel grouping - incompatible names: '{citation_name}' vs '{parallel_name}'")
+                    # STRICT: Both citations MUST have extracted years to cluster
+                    if not citation_year or not parallel_year or citation_year == "N/A" or parallel_year == "N/A":
+                        logger.error(f"🚫 [FIX #58B] Rejecting - missing extracted years: '{citation_year}' vs '{parallel_year}'")
+                        continue  # Cannot cluster without extracted years
+                    
+                    # STRICT: Years must match exactly
+                    if citation_year != parallel_year:
+                        logger.error(f"🚫 [FIX #58B] Rejecting - year mismatch: {citation_year} vs {parallel_year}")
+                        continue
+                    
+                    # STRICT: Names must be highly compatible
+                    if not self._are_case_names_compatible(citation_extracted, parallel_extracted):
+                        logger.error(f"🚫 [FIX #58B] Rejecting - incompatible extracted names: '{citation_extracted}' vs '{parallel_extracted}'")
                         continue  # Different cases - don't group
                     
+                    logger.error(f"✅ [FIX #58B] ACCEPTING parallel: '{citation_extracted}' ({citation_year}) + '{parallel_extracted}' ({parallel_year})")
+                    
+                    # Verify bidirectional relationship
                     reverse_parallels = getattr(parallel_citation, 'parallel_citations', [])
                     if citation.citation not in reverse_parallels:
-                        logger.warning(f"CLUSTERING_FIX: Skipping non-bidirectional parallel: {citation.citation} -> {parallel_cite} (reverse: {reverse_parallels})")
+                        logger.warning(f"🚫 [FIX #58B] Skipping non-bidirectional parallel: {citation.citation} -> {parallel_cite}")
                         continue  # Not bidirectional - suspicious
                     
-                    logger.warning(f"CLUSTERING_FIX: Adding parallel citation to group: {citation.citation} + {parallel_cite}")
-                    
-                    if ((not citation_name or citation_name == "N/A") or 
-                        (not parallel_name or parallel_name == "N/A")):
-                        distance = abs(citation.start_index - parallel_citation.start_index)
-                        if distance > 50:  # Very conservative - must be very close
-                            continue
-                    
+                    # All checks passed - add to group
                     group.append(parallel_citation)
                     group_citations.add(parallel_cite)
                     visited.add(parallel_cite)
@@ -2043,26 +2085,22 @@ class UnifiedCitationClusterer:
             if verified_citations:
                 for citation in verified_citations:
                     if not case_name:
-                        # Try canonical name first (from verification)
-                        canonical_name = getattr(citation, 'canonical_name', None)
-                        if canonical_name and canonical_name != "N/A" and canonical_name != "Unknown Case":
-                            case_name = canonical_name
-                        else:
-                            # Fall back to extracted name
-                            name = getattr(citation, 'extracted_case_name', None)
-                            if name and name != "N/A" and name != "Unknown Case":
-                                case_name = name
+                        # CRITICAL: ONLY use extracted_case_name from user's document
+                        # NEVER use canonical_name to populate extracted_case_name
+                        name = getattr(citation, 'extracted_case_name', None)
+                        if name and name != "N/A" and name != "Unknown Case":
+                            case_name = name
+                        # If no extracted name, leave case_name as None - do NOT use canonical data
                     
                     if not year:
-                        # Try canonical date first
-                        canonical_date = getattr(citation, 'canonical_date', None)
-                        if canonical_date and canonical_date != "N/A" and canonical_date != "Unknown Year":
-                            year = canonical_date
-                        else:
-                            # Fall back to extracted date
-                            date = getattr(citation, 'extracted_date', None)
-                            if date and date != "N/A" and date != "Unknown Year":
+                        # CRITICAL: ONLY use extracted_date from user's document
+                        # NEVER use canonical_date to populate extracted_date
+                        date = getattr(citation, 'extracted_date', None)
+                        if date and date != "N/A" and date != "Unknown Year":
+                            # Validate it's a clean year (not full ISO date)
+                            if re.match(r'^\d{4}$', str(date)):
                                 year = date
+                        # If no extracted date, leave year as None - do NOT use canonical data
                     
                     if case_name and year:
                         break
@@ -2072,26 +2110,22 @@ class UnifiedCitationClusterer:
             if not case_name or not year:
                 for citation in citations:
                     if not case_name:
-                        # Try canonical name first
-                        canonical_name = getattr(citation, 'canonical_name', None)
-                        if canonical_name and canonical_name != "N/A" and canonical_name != "Unknown Case":
-                            case_name = canonical_name
-                        else:
-                            # Fall back to extracted name
-                            name = getattr(citation, 'extracted_case_name', None)
-                            if name and name != "N/A" and name != "Unknown Case":
-                                case_name = name
+                        # CRITICAL: ONLY use extracted_case_name from user's document
+                        # NEVER use canonical_name to populate extracted_case_name
+                        name = getattr(citation, 'extracted_case_name', None)
+                        if name and name != "N/A" and name != "Unknown Case":
+                            case_name = name
+                        # If no extracted name, leave case_name as None - do NOT use canonical data
                     
                     if not year:
-                        # Try canonical date first
-                        canonical_date = getattr(citation, 'canonical_date', None)
-                        if canonical_date and canonical_date != "N/A" and canonical_date != "Unknown Year":
-                            year = canonical_date
-                        else:
-                            # Fall back to extracted date
-                            date = getattr(citation, 'extracted_date', None)
-                            if date and date != "N/A" and date != "Unknown Year":
+                        # CRITICAL: ONLY use extracted_date from user's document
+                        # NEVER use canonical_date to populate extracted_date
+                        date = getattr(citation, 'extracted_date', None)
+                        if date and date != "N/A" and date != "Unknown Year":
+                            # Validate it's a clean year (not full ISO date)
+                            if re.match(r'^\d{4}$', str(date)):
                                 year = date
+                        # If no extracted date, leave year as None - do NOT use canonical data
                     
                     if case_name and year:
                         break
@@ -2106,15 +2140,40 @@ class UnifiedCitationClusterer:
             
             # IMPROVED: Preserve valid case names, reject contaminated ones
             display_case_name = case_name if case_name and case_name != "N/A" else "Unknown Case"
-            display_year = year if year and year != "N/A" else "Unknown Year"
             
-            # FIXED: Ensure consistency between case_name and extracted_case_name
+            # CRITICAL: Validate year is a 4-digit year, not a full ISO date
+            # If it's a full ISO date (e.g., "2015-07-16"), extract just the year
+            if year and year != "N/A":
+                if re.match(r'^\d{4}$', str(year)):
+                    # Already a clean 4-digit year
+                    display_year = year
+                elif re.match(r'^\d{4}-\d{2}-\d{2}', str(year)):
+                    # Full ISO date - extract just the year
+                    display_year = str(year)[:4]
+                    logger.warning(f"[CONTAMINATION-FIX] Extracted year '{display_year}' from contaminated date '{year}' for cluster {cluster_id}")
+                else:
+                    # Try to extract any 4-digit year
+                    year_match = re.search(r'(\d{4})', str(year))
+                    if year_match:
+                        display_year = year_match.group(1)
+                        logger.warning(f"[CONTAMINATION-FIX] Extracted year '{display_year}' from malformed date '{year}' for cluster {cluster_id}")
+                    else:
+                        display_year = "Unknown Year"
+                        logger.warning(f"[CONTAMINATION-ERROR] Could not extract year from '{year}' for cluster {cluster_id}")
+            else:
+                display_year = "Unknown Year"
+            
+            # CRITICAL: extracted_case_name and extracted_date must ONLY contain data from user's document
+            # case_name and year will be overwritten with canonical data if available (lines 2187-2196)
             cluster_dict = {
                 'cluster_id': cluster_id,
-                'case_name': display_case_name,
-                'extracted_case_name': display_case_name,  # FIXED: Keep consistent with case_name
-                'year': display_year,
-                'extracted_date': display_year,  # FIXED: Keep consistent with year
+                'case_name': display_case_name,  # Will be overwritten with canonical if available
+                'extracted_case_name': display_case_name,  # From user's document ONLY
+                'year': display_year,  # Will be overwritten with canonical if available
+                'extracted_date': display_year,  # From user's document ONLY
+                'canonical_name': None,  # Will be set below if verified data available
+                'canonical_date': None,  # Will be set below if verified data available
+                'canonical_url': None,  # Will be set below if verified data available
                 'size': len(citations),
                 'citations': citation_texts,
                 'citation_objects': [self._serialize_citation_object(c, citation_texts) for c in citations],

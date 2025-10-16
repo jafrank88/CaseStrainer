@@ -1,0 +1,14 @@
+Add detailed logging for true_by_parallel propagation
+
+Added comprehensive logging to trace why true_by_parallel is not being set:
+- Logs how many citations checked per cluster
+- Logs each citation verified status
+- Logs when propagation happens with citation text
+- Summary of propagated vs already-verified counts
+
+This will help diagnose if:
+1. All citations are already verified (no propagation needed)
+2. Citations are dicts vs objects (type handling issue)
+3. Propagation code is running but silently failing
+
+Expected: Should see propagation logs for 27 unverified citations that are in clusters with verified parallels.

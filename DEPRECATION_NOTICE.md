@@ -1,7 +1,8 @@
-# 🚨 DEPRECATION NOTICE: Case Name Extraction Functions
+# 🚨 DEPRECATION NOTICE - Citation Extraction Methods
 
-## Overview
-All 47+ case name extraction functions have been **DEPRECATED** and replaced with **ONE unified function**.
+## Effective Date: Session Complete
+
+The following extraction methods are **DEPRECATED** and replaced by the clean extraction pipeline.
 
 ## ✅ What to Use Instead
 

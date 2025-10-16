@@ -1,0 +1,26 @@
+Add verbose diagnostic logging for canonical data extraction
+
+Problem: Cluster canonical data extraction appears to run but most clusters
+still show "N/A" in frontend. Need to diagnose why.
+
+Changes (src/progress_manager.py):
+1. Changed logger.info() to logger.error() for visibility
+2. Added detailed logging for each cluster processed
+3. Log each citation's verified status and canonical_name presence
+4. Count and report clusters with vs without canonical data
+5. Log when no verified citations found in cluster
+
+This verbose logging will help identify:
+- Are verified citations missing canonical_name?
+- Are clusters empty?
+- Which specific clusters succeed vs fail?
+
+Expected output in logs:
+- "🔍 CANONICAL DATA EXTRACTION: Processing X clusters"
+- "🔍 Cluster has X citations"
+- "🔍 Citation: verified=True/False, has_canonical=True/False"  
+- "✅ Found verified citation with canonical: [name]"
+- "⚠️ No verified citation with canonical data found in this cluster"
+- "📊 CANONICAL DATA SUMMARY: X/Y clusters have canonical data"
+
+Next: Resubmit PDF and examine worker logs to diagnose issue

@@ -1,0 +1,17 @@
+CRITICAL FIX: Fix nginx double-prefixing causing 404 errors on production
+
+Root Cause:
+nginx config had: proxy_pass http://backend:5000/casestrainer/api/;
+This caused double-prefixing: /casestrainer/api/analyze → /casestrainer/api/casestrainer/api/analyze
+
+The Fix:
+Changed to: proxy_pass http://backend:5000;
+Now nginx preserves the original URI path correctly
+
+Impact:
+- Frontend can now reach backend API endpoints
+- /casestrainer/api/analyze → 200 ✅ (was 404 ❌)
+- /casestrainer/api/processing_progress → 200 ✅ (was 404 ❌)
+- All Vue.js frontend API calls now work
+
+This fixes the production site at wolf.law.uw.edu/casestrainer/

@@ -1,0 +1,20 @@
+Add comprehensive logging to trace async data flow and create TO-DO list
+
+Added detailed logging to trace why cluster canonical data and parallel 
+propagation aren't working:
+
+1. Created ASYNC_ISSUES_TODO.md with comprehensive analysis
+   - 6 specific issues documented
+   - Root cause investigation steps
+   - Success criteria defined
+
+2. Added logging to unified_clustering_master.py
+   - Log each citation checked for verification/canonical data
+   - Log when best_verified citation is found
+   - Log cluster canonical data extraction
+   - Warn when no verified citation found
+
+This logging will help identify exactly where the data flow breaks
+and why fixes aren't being applied in async processing.
+
+Next: Submit PDF and examine worker logs to see what's happening.

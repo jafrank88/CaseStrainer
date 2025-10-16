@@ -1,0 +1,17 @@
+ENABLE batch citation-lookup verification in clustering
+
+Changed enable_verification from False to True in unified_citation_processor_v2.py line 3791.
+
+This enables the efficient batch citation-lookup API that:
+- Processes 50 citations per batch (vs individual calls)
+- Returns immediate results with complete cluster data
+- Uses resource_uri for proper API endpoints
+- Should dramatically improve verification rate
+
+Expected impact:
+- More clusters with canonical data
+- Faster processing (batch vs individual API calls)
+- Better use of API resources
+- Proper batch logs (BATCH-API-DEBUG, BATCH-VERIFY-DEBUG) will now appear
+
+Testing: Will upload PDF and verify batch verification is working.

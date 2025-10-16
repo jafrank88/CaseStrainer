@@ -1,0 +1,31 @@
+CRITICAL FIX: Remove verified status override in to_dict() that broke true_by_parallel
+
+ROOT CAUSE FOUND: models.py to_dict() was overriding verified=False to True!
+
+Lines 75-78 had logic:
+```
+if not verified_status and (canonical_name or canonical_url):
+    verified_status = True  # Override!
+```
+
+This BROKE true_by_parallel because:
+1. Citation gets verified=False from batch API (404 from CourtListener)
+2. true_by_parallel propagates canonical_name from verified sibling  
+3. to_dict() sees: verified=False BUT canonical_name exists
+4. to_dict() overrides to: verified=True
+5. Result: Propagation check sees "all verified" and does nothing!
+
+THE FIX:
+Removed the override logic completely. Now verified status is preserved.
+- verified=False stays False even with canonical data
+- This is CORRECT for true_by_parallel cases
+- Canonical data can come from propagation, not direct verification
+
+Expected Result:
+- 584 U.S. 554: verified=False + canonical_name (from propagation)
+- Propagation check: sees verified=False
+- Sets true_by_parallel=True
+- Canonical data coverage increases to 90%+
+
+This was THE bug preventing true_by_parallel from working!
+After 16 hours, we found it in the to_dict() conversion method.

@@ -1,0 +1,1074 @@
+
+=== PAGE 1 ===
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON 
+CERTIFIC
+ATION FROM THE  UNITED   ) 
+STATES  DISTRICT  COURT FOR  THE    ) No. 103394 -0 
+WESTERN DISTRICT OF WASHINGTON  ) 
+IN ) 
+) 
+LISA  BRANSON and CHERIE  BURKE , ) 
+individually and on behalf of all others similarly ) 
+situated,  ) 
+) 
+Plaintiffs, ) 
+) En Banc  
+v. ) 
+) 
+WAS HINGTON FINE  WINE  & SPIRITS,  ) 
+LLC,  a Washington  limited liability company  ) 
+doing business  as TOTAL WINE  & More;  and ) 
+DOES  1-20,  ) 
+) 
+Defendants. ) Filed: September 4, 2025  
+) 
+MADSEN, J.—In  2022, the legisla
+ture amended the Washington Equal Pay  and 
+Opportunities Act (EPOA), ch. 49.58 RCW, to  require employers with 15 or more 
+employees to  disclose wage scale, salary range, and benefits information in all job 
+postings, effective January 1, 2023.  RCW 49.58.110.  Violations of this statute entitles 
+employees and job applicants to the remedies listed in RCW 49.58.060-.070.  RCW 
+FILE 
+IN CLERK ’S OFFICE 
+SUPREME COURT, STATE OF WASHINGTON 
+SEPTEMBER 4, 2025
+THIS OPINION WAS FILED 
+FOR RECORD AT 8 A.M. ON 
+SEPTEMBER 4, 2025
+SARAH R. PENDLETON  
+SUPREME COURT CLERK 
+
+
+=== PAGE 2 ===
+No. 103394-0 
+2 49.58.110(4).1  This case  concerns the interpretation of the key term “job applicant” in 
+RCW 49.58.110(4).  The federal district court has asked this court to determine what a 
+plaintiff must prove to be deemed a “job applicant.”  We  hold that a plaintiff must apply 
+to a specific job posting but is not required to prove they are a “bona fide” or “good faith” 
+applicant to obtain remedies  under the statute. 
+BACKGROUND  
+The defendant, Washington Fine Wine and  Spirits LLC, which does business as  
+Total Wine and More (Total Wine), is a Washington limited liability company that owns 
+and operates 13 retail liquor stores throughout Washington.  All job openings at  Total 
+Wine are posted on their official website, and some of their retail stores also use third-
+party sites such as  Indeed.com.2   
+After the effective date in RCW 49.58.110, plaintiffs Lisa Branson and Cherie 
+Burke submitted applications for job openings at the defendant’s retail stores.  Branson 
+submitted an application through Indeed.com for a retail sales  associate position at  Total 
+Wine’s Tukwila store; however, the job posting for that position did not include the 
+salary or wage range a s required by the EPOA.  Similarly, Burke applied for a 
+cashier/customer service position at  Total Wine’s Tukwila store through Indeed.com and 
+through Total Wine’s official website; however, the job posting on Indeed.com did not include the required pay range information.  Unlike Branson, Burke had  an in-person 
+1 Effective  July 27, 2025, RCW  49.58.110(4) and  (5) provide  the exclusive  remedies available for  
+violations of the statute.   See LAWS  OF 2025, ch.  383, §§ 4-6.  The  amendments  do not impact our 
+analysis of a “job  applicant” who  is eligible  for these  remedies.  
+2 All job postings on Total  Wine’s  official  website,  under the “Career  Search ” button include salary  and 
+wage  ranges. 
+
+=== PAGE 3 ===
+No. 103394- 0 
+ 
+ 
+3 interview for the position and discussed pay  with the Tukwila store manager.  Burke did 
+not accept  the offer made to her by  Total Wine for the position.  
+Subsequently, Branson  and Burke filed an amended  class action complaint against 
+Total Wine in King  County, invoking their right to statutory damages  under RCW 
+49.58.070 and RCW 49.58.110 for Total Wine’s failure to  post the required wage scale or  
+salary range in its job postings on  Indeed.com.   Total Wine filed a motion to bifurcate 
+discovery, arguing that the plaintiffs are not  the type of “job applicants” the EPOA  
+intended to  protect since the statute  is meant  to protect “bona fide” applicants.  The 
+plaintiffs opposed the motion, and  the parties disputed the meaning of  “job applicant” in 
+the EPOA.    
+The United States District Court for the Western District of Washington then 
+certified the following question:  “ What  must a Plaintiff prove to be deemed  a ‘job 
+applicant’ within the meaning of RCW 49.58.110(4)?  For example, must they prove that 
+they are a ‘bona fide’ applicant”?  Ord. Certifying Question to Wash.  State Sup.  Ct. at  2 
+(W.D. Wash.  Aug. 20, 2024).  We  accepted  certification.  
+ANALYSIS  
+Certified questions  are questions of law that this court reviews de novo and in light 
+of the record  certified  by the federal court.  Lopez  Demetrio v.  Sakuma Bros. Farms, 183 
+Wn.2d 649, 655, 355 P.3d 258 (2015).  Statutory interpretation is  also an  issue of law we  
+review de novo.  Spokane County v.  Dep’t of Fish & Wildlife, 192 Wn.2d 453, 457, 430 
+P.3d 655 (2018).   
+
+=== PAGE 4 ===
+No. 103394- 0 
+ 
+ 
+4 We are asked  to interpret the statutory term  “job applicant” within RCW 
+49.58.110(4).  Our  “fundamental objective is to ascertain and carry  out the Legislature’s 
+intent, and if the statute’s meaning is plain  on its face,  then the court must give effect to 
+that plain meaning as  an expression of legislative intent.”  Dep’t of  Ecology v.  Campbell  
+& Gwinn, LLC, 146 Wn.2d 1, 9-10 , 43 P.3d 4 (2002).  In addition to looking at  the plain 
+language to determine legislative intent, we  consider “the text of the provision in  
+question, the context of  the statute in which the provision  is found, related provisions, 
+amendments to the provision, and  the statutory  scheme as  a whole.”  Ass’n of Wash. 
+Spirits & Wine Distribs . v. Wash. State Liquor Control Bd., 182 Wn.2d 342, 350, 340 
+P.3d 849 (2015) (citing  Campbell & Gwinn, 146 Wn.2d at  9-10).  If the plain language of  
+the statute is  clear  and subject to only one  reasonable interpretation, then we look no 
+further.  State v.  Velasquez, 176 Wn.2d 333, 336, 292 P.3d  92 (2013) .  A term does not 
+become ambiguous  “merely  because  multiple interpretations are conceivable” but  rather 
+when it is subject to  more than one  reasonable interpretation.  Id.   
+The Plain Language  of “Job Applicant” in RCW 49.58.110(4)  
+The EPOA, formerly known as  the Equal Pay Act, was enacted  in Washington in  
+1943 to prohibit gender -based pay discrimination.  See L AWS  OF 1943, ch. 254, §  1.  In 
+2018, the EPOA  was expanded to enhance enforcement by  allowing the Department of 
+Labor and Industries (L&I) to investigate complaints made by employees for violations 
+of the act .  See  RCW 49.58.060.  In 2019, the EPOA was  further expanded to require that  
+employers provide the wage or salary range or minimum  wage to  a job applicant upon 
+
+=== PAGE 5 ===
+No. 103394-0 
+5 their request after an initial job offer had been made by the employer.  Former RCW 
+49.58.110(1) (2019).   
+In 2022, the legislature amended RCW 49.58.110(1) to require employers to 
+disclose salary, wage,  and benefits information in all job postings.  Now, wage or salary 
+ranges must be provided in all job postings regardless of whether an  applicant requests 
+the information or whether they receive a job offer.  As it currently stands, RCW 
+49.58.110 states in  relevant part: 
+(1) The emp loyer must disclose in e ach posting for each  job opening the
+wage scale or  salary range, and a general  description of all of the ben efits
+and other compensation to be offered to the hired applicant. For  the
+purposes of  this section, “posting” means any solicitation intende d to
+recruit job applicants for a specific available position, including recr uitment
+done directly by an employer or indirectly through a third party, and
+includes any  postings done electronically, or with a printed hard copy,  that
+includes qualifications for desired applicants.
+. . . . 
+(4) A job applicant or a n employee is entitled to the reme dies in
+RCW 49.58.060 and 49.58.070 for violations of this section. 
+(Emphasis added.)  
+RCW 49.58.110(4) provides two potential remedies for job applicants and 
+employees.  First, they may either submit a complaint to L&I, who may  then initiate an 
+investigation for EPOA  violations.  See RCW 49.58.060.  Second, they may bring a civil 
+action against an  employer for actual  damages or “statutory damages  equal to the actual 
+damages or five thousand dollars, whichever is  greater,” among other relief.  RCW 
+49.58.070(1).3 
+3 Aaron’s LLC  amicus  brief  argues that  although job  applicants are  entitled  to the remedies prescribed  in 
+RCW  49.58.070, the  statute creates  a private  right  of action  only for  employees.  Included in  its argument  
+
+=== PAGE 6 ===
+No. 103394- 0 
+ 
+ 
+6 The legislature did not provide a definition  for the term “job applicant” in chapter 
+49.58 RCW.  Both parties agree that  the plain language of the term  resolves the question 
+before us; however, they disagree on  the correct definition of the term .  The defendant 
+argues that the term in the context of the EPOA  has a readily ascertainable meaning, 
+which is “a  person who formally notifies an  employer of the person’s genuine interest in  
+filling a specific posted  job.”  Answering Br. of  Resp’t-Def. Wash . Fine  Wine & Spirits 
+LLC (Br. of  Resp’t) at  26.  Total Wine concludes that a “job applicant” “must be a person 
+who actually applied for the job with a good faith or bona fide interest  in obtaining the 
+posted job.”  Id. at  62.  The plaintiffs argue that the legislature intended the term to  
+conform to its universally accepted  definition and ask us to hold that the term 
+unambiguously means  “any  person  who applies to a job posting.”  Opening Br. of 
+Pls./Appellants at  24.  We agree with the plaintiffs.  
+Since the statute does not provide a  definition of the term, we look to dictionary 
+definitions  “ʻto determine a word’s  plain and  ordinary meaning.ʼ”  State v.  M.Y.G., 199 
+Wn.2d 528, 532, 509 P.3d 818 (2022) (plurality opinion) (quoting Am. Legion Post No.  
+32 v.  City of  Walla  Walla, 116 Wn.2d 1, 8,  802 P.2d 784 (1991)).  The term “applicant” 
+is defined as  “one who applies for something :  one who makes a usu[ally] formal request 
+esp[ecially] for something of benefit to himself.”  W EBSTER ’S THIRD  NEW 
+INTERNATIONAL  DICTIONARY  105 (2002).  Another dictionary defines it similarly as  
+“[o]ne who applies or makes request”  O XFORD ENGLISH  DICTIONARY  405-06 (1993).  
+ 
+is that the  rule of lenity  supports  a finding that job applicants do  not have  a private  right  of action  under  
+the EPOA.   However,  this court  need  not consider  issues raised  solely  by amici.   Coburn v.  Seda, 101 
+Wn.2d 270, 279, 677 P.2d  173 (1984)  
+
+=== PAGE 7 ===
+No. 103394- 0 
+ 
+ 
+7 The related term “apply” means “to  make an  appeal  or a request esp[ecially] formally and  
+often in writing and  usu[ally] for something of  benefit to oneself.”   WEBSTER ’S, supra, at  
+105.  These  definitions do not rely on the subjective intent of an  individual to determine 
+whether a person is an applicant.  They simply  require that an individual submits a formal 
+application or request for a job.   
+Total Wine argues that a “job applicant” must possess an  intent or  genuine interest 
+in obtaining a job.  The plaintiffs contend that subjective intent is irrelevant because  the 
+legislature could have included qualifying language to the  statute,  such as  “bona fide” job 
+applicant, if  it intended  to limit the type of  job applicant who is entitled to remedies.  
+Total Wine counters  that if the legislature added qualifying language it would be  “mere 
+surplusage when the meaning of the term is  clear  without [it].”  Br. of  Resp’t at  25.  It 
+contends that bots or deceased  relatives could  recover under the statute since the 
+legislature did not write “‘ human job applicant.’”  Id. at  26.  It further  argues that the 
+plaintiffs’ interpretation would mean  that the legislature intended to  protect individuals 
+who submit applications in bad faith.  Total Wine’s argument overlooks the language in 
+the definition of “applicant,” which  refers to  a person or “one who applies” for 
+something,  which indicates a living human.  Thus, we need not be  concerned  that bots, 
+pets, or deceased  individuals will pursue claims as  “job applicants.”  
+The plain language of the term “job  applicant”  means a person who applies to a 
+job posting, regardless of their subjective intent in doing  so.  W e must give effect  to that 
+
+=== PAGE 8 ===
+No. 103394- 0 
+ 
+ 
+8 meaning.4  Broughton Lumber Co.  v. BNSF Ry.  Co., 174 Wn.2d 619, 627, 278 P.3d  173 
+(2012).   
+The statutory scheme supports the  plaintiffs’ interpretat ion.  In the  “Findings—
+Intent” section of the EPOA, the l egislature found that “there continues to be a gap in 
+wages and advancement  opportunities among workers in Washington, especially 
+women,” which has  led to “higher rates  of poverty among women  and children.”  RCW 
+49.58.005(1).  The legislature intended  to “address income disparities, employer  
+discrimination, and  retaliation practices, and  to reflect the equal status of all workers in 
+Washington state.”  RCW 49.58.005(2).   
+Over time, the legislature has expanded  the protections afforded to  employees and 
+applicants, demonstrating the legislature’s concern  with ending income disparities and 
+gender inequality.  For example, it amended  former RCW 49.58.110(1) to require  that 
+employers include wage scale or salary range  information in each  job posting made by 
+the employer or indirectly through  a third party rather than  waiting until after an  applicant  
+is offered a position.   
+Other sections of the EPOA  also support  our interpretation of the term.  “[W]here  
+the legislature includes  particular language in  one section of a statute but omits it in 
+another, the exclusion is  presumed  intentional. ˮ  Perez-Crisantos  v. State Farm Fire & 
+Cas. Co., 187 Wn.2d 669, 680, 389 P.3d  476 (2017).  Here,  the legislature has included 
+ 
+4 If the legislature  intend s to limit  the statute  to bona  fide job seekers, it  can amend  the statute  as was 
+recently  attempted,  by defin ing the term “job applicant ” in RCW  49.58.110 as “a  person  who  has made  
+and submitted  a bona  fide application for employment.”   H.B.  2349, at  2, 68th Leg. , Reg.  Sess.  (Wash.  
+2024);  S.B.  6241, at  2, 68th Leg. , Reg.  Sess.  (Wash.  2024) ; see also LAWS  OF 2025, ch. 383  (not defining  
+or adding qualifying  language  to the term “job  applicant”).  
+
+=== PAGE 9 ===
+No. 103394- 0 
+ 
+ 
+9 qualifying language  in other parts of the EPOA,  which indicates that it purposely omitted 
+qualifying language  in RCW 49.58.110(4).  For example, in RCW 49.58.110(1) the 
+legislature used the term “desired applicants” in its definition of “posting.”  The 
+legislature also included the term “bona fide” in other sections of  the EPOA.  See RCW 
+49.58.020- .030 (referring to good  faith, bona fide job-related  factors that justify a 
+differential in  compensation).  The legislature could have included  the same qualifying 
+language here but chose  not to.  “‘ [A] court  must not add  words where the legislature has 
+chosen not to include them.’”  Lucid Grp.  USA, Inc. v.  Dep’t of Licensing, 33 Wn. App. 
+2d 75, 81, 559 P.3d  545 (2024) (quoting Rest.  Dev., Inc. v.  Cananwill, Inc., 150 Wn.2d 
+674, 682, 80 P.3d  598 (2003)), review  denied, 4 Wn.3d 1021 (2025).  
+Additionally, RCW 49.44.200(1) prohibits employers from requesting or requiring 
+“an employee or applicant” to disclose log in information for their  personal social 
+networking  accounts.  The statute states that “ applicant” “means an  applicant for 
+employment.”  RCW 49.44.200(5)(b).  The definition of “applicant” is  broadly defined 
+and does no t mention the subjective intent of the applicant.  An employee or applicant is 
+provided a private right  of action for violations  under RCW 49.44.205.  If the legislature 
+intended to  add a qualifier to the term “job applicant,” it could have  done so as  it did in 
+RCW 49.94.010(1), which restricts employers from requesting information about  an 
+applicant’s criminal record until the employer has initially determined  that the applicant 
+is “otherwise qualified.”  “‘ Otherwise qualified’ means that the applicant meets the basic 
+criteria for the position as set out in  the advertisement or job description without  
+consideration of a criminal record.”  RCW 49.94.005.  Total Wine contends that 
+
+=== PAGE 10 ===
+No. 103394- 0 
+ 
+ 
+10 individuals may apply for positions they are clearly  unqualified for  and then bring suit.  
+However, if  the legislature intended  only “ qualified job applicants”  to be entitled to  
+remedies, it  could have  included similar limiting language  in RCW 49.58.110(4).  
+Even if the term “job applicant” is  ambiguous, the legislative history of RCW 
+49.58.110(4) supports defining the  term more broadly.  See Perez- Crisantos, 187 Wn.2d 
+at 680 (when there is  ambiguity in  a statute, courts have turned to  extrinsic evidence of 
+legislative intent).  In 2022, the leg islature recognized the importance  of individuals 
+being provided with pay-related information “ before they apply for a job” in order to 
+combat pay inequity, avoid wasted time, and “make our market more competitive.”5  
+Engrossed Substitute S enate Bill 5761 now requires employers to  disclose hourly or 
+salary compensation and  a general description of all benefits in each  posting for each  job 
+opening.  See  ENGROSSED SUBSTITUTE  S.B. 5761, 67th Leg., Reg. Sess. (Wash. 2022).   
+The initial version of Senate Bill 5761 (S.B. 5761) stated that “[a] n individual is  
+entitled to the remedies  in RCW 49.58.060 and  49.58.070 for violations of this  section.”  
+Id. (emphasis added).  At the public hearing in  the Senate  Committee on Labor, 
+Commerce & Tribal  Affairs, L&I raised concerns about the cost of the bill, including for  
+investigating complaints, and noted that anyone may file a complaint, not just applicants 
+or employees.  The agency suggested changing the term “individual”  to “job applicant or  
+an employee.”  S.B.  REP. ON S.B. 5761, at  2-3, 67th Leg., Reg. Sess. (Wash. 2022).  
+ 
+5 S. Floor  Debate  on Engrossed Substitute  S.B.  5761, 67th  Leg.,  Reg.  Sess.  (Feb.  9, 2022)), at  11 min., 05 
+sec. to 11 min., 15 sec, video  recording  by TVW,  Washington State ’s Public  Affairs  Network, 
+https://tvw.org/video/senate -floor -debate- february -9-2022021162/?eventID=2022021162 (former  Senator  
+Emily  Randall,  the prime  sponsor  of the bill, testifying  in favor  of its passage).  
+
+=== PAGE 11 ===
+No. 103394- 0 
+ 
+ 
+11 The committee revised the bill to make that change.   This means that the 
+legislature specifically considered who could obtain remedies under the statute and  
+limited protection to  those individuals who actually applied for the  job.  Significantly, the 
+legislature did not include any further limitation.  
+L&I’s Internal Policies   
+ 
+Under RCW 49.58.090, L&I is authorized to adopt rules to  implement RCW 
+49.58.005 and 49.58.020-.060.  Total Wine  states that although RCW 49.58.110 does not 
+fall under the listed provisions subject to L&I’s rule making, L&I’s rule making  extends  
+to RCW 49.58.005, which announces the legislative intent  for the EPOA.  This includes  
+the legislature’s intent “to require an  employer to provide  wage and  salary information to  
+applicants and employees.”  RCW 49.58.005(4).  Total Wine argues that since L&I has 
+the authority to administer the EPOA within the full scope of the legislature’s intent and 
+also has the  requisite expertise to carry out  that authority, we should give the agency’s 
+interpretation of an  ambiguous statute great weight in determining legislative intent.  
+“‘[A]gency interpretations of statutes are accorded  deference only if  “(1) the 
+particular agency is charged with the administration and enforcement  of the statute, (2) 
+the statute is  ambiguous, and (3) the statute falls within the agency’s special  expertise.”’”  
+Lucid Grp. USA, Inc., 33 Wn. App. 2d at  80 (emphasis omitted) (quoting Fode v.  Dep’t 
+of Ecology, 22 Wn.  App. 2d 22, 33, 509 P.3d 325 (2022)  (quoting Bostain v.  Food 
+Express, Inc., 159 Wn.2d 700, 716, 153 P.3d 846 (2007) )).  However, courts are not 
+bound by agency interpretation as  courts have the “‘“ultimate authority to interpret a 
+statute.”’”  Id . (quoting  Port of Tacoma v.  Sacks, 19 Wn. App. 2d  295, 304, 495 P.3d 866 
+
+=== PAGE 12 ===
+No. 103394-0 
+12 (2021) (quoting Bostain, 159 Wn.2d at 716)).  Under RCW 49.58.060(1), L&I is  tasked 
+with investigating complaints made by job applicants and employees to determine if there 
+has been  a violation of the EPOA.  If a violation has occurred, L&I may, among other 
+things, “order the employer to pay to the complainant actual  damages; statutory damages 
+equal to the actual  damages or five thousand dollars, whichever is greater.”  RCW 
+49.58.060(2)(a). 
+In administering and  enforcing RCW 49.58.060, L&I issued F700 -200-000, which 
+is a complaint form that also addresses who can file a complaint.  It  states that “L&I will 
+investigate complaints filed by applicants who have applied to a job in  good faith with 
+the intent of  gaining employment.  L&I generally only assesses damages  when an  
+applicant can establish they have suffered a financial loss as  a result of  a violation of the 
+law.”  W ASH. STATE  DEP’T OF LAB. & INDUS ., EQUAL  PAY & OPPORTUNITIES  ACT 
+COMPLAINT  FORM  at 1 (July 2025), https://lni.wa.gov/forms-publications/F700-200-
+000.pdf [https://perma.cc/FH2P-2CWL].
+Total Wine points  to this form to support its interpretation that “job applicants” 
+must be people who apply for jobs in good faith or have a bona fide intention of gaining employment.  However, L&I does not have rule making authority over the meaning of 
+the term “job applicant,” and the meaning of  “job applicant” is not ambiguous.  
+Moreover, L&I does not define the term “job applicant” but instead defines the complaints it will investigate.  Considering the concern raised by L&I regarding cost to 
+the agency, it  is likely its limitation is due to its limited resources.  As noted, the agency 
+already expressed concerns regarding the costs  of investigating complaints, which is why 
+
+=== PAGE 13 ===
+No. 103394- 0 
+ 
+ 
+13 it urged the legislature to amend S .B. 5761 to limit the remedies afforded to job 
+applicants and employees instead of  any individual.  See S.B.  REP. ON S.B. 5761,  at 3. 
+Significantly, in 2024, L&I published its preliminary draft  rule language for the 
+EPOA, which included  a definition of the term  “applicant.”  It defined the term as  “an 
+individual,  including existing employees,  who submits in good faith  an application for a 
+job posting with the intent of gaining employment.”  Pls ./Appellants ’ Statement  of 
+Additional  Auths. , Attach. A at  1.  In response, seven members of the Washington State 
+House of Representatives signed and submitted a public comment  letter.  The letter 
+stated:  
+We are concerned  the current draft undermines  the Legislature’s intent.  
+Specifically, the definition of “applicant” in  the preliminary draft (and the 
+specification that job applicants or  employees  must demonstrate lost 
+compensation to recover damages each  undermine key components of the 
+EPOA).  
+. . . .  
+We have historically  declined to qualify or  narrow the definition of 
+“applicant” because we intend for this unambiguous term  to be understood 
+by its plain and ordinary meaning.  For the EPOA’s salary  disclosure 
+requirement to work as  intended, anyone who applied to the job must have 
+access  to the  remedies we set out in  RCW 49.58.060 and  .070.  Requiring a 
+job applicant to prove subjective “intent” adds a new element to the  cause 
+of action in order to  access  remedies [and] would frustrate  a key purpose of 
+the statute[.]   This is  the opposite of our intent. 
+ 
+Id., Attach. B at 1.  To avoid contradicting the legislature’s intent,  included in the letter 
+was a request that L&I remove the definition of  “applicant”  and remove the requirement 
+that a job applicant or employee demonstrate actual damages.  It reasoned that statutory 
+damages were provided under both RCW 49.58.060 and  .070 because most violations of 
+.110 do not result in provable monetary loss, and the legislature wants  “to ensure  
+
+=== PAGE 14 ===
+No. 103394- 0 
+ 
+ 
+14 compliance with the  statute by allowing job applicants and  employees to recover 
+reasonable statutory  damages for violations.”  Id. at  2. 
+ Subsequently, L&I published an  updated version of its draft rule language, 
+removing the definition  of applicant, and removing the requirement that job applicants 
+and employees demonstrate actual  damages.  See id., Attach. C at  1, 6.  Total Wine’s 
+reliance on L&I’s definition of “job applicantˮ  is misplaced.  
+The Plain Meaning  of “Job Applicant” Does Not Produce Absurd  Results  
+Lastly, Total Wine argues that construing  “job applicant”  to mean  anyone who  
+applies to a job opening regardless  of their subjective intent yields unlikely, absurd, and  
+strained consequences.   
+“Where  the legislature provides no  statutory definition and  a court  gives a term its 
+plain and ordinary meaning by reference to a  dictionary, the court  ‘will avoid literal 
+reading of a statute which would result in unlikely, absurd, or strained consequences.’”  
+Tingey v.  Haisch, 159 Wn.2d 652, 663-64, 152 P.3d 1020 (2007) (quoting Fraternal Ord. 
+of Eagles, Tenino Aerie  No. 564 v.  Grand  Aerie of Fraternal Ord . of Eagles, 148 Wn.2d  
+224, 239, 59 P.3d  655 (2002)).  “[I] t will not be  presumed that the legislature intended 
+absurd results.”  State v.  Delgado, 148 Wn.2d 723, 733, 63 P.3d  792 (2003) (Madsen, J.,  
+dissenting)  (citing State v.  Vela, 100 Wn.2d 636, 641, 673 P.2d  185 (1983)).  
+As mentioned previously, the defendant argues that under  this definition people 
+who are not  qualified, who are incarcerated, who are living abroad, or who are serial 
+plaintiffs looking for lawsuits fall under the statute.  It contends that the absurd 
+consequences are magnified in the context of class action litigation since nothing  would  
+
+=== PAGE 15 ===
+No. 103394-0 
+15 prevent thousands of individuals from applying to a position they are unqualified for.  
+This could potentially result in tremendous class action liability on large and small 
+businesses alike.6  Further, defendant argues that  it would incentivize plaintiffs to  commit 
+fraud by seeking employment at  businesses they have no interest in  working at , 
+meanwhile punishing employers “well beyond any conceivable calculation of the harm 
+the EPOA was designed to address.”  Br. of Resp’t at 30.  It asserts that employers will 
+be punished for mere mistakes and  that serial plaintiffs who suffered little to no harm will 
+recover statutory damages.7  We disagree. 
+In order to best effectuate  the statute’s intended purpose of eradicating pay-based 
+discrimination, it follows that the term “job applicant” should be more broadly defined.  
+Narrowing the term “job applicant” to those who applied for the job in  good faith or have 
+a bona fide interest in  obtaining the posted job would shift the onus from employers to 
+comply with the EPOA  and put the burden on applicants to  show that they applied in 
+good faith despite  not being provided the required pay expectations in the relevant job 
+6 Amicus  argues  that allowing  anyone who  submits  a job application  to be entitled  to statutory  damages 
+violates  the Fourteenth  Amendment to the United  States  Constitution since  it can result  in severe penalties 
+in the class  action  context  that are disproportionate  to the offense.  Amicus  Curiae  Br. by Rest . L. C tr., 
+Wash . Hosp . Ass ’n & Int ’l Franchise Ass ’n at 7.  However, this argument  was not raised  by the defendant 
+and is  not within  the scope of the  certified  question; therefore,  we decline to consider the issue.   
+7 Both  the defendant  and a mici argue  that the  job applicants who  do not  have a good faith  intent  to obtain 
+employment  lack  statutory  standing because they are not within  the zone  of interest  protected  by the 
+statute  and because they have not suffered  an injury  in fact, economic or otherwise.   We decline  to 
+address the standing argument, as  it is beyond the scope of the certified  question.  See Carlsen  v. Glob. 
+Client Sols., LLC , 171 Wn.2d 486, 495  n.2, 256  P.3d 321  (2011) (declining to  address  the possibility  of 
+preemption  since it is beyond the scope of the  district  court’s certified  question).   The dissent  argues  that 
+we silently  address  whether  a legislatively  created  statute  can grant a plaintiff  the right to  sue even  though 
+that plaintiff  has suffered  no harm  and is not within  the protected  zone of interest.   We disagree.   Our 
+holding is  limited  to interpreting  the term  “job  applicant” in  RCW  49.58.110(4).  However,  we observe 
+that if a plaintiff  meets  the definition  of job applicant, the plaintiff  likely  is within  the protected  zone of  
+interest.  
+
+=== PAGE 16 ===
+No. 103394-0 
+16 posting.  Further, it is unclear  what it  mean s to be a “good faith” or “bona fide” job 
+applicant.  Does it require that a person have all of the qualifications and preferences 
+listed in the job posting?  Must the applicant prove they would have accepted the job if 
+given an  offer from the employer?  The reality is that many individuals apply for multiple 
+job postings when they are seeking employment and may not have all the qualifications 
+listed.  To interpret the term “job applicant” in the manner advocated by the defendant would discourage applicants from bringing suit against employers for fear of costly 
+litigation and intrusion into their personal lives to prove that they are “bona fide” applicants.   
+The legislature did not intend to make it more difficult for job applicants to 
+recover for violations of  the EPOA.  Rather, in providing statutory damages as  a potential 
+remedy, it intended to hold employers accountable regardless of an  applicant’s ability to  
+show actual  damages since proving damages in  these situations is  difficult.  If the 
+consequences of violating the plain language of  the EPOA  are too onerous, the legislature 
+is in the best position to  
+ amend the statute to mitigate the liability employers face.8   
+8 Effective  July 27, 2025, RCW  49.58.110 is  amended  to provide employers  an opportunity to  correct  a 
+violation of  RCW  49.58.110(1) within  five days  of being notified of the violation  before  a job applicant 
+or employee may seek  remedies.   See  LAWS  OF 2025, ch. 383, § 1(b) .  If the employer corrects the posting 
+within  five business days  or contacts any applicable third -party  posting entity  with  a demand to  correct  
+the job posting, then “neither  the department  nor the  court may assess or award  penalties,  damages,  or 
+other relief  . . . for  the violation.”   Id.  This  revision  to the current  statute  addresses  employers’  concerns 
+regarding liability  while  maintaining  the burden  on the employer to  comply  with  the EPOA  instead  of 
+placing the burden on the plaintiff  to prove their  motive  for applying.  
+
+=== PAGE 17 ===
+No. 103394-0 
+17 CONCLUSION 
+We answer the example raised in the certified question no.  A job applicant 
+need  not prove they are a “bona fide” applicant to be deemed a “job applicant.”  
+Rather, in accordance with the plain language of RCW 49.58.110(4), a person 
+must apply to any solicitation intended to recruit job applicants for a specific 
+available position to  be considered a “job applicant,” regardless of the person’s 
+subjective intent in applying for the specific position.  
+_______________________________ 
+WE CONCUR: 
+_______________________________    ________________________________ 
+_______________________________    ________________________________ 
+_______________________________    ________________________________ 
+_______________________________    ________________________________ 
+
+
+=== PAGE 18 ===
+Branson v. Wash. Fine Wine & Spirits, LLC  
+ 
+1 
+  
+No. 103394- 0 
+GORDON McCLOUD, J. (dissenting) —Washington’s  Equal Pay and 
+Opportunities Act (EPOA ) requires every employer of 15 or more employees to 
+disclose the wage scale or salary range and benefits for each job opening it 
+advertises. RCW 49.58.110(1). The EPOA then gives every “job applicant or . . 
+. employee” the right to sue  for violations of this provision ; the remedies 
+include  “statutory damages equal to the actual damages or five thousand dollars, 
+whichever is greater.” RCW 49.58.110(4); RCW 49.58.070(1).  
+The federal district court has asked us who qualifies as a “job applicant” 
+entitled to seek those “actual damages” or that “five thousand dollar s” in 
+statutory penalt ies under  RCW 49.58.110(4).  Specifically, it asked whether a 
+job applicant must be “bona fide .” 
+The majority answers this question “no. ” It holds that any person who 
+submits a job application in response to a noncompliant posting is entitled to 
+$5,000 worth of statutory damages—even if that person’s sole intent is to 
+collect a damages award, not to redress any personal harm and not to obtain an 
+offer of employment.  
+
+=== PAGE 19 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+2 
+ But the  legislature enacted the EPOA to protect Washington workers and to 
+fight employer discrimination . It did not enact the EPOA to give bounty  seekers a n 
+incentive to trawl the Internet for noncompliant job postings to obtain  a statutory 
+damages award unrelated to any personal harm.  This legislative intent shows  in the 
+statute’s language in context,  in its legislative history, and in the relevant agency’s  
+interpretation.  The majority’s definition of “job applicant” misconstrues those 
+sources, mis states the legislature’s intent, and ends up stretching the meaning of 
+“job applicant” to include even plaintiffs who suffered no harm —a class that no 
+legislator sought to protect. This conclusion is not true to the statute and will result 
+in absurd and unintended consequences.  
+I would answer the certified question by defining “job applicant” in RCW 
+49.58.110(4) as a person who responds to a job posting for the reason that 
+applicants normally apply, that is, to gain an offer  of employment. I would avoid 
+using the vague terms “bona fide” or “good faith” in defini ng “job applicant.”  
+And I would not define “ applicant ” as one who intends  to take the job  if 
+offered —there are countless legitimate reasons for seeking an offer without 
+committing in advance to take it (such as using the  offer  as bargaining tool, as an 
+opportunity to learn more about the job  duties , or as a time to ask more candid 
+
+=== PAGE 20 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+3 questions about benefits). But an applicant must be seeking an offer, not a 
+bounty.  
+This standard is not that demanding , and a plaintiff’s credible testimony 
+alone might well satisfy it. And it  is the most reasonable reading of the term “job 
+applicant,” given what the l egislature intended  to do : protect real applicants from 
+real harm  and provide incentiv es for employers to comply, while also protecting 
+employers from potentially ruinous damages awards unrelated to any harm . 
+FACTS AND PROCEDURAL HISTORY  
+Plaintiffs Lisa Branson and Cherie Burke are Washington residents who 
+applied1 online for retail positions advertised by Washington Fine Wine & Spirits 
+LLC , which does business as Total Wine & More (Total Wine). Plaintiffs alleged 
+that the job listings , which were posted on Indeed.com, failed to state the wage 
+scale for the positions. They sued Total Wine under RCW 49.58.110 on behalf of 
+themselves and other similarly situated applicants, seeking class certification and 
+statutory damages of $5,000 per class member , among other relief.  
+1 A factual dispute exists about whether Branson actually submitted an application. 
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 2:24-cv-00589-JHC, Dkt. 32 
+(defendant’s motion to bifurcate discovery).  
+
+=== PAGE 21 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+4 
+ After removing the case to federal court, Total Wine sought to bifurcate 
+discovery and limit the first phase of discovery to the named plaintiffs’ individual 
+claims. Total Wine argued  that Branson and Burke are not “job applicants” within 
+the meaning of RCW 49.58.110(4)  because  they applied for  the jobs not to obtain 
+employment but only to obtain statutory damages awards . Plaintiffs , on the other 
+hand,  argue that the term “job applicant” unambiguously covers any person who 
+applies for a job, regardless of i ntent (though both named plaintiffs in this case 
+allege that they applied for the positions in good faith with the intent to gain 
+employment  as long as the wage scale met their needs).  
+Several Western District of Washington federal judges have previously ruled 
+that a job applicant under RCW 49.58.110(4) must allege at least “that they applied 
+for the job with good -faith intent.”  Floyd v. Insight Glob. LLC , No. 23 -cv-1680 -
+BJR, 2024 WL 2133370 , at *8  (W.D. Wash. May 10, 2024)  (court order) , amended 
+on reconsideration, 2024 WL 3199858 (W.D. Wash. June 26, 2024)  (court order) ; 
+see also  Wright v. HP Inc. , No. 2:24 -cv-01261 -MJP, 2024 WL 4678268 (W.D. 
+Wash. Nov. 5, 2024)  (court order) . In this case, however, the federal  court  
+determined that Washington courts have not yet decided the meaning of “job 
+applicant”  in this statute . It therefore certified the following question to us:  “What 
+must a Plaintiff prove to be deemed a ‘job applicant ’ within the meaning of RCW 
+
+=== PAGE 22 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+5 
+ 49.58.110(4)? For example, must they prove that they are a ‘ bona fide ’ applicant? ” 
+Branson v. Wash. Fine Wine & Spirits , LLC, No. 2:24 -cv-00589 -JHC,  Dkt. 44, at 2 
+(Ord. Certifying Question to Wash. State Sup.  Ct.).  
+ANALYSIS  
+The legislature enacted  RCW 49.58.110 to  provide  wage and benefit 
+information to individuals for whom that information is relevant —that is , to 
+workers seeking a job offer . Interpreting the statute to cover individuals for whom 
+that information is totally irrelevant —that is , persons with no interest in a job 
+offer —flouts that legislative intent . I would therefore answer the certified question 
+as follows: a “job applicant” under RCW 49.58.110(4) is a person who responds to 
+a job posting by submitting an application with the intent to gain an offer of 
+employment.  
+I. The most reasonable interpretation of RCW 49.58.110(4)’s p lain 
+language in context is that “job applicant” means a person who submits a 
+job application with the intent to obtain a job offer  
+This case requires us to interpret the statutory term “job applicant.”   The 
+“fundamental objective” of statutory interpretation is to “ascertain and carry out 
+the Legislature’s intent.” Dep ’t of Ecology v. Campbell & Gwinn, LLC , 146 Wn.2d 
+1, 9-10, 43 P.3d 4 (2002). To determine the plain meaning of a statute,  we consider  
+“the text of the provision in question, the context of the statute in which the 
+
+=== PAGE 23 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+6 
+ provision is found, related provisions, amendments to the provision, and the 
+statutory scheme as a whole.” Ass’n of Wash. Spirits & Wine Distribs. v. Wash. State Liquor Control Bd., 182 Wn.2d 342, 350, 340 P.3d 849 (2015) (citing 
+Campbell & Gwinn, 146 Wn.2d at 9-10).  If a statute’s meaning is plain on its face, 
+we will give effect to that meaning as an expression of legislative intent. Campbell 
+& Gwinn, 146 Wn.2d at 9 -10. If the statute is susceptible to more than one 
+reasonable interpretation after this inquiry, it is ambiguous, and we may consider extratextual materials to help determine legislative intent, including legislative history and agency interpretation. Five Corners Fam. Farmers v. State , 173 Wn.2d 
+296, 306, 268 P.3d 892 (2011)  (quoting Rest. Dev., Inc. v. Cananwill, Inc. , 150 
+Wn.2d 674, 682, 80 P.3d 598 (2003)) ; Bostain  v. Food  Express, Inc. , 159 Wn.2d 
+700, 716, 153 P.3d 846 (2007)  (collecting cases) . 
+A. Plain meaning in context shows the legislature intended to protect 
+workers seeking job opportunities  
+The current version of RCW 49.58.110 provides, in relevant part:  
+(1) The employer must disclose in each posting for each job opening 
+the wage scale or salary range, and a general description of all of the benefits and other compensation to be offered to the hired applicant. 
+For the purposes of this section, “posting” me ans any solicitation 
+intended to recruit job applicants for a specific available position, 
+including recruitment done directly by an employer or indirectly through a third party, and includes any postings done electronically, or 
+
+=== PAGE 24 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+7 
+ with a printed hard copy, that includes qualifications for desired 
+applicants.  
+. . . . 
+(4) A job applicant or an employee  is entitled to the remedies in 
+RCW 49.58.060 and 49.58.070 for violations of this section. . . . 
+(Emphasis added.)  
+Since t he statute does not define the term  “job applicant,”  and it does not 
+seem to be a term of art, we first consider dictionary definitions to determine  its 
+plain meaning. State v. Valdiglesias LaValle , 2 Wn.3d 310, 319, 535 P.3d 856 
+(2023).  As the majority notes, an “applicant ” is “‘one who applies for something  : 
+one who makes a usu [ally] formal request esp[ecially] for something of benefit to 
+himself .’” Majority at 6 (quoting W EBSTER ’S THIRD NEW INTERNATIONAL 
+DICTIONARY  105 (2002)) . Plaintiffs argue that the legislature’s use of the term “job 
+applicant” without any modifiers indicates that the term means “an individual who 
+applied to a job posting.” Opening Br. of Pl s./Appellants (Opening Br.)  at 59.  
+Plaintiffs note that the legislature used the modifier “bona fide” in other  
+employment statutes, suggesting that the legislature’s decision to omit  such 
+language from  RCW 49.58.110(1) was intentional. Id. at 26 -27.2  
+ 
+2 See, e.g., RCW 49.58.020(3)(b) (providing a civil penalty for gender -based wage 
+discrimination but excluding from the definition of “discrimination” differences in pay 
+attributable to “bona fide job-related factor[s]” like education, training, experience, 
+seniority or merit systems).  
+
+=== PAGE 25 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+8 
+ Plaintiffs’ interpretation is certainly plausible. But when interpreting a 
+statute, we  must  consider the words “in the context of the statute in which they 
+appear, not in isolation or subject to all possible meanings found in a dictionary.” 
+State v. Lilyblad, 163 Wn.2d 1, 9, 177 P.3d 686 (2008); Green v. Pierce County , 
+197 Wn.2d 841, 853, 487 P.3d 499 (2021) (citing Campbell & Gwinn , 146 Wn.2d 
+at 11 -12)). Thus, when interpreting statutory terms, we “‘take into consideration 
+the meaning naturally attaching to them from the context, and  . . . adopt the sense 
+of the words which best harmonizes with the context.’” State v. Roggenkamp , 153 
+Wn.2d 614, 623, 106 P.3d 196 (2005) (alteration in original) (internal quotation 
+marks omitted) (quoting State v. Jackson , 137 Wn.2d 712, 729, 976 P.2d 1229 
+(1999)). We must therefore examine the term in the context of the statute, related 
+statutory provisions, and the entire statutory scheme. Id .  
+First, let’s step back to consider the overarching purpose of the  EPOA’s 
+statutory scheme . Fortunately, the legislature explained the EPOA’s purpose  in its 
+statement of intent. The legislature enacted the EPOA  to “address income 
+disparities, employer discrimination, and retaliation practices, and to reflect the 
+equal status of all workers in Washington state.” RCW 49.58.005(2). One  stated 
+purpose of the law is to address the “gap in wages and advancement opportunities 
+among workers in Washington, especially women.” RCW 49.58.005(1). The 
+
+=== PAGE 26 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+9 
+ requirement that employers provide wage and salary information to applicants and 
+employees is part of this goal of moving “towards gender equality.” RCW 49.58.005(4). These statements of intent show that the legislature wants to protect 
+workers seeking jobs and career advancement opportunities and to equalize bargaining power , especially for historically marginalized groups. These 
+statements show no  intent to benefit persons who are  not actually seeking a job 
+offer or career advancement opportunity.  
+Next,  we move to RCW 49.58.110, the specific statute at issue here . 
+Originally, the statute provided that “[a]n individual” is entitled to remedies for violations of the disclosure law.  Former RCW 49.58.110( 5) (2019) . But in 20 22, 
+the legislature amended the statute  to limit the availability of relief : it removed the 
+term “individual” and replaced it with “[a] job applicant or an employee.” RCW 
+49.58.110(4) ; L
+AWS OF  2022, ch. 242, § 1. This change  reflects legislative intent to 
+limit relief to those who have some real stake in getting a job offer.  
+The majority agrees that the EPOA is clearly intended to protect workers 
+and those seeking work or  advancement opportunities. Majority at 8- 9. But the 
+majority fails to  explain how its literal interpretation of “job applicant” furthers 
+that intent. Considering the term in the  full context of the EPOA  militates in favor 
+of the conclusion that  “job applicant” in RCW 49.58.110 means one of the people 
+
+=== PAGE 27 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+10 
+ whom the legislation was designed to protect: a person who has an interest in 
+obtaining an offer of employment.  
+B. We avoid literal interpretation of undefined statutory terms that lead 
+to absurd results  
+Total Wine argues that plaintiffs’ interpretation of “job applicant” leads to 
+absurd consequences.  “Where the legislature provides no statutory definition and a 
+court gives a term its plain and ordinary meaning by reference to a dictionary, the 
+court ‘will avoid literal reading of a statute which would result in unlikely, absurd, 
+or strained consequenc es.’” Tingey v. Haisch , 159 Wn.2d 652, 663 -64, 152 P.3d 
+1020 (2007) (quoting Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand 
+Aerie of Fraternal Ord.  of Eagles, 148 Wn.2d 224, 239, 5 9 P.3d 655 (2002)). We 
+do not presume that the legislature intends  absurd results.  State v. J.P. , 149 W n.2d 
+444, 450, 69 P.3d 318 (2003) (quoting State v. Delgado,  148 W n.2d 723, 733, 63 
+P.3d 792 (2003) (Madsen, J., dissenting)).   
+But t he majority’s literal interpretation of “job applicant” risks just such 
+absurd consequence s: it incentivizes persons with no interest in getting a  job offer 
+to search for noncompliant job postings for the purpose of  obtain ing a statutory 
+damages award. Depending on how popular a job posting is, employers could be 
+exposed to nearly limitless class action liability for a single noncompliant job 
+
+=== PAGE 28 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+11 
+ posting.   I agree with Total Wine  that it would be absurd to conclude that the 
+legislature intended to incentivize plaintiffs to “‘seek [] employment’ at businesses 
+where they have no real interest in working” or to “punish[] employers well 
+beyond any conceivable calculation of the harm the EPOA was designed to 
+address.” Answering Br. of Resp’t- Def. Wash. Fine Wine & Spirits,  LLC  at 30.  
+To be sure,  the prospect of exposure to  a hefty damages award provides a 
+strong incentive for employers to comply with the law.  Reply  Br. of 
+Pls./Appellants (Reply Br.) at 1 4. But the majority’s decision to interpret “job 
+applicant” so expansively that any person in the world can qualify as an applicant —regardless of whether they fall within the class to be protected or 
+whether they have suffered any harm —goes too far .
+ 3  
+ 
+3 It also silently decides a major constitutional question: can a legislatively created 
+statute grant a plaintiff the right to sue even though that plaintiff has suffered no harm or 
+threat of harm and even thought that plaintiff falls outside the class of people whom the 
+statute was designed to protect? The United States Supreme Court says no, under federal 
+law: “Injury in fact is a constitutional requirement, and ‘[i]t is settled that Congress 
+cannot erase Article III’s standing requirements by statutorily granting the right to sue to 
+a plaintiff who would not otherwise have standing.’” Spokeo, Inc. v. Robins, 578 U.S. 
+330, 339, 136 S. Ct. 1540, 194 L. Ed. 2d 635 (2016) (alteration in original) (quoting 
+Raines v. Byrd, 521 U.S. 811, 820 n.3, 117 S. Ct. 2312, 138 L. Ed. 2d 849 (1997)). 
+Washington courts suggest that the answer is no, under Washington law: “Generally, one 
+must be protected by the provision of a statute to gain standing to sue for a violation of 
+the provision.” McFarland v. Tompkins, 34 Wn. App. 2d 280, 301, 567 P.3d 1128 (2025). 
+We typically interpret statutes to avoid any question about their constitutionality. Utter ex rel. State v. Bldg. Indus. Ass’n of Wash., 182 Wn.2d 398, 434, 341 P.3d 953 (2015) 
+(citing State v. Robinson, 153 Wn.2d 689, 693 -94, 107 P.3d 90 (2005)). The majority, 
+
+=== PAGE 29 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+12 
+ Plaintiffs contend that interpreting “job applicant” to require intent to accept 
+an offer would be absurd because  applicants cannot form intent to accept an offer 
+without knowing the compensation. Reply Br. at 10. I agree that defining “job 
+applicant” as one who applies with an already -formed intent to accept  a job offer is 
+too limiting.  But interpreting “job applicant” to mean a person with intent to obtain  
+a job offer avoids that pitfall and furthers the EPOA’s purpose of equalizing 
+negotiating power  and protecting applicants who lack such power .  
+Thus, statutory language in context , including the legislature’s statement of 
+intent, compel s the conclusion that “job applicant” means  a person who submits a 
+job application with the intent to obtain a job offer. But even if the statute were 
+ambiguous, legislative history and agency interpretation confirm that the 
+legislat ure enacted this statute to protect workers seeking job opportunities, not 
+individuals seeking a statutory bounty unrelated to any harm suffered. I discuss this 
+in the next section.  
+ 
+ 
+ 
+however, interprets the statute at issue in this case in a way that poses a serious question 
+about its constitutionality.  
+
+=== PAGE 30 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+13 
+ II. Even if the statute is ambiguous, legislative history and agency 
+interpretation show that the legislature  intended  to protect workers 
+seeking job opportunities, not to protect individuals seeking statutory bount ies unrelated to harm suffered  
+If a statute is ambiguous, we may look to legislative history to determine 
+legislative intent. Five Corners Fam . Farmers, 173 Wn.2d at  306. And, while we 
+retain ultimate authority to interpret a statute, we may place weight  on an agency’s 
+interpretation of an ambiguous statute if “the particular agency is charged with the 
+administration and enforcement of the statute” and “the statute falls within the 
+agency’s special expertise.” Bostain , 159 Wn.2d at 716 (collecting cases) . Here, 
+those sources —legislative history and agency interpretation—compel the 
+conclusion that the legislature intended RCW 49.58.110 to protect job applicants 
+with a real i nterest in obtaining an offer of employment.  
+A. Legislative history  
+The legislative history for S .B. 5761,4 the 2022 bill that amended RCW 
+49.58.110 to include the “job applicant” limitation, support s the conclusion that the 
+legislature  intended to protect workers by equalizing the playing field during the 
+job search and increasing workers’ bargaining power. S .B. 5761’s sponsor, former 
+Senator Emily Randall, consistently used the term “job seekers,” meaning real 
+ 
+ 4 S.B. 5761, 67th Leg., Reg. Sess. (Wash. 2022). 
+
+=== PAGE 31 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+14 
+ applicants, as opposed to someone who has no interest in a job offer.5 For example, 
+during floor debates, the former senator explained that “we’ve got a lot of job 
+seekers who are trying to make the right decisions for themselves and their 
+families” and stated that the bill is about, in part, “job seekers who should be able 
+to have all of the relevant information before they apply for a job.”6 Bill cosponsor 
+Senator Lisa Wellman emphasized that the bill’s pay disclosure requirement would 
+help low- wage hourly workers decide if applying for a job and taking time off to 
+travel to an interview would make financial sense.7 
+Comments by other legislators—although given less weight than the 
+sponsors’ statements, Wilmot  v. Kaiser  Alum . & Chem.  Corp. , 118 Wn.2d 46, 63, 
+821 P.2d 18 (1991) —reflect the same concern about applicants who are actually 
+pursuing job offer s. See, e.g. , testimony of former Rep resentative  Noel Frame 
+ 
+5 Contemporaneous comments by the sponsors of a bill are “‘entitled to 
+considerable weight.’” Wash. Bankers Ass’n v. Dep’t of Revenue, 198 Wn.2d 418, 445, 
+495 P.3d 808 (2021) (quoting Carlin Commc’ns, Inc. v. Fed. Commc’ns Comm’n, 749 
+F.2d 113, 116 n.7 (2d Cir. 1984)); Wash. State Legislature v. Lowry, 131 Wn.2d 309, 
+326, 931 P.2d 885 (1997). 
+ 
+6 S. Floor Debate, ENGROSSED SUBSTITUTE  S.B. 5761, 67th Leg., Reg. Sess., 
+(Wash. Feb. 9, 2022), at 10 min., 44 sec. to 11 min., 15 sec., video recording by TVW, 
+Washington State’s Public Affairs Network, https://tvw.org/video/senate-floor-debate-february-9-2022021162/?eventID=2022021162. 
+ 
+ 
+7 Id. at 16 min., 47 sec. to 17 min., 07 sec. 
+
+=== PAGE 32 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+15 
+ (explaining how both parties’ time is wasted when an applicant goes through 
+rounds of interviews only to learn th at the offered pay is inadequate).8  
+The final bill report s for E NGROSSED SUBSTITUTE  S.B. 5761, the 2022 bill 
+that amended RCW 49.58.110,  also support this conclusion.9 The final House and 
+Senate bill reports both contain summar ies of testimony (which would have been 
+available to the full legislature when later voting on the bill) suggesting that the bill 
+was intended to “help prospective employees make decisions” and avoid wasting 
+time applying for and interviewing for positions whose salary would be inadequate. S.B.
+ REP. ON ENGROSSED SUBSTITUTE  S.B. 5761,  at 3. Both bill reports 
+highlight the effect of the amendment on workers’ ability to negotiate. The House 
+Bill Report notes that the amendment “allows a discussion at the start of the 
+process instead of after an offer has been made, which will increase the ability to negotiate pay.” H.B.
+ REP. ON ENGROSSED SUBSTITUTE S.B. 5761, at 2. The Senate 
+Bill Report  states that pay transparency is an equity issue, since “women and 
+people of color  . . . get punished for negotiating where white men are rewarded for 
+ 
+8 H. Floor Debate, ENGROSSED SUBSTITUTE  S.B. 5761, 67th Leg., Reg. Sess., 
+(Wash. Mar. 1, 2022), at 1 hr., 14 min, 36 sec. to 1 hr., 17 min., 54 sec.,  
+https://tvw.org/video/house-floor-debate-march-1-2022031100/?eventID=2022031100 .  
+ 
+9 “The court has frequently looked to final bill reports as part of an inquiry into 
+legislative history.”  State v. Bash, 130 Wn.2d 594, 601, 925 P.2d 978 (1996) (plurality 
+opinion) (citing State v. Silva-Baltazar, 125 Wn.2d 472, 479, 886 P.2d 138 (1994)). 
+
+=== PAGE 33 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+16 
+ the same thing.” S.B.  REP. ON ENGROSSED SUBSTITUTE  S.B. 5761 , at 3. These 
+comments suggest that the bill was intended to protect  real job seekers—
+“prospective employees,” particularly those who have been historically 
+disadvantaged, who need pay information to “negotiat[e]” with an employer to 
+obtain fair compensation. Id.10 These comments also suggest  that the bill was 
+designed  to apply to workers seeking to use a job offer for negotiating purposes.   
+These bill reports also show the reason that the legislature  decided  to replace 
+RCW 49.58.110(4)’s term “individual” with the terms “job applicant or 
+employee .” The Department of Labor & Industries ( L&I) itself proposed this 
+change specifically to limit the class of would -be plaintiffs, because without that 
+modification, “anyone may file a complaint, not just applicants or employees.” 
+S.B. REP. ON ENGROSSED SUBSTITUTE  S.B. 5761 , at 3. Once again , this strongly 
+suggests that the legislat ure inten ded to narrow the class of persons  entitled to a 
+remedy to those with a real stake in the matter.  
+Plaintiffs note that the House and Senate each introduced a bill in January 
+2024 that would have amended RCW 49.58.110 to add a section defining “job 
+ 
+10 See also S.  REP. ON ENGROSSED SUBSTITUTE  S.B. 5761, at 3, 67th Leg., Reg. 
+Sess. (Wash. 2022), https://lawfilesext.leg.wa.gov/biennium/2021-
+22/Pdf/Bill%20Reports/Senate/5761-
+S.E%20SBR%20HA%2022.pdf?q=20241007062537. 
+
+=== PAGE 34 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+17 
+ applicant” as “a person who has made and submitted a bona fide application for 
+employment.” Opening Br. at 4 3 (citing S.B. 6241, 68th Leg. , Reg. Sess. (Wash. 
+2024);  H.B. 2349, 68th Leg. , Reg. Sess. (Wash. 2024)). Plaintiffs point out that  
+neither bill advanced past nomination, id., suggesting to plaintiffs that the 
+legislature endorsed a broad reading of “job applicant.”  But w e “generally decline 
+to speculate as to why the Legislature rejects a proposed amendment, ” “even where 
+an actual bill is before the Legislature.” In re Pers. Restraint of Andress, 147 
+Wn.2d 602, 611, 56 P.3d 981 (2002) (citing Spokane County  Health Dist. v. 
+Brockett , 120 Wn.2d 140, 153, 839 P.2d 324 (1992)). Here, the legislature did not 
+even “reject” the bills by vote; the bills failed to advance to a vote. Our precedent 
+bars us from giving  any weight to these failed bills or the hypothetical reasons that 
+they might have failed.  
+In sum, the legislative history strongly suggests intent to protect workers 
+actually seeking job offers, period.   
+B. L&I’s interpretation 
+The interpretation of the phrase “job applicant” by the very agency that 
+proposed its addition to the statute—L&I—compels the same conclusion. While 
+we retain ultimate authority to interpret a statute, we may place weight on an 
+
+=== PAGE 35 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+18 
+ agency’s interpretation of an ambiguous statute if “the particular agency is charged 
+with the administration and enforcement of the statute ” and “the statute falls within 
+the agency’ s special expertise.” Bostain , 159 Wn.2d at 716; City of Redmond  v. 
+Cent.  Puget  Sound  Growth  Mgmt.  Hr’gs Bd., 136 Wn.2d 38, 46, 959 P.2d 1091 
+(1998) . L&I meets both requirements, so its interpretation of “job applicant” is 
+persuasive.11  
+“Although agency policies do not have the force of law, this court can look 
+to them to interpret statutes with undefined terms.” Richardson v. Dep’t of Lab. & 
+Indus. , 6 Wn. App. 2d 896, 909 & n.38 , 432 P.3d 841 (2018) (citing Stevens v. 
+Brink’s Home Sec. , Inc., 162 Wn.2d 42, 54, 169 P.3d 473 (2007) (Madsen, J., 
+concurring)). Total Wine points to L&I policy materials that support its contention 
+that a “job applicant” under RCW 49.58.110(4) must be one who has a real interest 
+in obtaining a job offer.  For example, the cover sheet for the EPOA complaint 
+form states, “L&I will investigate complaints filed by applicants who have applied 
+to a job in good faith with the intent of gaining employment.” WASH. DEP’T OF 
+ 
+11 The majority argues that we should not place weight on L&I’s interpretation of 
+“job applicant” because the legislature did not grant L&I rulemaking authority with 
+regard to RCW 49.58.110(4). Majority at 12; Reply Br. at 30. But the legislature did 
+grant rule making authority to L&I to enforce RCW 49.58.060. RCW 49.58.090. 
+Interpreting “job applicant” is a necessary part of L&I’s enforcement of RCW 49.58.060, 
+since that statute applies to job applicants and employees. RCW 49.58.110(4).  
+
+=== PAGE 36 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+19 
+ LAB. & INDUS ., EQUAL PAY & OPPORTUNITIES ACT COMPLAINT FORM (July 2025),  
+https://lni.wa.gov/forms- publications/F700 -200-000.pdf  [https://perma.cc/FH2P -
+2CWL].  Other L&I materials confirm that the agency “will investigate complaints 
+filed only by applicants who have applied to jobs in good faith with the intent of 
+gaining employment” and that “L&I will generally only assess damages when an 
+applicant can establish that they have been harmed by the posting.”  Equal Pay & 
+Opportunities Act Common Questions , WASH. DEP’T OF LAB. & INDUS ., 
+https://lni.wa.gov/workers -rights/wages/equal -pay-opportunities-act/equal- pay-
+and-opportunities -act-qa (EPOA Q&A) [https://perma.cc/47JZ- DWRH].12 Those 
+materials also state that “[a] formal complaint should be submitted if a person has 
+applied to an available position in good faith with the intent of gaining 
+employment and believes the job posting does not comply with the job posting 
+requirements.” Id. By contrast, if a person “sees a job posting they believe does not 
+comply with the [EPOA]  pay transparency requirements, but they do not intend to 
+ 
+12 L&I policy materials also state that “All applicants, including existing 
+employees, who apply to a posting recruiting Washington-based employees . . . are 
+protected by the law.” W ASH. DEP’T OF LAB. & INDUS ., ADMIN . POLICY  ES.E.1, at 4 
+(L&I Employment Standards), https://www.lni.wa.gov/workers-rights/_docs/ese1.pdf [https://perma.cc/ZU66-GZA2]; Reply Br. at 31 (quoting EPOA Q&A). Plaintiffs argue 
+that this broad phrasing supports their expansive reading of “job applicant.” But read in 
+the context explained above, the most reasonable conclusion is that that L&I interprets 
+“job applicant” as a person who needs to be “protected by the law”—that would be a 
+person with a real interest in obtaining a job offer.   
+
+=== PAGE 37 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+20 
+ apply for the available position or do not wish to file a formal complaint,” the 
+person should submit a tip. Id. This language suggests that L&I interprets “job 
+applicant” as a person with a real interest in obtaining a job offer.  
+It is certainly true that i n September 2024,  L&I published preliminary draft 
+rule language that would have defined the term “applicant” as an individual “who 
+submits in good faith an application for a job posting with the intent of gaining 
+employment.” Pls./Appellants’ Statement  of Additional Auths. , Attach. A at 1. 
+And i n October  2024 , seven members of the House of Representatives sent a 
+public comment letter requesting that L&I amend its  proposed definition because 
+“[r]equiring a job applicant to prove subjective ‘intent’ adds a new element to the cause of action in order to access remedies [and]  would frustrate a key purpose of 
+the statute .” Id., Attach. B. After that, L&I removed the definition of “applicant” 
+from its next draft. Id. , Attach. C  at 1.  
+The majority interprets L&I’s  amend ment to that draft rule language as an 
+indication that L&I does not interpret “job applicant” to mean a person with a real 
+stake in obtaining a job. But L&I did not change the language on the  EPOA  
+complaint form , on the informational Q&A website , or in the administrative policy 
+statement discussed above.  In those published materials, L&I continues to express 
+the view that a job applicant is a person with a real stake in the application process. 
+
+=== PAGE 38 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394- 0 
+(Gordon McCloud, J., dissenting)  
+ 
+ 
+ 
+21 
+ Further, statements  by individual legislators that postdate  enactment of a bill—like 
+this letter from seven members of the House of Representatives written and sent 
+well after the enactment of RCW 49.58.110(4) and its “job applicant” limitation— 
+“should not be viewed as a reflection of legislative intent. ” Nelson v. McClatchy 
+Newspapers, Inc ., 131 Wn.2d 523, 532 n.5 , 936 P.2d 1123 (1997 ) (legislators’ 
+statements about a bill several years after its passage “should not be viewed as a reflection of legislative intent”  (citing State v. Leek , 26 Wn . App. 651, 657 -58, 614 
+P.2d 209 (1980) )). Thus, I would decline to give these representatives’ statements, 
+and L&I’s subsequent  withdrawal of its proposed narrowing definition of 
+“applicant ,” such dispositive  weight.  
+C
+ONCLUSION  
+The statutory language, context, statement of purpose, and history show that 
+the legislature enacted the EPOA to protect workers seeking job offers.  Those 
+sources also show that the legislature accomplished that goal by requiring 
+employers to provide such workers with the pay and benefit information that is 
+relevant to a job search or a salary negotiation. There is nothing in the statutory 
+language, context, statement of purpose, or legislative history suggesting that the 
+legislature had any intent to incen tivize individuals to search the web for 
+noncompliant postings in order to reap a reward unrelated to actual harm.  
+
+=== PAGE 39 ===
+Branson v. Wash. Fine Wine & Spirits, LLC , No. 103394-0 
+(Gordon McCloud, J., dissenting)  
+22 I therefore respectfully dissent. I would answer the certified question as 
+follows: A “job applicant” is “a person who responds to a job posting by 
+submitting an application with the intent to gain an offer of employment.”  This 
+interpretation is supported by the statutory text, context, legislative history, and relevant agency interpretation.  This definition would ensure that the EPOA 
+remains accessible to those  whom  it was intended to protect—real job applicants 
+and employees who need pay information to make critical decisions. It would al so 
+ensure that the EPOA does not cause  the unintended  consequences that result from 
+the majority’s conclusion.  
+________________________
+_______________________
+_______________________
+

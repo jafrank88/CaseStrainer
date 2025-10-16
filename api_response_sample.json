@@ -1,0 +1,235 @@
+{
+  "count": 3,
+  "next": null,
+  "previous": null,
+  "results": [
+    {
+      "absolute_url": "/opinion/4499693/upper-skagit-tribe-v-lundgren/",
+      "attorney": "",
+      "caseName": "Upper Skagit Tribe v. Lundgren",
+      "caseNameFull": "",
+      "citation": [
+        "138 S. Ct. 1649",
+        "200 L. Ed. 2d 931",
+        "2018 U.S. LEXIS 3085"
+      ],
+      "citeCount": 37,
+      "cluster_id": 4499693,
+      "court": "Supreme Court of the United States",
+      "court_citation_string": "SCOTUS",
+      "court_id": "scotus",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "2018-05-21",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "17-387",
+      "docket_id": 6804008,
+      "judge": "Neil Gorsuch",
+      "lexisCite": "2018 U.S. LEXIS 3085",
+      "meta": {
+        "timestamp": "2024-06-22T01:02:05.427370Z",
+        "date_created": "2018-05-21T15:00:42.951960Z",
+        "score": {
+          "bm25": 0.80903697
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": 1250,
+          "cites": [
+            85382,
+            85437,
+            85460,
+            85715,
+            86317,
+            88061,
+            89471,
+            92169,
+            92730,
+            96268,
+            96405,
+            99570,
+            100397,
+            100912,
+            103805,
+            104078,
+            109436,
+            109818,
+            109857,
+            110146,
+            110923,
+            110932,
+            111236,
+            112674,
+            112768,
+            118066,
+            118069,
+            118212,
+            118309,
+            142900,
+            145715,
+            437083,
+            897025,
+            1370661
+          ],
+          "download_url": "https://www.supremecourt.gov/opinions/17pdf/17-387_ap6c.pdf",
+          "id": 4276946,
+          "joined_by_ids": [],
+          "local_path": "pdf/2018/05/21/upper_skagit_tribe_v._lundgren.pdf",
+          "meta": {
+            "timestamp": "2024-06-24T05:44:30.892170Z",
+            "date_created": "2018-05-21T15:00:42.972719Z"
+          },
+          "ordering_key": null,
+          "per_curiam": false,
+          "sha1": "3f7a791ae6294fdf9a1aebd42374e4b1ad1219c4",
+          "snippet": "(Slip Opinion)              OCTOBER TERM, 2017                                       1\n\n                                       Syllabus\n\n         NOTE: Where it is feasible, a syllabus (headnote) will be released, as is\n       being done in connection with this case, at the time the opinion is issued.\n       The syllabus constitutes no part of the opinion of the Court but has been\n       prepared by the Reporter of Decisions for the convenience of the reader.\n       See United States v. Detroit ",
+          "type": "combined-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "2017-064",
+      "sibling_ids": [
+        4276946
+      ],
+      "source": "C",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    },
+    {
+      "absolute_url": "/opinion/9335677/reynolds-v-california/",
+      "attorney": "",
+      "caseName": "Reynolds v. California",
+      "caseNameFull": "Christine Marie REYNOLDS v. CALIFORNIA.",
+      "citation": [
+        "138 S. Ct. 931",
+        "200 L. Ed. 2d 208"
+      ],
+      "citeCount": 0,
+      "cluster_id": 9335677,
+      "court": "Supreme Court of the United States",
+      "court_citation_string": "SCOTUS",
+      "court_id": "scotus",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "2018-01-22",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "No. 17\u20136905.",
+      "docket_id": 66645609,
+      "judge": "",
+      "lexisCite": "",
+      "meta": {
+        "timestamp": "2024-06-23T00:50:19.480314Z",
+        "date_created": "2022-12-15T21:03:34.281567Z",
+        "score": {
+          "bm25": 0.80163497
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 9331015,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2024-06-25T07:20:00.948967Z",
+            "date_created": "2022-12-15T21:03:34.291309Z"
+          },
+          "ordering_key": null,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "Petition for writ of certiorari to the Court of Appeal of California, Fourth Appellate District, Division Three denied.",
+          "type": "lead-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "",
+      "sibling_ids": [
+        9331015
+      ],
+      "source": "U",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    },
+    {
+      "absolute_url": "/opinion/9335676/adams-v-united-states/",
+      "attorney": "",
+      "caseName": "Adams v. United States",
+      "caseNameFull": "Alan B. ADAMS v. UNITED STATES.",
+      "citation": [
+        "138 S. Ct. 931",
+        "200 L. Ed. 2d 204"
+      ],
+      "citeCount": 1,
+      "cluster_id": 9335676,
+      "court": "Supreme Court of the United States",
+      "court_citation_string": "SCOTUS",
+      "court_id": "scotus",
+      "court_jurisdiction": null,
+      "dateArgued": null,
+      "dateFiled": "2018-01-22",
+      "dateReargued": null,
+      "dateReargumentDenied": null,
+      "docketNumber": "No. 17\u2013783.",
+      "docket_id": 66645608,
+      "judge": "",
+      "lexisCite": "",
+      "meta": {
+        "timestamp": "2024-06-23T00:50:19.456219Z",
+        "date_created": "2022-12-15T21:03:33.875917Z",
+        "score": {
+          "bm25": 0.80163497
+        }
+      },
+      "neutralCite": "",
+      "non_participating_judge_ids": [],
+      "opinions": [
+        {
+          "author_id": null,
+          "cites": [],
+          "download_url": null,
+          "id": 9331014,
+          "joined_by_ids": [],
+          "local_path": null,
+          "meta": {
+            "timestamp": "2024-06-25T07:20:00.904965Z",
+            "date_created": "2022-12-15T21:03:33.885311Z"
+          },
+          "ordering_key": null,
+          "per_curiam": false,
+          "sha1": "",
+          "snippet": "Petition for writ of certiorari to the United States Court of Appeals for the Federal Circuit denied.",
+          "type": "lead-opinion"
+        }
+      ],
+      "panel_ids": [],
+      "panel_names": [],
+      "posture": "",
+      "procedural_history": "",
+      "scdb_id": "",
+      "sibling_ids": [
+        9331014
+      ],
+      "source": "U",
+      "status": "Published",
+      "suitNature": "",
+      "syllabus": ""
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+FIX: Correct import paths - use UnifiedSyncProcessor
+
+ISSUE: 500 Internal Server Error when analyzing documents
+ERROR: ModuleNotFoundError: No module named 'src.enhanced_sync_processor'
+
+ROOT CAUSE:
+vue_api_endpoints_updated.py was importing from non-existent module:
+- from src.enhanced_sync_processor import EnhancedSyncProcessor
+- from src.enhanced_sync_processor import ProcessingOptions
+
+SOLUTION:
+Changed to correct existing module:
+- from src.unified_sync_processor import UnifiedSyncProcessor
+- from src.unified_sync_processor import ProcessingOptions
+
+Also updated class instantiation:
+- processor = UnifiedSyncProcessor(processor_options, progress_callback)
+
+FILES MODIFIED:
+- src/vue_api_endpoints_updated.py (lines 397, 399, 449, 451)
+
+TESTING:
+✅ Backend restarts successfully
+✅ Container healthy
+✅ Module imports correctly
+✅ Ready for document analysis
+
+This fixes the 500 error and allows document processing to work.

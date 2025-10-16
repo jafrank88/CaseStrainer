@@ -1,0 +1,7 @@
+Add ERROR level log at clustering entry point
+
+Added logger.error() at the start of cluster_citations() to confirm
+the function is being called and with what parameters.
+
+This will help diagnose if clustering is being skipped entirely
+or if it's running but logs aren't visible at INFO level.

@@ -91,7 +91,7 @@ class CitationVerifier(ICitationVerifier):
         - More efficient API usage
         
         Example:
-            from src.unified_citation_clustering import cluster_citations_unified
+            from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
             clusters = cluster_citations_unified(citations, text, enable_verification=True)
         
         Args:

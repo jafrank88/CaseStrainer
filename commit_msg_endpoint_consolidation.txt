@@ -1,0 +1,100 @@
+FIX: Consolidate API endpoints and fix Docker syntax errors
+
+COMPLETED ALL NEXT STEPS:
+=========================
+
+Step 1: ✅ Fixed syntax error in vue_api_endpoints_updated.py
+Step 2: ✅ Verified which file has all necessary endpoints  
+Step 3: ✅ Consolidated to use vue_api_endpoints_updated.py
+
+PROBLEM IDENTIFIED:
+===================
+Frontend getting 404 errors on /casestrainer/api/analyze because:
+1. vue_api_endpoints_updated.py had multi-line f-string syntax issues in Docker
+2. Blueprint was using vue_api_endpoints.py (basic version) as fallback
+3. The UPDATED file has more comprehensive routes needed for production
+
+ROOT CAUSE:
+===========
+Multi-line f-strings with json.dumps() inside caused Python parser issues
+in Docker container (likely due to line ending differences or encoding).
+
+Example problematic syntax:
+```python
+yield f"data: {json.dumps({
+    'type': 'connection_established',
+    'request_id': request_id
+})}\n\n"
+```
+
+SOLUTION APPLIED:
+=================
+Rewrote all problematic multi-line f-strings to use intermediate variables:
+
+```python
+connection_data = {
+    'type': 'connection_established',
+    'request_id': request_id,
+    'timestamp': datetime.utcnow().isoformat()
+}
+yield f"data: {json.dumps(connection_data)}\n\n"
+```
+
+This makes code:
+- More readable ✅
+- Docker-compatible ✅
+- Easier to debug ✅
+- Better formatted ✅
+
+FILES MODIFIED:
+===============
+
+1. src/vue_api_endpoints_updated.py
+   - Fixed 5 multi-line f-string statements in verification_stream()
+   - All syntax errors resolved
+   - Compiles successfully in Docker
+
+2. src/api/blueprints.py
+   - Updated to import from vue_api_endpoints_updated.py (production version)
+   - Falls back to vue_api_endpoints.py if needed
+   - Better logging to show which file is used
+
+ROUTES NOW AVAILABLE:
+====================
+✅ /casestrainer/api/analyze (POST) - Main analysis endpoint
+✅ /casestrainer/api/processing_progress (GET) - Progress tracking
+✅ /casestrainer/api/task_status/<task_id> (GET) - Task status
+✅ /casestrainer/api/analyze/progress-stream/<request_id> (GET) - SSE progress
+✅ /casestrainer/api/analyze/verification-stream/<request_id> (GET) - SSE verification
+✅ /casestrainer/api/analyze/verification-status/<request_id> (GET) - Verification status
+✅ /casestrainer/api/analyze/verification-results/<request_id> (GET) - Verification results
+✅ /casestrainer/api/health (GET) - Health check
+✅ /casestrainer/api/db_stats (GET) - Database stats
+
+TESTING RESULTS:
+================
+✅ Backend restarts successfully
+✅ All routes registered correctly
+✅ Container is healthy
+✅ No syntax errors in Docker
+✅ Ready for frontend testing
+
+DEPLOYMENT STATUS:
+==================
+Backend: ✅ Healthy and running
+Workers: ✅ Ready (3 workers idle)
+Routes: ✅ All registered
+Frontend: ⏳ Ready to test (should work now!)
+
+BENEFITS:
+=========
+1. Using comprehensive vue_api_endpoints_updated.py (not basic version)
+2. All production routes available
+3. Better error handling and logging
+4. Cleaner, more maintainable code
+5. Docker-compatible syntax
+
+NEXT ACTION:
+============
+Frontend should now successfully connect to /casestrainer/api/analyze
+and all other API endpoints. Test PDF upload to verify complete workflow.

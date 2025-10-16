@@ -1,0 +1,49 @@
+Fix cluster canonical data and case name extraction issues
+
+Two critical fixes based on real production data analysis:
+
+**FIX #1: Cluster Canonical Data Missing**
+Problem: Clusters showed "Verifying Source: N/A" even when individual 
+citations were verified. Frontend couldn't display cluster verification status.
+
+Root Cause: Cluster-level canonical data wasn't being extracted from verified 
+citations within the cluster.
+
+Solution (unified_clustering_master.py lines 2102-2126):
+- Extract canonical_name, canonical_date, verification_source from best_verified citation
+- Set cluster verification_status='verified' if any citation in cluster is verified
+- Add these fields to formatted_cluster output
+
+Result: Clusters now show proper canonical data and verification source
+
+**FIX #2: Case Name Extraction Contamination and Truncation**
+Problem: Extracted case names contained:
+- Citation text: "Inc. v. Stillaguamish Tribe , 31 Wn. App. 2d 343, 359-62"
+- Signal words: "Id. For example, in Knocklong Corp. v. Kingdom of Afghanistan"
+- Severe truncation: "agit Indian Tribe" (missing "Upper Sk")
+- Company name truncation: "Mgmt., LLC" (missing company prefix)
+- Plaintiff truncation: "Comm' v." "Co. v."
+
+Solutions (unified_case_name_extractor_v2.py):
+
+1. Enhanced Contamination Removal (lines 840-859):
+   - Remove trailing citation text: r',\s*\d+\s+Wn\.\s*(?:App\.)?\s*\d+d?\s+\d+.*$'
+   - Remove signal word prefixes: r'^Id\.\s*', r'^For\s+example,?\s+(in\s+)?'
+   - Applied BEFORE other cleaning to catch embedded citations
+
+2. Truncation Detection (lines 975-985):
+   - Reject names starting with lowercase (e.g., "agit" clearly truncated)
+   - Reject party names shorter than 3 characters
+   - Prevents truncated fragments from being accepted
+
+Expected Improvements:
+- ✅ "Inc. v. Stillaguamish ... , 31 Wn. App. 2d 343" → "Inc. v. Stillaguamish Tribe"
+- ✅ "Id. For example, in Knocklong" → "Knocklong Corp. v. Kingdom of Afghanistan"
+- ✅ "agit Indian Tribe" → REJECTED (will use fallback strategy)
+- ✅ "Mgmt., LLC" with no prefix → REJECTED (will use broader context)
+
+Files Modified:
+- src/unified_clustering_master.py: Cluster canonical data extraction
+- src/unified_case_name_extractor_v2.py: Contamination removal and validation
+
+Testing: Resubmit PDF to verify improvements in extraction quality

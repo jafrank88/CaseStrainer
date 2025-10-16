@@ -1,0 +1,677 @@
+{
+  "citations": [
+    {
+      "citation": "304 U.S. 64",
+      "extracted_case_name": "Erie Railroad Co. v. Tompkins",
+      "extracted_date": "1938",
+      "start_index": 2610,
+      "end_index": 2621
+    },
+    {
+      "citation": "546 U.S. 345",
+      "extracted_case_name": "Will v. Hallock",
+      "extracted_date": "2006",
+      "start_index": 5257,
+      "end_index": 5269
+    },
+    {
+      "citation": "506 U.S. 139",
+      "extracted_case_name": "P.R. Aqueduct & Sewer Auth. v. Metcalf & Eddy Inc.",
+      "extracted_date": "1993",
+      "start_index": 5346,
+      "end_index": 5358
+    },
+    {
+      "citation": "304 U.S. 64",
+      "extracted_case_name": "Erie Railroad Company v. Tompkins",
+      "extracted_date": "1938",
+      "start_index": 7963,
+      "end_index": 7974
+    },
+    {
+      "citation": "511 U.S. 863",
+      "extracted_case_name": "Digit. Equip. Corp. v. Desktop Direct Inc.",
+      "extracted_date": "1994",
+      "start_index": 11110,
+      "end_index": 11122
+    },
+    {
+      "citation": "506 U.S. 139",
+      "extracted_case_name": "P.R. Aqueduct & Sewer Auth. v. Metcalf & Eddy Inc.",
+      "extracted_date": "1993",
+      "start_index": 11578,
+      "end_index": 11590
+    },
+    {
+      "citation": "337 \nU.S. 541",
+      "extracted_case_name": "Cohen v. Beneficial Indus . Loan Corp.",
+      "extracted_date": "1949",
+      "start_index": 11655,
+      "end_index": 11668
+    },
+    {
+      "citation": "515 U.S. 304",
+      "extracted_case_name": "Johnson v. Jones",
+      "extracted_date": "1995",
+      "start_index": 11953,
+      "end_index": 11965
+    },
+    {
+      "citation": "558 U.S. 100",
+      "extracted_case_name": "Mohawk Indus. Inc. v. Carpenter",
+      "extracted_date": "2009",
+      "start_index": 12504,
+      "end_index": 12516
+    },
+    {
+      "citation": "558 U.S. 100",
+      "extracted_case_name": "Mohawk Industries Inc. v. Carpenter",
+      "extracted_date": "2009",
+      "start_index": 14067,
+      "end_index": 14079
+    },
+    {
+      "citation": "472 U.S. 511",
+      "extracted_case_name": "cf. Mitchell v. Forsyth",
+      "extracted_date": "1985",
+      "start_index": 17476,
+      "end_index": 17488
+    },
+    {
+      "citation": "304 U.S. 64",
+      "extracted_case_name": "Railroad Co. v. Tompkins",
+      "extracted_date": "1938",
+      "start_index": 24672,
+      "end_index": 24683
+    },
+    {
+      "citation": "559 U.S. 393",
+      "extracted_case_name": "Shady Grove Orthopedic Assocs., P.A. v. Allstate Ins.",
+      "extracted_date": "2010",
+      "start_index": 28812,
+      "end_index": 28824
+    },
+    {
+      "citation": "480 U.S. 1",
+      "extracted_case_name": "Burlington N. Railroad Co. v. Woods",
+      "extracted_date": "1987",
+      "start_index": 29083,
+      "end_index": 29093
+    },
+    {
+      "citation": "446 U.S. 740",
+      "extracted_case_name": "Walker v. Armco Steel Corp.",
+      "extracted_date": "1980",
+      "start_index": 29145,
+      "end_index": 29157
+    },
+    {
+      "citation": "518 U.S. 415",
+      "extracted_case_name": "Gasperini v. Ctr. for Humans. Inc.",
+      "extracted_date": "1996",
+      "start_index": 29775,
+      "end_index": 29787
+    },
+    {
+      "citation": "356 U.S. 525",
+      "extracted_case_name": "op., Inc.",
+      "extracted_date": "1958",
+      "start_index": 30110,
+      "end_index": 30122
+    },
+    {
+      "citation": "487 \nU.S. 131",
+      "extracted_case_name": "Felder v. Casey",
+      "extracted_date": "1988",
+      "start_index": 30516,
+      "end_index": 30529
+    },
+    {
+      "citation": "380 U.S. 460",
+      "extracted_case_name": "Hanna v. Plumer",
+      "extracted_date": "1965",
+      "start_index": 30855,
+      "end_index": 30867
+    },
+    {
+      "citation": "337 U.S. 541",
+      "extracted_case_name": "Cohen v. Beneficial Indus. Loan Corp.",
+      "extracted_date": "1949",
+      "start_index": 35904,
+      "end_index": 35916
+    },
+    {
+      "citation": "276 U.S. 238",
+      "extracted_case_name": "l Sur. Co.",
+      "extracted_date": "1928",
+      "start_index": 37089,
+      "end_index": 37101
+    },
+    {
+      "citation": "421 U.S. 240",
+      "extracted_case_name": "This holding survived Erie , as confirmed by the Supreme Court in Alyeska Pipeline Service Co. v. Wilderness Society",
+      "extracted_date": "1975",
+      "start_index": 37235,
+      "end_index": 37247
+    },
+    {
+      "citation": "604 U.S. 192",
+      "extracted_case_name": "superseded by statute on other grounds as stated in Lackey v. Stinnie",
+      "extracted_date": "2025",
+      "start_index": 37338,
+      "end_index": 37350
+    },
+    {
+      "citation": "304 U.S. 64",
+      "extracted_case_name": "Erie Railroad Co. v. Tompkins",
+      "extracted_date": "1938",
+      "start_index": 48209,
+      "end_index": 48220
+    },
+    {
+      "citation": "511 \nU.S. 863",
+      "extracted_case_name": "Digit. Equip. Corp. v. Desktop Direct Inc.",
+      "extracted_date": "1994",
+      "start_index": 49112,
+      "end_index": 49125
+    },
+    {
+      "citation": "559 U.S. 393",
+      "extracted_case_name": "and the relevant Federal Rule does not violate the Rules Enabling Act. Shady Grove Orthopedic Assocs., P.A. v. Allstate Ins. Co.",
+      "extracted_date": "2010",
+      "start_index": 50116,
+      "end_index": 50128
+    },
+    {
+      "citation": "380 U.S. \n460",
+      "extracted_case_name": "Hanna v. Plumer",
+      "extracted_date": "1965",
+      "start_index": 50172,
+      "end_index": 50185
+    },
+    {
+      "citation": "550 U.S. 544",
+      "extracted_case_name": "Bell Atl. Corp. v. Twombly",
+      "extracted_date": "2007",
+      "start_index": 58397,
+      "end_index": 58409
+    },
+    {
+      "citation": "421 \nU.S. 240",
+      "extracted_case_name": "N/A",
+      "extracted_date": "1975",
+      "start_index": 69657,
+      "end_index": 69670
+    },
+    {
+      "citation": "604 U.S. 192",
+      "extracted_case_name": "overruled by statute on other grounds, as recognized in Lackey v. Stinnie",
+      "extracted_date": "2025",
+      "start_index": 69760,
+      "end_index": 69772
+    },
+    {
+      "citation": "551 U.S. 308",
+      "extracted_case_name": "Tellabs Inc. v. Makor Issues & Rights Ltd.",
+      "extracted_date": "2007",
+      "start_index": 76882,
+      "end_index": 76894
+    },
+    {
+      "citation": "333 F.3d 1018",
+      "extracted_case_name": "Collateral Order Doctrine Overruling Batzel v. Smith",
+      "extracted_date": null,
+      "start_index": 1252,
+      "end_index": 1265
+    },
+    {
+      "citation": "333 \nF.3d 1018",
+      "extracted_case_name": "In Batzel v. Smith",
+      "extracted_date": null,
+      "start_index": 4645,
+      "end_index": 4659
+    },
+    {
+      "citation": "830 F.3d 881",
+      "extracted_case_name": "Manzari v. Associated Newspapers Ltd.",
+      "extracted_date": null,
+      "start_index": 5592,
+      "end_index": 5604
+    },
+    {
+      "citation": "190 F.3d 963",
+      "extracted_case_name": "We do not reconsider our precedent in U nited States ex rel. Newsham v. Lockheed Missiles & Space Co.",
+      "extracted_date": null,
+      "start_index": 6145,
+      "end_index": 6157
+    },
+    {
+      "citation": "859 F.3d 720",
+      "extracted_case_name": "SolarCity Corp. v. Salt River Project Agric. Improvement & Power Dist.",
+      "extracted_date": null,
+      "start_index": 12784,
+      "end_index": 12796
+    },
+    {
+      "citation": "706 F.3d 1009",
+      "extracted_case_name": "California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp.",
+      "extracted_date": "2009",
+      "start_index": 13912,
+      "end_index": 13925
+    },
+    {
+      "citation": "890 F.3d 828",
+      "extracted_case_name": "n of Am. Inc. v. Ctr. for Med. Progress",
+      "extracted_date": null,
+      "start_index": 14449,
+      "end_index": 14461
+    },
+    {
+      "citation": "831 F.3d 1179",
+      "extracted_case_name": "Travelers Cas. Ins. Co. of Am. v. Hirsh",
+      "extracted_date": null,
+      "start_index": 14556,
+      "end_index": 14569
+    },
+    {
+      "citation": "736 F.3d 1180",
+      "extracted_case_name": "Makaeff v. Trump Univ. LLC.",
+      "extracted_date": null,
+      "start_index": 14656,
+      "end_index": 14669
+    },
+    {
+      "citation": "814 F.3d 116",
+      "extracted_case_name": "SLAPP motion does not satisfy the collateral order doctrine . E.g., Ernst v. Carrigan",
+      "extracted_date": null,
+      "start_index": 15104,
+      "end_index": 15116
+    },
+    {
+      "citation": "825 F.3d 1043",
+      "extracted_case_name": "s statute . Hyan v. Hummer",
+      "extracted_date": null,
+      "start_index": 19759,
+      "end_index": 19772
+    },
+    {
+      "citation": "718 \nF.3d 138",
+      "extracted_case_name": "Liberty Synergistic Inc. v. Microflo Ltd.",
+      "extracted_date": null,
+      "start_index": 22472,
+      "end_index": 22485
+    },
+    {
+      "citation": "190 F.3d 963",
+      "extracted_case_name": "United States ex rel. Newsham v. Lockheed Missiles & Space Co.",
+      "extracted_date": null,
+      "start_index": 25459,
+      "end_index": 25471
+    },
+    {
+      "citation": "890 F.3d 828",
+      "extracted_case_name": "N/A",
+      "extracted_date": null,
+      "start_index": 28331,
+      "end_index": 28343
+    },
+    {
+      "citation": "897 F.3d 1224",
+      "extracted_case_name": "amended by",
+      "extracted_date": null,
+      "start_index": 28374,
+      "end_index": 28387
+    },
+    {
+      "citation": "784 F.3d 520",
+      "extracted_case_name": "County of Orange",
+      "extracted_date": null,
+      "start_index": 29901,
+      "end_index": 29913
+    },
+    {
+      "citation": "966 F.3d 79",
+      "extracted_case_name": "La Liberte v. Reid",
+      "extracted_date": null,
+      "start_index": 31983,
+      "end_index": 31994
+    },
+    {
+      "citation": "783 F.3d 1328",
+      "extracted_case_name": "y Grp., LLC",
+      "extracted_date": null,
+      "start_index": 33090,
+      "end_index": 33103
+    },
+    {
+      "citation": "936 F.3d 240",
+      "extracted_case_name": "Klocke v. Watson",
+      "extracted_date": null,
+      "start_index": 33149,
+      "end_index": 33161
+    },
+    {
+      "citation": "910 F.3d 1345",
+      "extracted_case_name": "Carbone v. Cable News Network Inc.",
+      "extracted_date": null,
+      "start_index": 33255,
+      "end_index": 33268
+    },
+    {
+      "citation": "738 F.3d 960",
+      "extracted_case_name": "Car Inc. v. Avis Budget Grp. Inc.",
+      "extracted_date": null,
+      "start_index": 35381,
+      "end_index": 35393
+    },
+    {
+      "citation": "322 F.3d 660",
+      "extracted_case_name": "Feldman v. Allstate Ins.",
+      "extracted_date": null,
+      "start_index": 36191,
+      "end_index": 36203
+    },
+    {
+      "citation": "629 \nF.3d 79",
+      "extracted_case_name": "Godin v. Schencks",
+      "extracted_date": null,
+      "start_index": 38794,
+      "end_index": 38806
+    },
+    {
+      "citation": "736 F.3d 1180",
+      "extracted_case_name": "Makaeff v. Trump Univ. LLC.",
+      "extracted_date": null,
+      "start_index": 40284,
+      "end_index": 40297
+    },
+    {
+      "citation": "885 F.3d 659",
+      "extracted_case_name": "Los Lobos Renewable Power LLC. v. Americulture Inc.",
+      "extracted_date": null,
+      "start_index": 41231,
+      "end_index": 41243
+    },
+    {
+      "citation": "264 F.3d 832",
+      "extracted_case_name": "l Inc. v. Wornick",
+      "extracted_date": null,
+      "start_index": 45242,
+      "end_index": 45254
+    },
+    {
+      "citation": "715 \nF.3d 254",
+      "extracted_case_name": "Makaeff v. Trump Univ. LLC.",
+      "extracted_date": null,
+      "start_index": 45889,
+      "end_index": 45902
+    },
+    {
+      "citation": "736 \nF.3d 1180",
+      "extracted_case_name": "Makaef f v. Trump Univ. LLC.",
+      "extracted_date": null,
+      "start_index": 46148,
+      "end_index": 46162
+    },
+    {
+      "citation": "190 F.3d 963",
+      "extracted_case_name": "United States ex rel. Newsham v. Lockheed Missiles & Space Co.",
+      "extracted_date": null,
+      "start_index": 47836,
+      "end_index": 47848
+    },
+    {
+      "citation": "333 F.3d \n1018",
+      "extracted_case_name": "Batzel v. Smith",
+      "extracted_date": null,
+      "start_index": 48755,
+      "end_index": 48769
+    },
+    {
+      "citation": "831 F.3d 1179",
+      "extracted_case_name": "Travelers Cas. Ins. Co. of Am. v. Hirsh",
+      "extracted_date": null,
+      "start_index": 49539,
+      "end_index": 49552
+    },
+    {
+      "citation": "264 \nF.3d 832",
+      "extracted_case_name": "l Inc. v. Wornick",
+      "extracted_date": null,
+      "start_index": 51227,
+      "end_index": 51240
+    },
+    {
+      "citation": "377 F.3d 1081",
+      "extracted_case_name": "ns Co.",
+      "extracted_date": null,
+      "start_index": 53314,
+      "end_index": 53327
+    },
+    {
+      "citation": "813 F.3d 891",
+      "extracted_case_name": "Sarver v. Chartier",
+      "extracted_date": null,
+      "start_index": 53678,
+      "end_index": 53690
+    },
+    {
+      "citation": "825 F.3d 1043",
+      "extracted_case_name": "Hyan v. Hummer",
+      "extracted_date": null,
+      "start_index": 54601,
+      "end_index": 54614
+    },
+    {
+      "citation": "890 F.3d 828",
+      "extracted_case_name": "s views were largely vindicated in Planned Parenthood Federation of America Inc. v. Center for Medical Progress",
+      "extracted_date": null,
+      "start_index": 60324,
+      "end_index": 60336
+    },
+    {
+      "citation": "783 F.3d 1328",
+      "extracted_case_name": "y Grp., LLC",
+      "extracted_date": null,
+      "start_index": 63383,
+      "end_index": 63396
+    },
+    {
+      "citation": "885 F.3d 659",
+      "extracted_case_name": "Los Lobos Renewable Power LLC. v. Americulture Inc.",
+      "extracted_date": null,
+      "start_index": 63500,
+      "end_index": 63512
+    },
+    {
+      "citation": "910 F.3d 1345",
+      "extracted_case_name": "Carbone v. Cable News Network Inc.",
+      "extracted_date": null,
+      "start_index": 63574,
+      "end_index": 63587
+    },
+    {
+      "citation": "936 F.3d 240",
+      "extracted_case_name": "Klocke v. Watson",
+      "extracted_date": null,
+      "start_index": 63631,
+      "end_index": 63643
+    },
+    {
+      "citation": "966 F.3d 79",
+      "extracted_case_name": "La Liberte v. Reid",
+      "extracted_date": null,
+      "start_index": 63688,
+      "end_index": 63699
+    },
+    {
+      "citation": "629 F.3d 79",
+      "extracted_case_name": "Godin v. Schencks",
+      "extracted_date": null,
+      "start_index": 65709,
+      "end_index": 65720
+    },
+    {
+      "citation": "890 F.3d 833",
+      "extracted_case_name": "Planned Parenthood eliminated the second.",
+      "extracted_date": null,
+      "start_index": 67806,
+      "end_index": 67818
+    },
+    {
+      "citation": "738 F.3d 960",
+      "extracted_case_name": "Car Inc. v. Avis Budget Grp.",
+      "extracted_date": null,
+      "start_index": 69833,
+      "end_index": 69845
+    },
+    {
+      "citation": "129 F.4th 1196",
+      "extracted_case_name": "recused active judges agreed that this case should be decided en banc so that our governing precedent could be reconsidered . Gopher Media LLC v. Melone",
+      "extracted_date": null,
+      "start_index": 10661,
+      "end_index": 10675
+    },
+    {
+      "citation": "82 F.4th 785",
+      "extracted_case_name": "Martinez v. ZoomInfo Techs. Inc.",
+      "extracted_date": null,
+      "start_index": 14799,
+      "end_index": 14811
+    },
+    {
+      "citation": "90 F.4th 1042",
+      "extracted_case_name": "N/A",
+      "extracted_date": null,
+      "start_index": 14907,
+      "end_index": 14920
+    },
+    {
+      "citation": "98 F.4th 1320",
+      "extracted_case_name": "Coomer v. Make Your Life Epic LLC",
+      "extracted_date": null,
+      "start_index": 15227,
+      "end_index": 15240
+    },
+    {
+      "citation": "24 F.4th 1262",
+      "extracted_case_name": "Ellis v. Salt River Project Agric. Improvement & Power Dist.",
+      "extracted_date": null,
+      "start_index": 29366,
+      "end_index": 29379
+    },
+    {
+      "citation": "39 F.4th 575",
+      "extracted_case_name": "Mart Stores, Inc.",
+      "extracted_date": null,
+      "start_index": 33745,
+      "end_index": 33757
+    },
+    {
+      "citation": "46 F.4th 1136",
+      "extracted_case_name": "CoreCivic Inc. v. Candide Grp. LLC.",
+      "extracted_date": null,
+      "start_index": 34713,
+      "end_index": 34726
+    },
+    {
+      "citation": "82 F.4th 785",
+      "extracted_case_name": "Martinez v. ZoomInfo Techs. Inc.",
+      "extracted_date": null,
+      "start_index": 62509,
+      "end_index": 62521
+    },
+    {
+      "citation": "90 F.4th 1042",
+      "extracted_case_name": "N/A",
+      "extracted_date": null,
+      "start_index": 62581,
+      "end_index": 62594
+    },
+    {
+      "citation": "439 P.3d 1156",
+      "extracted_case_name": "FilmOn.com Inc. v. DoubleVerify Inc.",
+      "extracted_date": null,
+      "start_index": 5997,
+      "end_index": 6010
+    },
+    {
+      "citation": "74 P.3d 737",
+      "extracted_case_name": "discussing Jarrow Formulas Inc. v. LaMarche",
+      "extracted_date": null,
+      "start_index": 22559,
+      "end_index": 22570
+    },
+    {
+      "citation": "17 P.3d 735",
+      "extracted_case_name": "Ketchum v. Moses",
+      "extracted_date": null,
+      "start_index": 24435,
+      "end_index": 24446
+    },
+    {
+      "citation": "106 P.3d 958",
+      "extracted_case_name": "Varian Med. Sys. Inc. v. Delfino",
+      "extracted_date": null,
+      "start_index": 24998,
+      "end_index": 25010
+    },
+    {
+      "citation": "52 P.3d 685",
+      "extracted_case_name": "disapproved of on other grounds by Equilon Enters. v. Consumer Cause Inc.",
+      "extracted_date": null,
+      "start_index": 26023,
+      "end_index": 26034
+    },
+    {
+      "citation": "386 P.3d 788",
+      "extracted_case_name": "Barry v. State Bar of Cal.",
+      "extracted_date": null,
+      "start_index": 28548,
+      "end_index": 28560
+    },
+    {
+      "citation": "439 P.3d 1156",
+      "extracted_case_name": "FilmOn.com Inc. v. DoubleVerify Inc.",
+      "extracted_date": null,
+      "start_index": 44678,
+      "end_index": 44691
+    },
+    {
+      "citation": "413 \nP.3d 650",
+      "extracted_case_name": "Newport Harbor Ventures LLC. v. Morris Cerullo World Evangelism",
+      "extracted_date": null,
+      "start_index": 46579,
+      "end_index": 46592
+    },
+    {
+      "citation": "376 P.3d \n604",
+      "extracted_case_name": "Baral v. Schnitt",
+      "extracted_date": null,
+      "start_index": 46638,
+      "end_index": 46651
+    },
+    {
+      "citation": "386 P.3d 788",
+      "extracted_case_name": "Barry v. State Bar of Cal.",
+      "extracted_date": null,
+      "start_index": 47241,
+      "end_index": 47253
+    },
+    {
+      "citation": "138 P.3d \n193",
+      "extracted_case_name": "Kibler v. N. Inyo Cnty. Local Hosp. Dist.",
+      "extracted_date": null,
+      "start_index": 82700,
+      "end_index": 82713
+    },
+    {
+      "citation": "139 P.3d 30",
+      "extracted_case_name": "Soukup v. Law Offices of Herbert Hafif",
+      "extracted_date": null,
+      "start_index": 84521,
+      "end_index": 84532
+    }
+  ],
+  "total": 96
+}

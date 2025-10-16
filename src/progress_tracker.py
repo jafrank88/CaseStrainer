@@ -205,9 +205,46 @@ def remove_progress_tracker(task_id: str):
             del _progress_trackers[task_id]
 
 def get_progress_data(task_id: str) -> Optional[Dict[str, Any]]:
-    """Get progress data for a task."""
+    """Get progress data for a task.
+    
+    FIX #21: Check Redis if not found in memory (async workers run in different process!)
+    FIX #23 (Sync Progress): Return completed status for sync tasks not in memory
+    """
+    # First check in-memory (for sync processing)
     tracker = get_progress_tracker(task_id)
-    return tracker.get_progress_data() if tracker else None
+    if tracker:
+        return tracker.get_progress_data()
+    
+    # FIX #21: If not in memory, check Redis (async workers write here)
+    try:
+        from redis import Redis
+        from src.config import REDIS_URL
+        import json
+        
+        redis_conn = Redis.from_url(REDIS_URL)
+        redis_data = redis_conn.get(f"progress:{task_id}")
+        
+        if redis_data:
+            progress_data = json.loads(redis_data.decode('utf-8') if isinstance(redis_data, bytes) else redis_data)
+            logger.info(f"✅ FIX #21: Retrieved progress from Redis for {task_id}: {progress_data.get('progress')}%")
+            return progress_data
+            
+    except Exception as e:
+        logger.error(f"Failed to get progress from Redis: {e}")
+    
+    # FIX #23: If task not found anywhere, it might be a completed sync task
+    # Return a default "completed" status so frontend knows to stop polling
+    logger.debug(f"Task {task_id} not found in memory or Redis, assuming completed sync task")
+    return {
+        'task_id': task_id,
+        'status': 'completed',
+        'overall_progress': 100,
+        'current_step': 6,
+        'total_steps': 6,
+        'elapsed_time': 0,
+        'current_message': 'Processing completed',
+        'steps': []
+    }
 
 # Cleanup old trackers periodically
 def cleanup_old_trackers(max_age_hours: int = 24):

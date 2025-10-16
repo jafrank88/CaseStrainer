@@ -1,0 +1,27 @@
+CRITICAL FIX: Add canonical name validation to proximity override
+
+Root Cause:
+The proximity override was blindly trusting that ANY citations within 200 
+characters must be parallel citations, even if they were from different cases.
+
+Example Bug:
+When a document listed multiple authorities in a footnote:
+- "Johnson v. McIntosh, 8 Wheat. 543, 5 L. Ed. 681"
+- "Worcester v. Georgia, 6 Pet. 515, 8 L. Ed. 483"
+
+These were grouped into ONE cluster (4 citations) instead of TWO clusters 
+(2 parallel citations each) because they appeared close together.
+
+The Fix:
+Added canonical name checking to the proximity override logic:
+1. If citations are within 200 chars AND have matching canonical names → valid parallel
+2. If citations are within 200 chars BUT have different canonical names → different cases!
+   - Apply P5_FIX validation to split them properly
+
+Expected Result:
+- Johnson v. McIntosh cluster: 8 Wheat. 543 + 5 L. Ed. 681 ✅
+- Worcester v. Georgia cluster: 6 Pet. 515 + 8 L. Ed. 483 ✅
+- Martin v. Waddell cluster: 16 Pet. 367 + 10 L. Ed. 997 ✅
+- Rogers cluster: 4 How. 567 + 11 L. Ed. 1105 ✅
+
+This fixes incorrect clustering when multiple authorities are cited together.

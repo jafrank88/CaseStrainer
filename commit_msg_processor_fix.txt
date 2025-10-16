@@ -1,0 +1,33 @@
+FIX: Use UnifiedInputProcessor for handling all input types
+
+ISSUE: 
+TypeError: ProcessingOptions.__init__() got an unexpected keyword argument 'enable_local_processing'
+
+ROOT CAUSE:
+Code was trying to use UnifiedSyncProcessor which:
+1. Has wrong ProcessingOptions parameters
+2. Only accepts text input (not URLs or files)
+3. Has wrong method name (process_any_input_enhanced doesn't exist)
+
+SOLUTION:
+Switched to UnifiedInputProcessor which:
+1. Handles all input types: file, URL, and text
+2. Has process_any_input(input_data, input_type, request_id) method
+3. Automatically extracts text from PDFs and other formats
+4. Returns standardized result format
+
+CHANGES:
+- Import: UnifiedInputProcessor instead of UnifiedSyncProcessor
+- Removed ProcessingOptions configuration (not needed)
+- Use process_any_input() method with correct parameters
+- Simplified code - let the processor handle input conversion
+
+FILES MODIFIED:
+- src/vue_api_endpoints_updated.py (lines 397-439)
+
+TESTING:
+✅ Backend restarts successfully
+✅ Container healthy
+✅ Ready to process URL inputs
+
+This allows the system to fetch PDFs from URLs and extract citations.

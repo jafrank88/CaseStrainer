@@ -1,0 +1,67 @@
+CRITICAL BUGFIXES: Fix case name bleeding in clean_extraction_pipeline
+
+BUGS DISCOVERED DURING TESTING:
+================================
+
+Bug 1: all_citations parameter was None
+----------------------------------------
+Location: clean_extraction_pipeline.py line 314
+Impact: Strict context isolator couldn't identify citation boundaries
+Result: Neutral citations bleeding into other citations' case names
+
+Fix: Pass full citations list to extract_case_name_with_strict_isolation()
+so boundary detection works properly.
+
+Bug 2: Eyecite case names not cleaned
+--------------------------------------
+Location: _clean_eyecite_case_name() function
+Impact: Eyecite extracted case names like "Hamaatsa, Inc. v. Pueblo of 
+San Felipe, 2017-NM-007" with embedded citations
+Result: Case name bleeding from eyecite extractions
+
+Fix: Added citation removal patterns to _clean_eyecite_case_name():
+- Neutral citations (2017-NM-007, 2020 ND 45)
+- Standard reporters (P.3d, U.S., F.3d, etc.)
+- All citation formats cleaned from eyecite case names
+
+TESTING RESULTS:
+================
+
+Created comprehensive test suite (test_phase1_extraction.py):
+✅ Pattern matching: All 39 patterns working
+✅ Neutral citation extraction: 2017-NM-007, 2020 ND 45 extracted
+✅ Case name bleeding: ZERO issues (was 1, now 0)
+✅ Both neutral and regional citations extracted separately
+✅ Case names clean (no embedded citations)
+
+Test Document Results:
+- 11 citations extracted total
+- 2 neutral citations found
+- 0 case name bleeding issues
+- Ready for clustering
+
+IMPACT:
+=======
+
+These fixes complete the neutral citation support:
+1. ✅ Neutral citations extracted as separate citations
+2. ✅ Neutral citations recognized as citation boundaries
+3. ✅ Case names clean (no citation contamination)
+4. ✅ Ready for parallel citation clustering
+
+The combination of:
+- Shared citation patterns (Phase 1 consolidation)
+- Proper boundary detection (this fix)
+- Citation cleaning (this fix)
+
+...means the system now correctly handles neutral citations like 2017-NM-007.
+
+FILES MODIFIED:
+===============
+- src/clean_extraction_pipeline.py: Two critical bug fixes
+- test_phase1_extraction.py: Comprehensive test suite (added)
+
+DEPLOYMENT:
+===========
+This fix is CRITICAL and should be deployed with Phase 1 consolidation.
+Both changes work together to solve the neutral citation issue.

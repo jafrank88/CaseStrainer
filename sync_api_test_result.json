@@ -1,0 +1,6146 @@
+{
+  "citations": [
+    {
+      "canonical_date": "2015-07-16",
+      "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+      "case_history": [],
+      "citation": "183 Wn.2d 649",
+      "cluster_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "cluster_id": "cluster_1",
+      "cluster_members": [
+        "355 P.3d 258"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4274,
+      "error": null,
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_date": "2015",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "355 P.3d 258"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4261,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2015-07-16",
+      "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+      "case_history": [],
+      "citation": "355 P.3d 258",
+      "cluster_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "cluster_id": "cluster_1",
+      "cluster_members": [
+        "183 Wn.2d 649"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4293,
+      "error": null,
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_date": "2015",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "183 Wn.2d 649"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4281,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "192 Wn.2d 453",
+      "cluster_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "cluster_id": "cluster_27",
+      "cluster_members": [
+        "430 P.3d 655"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4427,
+      "error": null,
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_date": "2018",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "430 P.3d 655"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4414,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "430 P.3d 655",
+      "cluster_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "cluster_id": "cluster_27",
+      "cluster_members": [
+        "192 Wn.2d 453"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4446,
+      "error": null,
+      "extracted_case_name": "rio v. Sa",
+      "extracted_date": "2018",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "192 Wn.2d 453"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4434,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "146 Wn.2d 1",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_2",
+      "cluster_members": [
+        "43 P.3d 4"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4840,
+      "error": null,
+      "extracted_case_name": "Ecology v. Campbell & Gwinn",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "43 P.3d 4"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4829,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "43 P.3d 4",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_2",
+      "cluster_members": [
+        "146 Wn.2d 1"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 4858,
+      "error": null,
+      "extracted_case_name": "Ecology v. Campbell & Gwinn",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "146 Wn.2d 1"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 4849,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "182 Wn.2d 342",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_28_split_27",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5233,
+      "error": null,
+      "extracted_case_name": "Ecology v. Campbell & Gwinn",
+      "extracted_date": "2015",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "340 P.3d 849"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5220,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "340 P.3d 849",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_28_split_28",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5252,
+      "error": null,
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wa",
+      "extracted_date": "2015",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "182 Wn.2d 342"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5240,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "176 Wn.2d 333",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_28_split_29",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5461,
+      "error": null,
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wash",
+      "extracted_date": "2013",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "292 P.3d 92"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5448,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "292 P.3d 92",
+      "cluster_case_name": "Ecology v. Campbell & Gwinn",
+      "cluster_id": "cluster_28_split_30",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5479,
+      "error": null,
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wash. State Liquor Control",
+      "extracted_date": "2013",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "176 Wn.2d 333"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5468,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "199 Wn.2d 528",
+      "cluster_case_name": "State v. M.Y.G.",
+      "cluster_id": "cluster_3",
+      "cluster_members": [
+        "509 P.3d 818"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9259,
+      "error": null,
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "2022",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "509 P.3d 818"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9246,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "509 P.3d 818",
+      "cluster_case_name": "State v. M.Y.G.",
+      "cluster_id": "cluster_3",
+      "cluster_members": [
+        "199 Wn.2d 528"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9278,
+      "error": null,
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "2022",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "199 Wn.2d 528"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9266,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "116 Wn.2d 1",
+      "cluster_case_name": "State v. M.Y.G.",
+      "cluster_id": "cluster_4",
+      "cluster_members": [
+        "802 P.2d 784"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9373,
+      "error": null,
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "1991",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "802 P.2d 784"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9362,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "802 P.2d 784",
+      "cluster_case_name": "State v. M.Y.G.",
+      "cluster_id": "cluster_4",
+      "cluster_members": [
+        "116 Wn.2d 1"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9390,
+      "error": null,
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "1991",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "116 Wn.2d 1"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9378,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "101 Wn.2d 270",
+      "cluster_case_name": "Coburn v. Seda",
+      "cluster_id": "cluster_5",
+      "cluster_members": [
+        "677 P.2d 173"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9959,
+      "error": null,
+      "extracted_case_name": "Coburn v. Seda",
+      "extracted_date": "1984",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "677 P.2d 173"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9946,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "677 P.2d 173",
+      "cluster_case_name": "Coburn v. Seda",
+      "cluster_id": "cluster_5",
+      "cluster_members": [
+        "101 Wn.2d 270"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 9978,
+      "error": null,
+      "extracted_case_name": "Coburn v. Seda",
+      "extracted_date": "1984",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "101 Wn.2d 270"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 9966,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2012-05-31",
+      "canonical_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+      "case_history": [],
+      "citation": "174 Wn.2d 619",
+      "cluster_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "cluster_id": "cluster_6",
+      "cluster_members": [
+        "278 P.3d 173"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 11765,
+      "error": null,
+      "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "extracted_date": "2012",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "278 P.3d 173"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 11752,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2012-05-31",
+      "canonical_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+      "case_history": [],
+      "citation": "278 P.3d 173",
+      "cluster_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "cluster_id": "cluster_6",
+      "cluster_members": [
+        "174 Wn.2d 619"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 11784,
+      "error": null,
+      "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "extracted_date": "2012",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "174 Wn.2d 619"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 11772,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2017-02-02",
+      "canonical_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+      "case_history": [],
+      "citation": "187 Wn.2d 669",
+      "cluster_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "cluster_id": "cluster_7",
+      "cluster_members": [
+        "389 P.3d 476"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 13064,
+      "error": null,
+      "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "extracted_date": "2017",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "389 P.3d 476"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 13051,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2017-02-02",
+      "canonical_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+      "case_history": [],
+      "citation": "389 P.3d 476",
+      "cluster_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "cluster_id": "cluster_7",
+      "cluster_members": [
+        "187 Wn.2d 669"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 13083,
+      "error": null,
+      "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "extracted_date": "2017",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "187 Wn.2d 669"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 13071,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "559 P.3d 545",
+      "cluster_case_name": "USA, Inc. v. Dep",
+      "cluster_id": "cluster_36",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14333,
+      "error": null,
+      "extracted_case_name": "USA, Inc. v. Dep",
+      "extracted_date": "2024",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14321,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "150 Wn.2d 674",
+      "cluster_case_name": "Dev., Inc. v. Cananwill",
+      "cluster_id": "cluster_8",
+      "cluster_members": [
+        "4 Wn.3d 1021",
+        "80 P.3d 598"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14400,
+      "error": null,
+      "extracted_case_name": "Dev., Inc. v. Cananwill",
+      "extracted_date": "2003",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "80 P.3d 598"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14387,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "80 P.3d 598",
+      "cluster_case_name": "Dev., Inc. v. Cananwill",
+      "cluster_id": "cluster_8",
+      "cluster_members": [
+        "150 Wn.2d 674",
+        "4 Wn.3d 1021"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14418,
+      "error": null,
+      "extracted_case_name": "Dev., Inc. v. Cananwill, Inc.",
+      "extracted_date": "2003",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "150 Wn.2d 674"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14407,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "4 Wn.3d 1021",
+      "cluster_case_name": "Dev., Inc. v. Cananwill",
+      "cluster_id": "cluster_8",
+      "cluster_members": [
+        "150 Wn.2d 674",
+        "80 P.3d 598"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14455,
+      "error": null,
+      "extracted_case_name": "Dev., Inc. v. Cananwill, Inc.",
+      "extracted_date": "2025",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "wn3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14443,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "509 P.3d 325",
+      "cluster_case_name": "Fode v. Dep",
+      "cluster_id": "cluster_37",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 19025,
+      "error": null,
+      "extracted_case_name": "Fode v. Dep",
+      "extracted_date": "2022",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 19013,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2007-03-01",
+      "canonical_name": "Bostain v. Food Express, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+      "case_history": [],
+      "citation": "159 Wn.2d 700",
+      "cluster_case_name": "Bostain v. Food Express",
+      "cluster_id": "cluster_9",
+      "cluster_members": [
+        "153 P.3d 846"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 19086,
+      "error": null,
+      "extracted_case_name": "Bostain v. Food Express",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "153 P.3d 846"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 19073,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2007-03-01",
+      "canonical_name": "Bostain v. Food Exp., Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/",
+      "case_history": [],
+      "citation": "153 P.3d 846",
+      "cluster_case_name": "Bostain v. Food Express",
+      "cluster_id": "cluster_9",
+      "cluster_members": [
+        "159 Wn.2d 700"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 19105,
+      "error": null,
+      "extracted_case_name": "Bostain v. Food Express",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "159 Wn.2d 700"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 19093,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "495 P.3d 866",
+      "cluster_case_name": "Port of Tacoma v. Sacks",
+      "cluster_id": "cluster_38",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 19317,
+      "error": null,
+      "extracted_case_name": "Port of Tacoma v. Sacks",
+      "extracted_date": "2021",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 19304,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2007-02-15",
+      "canonical_name": "Tingey v. Haisch",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+      "case_history": [],
+      "citation": "159 Wn.2d 652",
+      "cluster_case_name": "Tingey v. Haisch",
+      "cluster_id": "cluster_10",
+      "cluster_members": [
+        "152 P.3d 1020"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24092,
+      "error": null,
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "152 P.3d 1020"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24079,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2007-02-15",
+      "canonical_name": "Tingey v. Haisch",
+      "canonical_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/",
+      "case_history": [],
+      "citation": "152 P.3d 1020",
+      "cluster_case_name": "Tingey v. Haisch",
+      "cluster_id": "cluster_10",
+      "cluster_members": [
+        "159 Wn.2d 652"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24115,
+      "error": null,
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "159 Wn.2d 652"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24102,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "148 Wn.2d 224",
+      "cluster_case_name": "Tingey v. Haisch",
+      "cluster_id": "cluster_11",
+      "cluster_members": [
+        "59 P.3d 655"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24237,
+      "error": null,
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "59 P.3d 655"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24224,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "59 P.3d 655",
+      "cluster_case_name": "Tingey v. Haisch",
+      "cluster_id": "cluster_11",
+      "cluster_members": [
+        "148 Wn.2d 224"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24255,
+      "error": null,
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "148 Wn.2d 224"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24244,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2003-02-20",
+      "canonical_name": "State v. Delgado",
+      "canonical_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+      "case_history": [],
+      "citation": "148 Wn.2d 723",
+      "cluster_case_name": "State v. Delgado",
+      "cluster_id": "cluster_12",
+      "cluster_members": [
+        "63 P.3d 792"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24371,
+      "error": null,
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "2003",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "63 P.3d 792"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24358,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "63 P.3d 792",
+      "cluster_case_name": "State v. Delgado",
+      "cluster_id": "cluster_12",
+      "cluster_members": [
+        "148 Wn.2d 723"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24389,
+      "error": null,
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "2003",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "148 Wn.2d 723"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24378,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "100 Wn.2d 636",
+      "cluster_case_name": "State v. Delgado",
+      "cluster_id": "cluster_13",
+      "cluster_members": [
+        "673 P.2d 185"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24458,
+      "error": null,
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "1983",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "673 P.2d 185"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24445,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "673 P.2d 185",
+      "cluster_case_name": "State v. Delgado",
+      "cluster_id": "cluster_13",
+      "cluster_members": [
+        "100 Wn.2d 636"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24477,
+      "error": null,
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "1983",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "100 Wn.2d 636"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24465,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2011-05-12",
+      "canonical_name": "Carlsen v. Global Client Solutions, LLC",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+      "case_history": [],
+      "citation": "171 Wn.2d 486",
+      "cluster_case_name": "Carlsen v. Glob. Client Sols.",
+      "cluster_id": "cluster_39",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 26986,
+      "error": null,
+      "extracted_case_name": "Carlsen v. Glob. Client Sols.",
+      "extracted_date": "2011",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 26973,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "256 P.3d 321",
+      "cluster_case_name": "N/A",
+      "cluster_id": "cluster_40",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 27009,
+      "error": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": "2011",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 26997,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "2024 WL 2133370",
+      "cluster_case_name": "Floyd v. Insight Glob. LLC",
+      "cluster_id": "cluster_29_split_31",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 35504,
+      "error": null,
+      "extracted_case_name": "Floyd v. Insight Glob. LLC",
+      "extracted_date": null,
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "westlaw",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 35489,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "2024 WL 3199858",
+      "cluster_case_name": "Floyd v. Insight Glob. LLC",
+      "cluster_id": "cluster_29_split_32",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 35598,
+      "error": null,
+      "extracted_case_name": "Floyd v. Insight Glob. LLC",
+      "extracted_date": "2024",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "westlaw",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 35583,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "2024 WL 4678268",
+      "cluster_case_name": "Floyd v. Insight Glob. LLC",
+      "cluster_id": "cluster_29_split_33",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 35711,
+      "error": null,
+      "extracted_case_name": "Wright v. HP Inc.",
+      "extracted_date": "2024",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "westlaw",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 35696,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2011-12-22",
+      "canonical_name": "Five Corners Family Farmers v. State",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+      "case_history": [],
+      "citation": "173 Wn.2d 296",
+      "cluster_case_name": "Five Corners Fam. Farmers v. State",
+      "cluster_id": "cluster_14",
+      "cluster_members": [
+        "268 P.3d 892"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 38351,
+      "error": null,
+      "extracted_case_name": "Five Corners Fam. Farmers v. State",
+      "extracted_date": "2011",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "268 P.3d 892"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 38338,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2011-12-22",
+      "canonical_name": "Five Corners Family Farmers v. State",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+      "case_history": [],
+      "citation": "268 P.3d 892",
+      "cluster_case_name": "Five Corners Fam. Farmers v. State",
+      "cluster_id": "cluster_14",
+      "cluster_members": [
+        "173 Wn.2d 296"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 38370,
+      "error": null,
+      "extracted_case_name": "Five Corners Fam. Farmers v. State",
+      "extracted_date": "2011",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "173 Wn.2d 296"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 38358,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "2 Wn.3d 310",
+      "cluster_case_name": "Wine Distribs. v. Wash. State Liquor Control Bd",
+      "cluster_id": "cluster_30",
+      "cluster_members": [
+        "535 P.3d 856"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 39764,
+      "error": null,
+      "extracted_case_name": "Wine Distribs. v. Wash. State Liquor Control Bd",
+      "extracted_date": "2023",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "535 P.3d 856"
+      ],
+      "pattern": "wn3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 39753,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "535 P.3d 856",
+      "cluster_case_name": "Wine Distribs. v. Wash. State Liquor Control Bd",
+      "cluster_id": "cluster_30",
+      "cluster_members": [
+        "2 Wn.3d 310"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 39783,
+      "error": null,
+      "extracted_case_name": "State v. Valdiglesias LaValle",
+      "extracted_date": "2023",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "2 Wn.3d 310"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 39771,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "163 Wn.2d 1",
+      "cluster_case_name": "State v. Lilyblad",
+      "cluster_id": "cluster_15",
+      "cluster_members": [
+        "177 P.3d 686"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41139,
+      "error": null,
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2008",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "177 P.3d 686"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41128,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2008-02-07",
+      "canonical_name": "State v. Lilyblad",
+      "canonical_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+      "case_history": [],
+      "citation": "177 P.3d 686",
+      "cluster_case_name": "State v. Lilyblad",
+      "cluster_id": "cluster_15",
+      "cluster_members": [
+        "163 Wn.2d 1"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41156,
+      "error": null,
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2008",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "163 Wn.2d 1"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41144,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "197 Wn.2d 841",
+      "cluster_case_name": "State v. Lilyblad",
+      "cluster_id": "cluster_16",
+      "cluster_members": [
+        "487 P.3d 499"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41203,
+      "error": null,
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2021",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "487 P.3d 499"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41190,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "487 P.3d 499",
+      "cluster_case_name": "State v. Lilyblad",
+      "cluster_id": "cluster_16",
+      "cluster_members": [
+        "197 Wn.2d 841"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41222,
+      "error": null,
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2021",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "197 Wn.2d 841"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41210,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "153 Wn.2d 614",
+      "cluster_case_name": "State v. Valdiglesias LaValle",
+      "cluster_id": "cluster_17",
+      "cluster_members": [
+        "106 P.3d 196"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41524,
+      "error": null,
+      "extracted_case_name": "State v. Valdiglesias LaValle",
+      "extracted_date": "2005",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "106 P.3d 196"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41511,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "106 P.3d 196",
+      "cluster_case_name": "State v. Valdiglesias LaValle",
+      "cluster_id": "cluster_17",
+      "cluster_members": [
+        "153 Wn.2d 614"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41543,
+      "error": null,
+      "extracted_case_name": "State v. Valdiglesias LaValle",
+      "extracted_date": "2005",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "153 Wn.2d 614"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41531,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "137 Wn.2d 712",
+      "cluster_case_name": "State v. Roggenkamp",
+      "cluster_id": "cluster_18",
+      "cluster_members": [
+        "976 P.2d 1229"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41652,
+      "error": null,
+      "extracted_case_name": "State v. Roggenkamp",
+      "extracted_date": "1999",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "976 P.2d 1229"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41639,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "976 P.2d 1229",
+      "cluster_case_name": "State v. Roggenkamp",
+      "cluster_id": "cluster_18",
+      "cluster_members": [
+        "137 Wn.2d 712"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 41672,
+      "error": null,
+      "extracted_case_name": "State v. Roggenkamp",
+      "extracted_date": "1999",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "137 Wn.2d 712"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 41659,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2003-05-22",
+      "canonical_name": "State v. J.P.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+      "case_history": [],
+      "citation": "69 P.3d 318",
+      "cluster_case_name": "State v. J.P.",
+      "cluster_id": "cluster_41",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 44898,
+      "error": null,
+      "extracted_case_name": "State v. J.P.",
+      "extracted_date": "2003",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 44887,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "578 U.S. 330",
+      "cluster_case_name": "Spokeo, Inc. v. Robins",
+      "cluster_id": "cluster_19",
+      "cluster_members": [
+        "136 S. Ct. 1540",
+        "194 L. Ed. 2d 635"
+      ],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 46948,
+      "error": null,
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "2016",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "136 S. Ct. 1540",
+        "194 L. Ed. 2d 635"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 46936,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2016-05-16",
+      "canonical_name": "Spokeo, Inc. v. Robins",
+      "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+      "case_history": [],
+      "citation": "136 S. Ct. 1540",
+      "cluster_case_name": "Spokeo, Inc. v. Robins",
+      "cluster_id": "cluster_19",
+      "cluster_members": [
+        "578 U.S. 330",
+        "194 L. Ed. 2d 635"
+      ],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 46970,
+      "error": null,
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "2016",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "578 U.S. 330",
+        "194 L. Ed. 2d 635"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 46955,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2016-05-16",
+      "canonical_name": "Spokeo, Inc. v. Robins",
+      "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+      "case_history": [],
+      "citation": "194 L. Ed. 2d 635",
+      "cluster_case_name": "Spokeo, Inc. v. Robins",
+      "cluster_id": "cluster_19",
+      "cluster_members": [
+        "578 U.S. 330",
+        "136 S. Ct. 1540"
+      ],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 46989,
+      "error": null,
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "2016",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "578 U.S. 330",
+        "136 S. Ct. 1540"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 46972,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "521 U.S. 811",
+      "cluster_case_name": "Raines v. Byrd",
+      "cluster_id": "cluster_42",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47059,
+      "error": null,
+      "extracted_case_name": "Raines v. Byrd",
+      "extracted_date": "1997",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1997
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47047,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2016-05-16",
+      "canonical_name": "Spokeo, Inc. v. Robins",
+      "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+      "case_history": [],
+      "citation": "117 S. Ct. 2312",
+      "cluster_case_name": "Spokeo, Inc. v. Robins",
+      "cluster_id": "cluster_20",
+      "cluster_members": [
+        "138 L. Ed. 2d 849"
+      ],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47085,
+      "error": null,
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "1997",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1997
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "138 L. Ed. 2d 849"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47070,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "138 L. Ed. 2d 849",
+      "cluster_case_name": "Spokeo, Inc. v. Robins",
+      "cluster_id": "cluster_20",
+      "cluster_members": [
+        "117 S. Ct. 2312"
+      ],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47104,
+      "error": null,
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "1997",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1997
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "117 S. Ct. 2312"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47087,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "567 P.3d 1128",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_31_split_35",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47369,
+      "error": null,
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_date": "2025",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47356,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "182 Wn.2d 398",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_31_split_36",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47528,
+      "error": null,
+      "extracted_case_name": "nd v. To",
+      "extracted_date": "2015",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "341 P.3d 953"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47515,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "341 P.3d 953",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_31_split_37",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47547,
+      "error": null,
+      "extracted_case_name": "State v. Bld",
+      "extracted_date": "2015",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "182 Wn.2d 398"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47535,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2005-02-24",
+      "canonical_name": "State v. Robinson",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+      "case_history": [],
+      "citation": "153 Wn.2d 689",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_31_split_38",
+      "cluster_members": [
+        "107 P.3d 90"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47595,
+      "error": null,
+      "extracted_case_name": "State v. Robinson",
+      "extracted_date": "2005",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47582,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "107 P.3d 90",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_31_split_38",
+      "cluster_members": [
+        "153 Wn.2d 689"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 47617,
+      "error": null,
+      "extracted_case_name": "State v. Robinson",
+      "extracted_date": "2005",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 47606,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "118 Wn.2d 46",
+      "cluster_case_name": "statements, Wilmot v. Ka",
+      "cluster_id": "cluster_21",
+      "cluster_members": [
+        "821 P.2d 18"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51299,
+      "error": null,
+      "extracted_case_name": "statements, Wilmot v. Ka",
+      "extracted_date": "1991",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "821 P.2d 18"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51287,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "821 P.2d 18",
+      "cluster_case_name": "statements, Wilmot v. Ka",
+      "cluster_id": "cluster_21",
+      "cluster_members": [
+        "118 Wn.2d 46"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51316,
+      "error": null,
+      "extracted_case_name": "statements, Wilmot v. Ka",
+      "extracted_date": "1991",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "118 Wn.2d 46"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51305,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "198 Wn.2d 418",
+      "cluster_case_name": "N/A",
+      "cluster_id": "cluster_22",
+      "cluster_members": [
+        "495 P.3d 808"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51613,
+      "error": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": "2021",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "495 P.3d 808"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51600,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "495 P.3d 808",
+      "cluster_case_name": "N/A",
+      "cluster_id": "cluster_22",
+      "cluster_members": [
+        "198 Wn.2d 418"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51632,
+      "error": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": "2021",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "198 Wn.2d 418"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51620,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "749 F.2d 113",
+      "cluster_case_name": "N/A",
+      "cluster_id": "cluster_43",
+      "cluster_members": [],
+      "confidence": 0.9,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51708,
+      "error": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": "1984",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1984
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51696,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "131 Wn.2d 309",
+      "cluster_case_name": "State Legislature v. Lowry",
+      "cluster_id": "cluster_23",
+      "cluster_members": [
+        "931 P.2d 885"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51782,
+      "error": null,
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1997",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "931 P.2d 885"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51769,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "1997-02-27",
+      "canonical_name": "Washington State Legislature v. Lowry",
+      "canonical_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+      "case_history": [],
+      "citation": "931 P.2d 885",
+      "cluster_case_name": "State Legislature v. Lowry",
+      "cluster_id": "cluster_23",
+      "cluster_members": [
+        "131 Wn.2d 309"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51801,
+      "error": null,
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1997",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "131 Wn.2d 309"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51789,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "130 Wn.2d 594",
+      "cluster_case_name": "Inc. v. Fed. Commc",
+      "cluster_id": "cluster_32",
+      "cluster_members": [
+        "925 P.2d 978"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 53792,
+      "error": null,
+      "extracted_case_name": "Inc. v. Fed. Commc",
+      "extracted_date": "1996",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "925 P.2d 978"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 53779,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "925 P.2d 978",
+      "cluster_case_name": "Inc. v. Fed. Commc",
+      "cluster_id": "cluster_32",
+      "cluster_members": [
+        "130 Wn.2d 594"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 53811,
+      "error": null,
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1996",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "130 Wn.2d 594"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 53799,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "125 Wn.2d 472",
+      "cluster_case_name": "State Legislature v. Lowry",
+      "cluster_id": "cluster_24",
+      "cluster_members": [
+        "886 P.2d 138"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 53885,
+      "error": null,
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1994",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "886 P.2d 138"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 53872,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "886 P.2d 138",
+      "cluster_case_name": "State Legislature v. Lowry",
+      "cluster_id": "cluster_24",
+      "cluster_members": [
+        "125 Wn.2d 472"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 53904,
+      "error": null,
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1994",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "125 Wn.2d 472"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 53892,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "147 Wn.2d 602",
+      "cluster_case_name": "State v. Silva-Baltazar",
+      "cluster_id": "cluster_25",
+      "cluster_members": [
+        "56 P.3d 981"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 56108,
+      "error": null,
+      "extracted_case_name": "State v. Silva-Baltazar",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "56 P.3d 981"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 56095,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "56 P.3d 981",
+      "cluster_case_name": "State v. Silva-Baltazar",
+      "cluster_id": "cluster_25",
+      "cluster_members": [
+        "147 Wn.2d 602"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 56126,
+      "error": null,
+      "extracted_case_name": "State v. Silva-Baltazar",
+      "extracted_date": "2002",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "147 Wn.2d 602"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 56115,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "120 Wn.2d 140",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_33",
+      "cluster_members": [
+        "839 P.2d 324"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 56197,
+      "error": null,
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_date": "1992",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "839 P.2d 324"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 56184,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "839 P.2d 324",
+      "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "cluster_id": "cluster_33",
+      "cluster_members": [
+        "120 Wn.2d 140"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 56216,
+      "error": null,
+      "extracted_case_name": "Spokane County Health Dist. v. Brockett",
+      "extracted_date": "1992",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "120 Wn.2d 140"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 56204,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "136 Wn.2d 38",
+      "cluster_case_name": "City of Redmond v. Cen",
+      "cluster_id": "cluster_26",
+      "cluster_members": [
+        "959 P.2d 1091"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 57217,
+      "error": null,
+      "extracted_case_name": "City of Redmond v. Cen",
+      "extracted_date": "1998",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "959 P.2d 1091"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 57205,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "959 P.2d 1091",
+      "cluster_case_name": "City of Redmond v. Cen",
+      "cluster_id": "cluster_26",
+      "cluster_members": [
+        "136 Wn.2d 38"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 57236,
+      "error": null,
+      "extracted_case_name": "City of Redmond v. Cen",
+      "extracted_date": "1998",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "136 Wn.2d 38"
+      ],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 57223,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2018-12-24",
+      "canonical_name": "Aaron Richardson v. Department Of Labor & Industries",
+      "canonical_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+      "case_history": [],
+      "citation": "432 P.3d 841",
+      "cluster_case_name": "Richardson v. Dep",
+      "cluster_id": "cluster_34",
+      "cluster_members": [
+        "162 Wn.2d 42",
+        "169 P.3d 473"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 57545,
+      "error": null,
+      "extracted_case_name": "Richardson v. Dep",
+      "extracted_date": "2018",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 57533,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "162 Wn.2d 42",
+      "cluster_case_name": "Richardson v. Dep",
+      "cluster_id": "cluster_34",
+      "cluster_members": [
+        "432 P.3d 841",
+        "169 P.3d 473"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 57610,
+      "error": null,
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spi",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "169 P.3d 473"
+      ],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 57598,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "169 P.3d 473",
+      "cluster_case_name": "Richardson v. Dep",
+      "cluster_id": "cluster_34",
+      "cluster_members": [
+        "432 P.3d 841",
+        "162 Wn.2d 42"
+      ],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 57628,
+      "error": null,
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_date": "2007",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [
+        "162 Wn.2d 42"
+      ],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 57616,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "131 Wn.2d 523",
+      "cluster_case_name": "Nelson v. McClatchy Newspapers",
+      "cluster_id": "cluster_35_split_42",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 62500,
+      "error": null,
+      "extracted_case_name": "Nelson v. McClatchy Newspapers",
+      "extracted_date": null,
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "parallel_citation_cluster",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 62487,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "1997-05-08",
+      "canonical_name": "Nelson v. McClatchy Newspapers",
+      "canonical_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+      "case_history": [],
+      "citation": "936 P.2d 1123",
+      "cluster_case_name": "Nelson v. McClatchy Newspapers",
+      "cluster_id": "cluster_35_split_43",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 62525,
+      "error": null,
+      "extracted_case_name": "Nelson v. McClatchy Newspapers",
+      "extracted_date": "1997",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 62512,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "614 P.2d 209",
+      "cluster_case_name": "Nelson v. McClatchy Newspapers",
+      "cluster_id": "cluster_35_split_44",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 62728,
+      "error": null,
+      "extracted_case_name": "State v. Leek",
+      "extracted_date": "1980",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p2d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 62716,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    }
+  ],
+  "clusters": [
+    {
+      "canonical_date": "2015-07-16",
+      "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+      "case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "citation_details": [
+        {
+          "text": "183 Wn.2d 649",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+          "verified": true
+        },
+        {
+          "text": "355 P.3d 258",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "183 Wn.2d 649",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+          "verified": true
+        },
+        {
+          "text": "355 P.3d 258",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_1",
+      "confidence": 0.9999999999999999,
+      "date": "2015-07-16",
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "lopez demetrio v sakuma bros farms_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Ecology v. Campbell & Gwinn",
+      "citation_details": [
+        {
+          "text": "146 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "43 P.3d 4",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "146 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "43 P.3d 4",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_2",
+      "confidence": 0.8999999999999999,
+      "date": "2002",
+      "extracted_case_name": "Ecology v. Campbell & Gwinn",
+      "extracted_date": "2002",
+      "metadata": {
+        "cluster_key": "ecology v campbell gwinn_2002",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. M.Y.G.",
+      "citation_details": [
+        {
+          "text": "199 Wn.2d 528",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "509 P.3d 818",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "199 Wn.2d 528",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "509 P.3d 818",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_3",
+      "confidence": 0.8999999999999999,
+      "date": "2022",
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "state v m y g_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. M.Y.G.",
+      "citation_details": [
+        {
+          "text": "116 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "802 P.2d 784",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "116 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "802 P.2d 784",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4",
+      "confidence": 0.8999999999999999,
+      "date": "1991",
+      "extracted_case_name": "State v. M.Y.G.",
+      "extracted_date": "1991",
+      "metadata": {
+        "cluster_key": "state v m y g_1991",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Coburn v. Seda",
+      "citation_details": [
+        {
+          "text": "101 Wn.2d 270",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "677 P.2d 173",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "101 Wn.2d 270",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "677 P.2d 173",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_5",
+      "confidence": 0.8999999999999999,
+      "date": "1984",
+      "extracted_case_name": "Coburn v. Seda",
+      "extracted_date": "1984",
+      "metadata": {
+        "cluster_key": "coburn v seda_1984",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2012-05-31",
+      "canonical_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+      "case_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+      "citation_details": [
+        {
+          "text": "174 Wn.2d 619",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+          "verified": true
+        },
+        {
+          "text": "278 P.3d 173",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "174 Wn.2d 619",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+          "verified": true
+        },
+        {
+          "text": "278 P.3d 173",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_6",
+      "confidence": 0.9999999999999999,
+      "date": "2012-05-31",
+      "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co.",
+      "extracted_date": "2012",
+      "metadata": {
+        "cluster_key": "broughton lumber co v bnsf ry co_2012",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": "2017-02-02",
+      "canonical_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+      "case_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+      "citation_details": [
+        {
+          "text": "187 Wn.2d 669",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+          "verified": true
+        },
+        {
+          "text": "389 P.3d 476",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "187 Wn.2d 669",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+          "verified": true
+        },
+        {
+          "text": "389 P.3d 476",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_7",
+      "confidence": 0.9999999999999999,
+      "date": "2017-02-02",
+      "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co.",
+      "extracted_date": "2017",
+      "metadata": {
+        "cluster_key": "crisantos v state farm fire cas co_2017",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Dev., Inc. v. Cananwill",
+      "citation_details": [
+        {
+          "text": "150 Wn.2d 674",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "4 Wn.3d 1021",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "80 P.3d 598",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "150 Wn.2d 674",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "4 Wn.3d 1021",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "80 P.3d 598",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_8",
+      "confidence": 0.8999999999999999,
+      "date": "2003",
+      "extracted_case_name": "Dev., Inc. v. Cananwill",
+      "extracted_date": "2003",
+      "metadata": {
+        "cluster_key": "dev inc v cananwill_2003",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 3,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2007-03-01",
+      "canonical_name": "Bostain v. Food Express, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+      "case_name": "Bostain v. Food Express, Inc.",
+      "citation_details": [
+        {
+          "text": "159 Wn.2d 700",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+          "verified": true
+        },
+        {
+          "text": "153 P.3d 846",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "159 Wn.2d 700",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+          "verified": true
+        },
+        {
+          "text": "153 P.3d 846",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_9",
+      "confidence": 0.9999999999999999,
+      "date": "2007-03-01",
+      "extracted_case_name": "Bostain v. Food Express",
+      "extracted_date": "2007",
+      "metadata": {
+        "cluster_key": "bostain v food express_2007",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": "2007-02-15",
+      "canonical_name": "Tingey v. Haisch",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+      "case_name": "Tingey v. Haisch",
+      "citation_details": [
+        {
+          "text": "159 Wn.2d 652",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+          "verified": true
+        },
+        {
+          "text": "152 P.3d 1020",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "159 Wn.2d 652",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+          "verified": true
+        },
+        {
+          "text": "152 P.3d 1020",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_10",
+      "confidence": 0.9999999999999999,
+      "date": "2007-02-15",
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2007",
+      "metadata": {
+        "cluster_key": "tingey v haisch_2007",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Tingey v. Haisch",
+      "citation_details": [
+        {
+          "text": "148 Wn.2d 224",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "59 P.3d 655",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "148 Wn.2d 224",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "59 P.3d 655",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_11",
+      "confidence": 0.8999999999999999,
+      "date": "2002",
+      "extracted_case_name": "Tingey v. Haisch",
+      "extracted_date": "2002",
+      "metadata": {
+        "cluster_key": "tingey v haisch_2002",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2003-02-20",
+      "canonical_name": "State v. Delgado",
+      "canonical_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+      "case_name": "State v. Delgado",
+      "citation_details": [
+        {
+          "text": "148 Wn.2d 723",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+          "verified": true
+        },
+        {
+          "text": "63 P.3d 792",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "148 Wn.2d 723",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+          "verified": true
+        },
+        {
+          "text": "63 P.3d 792",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_12",
+      "confidence": 0.9999999999999999,
+      "date": "2003-02-20",
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "2003",
+      "metadata": {
+        "cluster_key": "state v delgado_2003",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Delgado",
+      "citation_details": [
+        {
+          "text": "100 Wn.2d 636",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "673 P.2d 185",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "100 Wn.2d 636",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "673 P.2d 185",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_13",
+      "confidence": 0.8999999999999999,
+      "date": "1983",
+      "extracted_case_name": "State v. Delgado",
+      "extracted_date": "1983",
+      "metadata": {
+        "cluster_key": "state v delgado_1983",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2011-12-22",
+      "canonical_name": "Five Corners Family Farmers v. State",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+      "case_name": "Five Corners Family Farmers v. State",
+      "citation_details": [
+        {
+          "text": "173 Wn.2d 296",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+          "verified": true
+        },
+        {
+          "text": "268 P.3d 892",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "173 Wn.2d 296",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+          "verified": true
+        },
+        {
+          "text": "268 P.3d 892",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_14",
+      "confidence": 0.9999999999999999,
+      "date": "2011-12-22",
+      "extracted_case_name": "Five Corners Fam. Farmers v. State",
+      "extracted_date": "2011",
+      "metadata": {
+        "cluster_key": "five corners fam farmers v state_2011",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": "2008-02-07",
+      "canonical_name": "State v. Lilyblad",
+      "canonical_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+      "case_name": "State v. Lilyblad",
+      "citation_details": [
+        {
+          "text": "163 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "177 P.3d 686",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "163 Wn.2d 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "177 P.3d 686",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_15",
+      "confidence": 0.9999999999999999,
+      "date": "2008-02-07",
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2008",
+      "metadata": {
+        "cluster_key": "state v lilyblad_2008",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Lilyblad",
+      "citation_details": [
+        {
+          "text": "197 Wn.2d 841",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "487 P.3d 499",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "197 Wn.2d 841",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "487 P.3d 499",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_16",
+      "confidence": 0.8999999999999999,
+      "date": "2021",
+      "extracted_case_name": "State v. Lilyblad",
+      "extracted_date": "2021",
+      "metadata": {
+        "cluster_key": "state v lilyblad_2021",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Valdiglesias LaValle",
+      "citation_details": [
+        {
+          "text": "153 Wn.2d 614",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "106 P.3d 196",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "153 Wn.2d 614",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "106 P.3d 196",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_17",
+      "confidence": 0.8999999999999999,
+      "date": "2005",
+      "extracted_case_name": "State v. Valdiglesias LaValle",
+      "extracted_date": "2005",
+      "metadata": {
+        "cluster_key": "state v valdiglesias lavalle_2005",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Roggenkamp",
+      "citation_details": [
+        {
+          "text": "137 Wn.2d 712",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "976 P.2d 1229",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "137 Wn.2d 712",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "976 P.2d 1229",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_18",
+      "confidence": 0.8999999999999999,
+      "date": "1999",
+      "extracted_case_name": "State v. Roggenkamp",
+      "extracted_date": "1999",
+      "metadata": {
+        "cluster_key": "state v roggenkamp_1999",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2016-05-16",
+      "canonical_name": "Spokeo, Inc. v. Robins",
+      "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+      "case_name": "Spokeo, Inc. v. Robins",
+      "citation_details": [
+        {
+          "text": "578 U.S. 330",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "136 S. Ct. 1540",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        },
+        {
+          "text": "194 L. Ed. 2d 635",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "578 U.S. 330",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "136 S. Ct. 1540",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        },
+        {
+          "text": "194 L. Ed. 2d 635",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_19",
+      "confidence": 0.9999999999999999,
+      "date": "2016-05-16",
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "spokeo inc v robins_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 3,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": "2016-05-16",
+      "canonical_name": "Spokeo, Inc. v. Robins",
+      "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+      "case_name": "Spokeo, Inc. v. Robins",
+      "citation_details": [
+        {
+          "text": "117 S. Ct. 2312",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        },
+        {
+          "text": "138 L. Ed. 2d 849",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "117 S. Ct. 2312",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+          "verified": true
+        },
+        {
+          "text": "138 L. Ed. 2d 849",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_20",
+      "confidence": 0.9999999999999999,
+      "date": "2016-05-16",
+      "extracted_case_name": "Spokeo, Inc. v. Robins",
+      "extracted_date": "1997",
+      "metadata": {
+        "cluster_key": "spokeo inc v robins_1997",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "statements, Wilmot v. Ka",
+      "citation_details": [
+        {
+          "text": "118 Wn.2d 46",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "821 P.2d 18",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "118 Wn.2d 46",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "821 P.2d 18",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_21",
+      "confidence": 0.8999999999999999,
+      "date": "1991",
+      "extracted_case_name": "statements, Wilmot v. Ka",
+      "extracted_date": "1991",
+      "metadata": {
+        "cluster_key": "statements wilmot v ka_1991",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "N/A",
+      "citation_details": [
+        {
+          "text": "198 Wn.2d 418",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "495 P.3d 808",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "198 Wn.2d 418",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "495 P.3d 808",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_22",
+      "confidence": 0.7,
+      "date": "2021",
+      "extracted_case_name": "N/A",
+      "extracted_date": "2021",
+      "metadata": {
+        "cluster_key": "unknown_2021",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "1997-02-27",
+      "canonical_name": "Washington State Legislature v. Lowry",
+      "canonical_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+      "case_name": "Washington State Legislature v. Lowry",
+      "citation_details": [
+        {
+          "text": "131 Wn.2d 309",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "931 P.2d 885",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "131 Wn.2d 309",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "931 P.2d 885",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_23",
+      "confidence": 0.9999999999999999,
+      "date": "1997-02-27",
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1997",
+      "metadata": {
+        "cluster_key": "state legislature v lowry_1997",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State Legislature v. Lowry",
+      "citation_details": [
+        {
+          "text": "125 Wn.2d 472",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "886 P.2d 138",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "125 Wn.2d 472",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "886 P.2d 138",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_24",
+      "confidence": 0.8999999999999999,
+      "date": "1994",
+      "extracted_case_name": "State Legislature v. Lowry",
+      "extracted_date": "1994",
+      "metadata": {
+        "cluster_key": "state legislature v lowry_1994",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Silva-Baltazar",
+      "citation_details": [
+        {
+          "text": "147 Wn.2d 602",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "56 P.3d 981",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "147 Wn.2d 602",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "56 P.3d 981",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_25",
+      "confidence": 0.8999999999999999,
+      "date": "2002",
+      "extracted_case_name": "State v. Silva-Baltazar",
+      "extracted_date": "2002",
+      "metadata": {
+        "cluster_key": "state v silva baltazar_2002",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "City of Redmond v. Cen",
+      "citation_details": [
+        {
+          "text": "136 Wn.2d 38",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "959 P.2d 1091",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "136 Wn.2d 38",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "959 P.2d 1091",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_26",
+      "confidence": 0.8999999999999999,
+      "date": "1998",
+      "extracted_case_name": "City of Redmond v. Cen",
+      "extracted_date": "1998",
+      "metadata": {
+        "cluster_key": "city of redmond v cen_1998",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "citation_details": [
+        {
+          "text": "192 Wn.2d 453",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "430 P.3d 655",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "192 Wn.2d 453",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "430 P.3d 655",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_27",
+      "confidence": 0.7,
+      "date": "2018",
+      "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "lopez demetrio v sakuma bros farms_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Ecology v. Campbell & Gwinn",
+      "citation_details": [
+        {
+          "text": "182 Wn.2d 342",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "182 Wn.2d 342",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_28_split_27",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "Ecology v. Campbell & Gwinn",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "ecology v campbell gwinn_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "ecology v campbell gwinn_2015",
+        "split_from": "cluster_28",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Spirits & Wine Distribs . v. Wa",
+      "citation_details": [
+        {
+          "text": "340 P.3d 849",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "340 P.3d 849",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_28_split_28",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wa",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "ecology v campbell gwinn_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "spirits wine distribs v wa_2015",
+        "split_from": "cluster_28",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Spirits & Wine Distribs . v. Wash",
+      "citation_details": [
+        {
+          "text": "176 Wn.2d 333",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "176 Wn.2d 333",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_28_split_29",
+      "confidence": 0.5,
+      "date": "2013",
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wash",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "ecology v campbell gwinn_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "spirits wine distribs v wash_2013",
+        "split_from": "cluster_28",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Spirits & Wine Distribs . v. Wash. State Liquor Control",
+      "citation_details": [
+        {
+          "text": "292 P.3d 92",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "292 P.3d 92",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_28_split_30",
+      "confidence": 0.5,
+      "date": "2013",
+      "extracted_case_name": "Spirits & Wine Distribs . v. Wash. State Liquor Control",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "ecology v campbell gwinn_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "spirits wine distribs v wash state liquor control_2013",
+        "split_from": "cluster_28",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Floyd v. Insight Glob. LLC",
+      "citation_details": [
+        {
+          "text": "2024 WL 2133370",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "2024 WL 2133370",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_29_split_31",
+      "confidence": 0.5,
+      "date": null,
+      "extracted_case_name": "Floyd v. Insight Glob. LLC",
+      "extracted_date": null,
+      "metadata": {
+        "cluster_key": "floyd v insight glob llc_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "floyd v insight glob llc",
+        "split_from": "cluster_29",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Floyd v. Insight Glob. LLC",
+      "citation_details": [
+        {
+          "text": "2024 WL 3199858",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "2024 WL 3199858",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_29_split_32",
+      "confidence": 0.5,
+      "date": "2024",
+      "extracted_case_name": "Floyd v. Insight Glob. LLC",
+      "extracted_date": "2024",
+      "metadata": {
+        "cluster_key": "floyd v insight glob llc_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "floyd v insight glob llc_2024",
+        "split_from": "cluster_29",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Wright v. HP Inc.",
+      "citation_details": [
+        {
+          "text": "2024 WL 4678268",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "2024 WL 4678268",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_29_split_33",
+      "confidence": 0.5,
+      "date": "2024",
+      "extracted_case_name": "Wright v. HP Inc.",
+      "extracted_date": "2024",
+      "metadata": {
+        "cluster_key": "floyd v insight glob llc_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "wright v hp inc_2024",
+        "split_from": "cluster_29",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Wine Distribs. v. Wash. State Liquor Control Bd",
+      "citation_details": [
+        {
+          "text": "2 Wn.3d 310",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "535 P.3d 856",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "2 Wn.3d 310",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "535 P.3d 856",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_30",
+      "confidence": 0.7,
+      "date": "2023",
+      "extracted_case_name": "Wine Distribs. v. Wash. State Liquor Control Bd",
+      "extracted_date": "2023",
+      "metadata": {
+        "cluster_key": "wine distribs v wash state liquor control bd_2023",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "citation_details": [
+        {
+          "text": "567 P.3d 1128",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "567 P.3d 1128",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_31_split_35",
+      "confidence": 0.5,
+      "date": "2025",
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_date": "2025",
+      "metadata": {
+        "cluster_key": "branson v wash fine wine spirits_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "branson v wash fine wine spirits_2025",
+        "split_from": "cluster_31",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "nd v. To",
+      "citation_details": [
+        {
+          "text": "182 Wn.2d 398",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "182 Wn.2d 398",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_31_split_36",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "nd v. To",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "branson v wash fine wine spirits_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "nd v to_2015",
+        "split_from": "cluster_31",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Bld",
+      "citation_details": [
+        {
+          "text": "341 P.3d 953",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "341 P.3d 953",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_31_split_37",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "State v. Bld",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "branson v wash fine wine spirits_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "state v bld_2015",
+        "split_from": "cluster_31",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2005-02-24",
+      "canonical_name": "State v. Robinson",
+      "canonical_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+      "case_name": "State v. Robinson",
+      "citation_details": [
+        {
+          "text": "153 Wn.2d 689",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+          "verified": true
+        },
+        {
+          "text": "107 P.3d 90",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "153 Wn.2d 689",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+          "verified": true
+        },
+        {
+          "text": "107 P.3d 90",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_31_split_38",
+      "confidence": 0.9999999999999999,
+      "date": "2005-02-24",
+      "extracted_case_name": "State v. Robinson",
+      "extracted_date": "2005",
+      "metadata": {
+        "cluster_key": "branson v wash fine wine spirits_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "state v robinson_2005",
+        "split_from": "cluster_31",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Inc. v. Fed. Commc",
+      "citation_details": [
+        {
+          "text": "130 Wn.2d 594",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "925 P.2d 978",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "130 Wn.2d 594",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "925 P.2d 978",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_32",
+      "confidence": 0.7,
+      "date": "1996",
+      "extracted_case_name": "Inc. v. Fed. Commc",
+      "extracted_date": "1996",
+      "metadata": {
+        "cluster_key": "inc v fed commc_1996",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "citation_details": [
+        {
+          "text": "120 Wn.2d 140",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "839 P.2d 324",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "120 Wn.2d 140",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "839 P.2d 324",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_33",
+      "confidence": 0.7,
+      "date": "1992",
+      "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits",
+      "extracted_date": "1992",
+      "metadata": {
+        "cluster_key": "branson v wash fine wine spirits_1992",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2018-12-24",
+      "canonical_name": "Aaron Richardson v. Department Of Labor & Industries",
+      "canonical_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+      "case_name": "Aaron Richardson v. Department Of Labor & Industries",
+      "citation_details": [
+        {
+          "text": "432 P.3d 841",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+          "verified": true
+        },
+        {
+          "text": "162 Wn.2d 42",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "169 P.3d 473",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "432 P.3d 841",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+          "verified": true
+        },
+        {
+          "text": "162 Wn.2d 42",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "169 P.3d 473",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_34",
+      "confidence": 0.7999999999999999,
+      "date": "2018-12-24",
+      "extracted_case_name": "Richardson v. Dep",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "richardson v dep_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 3,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Nelson v. McClatchy Newspapers",
+      "citation_details": [
+        {
+          "text": "131 Wn.2d 523",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "131 Wn.2d 523",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_35_split_42",
+      "confidence": 0.5,
+      "date": null,
+      "extracted_case_name": "Nelson v. McClatchy Newspapers",
+      "extracted_date": null,
+      "metadata": {
+        "cluster_key": "nelson v mcclatchy newspapers_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "nelson v mcclatchy newspapers",
+        "split_from": "cluster_35",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "1997-05-08",
+      "canonical_name": "Nelson v. McClatchy Newspapers",
+      "canonical_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+      "case_name": "Nelson v. McClatchy Newspapers",
+      "citation_details": [
+        {
+          "text": "936 P.2d 1123",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "936 P.2d 1123",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_35_split_43",
+      "confidence": 0.6,
+      "date": "1997-05-08",
+      "extracted_case_name": "Nelson v. McClatchy Newspapers",
+      "extracted_date": "1997",
+      "metadata": {
+        "cluster_key": "nelson v mcclatchy newspapers_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "nelson v mcclatchy newspapers_1997",
+        "split_from": "cluster_35",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "State v. Leek",
+      "citation_details": [
+        {
+          "text": "614 P.2d 209",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "614 P.2d 209",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_35_split_44",
+      "confidence": 0.5,
+      "date": "1980",
+      "extracted_case_name": "State v. Leek",
+      "extracted_date": "1980",
+      "metadata": {
+        "cluster_key": "nelson v mcclatchy newspapers_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "state v leek_1980",
+        "split_from": "cluster_35",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "USA, Inc. v. Dep",
+      "citation_details": [
+        {
+          "text": "559 P.3d 545",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "559 P.3d 545",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_36",
+      "confidence": 0.5,
+      "date": "2024",
+      "extracted_case_name": "USA, Inc. v. Dep",
+      "extracted_date": "2024",
+      "metadata": {
+        "cluster_key": "usa inc v dep_2024",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Fode v. Dep",
+      "citation_details": [
+        {
+          "text": "509 P.3d 325",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "509 P.3d 325",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_37",
+      "confidence": 0.5,
+      "date": "2022",
+      "extracted_case_name": "Fode v. Dep",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "fode v dep_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Port of Tacoma v. Sacks",
+      "citation_details": [
+        {
+          "text": "495 P.3d 866",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "495 P.3d 866",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_38",
+      "confidence": 0.5,
+      "date": "2021",
+      "extracted_case_name": "Port of Tacoma v. Sacks",
+      "extracted_date": "2021",
+      "metadata": {
+        "cluster_key": "port of tacoma v sacks_2021",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2011-05-12",
+      "canonical_name": "Carlsen v. Global Client Solutions, LLC",
+      "canonical_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+      "case_name": "Carlsen v. Global Client Solutions, LLC",
+      "citation_details": [
+        {
+          "text": "171 Wn.2d 486",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "171 Wn.2d 486",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_39",
+      "confidence": 0.6,
+      "date": "2011-05-12",
+      "extracted_case_name": "Carlsen v. Glob. Client Sols.",
+      "extracted_date": "2011",
+      "metadata": {
+        "cluster_key": "carlsen v glob client sols_2011",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "N/A",
+      "citation_details": [
+        {
+          "text": "256 P.3d 321",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "256 P.3d 321",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_40",
+      "confidence": 0.5,
+      "date": "2011",
+      "extracted_case_name": "N/A",
+      "extracted_date": "2011",
+      "metadata": {
+        "cluster_key": "unknown_2011",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2003-05-22",
+      "canonical_name": "State v. J.P.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+      "case_name": "State v. J.P.",
+      "citation_details": [
+        {
+          "text": "69 P.3d 318",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "69 P.3d 318",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "CourtListener",
+          "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_41",
+      "confidence": 0.6,
+      "date": "2003-05-22",
+      "extracted_case_name": "State v. J.P.",
+      "extracted_date": "2003",
+      "metadata": {
+        "cluster_key": "state v j p_2003",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Raines v. Byrd",
+      "citation_details": [
+        {
+          "text": "521 U.S. 811",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "521 U.S. 811",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_42",
+      "confidence": 0.5,
+      "date": "1997",
+      "extracted_case_name": "Raines v. Byrd",
+      "extracted_date": "1997",
+      "metadata": {
+        "cluster_key": "raines v byrd_1997",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "N/A",
+      "citation_details": [
+        {
+          "text": "749 F.2d 113",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "749 F.2d 113",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_43",
+      "confidence": 0.5,
+      "date": "1984",
+      "extracted_case_name": "N/A",
+      "extracted_date": "1984",
+      "metadata": {
+        "cluster_key": "unknown_1984",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    }
+  ],
+  "document_length": 66731,
+  "message": "Analysis completed",
+  "metadata": {
+    "force_mode": "sync",
+    "input_type": "text",
+    "processing_mode": "immediate",
+    "processing_strategy": "unified_v2_direct",
+    "source": "text",
+    "sync_complete": true,
+    "text_length": 66731
+  },
+  "processing_time_ms": 182045,
+  "progress_data": {
+    "current_message": "Verification completed",
+    "current_step": 5,
+    "elapsed_time": 182.02853798866272,
+    "end_time": 1760121261.0060928,
+    "overall_progress": 100,
+    "start_time": 1760121078.9795704,
+    "status": "completed",
+    "steps": [
+      {
+        "end_time": 1760121079.0095515,
+        "message": "Initialization complete",
+        "name": "Initializing",
+        "progress": 100,
+        "start_time": 1760121078.9842415,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760121260.9817085,
+        "message": "Citation extraction completed",
+        "name": "Extract",
+        "progress": 100,
+        "start_time": 1760121079.0121412,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760121260.9860928,
+        "message": "Analysis completed",
+        "name": "Analyze",
+        "progress": 100,
+        "start_time": 1760121260.9839098,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760121260.9963388,
+        "message": "Name extraction completed",
+        "name": "Extract Names",
+        "progress": 100,
+        "start_time": 1760121260.9941514,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760121261.0005069,
+        "message": "Clustering completed",
+        "name": "Cluster",
+        "progress": 100,
+        "start_time": 1760121260.998353,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760121261.0040817,
+        "message": "Verification completed",
+        "name": "Verify",
+        "progress": 100,
+        "start_time": 1760121261.0022843,
+        "status": "completed"
+      }
+    ],
+    "task_id": "7af66927-acd6-4b3c-83fc-2491485dc464",
+    "total_steps": 6
+  },
+  "request_id": "7af66927-acd6-4b3c-83fc-2491485dc464",
+  "success": true
+}

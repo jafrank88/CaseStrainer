@@ -1,0 +1,24 @@
+FIX Issue 3: Remove signal words and procedural phrases from case names
+
+Problem: Case names contaminated with signal words and procedural language
+- "Id. For example, in Knocklong Corp. v. Kingdom of Afghanistan"
+- "vacated and remanded"
+
+Solution (unified_case_name_extractor_v2.py):
+1. Added patterns to catch procedural phrases:
+   - "vacated and remanded", "reversed and affirmed", etc.
+   - Rejects purely procedural results
+2. Improved "Id." handling:
+   - Catches "Id. For example, in" combinations
+   - Also handles "E.g.", "Cf." at start
+3. Added validation after cleaning:
+   - Rejects empty parties (< 2 chars)
+   - Rejects procedural-only words ("and", "or", "the", etc.)
+4. Applied fixes to BOTH extraction methods
+
+Expected Results:
+✅ "vacated and remanded" -> rejected (not extracted)
+✅ "Id. For example, in X v. Y" -> "X v. Y"
+✅ "See also X v. Y" -> "X v. Y"
+
+Time: 15 minutes

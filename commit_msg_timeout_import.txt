@@ -1,0 +1,25 @@
+FIX: Add missing DEFAULT_REQUEST_TIMEOUT import in database_manager
+
+database_manager.py was using DEFAULT_REQUEST_TIMEOUT on line 257 
+but not importing it from config. This caused "name not defined" 
+errors during database initialization.
+
+ISSUE:
+- Health check returning 207 instead of 200
+- Database connection errors on every request
+- Error message: "name 'DEFAULT_REQUEST_TIMEOUT' is not defined"
+
+ROOT CAUSE:
+- Line 26: from src.config import DATABASE_FILE
+- Line 257: conn = sqlite3.connect(self.db_path, timeout=DEFAULT_REQUEST_TIMEOUT, ...)
+- DEFAULT_REQUEST_TIMEOUT used but not imported!
+
+SOLUTION:
+- Line 26: from src.config import DATABASE_FILE, DEFAULT_REQUEST_TIMEOUT
+
+TESTING:
+✅ Backend should now return 200 (healthy)
+✅ Database connections should work correctly
+✅ Health check should pass
+
+This fixes the health check failures and allows proper database connectivity.

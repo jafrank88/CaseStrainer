@@ -1,0 +1,438 @@
+
+=== PAGE 1 ===
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON  
+JOHN DOE P, JOHN
+ DOE Q, JOHN  ) 
+DOE R, and JOHN DOE S, as    ) 
+individuals and on behalf of others ) 
+similarly situated,  ) 
+) No. 102976 -4 
+P
+etit
+ioners,    ) 
+) 
+v.     ) 
+) Filed: June 12, 2025  
+THURSTON COUN
+TY, a municipal  ) 
+organization, and its departments  ) 
+the THURSTON COUNTY ) 
+PROSECUTING ATTORNEY and ) 
+THURSTON COUNTY SHER IFF, ) 
+) 
+Respondents , ) 
+) 
+DONNA ZINK and JEFF ZINK, a ) 
+married couple,  ) 
+) 
+Respondents/Cross   ) 
+Petitioners.    ) 
+_______________________________)  
+YU, J. — T
+his case involves a postdismissal challenge to a trial court’s order 
+permanently sealin g the petitioners’ actual names and allowing them to be En Banc
+FILE 
+IN CLERK ’S OFFICE 
+SUPREME COURT, STATE OF WASHINGTON 
+JUNE 12, 2025
+THIS OPINIO N WAS FILED 
+FOR RECORD AT 8 A.M. ON 
+JUNE 12, 2025
+SARAH R. PENDLETON 
+ SUPREME COURT CLERK 
+
+
+=== PAGE 2 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+2 identified by pseudonym in court records.  The underlying case is a PRA1 
+injunction action, in which the petitioners (John Does P, Q, R, and S) sought to 
+enjoin Thurston County (County) from releasing unredacted sex offender records 
+in response to cross petitioner Donna Zink’s PRA request.  
+Over the course of these proceedings, nearly all of the Does’ PRA 
+exemption claims have been rejected on the merits, and Zink received most of the records she reques ted.  The Does ultimately moved for voluntary dismissal but 
+sought to do so without revealing their identities.  The trial court granted the Does’ motion and entered a permanent order to (1) maintain the use of pseudonyms in 
+court records pertaining to thi s case and (2) seal a court record (Disclosure 
+Document) listing the Does’ actual names.  As a result, the Does have never been 
+publicly identified, by name, as the plaintiffs in this case.  
+For the reasons explained below, we affirm the Court of Appeals in part and 
+hold that the order sealing the Disclosure Document was an abuse of discretion 
+because the trial court’s findings are not sufficient to satisfy GR 15 or Seattle 
+Times Co. v. Ishikawa, 97 Wn.2d 30, 640 P.2d 716 (1982) .  For similar reasons, the 
+trial court abused its discretion in allowing the Does to remain in pseudonym, and 
+we hold the pseudonym issue is not  moot.  Given our resolution of these issues, we 
+decline to reach the evidentiary challenges raised in Zink’s cross petition for 
+1 Public Records Act, ch. 42.56 RCW. 
+
+=== PAGE 3 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+3 review.  We remand to the trial court with instructions to (1)  unseal the Disclosure 
+Document, (2)  use the Does’ actual names in future proceedings and court records 
+(if any) pertaining to this case, and (3)  order that the pseudonyms in the Superior 
+Court Management I nformation System (SCOMIS) indices be replaced with the 
+Does’ actual names.  
+FACTUAL AND PROCEDURAL BACKGROUND  
+This case has a lengthy procedural history, including multiple appeals.  It is 
+not necessary to review this history in detail, but a brief overview provides 
+important context for the issues presented.  
+A. The Does bring a PRA injunction action in pseudonym and obtain a 
+permanent injunction on summary judgment  
+ 
+In October 2014, Zink made a PRA request for Thurston County’s sex 
+offender records, including any lists or databases, registration records, victim 
+impact statements, and evaluations for special sex offender sentencing alternatives 
+(SSOSAs) and special sex offender disposition alternatives (SSODAs).  See RCW 
+9.94A.670; RCW 13.40.162.  
+The County notified the sex offenders named in the records, including the 
+Does, and began preparing its response to Zink’s PRA request.  The Does are level I sex offenders.
+2  Does P and Q were convicted of sex offenses as adults; Does R 
+                                           
+2 Level I sex offenders are “those classified as the least likely to reoffend.”  John Doe A 
+v. Wash. State Patrol , 185 Wn.2d 363, 368, 374 P.3d 63 (2016).  
+
+=== PAGE 4 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+4 and S were adjudicated as juveniles.  Does P and S both attest they are compliant 
+with their registration requirements, and Does R and Q have been relieved of the 
+duty to register.  
+In January 2015, the Does filed this action seeking to permanently e njoin the 
+release of unredacted sex offender records in response to Zink’s PRA request.  The Does asserted several claims of exemption based on statutes outside the PRA 
+governing the dissemination of sex offender records, health care information, and juvenile records.  The Does subsequently moved for a preliminary injunction and for permission to proceed in pseudonym.  In support, they filed declarations 
+detailing the anticipated harms of being publicly identified as sex offenders, as 
+well as several trial court orders granting similar relief in other cases.  
+The trial court granted the Does’ motion to remain in pseudonym 
+“throughout the pendency of this action.”  Clerk’s Papers (CP) at 25.  The court 
+reasoned that pseudonyms were necessary to preserve the Do es’ ability to obtain 
+relief, should they ultimately succeed in their PRA injunction action.  However, the 
+trial court did not conduct an Ishikawa  analysis in accordance with article I, section 
+10 of the Washington Constitution.
+3  Instead, the court adopte d the Does’ argument 
+that article I, section 10 is “not triggered” by pseudonymous litigation.  Id.  at 748.  
+                                           
+3 “Justice in all cases shall be administered openly, and without unnecessary delay.”  
+
+=== PAGE 5 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+5 The parties subsequently filed cross motions for summary judgment.  The 
+trial court ruled in favor of the Does on all of their PRA exemption claims and 
+found that the Does had “credibly attest[ed] to the substantial and irreparable harm 
+to class members if the requested documents were disclosed without redactions.”  Id. at 32.  Based on these rulings, the trial court granted the Does’ motion for 
+summa ry judgment and permanently enjoined the County from releasing 
+unredacted records in response to Zink’s PRA request.  
+B. Nearly all of the Does’ PRA exemption claims are rejected, but the Does are
+granted permission to remain in pseudonym
+T
+his action has been the subject of multiple appeals.  Over the course of
+appellate proceedings, nearly all of the Does’ PRA exemption claims have been 
+rejected on the merits.  
+Zink filed her first appeal after the trial court granted summary judgment to 
+the Does.  While the appeal was pending, this court decided John Doe A v. Washington State Patrol , which rejected a PRA exemption claim for sex offender 
+registration records that was materially identical to one of the Does’ claims in this case.  185 Wn.2d 363, 374 P.3d 63 (2016).  Thus, following John Doe A, the Court of Appeals here reversed in part and held “that the registration records must be released.”  John Doe P v. Thurston County , 199 Wn. App. 280, 283, 399 P.3d 1195 
+(2017) ( Doe I), modified on other grounds on reman d, No. 48000 -0-II (Wash. Ct. 
+App. Oct. 2, 2018) ( Doe II) (unpublished), 
+
+=== PAGE 6 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+6 https://www.courts.wa.gov/opinions/pdf/D2%2048000 -0-
+II%20Unpublished%20Opinion.pdf.  However, the Does’ remaining PRA 
+exemption claims and the use of pseudonyms were affirmed, and Zink petitioned 
+for this court’s review.  
+While the petition for review was pending, this court decided John Doe G v. 
+Department of Corrections , which rejected a PRA exemption claim for SSOSA 
+evaluations that the Does had also raised in this case.  190 Wn.2d 185, 410 P.3d 
+1156 (2018).  John Doe G  further held, contrary to the trial court in this case, “that 
+names in pleadings are subject to article I, section 10” and that an order to proceed 
+in pseudonym “must meet the Ishikawa factors,” as well as GR 15.  Id. at 201.  
+Following John Doe G , the Court of Appeals reversed the order allowing the 
+Does to proceed in pseudonym and rejected all but one of the Does’ PRA exemption claims.  Doe II, No. 48000 -0-II, slip op. at 11.  However, t he court held 
+that “unredacted SS ODA evaluations are exempt” because “ch. 13.50 RCW is an 
+‘other statute’ exemption that bars the release of juvenile justice and care records.”  Id. at 7.  This holding is not challenged and does not affect our resolution of the 
+issues presented.  Although SSODA evaluations are exempt from the PRA, the 
+Does acknowledge that all of their actual names (including those adjudicated as juveniles) appear in publicly available lists of sex offenders, which Zink compiled 
+using public records obtained through PRA re quests.  See  Letter from Am. C.L. 
+
+=== PAGE 7 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+7 Union of Wash. to Wash. Sup. Ct., John Doe P v. Zink , No. 102976 -4 (Wash. Feb. 
+21, 2025) (Letter from Couns.); CP at 34.  
+ On remand in the trial court, the Does moved to remain in pseudonym based 
+on the declarations they had previously submitted.  Alternatively, the Does argued 
+that John Doe G should not apply “retroactively” to them and sought to voluntarily 
+dismiss their PRA injunction action without revealing their identities.  CP at 678.  The trial court ruled that GR 15 and Ishikawa  had been met and entered an order 
+allowing the Does to remain in pseudonym for one year.  However, the order expressly cautioned that it would be reviewed “periodically,” and the court 
+required the Does to file a sealed Disclosure Document l isting their actual names 
+“in case it decides in the future that sealing the court record is not appropriate.”  Id.  
+at 149.  The trial court also lifted its permanent injunction, ordered the County to continue processing its response to Zink’s PRA request,  and issued a judgment for 
+costs in favor of Zink with the Does listed as judgment debtors.  
+Zink appealed the order sealing the Disclosure Document and allowing the 
+Does to remain in pseudonym.  The Court of Appeals affirmed, and Zink did not 
+seek further review.  John Doe P v. Thurston County , No. 56345 -2-II (Wash. Ct. 
+App. July 19, 2022) ( Doe III) (unpublished), 
+https://www.courts.wa.gov/opinions/pdf/D2%2056345 -2-
+II%20Unpublished%20Opinion.pdf.  
+
+=== PAGE 8 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+8 T he Does subsequently moved for voluntary dismissal and to permanently 
+seal their names in court records pertaining to their case by maintaining the use of 
+pseudonyms and sealing the Disclosure Document indefinitely.  In support, the 
+Does refiled the same declarations supporting their original motion to proceed in pseudonym, as well as new declarations from each of the Does and Doe R’s 
+mother, Jane Roe R.  Zink opposed the request to remain in pseudonym, arguing 
+that the Does had not met their burden or, in the alternative, that any new sealing order should be limit ed to one year.  
+The trial court granted the Does’ motion for voluntary dismissal and found 
+that the Does had “again established compelling privacy and safety concerns and a serious imminent threat of numerous forms of harm if their names are revealed  . . . that sufficiently outweigh the public interest and the requesters’ 
+interests.”  CP at 431.  Based on these findings, the court ordered the Does’ actual names to remain sealed through the use of pseudonyms and the sealing of the Disclosure Document.  The trial court’s order was permanent in duration, “unless 
+and until there is a subsequent motion” supported by “proof of compelling 
+circumstances that sealing is no longer necessary.”  Id. at 433.  Zink moved for 
+reconsideration, but the court declined her request to set an expiration date for its 
+order, reasoning that this “would unnecessarily clog the court with hearings that 
+don’t need to happen.”  Rep. of Proc. (Jan. 20, 2023) at 46.  
+
+=== PAGE 9 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+9 C. The Court of Appeals reverses the order sealing the Disclosure Document 
+but holds the continued use of pseudonyms is moot  
+ 
+ Zink appealed, challenging the trial court’s evidentiary rulings and its order 
+permanently sealing the Disclosure Document and allowing the Does to remain in 
+pseudonym.  The Court of Appeals reversed in part and held that the order sealing 
+the Disclosure Document was an abuse of discretion in violation of GR 15.  The 
+court reasoned that “the information the Does sought to protect by filing their 
+lawsuit —their iden tities as sex offenders— became publicly available” long ago, 
+and the Does had failed to “identify privacy or safety concerns specific to their 
+identities as the plaintiffs in this lawsuit .”  John Doe P v. Thurston County , No. 
+85909 -9-I, slip. op. at 6 (Wash. Ct. App. Jan. 29, 2024) ( Doe IV) (unpublished) 
+(emphasis added), https://www.courts.wa.gov/opinions/pdf/859099.pdf.  However, 
+the Court of Appeals declined to reach Zink’s evidentiary challenges and held the 
+pseudonym issue was “moot” because “Zink has received or will receive the 
+records she is entitled to, no claims remain to be litigated, and the trial court 
+dismissed the Does’ lawsuit with prejudice.”  Id.  at 8 n.12.  
+The Does and Zink subsequently filed cross petitions for review, which we 
+granted.  The Does, Zink, and the County have all filed supplemental briefs.  
+ISSUES  
+A. Is the trial court’s order allowing the permanent use of pseudonyms in 
+court records pertaining to this case moot?  
+
+=== PAGE 10 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+10 B. Did the trial court abuse its discretion in ordering the perm anent use
+of pseudonyms and permanently sealing the Disclosure Document? 
+ANALYSIS  
+Our state constitution requires that “[j]ustice in all cases shall be 
+administered openly, and without unnecessary delay.”  C ONST . art. I, § 10.  The 
+open administration of justice presumptively includes public access to the actual 
+names of litigants.  John Doe G , 190 Wn.2d at 201.  However, the “right of 
+access  . . . may be outweighed by some competing interest as determined by the 
+trial court on a case -by-case basis accordin g to the Ishikawa guidelines.”  Allied 
+Daily Newspapers of Wash. v. Eikenberry , 121 Wn.2d 205, 211, 848 P.2d 1258 
+(1993).  Thus, an order allowing a litigant to proceed or remain in pseudonym, including at the postdismissal stage, must be justified in accordance with both GR 
+15 and the  Ishikawa factors.  See John Doe G , 190 Wn.2d at 198 -202.  
+A trial court’s decision granting or denying a motion to seal court records is 
+reviewed for abuse of discretion.  State v. Richardson , 177 Wn.2d 351, 357, 302 
+P.3d 156 (2013).  A trial court abuses its discretion when it relies “on fact
+s
+un
+supported in the record,” applies “the wrong legal standard,” or “adopts a view 
+‘that no reasonable person would take.’”  State v. Rohrich , 149 Wn.2d 647, 654, 71 
+P.3d 638 (2003)  (quoting State v. Lewis , 115 Wn.2d 294, 298- 99, 797 P.2d 114 1
+(
+1990)).  In determining the applicable legal standard, our review is de novo.  In re 
+
+=== PAGE 11 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+11 Dependency of M.H.P, 184 Wn.2d 741, 753, 364 P.3d 94 (2015).  In this case, th e 
+trial court’s findings are insufficient to satisfy GR 15 and Ishikawa  as a matter of 
+law.  Therefore, the trial court abused its discretion in granting the Does’ request to 
+remain in pseudonym and permanently seal the Disclosure Document.  
+A. The order allowing the Does to remain in pseudonym is not moot  
+As a threshold issue, we must determine whether the Does’ continued use of 
+pseudonyms is a moot issue in this case.  An issue is moot if “a court can no longer provide effective relief.”  AURC III, LLC v. Point Ruston Phase II, LLC , 3 Wn.3d 
+80, 86, 546 P.3d 385 (2024).  The Does and Zink correctly agree that the use of 
+pseudonyms is not  moot, and we reverse the Court of Appeals on this issue.   
+The Court of Appeals held the use of pseudonyms was moot in light of John 
+Doe A.  However, in that case, the use of pseudonyms was moot because the public records at issue already identified “the names of the parties.”  John Doe A , 185 
+Wn.2d at 385.  Because those records would be released, this court was “unable to 
+offer any further relief.”  Id.   By contrast, in this case, the court can provide further 
+effective relief if we reach the merits of the pseudonym issue.  
+The trial court’s order in this case seals the Does’ actual names through both 
+the use of pseudonyms and the sealing of the Disclosure Document.  These dual 
+aspects of the order operate independently to shield the Does’ actual names from public view.  Thus, regardless of whether Zink obtains the Does’ real names by 
+
+=== PAGE 12 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+12 unsealing the Disclosure Document, the “ public’s  interest in the open 
+administration of justice” continues to be impeded by the use of pseudonyms in 
+court records, such as SCOMIS indices.  Hundtofte v. Encarnación , 181 Wn.2d 1, 
+4, 330 P.3d 168 (2014) (plurality opinion) (emphasis added).  Therefor e, we hold 
+the Does’ continued use of pseudonyms is not moot.  
+B. The trial court abused its discretion in permanently sealing the Does’ actual 
+names contrary to GR 15 and Ishikawa   
+ 
+On the merits, we must determine whether the trial court abused its 
+discre tion in permanently sealing the Does’ identities at this postdismissal stage of 
+the proceedings.  As noted above, the Court of Appeals held the trial court abused 
+its discretion, contrary to GR 15, but it declined to conduct “the more rigorous Ishikawa analysis.”  Doe IV, No. 85909-9 -I, slip op. at 7 n.10.  Because GR 15 
+embodies the principles set forth in Ishikawa , we address both on review.   On the 
+merits, we hold the trial court abused its discretion because its findings are 
+insufficient to satisfy GR 15 or Ishikawa  as a matter of law.  
+1. The trial court abused its discretion in ruling that the Does met their 
+burden pursuant to GR 15  
+ 
+“[W]e  must start with the presumption of openness when determining 
+whether a court record may be sealed from the public.”  Encarnación , 181 Wn.2d 
+at 7.  Therefore, an order sealing a court record must sufficiently identify 
+“compelling privacy or safety concerns that outweigh the public interest in access 
+
+=== PAGE 13 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+13 to the court record.”  GR 15(c)(2).  In this case, the trial court’s order allowing the 
+Does to remain permanently in pseudonym does not contain findings sufficient to 
+satisfy GR 15 and was therefore an abuse of  discretion.  
+As discussed above, while the Does’ PRA injunction action was pending, the 
+trial court entered several preliminary orders allowing the Does to proceed in pseudonym.  These orders preserved the Does’ “ability to seek relief” in their PRA 
+injunc tion action; in other words, because the Does’ PRA injunction action sought 
+to shield their identities as sex offenders, revealing the Does’ identities in litigation would “eviscerate” their claims.  CP at 25; see also id.  at 148.  The trial court’s 
+prelim inary orders also found the Does faced “a potential for a serious imminent 
+threat of harm” based on their declarations, which describe fears of “being 
+identified as a sex offender” due to “personal experiences of being ‘ostracized’” 
+and knowledge of others who “were regularly harassed and beat up because people 
+found out they were sex offenders.”  Id.  at 148, 164, 814.  
+However, over the course of this litigation, these preliminary findings 
+allowing the Does to bring their action in pseudonym have lost their  force.  When 
+each of the Does’ identities as sex offenders became publicly available, the harms 
+of publicly revealing that information became moot.  Similarly, when the Does 
+voluntarily dismissed their PRA injunction action, their ability to seek relief e nded.  
+Thus, the trial court’s findings allowing the use of pseudonyms while the action 
+
+=== PAGE 14 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+14 was pending are not sufficient, as a matter of law, to justify the continued use of 
+pseudonyms following dismissal.  
+Yet, the trial court’s order allowing the Does to remain in pseudonym 
+postdismissal does not sufficiently articulate new compelling privacy or safety concerns.  Instead, the trial court noted that the “Does have been allowed to 
+proceed in pseudonym since the start of the case in 2015” and found that the Doe s 
+had “again established compelling privacy and safety concerns and a serious 
+imminent threat of numerous forms of harm if their names are revealed . . . that 
+sufficiently outweigh the public interest and the requesters’ interests.”  Id.  at 430 -
+31.
+T
+his conclusory finding is insufficient as a matter of law.  See John Doe G ,
+19
+0 Wn.2d at 202.  
+On review, the Does argue that they articulated sufficient privacy and safety 
+concerns to remain in pseudonym postdismissal, pointing to their declarations expressing concerns of being identified “in association with this lawsuit.”  CP at 
+809.
+Y
+et, the substance of these concerns derives from “the label ‘sex offender’”
+and “how sex offenders get targeted by vigilantes,” not participation in a PRA action.  Id.  at 809, 820.  As noted above, the Does have confirmed that their actual 
+names now appear on publicly available lists of sex offenders compiled by Zink.
+4  
+4 Jane Roe R’s name does not appear on the lists; she is Doe R’s mother, and she filed a 
+declaration in support of sealing the Does’ actual names.  However, she is not a party to this 
+
+=== PAGE 15 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+15 Letter from Couns., supra .  Further, it is undisputed Zink compiled these lists using 
+public records she obtained through PRA requests.  See id. ; CP at 34.  Thus, “by 
+participating in this case, the John Does are not subject to any disclosures that 
+should otherwise be exempt.”  John Doe G , 190 Wn.2d at 200.  
+The trial court’s findings are insufficient to justify the  continued use of 
+pseudonyms and sealing of the Disclosure Document following dismissal of the Does’ action.  Therefore, the trial court abused its discretion contrary to GR 15.  
+2. The trial court abused its discretion in ruling that the Does met their 
+burden in accordance with Ishikawa  
+ 
+GR 15 is a court rule, but it derives from the principles of Ishikawa  and 
+article I, section 10’s “‘separate, clear and specific provision [that] entitles the 
+public  . . . to openly administered justice.’”  Ishikawa, 97 Wn. 2d at 36 (quoting 
+Cohen v. Everett City Council, 85 Wn.2d 385, 388, 535 P.2d 801 (1975)).  
+Therefore, in addition to complying with GR 15, an order permitting a party to 
+proceed in pseudonym must satisfy the Ishikawa factors:  
+(1) identify the need to seal court records, (2) allow anyone present in 
+the courtroom an opportunity to object, (3) determine whether the requested method is the least restrictive means of protecting the interests threatened, (4) weigh the competing interests and consider alternative methods, and (5) issue an order no broader than necessary.  
+ 
+                                           
+action and she does not articulate any reason to shield her identity independently of her son’s.  
+Therefore, we do not conduct an independent analysis as to Jane Roe R. 
+
+=== PAGE 16 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+16 John Doe G, 190 Wn.2d at 199 (citing Ishikawa , 97 Wn.2d at 37-39).  Each 
+Ishikawa factor “‘should be articulated in [the court’s] findings and conclusions, 
+which should be as specific as possible rather than conclusory.’”  Id.  at 202 
+(alteration in original) (quoting Ishikawa , 97 Wn.2d at 38).  Here, the trial court’s 
+order summarily addresses each of the Ishikawa factors, but its findings are 
+conclusory and not sufficiently supported by the record.  
+The first Ishikawa  factor requires a showing that public access to the Does’ 
+identities in connection with this action “must be restricted to prevent a serious and 
+imminent threat to an important interest.”  97 Wn.2d at 37.  This “‘is more specific, 
+conc rete, certain, and definite than’ the ‘compelling privacy or safety concerns’ 
+required by GR 15(c)(2).”  M.H.P. , 184 Wn.2d at 765 (quoting State v. Waldon, 
+148 Wn. App. 952, 962- 63, 202 P.3d 325 (2009) ).  However, as discussed above, 
+the harms specifically  articulated by the Does’ declarations are based on their 
+identities as sex offenders, not PRA plaintiffs.  Therefore, it was an abuse of 
+discretion to rely on these concerns in support of the first Ishikawa  factor.  
+The Does also articulate broader concern s that if “pseudonym reversal” is 
+permitted on appeal, it will “chill[  ] sensitive parties from engaging in meritorious 
+litigation.”  Pet. for Rev. at 18, 1.  However, as noted above, the trial court’s 
+preliminary orders allowing the Does to proceed in pse udonym were expressly 
+time limited.  Indeed, as discussed below, orders sealing presumptively open court 
+
+=== PAGE 17 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+17 records are generally subject to “durational limits.”  Richardson , 177 Wn.2d at 
+362.  Moreover, although we recognize the vital role that pseudonymous litigation 
+plays in the development of our laws and the recognition of our rights, “the 
+public’s involvement plays a significant role” in the legal system, as well.  John Doe G, 190 Wn.2d at 201.  
+It has long been established that Washington courts are constitutionally 
+prohibited from restricting the public’s access to court records, absent “a serious and imminent threat to an important interest,” which must be articulated “as specifically as possible.”  Ishikawa , 97 Wn.2d at 37; see also Encarnación, 181 
+Wn.2d at 9.  Here, the Does “do not have a legitimate privacy interest to protect” in 
+their identities as sex offenders or as litigants.  John Doe G , 190 Wn.2d at 200.  
+Furthermore, this action was not brought to vindicate a constitutional right; the 
+Does’  underlying PRA exemption claims are statutory.
+5  Thus, the Does’ concerns 
+about protecting pseudonymous litigation in general, though wholeheartedly 
+shared by this court, are insufficient to establish a specific need to shield their identities in this cas e.  We hold the trial court abused its discretion in ruling the 
+first Ishikawa factor was met.  
+                                           
+5 Contra John Does 1 v. Seattle Police Dep’t , 4 Wn.3d 343, 354, 563 P.3d 1037 (2025) 
+(plaintiffs “asserted disclosure would violate their constitutional rights”).  
+
+=== PAGE 18 ===
+John Doe P et al. v. Thurston County et al., No. 102976- 4 
+18 Before entering its order, the trial court offered those present in the 
+courtroom an opportunity to object, satisfying the second Ishikawa factor.  97 
+Wn.2d at 38.  The trial court also addressed the third and fourth Ishikawa factors, 
+and ruled that allowing the Does to remain in pseudonym and sealing the 
+Disclosure Document would be “the least restrictive means” and the only “viable 
+alternative” that would be “ef fective in protecting the interests threatened.”  CP at 
+432; Ishikawa , 97 Wn.2d at 38.  However, this was premised on the ruling that the 
+first Ishikawa factor was met, which was an abuse of discretion.  Where sealing is 
+not justified, determining the leas t restrictive means is unnecessary.  
+Finally, the fifth Ishikawa  factor requires that any order “‘must be no 
+broader in its application or duration than necessary to serve its purpose.’”  
+Ishikawa,  97 Wn.2d at 39 (quoting Federated Publ’ns v. Kurtz , 94 Wn.2 d 51, 64, 
+615 P.2d 440 (1980)).  “If the order involves sealing of records, it shall apply for a 
+specific time period with a burden on the proponent to come before the court at a 
+time specified to justify continued sealing.”  Id.   As we have previously 
+recognized, “[t]his factor requires the trial court to consider durational limits” on orders to continue sealing “presumptively open” court records, such as the order 
+permitting pseudonymous litigation in this case.  Richardson , 177 Wn.2d at 362, 
+360.  Howeve r, the trial court declined to set an expiration date for its order, 
+
+=== PAGE 19 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+19 effectively granting the Does a permanent right to remain in pseudonym.  This was 
+legal error and an abuse of discretion.  
+CONCLUSION  
+We affirm the Court of Appeals in holding that the trial court abused its 
+discretion by sealing the Disclosure Document because its findings are insufficient 
+to satisfy GR 15.  We further hold that the order allowing the Does to remain in 
+pseudonym is not moot and was also an abuse of discretion contrary to GR 15.  In addition, we hold that the trial court abused its discretion in ruling that the Ishikawa factors had been satisfied as to both the use of pseudonyms and the 
+sealing of the Disclosure Document.  Given our resolution of these issues, we decline to reach the evidentiary issues raised in Zink’s cross petition for review.  
+Thus, we affirm the Court of Appeals in part, reverse in part, and remand to 
+the trial court with instructions to (1) unseal the Disclosure Document, (2) use the Does’ actual names in future proceedings and court records (if any) pertaining to this case, and (3) order that the Does’ pseudonyms in the SCOMIS indices be 
+replaced with their actual names.  
+
+=== PAGE 20 ===
+John Doe P et al. v. Thurston County et al., No. 102976-4 
+20 WE CONCUR:  
+Lee, J.P.T.
+

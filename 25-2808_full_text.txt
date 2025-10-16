@@ -1,0 +1,751 @@
+FOR PUBLICATION 
+ 
+UNITED STATES COURT OF APPEALS  
+FOR THE NINTH CIRCUIT  
+ 
+COMMUNITY LEGAL SERVICES 
+IN EAST PALO ALTO; SOCIAL 
+JUSTICE COLLABORATIVE; 
+AMICA CENTER FOR 
+IMMIGRANT RIGHTS; 
+ESTRELLA DEL PASO; 
+FLORENCE IMMIGRANT AND 
+REFUGEE RIGHTS PROJECT; 
+GALVESTON -HOUSTON 
+IMMIGRANT REPRESENTATION 
+PROJECT; IMMIGRANT 
+DEFENDERS LAW CENTE R; 
+NATIONAL IMMIGRANT 
+JUSTICE CENTER; NORTHWEST 
+IMMIGRANT RIGHTS PROJECT; 
+ROCKY MOUNTAIN 
+IMMIGRANT ADVOCACY 
+NETWORK; VERMONT ASYLUM 
+ASSISTANCE PROJECT , 
+ 
+                     Plaintiffs -  Appellees , 
+ 
+   v. 
+ 
+UNITED STATES DEPARTMENT 
+OF HEALTH AND HUMAN 
+SERVI CES; UNITED STATES 
+DEPARTMENT OF THE  No. 25- 2808  
+D.C. No. 
+3:25- cv-02847-
+AMO 
+ 
+ORDER  
+2 CMTY. LEGAL SERVICES V . U.S.  HHS  
+INTERIOR; OFFICE OF REFUGEE 
+RESETTLEMENT , 
+ 
+                     Defendants - Appellants . 
+ 
+Filed October 10, 2025  
+ 
+Before: W illiam A . Fletcher , Consuelo M. C allahan , and 
+Lucy H. K oh, Circuit Judges. 
+ 
+Order;  
+Statement by Judges W. Fletcher and Koh;  
+Dissent by Judges Bumatay and VanDyke  
+ 
+ 
+SUMMARY* 
+ 
+Immigration/Tucker Act/Stays  
+ 
+The panel denied a petition for rehearing en banc in a 
+case in which the panel denied the Government’s motion for 
+a stay pending appeal of the district court’s order preliminarily enjoining the Government from terminating all funding for counsel to represe nt unaccompanied children in 
+immigration proceedings.   
+Respecting the denial of rehearing en banc, Judges W. 
+Fletcher and Koh wrote that Plaintiffs here have no contract with the Government, do not invoke any contractual terms 
+ 
+* This summary constitutes no part of the opinion of the court.  It has 
+been prepared by court staff for the convenience of the reader.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   3 
+as the basis for their action, and do not seek a contractual 
+remedy from the Government.  Rather, Plaintiffs’ 
+Administrative Procedure Act claims seek declaratory and injunctive relief requiring Defendants’ compliance with their statutory obligations under  the Trafficking Victims 
+Protection Reauthorization Act of 2008 and their regulatory obligations under the Foundational Rule promulgated to implement the statute.   Accordingly, Plaintiffs’ claims fall 
+outside the jurisdictional bounds of the Tucker Act, which vests exclusive jurisdiction in the Court of Federal Claims over any claim against the United States that is founded upon a contract with the United States, and squarely within the purview of the Administrative Procedure Act.  
+Judges Bumatay and VanDyke, joined by Judges 
+Callahan, Ikuta, Bennett, R. Nelson, Collins, Lee, and Bress, dissented from the denial of rehearing en banc.  Judges 
+Bumatay and VanDyke wrote that the court should have reheard the case en banc because the Gov ernment, at a 
+minimum, is likely to succeed in showing that the district court lacked jurisdiction.  Specifically, Judges Bumatay and VanDyke concluded that Plaintiffs’ claims are fundamentally contract claims that belong in the Court of Federal Claims und er the Tucker Act.   Judges Bumatay and 
+VanDyke also wrote that Department of Education and NIH 
+control this case, but the Ninth Circuit has failed to respect 
+the Supreme Court’s guidance and has let stand an injunction 
+that violates the limits Congress has set on the courts’ jurisdiction and interferes with the Executive’s prerogative to set and review policies.  
+  
+4 CMTY. LEGAL SERVICES V . U.S.  HHS  
+ORDER 
+ 
+Judge Koh voted to deny the petition for rehearing en 
+banc and Judge W. Fletcher so recommended. Judge 
+Callahan voted to grant the petition for rehearing en banc. A 
+judge of the court requested a vote on whether to rehear the matter en banc. The matter failed to receive a majority of the 
+votes of the active judges in favor of en banc consideration. 
+Fed. R. App. P. 35. Judge H.A. Thomas did not participate 
+in the deliberations or vote in this case. The petition for rehearing en banc, Dkt. No. 23, is DENIED.  
+ W. FLETCHER and KOH, Circuit Judges, respecting the denial of rehearing en banc:  
+ 
+This case concerns the Government’s statutory and 
+regulatory obligations to ensure that unaccompanied children in immigration proceedings have legal representation. Earlier this year, the Government abruptly halted funding for its only program ensuring legal representation for unaccompanied children. Plaintiffs brought this lawsuit arguing that the Government is failing to meet its statutory and regulatory obligations and that the Government’s actions were arbitrary and capricious. The district court agreed , and we declined to stay the district 
+court’s preliminary injunction pending appeal.  
+Our dissenting colleagues attempt to reframe Plaintiffs’ 
+suit as a breach of contract action against the Government, which could only be brought in the Court of Federal Claims. We respectfully disagree.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   5 
+The bottom line is that Plaintiffs have no contract with 
+the Government. They do not invoke any contractual terms 
+as the basis for their action. Nor do they seek a contractual remedy from the Government. Rather, Plaintiffs seek declaratory and injunctive r elief requiring compliance with 
+the statutory obligations set out by Congress and the regulatory obligations set forth by Defendants themselves.  
+Thus, as the district court put it, “Plaintiffs’ claims have no business before the [Court of Federal] Claims.”  Cmty. Legal 
+Servs. in E. Palo Alto v. U.S. Dep’t of Health & Hum. Servs., 780 F. Supp. 3d 897, 917 (N.D. Cal. 2025).  
+I. 
+The Trafficking Victims Protection Reauthorization Act 
+of 2008 (“TVPRA”) requires the Department of Health and Human Services (“HHS”) to “ensure, to the greatest extent practicable,” that all unaccompanied children in immigration custody receive legal repr esentation. 8 U.S.C. § 1232(c)(5). 
+To implement this statutory mandate, HHS’s Office of Refugee Resettlement (“ORR”) promulgated the “Foundational Rule,” which provides that ORR “ shall fund  
+legal service providers to provide direct immigration legal representation for certain unaccompanied children, subject to ORR’s discretion and available appropriations.” 45 C.F.R. § 410.1309(a)(4) (2024) (emphasis added).  
+Since 2012, and as recently as March 15, 2025, Congress 
+has consistently appropriated funds to ensure compliance with the TVPRA’s mandate.  See Full-Year Continuing 
+Appropriations and Extensions Act, Pub. L. No. 119- 4, 
+§ 1101(8), 139 Stat. 9, 11 (2025). Such funding is critical, given that the TVPRA was passed after a pilot program found that ORR could not meet the legal needs of unaccompanied minors through pro bono counsel alone. See 
+6 CMTY. LEGAL SERVICES V . U.S.  HHS  
+Olga Byrne & Elise Miller, The Flow of Unaccompanied 
+Children Through the Immigration System  22–23, VERA 
+INST. JUST. (March 2012), https://perma.cc/M352 -AA3N.  
+As a recent Senate report stated, “[t]he Committee also expects these funds will be used to provide access to counsel, consistent with the goals of the Trafficking Victims Protection Reauthorization Act of 2008 for all children to have access to counsel i n their immigration proceedings.” S. 
+Rep. No. 118- 84, at 169 (2023). In accordance with those 
+congressional appropriations, every presidential administration since the TVPRA’s passage has provided funding for dire ct representation of unaccompanied children 
+pursuant to Section 1232(c)(5).  
+But just six days after the latest congressional 
+appropriation, HHS, ORR, and the Department of the Interior (collectively, the “Government”) made an abrupt about -face. The Government cancelled all funding for direct 
+representation of unaccompanied childre n (the 
+“Cancellation Order”). At the time of the Cancellation Order, such representation was being provided through a single agreement with the Acacia Center for Justice (the “Acacia contract”). Cmty. Legal Servs., 780 F. Supp. 3d at 
+909. The Acacia  contra ct contained a provision “reserv[ing] 
+the right to terminate th[e] contract, or any part [t]hereof, for [the Government’s] sole convenience.” The Government stated that it was terminating funding for  “the Government’s 
+convenience” in the Cancellation Order, but it provided no alternative plan to comply with the TVPRA and the Foundational Rule.  
+Plaintiffs are organizations dedicated to ensuring legal 
+representation for persons in immigration proceedings. That mission includes providing representation for the uniquely vulnerable population of unaccompanied children. As one 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   7 
+organization explained, a “central tenet of [its] mission has 
+been that no child should have to stand alone in court.” To support their work, Plaintiffs have received federal funding disbursed through Acacia. But Acacia is not a plaintiff in this case. Plaintiffs are not a party to Acacia’s contract with the Government. Nor have Plaintiffs alleged that the Government breached its contract with Acacia. Indeed, Plaintiffs are unlikely to succeed on such a claim because of the Acacia contract’s termination pro vision. Rather, 
+Plaintiffs challenged the Government’s failure to comply with the TVPRA and the Foundational Rule under the Administrative Procedure Act (“APA”).  
+The APA “sets forth the procedures by which federal 
+agencies are accountable to the public and their actions subject to review by the courts.” Franklin v. Massachusetts , 
+505 U.S. 788, 796 (1992). It requires agencies to engage in “reasoned decisionmaking,” Michigan v. EPA, 576 U.S. 
+743, 750 (2015) (cleaned up), and directs that agency actions be “set aside” if they are “arbitrary” or “capricious,” 5 U.S.C. § 706(2)(A). Likewise, the APA requires reviewing courts to “hold unlawful and set aside agency action . . . 
+found to be . . . otherwise not in accordance with law.” Id.  
+Here, Plaintiffs brought garden- variety APA claims. 
+First, Plaintiffs alleged that the Government’s actions were 
+“not in accordance” with the Government’s statutory obligations under the TVPRA because, despite available congressional appropriations, the Government cancelled all funding and provided no alternative plan to ensure legal representation for unaccompanied children. Second, for the same reasons, Plaintiffs alleged that the Government’s behavior was “not in accordance” with ORR’s own regulation, the Foundational Rule. Third, Plaintiffs alleged that the Government’s sudden change of position was 
+8 CMTY. LEGAL SERVICES V . U.S.  HHS  
+arbitrary and capricious because the Government provided 
+no reasoned explanation for its actions and failed to consider critical reliance issues —like ongoing legal proceedings for 
+unaccompanied children —before halting all funding.  
+Together, Plaintiffs alleged that the Government’s 
+failure to comply with the TVPRA, Foundational Rule, and APA harmed Plaintiffs’ missions to ensure that unaccompanied children in immigration proceedings have legal representation. As a remedy, Plaintiffs sought relief untethered from their contractual relationship with Acacia. Specifically, Plaintiffs requested declaratory relief that an APA violation occurred, an order “[s]et[ting] aside” any actions that violate the APA, and an injunction preventing the Government “from ceasing to fund counsel to represent 
+unaccompanied children in violation of the TVPRA and the Foundational Rule.” To put a finer point on it, Plaintiffs did not demand an injunction that the Government pay money to Plaintiffs . Rather, Plaintiffs sought prospective relief 
+requiring the Government to take some action to use the congressionally appropriated funds to comply with the TVPRA and the Foundational Rule.  
+Through preliminary injunction proceedings, the district 
+court found that: (1)  congressionally appropriated funds for 
+direct representation remained available, (2)  the 
+Government cut all funding for direct representation of unaccompanied children, (3)  the Cancellation Order’s sole 
+justification was “the Government’s convenience,”
+1 (4) the 
+Government disclosed no plan to ensure ongoing 
+ 
+1 The Government’s district court declaration stated that the Acacia 
+contract was cancelled “to reduce spending and achieve more cost 
+efficiency.” But, as the district court explained, “[n]one of these 
+rationales are evidenced” in the Cancellation Order.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   9 
+representation for unaccompanied children, and (5)  by 
+cancelling the use of congressionally appropriated funds, the 
+Government “effectively eliminat[ed] direct representation for unaccompanied children.”  
+Thus, the district court determined that Plaintiffs were 
+likely to succeed on all three APA claims and issued a preliminary injunction against the cancellation of the congressionally authorized funding. We denied the 
+Government’s motion for a stay pending appeal. See Cmty. 
+Legal Servs. in E. Palo Alto v. U.S. Dep’t of Health & Hum. Servs. , 137 F.4th 932, 937 (9th Cir. 2025). An en banc call 
+to review our denial of the Government’s stay motion failed, and several of our colleagues now write to dissent from t he 
+failure to rehear our stay denial en banc. In the meantime, briefing on the merits of the appeal of the preliminary injunction was completed on August 14, 2025, and will be ruled upon by a merits panel. 
+With that context, we turn to the question of whether the 
+district court and our court or the Court of Federal Claims have subject matter jurisdiction over this suit.  
+II. 
+We have subject matter jurisdiction over suits brought 
+under the APA. 5 U.S.C. § 702. The APA “confers a general cause of action upon persons ‘adversely affected or aggrieved by agency action within the meaning of a relevant statute.’” Block v. Cmty. Nutrition Inst. , 467 U.S. 340, 345 
+(1984) (quoting 5 U.S.C. § 702). The APA’s waiver of sovereign immunity, however, “does not apply ‘if any other statute that grants consent to suit expressly or impliedly forbids the relief which is sought.’” Dep’t of Educ. v. California , 604 U.S. 650, 651 (2025) (quoting 5 U.S.C. 
+§ 702). As relevant here, the Tucker Act, 28 U.S.C. § 1491, 
+10 CMTY. LEGAL SERVICES V . U.S.  HHS  
+vests exclusive jurisdiction in the Court of Federal Claims 
+over any claim against the United States that is founded “upon any express or implied contract with the United States.”  
+The Tucker Act “‘impliedly forbid[s]’ an APA action 
+seeking injunctive and declaratory relief only if that action is a ‘disguised’ breach -of-contract claim.” United 
+Aeronautical Corp. v. U.S. Air Force , 80 F.4th 1017, 1026 
+(9th Cir. 2023)  (quoting Megapulse, Inc. v. Lewis , 672 F.2d 
+959, 968 (D.C. Cir. 1982)). In making this determination, we “look[ ] to (1)  ‘the source of the rights upon which the 
+plaintiff bases its claims’ and (2)  ‘the type of relief sought 
+(or appropriate).’” Id. (quoting Doe v. Tenet , 329 F.3d 1135, 
+1141 (9th Cir. 2003)). Moreover, courts “categorically reject the suggestion that a federal district court can be deprived of jurisdiction by the Tucker Act when no jurisdiction lies in the Court of Federal Claims.” Tootle v. Sec’y of Navy, 446 F.3d 167, 176 (D.C. Cir. 2006).  
+Contrary to the dissent, we have jurisdiction over 
+Plaintiffs’ APA claims, and Plaintiffs do not bring a “disguised” breach -of-contract claim in this case. Dissent at 
+22–23. First, Plaintiffs’ claims stem from the Government’s failure to comply with its statutory obligations under the TVPRA and its regulatory obligations under the 
+Foundational Rule, and Plaintiffs do not seek to enforce the Acacia contract. Second, Plaintif fs do not seek a money 
+damages for breach of contract. Rather, they “seek to ensure representation for unaccompanied children in immigration 
+proceedings, regardless of which lawyers provide it.” Cmty. Legal Servs. , 780 F. Supp. 3d at 917. Finally, this case also 
+differs from the U.S. Supreme Court’s decisions in  
+Department of Education v. California, 604 U.S. 650 (2025), and National Institutes of Health v. American Public Health 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   11 
+Ass’n  (“NIH”), 145 S. Ct. 2658 (2025). Unlike the plaintiffs 
+in those cases, Plaintiffs have no contractual relationship 
+with the Government. We address each point in turn. 
+A. 
+Start with the source of Plaintiffs’ rights. United 
+Aeronautical , 80 F.4th at 1026. To evaluate the “source of 
+rights,” we consider (1)  whether resolution of Plaintiffs’ 
+claims primarily require examination of statutes or regulations that the Government allegedly violated; (2) whether Plaintiffs’ rights exist independently of any contract; and (3)  whether Plaintiffs seek to enforce a 
+contractual duty imposed upon the government. See Crowley 
+Gov’t Servs., Inc. v. Gen. Servs. Admin., 38 F.4th 1099, 1108–09 (D .C. Cir. 2022). Each factor weighs in favor of our 
+jurisdiction.  
+First, Plaintiffs’ claims “primarily” turn on “an 
+examination” of the TVPRA and the Foundational Rule. Id.  
+Plaintiffs advance standard APA claims that the Government violated statutory (TVPRA) and regulatory (Foundational Rule) obligations and acted arbitrarily and capriciously by changing position without reasoned explanation. See 5 
+U.S.C. § 706(2)(A).  
+The APA grants a right to judicial review to any “person 
+. . . adversely affected or aggrieved by agency action within 
+the meaning of a relevant statute” when “seeking relief other than money damages.” Id.  § 702. Plaintiffs are such persons 
+because they have a direct interest in ensuring representation of unaccompanied children that stands independent from the Acacia contract. The Government’s non -compliance has 
+injured Plaintiffs’ attempts to serve their mission. Thus, Plaintiffs may challenge the Governme nt’s actions under the 
+APA. See California v. Trump, 963 F.3d 926, 941–42 (9th 
+12 CMTY. LEGAL SERVICES V . U.S.  HHS  
+Cir. 2020) (a party whose “interests are congruent with those 
+of Congress and are not ‘inconsistent with the purposes implicit in the statute’” is a suitable challenger to agency action under the APA (quoting Match -E-Be-Nash -She-Wish 
+Band of Pottawatomi Indians v. Patchak , 567 U.S. 209, 225 
+(2012))).  
+The TVPRA and the Foundational Rule create statutory 
+and regulatory obligations for the Government to fund legal representation for unaccompanied children “to the greatest extent practicable.” 8 U.S.C. § 1232(c)(5); see also  45 
+C.F.R. § 410.1309(a)(4). Plaintiffs assert that the Government’s total refusal to fund direct representation for unaccompanied children—despite the availability of congressionally appropriated funds to comply with the TVPRA’s mandate—violates those statutory and re gulatory 
+obligations. In other words, the core of Plaintiffs’ claims is that when congressionally appropriated funding is available, the Government must comply with the TVPRA and the Foundational Rule. As we explained in our stay order, “the greatest exten t practicable” is not the same as “to no extent 
+at all.” Cmty. Legal Servs. , 137 F.4th at 941. That is not a 
+contractual claim.  
+Second, Plaintiffs’ rights “exist[] prior to and apart from 
+rights created under” the Acacia contract. Crowley , 38 F.4th 
+at 1107 (alteration in original) (quoting Spectrum Leasing Corp. v. United States , 764 F.2d 891, 894 (D.C. Cir. 1985)). 
+The TVPRA and the Foundational Rule —both of which 
+exist separate and apart from the Acacia contract —are what 
+require the Government to act. Plaintiffs’ asserted harms arise from the frustration of their mission and di version of 
+resources to ensure unaccompanied children have legal representation. As the district court explained, “if the Government takes steps to ensure direct representation 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   13 
+through others, the harm Plaintiffs suffer in the form of 
+providing representation without payment or diverting resources would be alleviated.” Cmty. Legal Servs. , 780 F. 
+Supp. 3d at 914. Plaintiffs’ claims do not rely upon the terms of the Acacia contract or even its existence. Indeed, Plaintiffs may challenge the Government’s decision to refuse to ensure the direct representation of unaccompanied children without reference to the Governme nt’s existing 
+contractual obligations.  
+Finally, Plaintiffs do not seek to enforce any specific 
+contractual term from the Acacia contract. Plaintiffs are not a party to the Acacia contract. In fact, the  Government’s 
+position throughout this appeal has been that Plaintiffs —as 
+subcontractors —cannot proceed in the Court of Federal 
+Claims to enforce the Acacia contract. Moreover, Plaintiffs do not allege that the Government breached any duty imposed by the Acacia contract and do not rely on any provision in the Acacia contract to demonstrate the Gove rnment’s actions were unlawful.  
+This case is poles apart from the cases the dissent cites, 
+which involved “disguised” breach- of-contract claims. 
+Dissent at 36. In each of those cases, the plaintiffs’ claims depended upon the existence and breach of a contract between the plaintiffs and the Government.
+2 Here, by 
+ 
+2 See Tucson Airport Auth. v. Gen. Dynamics Corp., 136 F.3d 641, 647 
+(9th Cir. 1998) (finding the Tucker Act applied where plaintiff’s “claims 
+do not exist independent of the Modification Center Contract” and 
+plaintiff was “asking the district court to decide what its contract rights 
+are”); United States v. Park Place Assocs., Ltd., 563 F.3d 907, 932 (9th 
+Cir. 2009) (“[T]he [Federal Arbitration Act] does not impose a 
+substantive duty on the United States to participate in arbitration or abide 
+by an arbitration award. That duty, if it exists, derives from the 
+contract.”); Ingersoll -Rand Co. v. United States , 780 F.2d 74, 77 –80 
+14 CMTY. LEGAL SERVICES V . U.S.  HHS  
+contrast, Plaintiffs do not “seek to enforce any duty imposed 
+upon [the Government] by the . . . only relevant contracts to which [the Government] is a party.”  Perry Cap. LLC  v. 
+Mnuchin, 864 F.3d 591, 619 (D.C. Cir. 2017) (concluding Tucker Act was inapplicable where “[t]he class plaintiffs d[id] not contend Treasury breached the terms of the Stock Agreements []or otherwise invoke them except to establish that Treasury is a controlling s hareholder”).  
+At bottom, Plaintiffs’ claims turn on the TVPRA, the 
+Foundational Rule, and the APA, not the terms or existence of the Acacia contract. These are not contract claims in disguise.  
+B. 
+The non- contractual source of Plaintiffs’ rights is 
+dispositive. See Megapulse , 672 F.2d at 971. In any event, 
+the second inquiry, “the type of relief sought,” also supports jurisdiction in the district court. Id.  at 968. Under this prong, 
+we assess whether the “complaint ‘in essence’ seeks monetary relief.” Crowley , 38 F.4th at 1111 (quoting 
+Kidwell v. Dep’t of Army, Bd. for Corr. of Mil. Recs., 56 F.3d 279, 284 (D.C. Cir. 1995)). It does not.  
+Plaintiffs do not seek money damages for breach of 
+contract or the “explicitly contractual remedy of specific performance.” Crowley , 38 F.4th at 1107 (internal quotation 
+marks and citation omitted). Plaintiffs requested an 
+ 
+(D.C. Cir. 1985) (concluding “the essential rights at stake [were] 
+contractual” where plaintiff’s claim distilled to the allegation that the 
+government “wrongful[ly] terminat[ed its] contract [with plaintiff] and 
+unlawful[ly] resolicitat[ed] . . . the contract,” and where plaintiff sought 
+as relief “an order reinstating the original award of the contract”);  
+Spectrum Leasing, 764 F.2d at 894 (“The [Act], even if it applied, confers 
+no such right in the absence of the contract itself.”).  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   15 
+injunction preventing the Government “from ceasing to fund 
+counsel to represent unaccompanied children in violation of the TVPRA and the Foundational Rule.” Plaintiffs did not ask the court to reinstate the Acacia contract. Again, Plaintiffs’ request is th at the Government must take some 
+action to provide counsel for unaccompanied migrant children. That someone need not be Acacia or Plaintiffs.  
+Nor does it matter that the declaratory and injunctive 
+relief Plaintiffs seek may result in payment of money to them. As the Supreme Court has long held, “[t]he fact that a judicial remedy may require one party to pay money to another is not a sufficient r eason to characterize the relief as 
+‘money damages.’”  Bowen v. Massachusetts , 487 U.S. 879, 
+893 (1988). “[A] plaintiff does not ‘in essence’ seek monetary relief . . . merely because he or she hints at some interest in a monetary reward from the federal go vernment 
+or because success on the merits may obligate the United 
+States to pay the complainant .” Tootle , 446 F.3d at 176 
+(emphasis in original) (quoting Kidwell, 56 F.3d at 284). A plaintiff does not essentially seek money damages where, as here, “any relief would not be determined by reference to the terms of the contract,” but would instead exclusively depend on the Government’s independent legal obligations. Perry Cap., 864 F.3d at 619.  
+Plaintiffs do not seek reinstatement of the Acacia 
+contract. Rather, Plaintiffs challenge the Cancellation Order because the Government had previously complied with the TVPRA and the Foundational Rule solely  through the 
+Acacia contract and failed to provide any meaningful alternative to comply with the TVPRA and the Foundational Rule. As the district court explained, the record indicates that the Government put in “no effort to ensure pro bono counsel” was av ailable,  Cmty. Legal Servs. , 780 F. Supp. 3d 
+16 CMTY. LEGAL SERVICES V . U.S.  HHS  
+at 922, and terminated all funding “with no supplemental 
+plan to ensure unaccompanied children have legal counsel” at all,  id. at 921. Thus, what Plaintiffs seek is for the 
+Government to comply with the TVPRA and the Foundational Rule, not the reinstatement of this particular contract.  
+Moreover, even if carrying out the Acacia contract was 
+the only practical way for the Government to comply with the TVPRA and the Foundational Rule, that does not show that Plaintiffs are seeking remedies that arise from the Acacia contract. See Megapulse , 672 F.2d at 971 (“[T]he 
+mere fact that an injunction would require the same governmental restraint that specific (non)performance might require in a contract setting is an insufficient basis to deny a district court the jurisdiction otherwise available .  . . .”). 
+Rather, that would show only that the Acacia contract arises from the Government’s antecedent obligation to comply with the TVPRA and the Foundational Rule. Those independent legal obligations are what Plaintiffs seek to enforce, whatever the Government’s ultimate means of compliance may be.
+3  
+C. 
+The Supreme Court’s recent decision in NIH  reinforces 
+this conclusion. There, the district court vacated two distinct agency actions: (1)  the issuance of guidance documents, and 
+(2) the termination of specific research grants pursuant to 
+ 
+3 As the D.C. Circuit explained in Megapulse , if “an agency action may 
+not be enjoined, even if in clear violation of a specific statute, simply 
+because that same action might also amount to a breach of contract,” then 
+“the government could avoid injunctions against activities violative of a 
+statuto ry duty simply by contracting not to engage in those activities.” 
+Megapulse , 672 F.2d at 971.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   17 
+that guidance. See NIH, 145 S. Ct. at 2661 (Barrett, J., 
+concurring in partial grant of application for stay). The 
+Supreme Court determined that the Tucker Act subsumed the plaintiffs’ APA challenge to the grant terminations. Id.  
+at 2658. But a majority of the Justices upheld the district court’s exercise of jurisdiction over the plaintiffs’ APA challenge to the guidance documents. Id.  at 2661  (Barrett, J., 
+concurring in partial grant of application for stay) (“The Government is not entitled to a stay of th e judgments insofar 
+as they vacate the guidance documents.”).  
+Unlike the plaintiffs in NIH, Plaintiffs here do not seek 
+the reinstatement of individual agreements between Plaintiffs and the Government because no such agreements exist. Rather, like the challenge to the guidance documents in NIH, Plaintiffs challenge the Government’s broader 
+policy of non -compliance with the TVPRA and the 
+Foundational Rule through the complete termination of funding combined with no specified alternative means of 
+compliance. That Plaintiffs’ challenge is “related to grants does not transform a challenge” into “a claim ‘founded . . . upon’ contract that only the [Court of Federal Claims] can hear.” Id. (quoting 28 U.S.C. § 1491(a)(1)).  
+This case is consistent with the Supreme Court’s recent 
+decisions in NIH  and Department of Education for yet 
+another reason . Unlike in those cases, Plaintiffs have no 
+contractual relationship with the Government.  
+“[T]he Court of Federal Claims can have exclusive 
+jurisdiction only with respect to matters that Congress has 
+proclaimed are within its jurisdictional compass.” Tootle , 
+446 F.3d at 176–77 (emphasis in original). “Under the Tucker Act, the Court of Federal Claims has jurisdiction only if there is privity of contract between plaintiffs and the 
+18 CMTY. LEGAL SERVICES V . U.S.  HHS  
+government.”  Park Props. Assocs., L.P. v. United States , 916 
+F.3d 998, 1002 (Fed. Cir. 2019). No such privity exists here 
+between Plaintiffs and the Government.4 Thus, unlike the 
+claims in NIH  and Department of Education, the Court of 
+Federal Claims’s jurisdiction does not cover this dispute. See  
+Crowley , 38 F.4th at 1109 (“Because a plaintiff could not 
+bring this type of tort action in [the Court of Federal Claims] in the first place, that Court would not have exclusive jurisdiction of them.”).  
+We disagree with our dissenting colleagues that 
+Plaintiffs have no right of action under the APA merely because they are subcontractors. Dissent at 36 . As we 
+explained above, Plaintiffs bring standard APA claims grounded in the Government’s statutory and regulatory obligations from the TVPRA and the Foundational Rule. It is true that the APA does not “guarantee . . . a federal forum.” Allen v. Milas , 896 F.3d 1094, 1099 (9th Cir. 2018). But the 
+APA embodies a “‘strong presumption’ favoring judicial review o f administrative action.” Mach Mining, LLC v. 
+E.E.O.C., 575 U.S. 480, 486 (2015) (citation omitted). To 
+overcome this presumption, the Government bears the “heavy burden” to establish that the “statute’s language or 
+ 
+4 As the dissent notes, there are limited circumstances in which 
+subcontractors can bring claims in the Court of Federal Claims. See 
+NavCom Def. Elecs., Inc. v. Ball Corp. , 92 F.3d 877, 879 –80 (9th Cir. 
+1996) (explaining that “[a] subcontractor may assert a claim against the 
+government only by having the prime contractor ‘sponsor’ and certify the subcontractor’s claim”). Those circumstances do not apply here. 
+“[T]o establis h a pass -through claim,” the prime contractor must show it 
+is liable to subcontractors for “damages caused by the government’s 
+alleged breach. ” Scott Timber Co. v. United States , 692 F.3d 1365, 1377 
+(Fed. Cir. 2012) (emphasis added). Again, in this case, there is no breach of contract because the Government appears to have complied with all 
+terms of the Acacia contract.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   19 
+structure demonstrates that Congress wanted an agency to 
+police its own conduct,” and thus “‘prohibit[ed] all judicial review’ of the agency’s compliance with a legislative mandate.” Id. (quoting Dunlop v. Bachowski , 421 U.S. 560, 
+567 (1975)). The Government has not met that heavy burden here.  
+The dissent’s reliance upon North Star Alaska v. United 
+States , 14 F.3d 36 (9th Cir. 1994), is unpersuasive. Dissent 
+at 36–37. That case involved a request for equitable 
+reformation of a contract between the plaintiff and the Government. See North Star Alaska, 14 F.3d at 37 –38. We 
+therefore held that “contract claims seeking equitable relief” cannot be heard under the APA in light of the Tucker Act. Id. at 38 (cleaned up). But it is one thing to say that a 
+particular remedy is unavailable where the Tucker Act applies because the plaintiff may recover a different remedy in the Court of Federal Claims. It is quite another to say that an individual who cannot sue in the Court of Federal Claims for any remedy also may not sue in district court. 
+We therefore reject the notion that two sovereign 
+immunity waivers, the Tucker Act and the APA, create a jurisdictional Catch -22 in which no court can consider 
+Plaintiffs’ claims.  
+III. 
+Our court made the correct decision in denying en banc 
+review. To obtain a stay pending appeal, the Government was required to make “a strong showing” that it will likely succeed on the merits, that it will be irreparably harmed absent a stay, and that the  balance of the equities favors a 
+stay. Nken v. Holder , 556 U.S. 418, 434 (2009). In this 
+appeal, the Government’s merits arguments have been limited solely to whether the district court had subject matter 
+20 CMTY. LEGAL SERVICES V . U.S.  HHS  
+jurisdiction to entertain this appeal. For the reasons stated 
+above, as well as those stated in our opinion denying the Government’s motion for a stay, the Government has failed to make the required “strong showing” that it will likely 
+succeed on the merit s of its jurisdictional argument. See 
+Cmty. Legal Servs. , 137 F.4th at 936–42 (quoting Nken , 556 
+U.S. at 434). 
+We emphasize again that, unlike in NIH and Department 
+of Education, Plaintiffs have no contract with the Government. Plaintiffs’ claims stem from the Government’s failure to comply with its statutory obligations under the TVPRA and regulatory obligations under the Foundational Rule, not the Acacia contract. And Plaintiff s’ requested 
+relief “seek[s] to ensure representation for unaccompanied children in immigration proceedings, regardless of which lawyers provide it.” Cmty. Legal Servs. , 780 F. Supp. 3d at 
+917. Such claims fall outside the jurisdictional bounds of the Tuck er Act and squarely within the purview of the APA.
+  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   21 
+BUMATAY and VANDYKE, Circuit Judges, joined by 
+CALLAHAN, IKUTA, BENNETT, R. NELSON, COLLINS, LEE, and BRESS, Circuit Judges, dissenting from the denial of rehearing en banc:  
+ 
+The Supreme Court has warned against an “imperial 
+Judiciary.”  Trump v. CASA, Inc., 606 U.S. 831, 858 (2025).  
+In recent times, the Court has repeatedly needed to dial back lower court decisions that exceed the judiciary’s equitable authority.  See, e.g., Noem v. Nat’l TPS All., 606 U.S. __, 
+2025 WL 2812732 (Oct. 3, 2025) (Mem.); Noem v. Nat’l TPS All. , 145 S. Ct. 2728 (2025) (Mem.); Trump v. Am. 
+Fed’n of Gov’t Emps., 145 S. Ct. 2635 (2025) (Mem.); McMahon v. New York , 145 S. Ct. 2643 (2025) (Mem); 
+Noem v. Doe , 145 S. Ct. 1524 (2025) (Mem.); Trump v. 
+Wilcox , 145 S. Ct. 1415 (2025).  The Constitution and 
+Congress have placed significant constraints on the role of the courts, and it is our duty to respect those limits.  CASA, 606 U.S. at 858.  For cases involving hot -button policy 
+issues, our review is often constrained—and sometimes curtailed altogether.  That means staying in our lane and respecting our jurisdictional bounds.  But once again, the Ninth Circuit fails to resp ect our role and the Supreme 
+Court’s guidance.  
+In this case, the Executive Branch, through the 
+Department of Health and Human Services’ (“HHS”) Office of Refugee Resettlement (“ORR”), used its regulatory discretion to stop funding the Acacia Center for Justice, a non-profit organization that subcontrac ts with other 
+organizations to provide legal representation to unaccompanied minors in immigration proceedings.  See 45 C.F.R. § 410.1309(a)(4).  ORR stopped funding ongoing work while the Executive Branch reviews the integrity of its 
+22 CMTY. LEGAL SERVICES V . U.S.  HHS  
+multimillion -dollar payments to Acacia from its lump -sum 
+appropriation.  Congress appropriates funding this way so 
+that the Executive can make these choices, for “the very point of a lump- sum appropriation is to give an agency the 
+capacity to adapt to changing circumstances and meet its statutory responsibilities in what it sees as the most effective or desirable way.”  Lincoln v. Vigil , 508 U.S. 182, 192 
+(1993).  
+In a familiar pattern, groups opposed to the Executive 
+Branch’s policies rushed to the federal courthouse in San Francisco.  This time, it was several subcontractors of Acacia, the non -profit organization that had directly 
+contracted with the government (“ Plaintiffs”).  They argued 
+that the district court should force the government to continue funding Acacia based on its contract with the government.  The district court agreed and enjoined the government’s action.  A divided panel of our court then denied a stay pending appeal.  See Cmty. Legal Servs. in E. 
+Palo Alto v. U.S. Dep’t of Health & Hum. Servs., 137 F.4th 932, 937 (9th Cir. 2025). 
+But the district court never had jurisdiction in this case.  
+No matter how hard we squint, we can’t avoid the fact that this is a contract dispute.  No statute or regulation entitles Plaintiffs to funding.  Instead, Plaintiffs simply want money 
+from the fe deral government based on the government’s 
+contract with the organization that Plaintiffs have subcontracted with.   
+Under the Tucker Act, any plaintiff seeking more than 
+$10,000 in monetary relief founded upon a federal contract must bring suit in the Court of Federal Claims.  28 U.S.C. §§ 1346(a)(2), 1491(a)(1); see also  Tucson Airport Auth. v. 
+Gen. Dynamics Corp., 136 F.3d 641, 646 (9th Cir. 1998) 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   23 
+(“§ 1491 gives the Court of Federal Claims exclusive  
+jurisdiction to award money damages” over $10,000) 
+(emphasis added).  Trying to avoid this requirement, Plaintiffs dress their complaint up as an Administrative Procedure Act (“APA”) challenge.  But the APA doesn’t waive the federal government’s sovereign immunity in 
+contract suits.  See 5 U.S.C. § 702; see also N. Star Alaska 
+v. United States , 14 F.3d 36, 38 (9th Cir. 1994).  Sure, in 
+some cases, it can be difficult to figure out whether a plaintiff’s claim is grounded in contract.  But this case isn’t one of them.  We never had jurisdiction over this matter, and our job was simply to stay the lower court’s ultra vires  
+injunction.   
+Indeed, the Supreme Court has recently demonstrated 
+how we should handle cases like this.  Just a few months ago, the Court ruled in a case on all fours with this one.  See Dep’t 
+of Educ. v. California, 604 U.S. 650, 652 (2025) (per curiam).  In that case, several States sued the federal government to stop the termination of education- related 
+grants.  The Court told us how to analyze these cases:  
+The APA’s waiver of sovereign immunity does not apply “if any other statute that grants consent to suit expressly or impliedly forbids the relief which is sought.”  Nor does the 
+waiver apply to claims seeking “money damages.” . . .  [T]he APA’s limited wai ver 
+of immunity does not extend to orders “to enforce a contractual obligation to pay money” . . . .  Instead, the Tucker Act grants the Court of Federal Claims jurisdiction over 
+24 CMTY. LEGAL SERVICES V . U.S.  HHS  
+suits based on “any express or implied 
+contract with the United States.”  
+Id. at 651 (simplified).  The Supreme Court thus stayed the 
+injunction because “the Government [was] likely to succeed in showing the District Court lacked jurisdiction to order the payment of money under the APA.”  Id.  
+While that’s the only direction we should need, we have 
+more.  Several weeks ago, the Supreme Court made even more clear how we should handle this case.  The Court again intervened to stay a district court injunction based on the likely lack of jurisdictio n in a government contract dispute.  
+See Nat’l Insts . of Health v. Am. Pub. Health Ass’n, 145 S. 
+Ct. 2658 (2025) (Mem .) (“NIH”).  It held that Department of 
+Education controlled.  Id.   Two Justices observed that the 
+district court in NIH ignored Department of Education when 
+it “permitted a suit involving materially identical grants to proceed to final judgment.”  See id. at 2663 (Gorsuch, J., joined by Kavanaugh, J., concurring in part and dissenting in part).  Regardless of how it was framed, the core of the suit alleged the unlawful termination of grants —“a breach of 
+contract claim.”  Id. at 2665 (Kavanaugh , J. concurring in 
+part and dissenting in part).  So the district court “likely  
+lacked jurisdiction,” and the suit “belong[ed] in the Court of Federal Claims.”  Id.  at 2661 (Barrett , J., concurring).    
+We must follow the Supreme Court’s instructions.  Even 
+though the Court’s “interim orders are not conclusive as to the merits, they inform how a court should exercise its equitable discretion in like cases.”  Trump v. Boyle , 145 S. 
+Ct. 2653, 2654 (2025).  It’s our duty to follow the Supreme Court’s lead on how to exercise our equitable power.  In cases where a district court’s jurisdiction is likely wanting, 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   25 
+as here, the Court has directed that we stay injunctions 
+against the Executive Branch.   
+The D.C. Circuit got the message after Department of 
+Education.  See Widakuswara v. Lake , No. 25- 5144, 2025 
+WL 1288817, at *3–4 (D.C. Cir. May 3, 2025) (per curiam) (staying a district court injunction restoring grant funding because of likely lack of jurisdiction).  The First Circuit didn’t.  See Am. Pub. Health Ass’n v. Nat’l Insts. of Health, 
+145 F.4th 39, 52, 56 (1st Cir. 2025) (denying a stay despite the jurisdictional questions).  The Supreme Court, unsurprisingly, stepped in and corrected the First C ircuit.  
+NIH, 145 S. Ct. 2658.   
+In its statement respecting the denial of rehearing en 
+banc, the panel majority doubles down on Plaintiffs’ assertion that this is no contract case.  Sure, Plaintiffs have no direct contract with the government.  But that’s because they are subcontractors  to the government.  And, as we 
+discuss below, there is no subcontractor exception to the Tucker Act.  Nor can the panel majority ignore that the Acacia contract is at the heart of Plaintiffs’ complaint —
+expressly mentioned at least eleven times.  See Compl. ¶¶ 
+11, 39, 64, 65, 66, 88, 91, 95, 96, 131.  The panel majority also can’t skirt around the fact that Plaintiffs explicitly pled that the cancellation of the Acacia contract was the direct 
+cause of their harm —causing them “to lay off employees 
+and lose huge percentages of their overall funding.”  Id. ¶ 99.  
+See, e.g., id. ¶ 100 (one of the plaintiff’s alleging that 
+“funding for the services Defendants have illegally cancelled makes up approximately 55% of [its] budget and pays for 113 of [its] approximatel y 200 employees.”).    
+Thus, the panel majority is simply wrong to say that 
+Plaintiffs’ alleged standing is based solely on organizational 
+26 CMTY. LEGAL SERVICES V . U.S.  HHS  
+standing—that their harms arose “from the frustration of 
+their mission and diversion of resources.”  As even the district court conceded, “Plaintiffs have suffered near -
+immediate financial impacts [from the Cancellation Order], and they have thus made a sufficient showing of concrete and imminent economic injury.”  Cmty. Legal Servs. in E. Palo Alto v. U.S. Dep’t of Health & Hum. Servs., 780 F. Supp. 3d 897, 913 n.2 (N.D. Cal. 2025).  Finally, the panel majority can’t deny that the only way to remedy Plaint iffs’ 
+injuries is to pay them for their services —in other words, to 
+reinstate the Acacia contract.   Regardless of how the panel 
+majority dresses it, the source of Plaintiffs’ rights is the Acacia contract and any remedy is a contract remedy.  So none of the facts of this case distinguish it from the binding precedent of Department of Education and NIH . 
+We should have reheard this case en banc.  No matter 
+how creatively pled, Plaintiffs’ claims are fundamentally contract claims, and the district court lacked jurisdiction to consider them.  By refusing to rehear this case, our court lets stand  an injunction that violates the limits Congress has set 
+on our jurisdiction and interferes with the Executive’s prerogative to set and review policies.  We respectfully dissent. 
+I. 
+Under the Trafficking Victims Protection 
+Reauthorization Act (“TVPRA”), HHS “shall ensure, to the greatest extent practicable and consistent with [8 U.S.C. § 1362], that all unaccompanied alien children” in the custody of HHS or the Department of Homeland Security (“DHS”) “have counsel to represent them in legal proceedings or matters.”  8 U.S.C. § 1232(c)(5).  Within HHS, ORR implements the TVPRA’s directives.  Congress 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   27 
+has funded ORR through lump- sum appropriations since 
+2012.  That funding remains available through September 
+2027.   
+To further its responsibilities under the TVPRA, ORR 
+promulgated what is known as the Foundational Rule in April 2024.  The Foundational Rule fleshes out how ORR will discharge its multiple responsibilities under the TVPRA.  It provides, “[t]o the extent ORR determines that 
+appropriations are available, and insofar as it is not practicable for ORR to secure pro bono counsel, ORR shall fund legal service providers to provide direct immigration legal representation for certain unaccompanied children, subject to ORR’s discretion and available appropriations.”  45 C.F.R. § 410.1309(a)(4).   
+In 2022, the Acacia Center for Justice contracted with 
+ORR to provide direct representation to unaccompanied children.  To fulfill its contractual obligations, Acacia hired subcontractor organizations, including Plaintiffs.  Earlier this year, in February 2025, HHS  issued a directive raising 
+concerns about “serious programmatic failures” in ORR’s administration of “the Unaccompanied Alien Children (UAC) Program.”  Particularly, the  directive cited the results 
+of a Florida grand -jury investigation, which found “sponsor 
+vetting failures, identity verification lapses, instances of 
+child trafficking, and fraud in the sponsorship process.”  The directive then required agency personnel to “briefly pause all payments made . . . to contractors, vendors, and grantees  
+related to immigration and refugee settlement for internal review for payment integrity.”   
+A month later, the government  sent a letter  to Acacia 
+partially terminating its contract “for the Government’s convenience,” which eliminated ORR’s funding of counsel 
+28 CMTY. LEGAL SERVICES V . U.S.  HHS  
+for unaccompanied children in removal proceedings 
+(“Cancellation Order”).  The letter directed Acacia to “immediately stop all work” on its contract, and Acacia notified its direct- representation subcontractors on the same 
+day.   
+Almost immediately, the district court issued a 
+preliminary injunction forcing the government to continue paying money to Acacia.  The district court enjoined the government from “withdrawing the services or funds provided” by ORR, “particularly ORR’s provision of funds for direct legal representation services to unaccompanied children.”  Cmty. Legal Servs., 780 F. Supp. 3d at 911.  A 
+divided panel denied a stay of the preliminary injunction.  See Cmty. Legal Servs. , 137 F.4th at 937.  Judge Callahan 
+dissen ted, raising jurisdictional concerns and noting that, 
+even if the district court had jurisdiction, the law commits funding decisions to “agency discretion.”  Id.  at 943 
+(Callahan, J., dissenting).    
+II. 
+We should’ve  reheard this case en  banc because the 
+government, at minimum, is likely to succeed in showing that the district court lacked jurisdiction to order the continued payment of the Acacia contract under the APA.  Federal courts are “courts of limited jurisdiction,” with 
+limitation s imposed “by statute.”  Royal Canin U.S.A., Inc. 
+v. Wullschleger , 604 U.S. 22, 26 (2025) (simplified).  One 
+such statute is the Tucker Act, which precludes district court jurisdiction over suits seeking to reinstate government contract funding.  28 U.S.C. § 1491(a)(1) .  Instead, the 
+Tucker Act requires that such claims be brought in the Court of Federal Claims.  Id .  And when “a federal court concludes 
+that it lacks subject- matter jurisdiction, the court must 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   29 
+dismiss the complaint in its entirety.”  Arbaugh v. Y&H 
+Corp., 546 U.S. 500, 514 (2006).  That’s what the district court should have done here.   
+Given that none of the other stay factors favor Plaintiffs, 
+see Nken v. Holder , 556 U.S. 418, 434 (2009), the panel 
+should have granted a stay here.  When it didn’t, the full court should have taken this case en banc.   
+A. 
+The District Court Lacked Jurisdiction over Plaintiffs’ 
+Contract Claims  
+The Tucker Act grants the Court of Federal Claims 
+jurisdiction over claims against the government “founded . . . upon any express or implied contract with the United States.”  28 U.S.C. § 1491(a)(1).  We have long interpreted the Tucker Act to vest “exclusive jurisdiction” over these claims and to bar invocation of the APA’s waiver of sovereign immunity.  See Tucson Airport Auth. , 136 F.3d 
+at 646.  So even if a breach- of-contract claim is “disguised” 
+as “an APA action seeking injunctive and declaratory reli ef,” 
+we’ve held that the Tucker Act “impliedly forbids” our jurisdiction, so the suit must be brought in the Court of Federal Claims.  See United Aeronautical Corp. v. U.S. Air Force, 80 F.4th 1017, 1025–26 (9th Cir. 2023) (simplified).  Since no federal law gives Plaintiffs the ability to enforce 
+any duty to fund legal representation for unaccompanied children, their claim must be based in contract.  Because Plaintiffs’ claims don’t exist outside the Acacia contract, the district court had no j urisdiction here.    
+30 CMTY. LEGAL SERVICES V . U.S.  HHS  
+1. 
+The Tucker Act Precludes the APA’s Sovereign 
+Immunity Waiver  
+A suit may be brought against the United States “only if 
+Congress has waived sovereign immunity for the lawsuit,” 
+and a district court has jurisdiction over a suit “only if Congress has provided for jurisdiction there.”  Tucson 
+Airport Auth., 136 F.3d at 644 (simplified).  One basis for 
+the waiver of sovereign immunity— the one Plaintiffs 
+invoke —is the APA.  See  5 U.S.C. § 702.  But  the APA is 
+only a limited  waiver of sovereign immunity.  This waiver is 
+subject to three limitations: “(1)  [the] claim must not seek 
+‘money damages’; (2)  an adequate remedy for [the] claims 
+must not be available elsewhere; and (3)  [the] claims must 
+not seek relief expressly or impliedly forbidden by another 
+statute.”  United States v. Park Place Assocs., Ltd., 563 F.3d 907, 929 (9th Cir. 2009) (interpreting 5 U.S.C. § 702).   
+The question here is whether “another statute” bars the 
+waiver of sovereign immunity.  The answer is yes —the 
+Tucker Act does.  It’s well established that the Tucker Act 
+“‘impliedly forbids’ declaratory and injunctive relief” and 
+“precludes a §  702 waiver of sovereign immunity” on 
+contract claims over $10,000.  Tucson Airport Auth., 136 
+F.3d at 646 (simplified).  And this is true no matter how plaintiffs dress up such a claim —even if they “formally 
+seek[] injunctive relief” under the APA, United Aeronautical  
+Corp., 80 F.4th at 1026, or the “complaint nowhere mentions breach of contract,” Ingersoll -Rand Co. v. United States , 780 
+F.2d 74, 77 (D.C. Cir. 1985).  The bottom line: “If rights and remedies are statutorily  or constitutionally  based, then 
+district[] courts have jurisdiction; if rights and remedies are 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   31 
+contractually  based[,] then only the Court of Federal Claims 
+does.”  United Aeronautical Corp., 80 F.4th at 1026. 
+To determine if a claim is really a disguised breach -of-
+contract claim, we look to both “(1)  the source of the rights 
+upon which the plaintiff bases its claims, and (2)  the type of 
+relief sought (or appropriate).”  Id.  at 1026 (simplified).  In 
+considering the “source of the rights,” we may examine 
+(a) whether “the plaintiff’s asserted rights and the 
+government’s purported authority arise from statute,” (b) whether “the plaintiff’s rights exist prior to and apart from rights created under the contract,” and (c) whether “the 
+plaintiff seeks to enforce any [contractual] duty imposed upon the government.”  Crowley Gov’t Servs. v. Gen. Servs. 
+Admin , 38 F.4th 1099, 1106–07 (D.C. Cir. 2022)  
+(simplified).  The “type of relief sought” turns on whether a claim “in essence” seeks more than $10,000 from the federal government.  Id.  at 1107 (simplified).   
+2. 
+Plaintiffs’ Source of Rights and the Type of Relief 
+Sought Are Contractual  
+Plaintiffs are nonprofit organizations that have received 
+funding from HHS and ORR through Acacia to provide legal representation to unaccompanied children.  As Plaintiffs’ complaint asserts, the government sent “a notice terminating 
+the contract line items through which Defendants HHS and ORR had provided funding for counsel for unaccompanied children and ordering Plaintiffs to ‘immediately stop work’ on their ongoing funded representations.”  For relief, Plaintiffs seek to “[e]njoin [HHS and ORR] nationwi de from 
+ceasing to fund counsel to represent unaccompanied children.”  No federal law or regulation entitles Plaintiffs to payment for their work.  They only received funding through 
+32 CMTY. LEGAL SERVICES V . U.S.  HHS  
+a contract.  Thus, the source of rights and type of relief 
+sought here are patently contractual.   
+Let’s look more closely at the Acacia contract.  On 
+March 29, 2022, the Acacia Center for Justice entered a contract with the government to fund its work to provide representation to unaccompanied children.  In that contract,  
+Acacia promised to provide “[f]ull legal representation for children in and out of ORR custody, as well as other nonrepresentation services such as ‘friend of court’ services in hearings for unaccompanied children appearing in immigration court or preparing forms without attorneys.”  In 
+exchange, ORR promised to pay Acacia from its lump- sum 
+funds.  Before the government terminated its funding, Acacia met its contractual obligations through its subcontractors, a network of 89 legal services organizations, including Plaintiffs, in 159 offices across the country.  Now, Plaintiffs want to continue to b e paid for the services they 
+used to provide as subcontractors under the Acacia contract.  All this points to the Acacia contract as the source of Plaintiffs’ rights.  
+What’s more, Plaintiffs seek to enjoin the government 
+from ceasing payments for their legal services to unaccompanied minors —meaning they seek reinstatement 
+of the Acacia contract.  And an injunction to order specific 
+performance of a contract is a quintes sential contract 
+remedy.  Cf. Ingersoll -Rand, 780 F.2d at 79–80 (suggesting 
+that “the essence” of a claim is a “request for specific performance of the original contract” when the “practical result of granting plaintiff’s request for declaratory and injunc tive relief would be reinstatement of terminated 
+contracts”) (simplified).  In response, Plaintiffs argue ORR doesn’t necessarily  need to follow the Acacia contract to 
+grant it relief, claiming that ORR could conceive of “non -
+ CMTY. LEGAL SERVICES V . U.S.  HHS   33 
+contractual” remedies.  But setting aside that this suggestion 
+is practically unrealistic, it would contradict the terms of the district court’s injunction.  Recall that the district court enjoined the government from “withdrawing the services or funds provided” by ORR, “particularly ORR’s provision of funds for direct legal representation services to unaccompanied children.”  Cmty. Legal Servs., 780 F. Supp. 
+3d at 911.  This order means that ORR can’t alter or “withdraw” its preexisting relationship with A cacia—a 
+preexisting relationship that is clearly contractual.   
+Plaintiffs’ requested relief also targets the Cancellation 
+Order —further establishing the contractual nature of their 
+claim.  Plaintiffs’ complaint seeks to “[s]et aside Defendants’ actions that violate the APA,” and expressly alleges that the “Cancellatio n Order” is an unlawful agency 
+action because it ends the Acacia contract.  The Cancellation Order that Plaintiffs expressly ask to be judicially stopped pertains only to the partial termination of the Acacia contract, again evincing that the type of relie f sought by 
+Plaintiffs is grounded in contract.   
+Plaintiffs assert that their APA claims are premised on a 
+violation of the TVPRA and ORR’s Foundational Rule —not 
+the Acacia contract.  But regardless of the government’s obligations under either the TVPRA or the ORR —which do 
+not protect Plaintiffs —Plaintif fs can’t escape that their 
+claims “do not exist independent of the” Acacia contract and that they “seek[] specific performance of the [Acacia] contract.”  Tucson Airport Auth., 136 F.3d at 647; see also Ingersoll -Rand Co., 780 F.2d at 78 (holding that the 
+plaintiff’s claim that the government’s termination of a contract “for convenience” violated two regulations did not change the action’s fundamentally contractual character).  Therefore, their APA claims are necessarily “founded . . . 
+34 CMTY. LEGAL SERVICES V . U.S.  HHS  
+upon [an] express or implied contract with the United 
+States.”  28 U.S.C. § 1491(a)(1).  Indeed, under the APA, the plaintiff must “suffer [a] legal wrong because of agency action” or be “adversely affected or aggrieved by agency action within the meaning of a relevant statute.”  5 U.S.C. § 702.  And here, the alleged legal wrong or adverse effect the district court sought to remedy was the government’s termination of the Acacia contract.  Boiled down, Plaintiffs’ only alleged injury and purported legal violation was the cancellation of the Acacia contract.  Thus, it follows that Plaintiffs’ claims are contractually based.  
+NIH guides us on how to consider Plaintiffs’ claims.  See  
+145 S. Ct. 2658.  In that case, the plaintiffs alleged that the government’s directives to terminate certain grants were “unlawful agency -wide policies because they violate various 
+federal statutes and the Constitution,” and they argued that the “[grant] terminations flowed directly from those unlawful policies.”  Nat’l Insts.  of Health , 145 F.4th at 51.  
+Like here, the First Circuit refused to stay the injunction because the plaintiffs’ claims didn’t require the district court to “interpret the terms of any contracts between the parties.”  Id. at 52 n.5.  Despite the claimed independent statutory 
+violations, the Supreme Court concluded that the APA’s “‘limited waiver of [sovereign] immunity’ does not provide the District Court with jurisdiction to adjudicate claims 
+‘based on’ the research -related grants or to order relief 
+designed to enf orce any ‘obligation to pay money’ pursuant 
+to those grants.”  NIH , 145 S. Ct. 2658 (quoting Dep’t of 
+Educ., 604 U.S. at 651).  In fact, one of the NIH  dissenting 
+opinions made the same arguments as Plaintiffs here —but 
+that reasoning was rejected by the Court.  See NIH , 145 S. 
+Ct. at 2666 (Jackson, J., concurring in part and dissenting in 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   35 
+part) (explaining that the NIH and related parties had a 
+statutory duty to provide funding). 
+And unlike NIH , in which the plaintiffs challenged both 
+internal agency guidance documents and the termination of research grants, Plaintiffs here only challenge the termination of the Acacia contract.  In her concurrence, Justice Barrett distinguished between “challenges to the grant terminations, which belong in the Court of Federal Claims[,]” and “vacatur of internal agency guidance,” which are frequently litigated “on arbitrary -and-capricious grounds 
+in district court or directly in the D. C. Circuit.”  145 S. Ct. 
+at 2661.  In NIH , the “internal guidance documents” 
+established the agency’s funding priorities, which included defunding research related to DEI objectives, gender identity, or COVID -19.  Id.   To Justice Barrett, “[b]oth logic 
+and law . . . support channeling challenges to the grant terminations and guidance to different forums.”  Id.  Justice Barrett explained that these two claims “are legally distinct” and that vacating the guidance documents wouldn’t necessarily reinstate the challenged grants.  Id .  Here, 
+Plaintiffs only challenged the Cancellation Order, which terminated the Acacia contract.  Plaintiffs don’t attack any other internal agency guidance document, nor it is clear that they would have constitutional and statutory standing to do so.  So  under Justice Barrett’s concurrence, Plaintiffs’ claims 
+must be sent to the Court of Federal Claims.    
+Ignoring these jurisdictional limits, the panel majority 
+simply proclaimed that “[s]eeking to ensure compliance with statutory and regulatory commands is a matter beyond the scope of the Tucker Act’s exclusive jurisdiction.”  Cmty. Legal Servs. , 137 F.4th at 938.  But trying to dress up a 
+breach -of-contract claim in the guise of a broad statutory 
+claim is nothing new.  Before, we’ve been able to ferret this 
+36 CMTY. LEGAL SERVICES V . U.S.  HHS  
+out.  See, e.g., Tucson Airport Auth., 136 F.3d at 647; Park 
+Place Assocs. , 563 F.3d at 932; Ingersoll -Rand, 780 F.2d at 
+77.  See also  Spectrum Leasing Corp. v. United States , 764 
+F.2d 891, 894 (D.C. Cir. 1985);  Widakuswara, No. 25- 5144, 
+2025 WL 1288817, at *3–4.  There is no excuse as to why 
+we failed to do so here.  
+3. 
+There is No Subcontractor Exception to the Tucker Act  
+The panel majority brushed aside these jurisdictional 
+concerns by creating a “subcontractor exception” to the Tucker Act.  According to the panel majority, because subcontractors “generally have no right to sue under the Tucker Act,” they must be allowed t o bring an APA suit in 
+district court.  Cmty. Legal Servs. , 137 F.4th at 938–39.  The 
+panel majority reasoned the “result” of following the Tucker Act for subcontractors would be that “no court has jurisdiction to hear plaintiffs’ claims,” which the panel says conflicts with “common sense” and with the “strong presumption favoring judicial review of administrative action” under the APA.  Id.  at 939 (simplified).  The panel 
+thus exempts subcontractors from the limits of the Tucker Act.  Id.   
+But that once again puts the cart before the horse.  The 
+APA’s waiver of sovereign immunity is no “guarantee of a 
+federal forum.”  Allen v. Milas , 896 F.3d 1094, 1099 (9th 
+Cir. 2018).  It’s hornbook law that “the APA does not provide an independent basis for subject matter jurisdiction in the district courts.”  Tucson Airport Auth., 136 F.3d at 645.  And we’ve previously rejected the panel majority’s aggrandized view of the APA.  In North Star Alaska, the plaintiff made the same argument as Plaintiffs here: “that the 
+district court cannot refuse jurisdiction if there is no 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   37 
+alternative forum available to hear [plaintiff’s] claim.”  14 
+F.3d at 38.  But we expressly “decline[d] to overrule . . . [the] very specific holdings that the APA does not waive sovereign immunity for contract claims seeking equitable relief.”  Id. (simplified).   It would make little sense to create 
+a subcontractor loophole when Congress expressly carved out from the APA’s waiver of sovereign immunity claims “expressly or impliedly forbid[den]” by “other statute[s].”  5 U.S.C. § 702.  Indeed, whatever the presumption for judicial review, it’s equally axiomatic that “a waiver of sovereign immunity is to be strictly construed, in terms of its scope, in favor of the sovereign.”  Dep’t of Army v. Blue Fox, Inc. , 525 
+U.S. 255, 261 (1999).  
+And we can’t just disregard the limits Congress placed 
+on contract suits through the Tucker Act.  According to one report from 2007, “the government had prime contracts with approximately 169,000 different contractors.”  James F. Nagle & Jonathan A. DeMell a, A Primer on Prime 
+Contractor -Subcontractor Disputes under Federal 
+Contracts , 46 P
+ROCUREMENT LAW 12, 14 (Winter 2011).  If 
+those prime contractors were allowed to sue the government, that would be a “very large, but manageable” number of suits.  Id.   But “[i]f subcontractors . . . were included” in the 
+right to sue, “millions of entities would have the ability to sue the government directly.”  Id.   No wonder Congress 
+enacted the Tucker Act.  Thus, we can’t allow subcontractors to engage in “the creative drafting of complaints” to avoid the statutory scheme for bringing contractual claims against the g overnment.  See Crowley Gov’t Servs. , 38 F.4th at 1107.  
+That the Tucker Act limits subcontractors’ ability to seek relief is for Congress —not the courts —to address (if it 
+wishes).  But we can’t take matters into our own hands and make it easier  for subcontractors to sue the government than 
+38 CMTY. LEGAL SERVICES V . U.S.  HHS  
+contractors.  That’s the result that flows from the panel 
+majority’s novel subcontractor exception.  Now subcontractors can bring suits arising out of government contracts in any district court, including allowing them to utilize the full array of equitable relief available to district courts, while contractors are limited to the Court of Federal Claims.  See N. Star Alaska v. United States , 9 F.3d 1430, 
+1432 (9th Cir. 1993). 
+The panel majority also ignored that subcontractors are 
+not completely barred from bringing claims in the Court of Federal Claims.  “A subcontractor may assert a claim against the government” if it “ha[s] the prime contractor ‘sponsor’ and certify the subc ontractor’s claim.”  NavCom Def. Elecs, 
+Inc. v. Ball Corp., 92 F.3d 877, 879–80 (9th Cir. 1996) (citing Erickson Air Crane Co. v. United States , 731 F.2d 
+810, 813 (Fed. Cir. 1984); Federal Acquisition Regulation 44.203(c); Major John J. Thrasher, Subcontractor Dispute Remedies: Asserting Subcontractor Disputes against the Federal Government , 23 P
+UB. CONT. L.J. 39, 82–99 (1993)); 
+see also  United States v. Johnson Controls, Inc ., 713 F.2d 
+1541, 1551 (Fed. Cir. 1983) (“establish[ing] the proposition that there can be privity of contract between the government and subcontractors where the prime contractor is a mere government agent”); E.R. Mitchell Constr. Co. v. Danzig, 175 F.3d 1369, 1370 (Fed. Cir. 1999)  (holding that a prime 
+contractor may sue the government on behalf of its subcontractor, in the nature of a pass -through suit, for costs 
+incurred by the subcontractor).  The fact that Plaintiffs failed to bring their claims in conformity with the Tucker Ac t is not 
+an excuse to ignore our jurisdictional limits.  
+ CMTY. LEGAL SERVICES V . U.S.  HHS   39 
+4. 
+Department of Education and  NIH Control This Case  
+Worst yet is our failure to follow the Supreme Court’s 
+decisions.  In similar and controlling cases, the Court has 
+been forced to intercede again and again through interim orders.  As Justice Gorsuch observed, “[w]hatever their own views, judges are duty- bound to respect ‘the hierarchy of the 
+federal court system created by the Constitution and 
+Congress.’”  NIH , 145 S. Ct. at 2665 (Gorsuch, J., 
+concurring in part and dissenting in part) (simplified).  We 
+should be heeding that important admonition.   
+Department of Education controls this case.  Its 
+instruction was clear: “the APA’s limited waiver of immunity does not extend to orders to enforce a contractual obligation to pay money . . . .  Instead, the Tucker Act grants the Court of Federal Claims jurisdiction over suits ba sed on 
+any express or implied contract with the United States.”  604 U.S. at 651 (simplified).  
+The panel majority brushed Department of Education 
+aside, circularly reasoning in one line that “ Department of 
+Education has no application where, as here, the claims 
+sound in statute, rather than contract.”   Cmty. Legal Servs.,  
+137 F.4th at 939.  That’s all the panel majority said on the case.   
+But the panel majority ignored the fact that the plaintiffs 
+in Department of Education made the same argument that 
+Plaintiffs do here.  There, the district court ruled that “the ‘essence’ of the action was not contractual in nature since the source of the plaintiffs’ rights was in federal statute and regulations and because the relief was i njunctive in nature.”  
+California v. U.S. Dep’t of Educ., 769 F. Supp. 3d 72, 76 (D. 
+40 CMTY. LEGAL SERVICES V . U.S.  HHS  
+Mass. 2025).  The district court thus concluded it had 
+jurisdiction because “Plaintiff States have . . . sufficiently shown that the dispute does not hinge on the terms of a contract between the parties, but rather federal statute and regulations put in pl ace by Congress and the Department.”  
+Id. (simplified); see also  California v. U.S. Dep’t of Educ., 
+132 F.4th 92, 97 (1st Cir. 2025) (agreeing that the “States’ claims are, at their core, assertions that the Department acted in violation of federal law —not  its contracts”).  Sound 
+familiar?  It should, because that is precisely this case.   
+None of this fooled the Supreme Court.  The Court saw 
+through the statutory dressing that the Department of Education plaintiffs gave to their claim and recognized that 
+it was fundamentally contractual in nature.  So the panel majority was wrong to wave away Department of Education by simply labeling this case as “statut[ory]” as opposed to “contract[ual].”  Cmty. Legal Servs. , 137 F.4th at 939.   
+Department of Education and now NIH  control this case.  
+Any claim based on an “express or implied contract with the United States” must be brought in the Court of Federal Claims.  Dep’t of Educ., 604 U.S. at 651 (simplified).  Regardless of any purported violations of the TVPRA or the Foundational Rule, Plaintiffs can’t hide that any obligation to pay them was “based on” the Acacia contract.   
+III. 
+Our court should have stayed the district court’s 
+injunction.  The government has shown that the district court likely lacks jurisdiction over this case.  The other preliminary injunction factors —irreparable injury and the 
+public interest —are even more str aightforwardly in the 
+government’s favor.  The government suffers an irreparable injury when it is forced to pay funds that it likely cannot 
+ CMTY. LEGAL SERVICES V . U.S.  HHS   41 
+recoup at the end of litigation.  See Dep’t of Educ., 604 U.S. 
+at 651–52; see also NIH , 145 S. Ct. at 2658 (“[W]hile the 
+loss of money is not typically considered irreparable harm, that changes if the funds cannot be recouped and are thus irrevocably expended.”) (simplified).  And Plaintiffs have not represented that they would repay the government’s money if t he government were to ultimately prevail.  See 
+NIH, 145 S. Ct. at 2658.  Further, when a court “improperly 
+intrudes on a coordinate branch of the Government and prevents the Government from enforcing its policies,” this is a form of irreparable harm and against the public interest.  See CASA, Inc., 606 U.S. at 859 (simplified).  The bottom line is that all the Nken factors warrant a stay of the district 
+court’s injunction. 
+Plaintiffs have sought, and succeeded, in enjoining the 
+government from pausing its funding for direct legal representation of unaccompanied minors.  But any duty ORR has to make those payments to Acacia is a creature of contract.  Though Plaintiffs style this suit as one premised on the APA, “in essence” it’s contractual.  This dispute therefore belongs in the Court of Federal Claims, and we’re powerless to hear it.  This should have been a hard point to miss, particularly given the Supreme Court’s recent decisions.  Even so, our court has decided against rehearing this case.  In doing so, we leave in place a novel and intrusive 
+injunction that the district court never had the authority to enter.  
+ 

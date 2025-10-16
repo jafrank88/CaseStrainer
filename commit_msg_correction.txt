@@ -1,0 +1,29 @@
+Fix parallel citation propagation - keep verified=False, set true_by_parallel=True
+
+CORRECTION to previous commit: Each citation is independently verified.
+
+**What Was Wrong:**
+Previous commit incorrectly set verified=True for parallel citations that weren't actually verified.
+
+**Correct Behavior:**
+When a cluster has:
+- Citation A: verified=True, canonical_name="Smith v. Jones"
+- Citation B: verified=False (parallel citation, not independently verified)
+
+Citation B should get:
+- verified=False (stays unchanged - not independently verified)
+- true_by_parallel=True (indicates relationship to verified parallel)
+- canonical_name="Smith v. Jones" (copied from Citation A)
+- canonical_date, canonical_url (copied from Citation A)
+
+**Changes Made:**
+- Removed `cit.verified = True` assignment (lines 2087, 2094)
+- Removed `verification_source = 'parallel_propagation'` assignment
+- Added comments explaining verified stays False
+- Updated log message to clarify "canonical data" not "verification"
+
+**Key Principle:**
+Each citation's verification status is independent. Parallel citations share canonical data but maintain separate verification states.
+
+Files Modified:
+- src/unified_clustering_master.py: Corrected parallel propagation logic

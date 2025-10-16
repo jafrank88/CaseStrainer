@@ -9,7 +9,7 @@ const DEFAULT_TIMEOUT = 30000; // 30 seconds
 const activeRequests = new Set();
 
 // Get base URL from environment variables
-const baseURL = import.meta.env.VITE_API_BASE_URL || '';
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
 
 // Create axios instance with default config
 const api = axios.create({

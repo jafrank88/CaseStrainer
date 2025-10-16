@@ -1,0 +1,22 @@
+CRITICAL FIX: Proximity override for P5_FIX validation
+
+Root cause: P5_FIX was splitting CORRECT parallel citations because it checked
+for "mixed federal/state reporters" and other rules that don't apply to parallels.
+
+Example failures:
+- "584 U.S. 554, 200 L. Ed. 2d 931, 138 S. Ct. 1649" → Split apart
+- Reason: "Mixed federal and state reporters (cannot be parallel)"
+- BUT THESE ARE PARALLEL CITATIONS! (Supreme Court case with 3 reporters)
+
+Solution: Check proximity FIRST
+- If citations within 200 chars → SKIP P5_FIX (definitely parallel)  
+- If citations far apart → APPLY P5_FIX (might be false clustering)
+
+This preserves true parallel citations while still catching false clustering.
+
+Expected result: 
+- Cluster count drops from ~120 to ~70
+- Parallel citations stay grouped
+- true_by_parallel works (unverified with verified in same cluster)
+
+This is the final piece needed for proper clustering!

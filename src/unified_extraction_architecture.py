@@ -105,7 +105,8 @@ class UnifiedExtractionArchitecture:
             r'([A-Z][a-zA-Z\s\'&\-\.,]{2,50}(?:LLC|Inc\.?|Corp\.?|Ltd\.?|Co\.?|L\.P\.?|L\.L\.P\.?))\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.,]{2,50})',
             
             # PRIORITY 4: GENERAL pattern (last resort to avoid early truncation)
-            r'([A-Z][a-zA-Z\s\'&\-\.]{2,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{2,50})',
+            # FIXED: Increased minimum from 2 to 5 characters to prevent truncation like "Be", "Ct.", "Bl."
+            r'([A-Z][a-zA-Z\s\'&\-\.]{5,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{5,50})',
         ]
         
         # Stopwords that typically appear before case names in legal text
@@ -151,7 +152,8 @@ class UnifiedExtractionArchitecture:
             r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+(Dep\'t\s+of\s+[A-Z][a-zA-Z\s\'&\-\.]{1,50})',
             
             # PRIORITY 5: GENERAL pattern last to avoid early truncation - more precise after normalization
-            r'([A-Z][a-zA-Z\s\'&\-\.]{1,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{1,50})',
+            # FIXED: Increased minimum from 1 to 5 characters to prevent truncation
+            r'([A-Z][a-zA-Z\s\'&\-\.]{5,50})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.]{5,50})',
         ]
         
         self.year_patterns = [
@@ -185,6 +187,13 @@ class UnifiedExtractionArchitecture:
         debug: bool = False
     ) -> ExtractionResult:
         """
+        ⚠️ DEPRECATED: Use UnifiedCaseExtractionMaster instead!
+        
+        This extractor has been superseded by UnifiedCaseExtractionMaster
+        which includes Fix #43 (text normalization position bug).
+        
+        Use: from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+        
         Extract case name and year using the unified architecture.
         
         This is the ONLY extraction method that should be used throughout
@@ -263,7 +272,207 @@ class UnifiedExtractionArchitecture:
     
     def _try_patterns_on_context(self, context: str, citation: str, citation_start_in_context: int, citation_end_in_context: int, debug: bool) -> Optional[ExtractionResult]:
         """Try extraction patterns on a specific context window."""
-        # Simple pattern for case names: "Name v. Name" or "In re Name"
+        # IMPROVED: Capture everything between case name start and citation, including commas
+        # This will properly capture "Center for Humanities, Inc." before the citation
+        
+        # First, try to find "v." and capture everything after it until the citation
+        before_citation = context[:citation_start_in_context].strip()
+        
+        # Look for "v." or "v" pattern
+        v_pattern = r'\s+v\.?\s+'
+        v_matches = list(re.finditer(v_pattern, before_citation, re.IGNORECASE))
+        
+        if v_matches:
+            # Get the last "v." before the citation (most likely the actual case)
+            last_v_match = v_matches[-1]
+            v_end = last_v_match.end()
+            
+            # Extract defendant: everything from after "v." to the citation (including commas)
+            defendant_text = before_citation[v_end:].strip()
+            
+            # Extract plaintiff: work backwards from "v." to find the start
+            text_before_v = before_citation[:last_v_match.start()]
+            
+            # IMPROVED: Walk backwards to find where the case name starts
+            # Stop at: lowercase non-stopword, sentence boundary, or start of text
+            
+            # Common legal stopwords that can appear in lowercase
+            legal_stopwords = {
+                'the', 'of', 'and', 'for', 'in', 'on', 'at', 'by', 'with', 'from', 'to',
+                'a', 'an', 'as', 'or', 'but', 'if', 'then', 'than', 'such', 'no', 'not',
+                'de', 'la', 'el', 'del', 'von', 'van', 'da', 'di'  # International particles
+            }
+            
+            # Tokenize the text before "v." (preserving commas and periods)
+            # Split on whitespace but keep punctuation attached to words
+            words = text_before_v.split()
+            
+            if words:
+                # Walk backwards through words
+                case_start_index = len(words) - 1  # Start from the end
+                
+                for i in range(len(words) - 1, -1, -1):
+                    word = words[i].strip('.,;:')  # Remove trailing punctuation for analysis
+                    
+                    if not word:
+                        continue
+                    
+                    # CRITICAL: Check for contamination words FIRST (even if capitalized)
+                    # These words should NEVER be part of a case name
+                    contamination_words = {
+                        'collateral', 'order', 'doctrine', 'overruling', 'overruled',
+                        'reversing', 'reversed', 'affirming', 'affirmed',
+                        'following', 'followed', 'distinguishing', 'distinguished',
+                        'applying', 'applied', 'citing', 'cited', 'quoting', 'quoted',
+                        'holding', 'held', 'ruling', 'ruled', 'deciding', 'decided',
+                        'opinion', 'decision', 'judgment', 'judgement',
+                        'interlocutory', 'final', 'preliminary',
+                        'stated', 'explained', 'noted', 'observed', 'found', 'concluded'
+                    }
+                    
+                    if word.lower() in contamination_words:
+                        # This is contamination, stop here
+                        case_start_index = i + 1
+                        break
+                    
+                    # Check if this word indicates we've gone too far back
+                    # Stop if we hit:
+                    # 1. A lowercase word that's NOT a stopword
+                    # 2. A sentence boundary (. ! ?)
+                    # 3. Common citation signals
+                    
+                    if word[0].islower() and word.lower() not in legal_stopwords:
+                        # Found a lowercase non-stopword, stop here
+                        case_start_index = i + 1
+                        break
+                    
+                    # Check for sentence boundaries
+                    if i > 0 and any(words[i-1].endswith(p) for p in ['.', '!', '?', ';']):
+                        # Previous word ends with sentence boundary
+                        case_start_index = i
+                        break
+                    
+                    # Check for citation signals and explanatory phrases that indicate we've gone too far
+                    citation_signals = {
+                        'see', 'citing', 'quoting', 'accord', 'compare', 'contra', 'but', 'also', 'e.g.', 'i.e.',
+                        'overruling', 'overruled', 'reversing', 'reversed', 'affirming', 'affirmed',
+                        'following', 'followed', 'distinguishing', 'distinguished', 'applying', 'applied',
+                        'doctrine', 'rule', 'principle', 'test', 'standard', 'holding', 'held',
+                        'order', 'decision', 'opinion', 'judgment', 'ruling',
+                        'collateral', 'interlocutory', 'final', 'preliminary',
+                        'stated', 'explained', 'noted', 'observed', 'found', 'concluded',
+                        'court', 'judge', 'justice'
+                    }
+                    if word.lower().rstrip('.') in citation_signals:
+                        case_start_index = i + 1
+                        break
+                    
+                    # Also check for multi-word phrases that indicate explanatory text
+                    if i > 0:
+                        two_word_phrase = f"{words[i-1].strip('.,;:').lower()} {word.lower()}"
+                        explanatory_phrases = {
+                            'collateral order', 'order doctrine', 'doctrine overruling',
+                            'as stated', 'as explained', 'as noted', 'as held',
+                            'the court', 'this court', 'that court',
+                            'see also', 'see generally', 'but see', 'cf also'
+                        }
+                        if two_word_phrase in explanatory_phrases:
+                            case_start_index = i + 1
+                            break
+                    
+                    # If we have a capital letter, this could be part of the case name
+                    if word[0].isupper():
+                        case_start_index = i
+                
+                # Now walk forward from case_start_index to skip any leading stopwords
+                # BUT: Only skip stopwords that are NOT followed by capitalized words
+                # This preserves "Department of Education" while removing standalone "the"
+                while case_start_index < len(words):
+                    word = words[case_start_index].strip('.,;:')
+                    
+                    # If we hit a capitalized word, stop (this is the case name start)
+                    if word and word[0].isupper():
+                        break
+                    
+                    # If it's a lowercase stopword, check if next word is capitalized
+                    if word and word.lower() in legal_stopwords:
+                        # Look ahead to see if next word is capitalized
+                        if case_start_index + 1 < len(words):
+                            next_word = words[case_start_index + 1].strip('.,;:')
+                            if next_word and next_word[0].isupper():
+                                # Keep this stopword (it's part of the name like "of" in "Department of Education")
+                                break
+                        # Skip standalone stopword
+                        case_start_index += 1
+                    else:
+                        # Not a stopword and not capitalized, skip it
+                        case_start_index += 1
+                
+                # Extract the plaintiff text from the identified start point
+                plaintiff_text = ' '.join(words[case_start_index:]).strip()
+            else:
+                plaintiff_text = text_before_v.strip()
+            
+            # Clean up both parties
+            plaintiff_text = re.sub(r'\s+', ' ', plaintiff_text.strip())
+            defendant_text = re.sub(r'\s+', ' ', defendant_text.strip())
+            
+            # Remove trailing comma from defendant if present (before citation)
+            defendant_text = re.sub(r',\s*$', '', defendant_text)
+            
+            # POST-EXTRACTION CLEANING: Remove any remaining contamination
+            # Remove leading explanatory phrases that might have slipped through
+            contamination_prefixes = [
+                r'^Collateral\s+Order\s+Doctrine\s+Overruling\s+',
+                r'^Overruling\s+',
+                r'^Reversing\s+',
+                r'^Affirming\s+',
+                r'^Following\s+',
+                r'^Distinguishing\s+',
+                r'^As\s+stated\s+in\s+',
+                r'^As\s+explained\s+in\s+',
+                r'^As\s+noted\s+in\s+',
+                r'^As\s+held\s+in\s+',
+                r'^See\s+',
+                r'^See\s+also\s+',
+                r'^See\s+generally\s+',
+                r'^But\s+see\s+',
+                r'^Citing\s+',
+                r'^Quoting\s+',
+                r'^Compare\s+',
+                r'^Accord\s+',
+                r'^E\.g\.,?\s+',
+                r'^I\.e\.,?\s+'
+            ]
+            
+            for prefix_pattern in contamination_prefixes:
+                plaintiff_text = re.sub(prefix_pattern, '', plaintiff_text, flags=re.IGNORECASE)
+            
+            # Re-strip after cleaning
+            plaintiff_text = plaintiff_text.strip()
+            
+            if plaintiff_text and defendant_text:
+                case_name = f"{plaintiff_text} v. {defendant_text}"
+                
+                if debug:
+                    logger.warning(f"✅ CONTEXT_EXTRACTION: '{case_name}'")
+                    logger.warning(f"   Plaintiff: '{plaintiff_text}'")
+                    logger.warning(f"   Defendant: '{defendant_text}'")
+                
+                # Validate minimum lengths
+                if len(plaintiff_text) >= 3 and len(defendant_text) >= 3:
+                    return ExtractionResult(
+                        case_name=case_name,
+                        year="Unknown",
+                        confidence=0.9,
+                        method="context_v_pattern",
+                        context=context[:100] + "..." if len(context) > 100 else context,
+                        debug_info={},
+                        canonical_name=None,
+                        canonical_year=None
+                    )
+        
+        # Fallback to original patterns if v. pattern doesn't work
         case_patterns = [
             r'([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|v\.|vs\.|versus)\s+[A-Z][a-zA-Z\'\.\&\s]*)*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|[A-Z][a-zA-Z\'\.\&\s]*)*)*)',
             r'(In\s+re\s+[A-Z][a-zA-Z\'\.\&\s]*(?:\s+(?:of|the|and|&|[A-Z][a-zA-Z\'\.\&\s]*)*)*)',
@@ -346,7 +555,9 @@ class UnifiedExtractionArchitecture:
             import re
             
             # Pattern to match string citations with multiple citations
-            string_pattern = r'([A-Z][a-zA-Z\s\'&\-\.,]{2,80})\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.,]{2,80}),\s*(?:[^,]+,\s*)*(?:[^,]*' + re.escape(citation) + r'[^,]*)'
+            # IMPROVED: Capture defendant name more aggressively - everything between "v." and the citation
+            # This prevents truncation like "v. U." instead of "v. United States"
+            string_pattern = r'([A-Z][a-zA-Z\s\'&\-\.,]{2,80})\s+v\.\s+([^,]{3,100})(?:,\s*|\s+)' + re.escape(citation)
             
             match = re.search(string_pattern, context, re.IGNORECASE)
             if match:
@@ -356,6 +567,36 @@ class UnifiedExtractionArchitecture:
                 # Clean up the case name parts
                 plaintiff = re.sub(r'\s+', ' ', plaintiff).strip()
                 defendant = re.sub(r'\s+', ' ', defendant).strip()
+                
+                # POST-EXTRACTION CLEANING: Remove contamination from plaintiff
+                contamination_prefixes = [
+                    r'^Collateral\s+Order\s+Doctrine\s+Overruling\s+',
+                    r'^Overruling\s+',
+                    r'^Reversing\s+',
+                    r'^Affirming\s+',
+                    r'^Following\s+',
+                    r'^Distinguishing\s+',
+                    r'^As\s+stated\s+in\s+',
+                    r'^As\s+explained\s+in\s+',
+                    r'^As\s+noted\s+in\s+',
+                    r'^As\s+held\s+in\s+',
+                    r'^See\s+',
+                    r'^See\s+also\s+',
+                    r'^See\s+generally\s+',
+                    r'^But\s+see\s+',
+                    r'^Citing\s+',
+                    r'^Quoting\s+',
+                    r'^Compare\s+',
+                    r'^Accord\s+',
+                    r'^E\.g\.,?\s+',
+                    r'^I\.e\.,?\s+'
+                ]
+                
+                for prefix_pattern in contamination_prefixes:
+                    plaintiff = re.sub(prefix_pattern, '', plaintiff, flags=re.IGNORECASE)
+                
+                # Re-strip after cleaning
+                plaintiff = plaintiff.strip()
                 
                 case_name = f"{plaintiff} v. {defendant}"
                 
@@ -385,6 +626,42 @@ class UnifiedExtractionArchitecture:
         """Advanced case name cleaning to prevent truncation and improve quality."""
         if not case_name or case_name == 'N/A':
             return case_name
+        
+        # CRITICAL FIX: Detect obviously truncated names and reject them
+        # Check if name ends with common abbreviations that indicate truncation
+        truncation_indicators = [
+            r'\s+Ct\.?$',  # "Gasperini v. Ct"
+            r'\s+Bl\.?$',  # "Byrd v. Bl"
+            r'\s+Wa\.?$',  # "Hamilton v. Wa"
+            r'\s+Na\.?$',  # "Sioux County v. Na"
+            r'\s+Fo\.?$',  # "Abbas v. Fo"
+            r'\s+Co\.?$',  # "Verizon Del., Inc. v. Co" (but allow "v. Co." for Company)
+            r'\s+Be\.?$',  # "Cohen v. Be"
+            r'\s+Se\.?$',  # "v. Se"
+        ]
+        
+        for pattern in truncation_indicators:
+            if re.search(pattern, case_name, re.IGNORECASE):
+                # Exception: Allow "v. Co." if it's clearly "Company"
+                if pattern == r'\s+Co\.?$' and ' Co.' in case_name:
+                    continue
+                if debug:
+                    logger.warning(f"❌ TRUNCATION_DETECTED: Rejecting '{case_name}' (matches {pattern})")
+                return 'N/A'
+        
+        # Also reject if either party name is suspiciously short (< 3 chars, excluding "In re")
+        if ' v. ' in case_name and not case_name.startswith('In re'):
+            parts = case_name.split(' v. ')
+            if len(parts) == 2:
+                plaintiff = parts[0].strip()
+                defendant = parts[1].strip()
+                # Remove periods and spaces for length check
+                plaintiff_clean = re.sub(r'[\s\.]', '', plaintiff)
+                defendant_clean = re.sub(r'[\s\.]', '', defendant)
+                if len(plaintiff_clean) < 3 or len(defendant_clean) < 3:
+                    if debug:
+                        logger.warning(f"❌ SHORT_NAME_DETECTED: Rejecting '{case_name}' (party too short)")
+                    return 'N/A'
             
         import re
         

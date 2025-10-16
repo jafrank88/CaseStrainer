@@ -1,0 +1,40 @@
+Add support for neutral/public domain citations (e.g., 2017-NM-007)
+
+Root Cause:
+New Mexico and other states use official neutral citation formats like
+"2017-NM-007" which were not being recognized as citations. Instead,
+they were being treated as part of the case name.
+
+Example Issue:
+- Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977"
+- BEFORE: Extracted case name included "2017-NM-007"
+- Citation "2017-NM-007" was not recognized
+- Not clustered with "388 P.3d 977" as parallel citations
+
+The Fix:
+
+1. Added neutral citation patterns for 8 states:
+   - New Mexico: 2017-NM-007 (also NMCA for Court of Appeals)
+   - North Dakota: 2017 ND 123
+   - Oklahoma: 2017 OK 123
+   - South Dakota: 2017 SD 123
+   - Utah: 2017 UT 123
+   - Wisconsin: 2017 WI 123
+   - Wyoming: 2017 WY 123
+   - Montana: 2017 MT 123
+
+2. Updated case name cleaning patterns to strip neutral citations
+   from extracted case names
+
+Expected Result:
+- "2017-NM-007" recognized as a citation ✅
+- Clustered with "388 P.3d 977" as parallel citations ✅
+- Extracted case name: "Hamaatsa, Inc. v. Pueblo of San Felipe" ✅
+- Both citations verified against same case ✅
+
+Impact:
+- Improved citation coverage for neutral citation states
+- Proper clustering of official and regional reporter citations
+- Cleaner case name extraction
+
+Tested with: Hamaatsa, Inc. v. Pueblo of San Felipe case

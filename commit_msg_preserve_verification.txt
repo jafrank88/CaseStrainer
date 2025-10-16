@@ -1,0 +1,33 @@
+CRITICAL FIX: Preserve verification status from clusters (was being overwritten)
+
+Root cause: progress_manager was REPLACING updated citations from clusters 
+with OLD unverified citations from citation_dicts, losing all verification updates!
+
+The Bug:
+1. Batch verification in clustering sets: verified=False for 584 U.S. 554
+2. Citations are updated in clusters correctly  
+3. progress_manager receives clusters with updated citations
+4. But lines 1153-1186 REPLACED them with old citations from citation_dicts
+5. Result: verified=False becomes verified=True again!
+6. Propagation sees "all verified" and does nothing
+
+The Fix:
+- REMOVED the citation replacement logic
+- Now we PRESERVE citations from clusters (they have latest verification data)
+- Only convert citation objects to dicts without changing data
+- Include all fields: verified, verification_error, true_by_parallel, etc.
+
+Why This Matters:
+- Without this fix, verified=False updates are lost
+- Propagation check always sees verified=True
+- true_by_parallel never triggers
+- Unverified parallel citations don't get canonical data
+
+Expected Result After Fix:
+- Unverified citations stay verified=False
+- Propagation sees mixed status: some True, some False  
+- Copies canonical data to verified=False citations
+- Sets true_by_parallel=True on those citations
+- Canonical data coverage increases to 90%+
+
+This is THE critical fix that enables true_by_parallel functionality!

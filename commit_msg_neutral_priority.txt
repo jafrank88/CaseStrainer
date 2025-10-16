@@ -1,0 +1,46 @@
+CRITICAL FIX: Add neutral citations to priority extraction list
+
+ROOT CAUSE (FINALLY FOUND!):
+Neutral citation patterns were added to self.citation_patterns dict,
+BUT they were NOT in the priority_patterns list. This meant they were
+only extracted in the general loop AFTER priority patterns had already
+matched, causing them to be missed or extracted incorrectly.
+
+The Problem Flow:
+1. Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977"
+2. Priority extraction finds: "388 P.3d 977" ✅
+3. "2017-NM-007" NOT in priority list, not extracted yet ❌
+4. Case name extraction for "388 P.3d 977" looks backward
+5. Doesn't see "2017-NM-007" as a citation boundary (not extracted yet!)
+6. Includes it in the context
+7. Result: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007" ❌
+
+The Fix:
+Added all neutral citation patterns to the priority_patterns list:
+- neutral_nm (New Mexico: 2017-NM-007)
+- neutral_nd (North Dakota: 2017 ND 123)
+- neutral_ok (Oklahoma)
+- neutral_sd (South Dakota)
+- neutral_ut (Utah)  
+- neutral_wi (Wisconsin)
+- neutral_wy (Wyoming)
+- neutral_mt (Montana)
+
+Expected Flow Now:
+1. Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977"
+2. Priority extraction finds: "2017-NM-007" ✅, "388 P.3d 977" ✅
+3. Both extracted as separate citations
+4. Case name extraction for "2017-NM-007":
+   - Context: "Hamaatsa, Inc. v. Pueblo of San Felipe"
+   - Extracted: "Hamaatsa, Inc. v. Pueblo of San Felipe" ✅
+5. Case name extraction for "388 P.3d 977":
+   - Context stops at "2017-NM-007" boundary
+   - Gets name from clustering with "2017-NM-007" ✅
+6. Both citations clustered together as parallels ✅
+
+This completes the neutral citation support (attempt #3).
+
+Previous attempts:
+1. Added patterns to citation_patterns dict ✅
+2. Added patterns to strict_context_isolator ✅
+3. Added patterns to priority_patterns list ✅ (THIS FIX)

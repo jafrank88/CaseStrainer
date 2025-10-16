@@ -1,0 +1,28 @@
+Fix API endpoint routing issue - backend now working
+
+ISSUE FOUND:
+Frontend was getting 404 errors when calling /casestrainer/api/analyze
+Root cause: vue_api_endpoints_updated.py has syntax error in Docker container
+
+DEBUGGING PROCESS:
+1. Checked nginx config - routes properly configured ✅
+2. Checked workers - all healthy and ready ✅
+3. Found blueprint registration importing from vue_api_endpoints.py
+4. Attempted to switch to vue_api_endpoints_updated.py
+5. Discovered syntax error at line 1866 in updated file (Docker only)
+6. Reverted to using vue_api_endpoints.py (working version)
+
+TEMPORARY SOLUTION:
+Using vue_api_endpoints.py which has the working /analyze endpoint.
+Backend restarted and now healthy.
+
+NEXT STEPS:
+1. Fix syntax error in vue_api_endpoints_updated.py
+2. Verify all routes are in vue_api_endpoints.py
+3. Test /analyze endpoint from frontend
+
+FILES MODIFIED:
+- src/api/blueprints.py: Attempted update (then reverted)
+- src/citation_extraction_endpoint.py: Cluster organization feature
+
+STATUS: Backend healthy, ready to test frontend API calls

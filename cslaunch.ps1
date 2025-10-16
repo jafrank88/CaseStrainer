@@ -16,20 +16,182 @@ $containers = @(docker ps --format '{{.Names}}' | Where-Object { $_ -match 'case
 
 if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
     Write-Host "[OK] Found $($containers.Count) running containers" -ForegroundColor Green
-    Write-Host "[QUICK RESTART] Restarting containers (10-15 seconds)..." -ForegroundColor Yellow
-    Write-Host ""
     
-    $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    docker-compose -f docker-compose.yml -f docker-compose.prod.yml restart
-    $sw.Stop()
+    # Check if frontend needs rebuilding (Vue dist files changed)
+    $needsFrontendRebuild = $false
+    if (Test-Path "casestrainer-vue-new\dist") {
+        $vueDistTime = (Get-Item "static\vue\index.html" -ErrorAction SilentlyContinue).LastWriteTime
+        $containerDistTime = docker exec casestrainer-frontend-prod stat -c %Y /usr/share/nginx/html/index.html 2>$null
+        
+        if ($vueDistTime -and $containerDistTime) {
+            $containerTime = [DateTimeOffset]::FromUnixTimeSeconds([long]$containerDistTime).LocalDateTime
+            if ($vueDistTime -gt $containerTime) {
+                Write-Host "[DETECT] Vue frontend files updated - rebuild needed" -ForegroundColor Yellow
+                $needsFrontendRebuild = $true
+            }
+        }
+    }
     
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "`n[SUCCESS] RESTART COMPLETE in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds!" -ForegroundColor Green
-        Write-Host "  Your Python changes are now active (volume mounts)" -ForegroundColor DarkGray
-        Write-Host "  Application: http://localhost" -ForegroundColor Cyan
-        exit 0
+    if ($needsFrontendRebuild) {
+        Write-Host "[FRONTEND REBUILD] Rebuilding frontend container with latest Vue files..." -ForegroundColor Yellow
+        Write-Host ""
+        
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker-compose -f docker-compose.prod.yml up -d --build frontend-prod
+        $sw.Stop()
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "`n✅ Frontend rebuilt in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
+            
+            # Wait for services to be ready
+            Write-Host "`n[WAIT] Ensuring services are ready..." -ForegroundColor Yellow
+            try {
+                $waitScript = Join-Path $PSScriptRoot 'scripts\wait-for-services.py'
+                if (Test-Path $waitScript) {
+                    docker cp $waitScript casestrainer-backend-prod:/app/wait-for-services.py 2>$null
+                    $output = docker exec casestrainer-backend-prod python /app/wait-for-services.py 2>&1
+                    $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+                }
+            } catch {
+                Write-Host "  [WARNING] Service check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+            
+            Write-Host "`n[SUCCESS] Frontend rebuild complete - All services ready!" -ForegroundColor Green
+            Write-Host "  Vue changes are now active" -ForegroundColor DarkGray
+            Write-Host "  Application: http://localhost" -ForegroundColor Cyan
+            exit 0
+        } else {
+            Write-Host "`n[ERROR] Frontend rebuild failed" -ForegroundColor Red
+            exit 1
+        }
     } else {
-        Write-Host "`n[ERROR] Restart failed, falling back to full deployment..." -ForegroundColor Red
+        Write-Host "[QUICK RESTART] Restarting containers (10-15 seconds)..." -ForegroundColor Yellow
+        Write-Host ""
+        
+        # CRITICAL: Clear Python bytecode cache before restart to ensure code changes are picked up
+        Write-Host "[CACHE CLEAR] Clearing Python bytecode cache..." -ForegroundColor Yellow
+        try {
+            # Clear __pycache__ on HOST (volume mount)
+            Get-ChildItem -Path "src" -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue | ForEach-Object {
+                Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            
+            # Clear .pyc files on HOST
+            Get-ChildItem -Path "src" -Recurse -Filter "*.pyc" -ErrorAction SilentlyContinue | ForEach-Object {
+                Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue
+            }
+            
+            # ALSO clear cache INSIDE container before restart
+            Write-Host "  Clearing cache inside containers..." -ForegroundColor Yellow
+            docker exec casestrainer-backend-prod find /app/src -type d -name '__pycache__' -exec rm -rf {} + 2>$null
+            docker exec casestrainer-backend-prod find /app/src -name '*.pyc' -delete 2>$null
+            
+            Write-Host "  ✅ Python cache cleared (host + containers)" -ForegroundColor Green
+        } catch {
+            Write-Host "  [WARNING] Could not clear all cache: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+        Write-Host ""
+        
+        # REBUILD backend AND workers to ensure absolutely fresh code
+        Write-Host "[REBUILD] Rebuilding backend + workers for clean deployment..." -ForegroundColor Yellow
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
+        $sw.Stop()
+        
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "`n✅ Backend + workers rebuilt and deployed in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
+            
+            # NOW wait for services to be ready (after restart)
+            Write-Host "`n[WAIT] Ensuring services are ready..." -ForegroundColor Yellow
+            $servicesReady = $false
+            try {
+                $waitScript = Join-Path $PSScriptRoot 'scripts\wait-for-services.py'
+                if (Test-Path $waitScript) {
+                    docker cp $waitScript casestrainer-backend-prod:/app/wait-for-services.py 2>$null
+                    $output = docker exec casestrainer-backend-prod python /app/wait-for-services.py 2>&1
+                    $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+                    
+                    # Check exit code
+                    if ($LASTEXITCODE -eq 0) {
+                        $servicesReady = $true
+                    }
+                }
+            } catch {
+                Write-Host "  [WARNING] Service check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+            
+            # Clean up stuck RQ jobs (only if services are ready)
+            if ($servicesReady) {
+                Write-Host "`n[CLEANUP] Cleaning up any stuck RQ jobs..." -ForegroundColor Yellow
+                try {
+                    $cleanupScript = Join-Path $PSScriptRoot 'scripts\cleanup-stuck-jobs.py'
+                    if (Test-Path $cleanupScript) {
+                        docker cp $cleanupScript casestrainer-backend-prod:/app/cleanup-stuck-jobs.py 2>$null
+                        $output = docker exec casestrainer-backend-prod python /app/cleanup-stuck-jobs.py 2>&1
+                        $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+                    }
+                } catch {
+                    Write-Host "  [WARNING] Cleanup failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                }
+            }
+            
+            # Report actual status
+            if ($servicesReady) {
+                Write-Host "`n[SUCCESS] RESTART COMPLETE - All services ready!" -ForegroundColor Green
+                Write-Host "  Python cache cleared - all code changes active" -ForegroundColor DarkGray
+                Write-Host "  Application: http://localhost" -ForegroundColor Cyan
+            } else {
+                Write-Host "`n[PARTIAL SUCCESS] Containers restarted but some services need more time" -ForegroundColor Yellow
+                Write-Host "  Python cache cleared - all code changes active" -ForegroundColor DarkGray
+                Write-Host "  Application: http://localhost" -ForegroundColor Cyan
+                Write-Host "  ⚠️  Some services may take a few more minutes to be fully ready" -ForegroundColor Yellow
+            }
+            
+            # Automatic Redis maintenance to prevent bloat
+            try {
+                $aofSizeOutput = docker exec casestrainer-redis-prod du -sh /data/appendonlydir 2>$null
+                if ($aofSizeOutput) {
+                    $aofSize = ($aofSizeOutput -split '\s+')[0]
+                    $needsMaintenance = $false
+                    
+                    # Check if maintenance is needed (>200MB)
+                    if ($aofSize -match '(\d+)M' -and [int]$matches[1] -gt 200) {
+                        $needsMaintenance = $true
+                    } elseif ($aofSize -match '(\d+\.?\d*)G') {
+                        $needsMaintenance = $true
+                    }
+                    
+                    if ($needsMaintenance) {
+                        Write-Host "`n[MAINTENANCE] Redis AOF is large (${aofSize}) - running automatic cleanup..." -ForegroundColor Yellow
+                        
+                        # Run cleanup script
+                        $cleanupScript = Join-Path $PSScriptRoot 'scripts\clean_redis_old_jobs.py'
+                        if (Test-Path $cleanupScript) {
+                            docker cp $cleanupScript casestrainer-backend-prod:/app/ 2>$null
+                            docker exec casestrainer-backend-prod python /app/clean_redis_old_jobs.py 2>&1 | Out-Null
+                            Write-Host "  ✅ Cleaned old RQ jobs" -ForegroundColor Green
+                        }
+                        
+                        # Compact AOF
+                        $compactResult = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** BGREWRITEAOF 2>&1 | Select-Object -Last 1
+                        if ($compactResult -like "*Background*") {
+                            Write-Host "  ✅ Started AOF compaction (will complete in background)" -ForegroundColor Green
+                        }
+                        
+                        # Show result
+                        Start-Sleep -Seconds 2
+                        $newSize = docker exec casestrainer-redis-prod du -sh /data/appendonlydir 2>$null | ForEach-Object { ($_ -split '\s+')[0] }
+                        Write-Host "  Redis maintenance complete (AOF: ${aofSize} -> ${newSize})" -ForegroundColor Cyan
+                    }
+                }
+            } catch {
+                # Silently ignore errors - don't block startup
+            }
+            
+            exit 0
+        } else {
+            Write-Host "`n[ERROR] Restart failed, falling back to full deployment..." -ForegroundColor Red
+        }
     }
 }
 

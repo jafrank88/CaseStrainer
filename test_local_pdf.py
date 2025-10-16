@@ -1,82 +1,38 @@
-"""
-Test local PDF file processing
-"""
-import requests
-import time
-import base64
+#!/usr/bin/env python
+"""Test local PDF processing"""
+import sys
+sys.path.insert(0, 'd:/dev/casestrainer')
 
-api_url = "http://localhost:5000/casestrainer/api/analyze"
+from src.unified_input_processor import UnifiedInputProcessor
 
-def wait_for_async(task_id, timeout=120):
-    """Wait for async task to complete"""
-    status_url = f"http://localhost:5000/casestrainer/api/task_status/{task_id}"
-    start_time = time.time()
-    
-    while time.time() - start_time < timeout:
-        time.sleep(2)
-        try:
-            response = requests.get(status_url, timeout=5)
-            data = response.json()
-            
-            status = data.get('status')
-            if status in ['completed', 'failed']:
-                return data
-        except:
-            pass
-    
-    return None
+pdf_path = r"D:\dev\casestrainer\1034300.pdf"
+request_id = "test-local-pdf"
 
-print("=" * 80)
-print("TESTING LOCAL PDF FILE")
-print("=" * 80)
+print(f"Testing local PDF: {pdf_path}")
+print("=" * 60)
 
-# Try to upload the local PDF file
-print("\n1. Reading local PDF file...")
-with open('1033940.pdf', 'rb') as f:
-    pdf_content = f.read()
+processor = UnifiedInputProcessor()
 
-print(f"   PDF size: {len(pdf_content)} bytes")
+# Read the PDF as binary
+with open(pdf_path, 'rb') as f:
+    pdf_data = f.read()
+    print(f"✅ PDF loaded: {len(pdf_data)} bytes")
 
-# Try sending as file upload
-files = {'file': ('1033940.pdf', pdf_content, 'application/pdf')}
-data_payload = {'type': 'file'}
+# Process as file input
+print("\n🔄 Processing PDF...")
+result = processor.process_any_input(pdf_data, 'file', request_id, source_name='1034300.pdf')
 
-print("\n2. Uploading to backend...")
-try:
-    response = requests.post(api_url, files=files, data=data_payload, timeout=30)
-    result = response.json()
-    
-    print(f"   Status: {response.status_code}")
-    print(f"   Success: {result.get('success')}")
-    
-    task_id = result.get('task_id') or result.get('metadata', {}).get('job_id')
-    if task_id:
-        print(f"   Task ID: {task_id}")
-        print(f"   Waiting for processing...")
-        result = wait_for_async(task_id)
-        
-        if result:
-            citations = result.get('citations', [])
-            clusters = result.get('clusters', [])
-            print(f"\n   ✅ Citations: {len(citations)}")
-            print(f"   ✅ Clusters: {len(clusters)}")
-            
-            print(f"\n   First 10 citations:")
-            for i, cit in enumerate(citations[:10], 1):
-                print(f"     {i}. {cit.get('citation')}")
-    else:
-        citations = result.get('citations', [])
-        print(f"   Citations: {len(citations)}")
-        
-except Exception as e:
-    print(f"   ❌ ERROR: {e}")
+print("\n📊 RESULTS:")
+print(f"  Success: {result.get('success', False)}")
+print(f"  Citations found: {len(result.get('citations', []))}")
+print(f"  Clusters found: {len(result.get('clusters', []))}")
+print(f"  Processing mode: {result.get('processing_mode', 'unknown')}")
 
-print("\n" + "=" * 80)
-print("COMPARISON WITH PDF URL")
-print("=" * 80)
-
-# Compare with PDF URL result
-print("\nPDF URL result: 55 citations")
-print("Local PDF result: (see above)")
-
-print("\n" + "=" * 80)
+if result.get('citations'):
+    print(f"\n✅ First 5 citations:")
+    for i, cit in enumerate(result['citations'][:5], 1):
+        print(f"  {i}. {cit.get('citation', 'N/A')}")
+else:
+    print("\n❌ NO CITATIONS FOUND")
+    if result.get('error'):
+        print(f"  Error: {result['error']}")

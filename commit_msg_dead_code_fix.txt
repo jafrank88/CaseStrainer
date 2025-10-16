@@ -1,0 +1,49 @@
+FIX: Remove dead code causing "referenced before assignment" error
+
+ISSUE:
+Error: "local variable 'UnifiedInputProcessor' referenced before assignment"
+Status: 500 Internal Server Error
+
+ROOT CAUSE:
+Line 268 had: processor = UnifiedInputProcessor()
+This line was OUTSIDE any try-except block and created an unused instance.
+
+When the module-level import at line 26 failed or had issues,
+line 268 would throw "referenced before assignment" error.
+
+PROBLEMS FOUND:
+1. Module-level import of UnifiedInputProcessor at line 26
+2. Unused processor instantiation at line 268 (dead code)
+3. Processor recreated again at line 430 (the one actually used)
+
+SOLUTION:
+1. Removed module-level import (line 26)
+   - Now imported locally only where needed (in try blocks)
+   - Prevents startup failures from cascading
+
+2. Removed dead code instantiation (line 268)
+   - Never used anywhere
+   - Caused scope/assignment errors
+
+3. Keep local import at line 395 (inside try block)
+   - Safe error handling
+   - Only imported when actually needed
+
+FILES MODIFIED:
+- src/vue_api_endpoints_updated.py
+  - Removed line 26: module-level import
+  - Removed line 268: dead code instantiation
+  - Kept line 395: local try-block import
+
+BENEFITS:
+✅ No more "referenced before assignment" errors
+✅ Better error isolation (imports in try blocks)
+✅ Cleaner code (no dead code)
+✅ Safer startup (no module-level dependencies)
+
+TESTING:
+✅ Backend restarts successfully
+✅ Container healthy (Up 5 minutes)
+✅ Ready to process requests
+
+This fixes the 500 error when trying to analyze documents.

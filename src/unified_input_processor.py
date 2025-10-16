@@ -58,10 +58,16 @@ class UnifiedInputProcessor:
         Returns:
             Dictionary with citation processing results
         """
-        logger.info(f"[Unified Processor {request_id}] Processing {input_type} input")
+        logger.error(f"[Unified Processor {request_id}] 🚀 process_any_input CALLED!")
+        logger.error(f"[Unified Processor {request_id}] Processing {input_type} input")
+        logger.error(f"[Unified Processor {request_id}] Input data type: {type(input_data)}")
+        logger.error(f"[Unified Processor {request_id}] Input data length: {len(input_data) if isinstance(input_data, str) else 'N/A'}")
+        logger.error(f"[Unified Processor {request_id}] Source name: {source_name}, Force mode: {force_mode}")
         
         try:
+            logger.error(f"[Unified Processor {request_id}] 📥 Calling _extract_text_from_input...")
             text_result = self._extract_text_from_input(input_data, input_type, request_id)
+            logger.error(f"[Unified Processor {request_id}] ✅ _extract_text_from_input returned: success={text_result.get('success')}")
             
             if not text_result['success']:
                 return text_result
@@ -302,11 +308,13 @@ class UnifiedInputProcessor:
         Args:
             force_mode: Optional user override for sync/async processing
         """
-        logger.info(f"[Unified Processor {request_id}] Processing citations from {source_name}")
-        logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
-        logger.info(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
+        logger.error(f"[Unified Processor {request_id}] 🎬 _process_citations_unified CALLED!")
+        logger.error(f"[Unified Processor {request_id}] Processing citations from {source_name}")
+        logger.error(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
+        logger.error(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
+        logger.error(f"[Unified Processor {request_id}] Input metadata: {input_metadata}")
         if force_mode:
-            logger.info(f"[Unified Processor {request_id}] 🎯 force_mode='{force_mode}' passed through")
+            logger.error(f"[Unified Processor {request_id}] 🎯 force_mode='{force_mode}' passed through")
         
         try:
             input_data = {'type': 'text', 'text': text}
@@ -320,10 +328,10 @@ class UnifiedInputProcessor:
             logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
             
             if should_process_immediately:
-                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately using CLEAN PIPELINE (87-93% accuracy)")
+                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately using FULL PIPELINE with verification")
                 try:
-                    # USE CLEAN PIPELINE for extraction (87-93% accuracy, zero case name bleeding)
-                    from src.citation_extraction_endpoint import extract_citations_production
+                    # USE FULL PIPELINE with clustering and verification for consistent quality
+                    from src.citation_extraction_endpoint import extract_citations_with_clustering
                     
                     # Create progress callback that updates the progress manager
                     def progress_callback(progress: int, step: str, message: str):
@@ -344,30 +352,56 @@ class UnifiedInputProcessor:
                     self.progress_manager.active_tasks[request_id] = tracker
                     
                     # Update progress
-                    progress_callback(10, "Extract", "Using clean pipeline for extraction")
+                    progress_callback(10, "Extract", "Using full pipeline with verification and clustering")
                     
-                    # Extract citations using clean pipeline
-                    clean_result = extract_citations_production(input_data.get('text', ''))
+                    # Extract, cluster, and verify citations using full pipeline
+                    text = input_data.get('text', '')
+                    result = extract_citations_with_clustering(text, enable_verification=True)
+                    
+                    # Check if any citations show CourtListener rate limit messages
+                    courtlistener_rate_limited = False
+                    if result.get('citations'):
+                        for cit in result['citations']:
+                            error_msg = cit.get('error', '') or cit.get('verification_error', '')
+                            if 'heavy usage' in str(error_msg).lower() or 'try again' in str(error_msg).lower():
+                                courtlistener_rate_limited = True
+                                break
+                    
+                    # Add user notice if CourtListener is rate-limited
+                    if courtlistener_rate_limited:
+                        if 'metadata' not in result:
+                            result['metadata'] = {}
+                        result['metadata']['verification_notice'] = (
+                            "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
+                            "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
+                            "CourtListener, please try again in a few minutes."
+                        )
                     
                     # Convert clean pipeline results to the expected format
                     from src.models import CitationResult
                     citations = []
-                    if clean_result['status'] == 'success':
-                        for cit_dict in clean_result['citations']:
+                    if result.get('status') == 'success' or result.get('citations'):
+                        for cit_dict in result.get('citations', []):
                             citations.append(CitationResult(
                                 citation=cit_dict['citation'],
                                 extracted_case_name=cit_dict.get('extracted_case_name'),
                                 extracted_date=cit_dict.get('extracted_date'),
                                 method=cit_dict.get('method', 'clean_pipeline_v1'),
-                                confidence=cit_dict.get('confidence', 0.9)
+                                confidence=cit_dict.get('confidence', 0.9),
+                                verified=cit_dict.get('verified', False),
+                                canonical_name=cit_dict.get('canonical_name'),
+                                canonical_date=cit_dict.get('canonical_date'),
+                                canonical_url=cit_dict.get('canonical_url')
                             ))
+                    
+                    clusters = result.get('clusters', [])
                     
                     result = {
                         'citations': citations,
-                        'clusters': []
+                        'clusters': clusters
                     }
                     
-                    progress_callback(100, "Complete", f"Extracted {len(citations)} citations using clean pipeline")
+                    progress_callback(100, "Complete", f"Full pipeline: {len(citations)} citations, {len(clusters)} clusters")
                     
                     logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
                     
@@ -399,29 +433,40 @@ class UnifiedInputProcessor:
                                 
                             converted_citations.append(citation_dict)
                     
+                    # Build metadata including any verification notices
+                    response_metadata = {
+                        **input_metadata,
+                        'processing_mode': 'immediate',
+                        'source': source_name,
+                        'processing_strategy': 'unified_v2_full_pipeline'
+                    }
+                    
+                    # Include verification notice if CourtListener was rate-limited
+                    if result.get('metadata', {}).get('verification_notice'):
+                        response_metadata['verification_notice'] = result['metadata']['verification_notice']
+                    
                     return {
                         'success': True,
                         'citations': converted_citations,
                         'clusters': result.get('clusters', []),
                         'request_id': request_id,
                         'task_id': request_id,  # Frontend expects task_id for progress polling
-                        'metadata': {
-                            **input_metadata,
-                            'processing_mode': 'immediate',
-                            'source': source_name,
-                            'processing_strategy': 'unified_v2_direct'
-                        }
+                        'metadata': response_metadata
                     }
                 except Exception as e:
                     logger.error(f"[Unified Processor {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
                     should_process_immediately = False
             
             if not should_process_immediately:
-                logger.info(f"[Unified Processor {request_id}] Queuing for async processing (large content)")
+                logger.error(f"[Unified Processor {request_id}] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)")
+                logger.error(f"[Unified Processor {request_id}] 📝 Text length: {len(text)} chars")
+                logger.error(f"[Unified Processor {request_id}] 📋 Source: {source_name}, Input type from metadata: {input_metadata.get('input_type')}")
                 
                 try:
                     from rq import Queue
                     from redis import Redis
+                    logger.error(f"[Unified Processor {request_id}] ✅ Imported RQ and Redis modules")
+                    
                     # CRITICAL FIX: Use string path, not imported function object
                     # RQ needs the module path as a string to properly serialize the job
                     
@@ -432,21 +477,32 @@ class UnifiedInputProcessor:
                         'redis://127.0.0.1:6379/0'   # Alternative local Redis
                     ]
                     
+                    logger.error(f"[Unified Processor {request_id}] 🔍 Trying {len(redis_configs)} Redis configurations...")
+                    
                     redis_conn = None
-                    for redis_url in redis_configs:
+                    for i, redis_url in enumerate(redis_configs, 1):
                         try:
+                            logger.error(f"[Unified Processor {request_id}] 🔗 Attempt {i}: Connecting to {redis_url}")
                             redis_conn = Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
                             redis_conn.ping()  # Test connection
-                            logger.info(f"[Unified Processor {request_id}] Connected to Redis: {redis_url}")
+                            logger.error(f"[Unified Processor {request_id}] ✅ Connected to Redis: {redis_url}")
                             break
                         except Exception as e:
-                            logger.debug(f"[Unified Processor {request_id}] Redis connection failed for {redis_url}: {e}")
+                            logger.error(f"[Unified Processor {request_id}] ❌ Redis connection failed for {redis_url}: {e}")
                             continue
                     
                     if not redis_conn:
+                        logger.error(f"[Unified Processor {request_id}] 🚨 CRITICAL: No Redis instance available after trying all configs")
                         raise Exception("No Redis instance available")
-                        
+                    
+                    logger.error(f"[Unified Processor {request_id}] 🎯 Creating queue 'casestrainer'...")
                     queue = Queue('casestrainer', connection=redis_conn)
+                    logger.error(f"[Unified Processor {request_id}] ✅ Queue created successfully")
+                    
+                    logger.error(f"[Unified Processor {request_id}] 📤 About to enqueue job...")
+                    logger.error(f"[Unified Processor {request_id}]    Function: src.progress_manager.process_citation_task_direct")
+                    logger.error(f"[Unified Processor {request_id}]    Args: ({request_id}, 'text', {{text: {len(text)} chars}})")
+                    logger.error(f"[Unified Processor {request_id}]    Job ID: {request_id}")
                     
                     job = queue.enqueue(
                         'src.progress_manager.process_citation_task_direct',  # FIXED: String path instead of function object
@@ -457,7 +513,9 @@ class UnifiedInputProcessor:
                         failure_ttl=86400
                     )
                     
-                    logger.info(f"[Unified Processor {request_id}] Task enqueued with job_id: {job.id}")
+                    logger.error(f"[Unified Processor {request_id}] ✅ Task enqueued successfully!")
+                    logger.error(f"[Unified Processor {request_id}]    Job ID: {job.id}")
+                    logger.error(f"[Unified Processor {request_id}]    Job status: {job.get_status()}")
                     
                     return {
                         'success': True,
@@ -519,6 +577,25 @@ class UnifiedInputProcessor:
                             from src.citation_extraction_endpoint import extract_citations_with_clustering
                             
                             result = extract_citations_with_clustering(text, enable_verification=True)
+                            
+                            # Check if any citations show CourtListener rate limit messages
+                            courtlistener_rate_limited = False
+                            if result.get('citations'):
+                                for cit in result['citations']:
+                                    error_msg = cit.get('error', '') or cit.get('verification_error', '')
+                                    if 'heavy usage' in str(error_msg).lower() or 'try again' in str(error_msg).lower():
+                                        courtlistener_rate_limited = True
+                                        break
+                            
+                            # Add user notice if CourtListener is rate-limited
+                            if courtlistener_rate_limited:
+                                if 'metadata' not in result:
+                                    result['metadata'] = {}
+                                result['metadata']['verification_notice'] = (
+                                    "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
+                                    "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
+                                    "CourtListener, please try again in a few minutes."
+                                )
                             
                             # The result already has citations and clusters in the right format
                             citations = result.get('citations', [])
@@ -586,18 +663,25 @@ class UnifiedInputProcessor:
                                         
                                     converted_citations.append(citation_dict)
                             
+                            # Build metadata including any verification notices
+                            response_metadata = {
+                                **input_metadata,
+                                'processing_mode': 'sync_fallback',
+                                'source': source_name,
+                                'fallback_reason': 'redis_unavailable'
+                            }
+                            
+                            # Include verification notice if CourtListener was rate-limited
+                            if result.get('metadata', {}).get('verification_notice'):
+                                response_metadata['verification_notice'] = result['metadata']['verification_notice']
+                            
                             return {
                                 'success': True,
                                 'citations': converted_citations,
                                 'clusters': result.get('clusters', []),
                                 'request_id': request_id,
                                 'task_id': request_id,  # Frontend expects task_id for progress polling
-                                'metadata': {
-                                    **input_metadata,
-                                    'processing_mode': 'sync_fallback',
-                                    'source': source_name,
-                                    'fallback_reason': 'redis_unavailable'
-                                }
+                                'metadata': response_metadata
                             }
                         except Exception as fallback_error:
                             logger.error(f"[Unified Processor {request_id}] Sync fallback also failed: {str(fallback_error)}", exc_info=True)

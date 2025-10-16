@@ -770,19 +770,31 @@ def task_status(task_id):
             try:
                 result = job.result
                 logger.info(f"Job {task_id} result type: {type(result)}")
+                if result:
+                    logger.info(f"Job {task_id} result keys: {result.keys() if isinstance(result, dict) else 'not a dict'}")
+                    if isinstance(result, dict):
+                        logger.info(f"Job {task_id} citations count: {len(result.get('citations', []))}")
+                        logger.info(f"Job {task_id} clusters count: {len(result.get('clusters', []))}")
+                        logger.info(f"Job {task_id} success: {result.get('success')}")
+                        logger.info(f"Job {task_id} status: {result.get('status')}")
             except Exception as e:
                 logger.error(f"Error getting job result: {e}")
         
         if job.is_finished:
             if result and isinstance(result, dict) and (result.get('status') in ['success', 'completed'] or result.get('success') is True):
+                # CRITICAL FIX: Handle nested result structure from worker
+                # Worker returns: {'success': True, 'result': {'citations': [...], 'clusters': [...]}}
+                # We need to extract from the nested 'result' key if it exists
+                actual_result = result.get('result', result)  # Use nested result if exists, otherwise use result directly
+                
                 return jsonify({
                     'status': 'completed',
                     'task_id': task_id,
                     'is_finished': True,
-                    'citations': result.get('citations', []),
-                    'clusters': result.get('clusters', []),
-                    'statistics': result.get('statistics', {}),
-                    'metadata': result.get('metadata', {}),
+                    'citations': actual_result.get('citations', []),
+                    'clusters': actual_result.get('clusters', []),
+                    'statistics': actual_result.get('statistics', {}),
+                    'metadata': actual_result.get('metadata', {}),
                     'success': True
                 })
             else:

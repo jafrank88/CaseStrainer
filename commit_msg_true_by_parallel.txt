@@ -1,0 +1,28 @@
+CRITICAL FIX: Enable true_by_parallel by marking unverified citations
+
+Root cause: Batch verification only updated citations with verified=True.
+Citations that returned 404 were SKIPPED - never marked as verified=False.
+Result: Propagation loop thought ALL citations were verified.
+
+Example bug:
+- Cluster: [584 U.S. 554, 138 S. Ct. 1649, 200 L. Ed. 2d 931]
+- 584 U.S. 554 → 404 (not found) but never marked verified=False
+- 138 S. Ct. 1649 → verified=True
+- 200 L. Ed. 2d 931 → verified=True
+- Propagation check: "All 3 citations already verified" (WRONG!)
+- Result: No true_by_parallel propagation
+
+Fix: Added else clause to explicitly mark unverified citations
+- If result.verified == True → Apply canonical data, set verified=True
+- If result.verified == False → Set verified=False, store error message
+- Now propagation will see: 1 unverified + 2 verified in cluster
+- Sets 584 U.S. 554: true_by_parallel=True, copies canonical data
+- Result: ALL 3 citations get canonical data even though only 2 directly verified!
+
+Expected improvement:
+- Clusters with partial verification will now propagate to all parallels
+- Unverified citations benefit from verified siblings
+- Higher canonical data coverage
+- true_by_parallel field finally works as designed!
+
+This is the missing piece for complete clustering functionality.

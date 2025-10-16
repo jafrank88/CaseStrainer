@@ -1,0 +1,24 @@
+FIX Issue 1: Remove citation text contamination from case names
+
+Problem: Case names include trailing citation information
+- "Inc. v. Stillaguamish Tribe, 31 Wn. App. 2d 343, 359-62"
+- "Yakima v. Tribes, 502 U.S. 251, 255"
+
+Solution (unified_case_name_extractor_v2.py):
+Added comprehensive citation removal patterns:
+- Washington reporters: Wn., Wash., Wn. App., etc.
+- Federal reporters: U.S., S. Ct., L. Ed., F.3d, F. Supp.
+- State reporters: P.3d, P.2d, etc.
+- Old reporters: Wheat., Pet., How., Wall., Cranch
+- Generic pattern for any reporter format
+
+Applied to BOTH extraction methods for consistency.
+
+Expected Results:
+✅ "X v. Y, 502 U.S. 251, 255" -> "X v. Y"
+✅ "X v. Y, 31 Wn. App. 2d 343" -> "X v. Y"
+✅ "X v. Y, 123 F.3d 456" -> "X v. Y"
+
+Patterns catch trailing commas + reporter citations.
+
+Time: 20 minutes

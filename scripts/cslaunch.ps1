@@ -224,6 +224,80 @@ function Build-VueFrontend {
     }
 }
 
+# Helper function to wait for services to be ready
+function Wait-ForServices {
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n=== Waiting for services to be ready ===" -ForegroundColor Cyan
+    
+    try {
+        # Check if backend container is running
+        $backendRunning = docker ps --filter "name=casestrainer-backend-prod" --format "{{.Names}}" 2>$null
+        
+        if (-not $backendRunning) {
+            Write-Host "[INFO] Backend container not running yet - skipping service checks" -ForegroundColor Yellow
+            return
+        }
+        
+        # Copy wait script to container
+        $waitScript = Join-Path $config.ProjectRoot "scripts\wait-for-services.py"
+        if (Test-Path $waitScript) {
+            docker cp $waitScript casestrainer-backend-prod:/app/wait-for-services.py 2>$null
+            
+            # Run wait script
+            $output = docker exec casestrainer-backend-prod python /app/wait-for-services.py 2>&1
+            
+            # Display output
+            $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+        } else {
+            Write-Host "[WARNING] Wait script not found at: $waitScript" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host "[WARNING] Service readiness check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "  (This is non-critical and won't affect deployment)" -ForegroundColor DarkGray
+    }
+}
+
+# Helper function to cleanup stuck RQ jobs
+function Clear-StuckJobs {
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n=== Cleaning up stuck RQ jobs ===" -ForegroundColor Cyan
+    
+    try {
+        # Check if backend container is running
+        $backendRunning = docker ps --filter "name=casestrainer-backend-prod" --format "{{.Names}}" 2>$null
+        
+        if (-not $backendRunning) {
+            Write-Host "[INFO] Backend container not running yet - skipping cleanup" -ForegroundColor Yellow
+            return
+        }
+        
+        # Copy cleanup script to container
+        $cleanupScript = Join-Path $config.ProjectRoot "scripts\cleanup-stuck-jobs.py"
+        if (Test-Path $cleanupScript) {
+            docker cp $cleanupScript casestrainer-backend-prod:/app/cleanup-stuck-jobs.py 2>$null
+            
+            # Run cleanup script
+            $output = docker exec casestrainer-backend-prod python /app/cleanup-stuck-jobs.py 2>&1
+            
+            # Display output
+            $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
+            
+            Write-Host "[OK] Job cleanup complete" -ForegroundColor Green
+        } else {
+            Write-Host "[WARNING] Cleanup script not found at: $cleanupScript" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host "[WARNING] Could not cleanup stuck jobs: $($_.Exception.Message)" -ForegroundColor Yellow
+        Write-Host "  (This is non-critical and won't affect deployment)" -ForegroundColor DarkGray
+    }
+}
+
 # Start production environment
 function Start-Production {
     [CmdletBinding()]
@@ -238,14 +312,11 @@ function Start-Production {
     Write-Host "==============================================`n" -ForegroundColor Yellow
     Write-Host "`n=== Starting Production Environment ===" -ForegroundColor Cyan
     
-    # Only build Vue frontend if explicitly requested with -Build flag
-    if ($Build) {
-        Write-Host "Building Vue frontend..." -ForegroundColor Yellow
-        if (-not (Build-VueFrontend)) {
-            Write-Host "[WARNING] Vue build failed or skipped. Continuing with existing build..." -ForegroundColor Yellow
-        }
-    } else {
-        Write-Host "Skipping Vue frontend build (use -Build flag to rebuild frontend)" -ForegroundColor Yellow
+    # Always build Vue frontend to ensure latest source changes are deployed
+    # This ensures frontend fixes (polling, error handling, etc.) are always included
+    Write-Host "Building Vue frontend from source..." -ForegroundColor Yellow
+    if (-not (Build-VueFrontend)) {
+        Write-Host "[WARNING] Vue build failed or skipped. Continuing with existing build..." -ForegroundColor Yellow
     }
     
     # Check for existing containers (production uses hyphen, not underscore)
@@ -278,7 +349,14 @@ function Start-Production {
             throw "Failed to restart containers"
         }
         Write-Host "`n✅ Production environment restarted in seconds!" -ForegroundColor Green
-        Write-Host "- Application: http://localhost" -ForegroundColor Cyan
+        
+        # Wait for services to be ready
+        Wait-ForServices
+        
+        # Cleanup stuck jobs after services are ready
+        Clear-StuckJobs
+        
+        Write-Host "`n- Application: http://localhost" -ForegroundColor Cyan
         Write-Host "- Your Python changes from volume mounts are now active" -ForegroundColor DarkGray
         return
     }
@@ -309,7 +387,14 @@ function Start-Production {
     }
     
     Write-Host "`nProduction environment is now running!" -ForegroundColor Green
-    Write-Host "- Application: http://localhost" -ForegroundColor Cyan
+    
+    # Wait for services to be ready
+    Wait-ForServices
+    
+    # Cleanup stuck jobs after services are ready
+    Clear-StuckJobs
+    
+    Write-Host "`n- Application: http://localhost" -ForegroundColor Cyan
     Write-Host "- View logs with: .\cslaunch.ps1 logs" -ForegroundColor Cyan
 }
 

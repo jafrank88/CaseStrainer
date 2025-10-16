@@ -1,0 +1,15 @@
+Update progress_manager to use correct pipeline with clustering
+
+Changed import message to clarify we're using extract_citations_with_clustering
+which includes batch verification, not just the basic extraction pipeline.
+
+This is a documentation/clarity fix - the code was already calling the correct
+function at line 1009, but the import message was misleading.
+
+The function extract_citations_with_clustering:
+- Extracts citations with clean pipeline
+- Clusters parallel citations  
+- Runs batch verification with CourtListener API
+- Returns citations with verified=True/False properly set
+
+This ensures verified status is preserved through the entire pipeline.

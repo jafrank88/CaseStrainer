@@ -1,0 +1,44 @@
+CRITICAL FIX: Add neutral citations to strict context isolator
+
+Root Cause of First Fix Failing:
+The strict context isolator (used for case name extraction) didn't know
+that 2017-NM-007 was a citation. It was including it in the extraction
+context, causing it to be extracted as part of the case name.
+
+The Problem:
+Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977 (2016)"
+
+Step 1: Extract citations → Found: 388 P.3d 977
+Step 2: Extract case name for 388 P.3d 977
+Step 3: Context isolator looks back from "388 P.3d 977"
+Step 4: Doesn't recognize "2017-NM-007" as a citation boundary
+Step 5: Includes it in context
+Step 6: Extracted name: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007" ❌
+
+The Fix:
+
+1. Added neutral citation patterns to strict_context_isolator.py:
+   - 2017-NM-007 pattern (New Mexico hyphenated)
+   - 2017 ND 123 pattern (other states space-separated)
+
+2. Enhanced cleaning patterns in unified_citation_processor_v2.py:
+   - Handle years in parentheses after citations: (2016)
+   - Added space-separated neutral citation cleaning
+
+Expected Result Now:
+Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977 (2016)"
+
+Step 1: Extract citations → Found: 2017-NM-007, 388 P.3d 977
+Step 2: Extract case name for 388 P.3d 977
+Step 3: Context isolator looks back from "388 P.3d 977"
+Step 4: Recognizes "2017-NM-007" as citation boundary ✅
+Step 5: Stops before it
+Step 6: Extracted name: "Hamaatsa, Inc. v. Pueblo of San Felipe" ✅
+Step 7: Cleaning removes any remaining neutral citations
+
+Impact:
+- Neutral citations now properly excluded from case names
+- Both neutral and regional citations extracted separately
+- Proper clustering of parallel citations
+
+This completes the neutral citation support implementation.

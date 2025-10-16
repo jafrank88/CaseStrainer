@@ -1,0 +1,37 @@
+🎯 REAL FIX: Use resource_uri (API endpoint), not absolute_url (web page)
+
+ROOT CAUSE FINALLY IDENTIFIED:
+Citation-lookup returns two URLs in each cluster:
+1. resource_uri = "https://www.courtlistener.com/api/rest/v4/clusters/xxx/" (JSON API)
+2. absolute_url = "/opinion/xxx/case-name/" (HTML web page)
+
+We were using absolute_url → hitting web pages → getting HTTP 202 or HTML
+Should use resource_uri → hitting API → gets JSON with data!
+
+THE BUGS:
+1. Line 867: Used absolute_url instead of resource_uri
+2. Line 871: Tried to parse web page HTML as JSON
+3. Previous commit: Accepted HTTP 202 (empty body) thinking it had data
+
+FIXES IN THIS COMMIT:
+1. Use resource_uri first (API endpoint with full URL)
+2. Fallback to absolute_url if resource_uri missing
+3. Handle both full URLs (resource_uri) and relative paths (absolute_url)
+4. Reverted HTTP 202 acceptance - only accept 200 (OK with data)
+
+Lines changed: 864-877 in unified_verification_master.py
+
+IMPACT:
+Before:
+- Fetching web pages (/opinion/xxx/) → HTML/202 responses
+- JSON parsing errors
+- Citation-lookup completely broken
+- All fallback to Search API
+
+After:
+- Fetching API endpoints (/api/rest/v4/clusters/xxx/) → JSON responses
+- Status 200 with actual data
+- Citation-lookup should work! ✅
+- Proper batch verification ✅
+
+This is the ACTUAL fix for citation-lookup!

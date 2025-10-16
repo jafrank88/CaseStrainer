@@ -1,0 +1,38 @@
+ACTUAL FIX: Add neutral citations to clean_extraction_pipeline
+
+ROOT CAUSE (FINALLY IDENTIFIED!):
+The system uses clean_extraction_pipeline.py (method: "clean_pipeline_v1") 
+for production extraction, NOT unified_citation_processor_v2.py!
+
+All my previous fixes were to the wrong file. The neutral citation patterns
+needed to be added to clean_extraction_pipeline.py's pattern dictionary.
+
+Previous (Wrong) Fixes:
+1. ✅ Added patterns to unified_citation_processor_v2.py - WRONG FILE
+2. ✅ Added to priority_patterns list - WRONG FILE  
+3. ✅ Added to strict_context_isolator.py - CORRECT but not enough
+
+Actual Fix (THIS COMMIT):
+Added neutral citation patterns to clean_extraction_pipeline.py:
+- neutral_nm: 2017-NM-007 (New Mexico)
+- neutral_nd: 2017 ND 123 (North Dakota)
+- neutral_ok, neutral_sd, neutral_ut, neutral_wi, neutral_wy, neutral_mt
+
+This is the pipeline that actually runs in production based on the 
+"method": "clean_pipeline_v1" field in the API responses.
+
+Expected Result:
+Text: "Hamaatsa, Inc. v. Pueblo of San Felipe, 2017-NM-007, 388 P.3d 977"
+
+Extraction:
+1. Citation: 2017-NM-007 (extracted by neutral_nm pattern) ✅
+2. Citation: 388 P.3d 977 (extracted by p_3d pattern) ✅
+
+Case Name Extraction:
+1. For 2017-NM-007: "Hamaatsa, Inc. v. Pueblo of San Felipe" ✅
+2. For 388 P.3d 977: Gets from clustering (stops at 2017-NM-007 boundary) ✅
+
+Clustering:
+- Both citations clustered as parallels (same case name) ✅
+
+This should FINALLY fix the issue after 4 attempts.

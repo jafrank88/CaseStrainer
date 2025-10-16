@@ -170,11 +170,16 @@ class CitationClusterer(ICitationClusterer):
         clusters = {}
         
         for citation in citations:
-            if (citation.verified and 
-                citation.canonical_name and 
-                citation.canonical_date):
+            # CRITICAL: Use extracted data for clustering, NOT canonical data
+            # Canonical data is for verification display only
+            if citation.extracted_case_name and citation.extracted_date:
+                from src.utils.clustering_utils import create_cluster_key_from_extracted_data
                 
-                cluster_key = f"canonical_{self._normalize_case_name(citation.canonical_name)}_{citation.canonical_date}"
+                cluster_key = create_cluster_key_from_extracted_data(
+                    citation.extracted_case_name,
+                    citation.extracted_date,
+                    citation.citation
+                )
                 
                 if cluster_key not in clusters:
                     clusters[cluster_key] = []
@@ -240,7 +245,13 @@ class CitationClusterer(ICitationClusterer):
         
         for (case_name, date), members in extracted_groups.items():
             if len(members) > 1:
-                cluster_key = f"extracted_{case_name.replace(' ', '_')}_{date}"
+                from src.utils.clustering_utils import create_cluster_key_from_extracted_data
+                
+                cluster_key = create_cluster_key_from_extracted_data(
+                    case_name,
+                    date,
+                    members[0].citation if members else ""
+                )
                 extracted_clusters[cluster_key] = members
                 
                 for citation in members:
@@ -436,6 +447,9 @@ class CitationClusterer(ICitationClusterer):
             if citation == best_source:
                 continue
                 
+            # FIX #31: ONLY propagate canonical data, NEVER extracted data!
+            # extracted_case_name must be what was extracted from EACH citation's location,
+            # not copied from other citations. Propagating it violates data separation!
             if best_source.canonical_name and best_source.canonical_date:
                 citation.canonical_name = best_source.canonical_name
                 citation.canonical_date = best_source.canonical_date
@@ -445,11 +459,9 @@ class CitationClusterer(ICitationClusterer):
                         citation.metadata = {}
                     citation.metadata['canonical_data_updated'] = True
             
-            if best_source.extracted_case_name and best_source.extracted_date:
-                if not citation.extracted_case_name:
-                    citation.extracted_case_name = best_source.extracted_case_name
-                if not citation.extracted_date:
-                    citation.extracted_date = best_source.extracted_date
+            # FIX #31: REMOVED extracted data propagation
+            # DO NOT propagate extracted_case_name or extracted_date between parallel citations!
+            # Each citation must keep its own extracted data from its location in the document.
     
     def _propagate_metadata_across_groups(self, citations: List[CitationResult]) -> None:
         """

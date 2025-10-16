@@ -1,0 +1,4 @@
+Add documentation for proximity clustering fix
+
+Detailed documentation explaining the proximity override bug
+and how canonical name validation was added to fix it.

@@ -61,19 +61,27 @@ class CitationExtractor:
     def _init_case_name_patterns(self):
         """Initialize case name extraction patterns."""
         self.case_name_patterns = [
-            r'(State(?:\s+of\s+[A-Z][a-z]+)?)\s+v\.\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*)',
+            # ALL CAPS patterns (common in court documents)
+            r'([A-Z][A-Z\s&.,\'-]+?)\s+[Vv]\.?\s+([A-Z][A-Z\s&.,\'-]+)',
             
+            # State patterns (title case and all caps)
+            r'(State(?:\s+of\s+[A-Z][a-z]+)?)\s+[Vv]\.?\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)',
+            r'(STATE(?:\s+OF\s+[A-Z]+)?)\s+[Vv]\.?\s+([A-Z][A-Z\s&.,\'-]+)',
+            
+            # In re patterns (title case and all caps)
             r'In\s+re\s+([A-Z][a-zA-Z\s&.,\'-]+)',
             r'In\s+re\s+the\s+([A-Z][a-zA-Z\s&.,\'-]+)',
+            r'IN\s+RE\s+([A-Z][A-Z\s&.,\'-]+)',
             
-            r'([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)\s+v\.\s+([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)',
+            # Title case patterns (original)
+            r'([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)\s+[Vv]\.?\s+([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)',
             r'([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)\s+vs\.\s+([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)',
             r'([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)\s+versus\s+([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)',
             
             r'([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)\s+&\s+([A-Z][a-zA-Z&.\'-]+(?:\s+[A-Z][a-zA-Z&.\'-]+)*)'
         ]
         
-        self.compiled_case_patterns = [re.compile(pattern) for pattern in self.case_name_patterns]
+        self.compiled_case_patterns = [re.compile(pattern, re.IGNORECASE) for pattern in self.case_name_patterns]
     
     def _init_citation_block_patterns(self):
         """Initialize patterns for identifying the start of a citation block."""
@@ -91,15 +99,18 @@ class CitationExtractor:
             r'\b\d+\s+A\.\d*d?\s+\d+\b',
             r'\b\d+\s+So\.\d*d?\s+\d+\b',
             r'\b\d+\s+Cal\.\d*d?\s+\d+\b',
-            # Washington Supreme Court (e.g., 183 Wash.2d 649, 183 Wn.2d 649, 183 Wash. 2d 649)
-            r'\b(\d+)\s+(?:Wash\.|Wn\.)(?:\s*2d|2d)\s+(\d+)\b',  # Handles both 'Wash.2d' and 'Wash. 2d'
-            r'\b(\d+)\s+Wash\.(?:\s*2d|2d)\s+(\d+)\b',  # Specific for 'Wash.'
-            r'\b(\d+)\s+Wn\.(?:\s*2d|2d)\s+(\d+)\b',   # Specific for 'Wn.'
             
-            # Washington Court of Appeals (e.g., 12 Wash. App. 2d 345, 12 Wn. App. 2d 345, 12 Wash. App. 2d 345)
-            r'\b(\d+)\s+(?:Wash\.|Wn\.)\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
-            r'\b(\d+)\s+Wash\.\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
-            r'\b(\d+)\s+Wn\.\s*App\.(?:\s*2d|2d)?\s*(\d+)\b',
+            # Washington Reports - First Series (e.g., 345 Wn. 678, 123 Wash. 456)
+            r'\b\d+\s+(?:Wash\.|Wn\.)\s+\d+\b',
+            
+            # Washington Reports - Second Series (e.g., 183 Wash.2d 649, 183 Wn.2d 649)
+            r'\b\d+\s+(?:Wash\.|Wn\.)(?:\s*2d|2d)\s+\d+\b',
+            
+            # Washington Reports - Third Series (e.g., 2 Wn.3d 329)
+            r'\b\d+\s+(?:Wash\.|Wn\.)(?:\s*3d|3d)\s+\d+\b',
+            
+            # Washington Court of Appeals (e.g., 80 Wn. App. 775, 12 Wash. App. 2d 345)
+            r'\b\d+\s+(?:Wash\.|Wn\.)\s*App\.(?:\s*2d|2d)?\s*\d+\b',
             
             # Pacific Reporter (e.g., 355 P.3d 258, 278 P.3d 173, 976 P.2d 1229)
             # Handles various formats: P.3d, P. 3d, P3d, etc.
@@ -123,8 +134,8 @@ class CitationExtractor:
         citations = []
         
         citation_block_pattern = re.compile(
-            r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*\s+v\.\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*|'  # Enhanced v. pattern - REQUIRES subsequent words to be capitalized
-            r'State(?:\s+of\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)??\s+v\.\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*|'  # Enhanced State v. pattern
+            r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*\s+[Vv]\.?\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*|'  # Enhanced v. pattern - handles V. and v.
+            r'State(?:\s+of\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)??\s+[Vv]\.?\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*|'  # Enhanced State v. pattern
             r'In\s+re\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)'  # Enhanced In re pattern
             r'[,\s]*'  # Optional comma and whitespace after case name
             r'([^()]+)'  # All citations and content between case name and year
@@ -151,8 +162,8 @@ class CitationExtractor:
                 case_name = re.sub(phrase_pattern, '', case_name, flags=re.IGNORECASE)
             
             case_name_clean_patterns = [
-                r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)',
-                r'(State(?:\s+of\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)?\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)',
+                r'([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)\s+[Vv]\.?\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)',
+                r'(State(?:\s+of\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)?)\s+[Vv]\.?\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)',
                 r'(In\s+re\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&]*|of|the|and|&))*)'
             ]
             
@@ -250,17 +261,27 @@ class CitationExtractor:
         if not text:
             return []
         
+        # Try to extract citation blocks (case name + citation + year format)
         citation_blocks = self._extract_citation_blocks(text)
         if citation_blocks:
             logger.info(f"🔍 Extracted {len(citation_blocks)} citation blocks")
-            return citation_blocks
         
-        citations = []
+        # Also extract standalone citations using patterns
+        citations = list(citation_blocks) if citation_blocks else []
+        seen_citations = {(c.citation, c.start_index) for c in citations}
         
-        for pattern in self.compiled_patterns:
+        # Extract from both pattern lists
+        all_patterns = self.compiled_patterns + self.compiled_citation_block_patterns
+        
+        for pattern in all_patterns:
             for match in pattern.finditer(text):
                 citation_text = match.group(0)
                 start, end = match.span()
+                
+                # Skip duplicates
+                if (citation_text, start) in seen_citations:
+                    continue
+                seen_citations.add((citation_text, start))
                 
                 logger.info(f"🔍 Extracted citation: '{citation_text}' at position {start}-{end}")
                 

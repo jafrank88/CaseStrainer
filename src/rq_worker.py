@@ -15,6 +15,9 @@ from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_
 import logging
 import signal
 import time
+import threading
+from pathlib import Path
+from datetime import datetime
 
 try:
     import psutil
@@ -253,22 +256,37 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             
             # Only proceed with full processing if we have text and no errors
             if not locals().get('skip_full_processing', False):
-                # FULL ASYNC WORKER - Use UnifiedCitationProcessorV2 for complete processing
-                logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using full async worker with UnifiedCitationProcessorV2")
+                # FULL ASYNC WORKER - Use CLEAN PIPELINE (87-93% accuracy)
+                logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using CLEAN PIPELINE for async processing (87-93% accuracy)")
                 
                 try:
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing UnifiedCitationProcessorV2...")
-                    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                    import asyncio
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing clean pipeline...")
+                    from src.citation_extraction_endpoint import extract_citations_production
+                    from src.models import CitationResult
                     import time
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: UnifiedCitationProcessorV2 import SUCCESS")
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Clean pipeline import SUCCESS")
                     
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting full citation processing pipeline")
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting clean extraction pipeline")
                     
-                    # Use the full processing pipeline
-                    processor = UnifiedCitationProcessorV2()
-                    result_data = asyncio.run(processor.process_text(text))
-                    citations_found = result_data.get('citations', [])
+                    # Use the clean extraction pipeline
+                    clean_result = extract_citations_production(text)
+                    
+                    # Convert clean pipeline results to CitationResult objects
+                    citations_found = []
+                    if clean_result['status'] == 'success':
+                        for cit_dict in clean_result['citations']:
+                            citations_found.append(CitationResult(
+                                citation=cit_dict['citation'],
+                                extracted_case_name=cit_dict.get('extracted_case_name'),
+                                extracted_date=cit_dict.get('extracted_date'),
+                                method=cit_dict.get('method', 'clean_pipeline_v1'),
+                                confidence=cit_dict.get('confidence', 0.9)
+                            ))
+                    
+                    result_data = {
+                        'citations': citations_found,
+                        'clusters': []
+                    }
                     
                     logger.info(f"[TASK:{task_id}] Full pipeline found {len(citations_found)} citations")
                     
@@ -606,11 +624,93 @@ def signal_handler(signum, frame):
     logger.info(f"Received signal {signum}, shutting down gracefully...")
     sys.exit(0)
 
+class CodeChangeMonitor:
+    """Monitor Python files for changes and trigger worker reload."""
+    
+    def __init__(self, watch_dir='/app/src', check_interval=2):
+        self.watch_dir = Path(watch_dir)
+        self.check_interval = check_interval
+        self.file_mtimes = {}
+        self.should_reload = False
+        self.monitoring = False
+        
+        # Scan initial state
+        self._scan_files()
+        logger.info(f"📁 Code monitor initialized: watching {len(self.file_mtimes)} Python files in {watch_dir}")
+    
+    def _scan_files(self):
+        """Scan all Python files and record their modification times."""
+        try:
+            for py_file in self.watch_dir.rglob('*.py'):
+                # Skip __pycache__ directories
+                if '__pycache__' not in str(py_file):
+                    try:
+                        self.file_mtimes[str(py_file)] = py_file.stat().st_mtime
+                    except Exception as e:
+                        logger.debug(f"Could not stat {py_file}: {e}")
+        except Exception as e:
+            logger.warning(f"Error scanning files: {e}")
+    
+    def check_for_changes(self):
+        """Check if any files have been modified."""
+        try:
+            for py_file in self.watch_dir.rglob('*.py'):
+                if '__pycache__' in str(py_file):
+                    continue
+                    
+                file_path = str(py_file)
+                try:
+                    current_mtime = py_file.stat().st_mtime
+                    
+                    if file_path not in self.file_mtimes:
+                        # New file detected
+                        logger.info(f"🆕 New file detected: {py_file.name}")
+                        self.file_mtimes[file_path] = current_mtime
+                        self.should_reload = True
+                        return True
+                    elif current_mtime > self.file_mtimes[file_path]:
+                        # Modified file detected
+                        logger.warning(f"🔄 Code change detected: {py_file.name}")
+                        logger.warning(f"   Full path: {file_path}")
+                        self.file_mtimes[file_path] = current_mtime
+                        self.should_reload = True
+                        return True
+                except Exception as e:
+                    logger.debug(f"Could not check {file_path}: {e}")
+                    
+        except Exception as e:
+            logger.warning(f"Error checking for changes: {e}")
+        
+        return False
+    
+    def start_monitoring(self, worker_pid):
+        """Start monitoring in a background thread."""
+        self.monitoring = True
+        
+        def monitor_loop():
+            logger.info(f"🔍 Auto-reload enabled: monitoring for code changes every {self.check_interval}s")
+            while self.monitoring:
+                time.sleep(self.check_interval)
+                if self.check_for_changes():
+                    logger.warning("🔥 CODE CHANGED - Restarting worker to load new code...")
+                    os.kill(worker_pid, signal.SIGTERM)
+                    break
+        
+        monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
+        monitor_thread.start()
+    
+    def stop_monitoring(self):
+        """Stop monitoring."""
+        self.monitoring = False
+
 def main():
     """Main entry point for the RQ worker with enhanced error handling and monitoring."""
+    print("=" * 80, flush=True)
+    print("🔍 DEBUG STEP 1: main() function entered", flush=True)
+    print("=" * 80, flush=True)
+    
     # Configure logging
     log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
-    # Configure logging - use StreamHandler only to avoid permission issues in Docker
     logging.basicConfig(
         level=log_level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -619,46 +719,119 @@ def main():
         ]
     )
     
+    print("🔍 DEBUG STEP 2: Logging configured", flush=True)
+    
     # Log startup information
+    print("="* 80, flush=True)
+    print("🚀 RQ WORKER MAIN() CALLED - AUTO-RELOAD CHECK STARTING", flush=True)
+    print("=" * 80, flush=True)
     logger.info("=" * 80)
     logger.info(f"Starting CaseStrainer Worker (PID: {os.getpid()})")
     logger.info(f"Python: {sys.version}")
     logger.info(f"Redis URL: {os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')}")
     logger.info("=" * 80)
     
+    print("🔍 DEBUG STEP 3: Startup info logged", flush=True)
+    
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
+    
+    print("🔍 DEBUG STEP 4: Signal handlers configured", flush=True)
     
     # Configure queue and worker name
     queue_name = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
     worker_name = f'worker-{os.getpid()}@{os.uname().nodename}'
     
+    print(f"🔍 DEBUG STEP 5: Queue={queue_name}, Worker={worker_name}", flush=True)
+    
+    # CRITICAL: Clean up any stale registration with the same name
+    # This prevents "worker already exists" errors after container restarts
+    try:
+        from rq import Worker
+        existing_workers = Worker.all(connection=redis_conn)
+        for w in existing_workers:
+            if w.name == worker_name:
+                logger.info(f"Removing stale worker registration: {worker_name}")
+                print(f"🧹 Removing stale worker registration: {worker_name}", flush=True)
+                w.register_death()
+                break
+    except Exception as e:
+        logger.warning(f"Could not clean up stale worker registration: {e}")
+        print(f"⚠️  Could not clean up stale worker: {e}", flush=True)
+    
     # Configure worker settings
-    # Note: Only pass valid RQ Worker parameters
     worker_kwargs = {
         'connection': redis_conn,
         'queues': [queue_name],
         'name': worker_name
     }
     
+    print("🔍 DEBUG STEP 6: Worker kwargs configured", flush=True)
+    
+    # Check if auto-reload is enabled (for development)
+    auto_reload = os.environ.get('RQ_WORKER_AUTORELOAD', 'false').lower() == 'true'
+    
+    print(f"🔍 DEBUG STEP 7: Auto-reload check: RQ_WORKER_AUTORELOAD={os.environ.get('RQ_WORKER_AUTORELOAD', 'not set')}, auto_reload={auto_reload}", flush=True)
+    
     # Start the worker with error handling
     max_restarts = 10
     restart_count = 0
+    monitor = None  # Initialize here to avoid UnboundLocalError
+    
+    print(f"🔍 DEBUG STEP 8: About to enter worker loop (max_restarts={max_restarts})", flush=True)
     
     while restart_count < max_restarts:
+        print(f"🔍 DEBUG STEP 9: Loop iteration {restart_count + 1}/{max_restarts}", flush=True)
+        
         try:
+            print("🔍 DEBUG STEP 10: Inside try block", flush=True)
             logger.info(f"Starting worker (attempt {restart_count + 1}/{max_restarts})")
+            
+            print("🔍 DEBUG STEP 11: About to create RobustWorker", flush=True)
             worker = RobustWorker(**worker_kwargs)
+            print("🔍 DEBUG STEP 12: RobustWorker created successfully", flush=True)
+            
+            # Start code change monitor if auto-reload is enabled
+            if auto_reload:
+                print("🔍 DEBUG STEP 13: Auto-reload is TRUE, starting monitor...", flush=True)
+                try:
+                    print("🔍 DEBUG STEP 14: Creating CodeChangeMonitor instance", flush=True)
+                    monitor = CodeChangeMonitor(watch_dir='/app/src', check_interval=2)
+                    print("🔍 DEBUG STEP 15: CodeChangeMonitor created, starting monitoring", flush=True)
+                    monitor.start_monitoring(os.getpid())
+                    print("✅ DEBUG STEP 16: Auto-reload monitor started successfully!", flush=True)
+                    logger.info("✅ Auto-reload monitor started successfully")
+                except Exception as e:
+                    print(f"❌ DEBUG: Monitor exception: {e}", flush=True)
+                    logger.warning(f"Could not start code monitor: {e}")
+                    logger.warning("Continuing without auto-reload...")
+                    monitor = None
+            else:
+                print("🔍 DEBUG STEP 13: Auto-reload is FALSE", flush=True)
+                logger.info("Auto-reload disabled. Set RQ_WORKER_AUTORELOAD=true to enable.")
+            
+            print("🔍 DEBUG STEP 17: About to call worker.work()", flush=True)
             logger.info("Worker started. Press Ctrl+C to exit.")
-            worker.work()
+            worker.work(logging_level='INFO')
+            print("🔍 DEBUG STEP 18: worker.work() returned", flush=True)
+            
+            # Stop monitoring if active
+            if monitor:
+                monitor.stop_monitoring()
+                
             break  # Exit loop if worker exits cleanly
                 
         except KeyboardInterrupt:
             logger.info("Worker stopped by user")
+            if monitor:
+                monitor.stop_monitoring()
             break
             
         except Exception as e:
+            if monitor:
+                monitor.stop_monitoring()
+                
             restart_count += 1
             wait_time = min(2 ** restart_count, 60)  # Exponential backoff, max 60s
             

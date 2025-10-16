@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 #     verify_citations_with_canonical_service,  # DEPRECATED
 #     verify_citations_with_legal_websearch  # DEPRECATED
 
-from src.unified_citation_clustering import cluster_citations_unified
+from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
 
 class CitationVerifier:
     """Citation verification functionality."""

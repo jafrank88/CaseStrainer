@@ -1,0 +1,14 @@
+Add proximity detection diagnostics to find clustering split bug
+
+Added detailed logging to validation step to diagnose why proximity detection fails:
+- Logs when clusters have citations but no positions
+- Shows citation type and available attributes/keys  
+- Logs proximity calculations when positions exist
+- Warns when positions are missing
+
+This will reveal if citations lose start_index data after batch verification.
+
+Expected: Should show either:
+1. Citations missing start_index (data loss bug)
+2. Positions found but distance > 200 (threshold too strict)
+3. Proximity override working but splits happen anyway (downstream bug)

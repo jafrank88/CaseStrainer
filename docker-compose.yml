@@ -31,6 +31,7 @@ services:
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
     volumes:
+      - ./src:/app/src  # DEVELOPMENT: Mount source code for live updates
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs
@@ -64,7 +65,9 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
+      - RQ_WORKER_AUTORELOAD=true
     volumes:
+      - ./src:/app/src  # DEVELOPMENT: Mount source code for live updates
       - ./uploads:/app/uploads
       - ./data:/app/data
       - ./logs:/app/logs

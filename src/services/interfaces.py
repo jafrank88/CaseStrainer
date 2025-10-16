@@ -5,7 +5,8 @@ This module defines the contracts (interfaces) for all citation processing servi
 Using abstract base classes ensures consistent APIs and enables dependency injection.
 """
 
-from abc import ABC, abstractmethodfrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from abc import ABC, abstractmethod
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 from typing import List, Dict, Any, Optional, Tuple
 from src.models import CitationResult, ProcessingConfig

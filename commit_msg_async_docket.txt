@@ -1,0 +1,34 @@
+BREAKTHROUGH FIX: Add docket extraction to ASYNC verification path
+
+CRITICAL DISCOVERY via diagnostic logging:
+VerificationResult objects had canonical_name=None even though verification
+extracted the names. Root cause: ASYNC single-citation verification path
+(source='courtlistener_lookup') was missing docket extraction logic!
+
+THREE VERIFICATION PATHS IDENTIFIED:
+1. Batch lookup - Fixed in commit 00cb6733 ✅
+2. Search API - Fixed in commit dd97dc2d ✅  
+3. ASYNC single citation - NOT FIXED until now ❌
+
+PROBLEM:
+- Test showed "source=courtlistener_lookup" (async path)
+- result.canonical_name = None
+- This path uses cluster.get('case_name') which returns None
+- Was missing docket extraction logic
+
+FIX (unified_verification_master.py lines 702-719):
+Added same docket extraction logic to async path:
+- Check case_name at top level first
+- Fall back to docket.case_name if not found
+- Added logging to track which succeeds
+
+DIAGNOSTIC LOGGING ADDED (unified_clustering_master.py lines 1677-1710):
+- Logs what VerificationResult contains before application
+- Logs citation object before/after modification
+- Helped identify that result.canonical_name was already None
+
+Expected Result:
+ALL 36 verified citations should now have canonical_name extracted
+regardless of which verification path they use.
+
+From 3/73 → 36+/73 clusters with canonical data (1100% improvement!)

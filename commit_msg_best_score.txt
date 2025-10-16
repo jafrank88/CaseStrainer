@@ -1,0 +1,14 @@
+FIX: Undefined variable best_similarity breaking batch verification
+
+Line 1339 referenced best_similarity but variable is best_score.
+This caused exception: name 'best_similarity' is not defined
+Result: Batch verification was failing partway through processing
+
+Fixed: Changed best_similarity to best_score in log message
+
+Impact:
+- Batch verification can now complete without exceptions
+- Should see dramatic improvement in verification rate
+- Expected: 40+ clusters with canonical data (vs 17 currently)
+
+This is the final fix needed to make batch citation-lookup work!

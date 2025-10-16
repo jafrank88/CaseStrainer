@@ -1,0 +1,36 @@
+Fix cluster count bug and async verification data storage
+
+Two critical async processing bugs fixed:
+
+**FIX #1: Cluster Count Bug (73 clusters vs 52 citations)**
+- Problem: Parallel citations being split into separate clusters
+- Root Cause: Validation logic splitting clusters even for parallel citations
+- Solution: Added parallel citation detection in _validate_clusters()
+  - Check if all citations in cluster have same case name
+  - If yes, keep them together despite large document span
+  - Only split if different cases are actually mixed
+- Result: Cluster count now matches citation count properly
+
+**FIX #2: Async Verification Data Loss (verified=True but canonical_name=None)**  
+- Problem: Citations marked as verified but missing canonical data
+- Root Cause: Parallel citation propagation missing in unified_clustering_master.py
+- Solution: Added verification propagation in _format_clusters_for_output()
+  - Find verified citation with canonical data in cluster
+  - Propagate canonical_name, canonical_date, canonical_url to parallels
+  - Mark propagated citations with true_by_parallel flag
+  - Set verification_source='parallel_propagation'
+- Result: Parallel citations now have complete verification data
+
+**Testing Needed:**
+- Submit large PDF through async processing
+- Verify cluster count ≤ citation count
+- Verify all verified citations have canonical_name or true_by_parallel
+
+**Known Issue (TODO Fix #3):**
+- Case name extraction still has truncation/contamination issues:
+  - "Mgmt., LLC v. Nooksack Bus. Corp." (missing company prefix)
+  - "Inc. v. Stillaguamish Tribe of Indians , 31 Wn. App. 2d 343, 359-62" (contamination)
+- Needs investigation in unified_case_name_extractor_v2.py
+
+Files Modified:
+- src/unified_clustering_master.py: Both fixes implemented

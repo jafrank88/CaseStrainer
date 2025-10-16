@@ -1,0 +1,38 @@
+FIX: Handle nested result structure in task_status endpoint
+
+CRITICAL BUG FIX: Worker returns nested result structure but endpoint expected flat structure.
+
+ISSUE:
+- Worker finds 72 clusters with citations
+- Task status returns 0 citations/clusters
+- Frontend sees empty results
+
+ROOT CAUSE:
+Worker returns:
+{
+  'success': True,
+  'task_id': 'xxx',
+  'status': 'completed',
+  'result': {
+    'citations': [...],  # <-- HERE!
+    'clusters': [...]
+  }
+}
+
+Task status endpoint was looking for:
+{
+  'citations': [...],  # <-- NOT HERE!
+  'clusters': [...]
+}
+
+SOLUTION:
+Extract nested 'result' key before accessing citations/clusters:
+  actual_result = result.get('result', result)
+  citations = actual_result.get('citations', [])
+
+TESTING:
+✅ Worker logs show 72 clusters found
+✅ New logging shows result keys: ['success', 'task_id', 'status', 'result']
+✅ This fix extracts from result['result']['citations']
+
+Expected: Citations will now appear in frontend!

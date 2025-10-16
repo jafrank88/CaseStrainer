@@ -168,6 +168,12 @@ class CitationExtractor(ICitationExtractor):
         all_patterns = []
         for patterns in jurisdiction_patterns.values():
             all_patterns.extend(patterns)
+        
+        # Add Westlaw (WL) citation patterns
+        # Format: YYYY WL #######
+        wl_pattern = r'\b(\d{4}\s+WL\s+\d+)\b'
+        all_patterns.append(wl_pattern)
+        self.logger.debug("Added Westlaw (WL) citation pattern")
             
         if all_patterns:
             try:
@@ -280,14 +286,41 @@ class CitationExtractor(ICitationExtractor):
     
     def _init_case_name_patterns(self) -> None:
         """Initialize case name extraction patterns."""
+        # CRITICAL FIX: Do NOT use re.IGNORECASE with [A-Z] patterns!
+        # IGNORECASE makes [A-Z] match lowercase too, causing it to match mid-word like "Ass'n" -> matches 'n'
+        # Also must include unicode characters (\w) to handle special chars like 'Æ' in "AssÆn"
+        # Must handle unicode quotes (ö, \u201d, \u02bc, etc) as sentence boundaries
+        # Pattern: Match the last reasonable case name before the citation
+        # Look for: Capital letter, then anything (including abbreviated words with periods)
+        # up to " v. ", then the second party name
+        # Must include both ' (U+0027 ASCII apostrophe) and ' (U+2019 smart quote) for abbreviations like "Ass'n"
+        party_pattern = r'[A-Z][\w\s&,\.\'\u2019\-]+'
+        
         self.case_name_patterns = [
-            re.compile(r'\b([A-Z][a-zA-Z\s&,\.]+?)\s+v\.\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            # Standard "X v. Y" pattern
+            # Match the last occurrence of "Something v. Something" before comma or number
+            re.compile(
+                r'(' + party_pattern + r')\s+v\.\s+(' + party_pattern + r')(?=\s*,|\s*\d)',
+                re.UNICODE
+            ),
             
-            re.compile(r'\bIn\s+re\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            # In re patterns
+            re.compile(
+                r'In\s+re\s+(' + party_pattern + r')(?=\s*,|\s*\d)',
+                re.IGNORECASE | re.UNICODE
+            ),
             
-            re.compile(r'\bEx\s+parte\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE),
+            # Ex parte patterns
+            re.compile(
+                r'Ex\s+parte\s+(' + party_pattern + r')(?=\s*,|\s*\d)',
+                re.IGNORECASE | re.UNICODE
+            ),
             
-            re.compile(r'\bMatter\s+of\s+([A-Z][a-zA-Z\s&,\.]+?)(?=\s*,|\s*\d)', re.IGNORECASE)
+            # Matter of patterns
+            re.compile(
+                r'Matter\s+of\s+(' + party_pattern + r')(?=\s*,|\s*\d)',
+                re.IGNORECASE | re.UNICODE
+            )
         ]
     
     def _init_date_patterns(self) -> None:
@@ -323,8 +356,9 @@ class CitationExtractor(ICitationExtractor):
         
         citations = self._deduplicate_citations(citations)
         
-        for citation in citations:
-            citation = self.extract_metadata(citation, text)
+        # CRITICAL FIX: Must update citations in-place, not assign to local variable
+        for i in range(len(citations)):
+            citations[i] = self.extract_metadata(citations[i], text)
         
         if self.adaptive_learning and self.adaptive_learning.is_enabled():
             try:
@@ -362,9 +396,14 @@ class CitationExtractor(ICitationExtractor):
             Updated CitationResult with metadata
         """
         try:
+            logger.warning(f"[META-EXTRACT] Processing {citation.citation}, existing name: {getattr(citation, 'extracted_case_name', 'None')}")
+            
             case_name = self._extract_case_name_from_context(text, citation)
+            logger.warning(f"[META-EXTRACT] Function returned: {case_name}")
+            
             if case_name:
                 citation.extracted_case_name = case_name
+                logger.warning(f"[META-EXTRACT] Set extracted_case_name to: {case_name[:50]}...")
             
             date = self._extract_date_from_context(text, citation)
             if date:
@@ -423,15 +462,31 @@ class CitationExtractor(ICitationExtractor):
             found_citations = get_citations(text)
             
             for eyecite_citation in found_citations:
-                citation_text = self._extract_citation_text_from_eyecite(eyecite_citation)
+                # CRITICAL FIX: Use original text from document, not eyecite's normalized version
+                # Eyecite normalizes "Wn.2d" → "Wash.2d", but these are DIFFERENT citations
+                # in CourtListener! We must preserve the exact text from the document.
                 
-                start_index = text.find(citation_text)
-                end_index = start_index + len(citation_text) if start_index != -1 else 0
+                # First, try to get the span from eyecite
+                start_index = None
+                end_index = None
+                citation_text = None
+                
+                if hasattr(eyecite_citation, 'span'):
+                    # eyecite provides (start, end) span
+                    start_index = eyecite_citation.span[0]
+                    end_index = eyecite_citation.span[1]
+                    citation_text = text[start_index:end_index].strip()
+                
+                # Fallback: use normalized text and find it in the document
+                if not citation_text:
+                    citation_text = self._extract_citation_text_from_eyecite(eyecite_citation)
+                    start_index = text.find(citation_text)
+                    end_index = start_index + len(citation_text) if start_index != -1 else 0
                 
                 citation = CitationResult(
                     citation=citation_text,
-                    start_index=start_index,
-                    end_index=end_index,
+                    start_index=start_index if start_index is not None else 0,
+                    end_index=end_index if end_index is not None else 0,
                     method="eyecite",
                     confidence=0.9  # Higher confidence for eyecite
                 )
@@ -486,23 +541,142 @@ class CitationExtractor(ICitationExtractor):
             logger.warning(f"Error extracting eyecite metadata: {e}")
     
     def _extract_case_name_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
-        """Extract case name from the context around a citation."""
+        """Extract case name from the context around a citation.
+        
+        CRITICAL: This method must extract the MAIN case name, not parenthetical citations.
+        Example: "State v. M.Y.G., 199 Wn.2d 528 (2022) (quoting Am. Legion...)"
+        Should extract: "State v. M.Y.G." NOT "Am. Legion"
+        """
+        logger.warning(f"[EXTRACT-START] Called for citation: {citation.citation if hasattr(citation, 'citation') else 'unknown'}")
+        
         if not citation.start_index:
+            logger.warning("[EXTRACT-START] No start_index, returning None")
             return None
         
-        start_search = max(0, citation.start_index - 50)  # Reduced from 200 to 50
+        # CRITICAL FIX: Need at least 200 chars to capture full case names
+        # Case names can be 80-100 characters long (e.g. "Ass'n of Wash. Spirits & Wine Distribs. v. Wash. State Liquor Control Bd.")
+        start_search = max(0, citation.start_index - 200)
         search_text = text[start_search:citation.start_index]
         
-        for pattern in self.case_name_patterns:
-            matches = pattern.findall(search_text)
-            if matches:
-                match = matches[-1]
-                if isinstance(match, tuple):
-                    return f"{match[0].strip()} v. {match[1].strip()}"
-                else:
-                    return match.strip()
+        # FIX #27: Additional debug info to diagnose proximity extraction issues
+        citation_text = citation.citation if hasattr(citation, 'citation') else 'unknown'
+        logger.warning(f"[EXTRACT-FIX27] Citation: {citation_text} at position [{start_search}:{citation.start_index}]")
+        logger.warning(f"[EXTRACT-FIX27] Next 50 chars after citation: '{text[citation.start_index:citation.start_index+50]}'")
+        logger.warning(f"[EXTRACT-START] Searching {len(search_text)} chars before citation")
+        logger.warning(f"[EXTRACT-START] Search text (last 100): '{search_text[-100:]}'")
         
-        return None
+        # CRITICAL FIX: Remove parenthetical content BEFORE searching for case names
+        # This prevents extracting parenthetical citations like "(quoting Am. Legion...)"
+        # which should NOT be treated as the main case name
+        import re
+        original_search_text = search_text
+        
+        # Track positions of parentheticals for distance calculation
+        paren_positions = []
+        for match in re.finditer(r'\([^)]*\)', search_text):
+            paren_positions.append((match.start(), match.end()))
+        
+        # Remove parentheticals from search text
+        search_text_no_parens = re.sub(r'\([^)]*\)', '', search_text)
+        
+        # Also check if we're in the middle of a citation string
+        # E.g., "199 Wn.2d 528, 532, 509 P.3d 818" - don't extract from between citations
+        # Look for pattern: citation_number, page_numbers, citation (current position)
+        if re.search(r'\d+\s+[A-Za-z\.]+\s+\d+(?:,\s*\d+)*\s*$', search_text_no_parens):
+            # We're in a multi-citation cluster, search earlier for the case name
+            logger.warning("[EXTRACT-DEBUG] Detected multi-citation cluster, extending search")
+            # Try to find the case name before the first citation in this cluster
+            # Look for the last "v." before any numbers
+            match = re.search(r'(.+?\s+v\.\s+.+?)\s*,?\s*\d+\s+[A-Za-z\.]+', search_text_no_parens)
+            if match:
+                case_name = match.group(1).strip()
+                logger.warning(f"[EXTRACT-DEBUG] Extracted from multi-citation: '{case_name[:80]}...'")
+                # Clean and return
+                case_name = re.sub(r'\s+', ' ', case_name)
+                return case_name
+        
+        logger.warning(f"[EXTRACT-START] Search text after removing parentheticals (last 100): '{search_text_no_parens[-100:]}'")
+        logger.warning(f"[EXTRACT-START] Have {len(self.case_name_patterns)} patterns")
+        
+        # Find all potential case names and score them by position (prefer closer to citation)
+        candidates = []
+        
+        for idx, pattern in enumerate(self.case_name_patterns):
+            matches = list(pattern.finditer(search_text_no_parens))
+            if matches:
+                logger.warning(f"[EXTRACT-DEBUG] Pattern {idx+1} matched, found {len(matches)} matches")
+                for match in matches:
+                    if isinstance(match.groups(), tuple) and len(match.groups()) >= 2:
+                        case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
+                    else:
+                        case_name = match.group(0).strip()
+                    
+                    # Calculate distance from citation (prefer closer matches)
+                    distance_from_citation = len(search_text_no_parens) - match.end()
+                    
+                    # Score: lower is better (closer to citation)
+                    # Penalize if case name is very far from citation
+                    score = distance_from_citation
+                    
+                    # Bonus: prefer case names on the same line (no newlines between)
+                    text_between = search_text_no_parens[match.end():]
+                    if '\n' not in text_between:
+                        score -= 50  # Bonus for same line
+                    
+                    candidates.append({
+                        'case_name': case_name,
+                        'distance': distance_from_citation,
+                        'score': score,
+                        'pattern_idx': idx
+                    })
+                    logger.warning(f"[EXTRACT-DEBUG] Candidate: '{case_name[:50]}...' distance={distance_from_citation} score={score}")
+        
+        if not candidates:
+            return None
+        
+        # Select the best candidate (lowest score = closest to citation)
+        best_candidate = min(candidates, key=lambda x: x['score'])
+        case_name = best_candidate['case_name']
+        
+        logger.warning(f"[EXTRACT-DEBUG] Selected best: '{case_name[:80]}...' (score={best_candidate['score']})")
+        
+        # Clean the extracted case name to remove sentence fragments
+        # Check if case name starts with common abbreviated patterns (Ass'n, Dep't, etc.)
+        # or contains state/location abbreviations near the start (Wash., Cal., etc.)
+        # If so, DON'T clean - it's likely the full case name with abbreviations
+        has_abbreviations = bool(re.search(
+            r'^[A-Z][a-z]{0,5}[\'\u2019Æ]+n\b|'  # Ass'n, Dep't at start
+            r'^\w+\s+of\s+[A-Z][a-z]{2,6}\.|'     # "X of Wash.", "X of Cal."
+            r'\b[A-Z][a-z]{2,6}\.\s*\n',           # "Wash.\n" (abbreviated location + newline)
+            case_name[:60],  # Check first 60 chars only
+            re.UNICODE
+        ))
+        
+        if not has_abbreviations:
+            # Only clean if no abbreviations detected
+            # Remove leading sentence fragments (text before the last sentence boundary)
+            case_name_match = re.search(r'[.!?]\s{2,}([A-Z].+?\s+v\.\s+.+?)$', case_name)
+            if case_name_match and ' v. ' in case_name_match.group(1):
+                cleaned = case_name_match.group(1).strip()
+                logger.warning(f"[EXTRACT-DEBUG] Cleaned sentence fragment: '{cleaned[:80]}...'")
+                case_name = cleaned
+        
+        # Normalize whitespace
+        case_name = re.sub(r'\s+', ' ', case_name)
+        
+        # CRITICAL FIX: Remove any citations that got included in the case name
+        # Pattern matches: "123 Reporter 456" or "123 Reporter.2d 456" etc.
+        # This prevents extracted names like "State v. M.Y.G., 199 Wn.2d 528, 532"
+        # and cleans them to just "State v. M.Y.G."
+        # Pattern requires: comma + space(s) + digits + space(s) + reporter + space(s) + page
+        citation_pattern = r',\s+\d+\s+[A-Za-z\.\d]+\s+\d+(?:,\s+\d+)*'
+        case_name = re.sub(citation_pattern, '', case_name).strip()
+        
+        # Also remove trailing commas or periods that might be left
+        case_name = re.sub(r'[,\.\s]+$', '', case_name).strip()
+        
+        logger.warning(f"[EXTRACT-DEBUG] Final case name: '{case_name[:80]}...'")
+        return case_name
     
     def _extract_date_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
         """Extract date from the context around a citation."""

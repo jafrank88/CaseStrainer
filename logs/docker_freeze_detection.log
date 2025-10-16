@@ -189,3 +189,670 @@ docker-compose     13488     0.421875   38645760
 
 
 [2025-10-06 13:43:03] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-10 20:33:08] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-10 20:33:08] [FREEZE] Test: Docker Daemon Info
+[2025-10-10 20:33:08] [FREEZE] Timeout: 15 seconds
+[2025-10-10 20:33:08] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-10 20:33:08] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id         CPU WorkingSet
+-----------           --         --- ----------
+com.docker.backend  8004 1207.234375   60399616
+com.docker.backend 10056    19487.25  953176064
+com.docker.build   10308     19.5625   53284864
+docker             11276    0.078125   19017728
+Docker Desktop      9440   10.140625   77012992
+Docker Desktop     10300    1.046875   49258496
+Docker Desktop     10524        1.25   53248000
+Docker Desktop     10532   13.671875   81559552
+Docker Desktop     10712  12325.1875  177545216
+Docker Desktop     10764  1541.15625  159195136
+Docker Desktop     11132     0.96875   44834816
+docker-buildx      13512    2.015625   50036736
+docker-compose     14472      1.0625   39034880
+
+
+
+[2025-10-10 20:33:08] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-10 21:28:20] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-10 21:28:20] [FREEZE] Test: Docker Daemon Info
+[2025-10-10 21:28:20] [FREEZE] Timeout: 15 seconds
+[2025-10-10 21:28:20] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-10 21:28:21] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend  9752  17.703125    3821568
+com.docker.backend 17296 393.234375  120635392
+com.docker.build    8076   3.984375    9179136
+Docker Desktop      3428   25.21875   37232640
+Docker Desktop     10048    0.34375    2981888
+Docker Desktop     12956 228.421875   97939456
+Docker Desktop     14104    1.46875    2322432
+
+
+
+[2025-10-10 21:28:21] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-12 22:23:05] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-12 22:23:05] [FREEZE] Test: Docker Daemon Info
+[2025-10-12 22:23:05] [FREEZE] Timeout: 15 seconds
+[2025-10-12 22:23:05] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-12 22:23:05] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id          CPU WorkingSet
+-----------           --          --- ----------
+com.docker.backend  1452 16398.171875  350953472
+com.docker.backend 20912   923.515625   31211520
+com.docker.build   16744     59.21875   29827072
+Docker Desktop     13504     1.484375   39862272
+Docker Desktop     17752   956.671875   48181248
+Docker Desktop     18104  9414.859375  114446336
+Docker Desktop     19848        6.375   22462464
+
+
+
+[2025-10-12 22:23:05] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-12 22:28:05] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-12 22:28:05] [FREEZE] Test: Docker Daemon Info
+[2025-10-12 22:28:05] [FREEZE] Timeout: 15 seconds
+[2025-10-12 22:28:05] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-12 22:28:06] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id      CPU WorkingSet
+-----------           --      --- ----------
+com.docker.backend 15736 0.953125   32849920
+com.docker.backend 18380 64.03125  101998592
+com.docker.build   20788 1.859375   31285248
+docker             20384  0.09375   19427328
+Docker Desktop      7432 4.171875   58118144
+Docker Desktop     12320   0.3125   34308096
+Docker Desktop     15084  8.90625   80130048
+Docker Desktop     19136  0.46875   34205696
+docker-buildx      12412   2.9375   48693248
+docker-compose     19592  1.34375   37953536
+
+
+
+[2025-10-12 22:28:06] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-14 14:27:27] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:27:27] [FREEZE] Test: Docker CLI Version Check
+[2025-10-14 14:27:27] [FREEZE] Timeout: 10 seconds
+[2025-10-14 14:27:27] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:27:28] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id          CPU WorkingSet
+-----------           --          --- ----------
+com.docker.backend  4100   759.171875   23879680
+com.docker.backend 20512 14824.703125  209928192
+com.docker.build   16276    46.296875   24080384
+Docker Desktop      7600      1.28125    8273920
+Docker Desktop      8824     5.828125    8601600
+Docker Desktop     20584       941.25   37216256
+Docker Desktop     21352  8984.046875  110284800
+docker-ai          20976     0.203125   21032960
+docker-ai          26764     0.234375   21323776
+docker-ai          27760      0.28125   21422080
+docker-buildx      16612     0.109375   26427392
+docker-buildx      26320     0.140625   26505216
+docker-buildx      31400       0.9375   26255360
+docker-cloud       21924        0.125   16871424
+docker-cloud       27640     0.078125   16973824
+docker-cloud       28364     0.078125   16920576
+docker-mcp          6072     0.140625   18309120
+docker-mcp         15040      0.09375   18907136
+docker-mcp         29448      0.09375   18518016
+docker-model        1628     0.203125   20619264
+docker-model       22904     0.296875   20549632
+docker-model       25512      0.28125   20467712
+
+
+
+[2025-10-14 14:27:28] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-14 14:33:21] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:33:21] [FREEZE] Test: Docker CLI Version Check
+[2025-10-14 14:33:21] [FREEZE] Timeout: 10 seconds
+[2025-10-14 14:33:21] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:33:22] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 20924 26.796875  145563648
+com.docker.backend 30824  2.140625   53248000
+com.docker.build   28324  1.484375   42381312
+Docker Desktop     14348  5.578125  271843328
+Docker Desktop     20148   0.34375   46592000
+Docker Desktop     22780      4.25  189878272
+Docker Desktop     25492   0.59375   81453056
+docker-scout       24308  0.859375   52654080
+
+
+
+[2025-10-14 14:33:22] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-14 14:34:53] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:34:53] [FREEZE] Test: Docker Daemon Info
+[2025-10-14 14:34:53] [FREEZE] Timeout: 15 seconds
+[2025-10-14 14:34:53] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:34:54] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 20924 38.171875   96149504
+com.docker.backend 30824     2.875   48340992
+com.docker.build   28324  1.484375   36515840
+Docker Desktop     14348   8.96875  105132032
+Docker Desktop     20148   0.34375   43061248
+Docker Desktop     22780       4.5  115216384
+Docker Desktop     25492  0.640625   71983104
+docker-ai           2172  0.140625   10530816
+docker-ai           3588  0.078125   10555392
+docker-ai           9548  0.296875   10530816
+docker-ai           9692     0.125   10649600
+docker-ai          10788   0.09375   10522624
+docker-ai          11976  0.109375   10526720
+docker-ai          12720    0.1875   10551296
+docker-ai          13276  0.234375   10608640
+docker-ai          15724  0.078125   10485760
+docker-ai          18512    0.1875   10571776
+docker-ai          20996  0.265625   10539008
+docker-ai          21988  0.171875   10514432
+docker-ai          22052   0.21875   10514432
+docker-ai          22124  0.265625   10534912
+docker-ai          22924  0.296875   10620928
+docker-ai          27568  0.109375   10526720
+docker-ai          28860  0.296875   10567680
+docker-buildx       8452   0.03125    9445376
+docker-buildx       9772  0.078125    9367552
+docker-buildx      10960   0.09375    9383936
+docker-buildx      12116    0.0625    9416704
+docker-buildx      13576  0.046875    9404416
+docker-buildx      13840    0.0625    9433088
+docker-buildx      16228  0.015625    9367552
+docker-buildx      20168    0.0625    9359360
+docker-buildx      22288   0.09375    9392128
+docker-buildx      23636    0.0625    9486336
+docker-buildx      25316  0.015625    9375744
+docker-buildx      25932   0.09375    9420800
+docker-buildx      26364   0.03125    9334784
+docker-buildx      26760  0.078125    9379840
+docker-buildx      27956  0.046875    9428992
+docker-buildx      31160  0.046875    9408512
+docker-buildx      31268    0.0625    9388032
+docker-cloud        2620     0.125   10567680
+docker-cloud        6712  0.171875   10678272
+docker-cloud        8448  0.078125   10653696
+docker-cloud       10636  0.109375   10670080
+docker-cloud       11256  0.078125   10579968
+docker-cloud       12960  0.046875   10608640
+docker-cloud       19020     0.125   10604544
+docker-cloud       19580   0.03125   10518528
+docker-cloud       19952    0.1875   10645504
+docker-cloud       20944  0.109375   10678272
+docker-cloud       21116  0.140625   10637312
+docker-cloud       21728     0.125   10563584
+docker-cloud       22564    0.0625   10616832
+docker-cloud       24488  0.140625   10633216
+docker-cloud       26200   0.09375   10579968
+docker-cloud       31088   0.09375   10588160
+docker-cloud       31492  0.078125   10600448
+docker-compose      2540  0.046875    9252864
+docker-compose      6992   0.03125    9228288
+docker-compose     14576   0.09375    9281536
+docker-compose     16716  0.015625    9244672
+docker-compose     17636   0.03125    9269248
+docker-compose     18608  0.015625    9285632
+docker-compose     21208   0.03125    9252864
+docker-compose     21772  0.015625    9273344
+docker-compose     23676  0.015625    9261056
+docker-compose     24320  0.015625    9220096
+docker-compose     24880    0.0625    9248768
+docker-compose     25472   0.09375    9265152
+docker-compose     26520  0.046875    9244672
+docker-compose     27584  0.015625    9277440
+docker-compose     29108  0.015625    9252864
+docker-compose     29908   0.03125    9252864
+docker-compose     30040   0.03125    9244672
+docker-debug        3488  0.171875   13115392
+docker-debug        4616  0.140625   13012992
+docker-debug        5212   0.21875   13045760
+docker-debug        6880  0.109375   13070336
+docker-debug        7780  0.109375   13037568
+docker-debug        8816  0.140625   13000704
+docker-debug       10380     0.125   13082624
+docker-debug       16448  0.140625   13053952
+docker-debug       18344  0.171875   13078528
+docker-debug       22644    0.1875   13258752
+docker-debug       23972  0.140625   13004800
+docker-debug       24092     0.125   13037568
+docker-debug       26204  0.203125   13070336
+docker-debug       26684  0.171875   13131776
+docker-debug       27508  0.046875   11378688
+docker-debug       29856  0.046875   12988416
+docker-debug       30296  0.234375   13094912
+docker-desktop      1196  0.171875   13451264
+docker-desktop      3024  0.203125   13815808
+docker-desktop      6852    0.1875   13389824
+docker-desktop      8064  0.140625   13553664
+docker-desktop      9972   0.15625   13553664
+docker-desktop     10060  0.234375   13422592
+docker-desktop     12692  0.140625   13520896
+docker-desktop     14360  0.109375   13742080
+docker-desktop     15296  0.203125   13488128
+docker-desktop     18244      0.25   13766656
+docker-desktop     21404  0.234375   13459456
+docker-desktop     22000  0.015625   11874304
+docker-desktop     23112    0.1875   13430784
+docker-desktop     23488     0.125   13557760
+docker-desktop     25732  0.140625   13602816
+docker-desktop     29724  0.078125   13844480
+docker-desktop     29948     0.125   13844480
+docker-extension    3064  0.140625   11624448
+docker-extension    6544    0.0625   11657216
+docker-extension    7160  0.203125   11628544
+docker-extension    8016  0.140625   11616256
+docker-extension   10856     0.125   11624448
+docker-extension   12932   0.09375   11583488
+docker-extension   13564  0.171875   11685888
+docker-extension   21816  0.109375   11673600
+docker-extension   22700    0.0625   11620352
+docker-extension   25196  0.046875   11755520
+docker-extension   25328   0.09375   11681792
+docker-extension   26504   0.21875   11599872
+docker-extension   27112      0.25   11689984
+docker-extension   28376  0.234375   11751424
+docker-extension   30144  0.078125   11665408
+docker-extension   30752     0.125   11702272
+docker-extension   31152  0.171875   11694080
+docker-init         4620  0.203125   13971456
+docker-init         9964  0.140625   15843328
+docker-init        11164  0.109375   15900672
+docker-init        12780    0.4375   15417344
+docker-init        14192    0.0625   14745600
+docker-init        15604    0.1875   15851520
+docker-init        21920   0.15625   13901824
+docker-init        22268     0.125   13971456
+docker-init        23440  0.171875   16039936
+docker-init        23452  0.296875   14016512
+docker-init        23500   0.15625   13877248
+docker-init        25800  0.296875   14000128
+docker-init        26820  0.140625   13926400
+docker-init        26900   0.09375   13991936
+docker-init        28996    0.1875   13963264
+docker-init        29188    0.0625   14004224
+docker-init        31068  0.234375   13959168
+docker-mcp          4360   0.21875   10194944
+docker-mcp          9488  0.078125   10276864
+docker-mcp         12568   0.15625   10186752
+docker-mcp         13000   0.15625   10207232
+docker-mcp         13004   0.15625   10248192
+docker-mcp         14616   0.03125   10248192
+docker-mcp         15048  0.140625   10162176
+docker-mcp         15472    0.1875   10215424
+docker-mcp         15760   0.15625   10182656
+docker-mcp         15944     0.125   10133504
+docker-mcp         22608  0.140625   10153984
+docker-mcp         22852  0.109375   10190848
+docker-mcp         27684  0.140625   10162176
+docker-mcp         28016   0.15625   10125312
+docker-mcp         29024   0.09375   10240000
+docker-mcp         29268  0.171875   10170368
+docker-mcp         30428   0.09375   10194944
+docker-model        1976   0.15625   11202560
+docker-model        9532  0.046875   11358208
+docker-model       11096  0.109375   11268096
+docker-model       13896   0.15625   11345920
+docker-model       13928  0.109375   11264000
+docker-model       15980  0.078125   11296768
+docker-model       16516  0.140625   11194368
+docker-model       17704  0.078125   11276288
+docker-model       18116     0.125   11214848
+docker-model       18416     0.125   11214848
+docker-model       19628    0.0625   11255808
+docker-model       21476      0.25   11173888
+docker-model       21572  0.140625   11218944
+docker-model       22164  0.078125   11218944
+docker-model       22308  0.109375   11210752
+docker-model       23232  0.109375   11231232
+docker-model       24824   0.09375   11206656
+docker-offload      5852  0.078125   10223616
+docker-offload      7044  0.078125   10244096
+docker-offload      8940  0.046875   10223616
+docker-offload     11520  0.046875   10235904
+docker-offload     15340  0.140625   10264576
+docker-offload     18592     0.125   10235904
+docker-offload     20860  0.078125   10215424
+docker-offload     21916  0.078125   10219520
+docker-offload     22344   0.09375   10231808
+docker-offload     22880  0.078125   10223616
+docker-offload     23316    0.0625   10235904
+docker-offload     25172  0.078125   10223616
+docker-offload     27392    0.0625   10223616
+docker-offload     28264  0.015625   10248192
+docker-offload     28576  0.078125   10219520
+docker-offload     28656  0.046875   10149888
+docker-offload     29216  0.046875   10223616
+docker-sbom         8124    0.0625   14471168
+docker-sbom         8660  0.171875   14323712
+docker-sbom        14012     0.125   14290944
+docker-sbom        14092    0.1875   14282752
+docker-sbom        14264   0.21875   14249984
+docker-sbom        14944  0.203125   14237696
+docker-sbom        15320      0.25   14258176
+docker-sbom        16684  0.140625   14352384
+docker-sbom        18996  0.203125   14286848
+docker-sbom        20052  0.171875   14233600
+docker-sbom        21800   0.21875   15310848
+docker-sbom        22496     0.125   14340096
+docker-sbom        22864  0.140625   14295040
+docker-sbom        23200  0.046875   14372864
+docker-sbom        23216    0.0625   14254080
+docker-sbom        24756  0.234375   14340096
+docker-sbom        25936    0.0625   13418496
+docker-scout       24244  0.015625    2842624
+
+
+
+[2025-10-14 14:34:54] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-14 14:47:51] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:47:51] [FREEZE] Test: Docker Daemon Info
+[2025-10-14 14:47:51] [FREEZE] Timeout: 15 seconds
+[2025-10-14 14:47:51] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:49:20] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 10372 67.640625   97964032
+com.docker.backend 25832   2.21875   34271232
+com.docker.build   16968  2.921875   30801920
+Docker Desktop      9596 27.765625   52248576
+Docker Desktop     21544      6.25   28626944
+Docker Desktop     24916  0.328125   34828288
+Docker Desktop     27936  7.015625   31653888
+docker-buildx       7536  0.140625   24723456
+docker-buildx      10140    0.4375   24657920
+docker-buildx      10436    0.1875   24924160
+docker-buildx      10564     0.375   24768512
+docker-buildx      10972   0.59375   24387584
+docker-buildx      12556  0.234375   24768512
+docker-buildx      13676  0.265625   19324928
+docker-buildx      15756  0.390625   24567808
+docker-buildx      17224      0.25   24887296
+docker-buildx      17752  0.328125   24899584
+docker-buildx      19740  0.109375   25436160
+docker-buildx      20300  0.078125   25464832
+docker-buildx      20688     0.375   25100288
+docker-buildx      21492  0.265625   25210880
+docker-buildx      21660  4.140625   24625152
+docker-buildx      23068  0.296875   24870912
+docker-buildx      23944    0.3125   24678400
+docker-buildx      24068  0.265625   24891392
+docker-buildx      24648    0.1875   24793088
+docker-buildx      24724  0.296875   24559616
+docker-buildx      25820       0.5   24817664
+docker-buildx      26284   0.28125   25047040
+docker-buildx      28256      0.25   24813568
+docker-buildx      29416  0.203125   25157632
+docker-buildx      29420  0.453125   24772608
+docker-buildx      29660    1.0625   25075712
+docker-cloud        4148   0.34375   25309184
+docker-cloud        5420  0.140625   25276416
+docker-cloud        8144  0.296875   25391104
+docker-cloud       12692   0.21875   25141248
+docker-cloud       13284     0.375   25300992
+docker-cloud       13420  0.140625   25137152
+docker-cloud       13624      0.25   25157632
+docker-cloud       14532    0.1875   25296896
+docker-cloud       19264   0.15625   25276416
+docker-cloud       21160  0.265625   25182208
+docker-cloud       21620    0.1875   25108480
+docker-cloud       22512      0.25   25231360
+docker-cloud       22644  0.203125   25198592
+docker-cloud       23044  0.421875   25677824
+docker-cloud       23628   0.28125   25812992
+docker-cloud       25144  0.203125   25423872
+docker-cloud       25724    0.1875   25145344
+docker-cloud       26144      0.25   25251840
+docker-cloud       26492  0.203125   25116672
+docker-cloud       26796     0.125   25210880
+docker-cloud       27540    0.3125   25067520
+docker-cloud       28892    0.0625   25325568
+docker-cloud       30888  0.453125   25153536
+docker-cloud       30956    0.3125   25071616
+docker-cloud       31000  0.359375   25432064
+docker-cloud       31696  0.171875   25845760
+docker-compose     13432  0.046875   11833344
+docker-compose     20960  0.046875   11919360
+docker-compose     26300   0.03125   11669504
+docker-extension   13708             17072128
+docker-mcp          5980      0.25   14483456
+docker-mcp          7288  0.078125   14557184
+docker-mcp          7804   0.15625   14532608
+docker-mcp         13544   0.09375   14409728
+docker-mcp         16000   0.09375   14487552
+docker-mcp         16332   0.15625   14573568
+docker-mcp         17140   0.15625   14512128
+docker-mcp         17520  0.140625   14741504
+docker-mcp         18328   0.28125   14405632
+docker-mcp         19268  0.203125   14360576
+docker-mcp         21176  0.203125   14417920
+docker-mcp         21664  0.140625   14618624
+docker-mcp         22376  0.109375   14376960
+docker-mcp         22640  0.171875   14536704
+docker-mcp         22704   0.21875   14671872
+docker-mcp         22740  0.140625   14417920
+docker-mcp         22792  0.078125   14618624
+docker-mcp         24760   0.28125   14622720
+docker-mcp         25876  0.109375   14528512
+docker-mcp         26292    0.0625   14450688
+docker-mcp         26308  0.296875   14512128
+docker-mcp         28168  0.078125   14589952
+docker-mcp         28776  0.171875   14417920
+docker-mcp         29584  0.203125   14495744
+docker-mcp         30508     0.125   14565376
+docker-mcp         31728  0.140625   14442496
+docker-model        5872             22999040
+docker-model       10648             23719936
+docker-model       12832             22552576
+docker-model       13512      0.25   22724608
+docker-model       15104             23060480
+docker-model       15436             22544384
+docker-model       17648             22589440
+docker-model       18268             22093824
+docker-model       19952             23519232
+docker-model       22308             22970368
+docker-model       22536             23199744
+docker-model       23128             22437888
+docker-model       23440             23007232
+docker-model       23648             22843392
+docker-model       24692             22339584
+docker-model       25124             22355968
+docker-model       25364             23486464
+docker-model       25780             22622208
+docker-model       26136             23359488
+docker-model       27188             22429696
+docker-model       27472             22593536
+docker-model       28296             22724608
+docker-model       29560             22634496
+docker-model       30512             23203840
+docker-model       30788             22564864
+docker-model       31452             23552000
+docker-sbom         1680             13807616
+docker-sbom         3296             13852672
+docker-sbom         5612             13783040
+docker-sbom         7528             13852672
+docker-sbom         8312             13709312
+docker-sbom        12680             13787136
+docker-sbom        12900             13778944
+docker-sbom        14448             13783040
+docker-sbom        16736             13791232
+docker-sbom        16788             13762560
+docker-sbom        18004             13774848
+docker-sbom        18456             13709312
+docker-sbom        19116             13762560
+docker-sbom        19164             13795328
+docker-sbom        19660             13869056
+docker-sbom        20932             13717504
+docker-sbom        21452             13766656
+docker-sbom        24452             13815808
+docker-sbom        26160             13684736
+docker-sbom        28376             13918208
+docker-sbom        29256             13742080
+docker-sbom        30172             13803520
+docker-sbom        30388             13701120
+docker-sbom        30864             13832192
+docker-scout        2052  0.484375   50020352
+docker-scout       11796  0.234375   49340416
+docker-scout       12840  0.171875   49692672
+docker-scout       12928    0.1875   49950720
+docker-scout       12968   0.34375   49324032
+docker-scout       13688  0.609375   49274880
+docker-scout       15160  0.140625   33386496
+docker-scout       15644  0.265625   48889856
+docker-scout       15700  0.234375   49856512
+docker-scout       16848  0.296875   49491968
+docker-scout       18228    1.4375   48353280
+docker-scout       19036   0.65625   49750016
+docker-scout       19628  0.265625   49209344
+docker-scout       20832     2.375   48586752
+docker-scout       22264      0.75   47906816
+docker-scout       22720  0.234375   49807360
+docker-scout       26032   0.21875   48889856
+docker-scout       26336  0.265625   49594368
+docker-scout       26488   0.34375   48717824
+docker-scout       27040       0.5   48418816
+docker-scout       27528  0.296875   49426432
+docker-scout       29528    0.3125   48738304
+docker-scout       30668  0.359375   48435200
+docker-scout       30764    0.3125   49070080
+docker-scout       30940  0.296875   48115712
+docker-scout       31172   0.59375   49045504
+
+
+
+[2025-10-14 14:49:21] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-14 14:57:27] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:57:27] [FREEZE] Test: Docker CLI Version Check
+[2025-10-14 14:57:27] [FREEZE] Timeout: 10 seconds
+[2025-10-14 14:57:27] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:57:28] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 18756   1.59375   34308096
+com.docker.backend 30204 60.984375  113901568
+com.docker.build   18200   0.90625   31764480
+Docker Desktop     14472  0.140625   34807808
+Docker Desktop     17896   5.03125   34275328
+Docker Desktop     26428  6.734375   55574528
+Docker Desktop     31376 24.671875  134201344
+docker-buildx      19968  0.140625   20549632
+docker-buildx      25344    0.1875   20541440
+docker-buildx      27512   0.09375   20037632
+docker-compose      8400     0.125   19226624
+docker-compose     22828    0.0625   19017728
+docker-compose     31716     0.125   18993152
+docker-scout       27488   0.09375   14573568
+docker-scout       29428   0.03125   14569472
+docker-scout       29688   0.03125   14561280
+
+
+
+[2025-10-14 14:57:28] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-14 14:57:45] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 14:57:45] [FREEZE] Test: Docker Daemon Info
+[2025-10-14 14:57:45] [FREEZE] Timeout: 15 seconds
+[2025-10-14 14:57:45] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 14:57:45] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id      CPU WorkingSet
+-----------           --      --- ----------
+com.docker.backend 18756 1.609375   34312192
+com.docker.backend 30204 64.90625  112799744
+com.docker.build   18200  0.90625   31764480
+Docker Desktop     14472 0.140625   34807808
+Docker Desktop     17896 5.046875   33558528
+Docker Desktop     26428     6.75   51363840
+Docker Desktop     31376 25.40625  138297344
+docker-desktop     13112   0.0625   13979648
+docker-desktop     24304   0.0625   14106624
+docker-desktop     28392 0.078125   13963264
+
+
+
+[2025-10-14 14:57:45] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-14 15:17:32] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-14 15:17:32] [FREEZE] Test: Docker CLI Version Check
+[2025-10-14 15:17:32] [FREEZE] Timeout: 10 seconds
+[2025-10-14 15:17:32] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-14 15:17:33] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 12592     4.375   34258944
+com.docker.backend 21460 108.65625  122896384
+com.docker.build    8024    1.0625   34283520
+Docker Desktop     18428  7.765625   36847616
+Docker Desktop     22364  0.421875   19689472
+Docker Desktop     23392   46.3125  103464960
+Docker Desktop     23504   0.71875   34238464
+docker-buildx      13948  0.046875    9633792
+docker-buildx      14056  0.015625    9650176
+docker-buildx      17544    0.0625    9666560
+docker-cloud       10904   0.28125   27623424
+docker-cloud       16444  0.328125   28893184
+docker-cloud       17500  0.296875   27549696
+docker-cloud       19596    0.3125   27533312
+docker-cloud       24088  0.296875   27283456
+docker-cloud       30716  0.234375   27516928
+docker-compose     11236   0.28125   24670208
+docker-compose     20000   0.15625   24649728
+docker-compose     22024  0.203125   24641536
+docker-compose     24564      0.25   24911872
+docker-compose     29920      0.25   24502272
+docker-compose     30416  0.234375   24662016
+docker-extension    5176             18677760
+docker-extension   26692             18718720
+docker-extension   28728             18817024
+docker-mcp         23252   0.03125    9584640
+docker-mcp         24056   0.03125    9601024
+docker-mcp         24976  0.015625    9637888
+docker-model       13248    0.0625    9928704
+docker-model       13492     0.125    9924608
+docker-model       20840  0.078125   10035200
+docker-offload     23796   0.09375   10317824
+docker-offload     25232   0.03125   10321920
+docker-offload     31352  0.046875   10326016
+docker-sbom        20040    0.1875   17813504
+docker-sbom        20116   0.15625   17416192
+docker-sbom        21808   0.15625   17747968
+docker-scout       16620   0.46875   51138560
+docker-scout       19900  0.703125   51765248
+docker-scout       24228  0.546875   52641792
+docker-scout       25568  0.234375   51449856
+docker-scout       28136  0.421875   51761152
+docker-scout       29184  0.546875   51609600
+
+
+
+[2025-10-14 15:17:33] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-15 09:32:51] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-15 09:32:51] [FREEZE] Test: Docker Daemon Info
+[2025-10-15 09:32:51] [FREEZE] Timeout: 15 seconds
+[2025-10-15 09:32:51] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-15 09:32:51] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id         CPU WorkingSet
+-----------           --         --- ----------
+com.docker.backend 21608  335.921875   62414848
+com.docker.backend 27216   3214.3125  216563712
+com.docker.build   14400    4.703125   41922560
+Docker Desktop      2252        0.75   56160256
+Docker Desktop      4208    4.765625   92528640
+Docker Desktop     10756 3346.984375  353218560
+Docker Desktop     11896    0.671875   56696832
+Docker Desktop     14668   37.609375   77565952
+Docker Desktop     15296    470.6875  158871552
+Docker Desktop     27800     0.40625   56651776
+
+
+
+[2025-10-15 09:32:51] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds

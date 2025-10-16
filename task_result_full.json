@@ -1,0 +1,4854 @@
+{
+  "citations": [
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "333 F.3d 1018",
+      "cluster_case_name": "GOPHER MEDIA LLC v. MELONE Before",
+      "cluster_id": "cluster_7",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "guia ; Concurrence by Judge Bennett; Concurrence by Judge Bress SUMMARY* Anti -SLAPP Statute / Collateral Order Doctrine Overruling Batzel v. Smith , 333 F.3d 1018 (9th Cir. 2003), and dismissing an appeal for lack of jurisdiction, the en banc court held that a d",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 1136,
+      "error": null,
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE Before",
+      "extracted_date": "2003",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2003
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 1123,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "304 U.S. 64",
+      "cluster_case_name": "Erie Railroad Co. v. Tompkins",
+      "cluster_id": "cluster_8",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ral rule controls or directly collides with that right. Thus, the anti -SLAPP provisions apply in federal court under Erie Railroad Co. v. Tompkins , 304 U.S. 64 (1938)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 2460,
+      "error": null,
+      "extracted_case_name": "Erie Railroad Co. v. Tompkins",
+      "extracted_date": "1938",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1938
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 2449,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "546 U.S. 345",
+      "cluster_case_name": "In Batzel v. Smith",
+      "cluster_id": "cluster_3",
+      "cluster_members": [
+        "506 U.S. 139"
+      ],
+      "confidence": 1.0,
+      "context": "parate from the merits of the action \u201d and does not render the decision \u201ceffectively unreviewable on appeal from a final judgment.\u201d Will v. Hallock , 546 U.S. 345, 349 (2006)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5044,
+      "error": null,
+      "extracted_case_name": "In Batzel v. Smith",
+      "extracted_date": "2006",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2006
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "506 U.S. 139"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5032,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "506 U.S. 139",
+      "cluster_case_name": "In Batzel v. Smith",
+      "cluster_id": "cluster_3",
+      "cluster_members": [
+        "546 U.S. 345"
+      ],
+      "confidence": 1.0,
+      "context": "(quoting P.R. Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc., 506 U.S. 139, 144 (1993)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5131,
+      "error": null,
+      "extracted_case_name": "Will v. Hallock",
+      "extracted_date": "2016",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "546 U.S. 345"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5119,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "830 F.3d 881",
+      "cluster_case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "cluster_id": "cluster_9",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "for lac k of jurisdiction. 2 1 The SLAPP acronym stands for \u201cStrategic Lawsuit Against Public Participation.\u201d Manzari v. Associated Newspapers Ltd. , 830 F.3d 881, 886 (9th Cir. 2016). Anti -SLAPP statutes have been passed in various states, including California",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5366,
+      "error": null,
+      "extracted_case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "extracted_date": "2016",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5354,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "190 F.3d 963",
+      "cluster_case_name": "Manzari v. Associated Newspapers Ltd.",
+      "cluster_id": "cluster_1",
+      "cluster_members": [
+        "439 P.3d 1156"
+      ],
+      "confidence": 1.0,
+      "context": "Inc. , 439 P.3d 1156, 1160\u2013 61 (Cal. 2019). 2 We do not reconsider our precedent in U nited States ex rel. Newsham v. Lockheed Missiles & Space Co. , 190 F.3d 963 (9th Cir. 1999), and we assume for purposes of this opinion that California\u2019s anti -SLAPP statute 6",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 5904,
+      "error": null,
+      "extracted_case_name": "Manzari v. Associated Newspapers Ltd.",
+      "extracted_date": "1999",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1999
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 5892,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "129 F.4th 1196",
+      "cluster_case_name": "Gopher Media LLC v. Melone",
+      "cluster_id": "cluster_11",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ed active judges agreed that this case should be decided en banc so that our governing precedent could be reconsidered . Gopher Media LLC v. Melone , 129 F.4th 1196 (9th Cir. 2025) (mem.) ; Fed. R. App. P. 40(g). II Generally, our jurisdiction is limited to appeal",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 10246,
+      "error": null,
+      "extracted_case_name": "Gopher Media LLC v. Melone",
+      "extracted_date": "2025",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2025
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 10232,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "337 U.S. 541",
+      "cluster_case_name": "Equip. Corp. v. Desktop Direct, Inc.",
+      "cluster_id": "cluster_13",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": ") ; see also Cohen v. Beneficial Indus . Loan Corp., 337 U.S. 541, 546\u201347 (1949)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 11215,
+      "error": null,
+      "extracted_case_name": "Equip. Corp. v. Desktop Direct, Inc.",
+      "extracted_date": "1949",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1949
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 11203,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "515 U.S. 304",
+      "cluster_case_name": "Cohen v. Beneficial Indus . Loan Corp",
+      "cluster_id": "cluster_14",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "MELONE 9 \u201cconceptually distinct\u201d from the \u201cfact -related legal issues that likely underlie the plaintiff \u2019s claim on the merits.\u201d Johnson v. Jones , 515 U.S. 304, 314 (1995)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 11501,
+      "error": null,
+      "extracted_case_name": "Cohen v. Beneficial Indus . Loan Corp",
+      "extracted_date": "1995",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1995
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 11489,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "859 F.3d 720",
+      "cluster_case_name": "Johnson v. Jones",
+      "cluster_id": "cluster_16",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ent and that the collateral -order doctrine must remain a narrow exception.\u201d SolarCity Corp. v. Salt River Project Agric. Improvement & Power Dist. , 859 F.3d 720, 724 (9th Cir. 2017). In Batzel , we held that we have jurisdiction to review orders denying anti -",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 12314,
+      "error": null,
+      "extracted_case_name": "Johnson v. Jones",
+      "extracted_date": "2017",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2017
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 12302,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2013-01-10",
+      "canonical_name": "Dc Comics v. Pacific Pictures Corporation",
+      "canonical_url": "https://www.courtlistener.com/opinion/815115/dc-comics-v-pacific-pictures-corporation/",
+      "case_history": [],
+      "citation": "706 F.3d 1009",
+      "cluster_case_name": "DC Comics v. Pacific Pictures Corp.",
+      "cluster_id": "cluster_17",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "tion may be appealed immediately in 10 GOPHER MEDIA LLC V. MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp., 706 F.3d 1009 (9th Cir. 2013), we reaffirmed Batzel , holding that the Supreme Court\u2019s intervening decision in Mo",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 13414,
+      "error": null,
+      "extracted_case_name": "DC Comics v. Pacific Pictures Corp.",
+      "extracted_date": "2013",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2013
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 13401,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "890 F.3d 828",
+      "cluster_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "cluster_id": "cluster_4_split_3",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "motion meets the collateral order doctrine \u2019s stringent requirements . See, e.g. , Planned Parenthood Fed\u2019n of Am., Inc. v. Ctr. for Med. Progress , 890 F.3d 828, 835\u201338 (9th Cir. 2018) (Gould, J., concurring); Travelers Cas. Ins. Co. of Am. v. Hirsh , 831 F.3d",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 13935,
+      "error": null,
+      "extracted_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "extracted_date": "2018",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2018
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "831 F.3d 1179",
+        "736 F.3d 1180"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 13923,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "831 F.3d 1179",
+      "cluster_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "cluster_id": "cluster_4_split_4",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ed\u2019n of Am., Inc. v. Ctr. for Med. Progress , 890 F.3d 828, 835\u201338 (9th Cir. 2018) (Gould, J., concurring); Travelers Cas. Ins. Co. of Am. v. Hirsh , 831 F.3d 1179, 1182\u201386 (9th Cir. 2016) (Kozinski , J., concurring); Makaeff v. Trump Univ., LLC , 736 F.3d 1180,",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14040,
+      "error": null,
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE Pacific Pictures Corp",
+      "extracted_date": "2016",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "890 F.3d 828",
+        "736 F.3d 1180"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14027,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "82 F.4th 785",
+      "cluster_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "cluster_id": "cluster_4_split_6",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "v., LLC , 736 F.3d 1180, 1188\u2013 92 (9th Cir. 2013) (Watford, J., dissenting from the denial of rehearing en banc) ; Martinez v. ZoomInfo Techs., Inc., 82 F.4th 785, 794, 796\u201397 (9th Cir. 2023) (McKeown, J., concurring, and Desai, J., concurring), vacated , 90 F.4",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14277,
+      "error": null,
+      "extracted_case_name": "Martinez v. ZoomInfo Techs., Inc.",
+      "extracted_date": "2023",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2023
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "90 F.4th 1042"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14265,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "90 F.4th 1042",
+      "cluster_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "cluster_id": "cluster_4_split_7",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "banc) ; Martinez v. ZoomInfo Techs., Inc., 82 F.4th 785, 794, 796\u201397 (9th Cir. 2023) (McKeown, J., concurring, and Desai, J., concurring), vacated , 90 F.4th 1042 (9th Cir. 2024) (mem.). In addition, other circuits have held that the denial of an anti - SLAPP mo",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14384,
+      "error": null,
+      "extracted_case_name": "Ins. Co. of Am. v. Hirsh",
+      "extracted_date": "2024",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2024
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "82 F.4th 785"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14371,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "814 F.3d 116",
+      "cluster_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "cluster_id": "cluster_4_split_8",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ddition, other circuits have held that the denial of an anti - SLAPP motion does not satisfy the collateral order doctrine . E.g., Ernst v. Carrigan, 814 F.3d 116, 119 & n.1 (2d Cir. 2016) (discussing Vermont\u2019s anti -SLAPP statute) ; Coomer v. Make Your Life Epi",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 14575,
+      "error": null,
+      "extracted_case_name": "See, e.g. , Planned Parenthood Fed'n of Am., Inc. v. Ctr. for Med. Progress",
+      "extracted_date": "2016",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 14563,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "472 U.S. 511",
+      "cluster_case_name": "Mitchell v. Forsyth",
+      "cluster_id": "cluster_18",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": ", 98 F.4th at 1328 (\u201c[A] principal purpose of the separability requirement[] [is] preventing piecemeal appellate review.\u201d); cf. Mitchell v. Forsyth , 472 U.S. 511, 527\u201328 (1985)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 16867,
+      "error": null,
+      "extracted_case_name": "Mitchell v. Forsyth",
+      "extracted_date": "1985",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1985
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 16855,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2016-06-14",
+      "canonical_name": "J. Hyan v. Rosslyn Hummer",
+      "canonical_url": "https://www.courtlistener.com/opinion/3213071/j-hyan-v-rosslyn-hummer/",
+      "case_history": [],
+      "citation": "825 F.3d 1043",
+      "cluster_case_name": "Hyan v. Hummer",
+      "cluster_id": "cluster_19",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "08. Indeed, our c ourt has already reached this conclusion about order s granting an anti-SLAPP motion under California\u2019s statute . Hyan v. Hummer , 825 F.3d 1043, 1046\u201347 (9th Cir. 2016) (per curiam) ( holding that the district court\u2019s order granting an anti-SL",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 19092,
+      "error": null,
+      "extracted_case_name": "Hyan v. Hummer",
+      "extracted_date": "2016",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 19079,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2013-05-31",
+      "canonical_name": "Liberty Synergistics Inc. v. Microflo Ltd.",
+      "canonical_url": "https://www.courtlistener.com/opinion/873498/liberty-synergistics-inc-v-microflo-ltd/",
+      "case_history": [],
+      "citation": "718 F.3d 138",
+      "cluster_case_name": "Liberty Synergistic Inc. v. Microflo Ltd.",
+      "cluster_id": "cluster_2",
+      "cluster_members": [
+        "74 P.3d 737"
+      ],
+      "confidence": 1.0,
+      "context": "ed that the California statute . . . does not provide . . . \u2018 a substantive immunity from suit.\u2019\u201d (quoting Liberty Synergistic Inc. v. Microflo Ltd., 718 F.3d 138, 148 n.9 (2d. Cir. 2013) (discussing Jarrow Formulas, Inc. v. LaMarche , 74 P.3d 737 (Cal. 2003)).",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 21747,
+      "error": null,
+      "extracted_case_name": "Liberty Synergistic Inc. v. Microflo Ltd.",
+      "extracted_date": "2013",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2013
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 21735,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "33 Cal. Rptr. 2d 446",
+      "cluster_case_name": "Sys., Inc. v. Delfino",
+      "cluster_id": "cluster_5",
+      "cluster_members": [
+        "52 P.3d 685"
+      ],
+      "confidence": 1.0,
+      "context": "ss actions, (suits for malicious prosecution and abuse of process, requests for sanctions) are inadequate to counter SLAPPs.\u201d Wilcox v. Superior Ct., 33 Cal. Rptr. 2d 446, 450 (Ct. App. 1994), disapproved of on other grounds by Equilon Enters. v. Consumer Cause, Inc., 5",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 25101,
+      "error": null,
+      "extracted_case_name": "Sys., Inc. v. Delfino",
+      "extracted_date": "1994",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1994
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "52 P.3d 685"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 25081,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "897 F.3d 1224",
+      "cluster_case_name": "Planned Parenthood Federation of America, Inc. v. Ce",
+      "cluster_id": "cluster_22",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "le 56 standard applies \u201cwhen an anti -SLAPP motion to strike challenges the factual sufficiency of a claim.\u201d 890 F.3d 828, 834 (9th Cir.), amended by 897 F.3d 1224 (9th Cir. 2018). 18 GOPHER MEDIA LLC V. MELONE litigation designed to chill the exercise of free sp",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 27513,
+      "error": null,
+      "extracted_case_name": "Planned Parenthood Federation of America, Inc. v. Ce",
+      "extracted_date": "2018",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "name_may_be_truncated": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2018
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 27500,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "559 U.S. 393",
+      "cluster_case_name": "A. v. Allstate Ins.",
+      "cluster_id": "cluster_24",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "in federal court, we must first ask whether a federal rule \u201canswers the question in dispute.\u201d Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins., 559 U.S. 393, 398 (2010)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 27938,
+      "error": null,
+      "extracted_case_name": "A. v. Allstate Ins.",
+      "extracted_date": "2010",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2010
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 27926,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "480 U.S. 1",
+      "cluster_case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "cluster_id": "cluster_25",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "aw or, implicitly, to \u2018control the issue\u2019 before the court, thereby leaving no room for the operation of that law.\u201d Burlington N. R.R. Co. v. Woods , 480 U.S. 1, 4\u20135 (1987)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 28205,
+      "error": null,
+      "extracted_case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "extracted_date": "1987",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1987
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 28195,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "24 F.4th 1262",
+      "cluster_case_name": "R.R. Co. v. Woods",
+      "cluster_id": "cluster_27",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "\u201ccontrols \u2018unless it exceeds statutory authorization or Congress\u2019s rulemaking power.\u2019\u201d Ellis v. Salt River Project Agric. Improvement & Power Dist., 24 F.4th 1262, 1269 (9th Cir. 2022) (quoting Shady Grove ,",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 28488,
+      "error": null,
+      "extracted_case_name": "R.R. Co. v. Woods",
+      "extracted_date": "2022",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2022
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 28475,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "518 U.S. 415",
+      "cluster_case_name": "Barry v. State Bar of Cal.",
+      "cluster_id": "cluster_28",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "the Erie doctrine, federal courts sitting in diversity apply state substantive law and federal procedural law.\u201d Gasperini v. Ctr. for Humans., Inc., 518 U.S. 415, 427 (1996)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 28887,
+      "error": null,
+      "extracted_case_name": "Barry v. State Bar of Cal.",
+      "extracted_date": "2015",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2015
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 28875,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "356 U.S. 525",
+      "cluster_case_name": "s., P .A. v. Allstate Ins.",
+      "cluster_id": "cluster_30",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "by contrast, defines \u2018a form and mode of enforcing\u2019 the substantive right or obligation.\u201d Id. (quoting Byrd v. Blue Ridge Rural Elec. Co- op., Inc., 356 U.S. 525, 536 (1958)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 29213,
+      "error": null,
+      "extracted_case_name": "s., P .A. v. Allstate Ins.",
+      "extracted_date": "1958",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1958
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 29201,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "487 U.S. 131",
+      "cluster_case_name": "Ellis v. Salt River Project Agric. Improvement & Power Dist",
+      "cluster_id": "cluster_31",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "as legal rules determine the outcome of a litigation, as it would be if tried in a State court.\u2019\u201d Ellis , 24 F.4th at 1270 (quoting Felder v. Casey, 487 U.S. 131, 151 (1988)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 29609,
+      "error": null,
+      "extracted_case_name": "Ellis v. Salt River Project Agric. Improvement & Power Dist",
+      "extracted_date": "1988",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1988
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 29597,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "380 U.S. 460",
+      "cluster_case_name": "Gasperini v. Ctr. for Humans., Inc.",
+      "cluster_id": "cluster_32",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "n aims of the Erie rule: disc ouragement of forum -shopping and avoidance of inequitable administration of the laws.\u2019\u201d Id. (quoting Hanna v. Plumer , 380 U.S. 460, 468 (1965)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 29940,
+      "error": null,
+      "extracted_case_name": "Gasperini v. Ctr. for Humans., Inc.",
+      "extracted_date": "1965",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 1965
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 29928,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "966 F.3d 79",
+      "cluster_case_name": "Hanna v. Plumer",
+      "cluster_id": "cluster_33",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ose cases framed the question differently in holding that various state anti -SLAPP statutes conflicted with a federal rule. See La Liberte v. Reid , 966 F.3d 79, 87 (2d Cir. 2020) (identifying the question as \u201cthe circumstances under which a court must dismiss",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 31042,
+      "error": null,
+      "extracted_case_name": "Hanna v. Plumer",
+      "extracted_date": "2020",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2020
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 31031,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "783 F.3d 1328",
+      "cluster_case_name": "La Liberte v. Reid",
+      "cluster_id": "cluster_6",
+      "cluster_members": [
+        "936 F.3d 240",
+        "910 F.3d 1345"
+      ],
+      "confidence": 1.0,
+      "context": "dure 12(b)(6) standard and consider whether a claim is properly stat ed.\u201d plaintiff\u2019s claim before trial\u201d (quoting Abbas v. Foreign Pol\u2019y Grp., LLC , 783 F.3d 1328, 1333 (D.C. Cir. 2015))); Klocke v. Watson , 936 F.3d 240, 245 (5th Cir.), as revised (Aug. 29, 201",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 32119,
+      "error": null,
+      "extracted_case_name": "La Liberte v. Reid",
+      "extracted_date": "2015",
+      "is_cluster": true,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2015
+      },
+      "method": "eyecite",
+      "parallel_citations": [
+        "936 F.3d 240",
+        "910 F.3d 1345"
+      ],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 32106,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "39 F.4th 575",
+      "cluster_case_name": "Hamilton v. Wa",
+      "cluster_id": "cluster_34",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "has directed that \u201cif the federal and state rules \u2018can be reconciled,\u2019 then they do not qualify as in conflict.\u201d Hamilton v. Wal-Mart Stores, Inc. , 39 F.4th 575, 585 (9th Cir. 2022) (quoting Shady Grove ,",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 32761,
+      "error": null,
+      "extracted_case_name": "Hamilton v. Wa",
+      "extracted_date": "2022",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "name_may_be_truncated": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2022
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 32749,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "46 F.4th 1136",
+      "cluster_case_name": "CoreCivic, Inc. v. Candide Grp., LLC",
+      "cluster_id": "cluster_35",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": ". See CoreCivic, Inc. v. Candide Grp., LLC , 46 F.4th 1136, 1143 (9th Cir. 2022) (explaining that, under Planned Parenthood, no \u201cconflict exists in this Circu",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 33706,
+      "error": null,
+      "extracted_case_name": "CoreCivic, Inc. v. Candide Grp., LLC",
+      "extracted_date": "2022",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "name_may_be_truncated": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2022
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 33693,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2013-03-06",
+      "canonical_name": "Alaska Rent-A-Car, Inc. v. Avis Budget Group, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/8441566/alaska-rent-a-car-inc-v-avis-budget-group-inc/",
+      "case_history": [],
+      "citation": "738 F.3d 960",
+      "cluster_case_name": "Car, Inc. v. Avis Budget Grp., Inc.",
+      "cluster_id": "cluster_36",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "or attorneys\u2019 fees for plaintiffs\u2019 abuse of the judicial process. This is a substantive rule. See Alaska Rent -A-Car, Inc. v. Avis Budget Grp., Inc., 738 F.3d 960, 973 (9th Cir. 2013) (\u201cThe Supreme Court held in Alyeska Pipeline Service Co. v. Wilderness Society",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 34355,
+      "error": null,
+      "extracted_case_name": "Car, Inc. v. Avis Budget Grp., Inc.",
+      "extracted_date": "2013",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2013
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 34343,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "629 F.3d 79",
+      "cluster_case_name": "Lackey v. Stinnie",
+      "cluster_id": "cluster_41",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "as opposed to state court would allow a plaintiff to . . . circumvent any liability for a defendant\u2019s attorney\u2019s fees or costs.\u201d Godin v. Schencks , 629 F.3d 79, 92 (1st Cir. 2010). \u201cConversely, a litigant otherwise entitled to the protections of the Anti -SLA",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 37698,
+      "error": null,
+      "extracted_case_name": "Lackey v. Stinnie",
+      "extracted_date": "2010",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2010
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 37687,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2018-03-12",
+      "canonical_name": "L. Lobos Renewable Power, LLC v. AmeriCulture, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4476405/l-lobos-renewable-power-llc-v-americulture-inc/",
+      "case_history": [],
+      "citation": "885 F.3d 659",
+      "cluster_case_name": "Los Lobos Renewable Power, LLC v. Americulture, Inc,",
+      "cluster_id": "cluster_42",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "i-SLAPP provisions apply in federal court. 7 I find unpersuasive the Tenth Circuit\u2019s decision in Los Lobos Renewable Power, LLC v. Americulture, Inc, 885 F.3d 659 (10th Cir. 2018), in which it held that New Mexico\u2019s anti -SLAPP statute is procedural and not subs",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 40075,
+      "error": null,
+      "extracted_case_name": "Los Lobos Renewable Power, LLC v. Americulture, Inc",
+      "extracted_date": "2018",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2018
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 40063,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "Cal. Civ. Proc. Code \u00a7\u00a7 425.16",
+      "cluster_case_name": "N/A",
+      "cluster_id": "cluster_43",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "reason that California\u2019s anti- SLAPP statute does not apply in federal court. I A Like many other states, California has an anti -SLAPP statute. See Cal. Civ. Proc. Code \u00a7\u00a7 425.16\u201317. SLAPP stands for \u201cstrategic lawsuit against public participation.\u201d The idea behind anti -SLAPP",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 43116,
+      "error": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": null,
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": null
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 43086,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2001-09-05",
+      "canonical_name": "Metabolife International, Inc. v. Wornick",
+      "canonical_url": "https://www.courtlistener.com/opinion/7099356/metabolife-international-inc-v-wornick/",
+      "case_history": [],
+      "citation": "264 F.3d 832",
+      "cluster_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "cluster_id": "cluster_44",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "Constitution or the California Constitution in connection with a public issue.\u201d Id. \u00a7 425.16(b)(1); see generally Metabolife Int\u2019l, Inc. v. Wornick , 264 F.3d 832, 839\u201340 (9th Cir. 2001) (outlining the mechanics of an anti -SLAPP motion). There are also exceptio",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 44009,
+      "error": null,
+      "extracted_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "extracted_date": "2001",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2001
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 43997,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "715 F.3d 254",
+      "cluster_case_name": "Makaeff v. Trump Univ., LLC",
+      "cluster_id": "cluster_46",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ercise of his right to free speech, the defendant may bring an anti -SLAPP motion. Cal. Civ. Proc. Code \u00a7 425.16(b)(1); Makaeff v. Trump Univ., LLC , 715 F.3d 254, 261 (9th Cir. 2013). At that point, the burden shifts to the plaintiff to \u201cestablish[ ] that there",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 44638,
+      "error": null,
+      "extracted_case_name": "Makaeff v. Trump Univ., LLC",
+      "extracted_date": "2013",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "name_may_be_truncated": true,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2013
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 44626,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "111 Cal. Rptr. 2d 582",
+      "cluster_case_name": "also Makaef f v. Trump Univ., LLC",
+      "cluster_id": "cluster_49",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "C V. MELONE that are improperly aimed at the exercise of free speech or the right of petition.\u201d Newport Harbor , 413 P.3d at 653 (quoting Lam v. Ngo, 111 Cal. Rptr. 2d 582, 589 (Cal. Ct. App. 2001)). Several years after California enacted its anti -SLAPP statute, we held",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 46311,
+      "error": null,
+      "extracted_case_name": "also Makaef f v. Trump Univ., LLC",
+      "extracted_date": "2001",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2001
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 46290,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2004-07-27",
+      "canonical_name": "Verizon Delaware, Inc. v. Covad Communications Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/8438419/verizon-delaware-inc-v-covad-communications-co/",
+      "case_history": [],
+      "citation": "377 F.3d 1081",
+      "cluster_case_name": "Verizon Del., Inc. v. Covad Commc'ns Co.",
+      "cluster_id": "cluster_50",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "iff leave to amend would directly collide w ith Fed. R. Civ. P. 15(a)\u2019s policy favoring liberal amendment.\u201d Verizon Del., Inc. v. Covad Commc\u2019ns Co., 377 F.3d 1081, 1091 (9th Cir. 2004). Similarly, the anti- SLAPP statute requires that anti- SLAPP motions general",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 51901,
+      "error": null,
+      "extracted_case_name": "Verizon Del., Inc. v. Covad Commc'ns Co.",
+      "extracted_date": "2004",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2004
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 51888,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": "2016-02-17",
+      "canonical_name": "Sgt. Jeffrey Sarver v. Nicolas Chartier",
+      "canonical_url": "https://www.courtlistener.com/opinion/3177903/sgt-jeffrey-sarver-v-nicolas-chartier/",
+      "case_history": [],
+      "citation": "813 F.3d 891",
+      "cluster_case_name": "Sarver v. Chartier",
+      "cluster_id": "cluster_51",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "ode \u00a7 425.16(f). But we held that this timing rule \u201cdirectly collide[s] with the more permissive\u201d timing rule under Rule 56. See Sarver v. Chartier , 813 F.3d 891, 900 (9th Cir. 2016). As a result, for anti -SLAPP motions that sound in Rule 56, we allow the fili",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 52258,
+      "error": null,
+      "extracted_case_name": "Sarver v. Chartier",
+      "extracted_date": "2016",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2016
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 52246,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "550 U.S. 544",
+      "cluster_case_name": "Id. GOPHER MEDIA LLC v. MELONE",
+      "cluster_id": "cluster_52",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "12(b)(6), a plaintiff need only \u201callege facts stating a claim that is \u2018plausible on its face.\u2019\u201d Id. at 1188\u201389 (quoting Bell Atl. Corp. v. Twombly , 550 U.S. 544, 570 (2007)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 56876,
+      "error": null,
+      "extracted_case_name": "Id. GOPHER MEDIA LLC v. MELONE",
+      "extracted_date": "2007",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2007
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 56864,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "890 F.3d 833",
+      "cluster_case_name": "Godin v. Schencks",
+      "cluster_id": "cluster_53",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "es for successful anti -SLAPP motions. Our decision in Metabolife nixed the first. See 264 F.3d at 846. Planned Parenthood eliminated the second. See 890 F.3d 833\u201334. Today\u2019s decision cancels the third. So we have now stripped away every major procedural aspect",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 66112,
+      "error": null,
+      "extracted_case_name": "Godin v. Schencks",
+      "extracted_date": null,
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": null
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 66100,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "551 U.S. 308",
+      "cluster_case_name": "Tellabs, Inc v. Makor Issues & Rights, Ltd.",
+      "cluster_id": "cluster_55",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "; Tellabs, Inc v. Makor Issues & Rights, Ltd., 551 U.S. 308, 321 (2007)",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 75015,
+      "error": null,
+      "extracted_case_name": "Tellabs, Inc v. Makor Issues & Rights, Ltd.",
+      "extracted_date": "2007",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2007
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 75003,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": "2008-09-05",
+      "canonical_name": "Platypus Wear, Inc. v. Goldberg",
+      "canonical_url": "https://www.courtlistener.com/opinion/2247419/platypus-wear-inc-v-goldberg/",
+      "case_history": [],
+      "citation": "83 Cal. Rptr. 3d 95",
+      "cluster_case_name": "Platypus Wear, Inc. v. Goldberg",
+      "cluster_id": "cluster_56",
+      "cluster_members": [],
+      "confidence": 1.0,
+      "context": "d concern that anti -SLAPP motions \u201cpresent[ ] the possibility for abuse.\u201d Newport Harbor , 413 P.3d at 655 (quoting Platypus Wear, Inc. v. Goldberg, 83 Cal. Rptr. 3d 95, 103 (Cal. Ct. App. 2008)). It is up t o Congress, not the 44 GOPHER MEDIA LLC V. MELONE courts, to",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 75635,
+      "error": null,
+      "extracted_case_name": "Platypus Wear, Inc. v. Goldberg",
+      "extracted_date": "2008",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": true,
+      "metadata": {
+        "court": null,
+        "page": null,
+        "reporter": null,
+        "type": null,
+        "volume": null,
+        "year": 2008
+      },
+      "method": "eyecite",
+      "parallel_citations": [],
+      "pattern": "",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 75616,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "17 P.3d 735",
+      "cluster_case_name": "Ketchum v. Moses",
+      "cluster_id": "cluster_20",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 23649,
+      "error": null,
+      "extracted_case_name": "Ketchum v. Moses",
+      "extracted_date": "2001",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 23638,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "106 P.3d 958",
+      "cluster_case_name": "MELONE Railroad Co. v. Tompkins",
+      "cluster_id": "cluster_21",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 24197,
+      "error": null,
+      "extracted_case_name": "MELONE Railroad Co. v. Tompkins",
+      "extracted_date": "2005",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 24185,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "138 P.3d 193",
+      "cluster_case_name": "Kibler v. N. Inyo Cnty. Local Hosp. Dist.",
+      "cluster_id": "cluster_57",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 80734,
+      "error": null,
+      "extracted_case_name": "Kibler v. N. Inyo Cnty. Local Hosp. Dist.",
+      "extracted_date": "2006",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 80722,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_history": [],
+      "citation": "139 P.3d 30",
+      "cluster_case_name": "Soukup v. Law Offices of Herbert Hafif",
+      "cluster_id": "cluster_58",
+      "cluster_members": [],
+      "confidence": 0.8,
+      "context": "",
+      "court": null,
+      "docket_number": null,
+      "docket_numbers": [],
+      "end_index": 82516,
+      "error": null,
+      "extracted_case_name": "Soukup v. Law Offices of Herbert Hafif",
+      "extracted_date": "2006",
+      "is_cluster": false,
+      "is_parallel": false,
+      "is_verified": false,
+      "metadata": {},
+      "method": "regex_enhanced",
+      "parallel_citations": [],
+      "pattern": "flexible_p3d",
+      "pinpoint_pages": [],
+      "publication_status": null,
+      "source": "Unknown",
+      "start_index": 82505,
+      "true_by_parallel": false,
+      "url": null,
+      "verified": false
+    }
+  ],
+  "clusters": [
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "La Liberte v. Reid",
+      "citation_details": [
+        {
+          "text": "783 F.3d 1328",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "936 F.3d 240",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "910 F.3d 1345",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "783 F.3d 1328",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "936 F.3d 240",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "910 F.3d 1345",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_6",
+      "confidence": 0.8999999999999999,
+      "date": "2015",
+      "extracted_case_name": "La Liberte v. Reid",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "la liberte v reid_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 3,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Manzari v. Associated Newspapers Ltd.",
+      "citation_details": [
+        {
+          "text": "439 P.3d 1156",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "190 F.3d 963",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "439 P.3d 1156",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "190 F.3d 963",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_1",
+      "confidence": 0.8999999999999999,
+      "date": "2019",
+      "extracted_case_name": "Manzari v. Associated Newspapers Ltd.",
+      "extracted_date": "2019",
+      "metadata": {
+        "cluster_key": "manzari v associated newspapers ltd_2019",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2013-05-31",
+      "canonical_name": "Liberty Synergistics Inc. v. Microflo Ltd.",
+      "canonical_url": "https://www.courtlistener.com/opinion/873498/liberty-synergistics-inc-v-microflo-ltd/",
+      "case_name": "Liberty Synergistics Inc. v. Microflo Ltd.",
+      "citation_details": [
+        {
+          "text": "718 F.3d 138",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/873498/liberty-synergistics-inc-v-microflo-ltd/",
+          "verified": true
+        },
+        {
+          "text": "74 P.3d 737",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "718 F.3d 138",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/873498/liberty-synergistics-inc-v-microflo-ltd/",
+          "verified": true
+        },
+        {
+          "text": "74 P.3d 737",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_2",
+      "confidence": 0.9999999999999999,
+      "date": "2013-05-31",
+      "extracted_case_name": "Liberty Synergistic Inc. v. Microflo Ltd.",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "liberty synergistic inc v microflo ltd_2013",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "In Batzel v. Smith",
+      "citation_details": [
+        {
+          "text": "546 U.S. 345",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "506 U.S. 139",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "546 U.S. 345",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "506 U.S. 139",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_3",
+      "confidence": 0.7,
+      "date": "2006",
+      "extracted_case_name": "In Batzel v. Smith",
+      "extracted_date": "2006",
+      "metadata": {
+        "cluster_key": "in batzel v smith_2006",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Sys., Inc. v. Delfino",
+      "citation_details": [
+        {
+          "text": "33 Cal. Rptr. 2d 446",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "52 P.3d 685",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "33 Cal. Rptr. 2d 446",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        },
+        {
+          "text": "52 P.3d 685",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_5",
+      "confidence": 0.8999999999999999,
+      "date": "1994",
+      "extracted_case_name": "Sys., Inc. v. Delfino",
+      "extracted_date": "1994",
+      "metadata": {
+        "cluster_key": "sys inc v delfino_1994",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 2,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "citation_details": [
+        {
+          "text": "890 F.3d 828",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "890 F.3d 828",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_3",
+      "confidence": 0.5,
+      "date": "2018",
+      "extracted_case_name": "MELONE California state court. Id. A decade later, in DC Comics v. Pacific Pictures Corp",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "GOPHER MEDIA LLC v. MELONE Pacific Pictures Corp",
+      "citation_details": [
+        {
+          "text": "831 F.3d 1179",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "831 F.3d 1179",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_4",
+      "confidence": 0.5,
+      "date": "2016",
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE Pacific Pictures Corp",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "gopher media llc v melone pacific pictures corp_2016",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "GOPHER MEDIA LLC v. MELONE Pacific Pictures Corp",
+      "citation_details": [
+        {
+          "text": "736 F.3d 1180",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "736 F.3d 1180",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_5",
+      "confidence": 0.5,
+      "date": "2013",
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE Pacific Pictures Corp",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "gopher media llc v melone pacific pictures corp_2013",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Martinez v. ZoomInfo Techs., Inc.",
+      "citation_details": [
+        {
+          "text": "82 F.4th 785",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "82 F.4th 785",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_6",
+      "confidence": 0.5,
+      "date": "2023",
+      "extracted_case_name": "Martinez v. ZoomInfo Techs., Inc.",
+      "extracted_date": "2023",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "martinez v zoominfo techs inc_2023",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Ins. Co. of Am. v. Hirsh",
+      "citation_details": [
+        {
+          "text": "90 F.4th 1042",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "90 F.4th 1042",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_7",
+      "confidence": 0.5,
+      "date": "2024",
+      "extracted_case_name": "Ins. Co. of Am. v. Hirsh",
+      "extracted_date": "2024",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "ins co of am v hirsh_2024",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "See, e.g. , Planned Parenthood Fed'n of Am., Inc. v. Ctr. for Med. Progress",
+      "citation_details": [
+        {
+          "text": "814 F.3d 116",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "814 F.3d 116",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_8",
+      "confidence": 0.5,
+      "date": "2016",
+      "extracted_case_name": "See, e.g. , Planned Parenthood Fed'n of Am., Inc. v. Ctr. for Med. Progress",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "see e g planned parenthood fed n of am inc v ctr for med progress_2016",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "See, e.g. , Planned Parenthood Fed'n of Am., Inc. v. Ctr. for Med. Progress",
+      "citation_details": [
+        {
+          "text": "98 F.4th 1320",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "98 F.4th 1320",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_4_split_9",
+      "confidence": 0.5,
+      "date": "2024",
+      "extracted_case_name": "See, e.g. , Planned Parenthood Fed'n of Am., Inc. v. Ctr. for Med. Progress",
+      "extracted_date": "2024",
+      "metadata": {
+        "cluster_key": "melone california state court id a decade later in dc comics v pacific pictures corp_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only",
+        "extracted_group_key": "see e g planned parenthood fed n of am inc v ctr for med progress_2024",
+        "split_from": "cluster_4",
+        "split_reason": "extracted_data_mismatch"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "GOPHER MEDIA LLC v. MELONE Before",
+      "citation_details": [
+        {
+          "text": "333 F.3d 1018",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "333 F.3d 1018",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_7",
+      "confidence": 0.5,
+      "date": "2003",
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE Before",
+      "extracted_date": "2003",
+      "metadata": {
+        "cluster_key": "gopher media llc v melone before_2003",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Erie Railroad Co. v. Tompkins",
+      "citation_details": [
+        {
+          "text": "304 U.S. 64",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "304 U.S. 64",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_8",
+      "confidence": 0.5,
+      "date": "1938",
+      "extracted_case_name": "Erie Railroad Co. v. Tompkins",
+      "extracted_date": "1938",
+      "metadata": {
+        "cluster_key": "erie railroad co v tompkins_1938",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "citation_details": [
+        {
+          "text": "830 F.3d 881",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "830 F.3d 881",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_9",
+      "confidence": 0.5,
+      "date": "2016",
+      "extracted_case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "aqueduct sewer auth v metcalf eddy inc_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "citation_details": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7 425.16",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7 425.16",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_10",
+      "confidence": 0.5,
+      "date": "2016",
+      "extracted_case_name": "Aqueduct & Sewer Auth. v. Metcalf & Eddy, Inc.",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "aqueduct sewer auth v metcalf eddy inc_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Gopher Media LLC v. Melone",
+      "citation_details": [
+        {
+          "text": "129 F.4th 1196",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "129 F.4th 1196",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_11",
+      "confidence": 0.5,
+      "date": "2025",
+      "extracted_case_name": "Gopher Media LLC v. Melone",
+      "extracted_date": "2025",
+      "metadata": {
+        "cluster_key": "gopher media llc v melone_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Gopher Media LLC v. Melone",
+      "citation_details": [
+        {
+          "text": "511 U.S. 863",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "511 U.S. 863",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_12",
+      "confidence": 0.5,
+      "date": "1994",
+      "extracted_case_name": "Gopher Media LLC v. Melone",
+      "extracted_date": "1994",
+      "metadata": {
+        "cluster_key": "gopher media llc v melone_1994",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Equip. Corp. v. Desktop Direct, Inc.",
+      "citation_details": [
+        {
+          "text": "337 U.S. 541",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "337 U.S. 541",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_13",
+      "confidence": 0.5,
+      "date": "1949",
+      "extracted_case_name": "Equip. Corp. v. Desktop Direct, Inc.",
+      "extracted_date": "1949",
+      "metadata": {
+        "cluster_key": "equip corp v desktop direct inc_1949",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Cohen v. Beneficial Indus . Loan Corp",
+      "citation_details": [
+        {
+          "text": "515 U.S. 304",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "515 U.S. 304",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_14",
+      "confidence": 0.5,
+      "date": "1995",
+      "extracted_case_name": "Cohen v. Beneficial Indus . Loan Corp",
+      "extracted_date": "1995",
+      "metadata": {
+        "cluster_key": "cohen v beneficial indus loan corp_1995",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "GOPHER MEDIA LLC v. MELONE",
+      "citation_details": [
+        {
+          "text": "558 U.S. 100",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "558 U.S. 100",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_15",
+      "confidence": 0.5,
+      "date": "2017",
+      "extracted_case_name": "GOPHER MEDIA LLC v. MELONE",
+      "extracted_date": "2017",
+      "metadata": {
+        "cluster_key": "gopher media llc v melone_2017",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Johnson v. Jones",
+      "citation_details": [
+        {
+          "text": "859 F.3d 720",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "859 F.3d 720",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_16",
+      "confidence": 0.5,
+      "date": "2017",
+      "extracted_case_name": "Johnson v. Jones",
+      "extracted_date": "2017",
+      "metadata": {
+        "cluster_key": "johnson v jones_2017",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2013-01-10",
+      "canonical_name": "Dc Comics v. Pacific Pictures Corporation",
+      "canonical_url": "https://www.courtlistener.com/opinion/815115/dc-comics-v-pacific-pictures-corporation/",
+      "case_name": "Dc Comics v. Pacific Pictures Corporation",
+      "citation_details": [
+        {
+          "text": "706 F.3d 1009",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/815115/dc-comics-v-pacific-pictures-corporation/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "706 F.3d 1009",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/815115/dc-comics-v-pacific-pictures-corporation/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_17",
+      "confidence": 0.6,
+      "date": "2013-01-10",
+      "extracted_case_name": "DC Comics v. Pacific Pictures Corp.",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "dc comics v pacific pictures corp_2013",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Mitchell v. Forsyth",
+      "citation_details": [
+        {
+          "text": "472 U.S. 511",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "472 U.S. 511",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_18",
+      "confidence": 0.5,
+      "date": "1985",
+      "extracted_case_name": "Mitchell v. Forsyth",
+      "extracted_date": "1985",
+      "metadata": {
+        "cluster_key": "mitchell v forsyth_1985",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2016-06-14",
+      "canonical_name": "J. Hyan v. Rosslyn Hummer",
+      "canonical_url": "https://www.courtlistener.com/opinion/3213071/j-hyan-v-rosslyn-hummer/",
+      "case_name": "J. Hyan v. Rosslyn Hummer",
+      "citation_details": [
+        {
+          "text": "825 F.3d 1043",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/3213071/j-hyan-v-rosslyn-hummer/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "825 F.3d 1043",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/3213071/j-hyan-v-rosslyn-hummer/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_19",
+      "confidence": 0.6,
+      "date": "2016-06-14",
+      "extracted_case_name": "Hyan v. Hummer",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "hyan v hummer_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Ketchum v. Moses",
+      "citation_details": [
+        {
+          "text": "17 P.3d 735",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "17 P.3d 735",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_20",
+      "confidence": 0.5,
+      "date": "2001",
+      "extracted_case_name": "Ketchum v. Moses",
+      "extracted_date": "2001",
+      "metadata": {
+        "cluster_key": "ketchum v moses_2001",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "MELONE Railroad Co. v. Tompkins",
+      "citation_details": [
+        {
+          "text": "106 P.3d 958",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "106 P.3d 958",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_21",
+      "confidence": 0.5,
+      "date": "2005",
+      "extracted_case_name": "MELONE Railroad Co. v. Tompkins",
+      "extracted_date": "2005",
+      "metadata": {
+        "cluster_key": "melone railroad co v tompkins_2005",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Planned Parenthood Federation of America, Inc. v. Ce",
+      "citation_details": [
+        {
+          "text": "897 F.3d 1224",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "897 F.3d 1224",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_22",
+      "confidence": 0.5,
+      "date": "2018",
+      "extracted_case_name": "Planned Parenthood Federation of America, Inc. v. Ce",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "planned parenthood federation of america inc v ce_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2017-01-05",
+      "canonical_name": "Barry v. State Bar of Cal.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4336222/barry-v-state-bar-of-cal/",
+      "case_name": "Barry v. State Bar of Cal.",
+      "citation_details": [
+        {
+          "text": "386 P.3d 788",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/4336222/barry-v-state-bar-of-cal/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "386 P.3d 788",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/4336222/barry-v-state-bar-of-cal/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_23",
+      "confidence": 0.6,
+      "date": "2017-01-05",
+      "extracted_case_name": "Barry v. State Bar of Cal.",
+      "extracted_date": "2017",
+      "metadata": {
+        "cluster_key": "barry v state bar of cal_2017",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "A. v. Allstate Ins.",
+      "citation_details": [
+        {
+          "text": "559 U.S. 393",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "559 U.S. 393",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_24",
+      "confidence": 0.5,
+      "date": "2010",
+      "extracted_case_name": "A. v. Allstate Ins.",
+      "extracted_date": "2010",
+      "metadata": {
+        "cluster_key": "a v allstate ins_2010",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "citation_details": [
+        {
+          "text": "480 U.S. 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "480 U.S. 1",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_25",
+      "confidence": 0.5,
+      "date": "1987",
+      "extracted_case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "extracted_date": "1987",
+      "metadata": {
+        "cluster_key": "shady grove orthopedic assocs p a v allstate ins_1987",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "citation_details": [
+        {
+          "text": "446 U.S. 740",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "446 U.S. 740",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_26",
+      "confidence": 0.5,
+      "date": "2022",
+      "extracted_case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "shady grove orthopedic assocs p a v allstate ins_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "R.R. Co. v. Woods",
+      "citation_details": [
+        {
+          "text": "24 F.4th 1262",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "24 F.4th 1262",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_27",
+      "confidence": 0.5,
+      "date": "2022",
+      "extracted_case_name": "R.R. Co. v. Woods",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "r r co v woods_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Barry v. State Bar of Cal.",
+      "citation_details": [
+        {
+          "text": "518 U.S. 415",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "518 U.S. 415",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_28",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "Barry v. State Bar of Cal.",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "barry v state bar of cal_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "citation_details": [
+        {
+          "text": "784 F.3d 520",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "784 F.3d 520",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_29",
+      "confidence": 0.5,
+      "date": "2015",
+      "extracted_case_name": "Shady Grove Orthopedic Assocs., P .A. v. Allstate Ins.",
+      "extracted_date": "2015",
+      "metadata": {
+        "cluster_key": "shady grove orthopedic assocs p a v allstate ins_2015",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "s., P .A. v. Allstate Ins.",
+      "citation_details": [
+        {
+          "text": "356 U.S. 525",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "356 U.S. 525",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_30",
+      "confidence": 0.5,
+      "date": "1958",
+      "extracted_case_name": "s., P .A. v. Allstate Ins.",
+      "extracted_date": "1958",
+      "metadata": {
+        "cluster_key": "s p a v allstate ins_1958",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Ellis v. Salt River Project Agric. Improvement & Power Dist",
+      "citation_details": [
+        {
+          "text": "487 U.S. 131",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "487 U.S. 131",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_31",
+      "confidence": 0.5,
+      "date": "1988",
+      "extracted_case_name": "Ellis v. Salt River Project Agric. Improvement & Power Dist",
+      "extracted_date": "1988",
+      "metadata": {
+        "cluster_key": "ellis v salt river project agric improvement power dist_1988",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Gasperini v. Ctr. for Humans., Inc.",
+      "citation_details": [
+        {
+          "text": "380 U.S. 460",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "380 U.S. 460",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_32",
+      "confidence": 0.5,
+      "date": "1965",
+      "extracted_case_name": "Gasperini v. Ctr. for Humans., Inc.",
+      "extracted_date": "1965",
+      "metadata": {
+        "cluster_key": "gasperini v ctr for humans inc_1965",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Hanna v. Plumer",
+      "citation_details": [
+        {
+          "text": "966 F.3d 79",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "966 F.3d 79",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_33",
+      "confidence": 0.5,
+      "date": "2020",
+      "extracted_case_name": "Hanna v. Plumer",
+      "extracted_date": "2020",
+      "metadata": {
+        "cluster_key": "hanna v plumer_2020",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Hamilton v. Wa",
+      "citation_details": [
+        {
+          "text": "39 F.4th 575",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "39 F.4th 575",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_34",
+      "confidence": 0.5,
+      "date": "2022",
+      "extracted_case_name": "Hamilton v. Wa",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "hamilton v wa_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "CoreCivic, Inc. v. Candide Grp., LLC",
+      "citation_details": [
+        {
+          "text": "46 F.4th 1136",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "46 F.4th 1136",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_35",
+      "confidence": 0.5,
+      "date": "2022",
+      "extracted_case_name": "CoreCivic, Inc. v. Candide Grp., LLC",
+      "extracted_date": "2022",
+      "metadata": {
+        "cluster_key": "corecivic inc v candide grp llc_2022",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2013-03-06",
+      "canonical_name": "Alaska Rent-A-Car, Inc. v. Avis Budget Group, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/8441566/alaska-rent-a-car-inc-v-avis-budget-group-inc/",
+      "case_name": "Alaska Rent-A-Car, Inc. v. Avis Budget Group, Inc.",
+      "citation_details": [
+        {
+          "text": "738 F.3d 960",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/8441566/alaska-rent-a-car-inc-v-avis-budget-group-inc/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "738 F.3d 960",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/8441566/alaska-rent-a-car-inc-v-avis-budget-group-inc/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_36",
+      "confidence": 0.6,
+      "date": "2013-03-06",
+      "extracted_case_name": "Car, Inc. v. Avis Budget Grp., Inc.",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "car inc v avis budget grp inc_2013",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "citation_details": [
+        {
+          "text": "322 F.3d 660",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "322 F.3d 660",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_37",
+      "confidence": 0.5,
+      "date": "2003",
+      "extracted_case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "extracted_date": "2003",
+      "metadata": {
+        "cluster_key": "cohen v beneficial indus loan corp_2003",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "citation_details": [
+        {
+          "text": "276 U.S. 238",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "276 U.S. 238",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_38",
+      "confidence": 0.5,
+      "date": "1928",
+      "extracted_case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "extracted_date": "1928",
+      "metadata": {
+        "cluster_key": "cohen v beneficial indus loan corp_1928",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "citation_details": [
+        {
+          "text": "421 U.S. 240",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "421 U.S. 240",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_39",
+      "confidence": 0.5,
+      "date": "1975",
+      "extracted_case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "extracted_date": "1975",
+      "metadata": {
+        "cluster_key": "cohen v beneficial indus loan corp_1975",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "citation_details": [
+        {
+          "text": "604 U.S. 192",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "604 U.S. 192",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_40",
+      "confidence": 0.5,
+      "date": "2025",
+      "extracted_case_name": "Cohen v. Beneficial Indus. Loan Corp",
+      "extracted_date": "2025",
+      "metadata": {
+        "cluster_key": "cohen v beneficial indus loan corp_2025",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Lackey v. Stinnie",
+      "citation_details": [
+        {
+          "text": "629 F.3d 79",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "629 F.3d 79",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_41",
+      "confidence": 0.5,
+      "date": "2010",
+      "extracted_case_name": "Lackey v. Stinnie",
+      "extracted_date": "2010",
+      "metadata": {
+        "cluster_key": "lackey v stinnie_2010",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2018-03-12",
+      "canonical_name": "L. Lobos Renewable Power, LLC v. AmeriCulture, Inc.",
+      "canonical_url": "https://www.courtlistener.com/opinion/4476405/l-lobos-renewable-power-llc-v-americulture-inc/",
+      "case_name": "L. Lobos Renewable Power, LLC v. AmeriCulture, Inc.",
+      "citation_details": [
+        {
+          "text": "885 F.3d 659",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/4476405/l-lobos-renewable-power-llc-v-americulture-inc/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "885 F.3d 659",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/4476405/l-lobos-renewable-power-llc-v-americulture-inc/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_42",
+      "confidence": 0.6,
+      "date": "2018-03-12",
+      "extracted_case_name": "Los Lobos Renewable Power, LLC v. Americulture, Inc,",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "los lobos renewable power llc v americulture inc_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "N/A",
+      "citation_details": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7\u00a7 425.16",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7\u00a7 425.16",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_43",
+      "confidence": 0.5,
+      "date": null,
+      "extracted_case_name": "N/A",
+      "extracted_date": null,
+      "metadata": {
+        "cluster_key": "unknown_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2001-09-05",
+      "canonical_name": "Metabolife International, Inc. v. Wornick",
+      "canonical_url": "https://www.courtlistener.com/opinion/7099356/metabolife-international-inc-v-wornick/",
+      "case_name": "Metabolife International, Inc. v. Wornick",
+      "citation_details": [
+        {
+          "text": "264 F.3d 832",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/7099356/metabolife-international-inc-v-wornick/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "264 F.3d 832",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/7099356/metabolife-international-inc-v-wornick/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_44",
+      "confidence": 0.6,
+      "date": "2001-09-05",
+      "extracted_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "extracted_date": "2001",
+      "metadata": {
+        "cluster_key": "metabolife int l inc v wornick_2001",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "citation_details": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7 425.17",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "Cal. Civ. Proc. Code \u00a7 425.17",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_45",
+      "confidence": 0.5,
+      "date": null,
+      "extracted_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "extracted_date": null,
+      "metadata": {
+        "cluster_key": "metabolife int l inc v wornick_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Makaeff v. Trump Univ., LLC",
+      "citation_details": [
+        {
+          "text": "715 F.3d 254",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "715 F.3d 254",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_46",
+      "confidence": 0.5,
+      "date": "2013",
+      "extracted_case_name": "Makaeff v. Trump Univ., LLC",
+      "extracted_date": "2013",
+      "metadata": {
+        "cluster_key": "makaeff v trump univ llc_2013",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "citation_details": [
+        {
+          "text": "413 P.3d 650",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "413 P.3d 650",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_47",
+      "confidence": 0.5,
+      "date": "2018",
+      "extracted_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "extracted_date": "2018",
+      "metadata": {
+        "cluster_key": "metabolife int l inc v wornick_2018",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "citation_details": [
+        {
+          "text": "376 P.3d 604",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "376 P.3d 604",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_48",
+      "confidence": 0.5,
+      "date": "2016",
+      "extracted_case_name": "Metabolife Int'l, Inc. v. Wornick",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "metabolife int l inc v wornick_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "also Makaef f v. Trump Univ., LLC",
+      "citation_details": [
+        {
+          "text": "111 Cal. Rptr. 2d 582",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "111 Cal. Rptr. 2d 582",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_49",
+      "confidence": 0.5,
+      "date": "2001",
+      "extracted_case_name": "also Makaef f v. Trump Univ., LLC",
+      "extracted_date": "2001",
+      "metadata": {
+        "cluster_key": "also makaef f v trump univ llc_2001",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2004-07-27",
+      "canonical_name": "Verizon Delaware, Inc. v. Covad Communications Co.",
+      "canonical_url": "https://www.courtlistener.com/opinion/8438419/verizon-delaware-inc-v-covad-communications-co/",
+      "case_name": "Verizon Delaware, Inc. v. Covad Communications Co.",
+      "citation_details": [
+        {
+          "text": "377 F.3d 1081",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/8438419/verizon-delaware-inc-v-covad-communications-co/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "377 F.3d 1081",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/8438419/verizon-delaware-inc-v-covad-communications-co/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_50",
+      "confidence": 0.6,
+      "date": "2004-07-27",
+      "extracted_case_name": "Verizon Del., Inc. v. Covad Commc'ns Co.",
+      "extracted_date": "2004",
+      "metadata": {
+        "cluster_key": "verizon del inc v covad commc ns co_2004",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": "2016-02-17",
+      "canonical_name": "Sgt. Jeffrey Sarver v. Nicolas Chartier",
+      "canonical_url": "https://www.courtlistener.com/opinion/3177903/sgt-jeffrey-sarver-v-nicolas-chartier/",
+      "case_name": "Sgt. Jeffrey Sarver v. Nicolas Chartier",
+      "citation_details": [
+        {
+          "text": "813 F.3d 891",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/3177903/sgt-jeffrey-sarver-v-nicolas-chartier/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "813 F.3d 891",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/3177903/sgt-jeffrey-sarver-v-nicolas-chartier/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_51",
+      "confidence": 0.6,
+      "date": "2016-02-17",
+      "extracted_case_name": "Sarver v. Chartier",
+      "extracted_date": "2016",
+      "metadata": {
+        "cluster_key": "sarver v chartier_2016",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Id. GOPHER MEDIA LLC v. MELONE",
+      "citation_details": [
+        {
+          "text": "550 U.S. 544",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "550 U.S. 544",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_52",
+      "confidence": 0.5,
+      "date": "2007",
+      "extracted_case_name": "Id. GOPHER MEDIA LLC v. MELONE",
+      "extracted_date": "2007",
+      "metadata": {
+        "cluster_key": "id gopher media llc v melone_2007",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Godin v. Schencks",
+      "citation_details": [
+        {
+          "text": "890 F.3d 833",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "890 F.3d 833",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_53",
+      "confidence": 0.5,
+      "date": null,
+      "extracted_case_name": "Godin v. Schencks",
+      "extracted_date": null,
+      "metadata": {
+        "cluster_key": "godin v schencks_unknown",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "N/A",
+      "citation_details": [
+        {
+          "text": "109 Stat. 737",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "109 Stat. 737",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_54",
+      "confidence": 0.5,
+      "date": "1995",
+      "extracted_case_name": "N/A",
+      "extracted_date": "1995",
+      "metadata": {
+        "cluster_key": "unknown_1995",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Tellabs, Inc v. Makor Issues & Rights, Ltd.",
+      "citation_details": [
+        {
+          "text": "551 U.S. 308",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "551 U.S. 308",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_55",
+      "confidence": 0.5,
+      "date": "2007",
+      "extracted_case_name": "Tellabs, Inc v. Makor Issues & Rights, Ltd.",
+      "extracted_date": "2007",
+      "metadata": {
+        "cluster_key": "tellabs inc v makor issues rights ltd_2007",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": "2008-09-05",
+      "canonical_name": "Platypus Wear, Inc. v. Goldberg",
+      "canonical_url": "https://www.courtlistener.com/opinion/2247419/platypus-wear-inc-v-goldberg/",
+      "case_name": "Platypus Wear, Inc. v. Goldberg",
+      "citation_details": [
+        {
+          "text": "83 Cal. Rptr. 3d 95",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/2247419/platypus-wear-inc-v-goldberg/",
+          "verified": true
+        }
+      ],
+      "citations": [
+        {
+          "text": "83 Cal. Rptr. 3d 95",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": "courtlistener_search",
+          "verification_url": "https://www.courtlistener.com/opinion/2247419/platypus-wear-inc-v-goldberg/",
+          "verified": true
+        }
+      ],
+      "cluster_id": "cluster_56",
+      "confidence": 0.6,
+      "date": "2008-09-05",
+      "extracted_case_name": "Platypus Wear, Inc. v. Goldberg",
+      "extracted_date": "2008",
+      "metadata": {
+        "cluster_key": "platypus wear inc v goldberg_2008",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": true
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Kibler v. N. Inyo Cnty. Local Hosp. Dist.",
+      "citation_details": [
+        {
+          "text": "138 P.3d 193",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "138 P.3d 193",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_57",
+      "confidence": 0.5,
+      "date": "2006",
+      "extracted_case_name": "Kibler v. N. Inyo Cnty. Local Hosp. Dist.",
+      "extracted_date": "2006",
+      "metadata": {
+        "cluster_key": "kibler v n inyo cnty local hosp dist_2006",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    },
+    {
+      "canonical_date": null,
+      "canonical_name": null,
+      "canonical_url": null,
+      "case_name": "Soukup v. Law Offices of Herbert Hafif",
+      "citation_details": [
+        {
+          "text": "139 P.3d 30",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "citations": [
+        {
+          "text": "139 P.3d 30",
+          "true_by_parallel": false,
+          "verification_method": null,
+          "verification_source": null,
+          "verification_url": null,
+          "verified": false
+        }
+      ],
+      "cluster_id": "cluster_58",
+      "confidence": 0.5,
+      "date": "2006",
+      "extracted_case_name": "Soukup v. Law Offices of Herbert Hafif",
+      "extracted_date": "2006",
+      "metadata": {
+        "cluster_key": "soukup v law offices of herbert hafif_2006",
+        "cluster_members_preserved": true,
+        "cluster_type": "proximity_based",
+        "created_by": "unified_master",
+        "data_source": "extracted_only"
+      },
+      "size": 1,
+      "source": "clustering",
+      "validation_method": "cluster_validation",
+      "verified": false
+    }
+  ],
+  "document_length": 0,
+  "message": "Task completed successfully",
+  "metadata": {},
+  "processing_time_ms": 0,
+  "progress_data": {
+    "current_message": "Verification completed",
+    "current_step": 5,
+    "elapsed_time": 20.42264723777771,
+    "end_time": 1760322155.6836534,
+    "overall_progress": 100,
+    "start_time": 1760322135.261015,
+    "status": "completed",
+    "steps": [
+      {
+        "end_time": 1760322136.1142986,
+        "message": "Initialization complete",
+        "name": "Initializing",
+        "progress": 100,
+        "start_time": 1760322135.2636821,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760322155.4866607,
+        "message": "Citation extraction completed",
+        "name": "Extract",
+        "progress": 100,
+        "start_time": 1760322136.1143281,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760322155.490143,
+        "message": "Citation analysis completed",
+        "name": "Analyze",
+        "progress": 100,
+        "start_time": 1760322155.4866967,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760322155.6831656,
+        "message": "Deduplication completed (49 unique citations)",
+        "name": "Extract Names",
+        "progress": 100,
+        "start_time": 1760322155.4901602,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760322155.6835995,
+        "message": "Clustering completed (64 unique clusters)",
+        "name": "Cluster",
+        "progress": 100,
+        "start_time": 1760322155.683199,
+        "status": "completed"
+      },
+      {
+        "end_time": 1760322155.6836421,
+        "message": "Verification completed",
+        "name": "Verify",
+        "progress": 100,
+        "start_time": 1760322155.683612,
+        "status": "completed"
+      }
+    ],
+    "task_id": "56702e6e-ee68-43e7-bf50-03e4ca1b9f3a",
+    "total_steps": 6
+  },
+  "statistics": {
+    "processing_time": 0.0,
+    "total_citations": 49,
+    "total_clusters": 64,
+    "verified_citations": 9,
+    "verified_clusters": 10
+  },
+  "status": "completed",
+  "success": true,
+  "task_id": "56702e6e-ee68-43e7-bf50-03e4ca1b9f3a"
+}

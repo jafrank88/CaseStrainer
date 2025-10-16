@@ -1,0 +1,16 @@
+CRITICAL FIX: Add docket extraction to search API path
+
+Testing revealed citations were being verified via search_api_fallback,
+not batch lookup. My docket extraction fix was only in the batch path,
+so search API citations still had no canonical_name.
+
+Fixed: Added same docket extraction logic to search API path
+- Checks caseName at top level first (search API uses camelCase)
+- Falls back to docket.case_name or docket.caseName if not found
+- Handles both snake_case and camelCase field names
+- Added logging to track which path succeeds
+
+Lines changed: 1492-1509 in unified_verification_master.py
+
+This should fix the remaining 70/73 clusters that were verified via
+search API instead of batch lookup.

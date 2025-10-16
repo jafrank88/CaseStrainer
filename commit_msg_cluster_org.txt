@@ -1,0 +1,55 @@
+Add cluster organization by verification status
+
+FEATURE: Organize citation clusters to show unverified clusters first
+
+PROBLEM:
+Users need to quickly identify which citations need verification.
+Previously, all clusters were shown in a flat list with no organization
+by verification status.
+
+SOLUTION:
+Added _organize_clusters_by_verification() function that separates
+clusters into two groups:
+- unverified: Clusters where NO citations are verified (shown first)
+- verified: Clusters with at least one verified citation
+
+RESPONSE STRUCTURE:
+The API response now includes:
+- clusters_organized: New organized structure with unverified/verified
+- unverified_clusters: Quick count of unverified clusters
+- verified_clusters: Quick count of verified clusters
+- Original 'clusters' field preserved for backwards compatibility
+
+BENEFITS:
+1. Unverified clusters prioritized at the top
+2. Easy to see verification progress at a glance
+3. Reviewers can focus on what needs attention
+4. Fully backwards compatible (original structure unchanged)
+5. Flexible - frontend can use organized or flat structure
+
+EXAMPLE RESPONSE:
+{
+  "clusters_organized": {
+    "unverified": [...]  // High priority - needs verification
+    "verified": [...]    // Lower priority - already verified
+    "summary": {
+      "unverified_count": 3,
+      "verified_count": 5,
+      "total": 8
+    }
+  }
+}
+
+DOCUMENTATION:
+Created comprehensive guide (CLUSTER_ORGANIZATION_EXAMPLE.md) with:
+- Response structure examples
+- Frontend implementation examples
+- UI design suggestions
+- Use cases and benefits
+
+FILES MODIFIED:
+- src/citation_extraction_endpoint.py: Added organization function
+- CLUSTER_ORGANIZATION_EXAMPLE.md: Complete documentation
+
+STATUS: Ready to deploy. Frontend can use new structure or continue
+using original flat clusters list.

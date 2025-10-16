@@ -1,0 +1,3913 @@
+﻿{
+  "success": true,
+  "task_id": "20fde1c7-e975-49c5-8436-5ace667721ba",
+  "status": "completed",
+  "result": {
+    "citations": [
+      {
+        "citation": "9 P.3d 655",
+        "extracted_case_name": "Fraternal Ord. of Eagles, Tenino Aerie No. 564 v. Grand Aerie of Fraternal Ord. of Eagles",
+        "extracted_date": "2002",
+        "canonical_name": "Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand \nAerie of Fraternal Ord.  of Eagles",
+        "canonical_date": "2023-11-21",
+        "canonical_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/",
+        "cluster_case_name": "Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand \nAerie of Fraternal Ord.  of Eagles",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.9,
+        "method": "eyecite",
+        "pattern": "",
+        "context": "",
+        "start_index": 46604,
+        "end_index": 46614,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {
+          "volume": null,
+          "reporter": null,
+          "page": null,
+          "year": 2002,
+          "court": null,
+          "type": null
+        },
+        "cluster_id": "cluster_41",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "136 S. Ct. 1540",
+        "extracted_case_name": "Spokeo, Inc. v. Robins",
+        "extracted_date": "2016",
+        "canonical_name": "Spokeo, Inc. v. Robins",
+        "canonical_date": "2016-05-16",
+        "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+        "cluster_case_name": "Spokeo, Inc. v. Robins",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.9,
+        "method": "eyecite",
+        "pattern": "",
+        "context": "",
+        "start_index": 48851,
+        "end_index": 48866,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "194 L. Ed. 2d 635"
+        ],
+        "cluster_members": [
+          "194 L. Ed. 2d 635"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {
+          "volume": null,
+          "reporter": null,
+          "page": null,
+          "year": 2016,
+          "court": null,
+          "type": null
+        },
+        "cluster_id": "cluster_23",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "521 U.S. 811",
+        "extracted_case_name": "Raines v. Byrd",
+        "extracted_date": "1997",
+        "canonical_name": "Raines v. Byrd",
+        "canonical_date": "1997-06-26",
+        "canonical_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+        "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.9,
+        "method": "eyecite",
+        "pattern": "",
+        "context": "",
+        "start_index": 48944,
+        "end_index": 48956,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [],
+        "cluster_members": [
+          "138 L. Ed. 2d 849",
+          "117 S. Ct. 2312"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {
+          "volume": null,
+          "reporter": null,
+          "page": null,
+          "year": 1997,
+          "court": null,
+          "type": null
+        },
+        "cluster_id": "cluster_24",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "117 S. Ct. 2312",
+        "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "extracted_date": "1997",
+        "canonical_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "canonical_date": "1997-06-26",
+        "canonical_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+        "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.9,
+        "method": "eyecite",
+        "pattern": "",
+        "context": "",
+        "start_index": 48967,
+        "end_index": 48982,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "138 L. Ed. 2d 849"
+        ],
+        "cluster_members": [
+          "521 U.S. 811",
+          "138 L. Ed. 2d 849"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {
+          "volume": null,
+          "reporter": null,
+          "page": null,
+          "year": 1997,
+          "court": null,
+          "type": null
+        },
+        "cluster_id": "cluster_24",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "183 Wn.2d 649",
+        "extracted_case_name": "Spokane County v. Dep't of Fish & Wildlife",
+        "extracted_date": "2015",
+        "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "canonical_date": "2015-07-16",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+        "cluster_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 4467,
+        "end_index": 4481,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "355 P.3d 258"
+        ],
+        "cluster_members": [
+          "355 P.3d 258"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_1",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "192 Wn.2d 453",
+        "extracted_case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "extracted_date": "2018",
+        "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "canonical_date": "2003-07-31",
+        "canonical_url": "https://www.courtlistener.com/opinion/2585524/pullar-v-huelle/",
+        "cluster_case_name": "Spokane Cnty. v. Wash. Dep't of Fish & Wildlife",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 4628,
+        "end_index": 4641,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "430 P.3d 655"
+        ],
+        "cluster_members": [
+          "430 P.3d 655"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_2",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "146 Wn.2d 1",
+        "extracted_case_name": "N/A",
+        "extracted_date": "2002",
+        "canonical_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+        "canonical_date": "2002-03-28",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/",
+        "cluster_case_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 5069,
+        "end_index": 5080,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "43 P.3d 4"
+        ],
+        "cluster_members": [
+          "43 P.3d 4"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_3",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "182 Wn.2d 342",
+        "extracted_case_name": "State v. Velasquez",
+        "extracted_date": "2015",
+        "canonical_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+        "canonical_date": "2015-01-08",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+        "cluster_case_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 5474,
+        "end_index": 5487,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "340 P.3d 849"
+        ],
+        "cluster_members": [
+          "340 P.3d 849"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_4",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "116 Wn.2d 1",
+        "extracted_case_name": "Am. Legion Post No. 32 v. City of Walla Walla",
+        "extracted_date": "1991",
+        "canonical_name": "American Legion Post No. 32 v. City of Walla Walla",
+        "canonical_date": "1991-01-03",
+        "canonical_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+        "cluster_case_name": "American Legion Post No. 32 v. City of Walla Walla",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 9792,
+        "end_index": 9803,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "802 P.2d 784"
+        ],
+        "cluster_members": [
+          "802 P.2d 784"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_7",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "101 Wn.2d 270",
+        "extracted_case_name": "Coburn v. Seda",
+        "extracted_date": "1984",
+        "canonical_name": "Coburn v. Seda",
+        "canonical_date": "1984-02-23",
+        "canonical_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+        "cluster_case_name": "Coburn v. Seda",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 10418,
+        "end_index": 10432,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "677 P.2d 173"
+        ],
+        "cluster_members": [
+          "677 P.2d 173"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_8",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "174 Wn.2d 619",
+        "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co",
+        "extracted_date": "2012",
+        "canonical_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+        "canonical_date": "2012-05-31",
+        "canonical_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+        "cluster_case_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 12321,
+        "end_index": 12334,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "278 P.3d 173"
+        ],
+        "cluster_members": [
+          "278 P.3d 173"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_9",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "187 Wn.2d 669",
+        "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co",
+        "extracted_date": "2017",
+        "canonical_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+        "canonical_date": "2017-02-02",
+        "canonical_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+        "cluster_case_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 13680,
+        "end_index": 13693,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "389 P.3d 476"
+        ],
+        "cluster_members": [
+          "389 P.3d 476"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_10",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "150 Wn.2d 674",
+        "extracted_case_name": "Rest. Dev., Inc. v. Cananwill, Inc",
+        "extracted_date": "2003",
+        "canonical_name": "Restaurant Development, Inc. v. Cananwill, Inc.",
+        "canonical_date": "2003-12-11",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/",
+        "cluster_case_name": "Restaurant Development, Inc. v. Cananwill, Inc.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 15099,
+        "end_index": 15113,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "80 P.3d 598"
+        ],
+        "cluster_members": [
+          "80 P.3d 598"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_11",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "509 P.3d 325",
+        "extracted_case_name": "Fode v. Dep\u2019t of Ecology",
+        "extracted_date": "2022",
+        "canonical_name": "Jeffery Moore v. Equitrans, L.P.",
+        "canonical_date": "2022-02-23",
+        "canonical_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+        "cluster_case_name": "Jeffery Moore v. Equitrans, L.P.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p3d",
+        "context": "",
+        "start_index": 19926,
+        "end_index": 19938,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_39",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "159 Wn.2d 700",
+        "extracted_case_name": "Bostain v. Food Express, Inc",
+        "extracted_date": "2007",
+        "canonical_name": "Bostain v. Food Express, Inc.",
+        "canonical_date": "2007-03-01",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+        "cluster_case_name": "Bostain v. Food Express, Inc.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 19989,
+        "end_index": 20002,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "153 P.3d 846"
+        ],
+        "cluster_members": [
+          "153 P.3d 846"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_12",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "495 P.3d 866",
+        "extracted_case_name": "Port of Tacoma v. Sacks",
+        "extracted_date": "2021",
+        "canonical_name": "Dept. of Human Services v. P. D.",
+        "canonical_date": "2021-10-14",
+        "canonical_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/",
+        "cluster_case_name": "Dept. of Human Services v. P. D.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p3d",
+        "context": "",
+        "start_index": 20228,
+        "end_index": 20243,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_40",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "159 Wn.2d 652",
+        "extracted_case_name": "Tingey v. Haisch",
+        "extracted_date": "2007",
+        "canonical_name": "Tingey v. Haisch",
+        "canonical_date": "2007-02-15",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+        "cluster_case_name": "Tingey v. Haisch",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 25198,
+        "end_index": 25211,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "152 P.3d 1020"
+        ],
+        "cluster_members": [
+          "152 P.3d 1020"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_13",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "148 Wn.2d 723",
+        "extracted_case_name": "State v. Delgado",
+        "extracted_date": "2003",
+        "canonical_name": "State v. Delgado",
+        "canonical_date": "2003-02-20",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+        "cluster_case_name": "State v. Delgado",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 25489,
+        "end_index": 25502,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "63 P.3d 792"
+        ],
+        "cluster_members": [
+          "63 P.3d 792"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_15",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "100 Wn.2d 636",
+        "extracted_case_name": "State v. Vela",
+        "extracted_date": "1983",
+        "canonical_name": "State v. Vela",
+        "canonical_date": "1983-12-15",
+        "canonical_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+        "cluster_case_name": "State v. Vela",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 25581,
+        "end_index": 25594,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "673 P.2d 185"
+        ],
+        "cluster_members": [
+          "673 P.2d 185"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_16",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "2024 WL 4678268",
+        "extracted_case_name": "Dep 't of Ecology v. Campbell &",
+        "extracted_date": "2024",
+        "canonical_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "canonical_date": "2025-09-04",
+        "canonical_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+        "cluster_case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "westlaw",
+        "context": "",
+        "start_index": 37282,
+        "end_index": 37297,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [],
+        "cluster_members": [
+          "2024 WL 2133370",
+          "2024 WL 3199858"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_35",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "173 Wn.2d 296",
+        "extracted_case_name": "Five Corners Fam. Farmers v. State",
+        "extracted_date": "2011",
+        "canonical_name": "Five Corners Family Farmers v. State",
+        "canonical_date": "2011-12-22",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+        "cluster_case_name": "Five Corners Family Farmers v. State",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 39997,
+        "end_index": 40011,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "268 P.3d 892"
+        ],
+        "cluster_members": [
+          "268 P.3d 892"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_17",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "2 Wn.3d 310",
+        "extracted_case_name": "State v. Roggenkamp",
+        "extracted_date": "2023",
+        "canonical_name": "Does 1, 2, 4, 5, Appellants/cross-respondents V. Sam Sueoka, Respondents/cross-appellants",
+        "canonical_date": "2023-06-26",
+        "canonical_url": "https://www.courtlistener.com/opinion/9440140/does-1-2-4-5-appellantscross-respondents-v-sam-sueoka/",
+        "cluster_case_name": "Does 1, 2, 4, 5, Appellants/cross-respondents V. Sam Sueoka, Respondents/cross-appellants",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "wn3d",
+        "context": "",
+        "start_index": 41456,
+        "end_index": 41467,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "535 P.3d 856"
+        ],
+        "cluster_members": [
+          "535 P.3d 856"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_18",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "163 Wn.2d 1",
+        "extracted_case_name": "State v. Lilyblad",
+        "extracted_date": "2008",
+        "canonical_name": "State v. Lilyblad",
+        "canonical_date": "2008-02-07",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908791/state-v-lilyblad/",
+        "cluster_case_name": "State v. Lilyblad",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 42874,
+        "end_index": 42885,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "177 P.3d 686"
+        ],
+        "cluster_members": [
+          "177 P.3d 686"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_19",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "137 Wn.2d 712",
+        "extracted_case_name": "State v. Jackson",
+        "extracted_date": "1999",
+        "canonical_name": "State v. Jackson",
+        "canonical_date": "1999-04-15",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+        "cluster_case_name": "State v. Jackson",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 43392,
+        "end_index": 43405,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "976 P.2d 1229"
+        ],
+        "cluster_members": [
+          "976 P.2d 1229"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_22",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "69 P.3d 318",
+        "extracted_case_name": "State v. J.P",
+        "extracted_date": "2003",
+        "canonical_name": "State v. J.P.",
+        "canonical_date": "2003-05-22",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+        "cluster_case_name": "State v. J.P.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p3d",
+        "context": "",
+        "start_index": 46728,
+        "end_index": 46739,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_42",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "567 P.3d 1128",
+        "extracted_case_name": "McFarland v. Tompkins",
+        "extracted_date": "2025",
+        "canonical_name": "Commonwealth v. Colon",
+        "canonical_date": "2018-07-12",
+        "canonical_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/",
+        "cluster_case_name": "Commonwealth v. Colon",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p3d",
+        "context": "",
+        "start_index": 49256,
+        "end_index": 49269,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_43",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "341 P.3d 953",
+        "extracted_case_name": "State v. Robinson",
+        "extracted_date": "2015",
+        "canonical_name": "Utter v. Building Industry Ass'n",
+        "canonical_date": "2015-01-22",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+        "cluster_case_name": "Utter v. Building Industry Ass'n",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p3d",
+        "context": "",
+        "start_index": 49436,
+        "end_index": 49448,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "182 Wn.2d 398"
+        ],
+        "cluster_members": [
+          "182 Wn.2d 398"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_25",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "118 Wn.2d 46",
+        "extracted_case_name": "Wilmot v. Kaiser Alum . & Chem. Corp",
+        "extracted_date": "1991",
+        "canonical_name": "Wilmot v. Kaiser Aluminum & Chemical Corp.",
+        "canonical_date": "1991-12-12",
+        "canonical_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+        "cluster_case_name": "Wilmot v. Kaiser Aluminum & Chemical Corp.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 53299,
+        "end_index": 53311,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "821 P.2d 18"
+        ],
+        "cluster_members": [
+          "821 P.2d 18"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_26",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "131 Wn.2d 309",
+        "extracted_case_name": "State v. Bash",
+        "extracted_date": "1997",
+        "canonical_name": "Washington State Legislature v. Lowry",
+        "canonical_date": "1997-02-27",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/",
+        "cluster_case_name": "Great Ajax Operating Partnership L.P. v. PCG REO Holdings, LLC",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 53790,
+        "end_index": 53803,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "931 P.2d 885"
+        ],
+        "cluster_members": [
+          "198 Wn.2d 418",
+          "495 P.3d 808",
+          "931 P.2d 885"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_27",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "125 Wn.2d 472",
+        "extracted_case_name": "State v. Silva-Baltazar",
+        "extracted_date": "1994",
+        "canonical_name": "State v. Silva-Baltazar",
+        "canonical_date": "1994-12-15",
+        "canonical_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+        "cluster_case_name": "State v. Silva-Baltazar",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 55953,
+        "end_index": 55966,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "886 P.2d 138"
+        ],
+        "cluster_members": [
+          "886 P.2d 138"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_29",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "147 Wn.2d 602",
+        "extracted_case_name": "In re Pers. Restraint of Andress",
+        "extracted_date": "2002",
+        "canonical_name": "In re the Personal Restraint of Andress",
+        "canonical_date": "2002-10-24",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+        "cluster_case_name": "In re the Personal Restraint of Andress",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 58243,
+        "end_index": 58257,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "56 P.3d 981"
+        ],
+        "cluster_members": [
+          "56 P.3d 981"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_30",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "120 Wn.2d 140",
+        "extracted_case_name": "Spokane County Health Dist. v. Brockett",
+        "extracted_date": "1992",
+        "canonical_name": "Spokane County Health District v. Brockett",
+        "canonical_date": "1992-11-05",
+        "canonical_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+        "cluster_case_name": "Spokane County Health District v. Brockett",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 58335,
+        "end_index": 58348,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "839 P.2d 324"
+        ],
+        "cluster_members": [
+          "839 P.2d 324"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_31",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "162 Wn.2d 42",
+        "extracted_case_name": "Stevens v. Brink's Home Sec. , Inc",
+        "extracted_date": "2007",
+        "canonical_name": "Stevens v. Brink's Home Security, Inc.",
+        "canonical_date": "2007-10-18",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908764/stevens-v-brinks-home-security-inc/",
+        "cluster_case_name": "Stevens v. Brink's Home Security, Inc.",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "parallel_citation_cluster",
+        "context": "",
+        "start_index": 59791,
+        "end_index": 59803,
+        "is_parallel": false,
+        "is_cluster": true,
+        "parallel_citations": [
+          "169 P.3d 473"
+        ],
+        "cluster_members": [
+          "169 P.3d 473"
+        ],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_33",
+        "true_by_parallel": false,
+        "is_verified": true
+      },
+      {
+        "citation": "614 P.2d 209",
+        "extracted_case_name": "State v. Leek",
+        "extracted_date": "1980",
+        "canonical_name": "State v. Leek",
+        "canonical_date": "1980-07-03",
+        "canonical_url": "https://www.courtlistener.com/opinion/1136717/state-v-leek/",
+        "cluster_case_name": "State v. Leek",
+        "verified": true,
+        "url": null,
+        "court": null,
+        "docket_number": null,
+        "confidence": 0.8,
+        "method": "regex_enhanced",
+        "pattern": "flexible_p2d",
+        "context": "",
+        "start_index": 65029,
+        "end_index": 65042,
+        "is_parallel": false,
+        "is_cluster": false,
+        "parallel_citations": [],
+        "cluster_members": [],
+        "pinpoint_pages": [],
+        "docket_numbers": [],
+        "case_history": [],
+        "publication_status": null,
+        "source": "Unknown",
+        "error": null,
+        "metadata": {},
+        "cluster_id": "cluster_47",
+        "true_by_parallel": false,
+        "is_verified": true
+      }
+    ],
+    "clusters": [
+      {
+        "cluster_id": "cluster_27",
+        "case_name": "Deborah Ewing v. Green Tree Services Llc",
+        "canonical_name": "Deborah Ewing v. Green Tree Services Llc",
+        "extracted_case_name": "Great Ajax Operating Partnership L.P. v. PCG REO Holdings, LLC",
+        "date": "2017-04-03",
+        "canonical_date": "2017-04-03",
+        "extracted_date": "2021",
+        "canonical_url": "https://www.courtlistener.com/opinion/4380301/deborah-ewing-v-green-tree-services-llc/",
+        "citations": [
+          {
+            "text": "198 Wn.2d 418",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4380301/deborah-ewing-v-green-tree-services-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "495 P.3d 808",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4861168/great-ajax-operating-partnership-lp-v-pcg-reo-holdings-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "931 P.2d 885",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "131 Wn.2d 309",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 4,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "198 Wn.2d 418",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4380301/deborah-ewing-v-green-tree-services-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "495 P.3d 808",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4861168/great-ajax-operating-partnership-lp-v-pcg-reo-holdings-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "931 P.2d 885",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1169807/washington-state-legislature-v-lowry/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "131 Wn.2d 309",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907193/washington-state-legislature-v-lowry/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "great ajax operating partnership l p v pcg reo holdings llc_1997",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_24",
+        "case_name": "Raines v. Byrd",
+        "canonical_name": "Raines v. Byrd",
+        "extracted_case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "date": "1997-06-26",
+        "canonical_date": "1997-06-26",
+        "extracted_date": "1997",
+        "canonical_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+        "citations": [
+          {
+            "text": "521 U.S. 811",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "138 L. Ed. 2d 849",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "117 S. Ct. 2312",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 3,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "521 U.S. 811",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "138 L. Ed. 2d 849",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "117 S. Ct. 2312",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/118146/raines-v-byrd/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "branson v wash fine wine spirits llc_1997",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_35",
+        "case_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "canonical_name": "Branson v. Wash. Fine Wine & Spirits, LLC",
+        "extracted_case_name": "N/A",
+        "date": "2025-09-04",
+        "canonical_date": "2025-09-04",
+        "extracted_date": "2025",
+        "canonical_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+        "citations": [
+          {
+            "text": "2024 WL 2133370",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "2024 WL 3199858",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "2024 WL 4678268",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 3,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "2024 WL 2133370",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "2024 WL 3199858",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "2024 WL 4678268",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10666199/branson-v-wash-fine-wine-spirits-llc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "branson v wash fine wine spirits llc_2025",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_1",
+        "case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "extracted_case_name": "Spokane County v. Dep't of Fish & Wildlife",
+        "date": "2015-07-16",
+        "canonical_date": "2015-07-16",
+        "extracted_date": "2015",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+        "citations": [
+          {
+            "text": "183 Wn.2d 649",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "355 P.3d 258",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "183 Wn.2d 649",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "355 P.3d 258",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "lopez demetrio v sakuma bros farms_2015",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_2",
+        "case_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "canonical_name": "Lopez Demetrio v. Sakuma Bros. Farms",
+        "extracted_case_name": "Spokane Cnty. v. Wash. Dep't of Fish & Wildlife",
+        "date": "2003-07-31",
+        "canonical_date": "2003-07-31",
+        "extracted_date": "2018",
+        "canonical_url": "https://www.courtlistener.com/opinion/2585524/pullar-v-huelle/",
+        "citations": [
+          {
+            "text": "192 Wn.2d 453",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2585524/pullar-v-huelle/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "430 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/6657720/spokane-cnty-v-wash-dept-of-fish-wildlife/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "192 Wn.2d 453",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2585524/pullar-v-huelle/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "430 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/6657720/spokane-cnty-v-wash-dept-of-fish-wildlife/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "spokane cnty v wash dep t of fish wildlife_2003",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_3",
+        "case_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+        "canonical_name": "Department of Ecology v. Campbell & Gwinn, L.L.C.",
+        "extracted_case_name": "N/A",
+        "date": "2002-03-28",
+        "canonical_date": "2002-03-28",
+        "extracted_date": "2002",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/",
+        "citations": [
+          {
+            "text": "146 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "43 P.3d 4",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2624899/state-dept-of-ecology-v-campbell-gwinn/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "146 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907772/department-of-ecology-v-campbell-gwinn-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "43 P.3d 4",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2624899/state-dept-of-ecology-v-campbell-gwinn/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "department of ecology v campbell gwinn l l c_2002",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_4",
+        "case_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+        "canonical_name": "Association of Washington Spirits & Wine Distributors v. Washington State Liquor Control Board",
+        "extracted_case_name": "State v. Velasquez",
+        "date": "2015-01-08",
+        "canonical_date": "2015-01-08",
+        "extracted_date": "2015",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+        "citations": [
+          {
+            "text": "182 Wn.2d 342",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "340 P.3d 849",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "182 Wn.2d 342",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "340 P.3d 849",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909526/association-of-washington-spirits-wine-distributors-v-washington-state/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "association of washington spirits wine distributors v washington state liquor control board_2015",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_5",
+        "case_name": "State v. Velasquez",
+        "canonical_name": "State v. Velasquez",
+        "extracted_case_name": "State v. Velasquez",
+        "date": "2013-01-17",
+        "canonical_date": "2013-01-17",
+        "extracted_date": "2013",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/",
+        "citations": [
+          {
+            "text": "176 Wn.2d 333",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "292 P.3d 92",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "176 Wn.2d 333",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "292 P.3d 92",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909325/state-v-velasquez/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v velasquez_2013",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_6",
+        "case_name": "PRP Of Darcy Dean Racus",
+        "canonical_name": "PRP Of Darcy Dean Racus",
+        "extracted_case_name": "Jeffery Moore v. Equitrans, L.P.",
+        "date": "2023-04-18",
+        "canonical_date": "2023-04-18",
+        "extracted_date": "2022",
+        "canonical_url": "https://www.courtlistener.com/opinion/9440177/prp-of-darcy-dean-racus/",
+        "citations": [
+          {
+            "text": "199 Wn.2d 528",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9440177/prp-of-darcy-dean-racus/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "509 P.3d 818",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "199 Wn.2d 528",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9440177/prp-of-darcy-dean-racus/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "509 P.3d 818",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "jeffery moore v equitrans l p_2023",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_7",
+        "case_name": "American Legion Post No. 32 v. City of Walla Walla",
+        "canonical_name": "American Legion Post No. 32 v. City of Walla Walla",
+        "extracted_case_name": "Am. Legion Post No.  \n32 v.  City of  Walla  Walla",
+        "date": "1991-01-03",
+        "canonical_date": "1991-01-03",
+        "extracted_date": "1991",
+        "canonical_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+        "citations": [
+          {
+            "text": "116 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "802 P.2d 784",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "116 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "802 P.2d 784",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1351382/american-legion-post-no-32-v-city-of-walla-walla/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "american legion post no 32 v city of walla walla_1991",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_8",
+        "case_name": "Coburn v. Seda",
+        "canonical_name": "Coburn v. Seda",
+        "extracted_case_name": "Coburn v. Seda",
+        "date": "1984-02-23",
+        "canonical_date": "1984-02-23",
+        "extracted_date": "1984",
+        "canonical_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+        "citations": [
+          {
+            "text": "101 Wn.2d 270",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "677 P.2d 173",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "101 Wn.2d 270",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "677 P.2d 173",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1307761/coburn-v-seda/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "coburn v seda_1984",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_9",
+        "case_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+        "canonical_name": "Broughton Lumber Co. v. BNSF Railway Co.",
+        "extracted_case_name": "Broughton Lumber Co. v. BNSF Ry. Co",
+        "date": "2012-05-31",
+        "canonical_date": "2012-05-31",
+        "extracted_date": "2012",
+        "canonical_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+        "citations": [
+          {
+            "text": "174 Wn.2d 619",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "278 P.3d 173",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "174 Wn.2d 619",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "278 P.3d 173",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2330436/broughton-lumber-co-v-bnsf-railway-co/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "broughton lumber co v bnsf railway co_2012",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_10",
+        "case_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+        "canonical_name": "Perez-Crisantos v. State Farm Fire & Casualty Co.",
+        "extracted_case_name": "Crisantos v. State Farm Fire & Cas. Co",
+        "date": "2017-02-02",
+        "canonical_date": "2017-02-02",
+        "extracted_date": "2017",
+        "canonical_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+        "citations": [
+          {
+            "text": "187 Wn.2d 669",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "389 P.3d 476",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "187 Wn.2d 669",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "389 P.3d 476",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4911069/perez-crisantos-v-state-farm-fire-casualty-co/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "perez crisantos v state farm fire casualty co_2017",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_11",
+        "case_name": "Restaurant Development, Inc. v. Cananwill, Inc.",
+        "canonical_name": "Restaurant Development, Inc. v. Cananwill, Inc.",
+        "extracted_case_name": "Rest.  Dev., Inc. v.  Cananwill, Inc",
+        "date": "2003-12-11",
+        "canonical_date": "2003-12-11",
+        "extracted_date": "2003",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/",
+        "citations": [
+          {
+            "text": "150 Wn.2d 674",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "80 P.3d 598",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2538609/restaurant-development-inc-v-cananwill-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "150 Wn.2d 674",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908272/restaurant-development-inc-v-cananwill-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "80 P.3d 598",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2538609/restaurant-development-inc-v-cananwill-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "restaurant development inc v cananwill inc_2003",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_12",
+        "case_name": "Bostain v. Food Express, Inc.",
+        "canonical_name": "Bostain v. Food Express, Inc.",
+        "extracted_case_name": "Bostain v.  Food \nExpress, Inc",
+        "date": "2007-03-01",
+        "canonical_date": "2007-03-01",
+        "extracted_date": "2007",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+        "citations": [
+          {
+            "text": "159 Wn.2d 700",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "153 P.3d 846",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "159 Wn.2d 700",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908647/bostain-v-food-express-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "153 P.3d 846",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2628014/bostain-v-food-exp-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "bostain v food express inc_2007",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_13",
+        "case_name": "Tingey v. Haisch",
+        "canonical_name": "Tingey v. Haisch",
+        "extracted_case_name": "Tingey v. Haisch",
+        "date": "2007-02-15",
+        "canonical_date": "2007-02-15",
+        "extracted_date": "2007",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+        "citations": [
+          {
+            "text": "159 Wn.2d 652",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "152 P.3d 1020",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "159 Wn.2d 652",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908645/tingey-v-haisch/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "152 P.3d 1020",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2635352/tingey-v-haisch/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "tingey v haisch_2007",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_14",
+        "case_name": "Fraternal Order of Eagles, Tenino Aerie No. 564 v. Grand Aerie of Fraternal Order of Eagles",
+        "canonical_name": "Fraternal Order of Eagles, Tenino Aerie No. 564 v. Grand Aerie of Fraternal Order of Eagles",
+        "extracted_case_name": "Fraternal Ord. \nof Eagles, Tenino Aerie  No. 564 v.  Grand  Aerie of Fraternal Ord . of Eagles",
+        "date": "2002-12-19",
+        "canonical_date": "2002-12-19",
+        "extracted_date": "2002",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/",
+        "citations": [
+          {
+            "text": "148 Wn.2d 224",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "59 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2621229/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "148 Wn.2d 224",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907864/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of-fraternal/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "59 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2621229/fraternal-order-of-eagles-tenino-aerie-no-564-v-grand-aerie-of/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "fraternal order of eagles tenino aerie no 564 v grand aerie of fraternal order of eagles_2002",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_15",
+        "case_name": "State v. Delgado",
+        "canonical_name": "State v. Delgado",
+        "extracted_case_name": "State v. Delgado",
+        "date": "2003-02-20",
+        "canonical_date": "2003-02-20",
+        "extracted_date": "2003",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+        "citations": [
+          {
+            "text": "148 Wn.2d 723",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "63 P.3d 792",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "148 Wn.2d 723",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "63 P.3d 792",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907885/state-v-delgado/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v delgado_2003",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_16",
+        "case_name": "State v. Vela",
+        "canonical_name": "State v. Vela",
+        "extracted_case_name": "State v. Vela",
+        "date": "1983-12-15",
+        "canonical_date": "1983-12-15",
+        "extracted_date": "1983",
+        "canonical_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+        "citations": [
+          {
+            "text": "100 Wn.2d 636",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "673 P.2d 185",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "100 Wn.2d 636",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "673 P.2d 185",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1259961/state-v-vela/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v vela_1983",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_17",
+        "case_name": "Five Corners Family Farmers v. State",
+        "canonical_name": "Five Corners Family Farmers v. State",
+        "extracted_case_name": "Five Corners Fam. Farmers v. State",
+        "date": "2011-12-22",
+        "canonical_date": "2011-12-22",
+        "extracted_date": "2011",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+        "citations": [
+          {
+            "text": "173 Wn.2d 296",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "268 P.3d 892",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "173 Wn.2d 296",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "268 P.3d 892",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909238/five-corners-family-farmers-v-state/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "five corners family farmers v state_2011",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_18",
+        "case_name": "Does 1, 2, 4, 5, Appellants/cross-respondents V. Sam Sueoka, Respondents/cross-appellants",
+        "canonical_name": "Does 1, 2, 4, 5, Appellants/cross-respondents V. Sam Sueoka, Respondents/cross-appellants",
+        "extracted_case_name": "State v. Roggenkamp",
+        "date": "2023-06-26",
+        "canonical_date": "2023-06-26",
+        "extracted_date": "2023",
+        "canonical_url": "https://www.courtlistener.com/opinion/9440140/does-1-2-4-5-appellantscross-respondents-v-sam-sueoka/",
+        "citations": [
+          {
+            "text": "2 Wn.3d 310",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9440140/does-1-2-4-5-appellantscross-respondents-v-sam-sueoka/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "535 P.3d 856",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9357524/penn-p-jr-v-state-of-alaska-department-of-health-social-services/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "2 Wn.3d 310",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9440140/does-1-2-4-5-appellantscross-respondents-v-sam-sueoka/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "535 P.3d 856",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/9357524/penn-p-jr-v-state-of-alaska-department-of-health-social-services/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "does 1 2 4 5 appellants cross respondents v sam sueoka respondents cross appellants_2023",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_19",
+        "case_name": "State v. Lilyblad",
+        "canonical_name": "State v. Lilyblad",
+        "extracted_case_name": "State v. Lilyblad",
+        "date": "2008-02-07",
+        "canonical_date": "2008-02-07",
+        "extracted_date": "2008",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908791/state-v-lilyblad/",
+        "citations": [
+          {
+            "text": "163 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908791/state-v-lilyblad/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "177 P.3d 686",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "163 Wn.2d 1",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908791/state-v-lilyblad/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "177 P.3d 686",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2561792/state-v-lilyblad/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v lilyblad_2008",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_20",
+        "case_name": "Larry Spohn, V. Department Of Labor And Industries",
+        "canonical_name": "Larry Spohn, V. Department Of Labor And Industries",
+        "extracted_case_name": "State v. Lilyblad",
+        "date": "2021-12-07",
+        "canonical_date": "2021-12-07",
+        "extracted_date": "2021",
+        "canonical_url": "https://www.courtlistener.com/opinion/5304005/larry-spohn-v-department-of-labor-and-industries/",
+        "citations": [
+          {
+            "text": "197 Wn.2d 841",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/5304005/larry-spohn-v-department-of-labor-and-industries/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "487 P.3d 499",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4766175/bashir-sharif-v-william-p-barr/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "197 Wn.2d 841",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/5304005/larry-spohn-v-department-of-labor-and-industries/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "487 P.3d 499",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4766175/bashir-sharif-v-william-p-barr/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "larry spohn v department of labor and industries_2021",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_21",
+        "case_name": "State v. Roggenkamp",
+        "canonical_name": "State v. Roggenkamp",
+        "extracted_case_name": "State v. Roggenkamp",
+        "date": "2005-02-10",
+        "canonical_date": "2005-02-10",
+        "extracted_date": "2005",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/",
+        "citations": [
+          {
+            "text": "153 Wn.2d 614",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "106 P.3d 196",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2508462/state-v-roggenkamp/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "153 Wn.2d 614",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908403/state-v-roggenkamp/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "106 P.3d 196",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2508462/state-v-roggenkamp/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v roggenkamp_2005",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_22",
+        "case_name": "State v. Jackson",
+        "canonical_name": "State v. Jackson",
+        "extracted_case_name": "State v. Jackson",
+        "date": "1999-04-15",
+        "canonical_date": "1999-04-15",
+        "extracted_date": "1999",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+        "citations": [
+          {
+            "text": "137 Wn.2d 712",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "976 P.2d 1229",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "137 Wn.2d 712",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "976 P.2d 1229",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907474/state-v-jackson/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v jackson_1999",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_23",
+        "case_name": "Spokeo, Inc. v. Robins",
+        "canonical_name": "Spokeo, Inc. v. Robins",
+        "extracted_case_name": "Spokeo, Inc. v. Robins",
+        "date": "2016-05-16",
+        "canonical_date": "2016-05-16",
+        "extracted_date": "2016",
+        "canonical_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+        "citations": [
+          {
+            "text": "136 S. Ct. 1540",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "194 L. Ed. 2d 635",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "136 S. Ct. 1540",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "194 L. Ed. 2d 635",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/3203762/spokeo-inc-v-robins/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "spokeo inc v robins_2016",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_25",
+        "case_name": "Utter v. Building Industry Ass'n",
+        "canonical_name": "Utter v. Building Industry Ass'n",
+        "extracted_case_name": "McFarland v. Tompkins",
+        "date": "2015-01-22",
+        "canonical_date": "2015-01-22",
+        "extracted_date": "2015",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+        "citations": [
+          {
+            "text": "182 Wn.2d 398",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "341 P.3d 953",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "182 Wn.2d 398",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "341 P.3d 953",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909529/utter-v-building-industry-assn/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "utter v building industry ass n_2015",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_26",
+        "case_name": "Wilmot v. Kaiser Aluminum & Chemical Corp.",
+        "canonical_name": "Wilmot v. Kaiser Aluminum & Chemical Corp.",
+        "extracted_case_name": "Wilmot v. Kaiser Alum . & Chem. Corp",
+        "date": "1991-12-12",
+        "canonical_date": "1991-12-12",
+        "extracted_date": "1991",
+        "canonical_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+        "citations": [
+          {
+            "text": "118 Wn.2d 46",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "821 P.2d 18",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "118 Wn.2d 46",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "821 P.2d 18",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1237973/wilmot-v-kaiser-aluminum-chemical-corp/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "wilmot v kaiser aluminum chemical corp_1991",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_28",
+        "case_name": "State v. Bash",
+        "canonical_name": "State v. Bash",
+        "extracted_case_name": "State v. Bash",
+        "date": "1996-11-07",
+        "canonical_date": "1996-11-07",
+        "extracted_date": "1996",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/",
+        "citations": [
+          {
+            "text": "130 Wn.2d 594",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "925 P.2d 978",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "130 Wn.2d 594",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "925 P.2d 978",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907169/state-v-bash/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v bash_1996",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_29",
+        "case_name": "State v. Silva-Baltazar",
+        "canonical_name": "State v. Silva-Baltazar",
+        "extracted_case_name": "State v. Silva-Baltazar",
+        "date": "1994-12-15",
+        "canonical_date": "1994-12-15",
+        "extracted_date": "1994",
+        "canonical_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+        "citations": [
+          {
+            "text": "125 Wn.2d 472",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "886 P.2d 138",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "125 Wn.2d 472",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "886 P.2d 138",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1393900/state-v-silva-baltazar/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v silva baltazar_1994",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_30",
+        "case_name": "In re the Personal Restraint of Andress",
+        "canonical_name": "In re the Personal Restraint of Andress",
+        "extracted_case_name": "In re Pers. Restraint of Andress",
+        "date": "2002-10-24",
+        "canonical_date": "2002-10-24",
+        "extracted_date": "2002",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+        "citations": [
+          {
+            "text": "147 Wn.2d 602",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "56 P.3d 981",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "147 Wn.2d 602",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "56 P.3d 981",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907844/in-re-the-personal-restraint-of-andress/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "in re the personal restraint of andress_2002",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_31",
+        "case_name": "Spokane County Health District v. Brockett",
+        "canonical_name": "Spokane County Health District v. Brockett",
+        "extracted_case_name": "Spokane County Health Dist. v. Brockett",
+        "date": "1992-11-05",
+        "canonical_date": "1992-11-05",
+        "extracted_date": "1992",
+        "canonical_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+        "citations": [
+          {
+            "text": "120 Wn.2d 140",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "839 P.2d 324",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "120 Wn.2d 140",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "839 P.2d 324",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1190299/spokane-county-health-district-v-brockett/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "spokane county health district v brockett_1992",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_32",
+        "case_name": "City of Redmond v. Central Puget Sound Growth Management Hearings Board",
+        "canonical_name": "City of Redmond v. Central Puget Sound Growth Management Hearings Board",
+        "extracted_case_name": "N/A",
+        "date": "1998-08-06",
+        "canonical_date": "1998-08-06",
+        "extracted_date": "1998",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/",
+        "citations": [
+          {
+            "text": "136 Wn.2d 38",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "959 P.2d 1091",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "136 Wn.2d 38",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "959 P.2d 1091",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907412/city-of-redmond-v-central-puget-sound-growth-management-hearings-board/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "city of redmond v central puget sound growth management hearings board_1998",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_33",
+        "case_name": "Stevens v. Brink's Home Security, Inc.",
+        "canonical_name": "Stevens v. Brink's Home Security, Inc.",
+        "extracted_case_name": "Stevens v. Brink's Home Sec. , Inc",
+        "date": "2007-10-18",
+        "canonical_date": "2007-10-18",
+        "extracted_date": "2007",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908764/stevens-v-brinks-home-security-inc/",
+        "citations": [
+          {
+            "text": "162 Wn.2d 42",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908764/stevens-v-brinks-home-security-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "169 P.3d 473",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2625168/stevens-v-brinks-home-security-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "162 Wn.2d 42",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908764/stevens-v-brinks-home-security-inc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "169 P.3d 473",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2625168/stevens-v-brinks-home-security-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "stevens v brink s home security inc_2007",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_34",
+        "case_name": "Carlsen v. Global Client Solutions, LLC",
+        "canonical_name": "Carlsen v. Global Client Solutions, LLC",
+        "extracted_case_name": "N/A",
+        "date": "2011-05-12",
+        "canonical_date": "2011-05-12",
+        "extracted_date": "2011",
+        "canonical_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+        "citations": [
+          {
+            "text": "171 Wn.2d 486",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "256 P.3d 321",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "171 Wn.2d 486",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4909198/carlsen-v-global-client-solutions-llc/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "256 P.3d 321",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/2464360/carlsen-v-global-client-solutions-llc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.7999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "carlsen v global client solutions llc_2011",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_36",
+        "case_name": "State v. Robinson",
+        "canonical_name": "State v. Robinson",
+        "extracted_case_name": "State v. Robinson",
+        "date": "2005-02-24",
+        "canonical_date": "2005-02-24",
+        "extracted_date": "2005",
+        "canonical_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+        "citations": [
+          {
+            "text": "153 Wn.2d 689",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "107 P.3d 90",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 2,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "153 Wn.2d 689",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+            "true_by_parallel": false
+          },
+          {
+            "text": "107 P.3d 90",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4908408/state-v-robinson/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.9999999999999999,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v robinson_2005",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_37",
+        "case_name": "Devore, P. v. Metro Aviation, Inc.",
+        "canonical_name": "Devore, P. v. Metro Aviation, Inc.",
+        "extracted_case_name": "N/A",
+        "date": "2024-11-18",
+        "canonical_date": "2024-11-18",
+        "extracted_date": "2024",
+        "canonical_url": "https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/",
+        "citations": [
+          {
+            "text": "559 P.3d 545",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "559 P.3d 545",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10275991/devore-p-v-metro-aviation-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "devore p v metro aviation inc_2024",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_38",
+        "case_name": "Cockrum v. C.H. Murphy/Clark-Ullman, Inc.",
+        "canonical_name": "Cockrum v. C.H. Murphy/Clark-Ullman, Inc.",
+        "extracted_case_name": "N/A",
+        "date": "2025-05-29",
+        "canonical_date": "2025-05-29",
+        "extracted_date": "2025",
+        "canonical_url": "https://www.courtlistener.com/opinion/10594788/cockrum-v-ch-murphyclark-ullman-inc/",
+        "citations": [
+          {
+            "text": "4 Wn.3d 1021",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10594788/cockrum-v-ch-murphyclark-ullman-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "4 Wn.3d 1021",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10594788/cockrum-v-ch-murphyclark-ullman-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "cockrum v c h murphy clark ullman inc_2025",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_39",
+        "case_name": "Jeffery Moore v. Equitrans, L.P.",
+        "canonical_name": "Jeffery Moore v. Equitrans, L.P.",
+        "extracted_case_name": "Fode v.  Dep\u2019t \nof Ecology",
+        "date": "2022-02-23",
+        "canonical_date": "2022-02-23",
+        "extracted_date": "2022",
+        "canonical_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+        "citations": [
+          {
+            "text": "509 P.3d 325",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "509 P.3d 325",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/7454448/jeffery-moore-v-equitrans-lp/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "jeffery moore v equitrans l p_2022",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_40",
+        "case_name": "Dept. of Human Services v. P. D.",
+        "canonical_name": "Dept. of Human Services v. P. D.",
+        "extracted_case_name": "Port of Tacoma v. Sacks",
+        "date": "2021-10-14",
+        "canonical_date": "2021-10-14",
+        "extracted_date": "2021",
+        "canonical_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/",
+        "citations": [
+          {
+            "text": "495 P.3d 866",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "495 P.3d 866",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10160855/dept-of-human-services-v-p-d/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "dept of human services v p d_2021",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_41",
+        "case_name": "Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand \nAerie of Fraternal Ord.  of Eagles",
+        "canonical_name": "Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand \nAerie of Fraternal Ord.  of Eagles",
+        "extracted_case_name": "Fraternal Ord.  of Eagles, Tenino Aerie No. 564 v. Grand \nAerie of Fraternal Ord.  of Eagles",
+        "date": "2023-11-21",
+        "canonical_date": "2023-11-21",
+        "extracted_date": "2002",
+        "canonical_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/",
+        "citations": [
+          {
+            "text": "9 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "9 P.3d 655",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/10628477/gustavo-p-galvan-v-state-of-mississippi/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "fraternal ord of eagles tenino aerie no 564 v grand aerie of fraternal ord of eagles_2023",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_42",
+        "case_name": "State v. J.P.",
+        "canonical_name": "State v. J.P.",
+        "extracted_case_name": "State v. J.P",
+        "date": "2003-05-22",
+        "canonical_date": "2003-05-22",
+        "extracted_date": "2003",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+        "citations": [
+          {
+            "text": "69 P.3d 318",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "69 P.3d 318",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907923/state-v-jp/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v j p_2003",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_43",
+        "case_name": "Commonwealth v. Colon",
+        "canonical_name": "Commonwealth v. Colon",
+        "extracted_case_name": "McFarland v. Tompkins",
+        "date": "2018-07-12",
+        "canonical_date": "2018-07-12",
+        "extracted_date": "2025",
+        "canonical_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/",
+        "citations": [
+          {
+            "text": "567 P.3d 1128",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "567 P.3d 1128",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4516615/commonwealth-v-colon/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "commonwealth v colon_2018",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_44",
+        "case_name": "Aaron Richardson v. Department Of Labor & Industries",
+        "canonical_name": "Aaron Richardson v. Department Of Labor & Industries",
+        "extracted_case_name": "N/A",
+        "date": "2018-12-24",
+        "canonical_date": "2018-12-24",
+        "extracted_date": "2018",
+        "canonical_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+        "citations": [
+          {
+            "text": "432 P.3d 841",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "432 P.3d 841",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4576882/aaron-richardson-v-department-of-labor-industries/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "aaron richardson v department of labor industries_2018",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_45",
+        "case_name": "Nelson v. McClatchy Newpapers, Inc.",
+        "canonical_name": "Nelson v. McClatchy Newpapers, Inc.",
+        "extracted_case_name": "N/A",
+        "date": "1997-02-20",
+        "canonical_date": "1997-02-20",
+        "extracted_date": "1997",
+        "canonical_url": "https://www.courtlistener.com/opinion/4907203/nelson-v-mcclatchy-newpapers-inc/",
+        "citations": [
+          {
+            "text": "131 Wn.2d 523",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907203/nelson-v-mcclatchy-newpapers-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "131 Wn.2d 523",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/4907203/nelson-v-mcclatchy-newpapers-inc/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "nelson v mcclatchy newpapers inc_1997",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_46",
+        "case_name": "Nelson v. McClatchy Newspapers",
+        "canonical_name": "Nelson v. McClatchy Newspapers",
+        "extracted_case_name": "N/A",
+        "date": "1997-05-08",
+        "canonical_date": "1997-05-08",
+        "extracted_date": "1997",
+        "canonical_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+        "citations": [
+          {
+            "text": "936 P.2d 1123",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "936 P.2d 1123",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1224593/nelson-v-mcclatchy-newspapers/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "nelson v mcclatchy newspapers_1997",
+          "cluster_members_preserved": true
+        }
+      },
+      {
+        "cluster_id": "cluster_47",
+        "case_name": "State v. Leek",
+        "canonical_name": "State v. Leek",
+        "extracted_case_name": "State v. Leek",
+        "date": "1980-07-03",
+        "canonical_date": "1980-07-03",
+        "extracted_date": "1980",
+        "canonical_url": "https://www.courtlistener.com/opinion/1136717/state-v-leek/",
+        "citations": [
+          {
+            "text": "614 P.2d 209",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1136717/state-v-leek/",
+            "true_by_parallel": false
+          }
+        ],
+        "size": 1,
+        "verified": true,
+        "source": "clustering",
+        "validation_method": "cluster_validation",
+        "citation_details": [
+          {
+            "text": "614 P.2d 209",
+            "verified": true,
+            "verification_method": null,
+            "verification_source": "Unknown",
+            "verification_url": "https://www.courtlistener.com/opinion/1136717/state-v-leek/",
+            "true_by_parallel": false
+          }
+        ],
+        "confidence": 0.6,
+        "metadata": {
+          "cluster_type": "proximity_based",
+          "created_by": "unified_master",
+          "cluster_key": "state v leek_1980",
+          "cluster_members_preserved": true
+        }
+      }
+    ],
+    "statistics": {
+      "total_citations": 34,
+      "verified_citations": 34,
+      "total_clusters": 47,
+      "verified_clusters": 47,
+      "processing_time": 0.0
+    },
+    "success": true,
+    "processing_mode": "async_full_processing",
+    "verification_enabled": true,
+    "request_id": "20fde1c7-e975-49c5-8436-5ace667721ba",
+    "progress_data": {
+      "task_id": "20fde1c7-e975-49c5-8436-5ace667721ba",
+      "status": "completed",
+      "overall_progress": 100,
+      "current_step": 5,
+      "total_steps": 6,
+      "elapsed_time": 45.07644748687744,
+      "current_message": "Verification completed",
+      "start_time": 1760005984.1555188,
+      "end_time": 1760006029.2319574,
+      "steps": [
+        {
+          "name": "Initializing",
+          "progress": 100,
+          "status": "completed",
+          "message": "Initialization complete",
+          "start_time": 1760005984.1555471,
+          "end_time": 1760005985.2598011
+        },
+        {
+          "name": "Extract",
+          "progress": 100,
+          "status": "completed",
+          "message": "Citation extraction completed",
+          "start_time": 1760005985.259816,
+          "end_time": 1760006029.1090207
+        },
+        {
+          "name": "Analyze",
+          "progress": 100,
+          "status": "completed",
+          "message": "Citation analysis completed",
+          "start_time": 1760006029.1090534,
+          "end_time": 1760006029.1097627
+        },
+        {
+          "name": "Extract Names",
+          "progress": 100,
+          "status": "completed",
+          "message": "Deduplication completed (34 unique citations)",
+          "start_time": 1760006029.1097934,
+          "end_time": 1760006029.2314165
+        },
+        {
+          "name": "Cluster",
+          "progress": 100,
+          "status": "completed",
+          "message": "Clustering completed (47 unique clusters)",
+          "start_time": 1760006029.2314513,
+          "end_time": 1760006029.231899
+        },
+        {
+          "name": "Verify",
+          "progress": 100,
+          "status": "completed",
+          "message": "Verification completed",
+          "start_time": 1760006029.2319126,
+          "end_time": 1760006029.2319458
+        }
+      ]
+    }
+  }
+}

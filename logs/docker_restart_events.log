@@ -138,3 +138,87 @@
 [2025-10-06 13:44:18] [SUCCESS] Restart ID: 19973ccf
 [2025-10-06 13:44:18] [SUCCESS] Recovery completed in 55 seconds
 [2025-10-06 13:44:18] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-10 20:33:11] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-10 20:33:11] [RESTART] Restart ID: 49093f13
+[2025-10-10 20:33:11] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-10 20:33:11] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-10 20:34:12] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-10 20:34:12] [SUCCESS] Restart ID: 49093f13
+[2025-10-10 20:34:12] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-10 20:34:12] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-10 21:28:23] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-10 21:28:23] [RESTART] Restart ID: 6da1bf61
+[2025-10-10 21:28:23] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-10 21:28:23] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-10 21:29:24] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-10 21:29:24] [SUCCESS] Restart ID: 6da1bf61
+[2025-10-10 21:29:24] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-10 21:29:24] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-12 22:23:09] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-12 22:23:09] [RESTART] Restart ID: 77b8d99c
+[2025-10-12 22:23:09] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-12 22:23:09] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-12 22:24:11] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-12 22:24:11] [SUCCESS] Restart ID: 77b8d99c
+[2025-10-12 22:24:11] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-12 22:24:11] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-12 22:28:31] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-12 22:28:31] [RESTART] Restart ID: afdd1e58
+[2025-10-12 22:28:31] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-12 22:28:31] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-12 22:29:38] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-12 22:29:38] [SUCCESS] Restart ID: afdd1e58
+[2025-10-12 22:29:38] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-12 22:29:38] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 14:27:43] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 14:27:43] [RESTART] Restart ID: 606fdeaa
+[2025-10-14 14:27:43] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout)
+[2025-10-14 14:27:43] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-14 14:30:37] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-14 14:30:37] [SUCCESS] Restart ID: 606fdeaa
+[2025-10-14 14:30:37] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-14 14:30:37] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 14:36:59] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 14:36:59] [RESTART] Restart ID: 94cd48ab
+[2025-10-14 14:36:59] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout), Docker daemon frozen (timeout), High memory usage: 2737.3MB
+[2025-10-14 14:36:59] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-14 14:38:01] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-14 14:38:01] [SUCCESS] Restart ID: 94cd48ab
+[2025-10-14 14:38:01] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-14 14:38:01] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 14:49:32] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 14:49:32] [RESTART] Restart ID: fdb2874f
+[2025-10-14 14:49:32] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-14 14:49:32] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-14 14:50:35] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-14 14:50:35] [SUCCESS] Restart ID: fdb2874f
+[2025-10-14 14:50:35] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-14 14:50:35] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 14:57:47] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 14:57:47] [RESTART] Restart ID: f58ed10b
+[2025-10-14 14:57:47] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout), Docker daemon frozen (timeout)
+[2025-10-14 14:57:47] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-14 14:59:06] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-14 14:59:06] [SUCCESS] Restart ID: f58ed10b
+[2025-10-14 14:59:06] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-14 14:59:06] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 15:17:53] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 15:17:53] [RESTART] Restart ID: 768134d3
+[2025-10-14 15:17:53] [RESTART] Reason: Health check failed: Docker CLI frozen (timeout)
+[2025-10-14 15:17:53] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-14 15:21:57] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-14 15:21:57] [SUCCESS] Restart ID: 768134d3
+[2025-10-14 15:21:57] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-14 15:21:57] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856
+[2025-10-14 15:52:17] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-14 15:52:17] [RESTART] Restart ID: 78f78631
+[2025-10-14 15:52:17] [RESTART] Reason: Health check failed: Docker API not accessible
+[2025-10-14 15:52:17] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-15 09:33:07] [RESTART] === DOCKER RESTART INITIATED ===
+[2025-10-15 09:33:07] [RESTART] Restart ID: edc5ff13
+[2025-10-15 09:33:07] [RESTART] Reason: Health check failed: Docker daemon frozen (timeout)
+[2025-10-15 09:33:07] [RESTART] Initiated by: Docker Health Check (Auto-Recovery)
+[2025-10-15 09:34:09] [SUCCESS] === DOCKER RESTART SUCCESSFUL ===
+[2025-10-15 09:34:09] [SUCCESS] Restart ID: edc5ff13
+[2025-10-15 09:34:09] [SUCCESS] Recovery completed in 55 seconds
+[2025-10-15 09:34:09] [SUCCESS] Docker version: Docker version 28.3.3, build 980b856

@@ -1,0 +1,29 @@
+Fix verification infinite loop and enable sync processing
+
+Major fixes implemented:
+
+1. Fixed infinite verification loop (enhanced_fallback_verifier.py)
+   - Changed enable_fallback=not has_courtlistener_data to enable_fallback=False
+   - Prevents recursive calls between master verifier and fallback verifier
+   
+2. Fixed nginx DNS cache issue (docker-compose.prod.yml)
+   - Added DNS wait loop to nginx startup command
+   - Prevents cached DNS failures when backend starts simultaneously
+   - Documented in NGINX_DNS_CACHE_FIX.md
+
+3. Temporarily force sync processing (citation_service.py)
+   - Bypass broken async workers until RQ job pickup issue is resolved
+   - All processing now completes successfully without getting stuck
+
+4. Added diagnostic logging (citation_extraction_endpoint.py)
+   - Track enable_verification parameter through pipeline
+   - Helps debug verification flow issues
+
+Test Results:
+- 132 citations extracted from 66KB PDF
+- 82 clusters created
+- 46/132 citations verified (35% success rate)
+- No infinite loops
+- Processing completes in ~75 seconds
+
+Status: Verification now working in production!

@@ -1,0 +1,9 @@
+﻿Testing force_mode with full PDF...
+Status: 200
+Citations: 87
+Clusters: 57
+Mode: immediate
+force_mode: sync
+
+FIRST CITATION:
+  {'canonical_date': '2015-07-16', 'canonical_name': 'Lopez Demetrio v. Sakuma Bros. Farms', 'canonical_url': 'https://www.courtlistener.com/opinion/4909770/lopez-demetrio-v-sakuma-bros-farms/', 'case_history': [], 'citation': '183 Wn.2d 649', 'cluster_case_name': 'Lopez Demetrio v. Sakuma Bros. Farms', 'cluster_id': 'cluster_1', 'cluster_members': ['355 P.3d 258'], 'confidence': 0.8, 'context': '', 'court': None, 'docket_number': None, 'docket_numbers': [], 'end_index': 4477, 'error': None, 'extracted_case_name': 'Lopez Demetrio v. Sakuma Bros. Farms', 'extracted_date': '2015', 'is_cluster': True, 'is_parallel': False, 'is_verified': True, 'metadata': {}, 'method': 'regex_enhanced', 'parallel_citations': ['355 P.3d 258'], 'pattern': 'parallel_citation_cluster', 'pinpoint_pages': [], 'publication_status': None, 'source': 'Unknown', 'start_index': 4463, 'true_by_parallel': False, 'url': None, 'verified': True}

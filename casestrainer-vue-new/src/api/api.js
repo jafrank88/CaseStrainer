@@ -268,32 +268,29 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       return pollForResults(requestId, clientRequestId, startTime);
     }
     
-    // Check for completion
-    if (status === 'completed' || status === 'finished' || result.citations || result.clusters) {
-      console.log('Task completed successfully:', {
+    // Check for completion - CRITICAL: Check status first, then data presence
+    // Empty arrays are falsy, so check for array existence explicitly
+    const hasCitations = Array.isArray(result.citations);
+    const hasClusters = Array.isArray(result.clusters);
+    const isComplete = status === 'completed' || status === 'finished' || hasCitations || hasClusters;
+    
+    if (isComplete) {
+      console.log('✅ Task completed successfully:', {
         taskId: requestId,
         clientRequestId,
+        status,
         elapsed: Date.now() - startTime,
         citationsCount: result.citations?.length || 0,
         clustersCount: result.clusters?.length || 0,
         hasError: !!result.error
       });
       
-      // If we have citations or clusters, consider it a success even without explicit status
-      if (result.citations || result.clusters) {
-        return { 
-          ...result,
-          status: 'completed',
-          requestId: clientRequestId,
-          message: message || 'Analysis completed successfully'
-        };
-      }
-      
-      // Otherwise return the full result
-      return {
+      // Return completed result - stop polling
+      return { 
         ...result,
         status: 'completed',
-        requestId: clientRequestId
+        requestId: clientRequestId,
+        message: message || 'Analysis completed successfully'
       };
     } else if (status === 'failed' || status === 'error' || responseData.error) {
       const errorMessage = responseData.error?.message ||

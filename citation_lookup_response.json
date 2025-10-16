@@ -1,0 +1,86 @@
+[
+  {
+    "citation": "200 L. Ed. 2d 931",
+    "normalized_citations": [
+      "200 L. Ed. 2d 931"
+    ],
+    "start_index": 0,
+    "end_index": 17,
+    "status": 200,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v4/clusters/4499693/",
+        "id": 4499693,
+        "absolute_url": "/opinion/4499693/upper-skagit-tribe-v-lundgren/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 6804008,
+        "docket": "https://www.courtlistener.com/api/rest/v4/dockets/6804008/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v4/opinions/4276946/"
+        ],
+        "citations": [
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": 138,
+            "reporter": "S. Ct.",
+            "page": "1649",
+            "type": 1
+          },
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": 200,
+            "reporter": "L. Ed. 2d",
+            "page": "931",
+            "type": 1
+          },
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": 2018,
+            "reporter": "U.S. LEXIS",
+            "page": "3085",
+            "type": 6
+          }
+        ],
+        "date_created": "2018-05-21T08:00:42.951960-07:00",
+        "date_modified": "2020-05-07T16:38:30.529862-07:00",
+        "judges": "Neil Gorsuch",
+        "date_filed": "2018-05-21",
+        "date_filed_is_approximate": false,
+        "slug": "upper-skagit-tribe-v-lundgren",
+        "case_name_short": "Lundgren",
+        "case_name": "Upper Skagit Tribe v. Lundgren",
+        "case_name_full": "",
+        "scdb_id": "2017-064",
+        "scdb_decision_direction": 2,
+        "scdb_votes_majority": 7,
+        "scdb_votes_minority": 2,
+        "source": "C",
+        "procedural_history": "",
+        "attorneys": "",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 37,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": null,
+        "filepath_pdf_harvard": null,
+        "arguments": "",
+        "headmatter": ""
+      }
+    ]
+  }
+]

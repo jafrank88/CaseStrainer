@@ -1,0 +1,31 @@
+CRITICAL FIX: Replace cluster citations with verified versions
+
+ROOT CAUSE FINALLY FOUND:
+Clusters contained OLD UNVERIFIED citations from before verification.
+The verified citations (36 verified) were in citation_dicts, but clusters
+still had the original unverified citations!
+
+THE ISSUE:
+1. Line 1009: extract_citations_with_clustering() returns citations + clusters
+2. Clustering happens FIRST, verification happens INSIDE clustering
+3. But the clusters returned have REFERENCES to the old citation objects
+4. Line 1086: citation_dicts gets populated with VERIFIED citations (36 verified)
+5. Line 1148: cluster_dicts copies clusters WITH OLD CITATIONS (all unverified!)
+6. My canonical data extraction finds verified=False everywhere
+
+THE FIX (progress_manager.py:1152-1186):
+Before: Just converted cluster citations as-is (all unverified)
+After: Look up each citation in citation_dicts and use the VERIFIED version
+
+Implementation:
+- Create citation_lookup map: citation_text -> verified citation dict
+- For each citation in cluster, look it up in citation_dicts
+- Replace with verified version if found
+- Now clusters have citations with verified=True and canonical_name!
+
+Expected Result:
+- Clusters will now have verified citations with canonical_name
+- My canonical data extraction (lines 1207-1247) will find them
+- Frontend will show "Verifying Source: [Canonical Name]"
+
+This was a data flow issue, not an API issue!
