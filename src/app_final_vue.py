@@ -176,10 +176,21 @@ class LoggingManager:
         try:
             from src.config import configure_logging
             configure_logging()
+            
+            # CRITICAL FIX: Suppress PDFMiner DEBUG spam globally
+            # PDFMiner creates 10,000+ DEBUG log lines that slow everything down
+            pdfminer_loggers = [
+                'pdfminer', 'pdfminer.psparser', 'pdfminer.cmapdb',
+                'pdfminer.pdfinterp', 'pdfminer.pdfpage', 'pdfminer.converter'
+            ]
+            for logger_name in pdfminer_loggers:
+                logging.getLogger(logger_name).setLevel(logging.ERROR)
+            
             logger = logging.getLogger(__name__)
             logger.info("=== Logging Configuration ===")
             logger.info(f"Python version: {sys.version}")
             logger.info(f"Working directory: {os.getcwd()}")
+            logger.info("✅ PDFMiner DEBUG logging suppressed")
             return logger
         except Exception as e:
             return LoggingManager._setup_fallback_logging(e)
@@ -198,8 +209,18 @@ class LoggingManager:
                 logging.FileHandler(logs_dir / "app.log")
             ]
         )
+        
+        # CRITICAL FIX: Suppress PDFMiner DEBUG spam even in fallback mode
+        pdfminer_loggers = [
+            'pdfminer', 'pdfminer.psparser', 'pdfminer.cmapdb',
+            'pdfminer.pdfinterp', 'pdfminer.pdfpage', 'pdfminer.converter'
+        ]
+        for logger_name in pdfminer_loggers:
+            logging.getLogger(logger_name).setLevel(logging.ERROR)
+        
         logger = logging.getLogger(__name__)
         logger.warning(f"Failed to configure centralized logging: {error}. Using fallback.")
+        logger.info("✅ PDFMiner DEBUG logging suppressed")
         return logger
 
 
