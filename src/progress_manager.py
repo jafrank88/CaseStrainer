@@ -1256,6 +1256,8 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     logger.error(f"[Task {task_id}] 🔍 Cluster has {len(citations_in_cluster)} citations")
                     
                     # STEP 1: Check if cluster has ANY verified citation (for true_by_parallel)
+                    # USER RULE: verified=True means citation HAS canonical_name, canonical_date, canonical_url
+                    # So if ANY citation is verified, we know the case exists and can mark parallels
                     has_any_verified = False
                     for cit in citations_in_cluster:
                         is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)

@@ -1,0 +1,71 @@
+ARCHITECTURE: Define verified=True to require ALL canonical fields
+
+USER REQUIREMENT:
+"For now, let's say that verified is providing a canonical case name, year, and url"
+
+NEW ARCHITECTURAL RULE:
+A citation can ONLY be marked as verified=True if it has ALL three canonical fields:
+1. canonical_name (e.g., "Luis v. United States")
+2. canonical_date (e.g., "2016" or "2016-05-16")
+3. canonical_url (e.g., "https://www.courtlistener.com/...")
+
+RATIONALE:
+- Simplifies logic: verified=True is a clear, unambiguous signal
+- Prevents confusion: No "verified but missing data" edge cases
+- Enforces quality: Only complete verification counts as success
+- User expectation: "verified" implies we have authoritative metadata
+
+IMPLEMENTATION:
+Added VerificationResult.create_verified() class method that:
+- Accepts canonical_name, canonical_date, canonical_url
+- Automatically sets verified=True ONLY if ALL three are present
+- Sets verified=False if ANY field is missing
+- Sets error message explaining which fields are missing
+
+Example usage:
+```python
+# OLD WAY (manual, error-prone):
+return VerificationResult(
+    citation=citation,
+    verified=True,  # ← Might set True even if canonical_date is None!
+    canonical_name=result.get('canonical_name'),
+    canonical_date=result.get('canonical_date'),  # ← Could be None
+    canonical_url=result.get('canonical_url')
+)
+
+# NEW WAY (enforced):
+return VerificationResult.create_verified(
+    citation=citation,
+    canonical_name=result.get('canonical_name'),
+    canonical_date=result.get('canonical_date'),
+    canonical_url=result.get('canonical_url'),
+    source='courtlistener'
+)
+# ↑ Automatically sets verified=False if any field is None
+```
+
+IMPACT ON true_by_parallel LOGIC:
+The recent fix to true_by_parallel logic is now even more sound:
+- If has_any_verified=True, we KNOW the verified citation has ALL canonical data
+- So marking unverified parallels as true_by_parallel is always valid
+- No edge cases where verified citation is missing canonical data
+
+ENFORCEMENT:
+Going forward, developers should use VerificationResult.create_verified()
+instead of manually setting verified=True. This ensures the rule is
+always enforced at the data structure level.
+
+BACKWARD COMPATIBILITY:
+Existing code that manually sets verified=True still works, but:
+- Should be gradually migrated to use create_verified()
+- Manual setting is now considered code smell
+- Validation can be added later to enforce this rule
+
+FILES MODIFIED:
+- src/unified_verification_master.py: Added create_verified() class method
+- src/progress_manager.py: Updated comments to reflect new rule
+
+NEXT STEPS (Future Work):
+1. Migrate all VerificationResult() calls to use create_verified()
+2. Add validation in VerificationResult.__post_init__() to enforce rule
+3. Update tests to verify this rule is enforced

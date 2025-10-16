@@ -64,6 +64,40 @@ class VerificationResult:
     validation_warning: Optional[str] = None  # Warning if canonical/extracted names don't match
     warnings: List[str] = None
     error: Optional[str] = None
+    
+    @classmethod
+    def create_verified(cls, citation: str, canonical_name: Optional[str], canonical_date: Optional[str], 
+                       canonical_url: Optional[str], source: Optional[str] = None, confidence: float = 1.0, 
+                       method: str = "verified", **kwargs):
+        """
+        Create a VerificationResult with automatic verification status based on canonical data presence.
+        
+        USER RULE: verified=True ONLY if ALL three canonical fields are present:
+        - canonical_name (required)
+        - canonical_date (required)  
+        - canonical_url (required)
+        
+        If any field is missing, verified=False even if source found the citation.
+        """
+        # Check if ALL required canonical fields are present
+        has_all_canonical_data = (
+            canonical_name is not None and canonical_name.strip() != '' and
+            canonical_date is not None and str(canonical_date).strip() != '' and
+            canonical_url is not None and canonical_url.strip() != ''
+        )
+        
+        return cls(
+            citation=citation,
+            verified=has_all_canonical_data,  # Auto-set based on data presence
+            canonical_name=canonical_name,
+            canonical_date=canonical_date,
+            canonical_url=canonical_url,
+            source=source,
+            confidence=confidence if has_all_canonical_data else 0.0,
+            method=method if has_all_canonical_data else "partial_data",
+            error=None if has_all_canonical_data else f"Missing canonical data (name={canonical_name is not None}, date={canonical_date is not None}, url={canonical_url is not None})",
+            **kwargs
+        )
 
 class UnifiedVerificationMaster:
     """
