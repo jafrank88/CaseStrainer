@@ -276,8 +276,22 @@ class UnifiedClusteringMaster:
         try:
             # Step 1: Detect parallel citations and create initial groups
             logger.info("MASTER_CLUSTER: Step 1 - Detecting parallel citations")
+            logger.error(f"🔍 [CLUSTER-DEBUG] Input: {len(citations)} citations")
+            
+            # Sample first 3 citations to see their structure
+            for i, cit in enumerate(citations[:3]):
+                cit_text = getattr(cit, 'citation', str(cit)) if hasattr(cit, 'citation') else str(cit)
+                has_position = hasattr(cit, 'start_index') or (isinstance(cit, dict) and 'start_index' in cit)
+                position = getattr(cit, 'start_index', None) if hasattr(cit, 'start_index') else (cit.get('start_index') if isinstance(cit, dict) else None)
+                logger.error(f"🔍 [CLUSTER-DEBUG] Citation {i+1}: {cit_text}, has_position={has_position}, position={position}")
+            
             parallel_groups = self._detect_parallel_citations(citations, original_text)
             logger.info(f"MASTER_CLUSTER: Created {len(parallel_groups)} parallel groups")
+            logger.error(f"🔍 [CLUSTER-DEBUG] Output: {len(parallel_groups)} parallel groups (expected < {len(citations)} if parallels detected)")
+            
+            # Show size of first few groups
+            for i, group in enumerate(parallel_groups[:5]):
+                logger.error(f"🔍 [CLUSTER-DEBUG] Group {i+1} size: {len(group)} citations")
             
             # Step 2: Extract and propagate metadata within groups
             logger.info("MASTER_CLUSTER: Step 2 - Extracting and propagating metadata")
