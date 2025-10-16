@@ -2269,6 +2269,15 @@ class UnifiedClusteringMaster:
                 if pos is not None:
                     positions.append(pos)
             
+            # DIAGNOSTIC: Check if positions were found
+            if len(citations) > 1 and len(positions) == 0:
+                logger.error(f"🚨 [PROXIMITY-BUG] Cluster has {len(citations)} citations but NO positions found!")
+                logger.error(f"   First citation type: {type(citations[0])}")
+                if hasattr(citations[0], '__dict__'):
+                    logger.error(f"   First citation attrs: {list(vars(citations[0]).keys())[:10]}")
+                elif isinstance(citations[0], dict):
+                    logger.error(f"   First citation keys: {list(citations[0].keys())[:10]}")
+            
             # If we have positions, check proximity
             is_close_proximity = False
             if len(positions) >= 2:
@@ -2276,7 +2285,9 @@ class UnifiedClusteringMaster:
                 max_distance = sorted_positions[-1] - sorted_positions[0]
                 # FIX #47: If citations are within 200 chars, they're likely parallel
                 is_close_proximity = max_distance <= 200
-                logger.debug(f"[FIX #47] Cluster proximity check: {max_distance} chars, is_close={is_close_proximity}")
+                logger.error(f"🔍 [PROXIMITY-CHECK] {len(citations)} citations, distance={max_distance} chars, is_close={is_close_proximity}")
+            elif len(citations) > 1:
+                logger.error(f"⚠️ [PROXIMITY-CHECK] {len(citations)} citations but only {len(positions)} positions - CANNOT determine proximity!")
             
             # FIX #48: Group citations by EXTRACTED case name + year (from document)
             extracted_groups = {}
