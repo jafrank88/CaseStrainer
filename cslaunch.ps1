@@ -101,6 +101,15 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n✅ Backend + workers rebuilt and deployed in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
             
+            # CRITICAL: Restart nginx routing container to pick up new backend IP
+            Write-Host "`n[NGINX] Restarting nginx routing container for DNS refresh..." -ForegroundColor Yellow
+            docker restart casestrainer-nginx-prod > $null 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  ✅ Nginx routing container restarted" -ForegroundColor Green
+            } else {
+                Write-Host "  ⚠️  Warning: Could not restart nginx (container may not exist)" -ForegroundColor Yellow
+            }
+            
             # NOW wait for services to be ready (after restart)
             Write-Host "`n[WAIT] Ensuring services are ready..." -ForegroundColor Yellow
             $servicesReady = $false

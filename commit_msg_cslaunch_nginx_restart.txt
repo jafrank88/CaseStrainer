@@ -1,0 +1,60 @@
+FIX: Add automatic nginx restart to cslaunch to fix API 404 errors
+
+PROBLEM:
+Every time cslaunch runs, API calls return 404 errors because:
+1. cslaunch restarts backend container
+2. Backend gets assigned a NEW IP address (e.g., 172.18.0.6)
+3. Nginx routing container still has OLD IP cached (e.g., 172.18.0.8)
+4. All API requests fail with "Connection refused" → 404
+
+USER EXPERIENCE:
+- User runs cslaunch
+- Frontend loads fine
+- API calls fail with 404
+- User has to manually run: docker restart casestrainer-nginx-prod
+
+ROOT CAUSE:
+Docker DNS caching. The nginx routing container resolves 
+"casestrainer-backend-prod" to an IP when it starts, then caches it.
+When backend restarts with a new IP, nginx doesn't know.
+
+SOLUTION:
+Modified cslaunch.ps1 to automatically restart nginx routing container
+after restarting backend. This forces nginx to re-resolve DNS and get
+the correct backend IP.
+
+IMPLEMENTATION:
+Added after line 102 (after backend rebuild):
+```powershell
+# CRITICAL: Restart nginx routing container to pick up new backend IP
+Write-Host "`n[NGINX] Restarting nginx routing container for DNS refresh..." -ForegroundColor Yellow
+docker restart casestrainer-nginx-prod > $null 2>&1
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "  ✅ Nginx routing container restarted" -ForegroundColor Green
+} else {
+    Write-Host "  ⚠️  Warning: Could not restart nginx (container may not exist)" -ForegroundColor Yellow
+}
+```
+
+BENEFITS:
+- No more manual nginx restarts needed
+- API works immediately after cslaunch
+- Seamless development workflow
+- Clear feedback in cslaunch output
+
+ERROR LOGS BEFORE FIX:
+```
+connect() failed (111: Connection refused) while connecting to upstream
+upstream: "http://172.18.0.8:5000/casestrainer/api/..."
+```
+
+AFTER FIX:
+Backend at 172.18.0.6, nginx successfully connects after auto-restart.
+
+USER WORKFLOW NOW:
+1. Make backend code changes
+2. Run ./cslaunch
+3. Everything works (no manual nginx restart needed!)
+
+This fixes the recurring issue where API endpoints return 404 after
+every cslaunch, requiring manual intervention.
