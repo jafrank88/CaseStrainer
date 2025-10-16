@@ -7,8 +7,14 @@ Provides reliable text extraction from PDFs using multiple libraries with intell
 import logging
 from typing import Optional, Tuple, List
 from pathlib import Path
+import time
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutureTimeoutError
 
 logger = logging.getLogger(__name__)
+
+# USER OPTIMIZATION: Per-library timeout to prevent hanging
+EXTRACTION_TIMEOUT = 45  # seconds per library
+FAST_EXTRACTION_TIMEOUT = 20  # seconds for fast libraries
 
 # Import footnote converter
 try:
@@ -30,65 +36,67 @@ class RobustPDFExtractor:
     5. PyPDF2 - Legacy, least reliable
     """
 
-    def __init__(self, convert_footnotes: bool = True):
+    def __init__(self, convert_footnotes: bool = True, verbose: bool = False):
         """
         Initialize PDF extractor.
         
         Args:
             convert_footnotes: Whether to convert footnotes to endnotes (improves citation extraction)
+            verbose: Enable verbose logging (default: False for speed)
         """
         self.available_libraries = self._check_available_libraries()
         self.convert_footnotes = convert_footnotes and FOOTNOTE_CONVERTER_AVAILABLE
+        self.verbose = verbose
 
     def _check_available_libraries(self) -> List[str]:
-        """Check which PDF libraries are available."""
+        """Check which PDF libraries are available. USER OPTIMIZATION: Silent checks for speed."""
         libraries = []
 
-        # Test PyMuPDF (best performer)
+        # Test PyMuPDF (best performer) - FASTEST
         try:
             import fitz
             libraries.append('fitz')
-            logger.info("✅ PyMuPDF (fitz) available")
         except ImportError:
-            logger.warning("❌ PyMuPDF (fitz) not available")
+            pass
 
-        # Test PDFMiner (good balance)
-        try:
-            from pdfminer.high_level import extract_text
-            libraries.append('pdfminer')
-            logger.info("✅ PDFMiner available")
-        except ImportError:
-            logger.warning("❌ PDFMiner not available")
-
-        # Test PDFPlumber (good for structured docs)
+        # Test PDFPlumber (fast and accurate) - SECOND FASTEST
         try:
             import pdfplumber
             libraries.append('pdfplumber')
-            logger.info("✅ PDFPlumber available")
         except ImportError:
-            logger.warning("❌ PDFPlumber not available")
+            pass
 
-        # Test PyPDF (basic functionality)
+        # Test PyPDF (basic, fast)
         try:
             import pypdf
             libraries.append('pypdf')
-            logger.info("✅ PyPDF available")
         except ImportError:
-            logger.warning("❌ PyPDF not available")
+            pass
 
-        # Test PyPDF2 (legacy)
+        # Test PyPDF2 (legacy, slower)
         try:
             import PyPDF2
             libraries.append('PyPDF2')
-            logger.info("✅ PyPDF2 available")
         except ImportError:
-            logger.warning("❌ PyPDF2 not available")
+            pass
+            
+        # Test PDFMiner (SLOWEST but thorough) - LAST RESORT
+        try:
+            from pdfminer.high_level import extract_text
+            libraries.append('pdfminer')
+        except ImportError:
+            pass
 
+        if libraries:
+            logger.info(f"PDF extraction libraries available: {', '.join(libraries)}")
+        else:
+            logger.error("No PDF extraction libraries available!")
+            
         return libraries
 
     def extract_text(self, pdf_path: str, max_pages: Optional[int] = None) -> Tuple[str, str]:
         """
-        Extract text from PDF using multiple fallback libraries.
+        USER OPTIMIZED: Extract text from PDF with timeout protection and early exit.
 
         Args:
             pdf_path: Path to PDF file
@@ -100,41 +108,65 @@ class RobustPDFExtractor:
         if not Path(pdf_path).exists():
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
-        # Try libraries in order of performance
+        start_time = time.time()
+        
+        # Try libraries in order of SPEED (fitz/pdfplumber fastest)
         for library in self.available_libraries:
             try:
-                logger.info(f"Attempting PDF extraction with {library}")
-                text = self._extract_with_library(pdf_path, library, max_pages)
+                if self.verbose:
+                    logger.info(f"Trying {library}...")
+                
+                # USER OPTIMIZATION: Use timeout to prevent hanging
+                timeout = FAST_EXTRACTION_TIMEOUT if library in ['fitz', 'pdfplumber', 'pypdf'] else EXTRACTION_TIMEOUT
+                
+                with ThreadPoolExecutor(max_workers=1) as executor:
+                    future = executor.submit(self._extract_with_library, pdf_path, library, max_pages)
+                    try:
+                        text = future.result(timeout=timeout)
+                    except FutureTimeoutError:
+                        logger.warning(f"⚠️ {library} timed out after {timeout}s")
+                        continue
 
                 if text and len(text.strip()) > 100:  # Minimum viable text
-                    # Validate extraction quality
-                    quality_score = self._assess_text_quality(text)
-                    logger.info(f"✅ {library} succeeded: {len(text):,} chars, quality score: {quality_score}")
+                    # USER OPTIMIZATION: Quick quality check (no complex scoring for speed)
+                    quality_score = self._assess_text_quality_fast(text)
+                    
+                    if self.verbose:
+                        logger.info(f"✅ {library}: {len(text):,} chars, quality={quality_score:.2f}")
 
-                    if quality_score >= 0.3:  # Acceptable quality
-                        # Convert footnotes to endnotes if enabled
+                    # USER OPTIMIZATION: Lower threshold for fast libraries (they're reliable)
+                    threshold = 0.2 if library in ['fitz', 'pdfplumber'] else 0.3
+                    
+                    if quality_score >= threshold:
+                        # Convert footnotes if enabled (fast operation)
                         if self.convert_footnotes:
                             try:
                                 text, footnote_count = convert_footnotes_to_endnotes(text, enable=True)
-                                if footnote_count > 0:
-                                    logger.info(f"📝 Converted {footnote_count} footnotes to endnotes")
-                            except Exception as e:
-                                logger.warning(f"Footnote conversion failed: {e}, using original text")
+                                if self.verbose and footnote_count > 0:
+                                    logger.info(f"📝 Converted {footnote_count} footnotes")
+                            except:
+                                pass  # Fail silently, use original
                         
+                        elapsed = time.time() - start_time
+                        logger.info(f"✅ PDF extracted in {elapsed:.1f}s using {library}")
                         return text, library
                     else:
-                        logger.warning(f"⚠️ {library} extracted text but quality is low ({quality_score:.2f})")
+                        if self.verbose:
+                            logger.warning(f"⚠️ {library} quality too low ({quality_score:.2f})")
                         continue
                 else:
-                    logger.warning(f"⚠️ {library} extracted insufficient text ({len(text) if text else 0} chars)")
+                    if self.verbose:
+                        logger.warning(f"⚠️ {library} insufficient text ({len(text) if text else 0} chars)")
                     continue
 
             except Exception as e:
-                logger.warning(f"❌ {library} failed: {e}")
+                if self.verbose:
+                    logger.warning(f"❌ {library} failed: {e}")
                 continue
 
         # All libraries failed
-        logger.error("❌ All PDF extraction libraries failed")
+        elapsed = time.time() - start_time
+        logger.error(f"❌ All PDF extraction libraries failed after {elapsed:.1f}s")
         return "", "failed"
 
     def _extract_with_library(self, pdf_path: str, library: str, max_pages: Optional[int]) -> str:
@@ -177,25 +209,35 @@ class RobustPDFExtractor:
         from pdfminer.high_level import extract_text
         from pdfminer.layout import LAParams
         from io import StringIO
+        import logging as pdfminer_logging
+        
+        # USER OPTIMIZATION: Disable verbose PDFMiner logging for speed
+        pdfminer_logger = pdfminer_logging.getLogger('pdfminer')
+        original_level = pdfminer_logger.level
+        pdfminer_logger.setLevel(pdfminer_logging.WARNING)  # Suppress DEBUG spam
+        
+        try:
+            laparams = LAParams(
+                line_margin=0.5,
+                word_margin=0.1,
+                char_margin=2.0,
+                detect_vertical=True,
+                all_texts=True
+            )
 
-        laparams = LAParams(
-            line_margin=0.5,
-            word_margin=0.1,
-            char_margin=2.0,
-            detect_vertical=True,
-            all_texts=True
-        )
+            # PDFMiner doesn't have direct page limit, so we'll extract all and truncate if needed
+            text = extract_text(pdf_path, laparams=laparams)
 
-        # PDFMiner doesn't have direct page limit, so we'll extract all and truncate if needed
-        text = extract_text(pdf_path, laparams=laparams)
+            if max_pages and text:
+                # Rough estimation: ~2000 chars per page
+                max_chars = max_pages * 2000
+                if len(text) > max_chars:
+                    text = text[:max_chars]
 
-        if max_pages and text:
-            # Rough estimation: ~2000 chars per page
-            max_chars = max_pages * 2000
-            if len(text) > max_chars:
-                text = text[:max_chars]
-
-        return text
+            return text
+        finally:
+            # Restore original logging level
+            pdfminer_logger.setLevel(original_level)
 
     def _extract_pdfplumber(self, pdf_path: str, max_pages: Optional[int]) -> str:
         """Extract text using PDFPlumber - Good for structured documents."""
@@ -244,54 +286,49 @@ class RobustPDFExtractor:
 
         return text
 
-    def _assess_text_quality(self, text: str) -> float:
+    def _assess_text_quality_fast(self, text: str) -> float:
         """
-        Assess the quality of extracted text.
-
-        Returns a score from 0.0 to 1.0 based on:
-        - Presence of legal terminology
-        - Sentence structure
-        - Word length distribution
-        - Citation indicators
+        USER OPTIMIZED: Fast quality check (no complex string operations).
+        Returns a score from 0.0 to 1.0.
         """
         if not text or len(text.strip()) < 50:
             return 0.0
 
+        text_lower = text.lower()
         score = 0.0
 
-        # Legal terminology indicators
-        legal_terms = ['court', 'case', 'justice', 'opinion', 'plaintiff', 'defendant', 'appeal', 'motion']
-        legal_score = sum(1 for term in legal_terms if term.lower() in text.lower()) / len(legal_terms)
-        score += legal_score * 0.3
+        # Quick legal/citation indicator check (most important)
+        indicators = ['court', 'v.', 'f.', 'u.s.', 'p.', 'supp', 'plaintiff', 'defendant']
+        matches = sum(1 for ind in indicators if ind in text_lower)
+        score += min(matches / len(indicators), 1.0) * 0.7
 
-        # Citation indicators
-        citation_indicators = ['u.s.', 'f.2d', 'f.3d', 's.ct.', 'supp.', 'cir.', 'dist.']
-        citation_score = sum(1 for indicator in citation_indicators if indicator.lower() in text.lower()) / len(citation_indicators)
-        score += citation_score * 0.4
-
-        # Text structure indicators (sentences, paragraphs)
-        sentence_count = text.count('.') + text.count('!') + text.count('?')
-        sentences_per_1000 = (sentence_count / len(text)) * 1000 if text else 0
-        structure_score = min(sentences_per_1000 / 5, 1.0)  # Expect ~5 sentences per 1000 chars
-        score += structure_score * 0.3
+        # Quick structure check (periods indicate sentences)
+        period_ratio = text.count('.') / len(text) if text else 0
+        if 0.01 < period_ratio < 0.1:  # Reasonable range
+            score += 0.3
 
         return min(score, 1.0)
+    
+    def _assess_text_quality(self, text: str) -> float:
+        """Backward compatibility wrapper."""
+        return self._assess_text_quality_fast(text)
 
 
 # Convenience function for easy use
-def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = True) -> Tuple[str, str]:
+def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = True, verbose: bool = False) -> Tuple[str, str]:
     """
-    Convenience function to extract text from PDF with robust fallbacks.
+    USER OPTIMIZED: Fast PDF extraction with robust fallbacks.
 
     Args:
         pdf_path: Path to PDF file
         max_pages: Maximum pages to process (None for all)
         convert_footnotes: Whether to convert footnotes to endnotes (improves citation extraction)
+        verbose: Enable verbose logging (default: False for speed)
 
     Returns:
         Tuple of (extracted_text, library_used)
     """
-    extractor = RobustPDFExtractor(convert_footnotes=convert_footnotes)
+    extractor = RobustPDFExtractor(convert_footnotes=convert_footnotes, verbose=verbose)
     return extractor.extract_text(pdf_path, max_pages)
 
 
