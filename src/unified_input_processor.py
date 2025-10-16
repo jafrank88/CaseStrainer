@@ -36,9 +36,10 @@ class UnifiedInputProcessor:
     Eliminates redundancy between file, URL, and text handlers.
     """
     
-    def __init__(self):
+    def __init__(self, verbose: bool = False):
         self.citation_service = CitationService()
         self.progress_manager = get_progress_manager()
+        self.verbose = verbose
         self.supported_file_extensions = {
             'pdf', 'txt', 'doc', 'docx', 'rtf', 'md', 'html', 'htm', 'xml', 'xhtml'
         }
@@ -245,14 +246,12 @@ class UnifiedInputProcessor:
                 temp_file_path = temp_file.name
             
             try:
-                if file_ext == 'pdf':
-                    text = extract_text_from_pdf_smart(temp_file_path)
-                elif file_ext == 'txt':
-                    with open(temp_file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        text = f.read()
-                else:
-                    with open(temp_file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                        text = f.read()
+                # USER OPTIMIZATION: Use unified extractor for all formats
+                from src.unified_text_extractor import extract_text_from_file_unified
+                text, method = extract_text_from_file_unified(temp_file_path, verbose=False)
+                
+                if self.verbose:
+                    logger.info(f"Extracted {len(text):,} chars using {method}")
                 
                 if not text or len(text.strip()) < 10:
                     return {

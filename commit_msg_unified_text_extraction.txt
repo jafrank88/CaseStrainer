@@ -1,0 +1,108 @@
+ADD: Unified text extraction for all file formats
+
+USER REQUEST: "Can you check the other url and file format converters to text?"
+
+PROBLEM FOUND:
+All non-PDF formats (DOCX, HTML, RTF, etc.) were being treated as plain text:
+```python
+# OLD CODE - treats everything as plain text!
+elif file_ext == 'txt':
+    with open(temp_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        text = f.read()
+else:
+    with open(temp_file_path, 'r', encoding='utf-8', errors='ignore') as f:
+        text = f.read()  # Same as txt!
+```
+
+This meant:
+- ❌ DOCX files extracted as binary garbage
+- ❌ HTML files with all tags visible
+- ❌ RTF files with control codes
+- ❌ Only PDF and TXT worked properly
+
+SOLUTION IMPLEMENTED:
+
+**NEW FILE: src/unified_text_extractor.py**
+Comprehensive text extraction for all formats:
+
+**Supported Formats:**
+1. **PDF** → robust_pdf_extractor (already optimized)
+2. **DOCX** → python-docx library
+   - Extracts paragraphs and tables
+   - Preserves structure
+3. **DOC** → Multiple methods tried:
+   - antiword (if available)
+   - textract (if available)
+   - Fallback to plain text with warning
+4. **HTML/HTM/XML** → BeautifulSoup
+   - Removes scripts, styles, metadata
+   - Clean text extraction
+5. **RTF** → striprtf library
+   - Removes formatting codes
+6. **TXT/MD** → Direct UTF-8 read
+   - Fallback to error-ignore mode
+
+**Key Features:**
+- ✅ **Format detection** from file extension
+- ✅ **Automatic fallback** if preferred method fails
+- ✅ **Timeout protection** (30s per file)
+- ✅ **Quality validation** (minimum 50 chars)
+- ✅ **Method tracking** (returns which extractor used)
+- ✅ **Verbose mode** for debugging
+- ✅ **Backward compatible** wrapper functions
+
+**UPDATED: src/unified_input_processor.py**
+Now uses unified extractor for all formats:
+```python
+# NEW CODE - proper format handling
+from src.unified_text_extractor import extract_text_from_file_unified
+text, method = extract_text_from_file_unified(temp_file_path, verbose=False)
+```
+
+DEPENDENCIES USED:
+- python-docx (for .docx)
+- BeautifulSoup (for HTML/XML)
+- striprtf (for RTF)
+- antiword/textract (optional, for legacy .doc)
+
+BENEFITS:
+
+**Before:**
+- Only PDF and TXT worked
+- DOCX → binary garbage
+- HTML → raw tags
+- RTF → control codes
+
+**After:**
+- ✅ All 10+ formats supported
+- ✅ Proper extraction per format
+- ✅ Graceful fallbacks
+- ✅ Quality validation
+- ✅ Performance tracking
+
+TESTING:
+1. Upload .docx → Clean text (no binary)
+2. Upload .html → Text only (no tags)
+3. Upload .rtf → Plain text (no codes)
+4. Upload .pdf → Optimized extraction
+5. Upload .txt → Direct read
+
+ERROR HANDLING:
+- Missing libraries → logs warning, tries fallback
+- Corrupted files → returns empty with error code
+- Unsupported formats → graceful degradation
+- Timeouts → prevents hanging
+
+BACKWARD COMPATIBILITY:
+- extract_text_from_pdf_smart() still works
+- Old code paths unaffected
+- Added new extract_text_from_file_smart() wrapper
+
+FILES CREATED:
+- src/unified_text_extractor.py: New unified extractor (290 lines)
+
+FILES MODIFIED:
+- src/unified_input_processor.py: Use unified extractor
+
+IMPACT:
+Users can now upload Word docs, HTML files, and RTF documents with proper text extraction instead of garbage output!
