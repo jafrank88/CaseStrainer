@@ -99,17 +99,34 @@ Citation 2: 138 S. Ct. 1649 - Verified
 - Sync: 35% verification rate, cleaner case names
 - Async: 25% verification rate, same extraction issues persist
 
-**Hypothesis:**
-1. Async uses different code path than sync
-2. Async may use `citation_extraction_endpoint.py` which has separate formatting logic
-3. Fixes applied to `unified_clustering_master.py` not used by async path
-4. Different extractor modules may be used
+**ROOT CAUSE IDENTIFIED:**
 
-**Investigation Needed:**
-- Trace exact code path for sync vs async
-- Identify where formatting happens in each path
-- Find ALL locations that need fixes applied
-- Determine why fixes in extractor_v2 aren't working
+From worker logs analysis:
+1. `_format_clusters_for_output()` is NEVER CALLED - no CLUSTER_FORMAT logs
+2. Citations inside clusters show `verified=False` for ALL citations
+3. After extraction: "36 verified in updated_citations"
+4. This means **verification happens OUTSIDE the clustering master**
+
+**The Problem:**
+- My fixes in `_format_clusters_for_output()` assume citations are already verified
+- But verification happens AFTER clusters are formatted
+- So cluster canonical data extraction finds NO verified citations
+- Parallel propagation never happens because no verified citations exist yet
+
+**Actual Flow:**
+1. Extract citations (no verification yet)
+2. Cluster citations (citations have verified=False)
+3. Format clusters ← MY FIXES ARE HERE, but nothing is verified yet!
+4. Apply verification (citations get verified=True)
+5. Return to progress_manager
+6. Extract citations from formatted clusters
+7. NOW citations are verified, but clusters were already formatted WITHOUT canonical data
+
+**Solution:**
+Either:
+A. Move verification to BEFORE formatting (Step 3 instead of Step 4)
+B. Add SECOND pass after verification to update cluster metadata
+C. Move canonical data extraction to progress_manager AFTER verification
 
 ---
 

@@ -1186,6 +1186,50 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     logger.error(f"[Task {task_id}] Cluster deduplication FAILED: {e}")
                     # Continue with original clusters if deduplication fails
 
+                # CRITICAL FIX: Extract cluster-level canonical data from verified citations
+                # This happens AFTER verification, so verified citations now have canonical data
+                logger.info(f"[Task {task_id}] Extracting cluster canonical data from verified citations")
+                for cluster_dict in cluster_dicts:
+                    citations_in_cluster = cluster_dict.get('citations', [])
+                    
+                    # Find first verified citation with canonical data
+                    best_verified = None
+                    for cit in citations_in_cluster:
+                        is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                        canonical_name = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
+                        
+                        if is_verified and canonical_name:
+                            best_verified = cit
+                            logger.info(f"✅ Found verified citation in cluster: {canonical_name}")
+                            break
+                    
+                    # Set cluster-level canonical data
+                    if best_verified:
+                        if isinstance(best_verified, dict):
+                            cluster_dict['canonical_name'] = best_verified.get('canonical_name')
+                            cluster_dict['canonical_date'] = best_verified.get('canonical_date')
+                            cluster_dict['verification_source'] = best_verified.get('verification_source', best_verified.get('source'))
+                            cluster_dict['verification_status'] = 'verified'
+                        else:
+                            cluster_dict['canonical_name'] = getattr(best_verified, 'canonical_name', None)
+                            cluster_dict['canonical_date'] = getattr(best_verified, 'canonical_date', None)
+                            cluster_dict['verification_source'] = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
+                            cluster_dict['verification_status'] = 'verified'
+                        
+                        # Propagate canonical data to unverified parallel citations
+                        for cit in citations_in_cluster:
+                            cit_is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                            if not cit_is_verified:
+                                if isinstance(cit, dict):
+                                    cit['true_by_parallel'] = True
+                                    cit['canonical_name'] = cluster_dict['canonical_name']
+                                    cit['canonical_date'] = cluster_dict['canonical_date']
+                                else:
+                                    cit.true_by_parallel = True
+                                    cit.canonical_name = cluster_dict['canonical_name']
+                                    cit.canonical_date = cluster_dict['canonical_date']
+                                logger.info(f"✅ Propagated canonical data to parallel citation")
+
                 progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
                 progress_tracker.start_step(5, 'Verifying citations...')
                 
