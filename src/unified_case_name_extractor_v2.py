@@ -550,7 +550,8 @@ class UnifiedCaseNameExtractorV2:
             # FIX #27B: Only look BACKWARD, not forward!
             # Looking forward was capturing case names from NEXT citations
             # E.g., "Lopez...183 Wn.2d 649...Spokane County" would extract "Spokane County"
-            context_before = 150  # Search backward for case name
+            # FIX Issue 2: Increased from 150 to 400 to prevent truncation
+            context_before = 400  # Search backward for case name (increased to capture full names)
             context_after = 0     # Changed from 30 to 0 - don't look forward!
             
             context_start = max(0, citation_start - context_before)
@@ -998,8 +999,10 @@ class UnifiedCaseNameExtractorV2:
         # CRITICAL: Reject truncated names that start with lowercase
         # e.g., "agit Indian Tribe" is clearly truncated from "Upper Skagit Indian Tribe"
         if plaintiff and plaintiff[0].islower():
+            logger.warning(f"⚠️ TRUNCATION DETECTED: Plaintiff starts with lowercase: '{plaintiff}' (likely truncated)")
             return False
         if defendant and defendant[0].islower():
+            logger.warning(f"⚠️ TRUNCATION DETECTED: Defendant starts with lowercase: '{defendant}' (likely truncated)")
             return False
         
         # CRITICAL: Reject party names that are too short (likely truncated)
@@ -1090,7 +1093,7 @@ def extract_case_name_and_date_unified(
     )
     logger.info(f"[DEBUG] citation_start parameter: {citation_start}, citation: '{citation}'")
     if citation_start is not None:
-        context_size = context_window or 300  # CRITICAL: Increased from 150 to 300 for better extraction
+        context_size = context_window or 400  # CRITICAL: Increased from 150 to 400 for better extraction (Issue 2 fix)
         start_pos = max(0, citation_start - context_size)
         context = text[start_pos:citation_start].strip()
         
