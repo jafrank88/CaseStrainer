@@ -19,6 +19,7 @@ from typing import List, Dict, Any, Optional
 from src.models import CitationResult
 from src.utils.unified_case_name_extractor import extract_case_name_with_strict_isolation
 from src.citation_patterns import CitationPatterns  # CONSOLIDATED: Import shared patterns
+from src.case_name_validator import is_valid_case_name  # NEW: Validation
 
 logger = logging.getLogger(__name__)
 
@@ -316,12 +317,18 @@ class CleanExtractionPipeline:
         
         for citation in citations:
             try:
-                # Skip if eyecite already extracted a good case name
-                if citation.extracted_case_name and citation.extracted_case_name != "N/A" and len(citation.extracted_case_name) > 5:
-                    skipped_count += 1
-                    success_count += 1  # Count as success since we have a name
-                    logger.debug(f"[CLEAN-PIPELINE] Keeping eyecite name for {citation.citation}: '{citation.extracted_case_name}'")
-                    continue
+                # Skip if eyecite already provided a good case name
+                # NEW: Also validate eyecite-provided names
+                if citation.extracted_case_name and citation.extracted_case_name != "N/A":
+                    if is_valid_case_name(citation.extracted_case_name):
+                        skipped_count += 1
+                        success_count += 1  # Count as success since we have a name
+                        logger.debug(f"[CLEAN-PIPELINE] Keeping eyecite name for {citation.citation}: '{citation.extracted_case_name}'")
+                        continue
+                    else:
+                        # Eyecite gave us junk - need to re-extract
+                        logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
+                        citation.extracted_case_name = None  # Force re-extraction
                 
                 # Use strict context isolation for citations without names
                 # CRITICAL: Pass full citation list so isolator can identify boundaries
@@ -333,10 +340,16 @@ class CleanExtractionPipeline:
                     all_citations=citations  # Pass full list for proper boundary detection
                 )
                 
-                if case_name:
+                # NEW: Validate extracted case name
+                if case_name and is_valid_case_name(case_name):
                     citation.extracted_case_name = case_name
                     success_count += 1
                     logger.debug(f"[CLEAN-PIPELINE] Extracted: {citation.citation} → '{case_name}'")
+                elif case_name:
+                    # Extracted something but it's not valid - log it
+                    citation.extracted_case_name = "N/A"
+                    fail_count += 1
+                    logger.warning(f"[CLEAN-PIPELINE] Invalid name rejected for {citation.citation}: '{case_name}'")
                 else:
                     citation.extracted_case_name = "N/A"
                     fail_count += 1

@@ -3559,3 +3559,1281 @@ STILLAGUAMI...
 2025-10-16 20:24:15 - src.app_final_vue - INFO - [RESPONSE #114] GET vue_api.health_check -> 200 (449 chars)
 2025-10-16 20:24:45 - src.app_final_vue - INFO - [RESPONSE #115] GET vue_api.health_check -> 200 (449 chars)
 2025-10-16 20:25:15 - src.app_final_vue - INFO - [RESPONSE #116] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:25:45 - src.app_final_vue - INFO - [RESPONSE #117] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:26:16 - src.app_final_vue - INFO - [RESPONSE #118] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:26:46 - src.app_final_vue - INFO - [RESPONSE #119] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:27:16 - src.app_final_vue - INFO - [RESPONSE #120] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:27:46 - src.app_final_vue - INFO - [RESPONSE #121] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: e3b8f711-7b52-4563-a3ea-39cb653b0b35] ===
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request e3b8f711-7b52-4563-a3ea-39cb653b0b35] Method: POST
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request e3b8f711-7b52-4563-a3ea-39cb653b0b35] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request e3b8f711-7b52-4563-a3ea-39cb653b0b35] Content-Type: application/json
+2025-10-16 20:28:02 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request test-propagation] Using client-provided request_id for progress tracking
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request test-propagation] Processing JSON input
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request test-propagation] Processing url input
+2025-10-16 20:28:02 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:28:02 - src.vue_api_endpoints_updated - INFO - [Request test-propagation] Using UnifiedInputProcessor for url input
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🚀 process_any_input CALLED!
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Processing url input
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Input data type: <class 'str'>
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Input data length: 50
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Source name: None, Force mode: None
+2025-10-16 20:28:02 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 📥 Calling _extract_text_from_input...
+2025-10-16 20:28:02 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Extracting text from URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:28:02 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Validating URL...
+2025-10-16 20:28:02 - src.unified_input_processor - INFO - [Unified Processor test-propagation] URL validation passed, fetching content...
+2025-10-16 20:28:02 - src.progress_manager - INFO - Fetching URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:28:02 - src.progress_manager - INFO - Response status: 200
+2025-10-16 20:28:02 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-16 20:28:02 - src.progress_manager - INFO - Trying PDF extraction with PyPDF2
+2025-10-16 20:28:05 - src.progress_manager - INFO - Successfully extracted 59707 characters using PyPDF2
+2025-10-16 20:28:05 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Content fetched, length: 59707
+2025-10-16 20:28:05 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Successfully extracted 59707 characters from URL
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] ✅ _extract_text_from_input returned: success=True
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🎬 _process_citations_unified CALLED!
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Processing citations from url
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Text length: 59707 characters
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Text preview: IN THE SUPREME CO
+URT OF THE STATE OF WASHINGTON 
+FLYING T RANCH, 
+INC., a Washington ) 
+corporation, ) 
+) 
+Petitioner,   ) 
+) 
+) 
+v. ) No. 103430-0 
+En Banc 
+Filed: October 9, 2 025   
+) 
+STILLAGUAMI...
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] Input metadata: {'input_type': 'url', 'url': 'https://www.courts.wa.gov/opinions/pdf/1034300.pdf', 'url_domain': 'www.courts.wa.gov', 'content_length': 59707, 'source': 'url_fetch'}
+2025-10-16 20:28:05 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Checking if should process immediately...
+2025-10-16 20:28:05 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-16 20:28:05 - src.api.services.citation_service - INFO - Text size 59707 bytes >= 5120 bytes - using ASYNC processing
+2025-10-16 20:28:05 - src.unified_input_processor - INFO - [Unified Processor test-propagation] Should process immediately: False
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 📝 Text length: 59707 chars
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 📋 Source: url, Input type from metadata: url
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] ✅ Imported RQ and Redis modules
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🔍 Trying 3 Redis configurations...
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 🎯 Creating queue 'casestrainer'...
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] ✅ Queue created successfully
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] 📤 About to enqueue job...
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation]    Function: src.progress_manager.process_citation_task_direct
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation]    Args: (test-propagation, 'text', {text: 59707 chars})
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation]    Job ID: test-propagation
+2025-10-16 20:28:05 - rq.queue - DEBUG - Pushed job test-propagation into casestrainer
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation] ✅ Task enqueued successfully!
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation]    Job ID: test-propagation
+2025-10-16 20:28:05 - src.unified_input_processor - ERROR - [Unified Processor test-propagation]    Job status: queued
+2025-10-16 20:28:06 - src.vue_api_endpoints_updated - INFO - [Request test-propagation] Request completed successfully in 3766ms
+2025-10-16 20:28:06 - src.app_final_vue - INFO - [RESPONSE #122] POST vue_api.analyze -> 200 (1477 chars)
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:07 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:07 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:07 - src.app_final_vue - INFO - [RESPONSE #123] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:08 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:08 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:08 - src.app_final_vue - INFO - [RESPONSE #124] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:09 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:09 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:09 - src.app_final_vue - INFO - [RESPONSE #125] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:10 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:10 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:10 - src.app_final_vue - INFO - [RESPONSE #126] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:11 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:11 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:11 - src.app_final_vue - INFO - [RESPONSE #127] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:12 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:12 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:12 - src.app_final_vue - INFO - [RESPONSE #128] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:13 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:13 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:13 - src.app_final_vue - INFO - [RESPONSE #129] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:14 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:14 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:14 - src.app_final_vue - INFO - [RESPONSE #130] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:15 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:15 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:15 - src.app_final_vue - INFO - [RESPONSE #131] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:16 - src.app_final_vue - INFO - [RESPONSE #132] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:17 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:17 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:17 - src.app_final_vue - INFO - [RESPONSE #133] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:18 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:18 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:18 - src.app_final_vue - INFO - [RESPONSE #134] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:19 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:19 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:19 - src.app_final_vue - INFO - [RESPONSE #135] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:20 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:20 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:20 - src.app_final_vue - INFO - [RESPONSE #136] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:21 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:21 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:21 - src.app_final_vue - INFO - [RESPONSE #137] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:22 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:22 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:22 - src.app_final_vue - INFO - [RESPONSE #138] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:23 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:23 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:23 - src.app_final_vue - INFO - [RESPONSE #139] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:24 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:24 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:24 - src.app_final_vue - INFO - [RESPONSE #140] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:25 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:25 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:25 - src.app_final_vue - INFO - [RESPONSE #141] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:26 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:26 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:26 - src.app_final_vue - INFO - [RESPONSE #142] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:27 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:27 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:27 - src.app_final_vue - INFO - [RESPONSE #143] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:28 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:28 - src.app_final_vue - INFO - [RESPONSE #144] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:29 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:29 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:29 - src.app_final_vue - INFO - [RESPONSE #145] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:31 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:31 - src.app_final_vue - INFO - [RESPONSE #146] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:32 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:32 - src.app_final_vue - INFO - [RESPONSE #147] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:33 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:33 - src.app_final_vue - INFO - [RESPONSE #148] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:34 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:34 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:34 - src.app_final_vue - INFO - [RESPONSE #149] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:35 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:35 - src.app_final_vue - INFO - [RESPONSE #150] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:36 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:36 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:36 - src.app_final_vue - INFO - [RESPONSE #151] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:37 - src.app_final_vue - INFO - [RESPONSE #152] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:38 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:38 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:38 - src.app_final_vue - INFO - [RESPONSE #153] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:39 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:39 - src.app_final_vue - INFO - [RESPONSE #154] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:40 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:40 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:40 - src.app_final_vue - INFO - [RESPONSE #155] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:41 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:41 - src.app_final_vue - INFO - [RESPONSE #156] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:42 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:42 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:42 - src.app_final_vue - INFO - [RESPONSE #157] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:43 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:43 - src.app_final_vue - INFO - [RESPONSE #158] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:44 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:44 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:44 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:44 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:44 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:44 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:45 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:45 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:45 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:45 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:45 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:45 - src.app_final_vue - INFO - [RESPONSE #159] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:46 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:46 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:46 - src.app_final_vue - INFO - [RESPONSE #160] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:46 - src.app_final_vue - INFO - [RESPONSE #161] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:47 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:47 - src.app_final_vue - INFO - [RESPONSE #162] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:48 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:48 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:48 - src.app_final_vue - INFO - [RESPONSE #163] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:49 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:49 - src.app_final_vue - INFO - [RESPONSE #164] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:50 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: started
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: False
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: True
+2025-10-16 20:28:50 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:50 - src.app_final_vue - INFO - [RESPONSE #165] GET vue_api.task_status -> 200 (143 chars)
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:28:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: finished
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: True
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: False
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation result type: <class 'dict'>
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation citations count: 0
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation clusters count: 0
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation success: True
+2025-10-16 20:28:51 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: completed
+2025-10-16 20:28:51 - src.app_final_vue - INFO - [RESPONSE #166] GET vue_api.task_status -> 200 (192884 chars)
+2025-10-16 20:29:17 - src.app_final_vue - INFO - [RESPONSE #167] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:29:47 - src.app_final_vue - INFO - [RESPONSE #168] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:30:17 - src.app_final_vue - INFO - [RESPONSE #169] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:30:47 - src.app_final_vue - INFO - [RESPONSE #170] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:31:17 - src.app_final_vue - INFO - [RESPONSE #171] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:31:32 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: finished
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: True
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: False
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation result type: <class 'dict'>
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation citations count: 0
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation clusters count: 0
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation success: True
+2025-10-16 20:31:32 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: completed
+2025-10-16 20:31:32 - src.app_final_vue - INFO - [RESPONSE #172] GET vue_api.task_status -> 200 (192884 chars)
+2025-10-16 20:31:38 - src.memory_monitor - INFO - Memory usage: 70.7MB (0.4%)
+2025-10-16 20:31:47 - src.app_final_vue - INFO - [RESPONSE #173] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:32:17 - src.app_final_vue - INFO - [RESPONSE #174] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:32:48 - src.app_final_vue - INFO - [RESPONSE #175] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:33:18 - src.app_final_vue - INFO - [RESPONSE #176] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:33:48 - src.app_final_vue - INFO - [RESPONSE #177] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:34:18 - src.app_final_vue - INFO - [RESPONSE #178] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:34:48 - src.app_final_vue - INFO - [RESPONSE #179] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:35:19 - src.app_final_vue - INFO - [RESPONSE #180] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:35:49 - src.app_final_vue - INFO - [RESPONSE #181] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:36:19 - src.app_final_vue - INFO - [RESPONSE #182] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:36:49 - src.app_final_vue - INFO - [RESPONSE #183] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:37:19 - src.app_final_vue - INFO - [RESPONSE #184] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:37:49 - src.app_final_vue - INFO - [RESPONSE #185] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:38:20 - src.app_final_vue - INFO - [RESPONSE #186] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:38:50 - src.app_final_vue - INFO - [RESPONSE #187] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:39:20 - src.app_final_vue - INFO - [RESPONSE #188] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:39:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: finished
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: True
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: False
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation result type: <class 'dict'>
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation citations count: 0
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation clusters count: 0
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation success: True
+2025-10-16 20:39:37 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: completed
+2025-10-16 20:39:37 - src.app_final_vue - INFO - [RESPONSE #189] GET vue_api.task_status -> 200 (192884 chars)
+2025-10-16 20:39:50 - src.app_final_vue - INFO - [RESPONSE #190] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:40:20 - src.app_final_vue - INFO - [RESPONSE #191] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-propagation
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:40:28 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: finished
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation meta: {}
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_finished: True
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_failed: False
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_started: False
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation is_queued: False
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation result type: <class 'dict'>
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation citations count: 0
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation clusters count: 0
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation success: True
+2025-10-16 20:40:28 - src.vue_api_endpoints_updated - INFO - Job test-propagation status: completed
+2025-10-16 20:40:28 - src.app_final_vue - INFO - [RESPONSE #192] GET vue_api.task_status -> 200 (192884 chars)
+2025-10-16 20:40:50 - src.app_final_vue - INFO - [RESPONSE #193] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:41:20 - src.app_final_vue - INFO - [RESPONSE #194] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:41:38 - src.memory_monitor - INFO - Memory usage: 70.7MB (0.4%)
+2025-10-16 20:41:51 - src.app_final_vue - INFO - [RESPONSE #195] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:42:21 - src.app_final_vue - INFO - [RESPONSE #196] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:42:51 - src.app_final_vue - INFO - [RESPONSE #197] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:43:21 - src.app_final_vue - INFO - [RESPONSE #198] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:43:51 - src.app_final_vue - INFO - [RESPONSE #199] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:44:21 - src.app_final_vue - INFO - [RESPONSE #200] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 116e9fa1-b635-4e4a-bbe1-8b77a242d6bc] ===
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request 116e9fa1-b635-4e4a-bbe1-8b77a242d6bc] Method: POST
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request 116e9fa1-b635-4e4a-bbe1-8b77a242d6bc] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request 116e9fa1-b635-4e4a-bbe1-8b77a242d6bc] Content-Type: application/json
+2025-10-16 20:44:26 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request test-vendor-neutral-fix] Using client-provided request_id for progress tracking
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request test-vendor-neutral-fix] Processing JSON input
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request test-vendor-neutral-fix] Processing url input
+2025-10-16 20:44:26 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-16 20:44:26 - src.vue_api_endpoints_updated - INFO - [Request test-vendor-neutral-fix] Using UnifiedInputProcessor for url input
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🚀 process_any_input CALLED!
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Processing url input
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Input data type: <class 'str'>
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Input data length: 50
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Source name: None, Force mode: None
+2025-10-16 20:44:26 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 📥 Calling _extract_text_from_input...
+2025-10-16 20:44:26 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Extracting text from URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:44:26 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Validating URL...
+2025-10-16 20:44:26 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] URL validation passed, fetching content...
+2025-10-16 20:44:26 - src.progress_manager - INFO - Fetching URL: https://www.courts.wa.gov/opinions/pdf/1034300.pdf
+2025-10-16 20:44:26 - src.progress_manager - INFO - Response status: 200
+2025-10-16 20:44:26 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-16 20:44:26 - src.progress_manager - INFO - Trying PDF extraction with PyPDF2
+2025-10-16 20:44:28 - src.progress_manager - INFO - Successfully extracted 59707 characters using PyPDF2
+2025-10-16 20:44:28 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Content fetched, length: 59707
+2025-10-16 20:44:28 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Successfully extracted 59707 characters from URL
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] ✅ _extract_text_from_input returned: success=True
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🎬 _process_citations_unified CALLED!
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Processing citations from url
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Text length: 59707 characters
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Text preview: IN THE SUPREME CO
+URT OF THE STATE OF WASHINGTON 
+FLYING T RANCH, 
+INC., a Washington ) 
+corporation, ) 
+) 
+Petitioner,   ) 
+) 
+) 
+v. ) No. 103430-0 
+En Banc 
+Filed: October 9, 2 025   
+) 
+STILLAGUAMI...
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] Input metadata: {'input_type': 'url', 'url': 'https://www.courts.wa.gov/opinions/pdf/1034300.pdf', 'url_domain': 'www.courts.wa.gov', 'content_length': 59707, 'source': 'url_fetch'}
+2025-10-16 20:44:28 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Checking if should process immediately...
+2025-10-16 20:44:28 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-16 20:44:28 - src.api.services.citation_service - INFO - Text size 59707 bytes >= 5120 bytes - using ASYNC processing
+2025-10-16 20:44:28 - src.unified_input_processor - INFO - [Unified Processor test-vendor-neutral-fix] Should process immediately: False
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 📝 Text length: 59707 chars
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 📋 Source: url, Input type from metadata: url
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] ✅ Imported RQ and Redis modules
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🔍 Trying 3 Redis configurations...
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 🎯 Creating queue 'casestrainer'...
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] ✅ Queue created successfully
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] 📤 About to enqueue job...
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix]    Function: src.progress_manager.process_citation_task_direct
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix]    Args: (test-vendor-neutral-fix, 'text', {text: 59707 chars})
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix]    Job ID: test-vendor-neutral-fix
+2025-10-16 20:44:28 - rq.queue - DEBUG - Pushed job test-vendor-neutral-fix into casestrainer
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix] ✅ Task enqueued successfully!
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix]    Job ID: test-vendor-neutral-fix
+2025-10-16 20:44:28 - src.unified_input_processor - ERROR - [Unified Processor test-vendor-neutral-fix]    Job status: queued
+2025-10-16 20:44:29 - src.vue_api_endpoints_updated - INFO - [Request test-vendor-neutral-fix] Request completed successfully in 2878ms
+2025-10-16 20:44:29 - src.app_final_vue - INFO - [RESPONSE #201] POST vue_api.analyze -> 200 (1505 chars)
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:30 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:30 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:30 - src.app_final_vue - INFO - [RESPONSE #202] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:31 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:31 - src.app_final_vue - INFO - [RESPONSE #203] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:32 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:32 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:32 - src.app_final_vue - INFO - [RESPONSE #204] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:33 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:33 - src.app_final_vue - INFO - [RESPONSE #205] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:34 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:34 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:34 - src.app_final_vue - INFO - [RESPONSE #206] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:35 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:35 - src.app_final_vue - INFO - [RESPONSE #207] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:36 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:36 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:36 - src.app_final_vue - INFO - [RESPONSE #208] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:38 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:38 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:38 - src.app_final_vue - INFO - [RESPONSE #209] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:39 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:39 - src.app_final_vue - INFO - [RESPONSE #210] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:40 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:40 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:40 - src.app_final_vue - INFO - [RESPONSE #211] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:41 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:41 - src.app_final_vue - INFO - [RESPONSE #212] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:42 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:42 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:42 - src.app_final_vue - INFO - [RESPONSE #213] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:43 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:43 - src.app_final_vue - INFO - [RESPONSE #214] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:44 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:44 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:44 - src.app_final_vue - INFO - [RESPONSE #215] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:45 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:45 - src.app_final_vue - INFO - [RESPONSE #216] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:46 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:46 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:46 - src.app_final_vue - INFO - [RESPONSE #217] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:47 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:47 - src.app_final_vue - INFO - [RESPONSE #218] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:48 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:48 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:48 - src.app_final_vue - INFO - [RESPONSE #219] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:49 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:49 - src.app_final_vue - INFO - [RESPONSE #220] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:50 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:50 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:50 - src.app_final_vue - INFO - [RESPONSE #221] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:51 - src.app_final_vue - INFO - [RESPONSE #222] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:51 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:51 - src.app_final_vue - INFO - [RESPONSE #223] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:53 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:53 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:53 - src.app_final_vue - INFO - [RESPONSE #224] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:54 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:54 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:54 - src.app_final_vue - INFO - [RESPONSE #225] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:55 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:55 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:55 - src.app_final_vue - INFO - [RESPONSE #226] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:56 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:56 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:56 - src.app_final_vue - INFO - [RESPONSE #227] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:57 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:57 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:57 - src.app_final_vue - INFO - [RESPONSE #228] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:58 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:58 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:58 - src.app_final_vue - INFO - [RESPONSE #229] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:44:59 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:44:59 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:44:59 - src.app_final_vue - INFO - [RESPONSE #230] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:00 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:00 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:00 - src.app_final_vue - INFO - [RESPONSE #231] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:01 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:01 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:01 - src.app_final_vue - INFO - [RESPONSE #232] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:02 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:02 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:02 - src.app_final_vue - INFO - [RESPONSE #233] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:03 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:03 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:03 - src.app_final_vue - INFO - [RESPONSE #234] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:04 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:04 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:04 - src.app_final_vue - INFO - [RESPONSE #235] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:05 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:05 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:05 - src.app_final_vue - INFO - [RESPONSE #236] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:07 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:07 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:07 - src.app_final_vue - INFO - [RESPONSE #237] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:08 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:08 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:08 - src.app_final_vue - INFO - [RESPONSE #238] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:09 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:09 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:09 - src.app_final_vue - INFO - [RESPONSE #239] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:10 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:10 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:10 - src.app_final_vue - INFO - [RESPONSE #240] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:11 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:11 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:11 - src.app_final_vue - INFO - [RESPONSE #241] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:12 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:12 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:12 - src.app_final_vue - INFO - [RESPONSE #242] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:13 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:13 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:13 - src.app_final_vue - INFO - [RESPONSE #243] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:14 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:14 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:14 - src.app_final_vue - INFO - [RESPONSE #244] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:15 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: started
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: False
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: True
+2025-10-16 20:45:15 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:15 - src.app_final_vue - INFO - [RESPONSE #245] GET vue_api.task_status -> 200 (150 chars)
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: test-vendor-neutral-fix
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-16 20:45:16 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: finished
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix meta: {}
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_finished: True
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_failed: False
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_started: False
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix is_queued: False
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix result type: <class 'dict'>
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix citations count: 0
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix clusters count: 0
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix success: True
+2025-10-16 20:45:16 - src.vue_api_endpoints_updated - INFO - Job test-vendor-neutral-fix status: completed
+2025-10-16 20:45:16 - src.app_final_vue - INFO - [RESPONSE #246] GET vue_api.task_status -> 200 (261438 chars)
+2025-10-16 20:45:22 - src.app_final_vue - INFO - [RESPONSE #247] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:45:52 - src.app_final_vue - INFO - [RESPONSE #248] GET vue_api.health_check -> 200 (449 chars)
+2025-10-16 20:46:00 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...

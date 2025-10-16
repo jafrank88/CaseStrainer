@@ -1,0 +1,63 @@
+FEATURE: Add case name validation to reject bad extractions
+
+PROBLEM:
+10 citations had terrible extracted names:
+- 5 citations: "N/A" (failed extraction)
+- 5 citations: Text fragments instead of case names:
+  * "dangerous child"
+  * "doctrine and its origins"  
+  * "tribal sovereign immunity."
+
+These aren't case names - they're sentence fragments that happened
+to be near citations.
+
+ROOT CAUSE:
+When eyecite or the extraction algorithm can't find a proper case name,
+it grabs random nearby text without validation.
+
+SOLUTION:
+Created case_name_validator.py with is_valid_case_name() function that:
+
+1. **CRITICAL: Requires "v." or "vs."** in case name
+   - This is the most important check
+   - Rejects single words and fragments
+   
+2. **Rejects common bad patterns:**
+   - "dangerous", "doctrine", "immunity", "child", "origins"
+   - "held", "ruled", "decided" (verbs, not case names)
+   - "X and its...", "X or its..." (fragments)
+   
+3. **Structural validation:**
+   - Must have content before AND after "v."
+   - Each side must be at least 2 characters
+   - At least one side must start with capital letter
+   
+4. **Rejects obvious non-case-names:**
+   - "N/A" explicitly rejected
+   - Too short (< 5 chars)
+   - Starts/ends with articles (and, the, of, in)
+
+IMPLEMENTATION:
+Modified clean_extraction_pipeline.py to:
+1. Validate ALL extracted case names (both eyecite and manual extraction)
+2. Reject invalid names → set to "N/A"
+3. Log rejections for debugging
+
+EXPECTED RESULTS:
+Before:
+- "197 Wn.2d 574" → "dangerous child" ❌
+- "548 P.3d 200" → "doctrine and its origins" ❌
+- "523 U.S. 751" → "tribal sovereign immunity." ❌
+
+After:
+- All above → "N/A" (properly marked as failed extraction)
+- Only valid case names (with "v." or "vs.") will pass validation
+- Text fragments will be rejected
+
+BENEFITS:
+- Cleaner extraction results
+- Better user experience (N/A better than garbage)
+- Easier to identify which citations need manual review
+- Propagation only uses valid case names
+
+Next: Test and verify extraction quality improves
