@@ -1213,6 +1213,11 @@ class UnifiedCaseExtractionMaster:
         # USER FIX 2024-10-16: Remove citation patterns that got included
         # Example: "Inc. v. Stillaguamish Tribe of Indians, 31 Wn. App. 2d 343, 359-62"
         # Should be: "Inc. v. Stillaguamish Tribe of Indians"
+        
+        # USER FIX 2024-10-16 PM: Remove state reporter citations like "2017-NM-007"
+        # Pattern: ", YYYY-STATE-NUMBER" where STATE is 2-letter code
+        cleaned = re.sub(r',\s*\d{4}-[A-Z]{2}-\d+', '', cleaned)
+        
         # Remove anything that looks like: ", [volume] [reporter] [page]"
         cleaned = re.sub(r',\s*\d+\s+[A-Z][a-z]*\.?\s*(?:App\.)?\s*\d*d?\s*\d+.*$', '', cleaned)
         # Also remove pin cites like ", 359-62"
