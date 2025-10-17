@@ -880,8 +880,20 @@ class UnifiedVerificationMaster:
             return None
         
         # FIX #26: If we have no extracted name, we CANNOT validate which cluster is correct!
-        # Better to leave unverified than to verify incorrectly.
+        # USER FIX 2024-10-16: UNLESS there's only 1 cluster OR it's a high-confidence citation
         if not extracted_name or extracted_name == "N/A":
+            # USER FIX: If there's only ONE cluster, it's safe to use it
+            if len(clusters) == 1:
+                logger.info(f"✅ ACCEPTING SINGLE CLUSTER for {target_citation} (no extracted name, but only 1 option)")
+                return clusters[0]
+            
+            # USER FIX: For U.S. Supreme Court citations, first result is usually correct
+            is_scotus = bool(re.search(r'\b\d+\s+U\.?S\.?\s+\d+', target_citation, re.IGNORECASE))
+            if is_scotus and len(clusters) <= 3:
+                logger.info(f"✅ ACCEPTING FIRST CLUSTER for SCOTUS citation {target_citation} ({len(clusters)} options)")
+                return clusters[0]
+            
+            # Otherwise, keep the safety check
             logger.warning(f"❌ CANNOT VERIFY {target_citation}: No extracted name available")
             logger.warning(f"   API returned {len(clusters)} possible clusters, but we can't pick the right one")
             logger.warning(f"   Leaving citation unverified (better than wrong verification)")
@@ -1279,7 +1291,12 @@ class UnifiedVerificationMaster:
         logger.warning(f"⚠️  {len(matching_clusters)} clusters match {target_citation}, using similarity to pick best")
         
         if not extracted_name or extracted_name == "N/A":
-            # FIX #24 (SYNC MODE): Do NOT verify if we have no extracted name!
+            # USER FIX 2024-10-16: If there's only ONE matching cluster, accept it
+            if len(matching_clusters) == 1:
+                logger.info(f"✅ ACCEPTING SINGLE MATCHING CLUSTER for {target_citation} (no extracted name, but only 1 match)")
+                return matching_clusters[0]
+            
+            # FIX #24 (SYNC MODE): Do NOT verify if we have no extracted name and multiple matches!
             # Without an extracted name, we can't validate which cluster is correct.
             # Taking the first match blindly leads to wrong verifications (e.g., "Lopez Demetrio" issue)
             # Better to leave unverified than to verify incorrectly.
