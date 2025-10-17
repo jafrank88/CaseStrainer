@@ -928,7 +928,14 @@ class UnifiedCaseExtractionMaster:
                     # FIX #40B: Track if "Spokane" appears at this stage
                     if "Spokane" in case_name:
                         logger.error(f"🚨 BUG: 'Spokane' in BUILT case_name!")
-                year = self._extract_year_from_context(context, debug)
+                
+                # USER FIX 2024-10-16: Extract year from AFTER citation first, fallback to context
+                # This prevents picking up years from previous citations
+                year_context_after = text[end_index:end_index + 100]
+                year = self._extract_year_from_context(year_context_after, debug)
+                if not year:
+                    # Fallback to context before citation
+                    year = self._extract_year_from_context(context, debug)
                 
                 if case_name and len(case_name.strip()) > 3:
                     cleaned_name = self._clean_case_name(case_name)
@@ -1023,7 +1030,13 @@ class UnifiedCaseExtractionMaster:
             match = re.search(pattern, context, re.IGNORECASE)
             if match:
                 case_name = match.group(1).strip()
-                year = self._extract_year_from_context(context, debug)
+                
+                # USER FIX 2024-10-16: Extract year from AFTER citation first
+                year_context_after = text[citation_pos:citation_pos + 100] if citation_pos >= 0 else ""
+                year = self._extract_year_from_context(year_context_after, debug)
+                if not year:
+                    # Fallback to context before citation
+                    year = self._extract_year_from_context(context, debug)
                 
                 if len(case_name) > 3:
                     cleaned_name = self._clean_case_name(case_name)
