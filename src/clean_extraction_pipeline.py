@@ -376,11 +376,13 @@ class CleanExtractionPipeline:
         logger.info(f"[CLEAN-PIPELINE] Extraction complete: {success_count} with names ({skipped_count} from eyecite), {fail_count} failed")
     
     def _extract_all_dates(self, text: str, citations: List[CitationResult]) -> None:
-        """Extract dates for citations that don't already have them from eyecite."""
+        """Extract dates for citations that don't already have them from eyecite or master extractor."""
         for citation in citations:
             try:
-                # Skip if eyecite already provided a date
-                if citation.extracted_date:
+                # Skip if eyecite or master extractor already provided a date
+                # USER FIX 2024-10-16: Don't overwrite dates from master extractor fallback
+                if citation.extracted_date and citation.extracted_date != "N/A":
+                    logger.debug(f"[CLEAN-PIPELINE] Skipping date extraction for {citation.citation} - already has: {citation.extracted_date}")
                     continue
                 
                 if citation.start_index is not None and citation.end_index is not None:
