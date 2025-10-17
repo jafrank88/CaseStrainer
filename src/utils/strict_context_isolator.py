@@ -191,8 +191,10 @@ def extract_case_name_from_strict_context(
     # Patterns to extract case names (BALANCED - not too strict, not too loose)
     patterns = [
         # Standard "v." pattern - must have "v." but flexible ending
-        # Match: "Erie Railroad Co. v. Tompkins" even if followed by comma/paren
-        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120}?)(?:\s*[,;\(]|$)',
+        # USER FIX 2024-10-16: Don't allow commas in case names - they separate citations
+        # This prevents "Upper Skagit v. Lundgren, Mills Indian Cmty." contamination
+        # Note: We removed comma from the character class [A-Za-z\'\.\&,\s\n\-]
+        r'([A-Z][A-Za-z\'\.\&\s\n\-]{2,120}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s\n\-]{2,120}?)(?:\s*[,;\(]|$)',
         
         # In re/Matter of/Estate of patterns
         r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100}?)(?:\s*[,;\(]|$)',
