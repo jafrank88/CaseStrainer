@@ -316,6 +316,11 @@ class CleanExtractionPipeline:
                     all_citations=citations  # Pass full list for proper boundary detection
                 )
                 
+                # DEBUG: Track extraction path for problematic citations
+                if "388 P.3d 977" in citation.citation:
+                    logger.error(f"🔍 [DEBUG-388] Strict isolation result: '{case_name}'")
+                    logger.error(f"🔍 [DEBUG-388] Is valid: {is_valid_case_name(case_name) if case_name else False}")
+                
                 # USER FIX 2024-10-16: Add fallback to master extractor when strict isolation fails
                 if not case_name or not is_valid_case_name(case_name):
                     # Strict isolation failed - try master extractor as fallback
@@ -349,6 +354,11 @@ class CleanExtractionPipeline:
                                 if extracted_year and extracted_year != "N/A":
                                     citation.extracted_date = extracted_year
                                     logger.info(f"[CLEAN-PIPELINE-FALLBACK] Using year from master: {extracted_year}")
+                                    
+                                    # DEBUG: Track for problematic citations
+                                    if "388 P.3d 977" in citation.citation:
+                                        logger.error(f"🔍 [DEBUG-388] Master extractor gave year: {extracted_year}")
+                                        logger.error(f"🔍 [DEBUG-388] Set citation.extracted_date = {extracted_year}")
                     except Exception as fallback_error:
                         logger.warning(f"[CLEAN-PIPELINE-FALLBACK] Master extractor also failed: {fallback_error}")
                 
@@ -383,7 +393,15 @@ class CleanExtractionPipeline:
                 # USER FIX 2024-10-16: Don't overwrite dates from master extractor fallback
                 if citation.extracted_date and citation.extracted_date != "N/A":
                     logger.debug(f"[CLEAN-PIPELINE] Skipping date extraction for {citation.citation} - already has: {citation.extracted_date}")
+                    
+                    # DEBUG: Track for problematic citations
+                    if "388 P.3d 977" in citation.citation:
+                        logger.error(f"🔍 [DEBUG-388] SKIPPING _extract_all_dates - already has: {citation.extracted_date}")
                     continue
+                
+                # DEBUG: Track for problematic citations
+                if "388 P.3d 977" in citation.citation:
+                    logger.error(f"🔍 [DEBUG-388] RUNNING _extract_all_dates - no date set yet")
                 
                 if citation.start_index is not None and citation.end_index is not None:
                     # Search context around citation
@@ -437,6 +455,11 @@ class CleanExtractionPipeline:
                     citation.extracted_date = year_found
                     if not year_found:
                         logger.debug(f"[CLEAN-PIPELINE] No year found for {citation.citation}")
+                    
+                    # DEBUG: Track for problematic citations
+                    if "388 P.3d 977" in citation.citation:
+                        logger.error(f"🔍 [DEBUG-388] _extract_all_dates FOUND year: {year_found}")
+                        logger.error(f"🔍 [DEBUG-388] Set citation.extracted_date = {year_found}")
                 else:
                     citation.extracted_date = None
                     
