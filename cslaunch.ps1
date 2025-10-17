@@ -142,6 +142,39 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                 } catch {
                     Write-Host "  [WARNING] Cleanup failed: $($_.Exception.Message)" -ForegroundColor Yellow
                 }
+                
+                # USER REQUESTED: Clear all caches for fresh testing
+                Write-Host "`n[CACHE CLEAR] Clearing Redis and file caches..." -ForegroundColor Yellow
+                try {
+                    # Clear Redis cache (task results, API cache, etc.)
+                    Write-Host "  🗑️  Clearing Redis cache..." -ForegroundColor Gray
+                    $redisKeys = docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); keys=r.keys('*'); print(len(keys))" 2>$null
+                    if ($redisKeys -and $redisKeys -gt 0) {
+                        docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); r.flushdb(); print('OK')" 2>$null | Out-Null
+                        Write-Host "  ✅ Cleared $redisKeys Redis keys" -ForegroundColor Green
+                    } else {
+                        Write-Host "  ✅ Redis cache already empty" -ForegroundColor Green
+                    }
+                    
+                    # Clear file-based caches
+                    Write-Host "  🗑️  Clearing file caches..." -ForegroundColor Gray
+                    $cacheDirs = @('citation_cache', 'correction_cache')
+                    $clearedFiles = 0
+                    foreach ($dir in $cacheDirs) {
+                        if (Test-Path $dir) {
+                            $files = Get-ChildItem -Path $dir -File -ErrorAction SilentlyContinue
+                            $clearedFiles += $files.Count
+                            $files | Remove-Item -Force -ErrorAction SilentlyContinue
+                        }
+                    }
+                    if ($clearedFiles -gt 0) {
+                        Write-Host "  ✅ Cleared $clearedFiles cache files" -ForegroundColor Green
+                    } else {
+                        Write-Host "  ✅ File caches already empty" -ForegroundColor Green
+                    }
+                } catch {
+                    Write-Host "  ⚠️  Warning: Could not clear all caches: $($_.Exception.Message)" -ForegroundColor Yellow
+                }
             }
             
             # Report actual status
