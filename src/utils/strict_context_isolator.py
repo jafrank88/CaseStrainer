@@ -116,9 +116,30 @@ def get_strict_context_for_citation(
         elif cit_start >= citation_start:
             break  # We've passed our citation
     
+    # USER FIX 2024-10-16: Check for parenthetical boundaries
+    # If citation is inside parentheses (like "(quoting Case v. Name, 123 U.S. 456)")
+    # we should ONLY look inside that parenthetical, not backwards beyond it
+    paren_boundary = previous_citation_end + 1
+    
+    # Look backwards from citation to find opening parenthesis
+    search_start = max(previous_citation_end, citation_start - max_lookback)
+    text_before = text[search_start:citation_start]
+    
+    # Find the last opening paren before this citation
+    last_open_paren = text_before.rfind('(')
+    if last_open_paren >= 0:
+        # Found a paren - check if citation is inside it
+        actual_pos = search_start + last_open_paren
+        # Make sure there's no closing paren between the opening paren and our citation
+        text_between = text[actual_pos:citation_start]
+        if ')' not in text_between:
+            # Citation is inside parenthetical - use opening paren as boundary
+            paren_boundary = actual_pos + 1  # +1 to skip the '(' itself
+            logger.debug(f"[STRICT-CONTEXT] Citation inside parenthetical at pos {actual_pos}")
+    
     # Determine strict context boundaries
     context_start = max(
-        previous_citation_end + 1,  # Stop at previous citation
+        paren_boundary,  # Stop at parenthetical boundary or previous citation
         citation_start - max_lookback  # Don't go too far back
     )
     context_start = max(0, context_start)
