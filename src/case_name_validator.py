@@ -49,10 +49,13 @@ def is_valid_case_name(case_name: Optional[str], min_length: int = 5) -> bool:
         logger.debug("Rejected: N/A")
         return False
     
-    # CRITICAL: Must contain "v." or "vs." to be a valid case name
-    # This is the most important check
-    if not re.search(r'\bv\.?\b|\bvs\.?\b', case_name, re.IGNORECASE):
-        logger.debug(f"Rejected: No 'v.' or 'vs.': '{case_name}'")
+    # CRITICAL: Must contain "v." or "vs." OR be an "In re" case
+    # USER FIX 2024-10-16: Also accept "In re", "Matter of", "Ex parte", "Estate of" cases
+    has_v = re.search(r'\bv\.?\b|\bvs\.?\b', case_name, re.IGNORECASE)
+    is_special_case = re.search(r'^(In\s+re|Matter\s+of|Ex\s+parte|Estate\s+of|In\s+the\s+matter\s+of)\b', case_name, re.IGNORECASE)
+    
+    if not (has_v or is_special_case):
+        logger.debug(f"Rejected: No 'v.'/'vs.' and not a special case: '{case_name}'")
         return False
     
     # Reject common text fragments that aren't case names
