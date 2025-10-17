@@ -1324,10 +1324,19 @@ class UnifiedClusteringMaster:
                             logger.error(f"   📝 Updated '{old_name}' → '{best_extracted_name}'")
                 
                 if best_extracted_year:
-                    if isinstance(citation, dict):
-                        citation['extracted_date'] = best_extracted_year
+                    # USER FIX 2024-10-16: DON'T overwrite extracted_date if it already exists!
+                    # The extracted date came from the actual document and should be trusted.
+                    # Only fill in if missing.
+                    existing_date = citation.get('extracted_date') if isinstance(citation, dict) else getattr(citation, 'extracted_date', None)
+                    if not existing_date or existing_date == 'N/A':
+                        if isinstance(citation, dict):
+                            citation['extracted_date'] = best_extracted_year
+                            logger.error(f"   📅 Filled missing date with best: '{best_extracted_year}'")
+                        else:
+                            citation.extracted_date = best_extracted_year
+                            logger.error(f"   📅 Filled missing date with best: '{best_extracted_year}'")
                     else:
-                        citation.extracted_date = best_extracted_year
+                        logger.error(f"   ✅ Keeping existing extracted_date: '{existing_date}' (not overwriting with '{best_extracted_year}')")
 
             for citation in group:
                 enhanced_citation = self._create_enhanced_citation(citation, case_name, case_year, group)
