@@ -331,9 +331,16 @@ class CleanExtractionPipeline:
                             debug=False
                         )
                         
-                        if master_result and master_result.case_name and master_result.case_name != "N/A":
-                            case_name = master_result.case_name
-                            logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor succeeded: '{case_name}'")
+                        # USER FIX: Master returns dict, not object!
+                        if master_result:
+                            if isinstance(master_result, dict):
+                                extracted_name = master_result.get('case_name')
+                            else:
+                                extracted_name = getattr(master_result, 'case_name', None)
+                            
+                            if extracted_name and extracted_name != "N/A":
+                                case_name = extracted_name
+                                logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor succeeded: '{case_name}'")
                     except Exception as fallback_error:
                         logger.warning(f"[CLEAN-PIPELINE-FALLBACK] Master extractor also failed: {fallback_error}")
                 
