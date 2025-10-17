@@ -174,6 +174,10 @@ def extract_case_name_from_strict_context(
     if not context or len(context) < 10:
         return None
     
+    # DEBUG: Log the context being analyzed (disabled for production)
+    # logger.debug(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
+    # logger.debug(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-100:]}'")  # Last 100 chars
+    
     # CRITICAL: Remove signal words and case history notations BEFORE pattern matching
     
     # FIRST: Remove entire lines containing legal concepts that aren't case names
@@ -212,10 +216,10 @@ def extract_case_name_from_strict_context(
     # Patterns to extract case names (BALANCED - not too strict, not too loose)
     patterns = [
         # Standard "v." pattern - must have "v." but flexible ending
-        # USER FIX 2024-10-16: Don't allow commas in case names - they separate citations
-        # This prevents "Upper Skagit v. Lundgren, Mills Indian Cmty." contamination
-        # Note: We removed comma from the character class [A-Za-z\'\.\&,\s\n\-]
-        r'([A-Z][A-Za-z\'\.\&\s\n\-]{2,120}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s\n\-]{2,120}?)(?:\s*[,;\(]|$)',
+        # USER FIX 2024-10-17: Make defendant pattern GREEDY to capture full names like "Bay Mills Indian Cmty."
+        # Remove the ? after {2,120} to make it greedy instead of non-greedy
+        # Still don't allow commas to prevent cross-citation contamination
+        r'([A-Z][A-Za-z\'\.\&\s\n\-]{2,80}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s\n\-]{2,120})(?:\s*[,;\(]|$)',
         
         # In re/Matter of/Estate of patterns
         r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100}?)(?:\s*[,;\(]|$)',
@@ -293,7 +297,6 @@ def extract_case_name_from_strict_context(
                 'principles set forth', 'intervening decision', 'recused'
             ]
             if any(phrase in case_name.lower() for phrase in reject_phrases):
-                logger.debug(f"[STRICT-EXTRACT] Rejected phrase contamination: '{case_name}'")
                 continue
             
             # For "v." patterns, validate both party names
@@ -310,9 +313,11 @@ def extract_case_name_from_strict_context(
                     continue
                 
                 # Check for incomplete/truncated parties
+                # USER FIX 2024-10-17: Allow common abbreviations like Cmty., Ass'n, Dep't
                 if plaintiff_part.endswith(('.', ',')) or defendant_part.endswith(('.', ',')):
-                    if not re.search(r'(Inc|LLC|Corp|Co|Ltd)', plaintiff_part + defendant_part):
-                        continue  # Suspicious punctuation unless it's corporate
+                    combined = plaintiff_part + defendant_part
+                    if not re.search(r'(Inc|LLC|Corp|Co|Ltd|Cmty|Ass\'n|Dep\'t|Bd|Dist|Comm|Div)', combined):
+                        continue  # Suspicious punctuation unless it's corporate or known abbreviation
             
             # === FINAL CLEANUP ===
             

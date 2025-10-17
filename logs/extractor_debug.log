@@ -468,3 +468,348 @@ Hamaatsa, Inc. v. Pueblo of San Felipe'
 2025-10-16 13:37:06,369 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 2 final citations, 1 clusters
 2025-10-16 20:46:05,277 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-10-16 21:05:48,630 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:13:59,268 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:24:00,920 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:31:37,329 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:40:30,024 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 21:56:26,348 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 22:10:52,130 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 15:18:19,460 - unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 15:18:20,125 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 15:18:20,269 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 15:18:20,967 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '197 Wn.2d 868', Start: 32, Text len: 75
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'f G.J.A., '
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '197 Wn.2d 868, 884-85, 489 P.3d 631 (2021).'
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 30 (citation at 32)
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 30 chars
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'see In re Dependency of G.J.A.'
+2025-10-16 15:18:20,978 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 30 chars
+2025-10-16 15:18:20,982 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 15:18:20,982 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'see In re Dependency of G.J.A.'
+2025-10-16 15:18:20,983 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:18:21,003 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:18:21,013 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 75
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '143 S. Ct. 1689', Start: 91, Text len: 132
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '382, 395, '
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)'
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 89 (citation at 91)
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 89 chars
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:18:21,023 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 89 chars
+2025-10-16 15:18:21,024 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 15:18:21,024 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:18:21,024 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 91
+2025-10-16 15:18:21,029 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin'
+2025-10-16 15:18:21,037 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:18:21,043 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '31 Wn. App. 2d 343', Start: 56, Text len: 103
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: ' Indians, '
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '31 Wn. App. 2d 343, 359-62, 549 P.3d 727 (2024)'
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 54 (citation at 56)
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 54 chars
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 54 chars
+2025-10-16 15:18:21,044 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:18:21,045 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:18:21,045 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:18:21,052 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:18:21,052 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:18:21,052 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians' (54 chars), Year: 2024
+2025-10-16 15:18:21,059 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '523 U.S. 751', Start: 34, Text len: 94
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 's., Inc., '
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '523 U.S. 751, 756, 118 S. Ct. 1700, 140 L. Ed. 2d '
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 32 (citation at 34)
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 32 chars
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 32 chars
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:18:21,060 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:18:21,061 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:18:21,067 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:18:21,067 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:18:21,067 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Kiowa Tribe v. Mfg. Techs., Inc.' (32 chars), Year: 1998
+2025-10-16 15:19:55,526 - unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 15:19:56,096 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 15:19:56,222 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 15:19:56,932 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 15:19:56,942 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '197 Wn.2d 868', Start: 32, Text len: 75
+2025-10-16 15:19:56,942 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'f G.J.A., '
+2025-10-16 15:19:56,942 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '197 Wn.2d 868, 884-85, 489 P.3d 631 (2021).'
+2025-10-16 15:19:56,942 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 30 (citation at 32)
+2025-10-16 15:19:56,942 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 30 chars
+2025-10-16 15:19:56,943 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'see In re Dependency of G.J.A.'
+2025-10-16 15:19:56,943 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 30 chars
+2025-10-16 15:19:56,947 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 15:19:56,947 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'see In re Dependency of G.J.A.'
+2025-10-16 15:19:56,947 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:19:56,965 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:19:56,971 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 75
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '143 S. Ct. 1689', Start: 91, Text len: 132
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '382, 395, '
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)'
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 89 (citation at 91)
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 89 chars
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:19:56,980 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 89 chars
+2025-10-16 15:19:56,981 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 3 patterns matched
+2025-10-16 15:19:56,981 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:19:56,981 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 91
+2025-10-16 15:19:56,986 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin'
+2025-10-16 15:19:56,993 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:19:56,998 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '31 Wn. App. 2d 343', Start: 56, Text len: 103
+2025-10-16 15:19:56,998 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: ' Indians, '
+2025-10-16 15:19:56,998 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '31 Wn. App. 2d 343, 359-62, 549 P.3d 727 (2024)'
+2025-10-16 15:19:56,998 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 54 (citation at 56)
+2025-10-16 15:19:56,998 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 54 chars
+2025-10-16 15:19:56,999 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:19:56,999 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 54 chars
+2025-10-16 15:19:56,999 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:19:56,999 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:19:57,000 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:19:57,006 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:19:57,007 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:19:57,007 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians' (54 chars), Year: 2024
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '523 U.S. 751', Start: 34, Text len: 94
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 's., Inc., '
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '523 U.S. 751, 756, 118 S. Ct. 1700, 140 L. Ed. 2d '
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 32 (citation at 34)
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 32 chars
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:19:57,013 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 32 chars
+2025-10-16 15:19:57,014 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:19:57,014 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:19:57,014 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:19:57,020 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:19:57,020 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:19:57,020 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Kiowa Tribe v. Mfg. Techs., Inc.' (32 chars), Year: 1998
+2025-10-16 15:21:44,198 - unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 15:21:44,870 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 15:21:45,013 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 15:21:45,638 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 15:21:45,649 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '197 Wn.2d 868', Start: 32, Text len: 75
+2025-10-16 15:21:45,650 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'f G.J.A., '
+2025-10-16 15:21:45,650 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '197 Wn.2d 868, 884-85, 489 P.3d 631 (2021).'
+2025-10-16 15:21:45,651 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 30 (citation at 32)
+2025-10-16 15:21:45,651 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 30 chars
+2025-10-16 15:21:45,651 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'see In re Dependency of G.J.A.'
+2025-10-16 15:21:45,651 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 30 chars
+2025-10-16 15:21:45,652 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'In re Dependency of G.J.A.'
+2025-10-16 15:21:45,657 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 're Dependency of G.J.A.'
+2025-10-16 15:21:45,658 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 're Dependency of G.J.A.'
+2025-10-16 15:21:45,658 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] FAIL: No ' v. ' in text
+2025-10-16 15:21:45,658 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 're Dependency of G.J.A.'
+2025-10-16 15:21:45,663 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 5 patterns matched
+2025-10-16 15:21:45,663 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'see In re Dependency of G.J.A.'
+2025-10-16 15:21:45,663 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:21:45,683 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:21:45,690 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 75
+2025-10-16 15:21:45,697 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '143 S. Ct. 1689', Start: 91, Text len: 132
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '382, 395, '
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)'
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 89 (citation at 91)
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 89 chars
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:21:45,698 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 89 chars
+2025-10-16 15:21:45,699 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 5 patterns matched
+2025-10-16 15:21:45,699 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:21:45,700 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 91
+2025-10-16 15:21:45,701 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin'
+2025-10-16 15:21:45,710 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:21:45,715 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '31 Wn. App. 2d 343', Start: 56, Text len: 103
+2025-10-16 15:21:45,715 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: ' Indians, '
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '31 Wn. App. 2d 343, 359-62, 549 P.3d 727 (2024)'
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 54 (citation at 56)
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 54 chars
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 54 chars
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:21:45,716 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:21:45,722 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:21:45,722 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:21:45,723 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians' (54 chars), Year: 2024
+2025-10-16 15:21:45,728 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '523 U.S. 751', Start: 34, Text len: 94
+2025-10-16 15:21:45,728 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 's., Inc., '
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '523 U.S. 751, 756, 118 S. Ct. 1700, 140 L. Ed. 2d '
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 32 (citation at 34)
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 32 chars
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 32 chars
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:21:45,729 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:21:45,730 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:21:45,737 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:21:45,737 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:21:45,738 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Kiowa Tribe v. Mfg. Techs., Inc.' (32 chars), Year: 1998
+2025-10-16 15:24:17,793 - unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 15:24:18,398 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 15:24:18,527 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 15:24:19,173 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 15:24:19,183 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '197 Wn.2d 868', Start: 32, Text len: 75
+2025-10-16 15:24:19,183 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'f G.J.A., '
+2025-10-16 15:24:19,183 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '197 Wn.2d 868, 884-85, 489 P.3d 631 (2021).'
+2025-10-16 15:24:19,184 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 30 (citation at 32)
+2025-10-16 15:24:19,184 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 30 chars
+2025-10-16 15:24:19,184 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'see In re Dependency of G.J.A.'
+2025-10-16 15:24:19,184 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 30 chars
+2025-10-16 15:24:19,185 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'In re Dependency of G.J.A.'
+2025-10-16 15:24:19,189 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 're Dependency of G.J.A.'
+2025-10-16 15:24:19,190 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 're Dependency of G.J.A.'
+2025-10-16 15:24:19,190 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] FAIL: No ' v. ' or 'In re' in text
+2025-10-16 15:24:19,190 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION FAIL] Doesn't look like case name: 're Dependency of G.J.A.'
+2025-10-16 15:24:19,194 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 5 patterns matched
+2025-10-16 15:24:19,194 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'see In re Dependency of G.J.A.'
+2025-10-16 15:24:19,194 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:24:19,212 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 32
+2025-10-16 15:24:19,219 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 75
+2025-10-16 15:24:19,226 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '143 S. Ct. 1689', Start: 91, Text len: 132
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '382, 395, '
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)'
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 89 (citation at 91)
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 89 chars
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 89 chars
+2025-10-16 15:24:19,227 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 5 patterns matched
+2025-10-16 15:24:19,228 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:24:19,228 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 91
+2025-10-16 15:24:19,228 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin'
+2025-10-16 15:24:19,235 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '31 Wn. App. 2d 343', Start: 56, Text len: 103
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: ' Indians, '
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '31 Wn. App. 2d 343, 359-62, 549 P.3d 727 (2024)'
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 54 (citation at 56)
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 54 chars
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 54 chars
+2025-10-16 15:24:19,242 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:24:19,243 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:24:19,243 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:24:19,248 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:24:19,249 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:24:19,249 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians' (54 chars), Year: 2024
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '523 U.S. 751', Start: 34, Text len: 94
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 's., Inc., '
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '523 U.S. 751, 756, 118 S. Ct. 1700, 140 L. Ed. 2d '
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 32 (citation at 34)
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 32 chars
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:24:19,254 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 32 chars
+2025-10-16 15:24:19,255 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 3 matched! Raw: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:24:19,255 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:24:19,255 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:24:19,262 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:24:19,262 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:24:19,262 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Kiowa Tribe v. Mfg. Techs., Inc.' (32 chars), Year: 1998
+2025-10-16 22:34:09,968 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 15:42:41,891 - unified_case_name_extractor_v2 - INFO - Logging initialized successfully to D:\dev\casestrainer\src\..\logs\extractor_debug.log
+2025-10-16 15:42:42,474 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-16 15:42:42,592 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-16 15:42:43,231 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '197 Wn.2d 868', Start: 32, Text len: 75
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 'f G.J.A., '
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '197 Wn.2d 868, 884-85, 489 P.3d 631 (2021).'
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 30 (citation at 32)
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 30 chars
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'see In re Dependency of G.J.A.'
+2025-10-16 15:42:43,243 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 30 chars
+2025-10-16 15:42:43,244 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 1 matched! Raw: 'In re Dependency of G.J.A.'
+2025-10-16 15:42:43,249 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'In re Dependency of G.J.A.'
+2025-10-16 15:42:43,250 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'In re Dependency of G.J.A.'
+2025-10-16 15:42:43,256 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:42:43,256 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:42:43,257 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'In re Dependency of G.J.A.' (26 chars), Year: 2021
+2025-10-16 15:42:43,264 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '143 S. Ct. 1689', Start: 91, Text len: 132
+2025-10-16 15:42:43,264 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '382, 395, '
+2025-10-16 15:42:43,264 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)'
+2025-10-16 15:42:43,265 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 89 (citation at 91)
+2025-10-16 15:42:43,265 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 89 chars
+2025-10-16 15:42:43,265 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:42:43,265 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 89 chars
+2025-10-16 15:42:43,273 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] None of the 9 patterns matched
+2025-10-16 15:42:43,273 - src.unified_case_extraction_master - ERROR - [FIX #69 NO MATCH] Context was: 'See Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 599 U.S. 382, 395'
+2025-10-16 15:42:43,273 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 91
+2025-10-16 15:42:43,277 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin'
+2025-10-16 15:42:43,287 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:42:43,292 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '31 Wn. App. 2d 343', Start: 56, Text len: 103
+2025-10-16 15:42:43,292 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: ' Indians, '
+2025-10-16 15:42:43,292 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '31 Wn. App. 2d 343, 359-62, 549 P.3d 727 (2024)'
+2025-10-16 15:42:43,292 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 54 (citation at 56)
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 54 chars
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 54 chars
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 7 matched! Raw: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:42:43,293 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians'
+2025-10-16 15:42:43,300 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:42:43,300 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:42:43,300 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians' (54 chars), Year: 2024
+2025-10-16 15:42:43,306 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '523 U.S. 751', Start: 34, Text len: 94
+2025-10-16 15:42:43,306 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: 's., Inc., '
+2025-10-16 15:42:43,306 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: '523 U.S. 751, 756, 118 S. Ct. 1700, 140 L. Ed. 2d '
+2025-10-16 15:42:43,306 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 32 (citation at 34)
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 32 chars
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 32 chars
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 MATCH] Pattern 7 matched! Raw: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 CLEANED] After clean: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:42:43,307 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'Kiowa Tribe v. Mfg. Techs., Inc.'
+2025-10-16 15:42:43,315 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] SUCCESS: All checks passed!
+2025-10-16 15:42:43,315 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATION OK] Passed validation!
+2025-10-16 15:42:43,316 - src.unified_case_extraction_master - ERROR - [FIX #69 FINAL] Case name: 'Kiowa Tribe v. Mfg. Techs., Inc.' (32 chars), Year: 1998
+2025-10-16 22:45:03,744 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:12:19,771 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:24:30,513 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:28:56,924 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:30:58,360 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:31:46,653 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:38:35,533 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:41:04,771 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:47:17,653 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-16 23:49:09,694 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:05:39,571 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:09:45,895 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:12:09,559 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:13:49,319 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:19:03,656 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:20:23,341 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:26:39,812 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:34:20,893 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:38:47,799 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:39:32,657 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:47:28,235 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:51:25,166 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 00:55:29,151 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:02:33,428 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:03:22,952 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:08:27,127 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:09:17,802 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:10:17,571 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:19:01,833 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:27:54,796 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:28:49,940 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 01:57:02,704 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:01:41,950 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:10:09,924 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:24:29,001 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:28:36,728 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:34:13,869 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:40:23,189 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:41:24,678 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:50:13,835 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 02:58:12,588 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:06:26,752 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:08:53,945 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:23:03,726 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:25:17,675 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:25:42,420 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:29:47,599 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:35:45,011 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:38:56,835 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:43:58,943 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 03:52:14,035 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 04:01:59,751 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 04:04:05,174 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 04:12:40,034 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 04:23:47,571 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 04:26:09,401 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-17 15:51:20,263 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
