@@ -516,7 +516,12 @@ class UnifiedCaseExtractionMaster:
         
         # Try multiple patterns in priority order
         # USER REQUESTED: Support "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
+        # USER FIX 2024-10-16: Add "See [Case Name]" pattern with HIGHEST priority
         patterns = [
+            # Pattern 0: "See [Case Name]" - HIGHEST PRIORITY (USER FIX)
+            # Matches: "See Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians"
+            r'(?:See|see|Citing|citing|Compare|compare)\s+([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
+            
             # Pattern 1: "In re" cases - greedy match to end of string
             r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
             
