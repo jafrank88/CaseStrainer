@@ -316,6 +316,27 @@ class CleanExtractionPipeline:
                     all_citations=citations  # Pass full list for proper boundary detection
                 )
                 
+                # USER FIX 2024-10-16: Add fallback to master extractor when strict isolation fails
+                if not case_name or not is_valid_case_name(case_name):
+                    # Strict isolation failed - try master extractor as fallback
+                    try:
+                        from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+                        logger.info(f"[CLEAN-PIPELINE-FALLBACK] Strict isolation failed for {citation.citation}, trying master extractor")
+                        
+                        master_result = extract_case_name_and_date_unified_master(
+                            text=text,
+                            citation=citation.citation,
+                            start_index=citation.start_index,
+                            end_index=citation.end_index,
+                            debug=False
+                        )
+                        
+                        if master_result and master_result.case_name and master_result.case_name != "N/A":
+                            case_name = master_result.case_name
+                            logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor succeeded: '{case_name}'")
+                    except Exception as fallback_error:
+                        logger.warning(f"[CLEAN-PIPELINE-FALLBACK] Master extractor also failed: {fallback_error}")
+                
                 # NEW: Validate extracted case name
                 if case_name and is_valid_case_name(case_name):
                     citation.extracted_case_name = case_name
