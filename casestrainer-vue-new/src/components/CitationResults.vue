@@ -11,7 +11,7 @@
         <div v-for="cluster in unverifiedClusters" :key="cluster.cluster_id" class="cluster-item unverified-cluster">
           <!-- Cluster Header -->
           <div class="cluster-line cluster-header-line">
-            <strong>📚 Cluster {{ cluster.cluster_id }}:</strong>
+            <strong>📚</strong>
             <span class="cluster-case-name">{{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}</span>
             <span v-if="cluster.citations?.[0]?.extracted_date" class="cluster-date">({{ cluster.citations[0].extracted_date }})</span>
           </div>
