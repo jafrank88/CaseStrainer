@@ -1117,8 +1117,14 @@ class UnifiedCaseExtractionMaster:
         
         return None
     
-    def _clean_case_name(self, case_name: str) -> str:
-        """Clean and normalize case name using best practices from all implementations."""
+    def _clean_case_name(self, case_name: str, context: str = None) -> str:
+        """
+        Clean and normalize case name using best practices from all implementations.
+        
+        Args:
+            case_name: The extracted case name to clean
+            context: Optional broader text context for finding full corporate names
+        """
         if not case_name:
             return "N/A"
         
@@ -1221,10 +1227,12 @@ class UnifiedCaseExtractionMaster:
         is_truncated = any(re.match(pattern, cleaned, re.IGNORECASE) for pattern in corporate_suffixes)
         
         if is_truncated:
-            # Try to find the full corporate name in the original case_name
+            # USER FIX 2024-10-16 PM: Search context first, then case_name
+            # Try to find the full corporate name in context (if provided), then original case_name
+            search_text = context if context else case_name
             # Look for pattern: [Company Name], Inc. v. [Defendant]
             corp_name_match = re.search(r'([A-Z][A-Za-z\s&\'\.\-]+(?:,\s*)?(?:Inc|LLC|Corp|Ltd|Co|L\.P\.)\.?)\s+v\.', 
-                                       case_name, re.IGNORECASE)
+                                       search_text, re.IGNORECASE)
             if corp_name_match:
                 # Found the full corporate name, use it
                 full_corp_name = corp_name_match.group(1).strip()

@@ -114,12 +114,16 @@ class CleanExtractionPipeline:
         
         return citations
     
-    def _clean_eyecite_case_name(self, case_name: str) -> str:
+    def _clean_eyecite_case_name(self, case_name: str, text_context: str = None) -> str:
         """
         Clean contamination from eyecite-extracted case names.
         
         ARCHITECTURE FIX: Delegates to unified_case_extraction_master._clean_case_name()
         to avoid code duplication. This ensures all cleaning logic is in ONE place.
+        
+        Args:
+            case_name: The case name to clean
+            text_context: Optional broader document text to search for full corporate names
         """
         if not case_name:
             return case_name
@@ -135,7 +139,8 @@ class CleanExtractionPipeline:
             # - Status word removal ("overruling", "affirming", etc.)
             # - Contamination filtering (doctrine, rule, test words)
             # - Normalization and validation
-            cleaned = extractor._clean_case_name(case_name)
+            # USER FIX: Pass text_context to find full corporate names
+            cleaned = extractor._clean_case_name(case_name, context=text_context)
             logger.debug(f"[CLEAN-DELEGATE] '{case_name[:50]}' -> '{cleaned[:50]}'")
             return cleaned
         except Exception as e:
@@ -191,11 +196,13 @@ class CleanExtractionPipeline:
                         logger.info(f"[EYECITE-META] Raw from eyecite: {eyecite_case_name}")
                         
                         # CRITICAL: Clean contamination from eyecite extractions
-                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name)
+                        # USER FIX: Pass text context to find full corporate names
+                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name, text_context=text)
                         logger.info(f"[EYECITE-META] After cleaning: {eyecite_case_name}")
                     elif plaintiff:
                         eyecite_case_name = plaintiff
-                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name)
+                        # USER FIX: Pass text context
+                        eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name, text_context=text)
                         logger.info(f"[EYECITE-META] Extracted plaintiff only: {eyecite_case_name}")
                     
                     if year:
