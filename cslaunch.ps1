@@ -146,14 +146,26 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                 # USER REQUESTED: Clear all caches for fresh testing
                 Write-Host "`n[CACHE CLEAR] Clearing Redis and file caches..." -ForegroundColor Yellow
                 try {
-                    # Clear Redis cache (task results, API cache, etc.)
-                    Write-Host "  🗑️  Clearing Redis cache..." -ForegroundColor Gray
-                    $redisKeys = docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); keys=r.keys('*'); print(len(keys))" 2>$null
-                    if ($redisKeys -and $redisKeys -gt 0) {
-                        docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); r.flushdb(); print('OK')" 2>$null | Out-Null
-                        Write-Host "  ✅ Cleared $redisKeys Redis keys" -ForegroundColor Green
+                    # Clear Redis cache (ALL databases - 0: RQ queue, 1: citation cache, 2: URL cache)
+                    Write-Host "  🗑️  Clearing Redis caches (databases 0, 1, 2)..." -ForegroundColor Gray
+                    
+                    # Database 0: RQ queue and session data
+                    $redisKeys0 = docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); keys=r.keys('*'); print(len(keys))" 2>$null
+                    docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=0); r.flushdb()" 2>$null | Out-Null
+                    
+                    # Database 1: Citation cache
+                    $redisKeys1 = docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=1); keys=r.keys('*'); print(len(keys))" 2>$null
+                    docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=1); r.flushdb()" 2>$null | Out-Null
+                    
+                    # Database 2: URL/PDF cache
+                    $redisKeys2 = docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=2); keys=r.keys('*'); print(len(keys))" 2>$null
+                    docker exec casestrainer-backend-prod python -c "from redis import Redis; r=Redis(host='redis',port=6379,db=2); r.flushdb()" 2>$null | Out-Null
+                    
+                    $totalKeys = [int]$redisKeys0 + [int]$redisKeys1 + [int]$redisKeys2
+                    if ($totalKeys -gt 0) {
+                        Write-Host "  ✅ Cleared $totalKeys Redis keys (DB0: $redisKeys0, DB1: $redisKeys1, DB2: $redisKeys2)" -ForegroundColor Green
                     } else {
-                        Write-Host "  ✅ Redis cache already empty" -ForegroundColor Green
+                        Write-Host "  ✅ Redis caches already empty" -ForegroundColor Green
                     }
                     
                     # Clear file-based caches
