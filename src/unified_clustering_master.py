@@ -295,6 +295,17 @@ class UnifiedClusteringMaster:
             for i, group in enumerate(parallel_groups[:5]):
                 logger.error(f"🔍 [CLUSTER-DEBUG] Group {i+1} size: {len(group)} citations")
             
+            # DEBUG: Find Hamaatsa citations and see if they're grouped together
+            for i, group in enumerate(parallel_groups):
+                hamaatsa_in_group = []
+                for cit in group:
+                    cit_text = getattr(cit, 'citation', str(cit)) if hasattr(cit, 'citation') else str(cit)
+                    if '388 P.3d 977' in cit_text or '2017-NM-007' in cit_text:
+                        hamaatsa_in_group.append(cit_text)
+                if hamaatsa_in_group:
+                    logger.error(f"🔴 [HAMAATSA-CLUSTER] Group {i+1} contains {len(hamaatsa_in_group)} Hamaatsa citation(s): {hamaatsa_in_group}")
+                    logger.error(f"🔴 [HAMAATSA-CLUSTER] Group {i+1} total size: {len(group)} citations")
+            
             # Step 2: Extract and propagate metadata within groups
             logger.info("MASTER_CLUSTER: Step 2 - Extracting and propagating metadata")
             enhanced_citations = self._extract_and_propagate_metadata(citations, parallel_groups, original_text)
@@ -304,6 +315,18 @@ class UnifiedClusteringMaster:
             logger.info("MASTER_CLUSTER: Step 3 - Creating final clusters")
             final_clusters = self._create_final_clusters(enhanced_citations)
             logger.info(f"MASTER_CLUSTER: Created {len(final_clusters)} final clusters")
+            
+            # DEBUG: Check Hamaatsa citations in final clusters
+            for i, cluster in enumerate(final_clusters):
+                cluster_cits = cluster.get('citations', [])
+                hamaatsa_in_cluster = []
+                for cit in cluster_cits:
+                    cit_text = getattr(cit, 'citation', str(cit)) if hasattr(cit, 'citation') else (cit.get('citation') if isinstance(cit, dict) else str(cit))
+                    if '388 P.3d 977' in cit_text or '2017-NM-007' in cit_text:
+                        hamaatsa_in_cluster.append(cit_text)
+                if hamaatsa_in_cluster:
+                    logger.error(f"🟢 [HAMAATSA-FINAL] Cluster {i+1} contains {len(hamaatsa_in_cluster)} Hamaatsa citation(s): {hamaatsa_in_cluster}")
+                    logger.error(f"🟢 [HAMAATSA-FINAL] Cluster {i+1} total size: {len(cluster_cits)} citations")
             
             # Step 4: Apply verification if enabled
             if enable_verification:
@@ -2551,7 +2574,16 @@ class UnifiedClusteringMaster:
             # SPLIT THE CLUSTER - citations have different EXTRACTED data!
             logger.warning(f"🔴 FIX #48: Splitting cluster - {len(extracted_groups)} different EXTRACTED cases detected (proximity={is_close_proximity})")
             
+            # DEBUG: Check if Hamaatsa citations are being split
             for group_key, group_citations in extracted_groups.items():
+                hamaatsa_in_split = []
+                for cit in group_citations:
+                    cit_text = getattr(cit, 'citation', str(cit)) if hasattr(cit, 'citation') else (cit.get('citation') if isinstance(cit, dict) else str(cit))
+                    if '388 P.3d 977' in cit_text or '2017-NM-007' in cit_text:
+                        hamaatsa_in_split.append(cit_text)
+                if hamaatsa_in_split:
+                    logger.error(f"💥 [HAMAATSA-SPLIT] SPLITTING Hamaatsa citations! Group key: {group_key}")
+                    logger.error(f"💥 [HAMAATSA-SPLIT] Citations in this sub-cluster: {hamaatsa_in_split}")
                 logger.warning(f"   Sub-cluster (extracted): {group_key} with {len(group_citations)} citations")
                 
                 # Create a new cluster for this extracted group
