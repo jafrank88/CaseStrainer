@@ -441,7 +441,17 @@ class UnifiedClusteringMaster:
             previous_end = getattr(previous_citation, 'end_index', 0)
             distance = current_start - previous_end
             
-            if distance <= self.proximity_threshold:
+            # USER FIX 2024-10-16: Check for semicolon boundary
+            # Semicolons separate different cases, even if close together
+            # Example: "...562 U.S. 42 (2011); Hamaatsa, Inc. v. Pueblo of San Felipe..."
+            has_semicolon_boundary = False
+            if text and previous_end < len(text) and current_start < len(text):
+                text_between = text[previous_end:current_start]
+                if ';' in text_between:
+                    has_semicolon_boundary = True
+                    logger.info(f"[CLUSTERING] Semicolon boundary detected between citations - NOT grouping")
+            
+            if distance <= self.proximity_threshold and not has_semicolon_boundary:
                 current_group.append(current_citation)
             else:
                 groups.append(current_group)
