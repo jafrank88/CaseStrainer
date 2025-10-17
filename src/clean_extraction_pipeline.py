@@ -171,6 +171,26 @@ class CleanExtractionPipeline:
         # Step 4: Clean up trailing commas
         cleaned = re.sub(r'\s*,\s*$', '', cleaned)
         
+        # USER FIX 2024-10-16: Fix corporate name truncation
+        # If name starts with corporate suffix (Inc., LLC, etc.), it's truncated
+        # Example: "Inc. v. Stillaguamish" should be "Flying T Ranch, Inc. v. Stillaguamish"
+        corporate_suffixes = [r'^Inc\.?\s+v\.', r'^LLC\.?\s+v\.', r'^Corp\.?\s+v\.', 
+                             r'^Ltd\.?\s+v\.', r'^Co\.?\s+v\.', r'^L\.P\.?\s+v\.']
+        
+        is_truncated = any(re.match(pattern, cleaned, re.IGNORECASE) for pattern in corporate_suffixes)
+        
+        if is_truncated:
+            # Try to find the full corporate name in the original case_name
+            # Look for pattern: [Company Name], Inc. v. [Defendant]
+            corp_name_match = re.search(r'([A-Z][A-Za-z\s&\'\.\-]+(?:,\s*)?(?:Inc|LLC|Corp|Ltd|Co|L\.P\.)\.?)\s+v\.', 
+                                       case_name, re.IGNORECASE)
+            if corp_name_match:
+                # Found the full corporate name, use it
+                full_corp_name = corp_name_match.group(1).strip()
+                # Replace truncated start with full name
+                cleaned = re.sub(r'^(?:Inc|LLC|Corp|Ltd|Co|L\.P\.)\.?\s+', 
+                               full_corp_name + ' ', cleaned, flags=re.IGNORECASE)
+        
         return cleaned.strip()
     
     def _find_with_eyecite(self, text: str) -> List[CitationResult]:
