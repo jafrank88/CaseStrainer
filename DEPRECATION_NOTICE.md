@@ -1,40 +1,54 @@
 # 🚨 DEPRECATION NOTICE - Citation Extraction Methods
 
-## Effective Date: Session Complete
+## Effective Date: October 16, 2025
 
-The following extraction methods are **DEPRECATED** and replaced by the clean extraction pipeline.
+**UPDATED:** All extraction code has been consolidated into a single source of truth.
 
-## ✅ What to Use Instead
+---
 
-### **NEW: Unified Case Name Extractor V2**
+## ✅ What to Use Instead - CURRENT (Oct 2025)
+
+### **🎯 PRIMARY: unified_case_extraction_master.py**
+
+This is THE SINGLE SOURCE OF TRUTH for all case name extraction and cleaning.
+
 ```python
-from src.unified_case_name_extractor_v2 import get_unified_extractor
-
-# Get the unified extractor
-extractor = get_unified_extractor()
+from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
 
 # Extract case name and date
-result = extractor.extract_case_name_and_date(
+result = extract_case_name_and_date_unified_master(
     text=document_text,
     citation=citation_text,
+    start_index=citation_start_pos,
+    end_index=citation_end_pos,
     debug=True  # Enable detailed logging
 )
 
 # Access results
 case_name = result.case_name
-date = result.date
-year = result.year
+date = result.year
 confidence = result.confidence
 method = result.method
-strategy = result.strategy.value
 ```
 
-### **Backward Compatibility Functions**
+### **🔧 For Cleaning Only:**
 ```python
-from src.unified_case_name_extractor_v2 import extract_case_name_and_date_unified
+from src.unified_case_extraction_master import get_master_extractor
 
-# This still works but shows deprecation warnings
-result = extract_case_name_and_date_unified(text, citation)
+extractor = get_master_extractor()
+cleaned_name = extractor._clean_case_name(raw_case_name)
+```
+
+### **⚠️ DEPRECATED (But Still Works):**
+
+These files delegate to the master but should be phased out:
+
+```python
+# DEPRECATED - Delegates to unified_case_extraction_master
+from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+
+# Shows deprecation warning but still works
+result = extract_case_name_and_date_master(text, citation)
 ```
 
 ## ❌ DEPRECATED FUNCTIONS (DO NOT USE)

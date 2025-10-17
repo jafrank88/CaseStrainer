@@ -47,9 +47,12 @@ import unicodedata
 import os
 from collections import defaultdict, deque
 
+# DEPRECATED IMPORTS - Use unified_case_extraction_master instead
+# These imports are kept for backwards compatibility but will be removed in v2.0
+# TODO: Migrate all code to use unified_case_extraction_master directly
 from src.unified_case_name_extractor_v2 import (
     get_unified_extractor,
-    extract_case_name_and_date_master,
+    extract_case_name_and_date_master,  # DEPRECATED: Use extract_case_name_and_date_unified_master
     extract_case_name_only_unified
 )
 
