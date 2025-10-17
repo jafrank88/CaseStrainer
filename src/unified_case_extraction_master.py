@@ -852,10 +852,11 @@ class UnifiedCaseExtractionMaster:
     
     def _extract_with_position(self, text: str, citation: str, start_index: int, end_index: int, debug: bool) -> Optional[MasterExtractionResult]:
         """Position-aware extraction with optimized context window."""
-        # FIX #68: Increase context window to 400 chars to handle multi-line case names
-        # Standard format: "Case Name, Citation, Year" requires looking back ~200 chars
-        # But case names split across lines need more context to capture complete name
-        context_start = max(0, start_index - 400)  # FIX #68: Increased from 200 to 400
+        # USER FIX 2024-10-16: CRITICAL - Reduce context from 400 to 150 chars!
+        # 400 chars was picking up case names from OTHER nearby citations
+        # Example: "76 Idaho 374" was getting "Oneida Indian Nation" from 300 chars away
+        # Strict proximity (150 chars) ensures we only get the CORRECT case name
+        context_start = max(0, start_index - 150)  # USER FIX: Reduced from 400 to 150
         # FIX #38: ONLY look BACKWARD! Context must end at START of citation, not END!
         # Fix #32 used end_index which allowed 15 chars of forward context (citation length),
         # causing extraction of "Spokane County" (after citation) instead of "Lopez Demetrio" (before).
@@ -866,7 +867,7 @@ class UnifiedCaseExtractionMaster:
             logger.error(f"🔍 FIX #42: Creating context with:")
             logger.error(f"   start_index = {start_index}")
             logger.error(f"   end_index = {end_index}")
-            logger.error(f"   context_start = {context_start} (start_index - 400)")
+            logger.error(f"   context_start = {context_start} (start_index - 150)")
             logger.error(f"   context_end = {context_end} (should == start_index)")
             logger.error(f"   Slicing: text[{context_start}:{context_end}]")
         
@@ -931,6 +932,15 @@ class UnifiedCaseExtractionMaster:
                         # FIX #40B: Track if "Spokane" appears at this stage
                         if "Spokane" in cleaned_name:
                             logger.error(f"🚨 BUG: 'Spokane' in CLEANED case_name!")
+                    
+                    # USER FIX 2024-10-16: Add proximity validation
+                    # Reject if extracted name is >100 chars away from citation
+                    match_pos_in_original = context_start + match.start()
+                    distance_from_citation = start_index - match_pos_in_original
+                    if distance_from_citation > 100:
+                        if debug:
+                            logger.warning(f"   ❌ REJECTED: Too far from citation ({distance_from_citation} chars away)")
+                        continue  # Try next pattern
                     
                     # P3 FIX: CRITICAL - Validate to filter contamination BEFORE accepting extraction
                     if not self._looks_like_case_name(cleaned_name, debug):
@@ -1188,6 +1198,16 @@ class UnifiedCaseExtractionMaster:
                         cleaned = f"{plaintiff} v. {defendant}"
                         # Remove trailing punctuation that might have been captured
                         cleaned = re.sub(r'\s*[,;\.]+$', '', cleaned)
+        
+        # USER FIX 2024-10-16: Remove citation patterns that got included
+        # Example: "Inc. v. Stillaguamish Tribe of Indians, 31 Wn. App. 2d 343, 359-62"
+        # Should be: "Inc. v. Stillaguamish Tribe of Indians"
+        # Remove anything that looks like: ", [volume] [reporter] [page]"
+        cleaned = re.sub(r',\s*\d+\s+[A-Z][a-z]*\.?\s*(?:App\.)?\s*\d*d?\s*\d+.*$', '', cleaned)
+        # Also remove pin cites like ", 359-62"
+        cleaned = re.sub(r',\s*\d+-\d+.*$', '', cleaned)
+        # Remove standalone citations at end: "245 F.3d 889" or "31 Wn. App. 2d 343"
+        cleaned = re.sub(r'\s+\d+\s+[A-Z][a-z]*\.?\s*(?:App\.)?\s*\d*d?\s*\d+.*$', '', cleaned)
         
         # Remove trailing punctuation except periods in abbreviations
         cleaned = re.sub(r'[,;:]+$', '', cleaned)
