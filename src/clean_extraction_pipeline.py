@@ -208,6 +208,10 @@ class CleanExtractionPipeline:
                     if year:
                         eyecite_date = str(year)
                         logger.debug(f"[EYECITE-META] Extracted year: {eyecite_date}")
+                        
+                        # DEBUG: Track for problematic citations
+                        if "388 P.3d 977" in cit_text:
+                            logger.error(f"🔍 [DEBUG-388] EYECITE provided year: {eyecite_date}")
                 
                 # Create CitationResult
                 citation = CitationResult(
