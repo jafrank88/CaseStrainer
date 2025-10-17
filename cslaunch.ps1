@@ -173,7 +173,9 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                     }
                     
                     # Clear file-based caches
-                    Write-Host "  🗑️  Clearing file caches..." -ForegroundColor Gray
+                    Write-Host "  🗑️  Clearing file caches and databases..." -ForegroundColor Gray
+                    
+                    # Clear cache directories
                     $cacheDirs = @('citation_cache', 'correction_cache')
                     $clearedFiles = 0
                     foreach ($dir in $cacheDirs) {
@@ -183,8 +185,26 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                             $files | Remove-Item -Force -ErrorAction SilentlyContinue
                         }
                     }
-                    if ($clearedFiles -gt 0) {
-                        Write-Host "  ✅ Cleared $clearedFiles cache files" -ForegroundColor Green
+                    
+                    # Clear SQLite cache databases (CRITICAL for fresh extraction)
+                    $cacheDb = @(
+                        'data\citations.db',
+                        'src\data\citations.db',
+                        'legal_search_cache.db',
+                        'data\legal_search_cache.db',
+                        'data\langsearch_cache.db',
+                        'src\data\legal_search_cache.db'
+                    )
+                    $clearedDbs = 0
+                    foreach ($db in $cacheDb) {
+                        if (Test-Path $db) {
+                            Remove-Item -Path $db -Force -ErrorAction SilentlyContinue
+                            $clearedDbs++
+                        }
+                    }
+                    
+                    if ($clearedFiles -gt 0 -or $clearedDbs -gt 0) {
+                        Write-Host "  ✅ Cleared $clearedFiles cache files + $clearedDbs SQLite databases" -ForegroundColor Green
                     } else {
                         Write-Host "  ✅ File caches already empty" -ForegroundColor Green
                     }
