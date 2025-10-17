@@ -79,8 +79,24 @@ class CleanExtractionPipeline:
         logger.info(f"[CLEAN-PIPELINE] Step 3: Case names extracted for all citations")
         
         # Step 4: Extract dates
+        # DEBUG: Log dates BEFORE _extract_all_dates
+        logger.error("=" * 80)
+        logger.error("[DEBUG-BEFORE-DATE-EXTRACT] Dates BEFORE _extract_all_dates:")
+        for cit in deduplicated:
+            if "Hamaatsa" in str(cit.extracted_case_name):
+                logger.error(f"🔴 [BEFORE-HAMAATSA] {cit.citation} → Date: {cit.extracted_date}")
+        logger.error("=" * 80)
+        
         self._extract_all_dates(text, deduplicated)
         logger.info(f"[CLEAN-PIPELINE] Step 4: Dates extracted for all citations")
+        
+        # DEBUG: Log dates AFTER _extract_all_dates  
+        logger.error("=" * 80)
+        logger.error("[DEBUG-AFTER-DATE-EXTRACT] Dates AFTER _extract_all_dates:")
+        for cit in deduplicated:
+            if "Hamaatsa" in str(cit.extracted_case_name):
+                logger.error(f"🔴 [AFTER-HAMAATSA] {cit.citation} → Date: {cit.extracted_date}")
+        logger.error("=" * 80)
         
         logger.info(f"[CLEAN-PIPELINE] Pipeline complete: {len(deduplicated)} citations")
         return deduplicated
@@ -388,6 +404,16 @@ class CleanExtractionPipeline:
                 logger.error(f"[CLEAN-PIPELINE] Error extracting {citation.citation}: {e}")
         
         logger.info(f"[CLEAN-PIPELINE] Extraction complete: {success_count} with names ({skipped_count} from eyecite), {fail_count} failed")
+        
+        # DEBUG: Log ALL citations with their extracted dates
+        logger.error("=" * 80)
+        logger.error("[DEBUG-ALL-DATES] Logging ALL citations with their extracted dates:")
+        logger.error("=" * 80)
+        for cit in citations:
+            if "Hamaatsa" in str(cit.extracted_case_name):
+                logger.error(f"🔴 [HAMAATSA] {cit.citation} → Name: {cit.extracted_case_name} → Date: {cit.extracted_date}")
+            elif cit.citation:
+                logger.error(f"[ALL-DATES] {cit.citation[:30]:30} → Date: {cit.extracted_date}")
     
     def _extract_all_dates(self, text: str, citations: List[CitationResult]) -> None:
         """Extract dates for citations that don't already have them from eyecite or master extractor."""
