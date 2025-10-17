@@ -335,12 +335,20 @@ class CleanExtractionPipeline:
                         if master_result:
                             if isinstance(master_result, dict):
                                 extracted_name = master_result.get('case_name')
+                                extracted_year = master_result.get('year')
                             else:
                                 extracted_name = getattr(master_result, 'case_name', None)
+                                extracted_year = getattr(master_result, 'year', None)
                             
                             if extracted_name and extracted_name != "N/A":
                                 case_name = extracted_name
                                 logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor succeeded: '{case_name}'")
+                                
+                                # USER FIX 2024-10-16: Also use the year from master extractor
+                                # Master extractor has the fixed year extraction (looks forward first)
+                                if extracted_year and extracted_year != "N/A":
+                                    citation.extracted_date = extracted_year
+                                    logger.info(f"[CLEAN-PIPELINE-FALLBACK] Using year from master: {extracted_year}")
                     except Exception as fallback_error:
                         logger.warning(f"[CLEAN-PIPELINE-FALLBACK] Master extractor also failed: {fallback_error}")
                 
