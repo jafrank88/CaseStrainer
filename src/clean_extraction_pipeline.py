@@ -115,83 +115,32 @@ class CleanExtractionPipeline:
         return citations
     
     def _clean_eyecite_case_name(self, case_name: str) -> str:
-        """Clean contamination from eyecite-extracted case names."""
+        """
+        Clean contamination from eyecite-extracted case names.
+        
+        ARCHITECTURE FIX: Delegates to unified_case_extraction_master._clean_case_name()
+        to avoid code duplication. This ensures all cleaning logic is in ONE place.
+        """
         if not case_name:
             return case_name
         
-        import re
-        cleaned = case_name.strip()
+        # OPTION 1 CONSOLIDATION: Use the master cleaner instead of duplicating logic
+        from src.unified_case_extraction_master import get_master_extractor
         
-        # CRITICAL: Remove embedded citations from case names (e.g., "2017-NM-007")
-        # This prevents case name bleeding when eyecite includes citations in the name
-        citation_patterns = [
-            r',\s*\d+\s+(?:Wn\.2d|Wash\.2d|Wn\.\s*App\.?\s*2d|Wash\.\s*App\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
-            r',\s*\d+\s+(?:U\.S\.|S\.\s*Ct\.|L\.\s*Ed\.?\s*2d)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
-            r',\s*\d+\s+(?:P\.2d|P\.3d|P\.)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
-            r',\s*\d+\s+(?:F\.2d|F\.3d|F\.\s*Supp\.?\s*2d|F\.\s*Supp\.?)\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',
-            r',\s*20\d{2}-(?:NM|ND|OK|SD|UT|WI|WY|MT)(?:CA)?-\d{1,5}(?:\s*\(\d{4}\))?$',  # Neutral citations
-            r',\s*20\d{2}\s+(?:ND|OK|SD|UT|WI|WY|MT)\s+\d{1,5}(?:\s*\(\d{4}\))?$',  # Space-separated neutral
-            r',\s*\d+\s+[A-Z][A-Za-z\.]+\s+\d+(?:\s*,\s*\d+)?(?:\s*\(\d{4}\))?$',  # Generic pattern
-        ]
-        
-        for pattern in citation_patterns:
-            cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
-        
-        # Remove descriptive legal phrases before the actual case name
-        # Pattern: "Collateral Order Doctrine\n\nOverruling Batzel v. Smith" -> "Batzel v. Smith"
-        
-        # Step 1: Remove status words at the beginning
-        status_words = r'^(?:overruling|superseding|superseded by|overruled by|reversed|affirming|affirmed|modifying|modified by)\s+'
-        cleaned = re.sub(status_words, '', cleaned, flags=re.IGNORECASE)
-        
-        # Step 2: If there's a "v." in the text, look for contamination before it
-        if ' v. ' in cleaned:
-            # Check for doctrine/rule/test/etc. words
-            contamination_words = ['doctrine', 'rule', 'test', 'standard', 'principle', 'holding']
-            has_contamination = any(word in cleaned.lower() for word in contamination_words)
-            
-            if has_contamination:
-                # Extract just the case name part
-                # Look for pattern: "Something Doctrine\n\nOverruling PartyName v. PartyName"
-                # We want to keep only "PartyName v. PartyName"
-                
-                # Try to find the last capital letter before " v. " as the start of plaintiff
-                case_match = re.search(r'\b([A-Z][\w\'\.\-]+(?:\s+[A-Z][\w\'\.\-]+)*)\s+v\.\s+([A-Z][\w\'\.\-,\s&]+)$', cleaned)
-                if case_match:
-                    plaintiff = case_match.group(1).strip()
-                    defendant = case_match.group(2).strip()
-                    
-                    # Make sure plaintiff isn't a contamination word
-                    if plaintiff.lower() not in contamination_words + ['overruling', 'affirming', 'reversed']:
-                        cleaned = f"{plaintiff} v. {defendant}"
-        
-        # Step 3: Remove any remaining newlines
-        cleaned = re.sub(r'\s+', ' ', cleaned)
-        
-        # Step 4: Clean up trailing commas
-        cleaned = re.sub(r'\s*,\s*$', '', cleaned)
-        
-        # USER FIX 2024-10-16: Fix corporate name truncation
-        # If name starts with corporate suffix (Inc., LLC, etc.), it's truncated
-        # Example: "Inc. v. Stillaguamish" should be "Flying T Ranch, Inc. v. Stillaguamish"
-        corporate_suffixes = [r'^Inc\.?\s+v\.', r'^LLC\.?\s+v\.', r'^Corp\.?\s+v\.', 
-                             r'^Ltd\.?\s+v\.', r'^Co\.?\s+v\.', r'^L\.P\.?\s+v\.']
-        
-        is_truncated = any(re.match(pattern, cleaned, re.IGNORECASE) for pattern in corporate_suffixes)
-        
-        if is_truncated:
-            # Try to find the full corporate name in the original case_name
-            # Look for pattern: [Company Name], Inc. v. [Defendant]
-            corp_name_match = re.search(r'([A-Z][A-Za-z\s&\'\.\-]+(?:,\s*)?(?:Inc|LLC|Corp|Ltd|Co|L\.P\.)\.?)\s+v\.', 
-                                       case_name, re.IGNORECASE)
-            if corp_name_match:
-                # Found the full corporate name, use it
-                full_corp_name = corp_name_match.group(1).strip()
-                # Replace truncated start with full name
-                cleaned = re.sub(r'^(?:Inc|LLC|Corp|Ltd|Co|L\.P\.)\.?\s+', 
-                               full_corp_name + ' ', cleaned, flags=re.IGNORECASE)
-        
-        return cleaned.strip()
+        try:
+            extractor = get_master_extractor()
+            # The master cleaner handles:
+            # - Citation pattern removal (", 31 Wn. App. 2d 343")
+            # - Corporate name truncation repair ("Inc. v." -> "Company, Inc. v.")
+            # - Status word removal ("overruling", "affirming", etc.)
+            # - Contamination filtering (doctrine, rule, test words)
+            # - Normalization and validation
+            cleaned = extractor._clean_case_name(case_name)
+            logger.debug(f"[CLEAN-DELEGATE] '{case_name[:50]}' -> '{cleaned[:50]}'")
+            return cleaned
+        except Exception as e:
+            logger.warning(f"[CLEAN-DELEGATE] Master cleaner failed: {e}, using original")
+            return case_name.strip()
     
     def _find_with_eyecite(self, text: str) -> List[CitationResult]:
         """Find citations using eyecite."""
