@@ -242,11 +242,18 @@ class UnifiedVerificationMaster:
         
         # Strategy 2: Enhanced fallback verification (if enabled)
         # Call fallback even if CourtListener is rate limited (fallback has 9+ other sources)
-        if enable_fallback and time.time() - start_time < timeout:
-            result = await self._verify_with_enhanced_fallback(citation, extracted_case_name, extracted_date, timeout - (time.time() - start_time))
+        elapsed = time.time() - start_time
+        logger.error(f"🔥 [FALLBACK-CHECK] enable_fallback={enable_fallback}, elapsed={elapsed:.1f}s, timeout={timeout}s")
+        if enable_fallback and elapsed < timeout:
+            logger.error(f"🔥 [FALLBACK-CHECK] Condition TRUE - calling fallback with {timeout - elapsed:.1f}s remaining")
+            result = await self._verify_with_enhanced_fallback(citation, extracted_case_name, extracted_date, timeout - elapsed)
             if result.verified:
                 logger.info(f"✅ MASTER_VERIFY: Fallback verification succeeded for '{citation}'")
                 return result
+            else:
+                logger.error(f"🔥 [FALLBACK-CHECK] Fallback returned unverified: {result.error}")
+        else:
+            logger.error(f"🔥 [FALLBACK-CHECK] Condition FALSE - skipping fallback!")
         
         # No verification succeeded - increment retry counter
         self.retry_tracker[citation] = retry_count + 1
@@ -1691,8 +1698,9 @@ class UnifiedVerificationMaster:
             
             verifier = EnhancedFallbackVerifier()
             
-            # Use synchronous verification (more reliable for fallback)
-            result = verifier.verify_citation_sync(
+            # CRITICAL FIX: Use verify_citation_sync_optimized to access actual fallback sources
+            # verify_citation_sync is deprecated and delegates back to master (circular loop!)
+            result = verifier.verify_citation_sync_optimized(
                 citation_text=citation,
                 extracted_case_name=extracted_case_name,
                 extracted_date=extracted_date

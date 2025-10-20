@@ -62,7 +62,7 @@ class EnhancedFallbackVerifier:
         })
         
         self.last_request_time = {}
-        self.min_delay = 0.2  # Reduced from 1.0 to 0.2 seconds for faster processing
+        self.min_delay = 2.0  # CRITICAL: 2 seconds minimum to prevent rate limiting/blocking
         
         self.legal_domains = {
             'justia.com': 95,
@@ -696,7 +696,8 @@ class EnhancedFallbackVerifier:
         return verify_citation_unified_master_sync(
             citation=citation_text,
             extracted_case_name=extracted_case_name,
-            extracted_date=extracted_date
+            extracted_date=extracted_date,
+            enable_fallback=False  # FIXED: Prevent recursive fallback calls
         )
     
     def _extract_source_from_url(self, url: Optional[str]) -> str:
@@ -2042,6 +2043,11 @@ class EnhancedFallbackVerifier:
             extracted_case_name = self._preprocess_text_for_citations(extracted_case_name)
         start_time = time.time()
         
+        # Remove any quotes from citation text for cleaner searches
+        citation_text = citation_text.replace('"', '').replace("'", "")
+        if extracted_case_name:
+            extracted_case_name = extracted_case_name.replace('"', '').replace("'", "")
+        
         cache_key = f"{citation_text}_{extracted_case_name}_{extracted_date}"
         if cache_key in self._verification_cache:
             cached_result = self._verification_cache[cache_key]
@@ -2056,16 +2062,20 @@ class EnhancedFallbackVerifier:
         search_sources = [
             ('courtlistener_lookup', self._verify_with_courtlistener_lookup_sync, 4.0),
             ('courtlistener_search', self._verify_with_courtlistener_search_sync, 4.0),
-            ('casemine', self._verify_with_casemine_sync, 3.0),
-            ('bing', self._verify_with_bing_sync, 4.0),
-            ('justia', self._verify_with_justia_sync, 4.0),
-            ('google', self._verify_with_google_scholar_sync, 3.0),
-            ('duckduckgo', self._verify_with_duckduckgo_sync, 3.0),
+            ('leagle', self._verify_with_leagle_sync, 3.0),  # Works well for federal cases
+            ('justia', self._verify_with_justia_sync, 4.0),  # Improved - searches via Bing
+            ('bing', self._verify_with_bing_sync, 4.0),  # Improved with legal site filtering
+            ('duckduckgo', self._verify_with_duckduckgo_sync, 3.0),  # Improved with legal site filtering
+            ('findlaw', self._verify_with_findlaw_sync, 3.0),  # Via Bing (FindLaw blocks direct)
+            ('casemine', self._verify_with_casemine_sync, 3.0),  # Try after search engines
+            # Google Scholar skipped - too aggressive rate limiting (429 errors)
+            # VLex skipped - requires JavaScript rendering (would need Playwright)
         ]
         
         for source_name, verify_func, timeout in search_sources:
             
             try:
+                logger.error(f"🔥 [FALLBACK-SOURCE] Trying {source_name} for '{citation_text}'")
                 for query_info in queries[:2]:  # Limit to 2 queries per source
                     query = query_info['query']
                     result = verify_func(citation_text, {}, extracted_case_name, extracted_date, query)
@@ -2080,8 +2090,11 @@ class EnhancedFallbackVerifier:
                         }
                         
                         return result
+                    else:
+                        logger.error(f"🔥 [FALLBACK-SOURCE] {source_name} returned: verified={result.get('verified') if result else None}")
                         
             except Exception as e:
+                logger.error(f"🔥 [FALLBACK-SOURCE] {source_name} exception: {type(e).__name__}: {str(e)}")
                 continue
         
         elapsed = time.time() - start_time
@@ -2109,21 +2122,41 @@ class EnhancedFallbackVerifier:
                                   search_query: Optional[str] = None) -> Optional[Dict]:
         """Synchronous version of CaseMine verification."""
         try:
+            # OPTIMIZATION: Search with citation only (more results), then validate against case name
+            # Searching "Name + Citation" is often too specific and returns 0 results
             if not search_query:
                 search_query = citation_text
-                if extracted_case_name:
-                    search_query += f" {extracted_case_name}"
             
-            search_url = f"https://www.casemine.com/search?q={quote(search_query)}"
+            # Remove quotes that might be added by query generator - CaseMine doesn't need them
+            search_query = search_query.replace('"', '').replace("'", "").strip()
+            
+            if extracted_case_name and extracted_case_name != "N/A":
+                logger.error(f"🔥 [CASEMINE] Will validate results against: '{extracted_case_name}'")
+            
+            # Build search URL with simple replacement
+            search_url = f"https://www.casemine.com/search?q={search_query.replace(' ', '+')}"
+            logger.error(f"🔥 [CASEMINE] Search query: '{search_query}'")
             self._rate_limit('casemine.com')
             response = self.session.get(search_url, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [CASEMINE] Status: {response.status_code}, Length: {len(response.text)}")
             
-            if response.status_code == 200 and 'judgement' in response.text:
-                judgement_pattern = r'href="([^"]*judgement[^"]*)"'
-                matches = re.findall(judgement_pattern, response.text)
+            if response.status_code == 200:
+                has_judgement = 'judgement' in response.text.lower()
+                has_judgment = 'judgment' in response.text.lower()
+                logger.error(f"🔥 [CASEMINE] Has 'judgement': {has_judgement}, Has 'judgment': {has_judgment}")
+            
+            if response.status_code == 200 and ('judgement' in response.text.lower() or 'judgment' in response.text.lower()):
+                # Look for judgment/judgement URLs - they're usually relative paths like /judgement/us/ID
+                judgement_pattern = r'(?:href="|/)(/judgeme?nt/us/[a-f0-9]+)'
+                matches = re.findall(judgement_pattern, response.text, re.IGNORECASE)
+                # Deduplicate and clean
+                matches = list(set([m if m.startswith('/') else f'/{m}' for m in matches]))
+                logger.error(f"🔥 [CASEMINE] Found {len(matches)} unique judgment links")
                 
-                if matches:
-                    case_url = matches[0] if matches[0].startswith('http') else f"https://www.casemine.com{matches[0]}"
+                # Try multiple links (up to 3) to find one with extractable case name
+                for link_idx, match in enumerate(matches[:3]):
+                    case_url = f"https://www.casemine.com{match}" if not match.startswith('http') else match
+                    logger.error(f"🔥 [CASEMINE] Trying link {link_idx+1}/3: {case_url}")
                     case_name = None
                     canonical_date = None
                     
@@ -2138,29 +2171,46 @@ class EnhancedFallbackVerifier:
                             'Upgrade-Insecure-Requests': '1',
                         }
                         page_resp = self.session.get(case_url, headers=headers, timeout=CASEMINE_TIMEOUT)
+                        logger.error(f"🔥 [CASEMINE] Case page status: {page_resp.status_code}, Length: {len(page_resp.text)}")
                         if page_resp.status_code == 200:
                             html = page_resp.text
                             
-                            if 'capcha' in html.lower() or 'captcha' in html.lower() or 'recaptcha' in html.lower():
-                                case_name = "Unknown Case"
-                                logger.info(f"CaseMine CAPTCHA detected - using 'Unknown Case' to prevent contamination")
-                            else:
-                                title_patterns = [
-                                    r'<title[^>]*>([^<]*v\.[^<]*)</title>',
-                                    r'<h1[^>]*>([^<]*v\.[^<]*)</h1>',
-                                    r'<h2[^>]*>([^<]*v\.[^<]*)</h2>',
-                                    r'"caseName"\s*:\s*"([^"]*v\.[^"]*)"',
-                                    r'"title"\s*:\s*"([^"]*v\.[^"]*)"'
-                                ]
-                                
-                                for pattern in title_patterns:
-                                    m = re.search(pattern, html, re.IGNORECASE)
-                                    if m:
-                                        case_name = m.group(1).strip()
-                                        case_name = re.sub(r'\s+', ' ', case_name)  # Normalize whitespace
-                                        case_name = re.sub(r'^[^A-Za-z]*', '', case_name)  # Remove leading non-letters
-                                        if len(case_name) > 10:  # Ensure it's a reasonable case name
-                                            break
+                            # Check for CAPTCHA but try to extract anyway
+                            has_captcha_word = 'capcha' in html.lower() or 'captcha' in html.lower() or 'recaptcha' in html.lower()
+                            if has_captcha_word:
+                                logger.error(f"🔥 [CASEMINE] CAPTCHA word found in HTML, but attempting extraction anyway")
+                            
+                            # Try to extract case name regardless of CAPTCHA detection
+                            title_patterns = [
+                                r'<title[^>]*>([^<]*v\.[^<]*)</title>',
+                                r'<h1[^>]*>([^<]*v\.[^<]*)</h1>',
+                                r'<h2[^>]*>([^<]*v\.[^<]*)</h2>',
+                                r'"caseName"\s*:\s*"([^"]*v\.[^"]*)"',
+                                r'"title"\s*:\s*"([^"]*v\.[^"]*)"'
+                            ]
+                            
+                            for i, pattern in enumerate(title_patterns):
+                                m = re.search(pattern, html, re.IGNORECASE)
+                                if m:
+                                    case_name = m.group(1).strip()
+                                    case_name = re.sub(r'\s+', ' ', case_name)  # Normalize whitespace
+                                    case_name = re.sub(r'^[^A-Za-z]*', '', case_name)  # Remove leading non-letters
+                                    
+                                    # Clean up CaseMine-specific junk from title
+                                    # Remove everything after the pipe symbol or "No." case number
+                                    case_name = re.split(r'\s*\|\s*|\s+No\.\s+\d', case_name)[0].strip()
+                                    # Remove trailing periods, commas
+                                    case_name = case_name.rstrip('.,;')
+                                    
+                                    logger.error(f"🔥 [CASEMINE] Pattern {i} matched, cleaned: '{case_name}' (len={len(case_name)})")
+                                    if len(case_name) > 10 and ' v. ' in case_name.lower():  # Must have v. and be reasonable length
+                                        logger.error(f"🔥 [CASEMINE] Accepting case name: '{case_name}'")
+                                        break
+                                    else:
+                                        case_name = None  # Reset if too short or missing v.
+                            
+                            if not case_name:
+                                logger.error(f"🔥 [CASEMINE] No case name found in page HTML")
                                 
                                 date_patterns = [
                                     r'(Judgment Date|Decision Date)\s*[:\-]?\s*([A-Za-z]+\s+\d{1,2},\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{4})',
@@ -2192,23 +2242,36 @@ class EnhancedFallbackVerifier:
                         logger.debug(f"Error extracting canonical date from CaseMine: {ex}")
                     
                     if case_name and case_name != "Unknown Case":
-                        if self._are_case_names_too_similar(case_name, extracted_case_name):
-                            return None
-                        logger.info(f"Found CaseMine case: {case_name} at {case_url}")
-                        is_verified = True
+                        # Skip "too similar" check if we searched with the case name - exact match is expected!
+                        # Only check for contamination if we searched by citation alone
+                        if extracted_case_name and case_name.lower() == extracted_case_name.lower():
+                            logger.error(f"🔥 [CASEMINE] Perfect match! CaseMine confirms: '{case_name}'")
+                            # SUCCESS - return immediately
+                            return {
+                                'verified': True,
+                                'source': 'CaseMine',
+                                'canonical_name': case_name,
+                                'canonical_date': canonical_date,
+                                'url': case_url,
+                                'confidence': 0.85
+                            }
+                        elif self._are_case_names_too_similar(case_name, extracted_case_name):
+                            logger.error(f"🔥 [CASEMINE] Rejected - names too similar (contamination risk), trying next link")
+                            continue  # Try next link
+                        else:
+                            logger.info(f"Found CaseMine case: {case_name} at {case_url}")
+                            # SUCCESS - return immediately  
+                            return {
+                                'verified': True,
+                                'source': 'CaseMine',
+                                'canonical_name': case_name,
+                                'canonical_date': canonical_date,
+                                'url': case_url,
+                                'confidence': 0.85
+                            }
                     else:
-                        logger.info(f"CaseMine found case at {case_url} but couldn't extract canonical name")
-                        case_name = "Unknown Case"
-                        is_verified = False
-                    
-                    return {
-                        'verified': is_verified,
-                        'source': 'CaseMine',
-                        'canonical_name': case_name,
-                        'canonical_date': canonical_date,
-                        'url': case_url,
-                        'confidence': 0.85
-                    }
+                        logger.error(f"🔥 [CASEMINE] No case name extracted from this link, trying next one")
+                        continue  # Try next link
             
             return None
             
@@ -2218,55 +2281,142 @@ class EnhancedFallbackVerifier:
     def _verify_with_bing_sync(self, citation_text: str, citation_info: Dict, 
                               extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
                               search_query: Optional[str] = None) -> Optional[Dict]:
-        """Synchronous version of Bing verification."""
+        """Improved Bing verification with legal site filtering."""
         try:
+            # Build query focusing on legal sites
             if not search_query:
                 search_query = citation_text
-                if extracted_case_name:
-                    search_query += f" {extracted_case_name}"
+            search_query = search_query.replace('"', '').replace("'", "").strip()
             
-            search_url = f"https://www.bing.com/search?q={quote(search_query)}"
+            # Add legal site filters to improve results
+            legal_query = f"{search_query} (site:leagle.com OR site:caselaw.findlaw.com OR site:scholar.google.com)"
+            
+            logger.error(f"🔥 [BING] Searching: '{legal_query[:80]}...'")
+            search_url = f"https://www.bing.com/search?q={quote(legal_query)}"
+            
             self._rate_limit('bing.com')
-            response = self.session.get(search_url, timeout=WEBSEARCH_TIMEOUT)
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+                'Accept': 'text/html,application/xhtml+xml',
+            }
+            response = self.session.get(search_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [BING] Status: {response.status_code}")
             
             if response.status_code == 200:
-                result_pattern = r'<li[^>]*class="[^"]*b_algo[^"]*"[^>]*>(.*?)</li>'
-                results = re.findall(result_pattern, response.text, re.DOTALL | re.IGNORECASE)
+                # Look for case law links
+                link_pattern = r'<a[^>]*href="(https://[^"]*(?:leagle|findlaw|casetext)[^"]*)"[^>]*>([^<]*)</a>'
+                matches = re.findall(link_pattern, response.text, re.IGNORECASE)
+                logger.error(f"🔥 [BING] Found {len(matches)} legal site links")
                 
-                for result in results[:3]:
-                    caption_match = re.search(r'<div[^>]*class="[^"]*b_caption[^"]*"[^>]*>(.*?)</div>', result, re.DOTALL | re.IGNORECASE)
-                    if caption_match:
-                        caption_text = re.sub(r'<[^>]+>', '', caption_match.group(1)).strip()
+                for url, link_text in matches[:3]:
+                    # Extract case name from link text or fetch page
+                    if ' v. ' in link_text or ' v ' in link_text:
+                        case_name = link_text.strip()
+                        case_name = re.split(r'\s*\|\s*', case_name)[0].strip()
                         
-                        if citation_text.replace(' ', '').lower() in caption_text.replace(' ', '').lower():
-                            case_name = self._extract_case_name_from_text(caption_text)
-                            if not case_name or case_name == extracted_case_name:
-                                continue
-                            
-                            if self._are_case_names_too_similar(case_name, extracted_case_name):
-                                continue
-                            
-                            if 'r.bing.com' in case_url or 'bing.com/rs/' in case_url:
-                                continue
-                                
-                            year_match = re.search(r'(\d{4})', caption_text)
-                            year = year_match.group(1) if year_match else None
-                            
-                            link_match = re.search(r'href="([^"]+)"', result)
-                            if link_match:
+                        # Validate if we have extracted name
+                        if extracted_case_name and extracted_case_name != "N/A":
+                            if case_name.lower() == extracted_case_name.lower():
+                                logger.error(f"🔥 [BING] Match found: '{case_name}'")
                                 return {
                                     'verified': True,
                                     'source': 'Bing',
                                     'canonical_name': case_name,
-                                    'canonical_date': year,
-                                    'url': link_match.group(1),
+                                    'canonical_date': extracted_date,
+                                    'url': url,
                                     'confidence': 0.75
+                                }
+                        elif len(case_name) > 10:
+                            logger.error(f"🔥 [BING] Accepting: '{case_name}'")
+                            return {
+                                'verified': True,
+                                'source': 'Bing',
+                                'canonical_name': case_name,
+                                'canonical_date': extracted_date,
+                                'url': url,
+                                'confidence': 0.70
+                            }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"🔥 [BING] Exception: {e}")
+            return None
+
+    def _verify_with_duckduckgo_sync(self, citation_text: str, citation_info: Dict, 
+                                    extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                                    search_query: Optional[str] = None) -> Optional[Dict]:
+        """Improved DuckDuckGo verification."""
+        try:
+            if not search_query:
+                search_query = citation_text
+            search_query = search_query.replace('"', '').replace("'", "").strip()
+            
+            logger.error(f"🔥 [DUCKDUCKGO] Searching: '{search_query}'")
+            search_url = f"https://duckduckgo.com/html/?q={quote(search_query + ' case law')}"
+            
+            self._rate_limit('duckduckgo.com')
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            }
+            response = self.session.get(search_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [DUCKDUCKGO] Status: {response.status_code}")
+            
+            if response.status_code == 200:
+                # Look for legal site results
+                result_pattern = r'<a[^>]*class="[^"]*result__a[^"]*"[^>]*href="([^"]+)"[^>]*>([^<]+)</a>'
+                matches = re.findall(result_pattern, response.text, re.IGNORECASE)
+                logger.error(f"🔥 [DUCKDUCKGO] Found {len(matches)} results")
+                
+                for url, title in matches[:5]:
+                    # Check if it's a legal site and has case name
+                    if any(site in url.lower() for site in ['leagle', 'findlaw', 'justia', 'casetext']):
+                        if ' v. ' in title or ' v ' in title:
+                            case_name = title.strip()
+                            case_name = re.split(r'\s*[-|]\s*', case_name)[0].strip()
+                            
+                            if extracted_case_name and extracted_case_name != "N/A":
+                                if case_name.lower() == extracted_case_name.lower():
+                                    logger.error(f"🔥 [DUCKDUCKGO] Match: '{case_name}'")
+                                    return {
+                                        'verified': True,
+                                        'source': 'DuckDuckGo',
+                                        'canonical_name': case_name,
+                                        'canonical_date': extracted_date,
+                                        'url': url,
+                                        'confidence': 0.75
+                                    }
+                            elif len(case_name) > 10:
+                                return {
+                                    'verified': True,
+                                    'source': 'DuckDuckGo',
+                                    'canonical_name': case_name,
+                                    'canonical_date': extracted_date,
+                                    'url': url,
+                                    'confidence': 0.70
                                 }
             
             return None
             
         except Exception as e:
+            logger.error(f"🔥 [DUCKDUCKGO] Exception: {e}")
             return None
+
+    def _verify_with_google_scholar_sync_DISABLED(self, citation_text: str, citation_info: Dict, 
+                              extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                              search_query: Optional[str] = None) -> Optional[Dict]:
+        """Google Scholar sync - DISABLED due to aggressive rate limiting."""
+        # Google Scholar has very aggressive bot protection (429 errors)
+        # Better to skip it and try other sources
+        logger.error(f"🔥 [GOOGLE-SCHOLAR] Skipped - too aggressive rate limiting")
+        return None
+
+    def _verify_with_google_scholar_sync(self, citation_text: str, citation_info: Dict, 
+                                        extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                                        search_query: Optional[str] = None) -> Optional[Dict]:
+        """Google Scholar - SKIPPED due to aggressive rate limiting."""
+        # Return None immediately - Google Scholar has 429 rate limiting
+        return None
 
     def _verify_with_courtlistener_lookup_sync(self, citation_text: str, citation_info: Dict,
                                                extracted_case_name: Optional[str] = None,
@@ -2582,19 +2732,172 @@ class EnhancedFallbackVerifier:
         except Exception as e:
             return None
 
+    def _verify_with_leagle_sync(self, citation_text: str, citation_info: Dict, 
+                                extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                                search_query: Optional[str] = None) -> Optional[Dict]:
+        """Synchronous Leagle verification - search and extract."""
+        try:
+            # Build search query
+            if not search_query:
+                search_query = citation_text
+            search_query = search_query.replace('"', '').replace("'", "").strip()
+            
+            logger.error(f"🔥 [LEAGLE] Searching for: '{search_query}'")
+            search_url = f"https://www.leagle.com/search?query={search_query.replace(' ', '+')}"
+            
+            self._rate_limit('leagle.com')
+            response = self.session.get(search_url, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [LEAGLE] Status: {response.status_code}, Length: {len(response.text)}")
+            
+            if response.status_code == 200:
+                # Look for decision links
+                decision_pattern = r'href="(/decision/[^"]+)"'
+                matches = re.findall(decision_pattern, response.text)
+                logger.error(f"🔥 [LEAGLE] Found {len(matches)} decision links")
+                
+                # Try first few links
+                for i, decision_path in enumerate(matches[:3]):
+                    decision_url = f"https://www.leagle.com{decision_path}"
+                    logger.error(f"🔥 [LEAGLE] Trying link {i+1}/3: {decision_url}")
+                    
+                    self._rate_limit('leagle.com')
+                    page_resp = self.session.get(decision_url, timeout=WEBSEARCH_TIMEOUT)
+                    
+                    if page_resp.status_code == 200:
+                        html = page_resp.text
+                        
+                        # Extract case name from title or header
+                        title_match = re.search(r'<title>([^<]*v\.[^<]*)</title>', html, re.IGNORECASE)
+                        if not title_match:
+                            title_match = re.search(r'<h1[^>]*>([^<]*v\.[^<]*)</h1>', html, re.IGNORECASE)
+                        
+                        if title_match:
+                            case_name = title_match.group(1).strip()
+                            # Clean up Leagle junk
+                            case_name = re.split(r'\s*\|\s*|\s+\d+\s+F\.', case_name)[0].strip()
+                            case_name = case_name.replace(' |', '').strip()
+                            
+                            logger.error(f"🔥 [LEAGLE] Extracted: '{case_name}'")
+                            
+                            # If we have extracted case name, validate
+                            if extracted_case_name and extracted_case_name != "N/A":
+                                if case_name.lower() == extracted_case_name.lower():
+                                    logger.error(f"🔥 [LEAGLE] Perfect match!")
+                                    return {
+                                        'verified': True,
+                                        'source': 'Leagle',
+                                        'canonical_name': case_name,
+                                        'canonical_date': extracted_date,
+                                        'url': decision_url,
+                                        'confidence': 0.85
+                                    }
+                            elif len(case_name) > 10 and ' v. ' in case_name.lower():
+                                # No extracted name to validate against, accept if looks good
+                                logger.error(f"🔥 [LEAGLE] Accepting case: '{case_name}'")
+                                return {
+                                    'verified': True,
+                                    'source': 'Leagle',
+                                    'canonical_name': case_name,
+                                    'canonical_date': extracted_date,
+                                    'url': decision_url,
+                                    'confidence': 0.80
+                                }
+                        else:
+                            logger.error(f"🔥 [LEAGLE] No case name found, trying next link")
+                            continue
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"🔥 [LEAGLE] Exception: {e}")
+            return None
+    
+    def _verify_with_findlaw_sync(self, citation_text: str, citation_info: Dict, 
+                                  extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                                  search_query: Optional[str] = None) -> Optional[Dict]:
+        """FindLaw verification via Bing (FindLaw blocks direct scraping with 403)."""
+        try:
+            # Build search query
+            if not search_query:
+                search_query = citation_text
+            search_query = search_query.replace('"', '').replace("'", "").strip()
+            
+            logger.error(f"🔥 [FINDLAW] Searching via Bing: '{search_query}'")
+            
+            # Search for FindLaw pages via Bing (FindLaw returns 403 on direct access)
+            bing_query = f"site:caselaw.findlaw.com {search_query}"
+            bing_url = f"https://www.bing.com/search?q={quote(bing_query)}"
+            
+            self._rate_limit('bing.com')
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            }
+            response = self.session.get(bing_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [FINDLAW] Bing status: {response.status_code}")
+            
+            if response.status_code == 200:
+                # Look for FindLaw case links
+                link_pattern = r'<a[^>]*href="(https://caselaw\.findlaw\.com/[^"]+)"[^>]*>([^<]*)</a>'
+                matches = re.findall(link_pattern, response.text, re.IGNORECASE)
+                logger.error(f"🔥 [FINDLAW] Found {len(matches)} FindLaw links")
+                
+                for url, link_text in matches[:3]:
+                    # Check if link text has case name
+                    if ' v. ' in link_text or ' v ' in link_text:
+                        case_name = link_text.strip()
+                        case_name = re.split(r'\s*[-|]\s*', case_name)[0].strip()
+                        
+                        # Validate if we have extracted name
+                        if extracted_case_name and extracted_case_name != "N/A":
+                            if case_name.lower() == extracted_case_name.lower():
+                                logger.error(f"🔥 [FINDLAW] Match found: '{case_name}'")
+                                return {
+                                    'verified': True,
+                                    'source': 'FindLaw',
+                                    'canonical_name': case_name,
+                                    'canonical_date': extracted_date,
+                                    'url': url,
+                                    'confidence': 0.80
+                                }
+                        elif len(case_name) > 10:
+                            logger.error(f"🔥 [FINDLAW] Accepting: '{case_name}'")
+                            return {
+                                'verified': True,
+                                'source': 'FindLaw',
+                                'canonical_name': case_name,
+                                'canonical_date': extracted_date,
+                                'url': url,
+                                'confidence': 0.75
+                            }
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"🔥 [FINDLAW] Exception: {e}")
+            return None
+    
     def _verify_with_justia_sync(self, citation_text: str, citation_info: Dict, 
                                 extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
                                 search_query: Optional[str] = None) -> Optional[Dict]:
-        """Synchronous version of Justia verification."""
+        """Improved Justia verification with direct URL construction and search."""
         try:
+            # Build search query
             if not search_query:
                 search_query = citation_text
-                if extracted_case_name:
-                    search_query += f" {extracted_case_name}"
+            search_query = search_query.replace('"', '').replace("'", "").strip()
             
-            search_url = f"https://law.justia.com/search?query={quote(search_query)}"
-            self._rate_limit('justia.com')
-            response = self.session.get(search_url, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [JUSTIA] Searching: '{search_query}'")
+            
+            # Try Google to find Justia pages (more reliable than Justia search)
+            google_search = f"site:law.justia.com {search_query}"
+            bing_url = f"https://www.bing.com/search?q={quote(google_search)}"
+            
+            self._rate_limit('bing.com')
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            }
+            response = self.session.get(bing_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [JUSTIA] Bing status: {response.status_code}")
             
             if response.status_code == 200:
                 case_link_pattern = r'<a[^>]*href="([^"]*cases[^"]+)"[^>]*>([^<]*)</a>'
