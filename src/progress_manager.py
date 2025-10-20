@@ -6,6 +6,7 @@ AUTO-RELOAD LIVE TEST: This change should trigger immediate restart!
 """
 
 import os
+import re
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import sys
@@ -47,6 +48,50 @@ except ImportError:
     redis = None  # type: ignore
 
 logger = logging.getLogger(__name__)
+
+
+def preprocess_extracted_text(text: str) -> str:
+    """
+    FIX #13: Preprocess extracted text to remove markers that break context isolation.
+    
+    This MUST happen before eyecite parses the text, so it's done immediately
+    after PDF extraction in fetch_url_content().
+    
+    Removes endnote/footnote markers that separate case names from citations.
+    Example: "Acres Bonusing, Inc. v. Marston [Endnote 18], 17 F.4th 901"
+    Becomes: "Acres Bonusing, Inc. v. Marston, 17 F.4th 901"
+    """
+    if not text:
+        return text
+    
+    original_length = len(text)
+    
+    # Pattern 1: [Endnote N] with optional surrounding whitespace
+    text, count1 = re.subn(r'\s*\[(?:Endnote|Footnote|FN|n\.?)\s*\d+\]\s*', ' ', text, flags=re.IGNORECASE)
+    
+    # Pattern 2: Endnote markers without brackets (less common but possible)
+    text, count2 = re.subn(r'\s+(?:Endnote|Footnote|FN)\s+\d+\s+', ' ', text, flags=re.IGNORECASE)
+    
+    # Pattern 3: Remove standalone footnote superscripts/numbers between text
+    # Be conservative - only remove if it looks like a footnote (small number between words)
+    # This catches: "argument that\n\n18\n\nMarston" -> "argument that Marston"
+    text = re.sub(r'(\w)\s+\d{1,3}\s+(?=[A-Z][a-z])', r'\1 ', text)
+    
+    # Pattern 3b: Remove orphan numbers after "v." in case names
+    # This catches: "Inc. v. 15 Marston" -> "Inc. v. Marston"
+    text = re.sub(r'(v\.\s+)\d{1,3}\s+(?=[A-Z])', r'\1', text, flags=re.IGNORECASE)
+    
+    total_removed = count1 + count2
+    if total_removed > 0:
+        logger.info(f"[PREPROCESSING] Removed {total_removed} endnote/footnote markers ({original_length} -> {len(text)} chars)")
+    
+    # Clean up any double spaces or excessive whitespace created by removals
+    text = re.sub(r'\s+', ' ', text)
+    
+    # Clean up double commas
+    text = re.sub(r',\s*,', ',', text)
+    
+    return text
 
 
 class ProgressTracker:
@@ -716,6 +761,9 @@ def fetch_url_content(url: str) -> str:
                     
                     if result and len(result.strip()) > 0:
                         logger.info(f"Successfully extracted {len(result)} characters from URL PDF")
+                        # FIX #13: Preprocess text to remove endnote markers BEFORE eyecite sees it
+                        result = preprocess_extracted_text(result)
+                        logger.info(f"After preprocessing: {len(result)} characters")
                         return result
                     else:
                         logger.error("PDF extraction returned empty content")
@@ -1207,52 +1255,98 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     logger.error(f"[Task {task_id}] Cluster deduplication FAILED: {e}")
                     # Continue with original clusters if deduplication fails
 
-                # NEW FIX: Propagate BEST extracted name within each cluster
-                # User requirement: extracted_name should use the best, canonical should be independent
-                logger.error(f"[Task {task_id}] 📝 EXTRACTED NAME PROPAGATION: Processing {len(cluster_dicts)} clusters")
+                # USER FIX 2024-10-18: VALIDATE extracted names against canonical (don't blindly propagate)
+                # CRITICAL: Clustering can be wrong, so don't assume clustered citations share case names!
+                # Instead, validate extracted names and correct obvious errors
+                logger.error(f"[Task {task_id}] 🔍 EXTRACTED NAME VALIDATION: Processing {len(cluster_dicts)} clusters")
+                validation_corrections = 0
+                validation_errors = 0
+                
                 for cluster_dict in cluster_dicts:
                     citations_in_cluster = cluster_dict.get('citations', [])
                     
-                    if len(citations_in_cluster) > 1:
-                        # Find the BEST extracted case name (longest, most complete, no truncation)
-                        best_extracted_name = None
-                        best_name_length = 0
+                    # First pass: Clean contaminated names (but don't propagate)
+                    for cit in citations_in_cluster:
+                        extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
                         
-                        for cit in citations_in_cluster:
-                            extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
+                        if extracted and extracted != 'N/A':
+                            # USER FIX 2024-10-17: Use robust contamination detector
+                            from src.utils.name_contamination_detector import is_contaminated_case_name, clean_contaminated_case_name
                             
-                            if extracted and extracted != 'N/A':
-                                # Score the extracted name quality
-                                name_length = len(extracted)
-                                
-                                # Penalize if it looks truncated or contaminated
-                                is_truncated = (
-                                    extracted.startswith('Inc. v.') or  # Lost company name
-                                    ', ' in extracted[-20:] and any(char.isdigit() for char in extracted[-20:])  # Has citation contamination
-                                )
-                                
-                                if not is_truncated and name_length > best_name_length:
-                                    best_extracted_name = extracted
-                                    best_name_length = name_length
-                        
-                        # Propagate best extracted name to ALL citations in cluster
-                        if best_extracted_name:
-                            logger.error(f"[Task {task_id}] 📝 Best extracted name: '{best_extracted_name}' (length: {best_name_length})")
-                            propagated_count = 0
-                            
-                            for cit in citations_in_cluster:
-                                current_extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
-                                
-                                # Only propagate if current name is worse than best
-                                if current_extracted != best_extracted_name:
+                            # Check for contamination
+                            if is_contaminated_case_name(extracted):
+                                logger.error(f"[Task {task_id}] 🚨 CONTAMINATION DETECTED: '{extracted}'")
+                                # Try to clean it
+                                cleaned = clean_contaminated_case_name(extracted)
+                                if cleaned and cleaned != extracted:
+                                    logger.error(f"[Task {task_id}] ✅ CLEANED: '{cleaned}'")
+                                    # Update THIS citation only
                                     if isinstance(cit, dict):
-                                        cit['extracted_case_name'] = best_extracted_name
+                                        cit['extracted_case_name'] = cleaned
                                     else:
-                                        cit.extracted_case_name = best_extracted_name
-                                    propagated_count += 1
+                                        cit.extracted_case_name = cleaned
+                                    validation_corrections += 1
+                                else:
+                                    logger.error(f"[Task {task_id}] ❌ Could not clean, marking as N/A")
+                                    if isinstance(cit, dict):
+                                        cit['extracted_case_name'] = 'N/A'
+                                    else:
+                                        cit.extracted_case_name = 'N/A'
+                                    validation_errors += 1
+                    
+                    # Second pass: Validate against canonical names using comprehensive validator
+                    # If extracted name differs significantly from verified canonical name, flag it
+                    from src.utils.citation_name_validator import validate_extracted_name_for_citation, should_re_extract
+                    
+                    for cit in citations_in_cluster:
+                        extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
+                        canonical = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
+                        canonical_year = cit.get('canonical_date') if isinstance(cit, dict) else getattr(cit, 'canonical_date', None)
+                        verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                        citation_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', '?')
+                        
+                        if extracted and extracted != 'N/A':
+                            # Validate extracted name
+                            validation = validate_extracted_name_for_citation(
+                                extracted_name=extracted,
+                                citation=citation_text,
+                                canonical_name=canonical if verified else None,
+                                canonical_year=canonical_year,
+                                debug=True
+                            )
                             
-                            if propagated_count > 0:
-                                logger.error(f"[Task {task_id}] ✅ Propagated best extracted name to {propagated_count} citations in cluster")
+                            # Log validation results
+                            if not validation['valid']:
+                                logger.error(f"[Task {task_id}] ❌ VALIDATION FAILED for {citation_text}:")
+                                logger.error(f"    Extracted: '{extracted}'")
+                                if canonical:
+                                    logger.error(f"    Canonical: '{canonical}'")
+                                logger.error(f"    Confidence: {validation['confidence']:.2f}")
+                                for error in validation['errors']:
+                                    logger.error(f"    - {error}")
+                                validation_errors += 1
+                                
+                                # CRITICAL FIX: Don't clear extracted_case_name to N/A!
+                                # Extracted name is what's IN THE DOCUMENT (even if wrong)
+                                # Validation failure should add a flag, not erase the extraction
+                                if should_re_extract(validation):
+                                    logger.error(f"[Task {task_id}] ⚠️ Extracted name mismatch for {citation_text}")
+                                    if isinstance(cit, dict):
+                                        cit['name_mismatch'] = True
+                                        cit['mismatch_confidence'] = validation['confidence']
+                                    else:
+                                        cit.name_mismatch = True
+                                        cit.mismatch_confidence = validation['confidence']
+                            
+                            elif validation['warnings']:
+                                logger.warning(f"[Task {task_id}] ⚠️ Validation warnings for {citation_text}:")
+                                for warning in validation['warnings']:
+                                    logger.warning(f"    - {warning}")
+                
+                if validation_corrections > 0:
+                    logger.error(f"[Task {task_id}] ✅ Corrected {validation_corrections} contaminated names")
+                if validation_errors > 0:
+                    logger.error(f"[Task {task_id}] ⚠️ Found {validation_errors} validation mismatches (check logs)")
                 
                 # CRITICAL FIX: Extract cluster-level canonical data from verified citations
                 # This happens AFTER verification, so verified citations now have canonical data

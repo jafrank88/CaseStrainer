@@ -747,16 +747,46 @@ def task_status(task_id):
         job_ids = queue.job_ids
         logger.info(f"Found {len(job_ids)} jobs in queue. Job IDs: {job_ids}")
         
+        # FIX REDIS BUG: Try to fetch job from multiple sources
         job = queue.fetch_job(task_id)
         
         if not job:
-            logger.warning(f"Job {task_id} not found in queue")
-            return jsonify({
-                'error': 'Task not found',
-                'task_id': task_id,
-                'citations': [],
-                'clusters': []
-            }), 404
+            # Job not in queue - try to fetch directly from Redis using Job.fetch()
+            # This works for completed jobs that have been removed from the queue
+            try:
+                from rq.job import Job
+                job = Job.fetch(task_id, connection=redis_conn)
+                logger.info(f"✅ FIX: Found completed job {task_id} outside queue using Job.fetch()")
+            except Exception as fetch_error:
+                logger.warning(f"Job {task_id} not found in queue or Redis: {fetch_error}")
+                
+                # Last resort: Check if result is stored directly in Redis
+                try:
+                    result_key = f'rq:job:{task_id}:result'
+                    result_data = redis_conn.get(result_key)
+                    if result_data:
+                        import json
+                        result = json.loads(result_data)
+                        logger.info(f"✅ FIX: Found result in Redis key: {result_key}")
+                        return jsonify({
+                            'status': 'completed',
+                            'task_id': task_id,
+                            'is_finished': True,
+                            'citations': result.get('citations', []),
+                            'clusters': result.get('clusters', []),
+                            'statistics': result.get('statistics', {}),
+                            'metadata': result.get('metadata', {}),
+                            'success': True
+                        })
+                except Exception as redis_error:
+                    logger.error(f"Could not retrieve result from Redis: {redis_error}")
+                
+                return jsonify({
+                    'error': 'Task not found',
+                    'task_id': task_id,
+                    'citations': [],
+                    'clusters': []
+                }), 404
         
         logger.info(f"Job {task_id} status: {job.get_status()}")
         logger.info(f"Job {task_id} meta: {job.meta}")
@@ -1141,6 +1171,7 @@ def _handle_file_upload(service, request_id):
                         'filename': filename,
                         'options': options
                     }),
+                    job_id=request_id,  # FIX: Use request_id as job_id to prevent caching duplicate requests
                     job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 10 minutes timeout (optimized)
                     result_ttl=86400,  # Keep results for 24 hours
                     failure_ttl=86400  # Keep failed jobs for 24 hours
@@ -1811,6 +1842,7 @@ def _process_url_input(url, request_id=None):
             job = queue.enqueue(
                 process_citation_task_direct,
                 args=(request_id, 'url', {'url': url, 'content': content}),
+                job_id=request_id,  # FIX: Use request_id as job_id to prevent caching duplicate requests
                 job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 10 minutes timeout (optimized)
                 result_ttl=86400,
                 failure_ttl=86400

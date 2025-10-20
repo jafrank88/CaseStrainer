@@ -36,7 +36,7 @@ class RobustPDFExtractor:
     5. PyPDF2 - Legacy, least reliable
     """
 
-    def __init__(self, convert_footnotes: bool = True, verbose: bool = False):
+    def __init__(self, convert_footnotes: bool = False, verbose: bool = False):  # FIX #13: Disabled - breaks text order
         """
         Initialize PDF extractor.
         
@@ -185,7 +185,14 @@ class RobustPDFExtractor:
             raise ValueError(f"Unknown library: {library}")
 
     def _extract_fitz(self, pdf_path: str, max_pages: Optional[int]) -> str:
-        """Extract text using PyMuPDF (fitz) - Best performer."""
+        """
+        Extract text using PyMuPDF (fitz) - Best performer.
+        
+        FIX #13: Enhanced with header/footer removal to prevent citation contamination.
+        - Removes top 65px (headers like case numbers "No. 103430-0")
+        - Removes bottom 50px (page numbers like "15")
+        - Keeps middle content (body text + footnotes)
+        """
         import fitz
 
         doc = fitz.open(pdf_path)
@@ -196,8 +203,33 @@ class RobustPDFExtractor:
 
             for page_num in pages_to_process:
                 page = doc.load_page(page_num)
-                page_text = page.get_text()
-                text += page_text + '\n'
+                page_height = page.rect.height
+                
+                # FIX #13: Extract with position-based filtering to remove headers/footers
+                # Get text blocks with position information
+                blocks = page.get_text("dict")["blocks"]
+                
+                for block in blocks:
+                    if "bbox" not in block or "lines" not in block:
+                        continue
+                    
+                    y_top = block["bbox"][1]
+                    y_bottom = block["bbox"][3]
+                    
+                    # Skip header area (top 65 pixels) - removes case numbers, titles
+                    if y_top < 65:
+                        continue
+                    
+                    # Skip page number area (bottom 50 pixels) - removes "1", "2", etc.
+                    if y_bottom > page_height - 50:
+                        continue
+                    
+                    # Keep this block - it's main content (body text or footnotes)
+                    for line in block["lines"]:
+                        for span in line.get("spans", []):
+                            text += span["text"]
+                        text += " "  # Space between spans
+                    text += "\n"  # Newline between blocks
 
         finally:
             doc.close()
@@ -325,7 +357,7 @@ class RobustPDFExtractor:
 
 
 # Convenience function for easy use
-def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = True, verbose: bool = False) -> Tuple[str, str]:
+def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = False, verbose: bool = False) -> Tuple[str, str]:  # FIX #13: Disabled footnote conversion
     """
     USER OPTIMIZED: Fast PDF extraction with robust fallbacks.
 

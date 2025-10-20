@@ -36,6 +36,8 @@ class CitationResult:
     true_by_parallel: bool = False
     is_pinpoint: bool = False
     verification_citation: Optional[str] = None
+    name_mismatch: bool = False
+    mismatch_confidence: float = 0.0
 
     def __post_init__(self):
         if self.parallel_citations is None:
@@ -63,13 +65,14 @@ class CitationResult:
         extracted_case_name = self.extracted_case_name
         canonical_name = self.canonical_name
         
-        # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
-        # Frontend will use extracted_case_name and canonical_name directly
+        # FIX #13: Add case_name field with intelligent fallback
+        # Priority: canonical_name (verified) > extracted_case_name (unverified) > N/A
+        case_name = canonical_name or extracted_case_name or "N/A"
         
         # Debug logging for data separation
         import logging
         logger = logging.getLogger(__name__)
-        logger.debug(f"DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
+        logger.debug(f"DATA_SEPARATION: case_name='{case_name}', cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
         
         # CRITICAL FIX: DO NOT override verified status!
         # A citation with verified=False should stay False even if it has canonical data
@@ -79,7 +82,7 @@ class CitationResult:
         
         result = {
             'citation': self.citation,
-            # REMOVED: case_name field to prevent contamination
+            'case_name': case_name,  # FIX #13: Intelligent fallback (canonical > extracted > N/A)
             'extracted_case_name': extracted_case_name,
             'extracted_date': self.extracted_date,
             'canonical_name': canonical_name,
@@ -109,7 +112,9 @@ class CitationResult:
             'metadata': self.metadata,
             'cluster_id': self.cluster_id,
             'true_by_parallel': self.true_by_parallel,
-            'is_verified': self.verified  # Add is_verified alias for backward compatibility
+            'is_verified': self.verified,  # Add is_verified alias for backward compatibility
+            'name_mismatch': self.name_mismatch,  # Flag when extracted ≠ canonical
+            'mismatch_confidence': self.mismatch_confidence  # How certain validation is
         }
         return result
 
