@@ -955,6 +955,9 @@ class EnhancedFallbackVerifier:
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
             
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
+            
             search_url = f"https://law.justia.com/search?query={quote(search_query)}"
             
             self._rate_limit('justia.com')
@@ -1005,6 +1008,9 @@ class EnhancedFallbackVerifier:
                 search_query = citation_text
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             
             search_url = f"https://caselaw.findlaw.com/search?query={quote(search_query)}"
             
@@ -1057,6 +1063,9 @@ class EnhancedFallbackVerifier:
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
             
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
+            
             search_url = f"https://www.leagle.com/search?query={quote(search_query)}"
             
             self._rate_limit('leagle.com')
@@ -1107,6 +1116,9 @@ class EnhancedFallbackVerifier:
                 search_query = citation_text
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             
             search_url = f"https://www.casemine.com/search/us?q={quote(search_query)}"
             
@@ -1195,6 +1207,9 @@ class EnhancedFallbackVerifier:
                 search_query = citation_text
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             
             search_url = f"https://scholar.google.com/scholar_courts?hl=en&as_sdt=0,33&q={quote(search_query)}"
             
@@ -1443,6 +1458,9 @@ class EnhancedFallbackVerifier:
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
             
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
+            
             search_url = f"https://duckduckgo.com/html/?q={quote(search_query)}"
             
             self._rate_limit('duckduckgo.com')
@@ -1575,6 +1593,9 @@ class EnhancedFallbackVerifier:
                 search_query = citation_text
                 if extracted_case_name:
                     search_query += f" {extracted_case_name}"
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             
             # vLex search URL - try multiple search endpoints
             search_urls = [
@@ -2060,16 +2081,23 @@ class EnhancedFallbackVerifier:
         queries = self.generate_enhanced_legal_queries(citation_text, extracted_case_name)
         
         search_sources = [
-            ('courtlistener_lookup', self._verify_with_courtlistener_lookup_sync, 4.0),
-            ('courtlistener_search', self._verify_with_courtlistener_search_sync, 4.0),
-            ('leagle', self._verify_with_leagle_sync, 3.0),  # Works well for federal cases
-            ('justia', self._verify_with_justia_sync, 4.0),  # Improved - searches via Bing
-            ('bing', self._verify_with_bing_sync, 4.0),  # Improved with legal site filtering
-            ('duckduckgo', self._verify_with_duckduckgo_sync, 3.0),  # Improved with legal site filtering
-            ('findlaw', self._verify_with_findlaw_sync, 3.0),  # Via Bing (FindLaw blocks direct)
-            ('casemine', self._verify_with_casemine_sync, 3.0),  # Try after search engines
-            # Google Scholar skipped - too aggressive rate limiting (429 errors)
-            # VLex skipped - requires JavaScript rendering (would need Playwright)
+            # PRIORITY OPTIMIZED: Based on benchmark + configuration review (Oct 22, 2025)
+            # CaseMine #1: Only source with consistent hits for recent cases (2021-2024)
+            ('casemine', self._verify_with_casemine_sync, 5.0),  # #1 - Recent cases (100% for 2021-2024)
+            
+            # Fast sources for older cases (ordered by speed: 0.12-0.46s)
+            ('leagle', self._verify_with_leagle_sync, 3.0),  # #2 - Fastest (0.13s), federal cases
+            ('courtlistener_search', self._verify_with_courtlistener_search_sync, 3.0),  # #3 - Fast (0.23s)
+            ('justia', self._verify_with_justia_sync, 3.0),  # #4 - Fastest (0.12s), via Bing
+            ('courtlistener_lookup', self._verify_with_courtlistener_lookup_sync, 4.0),  # #5 - Best hit rate (33%), works for older
+            
+            # REMOVED (Misconfigured - Configuration Review Oct 22, 2025):
+            # ('bing', ...) - site: operator broken (0 results)
+            # ('duckduckgo', ...) - Proxied URLs not handled (fixable but not worth it)
+            # ('findlaw', ...) - Depends on broken Bing site: operator
+            # ('openlaws', ...) - Requires JavaScript rendering (React/Vue, needs Playwright)
+            # ('google_scholar', ...) - Too aggressive rate limiting (429 errors)
+            # ('vlex', ...) - Requires JavaScript rendering (would need Playwright)
         ]
         
         for source_name, verify_func, timeout in search_sources:
@@ -2126,6 +2154,9 @@ class EnhancedFallbackVerifier:
             # Searching "Name + Citation" is often too specific and returns 0 results
             if not search_query:
                 search_query = citation_text
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             
             # Remove quotes that might be added by query generator - CaseMine doesn't need them
             search_query = search_query.replace('"', '').replace("'", "").strip()
@@ -2278,6 +2309,160 @@ class EnhancedFallbackVerifier:
         except Exception as e:
             return None
 
+    def _verify_with_openlaws_sync(self, citation_text: str, citation_info: Dict, 
+                                   extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
+                                   search_query: Optional[str] = None) -> Optional[Dict]:
+        """Synchronous version of OpenLaws (openlaws.com) verification."""
+        try:
+            # OPTIMIZATION: Search with citation only, then validate against case name
+            if not search_query:
+                search_query = citation_text
+            
+            # Ensure search_query is always a string
+            search_query = str(search_query) if search_query is not None else citation_text
+            search_query = search_query.replace('"', '').replace("'", "").strip()
+            
+            if extracted_case_name and extracted_case_name != "N/A":
+                logger.error(f"🔥 [OPENLAWS] Will validate results against: '{extracted_case_name}'")
+            
+            # OpenLaws search URL format
+            search_url = f"https://openlaws.com/search?query={quote(search_query)}"
+            logger.error(f"🔥 [OPENLAWS] Search query: '{search_query}'")
+            self._rate_limit('openlaws.com')
+            
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+            }
+            response = self.session.get(search_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+            logger.error(f"🔥 [OPENLAWS] Status: {response.status_code}, Length: {len(response.text)}")
+            
+            if response.status_code == 200:
+                html = response.text
+                
+                # Check if search returned results
+                has_results = 'case' in html.lower() or 'decision' in html.lower() or citation_text.lower() in html.lower()
+                logger.error(f"🔥 [OPENLAWS] Has potential results: {has_results}")
+                
+                if has_results:
+                    # Look for case links in search results
+                    # OpenLaws typically uses /case/ or /decision/ in URLs
+                    link_patterns = [
+                        r'href="(/case/[^"]+)"',
+                        r'href="(/decision/[^"]+)"',
+                        r'href="(https://openlaws\.com/case/[^"]+)"',
+                        r'href="(https://openlaws\.com/decision/[^"]+)"'
+                    ]
+                    
+                    matches = []
+                    for pattern in link_patterns:
+                        found = re.findall(pattern, html, re.IGNORECASE)
+                        matches.extend(found)
+                    
+                    # Deduplicate
+                    matches = list(set(matches))
+                    logger.error(f"🔥 [OPENLAWS] Found {len(matches)} unique case links")
+                    
+                    # Try up to 3 links
+                    for link_idx, match in enumerate(matches[:3]):
+                        case_url = f"https://openlaws.com{match}" if not match.startswith('http') else match
+                        logger.error(f"🔥 [OPENLAWS] Trying link {link_idx+1}/3: {case_url}")
+                        
+                        try:
+                            self._rate_limit('openlaws.com')
+                            page_resp = self.session.get(case_url, headers=headers, timeout=WEBSEARCH_TIMEOUT)
+                            logger.error(f"🔥 [OPENLAWS] Case page status: {page_resp.status_code}")
+                            
+                            if page_resp.status_code == 200:
+                                page_html = page_resp.text
+                                case_name = None
+                                canonical_date = None
+                                
+                                # Extract case name from title and headers
+                                title_patterns = [
+                                    r'<title[^>]*>([^<]*v\.[^<|]*)</title>',  # Title tag
+                                    r'<h1[^>]*>([^<]*v\.[^<]*)</h1>',         # H1 tag
+                                    r'<h2[^>]*>([^<]*v\.[^<]*)</h2>',         # H2 tag
+                                    r'"caseName"\s*:\s*"([^"]*v\.[^"]*)"',    # JSON data
+                                    r'"title"\s*:\s*"([^"]*v\.[^"]*)"',       # JSON data
+                                    r'<meta[^>]*property="og:title"[^>]*content="([^"]*v\.[^"]*)"',  # Open Graph
+                                ]
+                                
+                                for i, pattern in enumerate(title_patterns):
+                                    m = re.search(pattern, page_html, re.IGNORECASE)
+                                    if m:
+                                        case_name = m.group(1).strip()
+                                        case_name = re.sub(r'\s+', ' ', case_name)  # Normalize whitespace
+                                        case_name = re.sub(r'^[^A-Za-z]*', '', case_name)  # Remove leading non-letters
+                                        
+                                        # Clean up - remove common suffixes
+                                        case_name = re.split(r'\s*\|\s*|\s+-\s+OpenLaws|\s+OpenLaws', case_name)[0].strip()
+                                        case_name = case_name.rstrip('.,;')
+                                        
+                                        logger.error(f"🔥 [OPENLAWS] Pattern {i} matched: '{case_name}' (len={len(case_name)})")
+                                        if len(case_name) > 10 and ' v. ' in case_name.lower():
+                                            logger.error(f"🔥 [OPENLAWS] Accepting case name: '{case_name}'")
+                                            break
+                                        else:
+                                            case_name = None  # Reset if too short
+                                
+                                # Extract date
+                                date_patterns = [
+                                    r'(Date|Decided|Filed)\s*[:\-]?\s*([A-Za-z]+\s+\d{1,2},\s+\d{4}|\d{4}-\d{2}-\d{2}|\d{4})',
+                                    r'"datePublished"\s*:\s*"(\d{4}-\d{2}-\d{2})"',
+                                    r'"decisionDate"\s*:\s*"(\d{4}-\d{2}-\d{2})"',
+                                    r'<time[^>]*datetime="([^"]*)"'
+                                ]
+                                
+                                for pattern in date_patterns:
+                                    m = re.search(pattern, page_html, re.IGNORECASE)
+                                    if m:
+                                        canonical_date = m.group(2) if len(m.groups()) > 1 else m.group(1)
+                                        break
+                                
+                                # Return if we found a valid case name
+                                if case_name and case_name != "Unknown Case":
+                                    # Validate against extracted name if provided
+                                    if extracted_case_name:
+                                        if case_name.lower() == extracted_case_name.lower():
+                                            logger.error(f"🔥 [OPENLAWS] Perfect match! OpenLaws confirms: '{case_name}'")
+                                            return {
+                                                'verified': True,
+                                                'source': 'OpenLaws',
+                                                'canonical_name': case_name,
+                                                'canonical_date': canonical_date,
+                                                'url': case_url,
+                                                'confidence': 0.85
+                                            }
+                                        elif self._are_case_names_too_similar(case_name, extracted_case_name):
+                                            logger.error(f"🔥 [OPENLAWS] Rejected - names too similar, trying next link")
+                                            continue
+                                    
+                                    # Return verified result
+                                    logger.info(f"Found OpenLaws case: {case_name} at {case_url}")
+                                    return {
+                                        'verified': True,
+                                        'source': 'OpenLaws',
+                                        'canonical_name': case_name,
+                                        'canonical_date': canonical_date,
+                                        'url': case_url,
+                                        'confidence': 0.80
+                                    }
+                                else:
+                                    logger.error(f"🔥 [OPENLAWS] No valid case name found, trying next link")
+                                    
+                        except Exception as ex:
+                            logger.error(f"🔥 [OPENLAWS] Error fetching case page: {ex}")
+                            continue
+            
+            logger.error(f"🔥 [OPENLAWS] No verification found")
+            return None
+            
+        except Exception as e:
+            logger.error(f"🔥 [OPENLAWS] Exception: {type(e).__name__}: {str(e)}")
+            return None
+
     def _verify_with_bing_sync(self, citation_text: str, citation_info: Dict, 
                               extracted_case_name: Optional[str] = None, extracted_date: Optional[str] = None,
                               search_query: Optional[str] = None) -> Optional[Dict]:
@@ -2286,6 +2471,9 @@ class EnhancedFallbackVerifier:
             # Build query focusing on legal sites
             if not search_query:
                 search_query = citation_text
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             search_query = search_query.replace('"', '').replace("'", "").strip()
             
             # Add legal site filters to improve results
@@ -2350,6 +2538,9 @@ class EnhancedFallbackVerifier:
         try:
             if not search_query:
                 search_query = citation_text
+            
+            # USER FIX: Ensure search_query is always a string for quote()
+            search_query = str(search_query) if search_query is not None else citation_text
             search_query = search_query.replace('"', '').replace("'", "").strip()
             
             logger.error(f"🔥 [DUCKDUCKGO] Searching: '{search_query}'")
