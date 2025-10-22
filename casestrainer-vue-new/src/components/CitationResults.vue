@@ -276,6 +276,12 @@ export default {
         
         const firstCitation = clusterCitations[0]
         
+        // DEBUG: Log first citation structure
+        if (cluster.cluster_id === 'cluster_1_supreme') {
+          console.log('🔍 [DEBUG] First citation of cluster_1_supreme:', firstCitation)
+          console.log('🔍 [DEBUG] Keys in firstCitation:', Object.keys(firstCitation))
+        }
+        
         // Check for name mismatch
         const extractedName = firstCitation.extracted_case_name
         const canonicalName = firstCitation.canonical_name
