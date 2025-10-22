@@ -30,32 +30,10 @@
       </div>
     </div>
 
-    <!-- SECTION 1.5: Citations Verified by Parallel (SHOW SECOND) -->
-    <div v-if="(verifiedByParallelCitations?.length || 0) > 0" class="results-content">
-      <div class="results-header">
-        <h2>🟠 SECTION 1.5: Verified by Parallel</h2>
-        <p>{{ verifiedByParallelCitations?.length || 0 }} citation(s) verified by parallel citations</p>
-      </div>
-      
-      <div class="citations-grid">
-        <div v-for="citation in verifiedByParallelCitations" :key="citation.citation" class="citation-card">
-          <div class="citation-text">{{ citation.citation }}</div>
-          <div class="citation-details">
-            <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
-            <div><strong>Status:</strong> 
-              <span style="color: #FF9800;">
-                ✅ VERIFIED BY PARALLEL
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- SECTION 1.75: Name/Date Mismatches (DEBUGGING) -->
+    <!-- SECTION 1.25: Name/Date Mismatches (DEBUGGING) -->
     <div v-if="(mismatchClusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
-        <h2>⚠️ SECTION 1.75: Extraction Mismatches</h2>
+        <h2>⚠️ SECTION 1.25: Extraction Mismatches</h2>
         <p>{{ mismatchClusters?.length || 0 }} cluster(s) with extracted/canonical mismatch</p>
       </div>
       
@@ -97,6 +75,28 @@
               <span class="citation-text">{{ citation.text || citation.citation }}</span>
               <span class="citation-status" :class="getCitationStatusClass(citation)">
                 {{ getCitationStatusText(citation) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1.5: Citations Verified by Parallel (SHOW THIRD) -->
+    <div v-if="(verifiedByParallelCitations?.length || 0) > 0" class="results-content">
+      <div class="results-header">
+        <h2>🟠 SECTION 1.5: Verified by Parallel</h2>
+        <p>{{ verifiedByParallelCitations?.length || 0 }} citation(s) verified by parallel citations</p>
+      </div>
+      
+      <div class="citations-grid">
+        <div v-for="citation in verifiedByParallelCitations" :key="citation.citation" class="citation-card">
+          <div class="citation-text">{{ citation.citation }}</div>
+          <div class="citation-details">
+            <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
+            <div><strong>Status:</strong> 
+              <span style="color: #FF9800;">
+                ✅ VERIFIED BY PARALLEL
               </span>
             </div>
           </div>
