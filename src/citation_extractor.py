@@ -19,6 +19,34 @@ from src.citation_utils import (
 
 logger = logging.getLogger(__name__)
 
+
+def is_law_review_citation(citation: str) -> bool:
+    """Check if citation is a law review/academic article, not a case.
+    
+    Law reviews should be excluded from case citation results.
+    
+    Args:
+        citation: Citation text to check
+        
+    Returns:
+        True if this is a law review citation, False if it's a case citation
+    """
+    law_review_patterns = [
+        r'\b\d+\s+[A-Za-z\.]+\s+L\.\s*Rev\.\s+\d+',  # 33 Stetson L. Rev. 181
+        r'\b\d+\s+[A-Za-z\.]+\s+Law\s+Rev(?:iew)?\.?\s+\d+',  # Full "Law Review"
+        r'\b\d+\s+[A-Za-z\.]+\s+L\.J\.\s+\d+',  # Law Journal
+        r'\b\d+\s+[A-Za-z\.]+\s+J\.\s+\d+',  # Journal
+        r'\b\d+\s+[A-Za-z\.]+\s+Legal\s+Stud\.\s+\d+',  # Legal Studies
+    ]
+    
+    for pattern in law_review_patterns:
+        if re.search(pattern, citation, re.IGNORECASE):
+            logger.info(f"🚫 Filtered out law review citation: {citation}")
+            return True
+    
+    return False
+
+
 try:
     import eyecite
     from eyecite import get_citations
@@ -34,6 +62,11 @@ except Exception as e:
 
 class CitationExtractor:
     """Core citation extraction functionality."""
+    
+    @staticmethod
+    def is_law_review(citation: str) -> bool:
+        """Check if citation is a law review (wrapper for module function)."""
+        return is_law_review_citation(citation)
     
     def __init__(self):
         self._init_patterns()

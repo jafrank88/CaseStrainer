@@ -61,10 +61,63 @@ class CleanExtractionPipeline:
         logger.warning("[CLEAN-PIPELINE] _build_citation_patterns() is deprecated - using shared patterns")
         return CitationPatterns.get_compiled_patterns()
     
+    def _preprocess_text(self, text: str) -> str:
+        """
+        FIX #13: Preprocess text to remove markers that break context isolation.
+        
+        This removes endnote/footnote markers that separate case names from citations.
+        Example: "Acres Bonusing, Inc. v. Marston [Endnote 18], 17 F.4th 901"
+        Becomes: "Acres Bonusing, Inc. v. Marston, 17 F.4th 901"
+        """
+        if not text:
+            return text
+        
+        # FIX #13: Remove endnote/footnote markers in square brackets
+        # Patterns: [Endnote 18], [Footnote 5], [FN 3], [n.3], etc.
+        removed_count = 0
+        
+        # Pattern 1: [Endnote N] with optional surrounding whitespace
+        text, count = re.subn(r'\s*\[(?:Endnote|Footnote|FN|n\.?)\s*\d+\]\s*', ' ', text, flags=re.IGNORECASE)
+        removed_count += count
+        
+        # Pattern 2: Endnote markers without brackets (less common but possible)
+        text, count = re.subn(r'\s+(?:Endnote|Footnote|FN)\s+\d+\s+', ' ', text, flags=re.IGNORECASE)
+        removed_count += count
+        
+        # Pattern 3: Remove standalone footnote superscripts/numbers between text
+        # Be conservative - only remove if it looks like a footnote (small number between words)
+        # This catches: "argument that\n\n18\n\nMarston" -> "argument that Marston"
+        text = re.sub(r'(\w)\s+\d{1,3}\s+(?=[A-Z][a-z])', r'\1 ', text)
+        
+        if removed_count > 0:
+            logger.info(f"[CLEAN-PIPELINE] Removed {removed_count} endnote/footnote markers")
+        
+        # Clean up any double spaces or excessive whitespace created by removals
+        text = re.sub(r'\s+', ' ', text)
+        
+        # Clean up double commas
+        text = re.sub(r',\s*,', ',', text)
+        
+        return text
+    
     def extract_citations(self, text: str) -> List[CitationResult]:
         """Extract citations with clean pipeline."""
         logger.info(f"[CLEAN-PIPELINE] Starting clean extraction pipeline for {len(text)} chars")
         logger.info(f"[CLEAN-PIPELINE] EYECITE_AVAILABLE = {EYECITE_AVAILABLE}")
+        
+        # Import law review filter
+        try:
+            from src.citation_extractor import is_law_review_citation
+        except ImportError:
+            # Fallback if import fails
+            def is_law_review_citation(citation: str) -> bool:
+                return bool(re.search(r'\bL\.\s*Rev\.\s|\bLaw\s+Rev', citation, re.IGNORECASE))
+        
+        # FIX #13: Preprocess text to remove endnote markers
+        original_length = len(text)
+        text = self._preprocess_text(text)
+        if len(text) != original_length:
+            logger.info(f"[CLEAN-PIPELINE] Preprocessing: {original_length} -> {len(text)} chars (removed {original_length - len(text)} chars)")
         
         # Step 1: Find all citations
         all_citations = self._find_all_citations(text)
@@ -73,6 +126,22 @@ class CleanExtractionPipeline:
         # Step 2: Deduplicate
         deduplicated = self._deduplicate_citations(all_citations)
         logger.info(f"[CLEAN-PIPELINE] Step 2: {len(deduplicated)} after deduplication")
+        
+        # Step 2.5: Filter out law review citations (academic articles, not cases)
+        filtered = []
+        law_review_count = 0
+        for citation in deduplicated:
+            if is_law_review_citation(citation.citation):
+                law_review_count += 1
+                logger.info(f"🚫 [LAW-REVIEW-FILTER] Excluded: {citation.citation}")
+            else:
+                filtered.append(citation)
+        
+        if law_review_count > 0:
+            logger.info(f"[CLEAN-PIPELINE] Step 2.5: Filtered out {law_review_count} law review citations")
+            logger.info(f"[CLEAN-PIPELINE] {len(filtered)} case citations remaining after filtering")
+        
+        deduplicated = filtered
         
         # Step 3: Extract case names using ONLY strict context isolation
         self._extract_all_case_names(text, deduplicated)
@@ -90,6 +159,10 @@ class CleanExtractionPipeline:
         self._extract_all_dates(text, deduplicated)
         logger.info(f"[CLEAN-PIPELINE] Step 4: Dates extracted for all citations")
         
+        # Step 4.5: Share case names within citation groups (AFTER dates extracted)
+        self._share_names_in_citation_groups(text, deduplicated)
+        logger.info(f"[CLEAN-PIPELINE] Step 4.5: Shared case names within citation groups")
+        
         # DEBUG: Log dates AFTER _extract_all_dates  
         logger.error("=" * 80)
         logger.error("[DEBUG-AFTER-DATE-EXTRACT] Dates AFTER _extract_all_dates:")
@@ -100,6 +173,155 @@ class CleanExtractionPipeline:
         
         logger.info(f"[CLEAN-PIPELINE] Pipeline complete: {len(deduplicated)} citations")
         return deduplicated
+    
+    def _share_names_in_citation_groups(self, text: str, citations: List[CitationResult]) -> None:
+        """
+        Share case names within citation groups following legal citation structure.
+        
+        Legal citations typically follow this pattern:
+        Case Name, Citation1, Citation2, Citation3 (Year)
+        
+        Example:
+        Lac du Flambeau Band of Lake Superior Chippewa Indians v. Coughlin, 
+        599 U.S. 382, 143 S. Ct. 1689, 216 L. Ed. 2d 342 (2023)
+        
+        All citations between the case name and the year should share the same case name.
+        """
+        logger.info(f"[CITATION-GROUPS] Detecting citation groups in {len(citations)} citations")
+        
+        # Sort citations by position in text
+        sorted_citations = sorted(citations, key=lambda c: c.start_index if c.start_index else 0)
+        
+        groups_found = 0
+        names_shared = 0
+        
+        i = 0
+        while i < len(sorted_citations):
+            current = sorted_citations[i]
+            
+            # Skip if no case name extracted or position unknown
+            if not current.extracted_case_name or current.extracted_case_name == "N/A" or not current.start_index:
+                i += 1
+                continue
+            
+            # Look for subsequent citations within 200 characters
+            group = [current]
+            j = i + 1
+            
+            while j < len(sorted_citations):
+                next_cit = sorted_citations[j]
+                
+                if not next_cit.start_index:
+                    break
+                
+                # Check if next citation is close (within 200 chars)
+                distance = next_cit.start_index - current.end_index if current.end_index else 999999
+                
+                if distance > 200:
+                    break  # Too far apart, end of group
+                
+                # Check text between citations - should be mostly commas/whitespace
+                between_text = text[current.end_index:next_cit.start_index] if current.end_index else ""
+                between_clean = re.sub(r'[,\s]+', '', between_text)
+                
+                # If there's significant text between citations (not just commas), it's a new group
+                if len(between_clean) > 10:
+                    break
+                
+                group.append(next_cit)
+                current = next_cit
+                j += 1
+            
+            # If we found a group of 2+ citations, check if they should share names
+            if len(group) >= 2:
+                # CRITICAL: Only share names if citations are truly the same case
+                # Check 1: All citations must have the SAME year
+                years = set()
+                for cit in group:
+                    if cit.extracted_date:
+                        years.add(cit.extracted_date)
+                
+                # If citations have different years, they're different cases - don't share
+                if len(years) > 1:
+                    logger.info(f"[CITATION-GROUPS] Skipping group - different years: {years}")
+                    i = j if j > i + 1 else i + 1
+                    continue
+                
+                # Check 2: Names should be variations of each other (not completely different)
+                # If we got very different names, they might be different cases in same string
+                names_list = []
+                for cit in group:
+                    if cit.extracted_case_name and cit.extracted_case_name != "N/A":
+                        names_list.append(cit.extracted_case_name)
+                
+                # If we have multiple different names, check if they're variations (substring/superset)
+                if len(set(names_list)) > 1:
+                    # Check if names are related (one is substring of another)
+                    names_related = False
+                    for i_name in range(len(names_list)):
+                        for j_name in range(i_name + 1, len(names_list)):
+                            name1 = names_list[i_name].lower()
+                            name2 = names_list[j_name].lower()
+                            # Check if one is a substring of the other (allowing for truncation)
+                            if name1 in name2 or name2 in name1:
+                                names_related = True
+                                break
+                        if names_related:
+                            break
+                    
+                    if not names_related:
+                        logger.info(f"[CITATION-GROUPS] Skipping group - unrelated names: {set(names_list)}")
+                        i = j if j > i + 1 else i + 1
+                        continue
+                
+                groups_found += 1
+                
+                # Find the best (longest, most complete) case name in the group
+                best_name = None
+                best_length = 0
+                
+                for cit in group:
+                    name = cit.extracted_case_name
+                    # BUGFIX: Accept special case types (In re, Ex parte, etc.) too, not just "v." cases
+                    is_special_case = (name and name != "N/A" and 
+                                     ("v." in name or 
+                                      name.lower().startswith("in re") or 
+                                      name.lower().startswith("ex parte") or
+                                      name.lower().startswith("in the matter")))
+                    if is_special_case:
+                        name_len = len(name)
+                        if name_len > best_length:
+                            best_name = name
+                            best_length = name_len
+                
+                # Fallback: If no standard case found, accept ANY valid case name
+                if not best_name:
+                    for cit in group:
+                        name = cit.extracted_case_name
+                        if name and name != "N/A":
+                            name_len = len(name)
+                            if name_len > best_length:
+                                best_name = name
+                                best_length = name_len
+                
+                if best_name:
+                    # Share the best name with all citations in the group
+                    citations_text = ", ".join([c.citation for c in group])
+                    logger.info(f"[CITATION-GROUPS] Found group: {citations_text}")
+                    logger.info(f"[CITATION-GROUPS] Same year: {years}")
+                    logger.info(f"[CITATION-GROUPS] Best name: '{best_name}'")
+                    
+                    for cit in group:
+                        old_name = cit.extracted_case_name
+                        if old_name != best_name:
+                            cit.extracted_case_name = best_name
+                            names_shared += 1
+                            logger.info(f"[CITATION-GROUPS] Shared '{best_name}' with {cit.citation} (was: '{old_name}')")
+            
+            # Move to next potential group
+            i = j if j > i + 1 else i + 1
+        
+        logger.info(f"[CITATION-GROUPS] Found {groups_found} groups, shared names with {names_shared} citations")
     
     def _find_all_citations(self, text: str) -> List[CitationResult]:
         """Find all citations using eyecite and regex."""
@@ -229,6 +451,17 @@ class CleanExtractionPipeline:
                         if "388 P.3d 977" in cit_text:
                             logger.error(f"🔍 [DEBUG-388] EYECITE provided year: {eyecite_date}")
                 
+                # FIX #13 DIAGNOSTIC: Log eyecite output for problematic citation
+                if "17 F.4th 901" in cit_text or "17 F. 4th 901" in cit_text:
+                    logger.error(f"[FIX-13-EYECITE] 🔍 Found target citation: {cit_text}")
+                    logger.error(f"[FIX-13-EYECITE]   eyecite_case_name: '{eyecite_case_name}'")
+                    logger.error(f"[FIX-13-EYECITE]   eyecite_date: '{eyecite_date}'")
+                    logger.error(f"[FIX-13-EYECITE]   start: {start}, end: {end}")
+                    logger.error(f"[FIX-13-EYECITE]   has metadata: {hasattr(cit_obj, 'metadata')}")
+                    if hasattr(cit_obj, 'metadata') and cit_obj.metadata:
+                        logger.error(f"[FIX-13-EYECITE]   plaintiff: {getattr(cit_obj.metadata, 'plaintiff', None)}")
+                        logger.error(f"[FIX-13-EYECITE]   defendant: {getattr(cit_obj.metadata, 'defendant', None)}")
+                
                 # Create CitationResult
                 citation = CitationResult(
                     citation=cit_text,
@@ -313,21 +546,43 @@ class CleanExtractionPipeline:
         
         for citation in citations:
             try:
+                # FIX #13 DEBUG: Log ONLY target citation to reduce noise
+                is_target = "17 F.4th 901" in citation.citation or "17 F. 4th 901" in citation.citation
+                if is_target:
+                    logger.error(f"[FIX-13-TRACE] 🎯 Processing TARGET citation: {citation.citation}")
+                    logger.error(f"[FIX-13-TRACE]   Initial extracted_case_name: '{citation.extracted_case_name}'")
+                    logger.error(f"[FIX-13-TRACE]   Has name: {bool(citation.extracted_case_name)}")
+                    logger.error(f"[FIX-13-TRACE]   Is N/A: {citation.extracted_case_name == 'N/A'}")
+                    logger.error(f"[FIX-13-TRACE]   Type: {type(citation.extracted_case_name)}")
+                
                 # Skip if eyecite already provided a good case name
                 # NEW: Also validate eyecite-provided names
                 if citation.extracted_case_name and citation.extracted_case_name != "N/A":
-                    if is_valid_case_name(citation.extracted_case_name):
+                    is_valid = is_valid_case_name(citation.extracted_case_name)
+                    if is_target:
+                        logger.error(f"[FIX-13-TRACE]   Validation result: {is_valid}")
+                    
+                    if is_valid:
                         skipped_count += 1
                         success_count += 1  # Count as success since we have a name
+                        if is_target:
+                            logger.error(f"[FIX-13-TRACE]   ✅ SKIPPING - eyecite name is valid")
                         logger.debug(f"[CLEAN-PIPELINE] Keeping eyecite name for {citation.citation}: '{citation.extracted_case_name}'")
                         continue
                     else:
                         # Eyecite gave us junk - need to re-extract
+                        if is_target:
+                            logger.error(f"[FIX-13-TRACE]   ❌ INVALID - will re-extract")
                         logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
                         citation.extracted_case_name = None  # Force re-extraction
+                else:
+                    if is_target:
+                        logger.error(f"[FIX-13-TRACE]   ⚠️  No valid initial name - will extract")
                 
                 # Use strict context isolation for citations without names
                 # CRITICAL: Pass full citation list so isolator can identify boundaries
+                if is_target:
+                    logger.error(f"[FIX-13-TRACE]   🔍 Calling strict_context_isolator...")
                 case_name = extract_case_name_with_strict_isolation(
                     text=text,
                     citation_text=citation.citation,
@@ -335,6 +590,8 @@ class CleanExtractionPipeline:
                     citation_end=citation.end_index,
                     all_citations=citations  # Pass full list for proper boundary detection
                 )
+                if is_target:
+                    logger.error(f"[FIX-13-TRACE]   📝 Strict isolation returned: '{case_name}'")
                 
                 # DEBUG: Track extraction path for problematic citations
                 if "388 P.3d 977" in citation.citation:
