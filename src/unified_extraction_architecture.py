@@ -691,7 +691,8 @@ class UnifiedExtractionArchitecture:
                     return full_name
             
             # Look backward in the context for the full corporate name
-            lookback = 200  # Increased lookback to 200 characters
+            # PROXIMITY FIX: Reduced from 200 to 100 characters to extract closest case names
+            lookback = 100
             context_before = context[max(0, position - lookback):position]
             
             if debug:
@@ -847,6 +848,80 @@ class UnifiedExtractionArchitecture:
                 else:
                     if debug:
                         logger.warning(f"🔍 QUOTING_SKIP: Distance {distance_to_citation} outside valid range for quoting pattern")
+            
+            # USER FIX: Handle "vacated and remanded" pattern
+            # When Supreme Court citations follow appellate decisions with "vacated and remanded",
+            # extract the case name from IMMEDIATELY BEFORE the vacatur phrase, not from earlier in the paragraph
+            vacatur_patterns = [
+                r'vacated\s+and\s+remanded',
+                r'vacated',
+                r'aff\'d',
+                r'affirmed',
+                r'reversed',
+                r'rev\'d',
+                r'remanded'
+            ]
+            
+            # Look backwards from citation for vacatur language - increased window to 300 chars
+            # to account for page headers and parenthetical phrases
+            search_back = text[max(0, start_index - 300):start_index]
+            
+            if debug:
+                logger.warning(f"🔍 VACATUR_DEBUG: Checking for vacatur patterns before citation '{citation}'")
+                logger.warning(f"🔍 VACATUR_DEBUG: Search window ({len(search_back)} chars): '{search_back[-200:]}'")
+            
+            for vacatur_pattern in vacatur_patterns:
+                vacatur_match = re.search(vacatur_pattern, search_back, re.IGNORECASE)
+                if debug:
+                    logger.warning(f"🔍 VACATUR_DEBUG: Pattern '{vacatur_pattern}' -> {'FOUND' if vacatur_match else 'NOT FOUND'}")
+                
+                if vacatur_match:
+                    # Found vacatur language - now find the case name BEFORE it
+                    vacatur_pos_in_search = vacatur_match.start()
+                    text_before_vacatur = search_back[:vacatur_pos_in_search]
+                    
+                    # Look for case name pattern immediately before vacatur
+                    # Pattern: "Plaintiff Name v. Defendant Name, 123 F.3d 149" (or F.2d, F., etc.)
+                    # Handles multi-word names like "Oneida Indian Nation v. Madison County"
+                    case_name_pattern = r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*)\s+v\.\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*),\s+\d+\s+F\.'
+                    case_matches = list(re.finditer(case_name_pattern, text_before_vacatur))
+                    
+                    if debug:
+                        logger.warning(f"🔍 VACATUR_DEBUG: Found {len(case_matches)} case name matches before vacatur")
+                        if case_matches:
+                            for i, match in enumerate(case_matches):
+                                logger.warning(f"🔍 VACATUR_DEBUG: Match {i+1}: '{match.group(0)}'")
+                        logger.warning(f"🔍 VACATUR_DEBUG: Text before vacatur ({len(text_before_vacatur)} chars): '{text_before_vacatur[-200:]}'")
+                    
+                    if case_matches:
+                        # Take the LAST match (closest to vacatur phrase)
+                        last_match = case_matches[-1]
+                        plaintiff = last_match.group(1).strip()
+                        defendant = last_match.group(2).strip()
+                        
+                        # Clean up case names
+                        from src.utils.text_normalizer import clean_extracted_case_name
+                        plaintiff = clean_extracted_case_name(plaintiff)
+                        defendant = clean_extracted_case_name(defendant)
+                        case_name = f"{plaintiff} v. {defendant}"
+                        
+                        if debug:
+                            logger.warning(f"✅ VACATUR_DETECTED: Found '{vacatur_pattern}' before citation")
+                            logger.warning(f"✅ VACATUR_CASE: Extracted '{case_name}' from text before vacatur")
+                        
+                        if self._is_valid_case_name(case_name):
+                            year = self._extract_year_from_context(text[max(0, start_index - 300):start_index + 50], citation)
+                            return ExtractionResult(
+                                case_name=case_name,
+                                year=year,
+                                confidence=0.98,
+                                method="vacatur_pattern",
+                                context=f"{case_name} ... {vacatur_pattern}"
+                            )
+                    
+                    if debug:
+                        logger.warning(f"🔍 VACATUR_SKIP: Found '{vacatur_pattern}' but couldn't extract case name before it")
+                    break  # Only check first matching vacatur pattern
             
             # NEW: Try intelligent case name extraction first
             intelligent_result = self._extract_case_name_intelligent(text, citation, start_index, end_index, debug)

@@ -100,8 +100,12 @@ class ComprehensiveWebExtractor:
         
         return len(intersection) / len(union)
     
-    def extract_case_name_from_context(self, text: str, citation: str, context_window: int = 500) -> Optional[str]:
-        """Extract case name from text context around citation."""
+    def extract_case_name_from_context(self, text: str, citation: str, context_window: int = 100) -> Optional[str]:
+        """Extract case name from text context around citation.
+        
+        PROXIMITY FIX: Reduced context_window from 500 to 100 characters to extract
+        case names closest to the citation, preventing wrong case name extraction.
+        """
         if not text or not citation:
             return None
         

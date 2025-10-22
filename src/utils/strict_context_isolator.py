@@ -90,17 +90,20 @@ def get_strict_context_for_citation(
     citation_start: int,
     citation_end: int,
     all_citation_positions: Optional[List[Tuple[int, int, str]]] = None,
-    max_lookback: int = 200
+    max_lookback: int = 100
 ) -> str:
     """
     Get strictly isolated context for a citation, stopping at previous citation boundaries.
+    
+    PROXIMITY FIX: Reduced max_lookback from 200 to 100 characters to extract case names
+    closest to the citation, preventing extraction of wrong case names from distant context.
     
     Args:
         text: Full document text
         citation_start: Start position of this citation
         citation_end: End position of this citation
         all_citation_positions: Pre-computed citation positions (or will compute if None)
-        max_lookback: Maximum characters to look back
+        max_lookback: Maximum characters to look back (default: 100, reduced from 200)
         
     Returns:
         Strictly isolated context string
@@ -135,7 +138,12 @@ def get_strict_context_for_citation(
         if ')' not in text_between:
             # Citation is inside parenthetical - use opening paren as boundary
             paren_boundary = actual_pos + 1  # +1 to skip the '(' itself
-            logger.debug(f"[STRICT-CONTEXT] Citation inside parenthetical at pos {actual_pos}")
+            logger.error(f"[PAREN-DEBUG] Citation inside parenthetical! Boundary at pos {actual_pos}")
+            logger.error(f"[PAREN-DEBUG] Text after paren: '{text[paren_boundary:citation_start][-50:]}'")
+        else:
+            logger.error(f"[PAREN-DEBUG] Found '(' but has ')' between - not in parenthetical")
+    else:
+        logger.error(f"[PAREN-DEBUG] No '(' found in text_before")
     
     # Determine strict context boundaries
     context_start = max(
@@ -172,11 +180,12 @@ def extract_case_name_from_strict_context(
         Extracted case name or None
     """
     if not context or len(context) < 10:
+        logger.error(f"[STRICT-EXTRACT-DEBUG] Context too short for {citation_text}: {len(context) if context else 0} chars")
         return None
     
-    # DEBUG: Log the context being analyzed (disabled for production)
-    # logger.debug(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
-    # logger.debug(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-100:]}'")  # Last 100 chars
+    # DEBUG: Log the context being analyzed (ENABLED FOR DEBUGGING FIX #13)
+    logger.error(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
+    logger.error(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-200:]}'")  # Last 200 chars
     
     # CRITICAL: Remove signal words and case history notations BEFORE pattern matching
     
@@ -189,6 +198,9 @@ def extract_case_name_from_strict_context(
     signal_patterns = [
         # Signal words - must be complete words with boundaries
         r'\b(cf|e\.g\.|i\.e\.|see also|see|compare|accord|but see|but cf|contra)\b\.?\s+',
+        # USER FIX: Introductory/conditional words that contaminate case names
+        # These appear at the start of sentences before case citations
+        r'\b(if|when|where|while|although|though|unless|until|since|because|as)\b\s+(?:in\s+)?',
         # Case history notations (including standalone "overruling")
         r'\b(overruling|overruled by|superseding|superseded by|abrogated by|disapproved of on other grounds by|disapproved of by|modified by|limited by|questioned by|criticized by|distinguished by|affirmed by|affirming|reversed by|reversing|vacated by|remanded by|amended by)\b\s+',
         # Procedural phrases
@@ -204,6 +216,18 @@ def extract_case_name_from_strict_context(
     if context != original_context:
         logger.debug(f"[STRICT-EXTRACT] Cleaned signal words: '{original_context[-50:]}' → '{context[-50:]}'")
     
+    # FIX #13: Remove case/docket numbers from context BEFORE pattern matching
+    # This handles contamination like "Inc. No. 103430-0 15 v. Marston"
+    # where page numbers and headers appear IN THE MIDDLE of case names
+    context_before_clean = context
+    context = re.sub(r'\s+No\.\s+[\d\-\s]+(?=\s+v\.)', ' ', context, flags=re.IGNORECASE)
+    if context != context_before_clean:
+        logger.error(f"[FIX #13] Cleaned case numbers from context")
+        logger.error(f"[FIX #13] Before: '{context_before_clean[-100:]}'")
+        logger.error(f"[FIX #13] After:  '{context[-100:]}'")
+    else:
+        logger.error(f"[FIX #13] No case numbers found to clean in context")
+    
     # Look for paragraph/sentence boundaries but be less aggressive
     # Only split if we have very long context (>150 chars) to avoid losing too much
     if len(context) > 150:
@@ -217,9 +241,10 @@ def extract_case_name_from_strict_context(
     patterns = [
         # Standard "v." pattern - must have "v." but flexible ending
         # USER FIX 2024-10-17: Make defendant pattern GREEDY to capture full names like "Bay Mills Indian Cmty."
-        # Remove the ? after {2,120} to make it greedy instead of non-greedy
-        # Still don't allow commas to prevent cross-citation contamination
-        r'([A-Z][A-Za-z\'\.\&\s\n\-]{2,80}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s\n\-]{2,120})(?:\s*[,;\(]|$)',
+        # USER FIX 2024-10-21: Add comma to character class to capture corporate suffixes
+        # Allows "Outsource Services Management, LLC v. Nooksack Business Corp."
+        # Stop at semicolon or opening paren to prevent cross-citation contamination
+        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,80}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120})(?:\s*[;\(]|,\s*\d|$)',
         
         # In re/Matter of/Estate of patterns
         r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100}?)(?:\s*[,;\(]|$)',
@@ -320,6 +345,11 @@ def extract_case_name_from_strict_context(
                         continue  # Suspicious punctuation unless it's corporate or known abbreviation
             
             # === FINAL CLEANUP ===
+            
+            # USER FIX 2024-10-21: Remove signal words from extracted case name
+            # These can survive pattern matching if they're part of the matched text
+            case_name = re.sub(r'^(see also|see|compare|cf|e\.g\.|i\.e\.|accord|but see|but cf|contra)\s+', '', case_name, flags=re.IGNORECASE).strip()
+            case_name = re.sub(r'^(if|when|where|while|although|though|unless|until|since|because|as)\s+(?:in\s+)?', '', case_name, flags=re.IGNORECASE).strip()
             
             # Remove all-caps contamination at start (document titles)
             all_caps_match = re.search(r'^([A-Z\s]+\s+[Vv]\.\s+[A-Z\s]+)\s+([A-Z][a-z])', case_name)
