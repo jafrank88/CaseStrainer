@@ -1,6 +1,44 @@
 import re
 
 
+def expand_abbreviations(case_name: str) -> str:
+    """Expand common legal abbreviations that get truncated."""
+    if not case_name:
+        return case_name
+    
+    abbreviations = {
+        r"\bCommc'?\b": "Communications",
+        r"\bTelecommc'?\b": "Telecommunications",
+        r"\bCorp'?\b": "Corporation",
+        r"\bInt'l\b": "International",
+        r"\bNat'l\b": "National",
+        r"\bDep't\b": "Department",
+        r"\bGov't\b": "Government",
+    }
+    
+    for pattern, replacement in abbreviations.items():
+        case_name = re.sub(pattern, replacement, case_name, flags=re.IGNORECASE)
+    
+    return case_name
+
+
+def remove_context_phrases(case_name: str) -> str:
+    """Remove legal context phrases that get extracted with case names."""
+    if not case_name:
+        return case_name
+    
+    context_patterns = [
+        r'^The\s+(dissent|majority|plurality|concurrence),?\s+(quoting|citing|in|from)\s+',
+        r'^(Quoting|Citing|See|In|As|where|when|while)\s+',
+        r'^(As|Where|When|While)\s+(?:the\s+)?(?:Court|dissent|majority)\s+(?:stated|noted|held)\s+in\s+',
+    ]
+    
+    for pattern in context_patterns:
+        case_name = re.sub(pattern, '', case_name, flags=re.IGNORECASE)
+    
+    return case_name.strip()
+
+
 def clean_extracted_case_name(case_name: str) -> str:
     """Shared cleaner for extracted case names.
 
@@ -37,6 +75,12 @@ def clean_extracted_case_name(case_name: str) -> str:
 
     # Normalize whitespace
     name = re.sub(r'\s+', ' ', name).strip()
+    
+    # Expand abbreviations (Commc' → Communications)
+    name = expand_abbreviations(name)
+    
+    # Remove context phrases ("The dissent, quoting")
+    name = remove_context_phrases(name)
     
     # IMPROVED: Contamination filtering - reject case names that contain legal procedural text
     if name and len(name) > 3:

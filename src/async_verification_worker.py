@@ -95,12 +95,24 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
                     
                     result = await verifier.verify_citation(citation_text, extracted_name, extracted_year, has_courtlistener_data)
                     
+                    # CRITICAL FIX: Override extracted date with canonical date from verification
+                    # This fixes the date contamination issue where dates are extracted from
+                    # citing context instead of the cited case
+                    final_date = result.get('canonical_date')
+                    date_source = 'verified' if (result.get('verified') and final_date) else 'extracted'
+                    
+                    # Fall back to extracted date only if no canonical date available
+                    if not final_date:
+                        final_date = citation.get('extracted_date') or citation.get('extracted_year')
+                    
                     enhanced_citation = {
                         **citation,
                         'verified': result.get('verified', False),
                         'verification_source': result.get('source', 'enhanced_fallback'),
                         'canonical_name': result.get('canonical_name'),
-                        'canonical_date': result.get('canonical_date'),
+                        'canonical_date': final_date,  # Use verified date
+                        'extracted_date': citation.get('extracted_date') or citation.get('extracted_year'),  # Preserve original
+                        'date_source': date_source,  # Track where date came from
                         'canonical_url': result.get('url'),
                         'confidence': result.get('confidence', 0.0),
                         'verification_error': result.get('error'),

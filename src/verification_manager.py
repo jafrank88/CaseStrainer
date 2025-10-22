@@ -415,13 +415,16 @@ class SmartVerificationStrategy:
             }
             
             # If cluster is missing name or date, try to get from citations
+            # CRITICAL FIX: Prefer verified canonical dates over extracted dates
             if not cluster_metadata['canonical_name'] or not cluster_metadata['canonical_date']:
                 for citation in cluster_citations:
                     if citation in validated_results:
                         result = validated_results[citation]
+                        # Prefer canonical data from verified sources
                         if not cluster_metadata['canonical_name'] and result.get('canonical_name'):
                             cluster_metadata['canonical_name'] = result['canonical_name']
                         if not cluster_metadata['canonical_date'] and result.get('canonical_date'):
+                            # Use canonical date (from verification) over extracted date
                             cluster_metadata['canonical_date'] = result['canonical_date']
                         
                         if cluster_metadata['canonical_name'] and cluster_metadata['canonical_date']:
