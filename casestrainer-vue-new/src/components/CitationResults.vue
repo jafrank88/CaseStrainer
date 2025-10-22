@@ -19,7 +19,7 @@
           <!-- Citations in Cluster -->
           <div class="cluster-citations">
             <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
-              <strong>Citation {{ index + 1 }}:</strong>
+              <strong>Citation {{ index + 1 }}: </strong>
               <span class="citation-text">{{ citation.citation }}</span>
               <span class="citation-status" :class="getCitationStatusClass(citation)">
                 {{ getCitationStatusText(citation) }}
@@ -52,6 +52,53 @@
       </div>
     </div>
 
+    <!-- SECTION 1.75: Name Mismatches (DEBUGGING) -->
+    <div v-if="(nameMismatchClusters?.length || 0) > 0" class="results-content">
+      <div class="results-header">
+        <h2>⚠️ SECTION 1.75: Name Mismatches</h2>
+        <p>{{ nameMismatchClusters?.length || 0 }} cluster(s) with extracted/canonical name mismatch</p>
+      </div>
+      
+      <div class="clusters-list">
+        <div v-for="cluster in nameMismatchClusters" :key="cluster.cluster_id" class="cluster-item mismatch-cluster">
+          <!-- Cluster Header -->
+          <div class="cluster-line mismatch-header">
+            <strong>🔴 NAME MISMATCH DETECTED</strong>
+          </div>
+          
+          <!-- Verifying Source (Canonical) -->
+          <div class="cluster-line verifying-source">
+            <strong>Verifying Source: </strong>
+            <template v-if="cluster.citations?.[0]?.canonical_url">
+              <a :href="cluster.citations[0].canonical_url" target="_blank" class="canonical-link">
+                {{ cluster.citations[0].canonical_name || 'N/A' }}, {{ cluster.citations[0].canonical_date || 'N/A' }}
+              </a>
+            </template>
+            <template v-else>
+              {{ cluster.citations?.[0]?.canonical_name || 'N/A' }}, {{ cluster.citations?.[0]?.canonical_date || 'N/A' }}
+            </template>
+          </div>
+          
+          <!-- Submitted Document (Extracted) -->
+          <div class="cluster-line submitted-document mismatch-extracted">
+            <strong>Submitted Document: </strong>
+            {{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}, {{ cluster.citations?.[0]?.extracted_date || 'N/A' }}
+          </div>
+          
+          <!-- Citations -->
+          <div class="cluster-citations">
+            <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
+              <strong>Citation {{ index + 1 }}: </strong>
+              <span class="citation-text">{{ citation.text || citation.citation }}</span>
+              <span class="citation-status" :class="getCitationStatusClass(citation)">
+                {{ getCitationStatusText(citation) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Perfect Score Celebration (SHOW IF NO ISSUES) -->
     <div v-else-if="allCitationsVerified" class="perfect-score-celebration">
       <div class="celebration-content">
@@ -76,7 +123,7 @@
         <div v-for="cluster in clusters" :key="cluster.cluster_id" class="cluster-item">
           <!-- Line 1: Verifying Source (linked to canonical URL) -->
           <div class="cluster-line verifying-source">
-            <strong>Verifying Source:</strong>
+            <strong>Verifying Source: </strong>
             <template v-if="cluster.citations?.[0]?.canonical_url">
               <a :href="cluster.citations[0].canonical_url" target="_blank" class="canonical-link">
                 {{ cluster.citations[0].canonical_name || 'N/A' }}, {{ cluster.citations[0].canonical_date || cluster.citations[0].extracted_date || 'N/A' }}
@@ -92,14 +139,14 @@
           
           <!-- Line 2: Submitted Document -->
           <div class="cluster-line submitted-document">
-            <strong>Submitted Document:</strong>
+            <strong>Submitted Document: </strong>
             {{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}, {{ cluster.citations?.[0]?.extracted_date || 'N/A' }}
           </div>
           
           <!-- Lines 3+: Individual Citations with Status -->
           <div class="cluster-citations">
             <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
-              <strong>Citation {{ index + 1 }}:</strong>
+              <strong>Citation {{ index + 1 }}: </strong>
               <span class="citation-text">{{ citation.text || citation.citation }}</span>
               <span class="citation-status" :class="getCitationStatusClass(citation)">
                 {{ getCitationStatusText(citation) }}
@@ -209,6 +256,30 @@ export default {
       })
     })
     
+    // NEW: Name mismatch clusters (for debugging extraction issues)
+    const nameMismatchClusters = computed(() => {
+      if (!clusters.value || clusters.value.length === 0) return []
+      
+      return clusters.value.filter(cluster => {
+        const clusterCitations = cluster.citations || []
+        if (clusterCitations.length === 0) return false
+        
+        const firstCitation = clusterCitations[0]
+        const extractedName = firstCitation.extracted_case_name
+        const canonicalName = firstCitation.canonical_name
+        
+        // Check if both names exist and are different
+        if (!extractedName || !canonicalName) return false
+        
+        // Normalize for comparison (remove extra whitespace, convert to lowercase)
+        const normalizedExtracted = extractedName.trim().toLowerCase().replace(/\s+/g, ' ')
+        const normalizedCanonical = canonicalName.trim().toLowerCase().replace(/\s+/g, ' ')
+        
+        // Return true if names are different (mismatch detected)
+        return normalizedExtracted !== normalizedCanonical
+      })
+    })
+    
     const allCitationsVerified = computed(() => {
       return citations.value?.length > 0 && unverifiedCitations.value.length === 0
     })
@@ -264,6 +335,7 @@ export default {
       unverifiedCitations,
       verifiedByParallelCitations,
       unverifiedClusters,
+      nameMismatchClusters,
       allCitationsVerified,
       getClusterSource,
       getClusterCitations,
@@ -332,6 +404,28 @@ export default {
 .unverified-cluster {
   border-left: 4px solid #f44336;
   background: #fff8f8;
+}
+
+.mismatch-cluster {
+  border-left: 4px solid #FF9800;
+  background: #fff9e6;
+  border: 2px solid #FF9800;
+}
+
+.mismatch-header {
+  color: #FF6F00;
+  font-size: 1.05em;
+  margin-bottom: 12px;
+  padding: 8px;
+  background: #FFE0B2;
+  border-radius: 4px;
+}
+
+.mismatch-extracted {
+  background: #FFF3E0;
+  padding: 8px;
+  border-radius: 4px;
+  margin-top: 4px;
 }
 
 .cluster-header-line {
