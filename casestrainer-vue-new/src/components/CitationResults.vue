@@ -261,6 +261,15 @@ export default {
       })
     })
     
+    // Helper function to extract year from date string
+    const extractYear = (dateStr) => {
+      if (!dateStr) return null
+      const str = String(dateStr).trim()
+      // Match 4-digit year (handles "2014", "1987-05-26", "2014-01-01", etc.)
+      const yearMatch = str.match(/\b(\d{4})\b/)
+      return yearMatch ? yearMatch[1] : null
+    }
+    
     // NEW: Name/Date mismatch clusters (for debugging extraction issues)
     const mismatchClusters = computed(() => {
       if (!clusters.value || clusters.value.length === 0) {
@@ -306,15 +315,18 @@ export default {
         let hasDateMismatch = false
         
         if (extractedDate && canonicalDate) {
-          // Normalize dates for comparison (remove extra whitespace)
-          const normalizedExtractedDate = String(extractedDate).trim()
-          const normalizedCanonicalDate = String(canonicalDate).trim()
-          hasDateMismatch = normalizedExtractedDate !== normalizedCanonicalDate
+          // Normalize to years only for comparison
+          const extractedYear = extractYear(extractedDate)
+          const canonicalYear = extractYear(canonicalDate)
           
-          if (hasDateMismatch) {
-            console.log(`🔴 [DATE MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
-            console.log(`   Extracted: "${extractedDate}"`)
-            console.log(`   Canonical: "${canonicalDate}"`)
+          if (extractedYear && canonicalYear) {
+            hasDateMismatch = extractedYear !== canonicalYear
+            
+            if (hasDateMismatch) {
+              console.log(`🔴 [DATE MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
+              console.log(`   Extracted: "${extractedDate}" (year: ${extractedYear})`)
+              console.log(`   Canonical: "${canonicalDate}" (year: ${canonicalYear})`)
+            }
           }
         }
         
@@ -354,10 +366,13 @@ export default {
       
       if (!extractedDate || !canonicalDate) return false
       
-      const normalizedExtractedDate = String(extractedDate).trim()
-      const normalizedCanonicalDate = String(canonicalDate).trim()
+      // Compare years only
+      const extractedYear = extractYear(extractedDate)
+      const canonicalYear = extractYear(canonicalDate)
       
-      return normalizedExtractedDate !== normalizedCanonicalDate
+      if (!extractedYear || !canonicalYear) return false
+      
+      return extractedYear !== canonicalYear
     }
     
     const allCitationsVerified = computed(() => {
