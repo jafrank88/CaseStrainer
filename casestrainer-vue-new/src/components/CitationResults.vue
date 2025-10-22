@@ -263,9 +263,14 @@ export default {
     
     // NEW: Name/Date mismatch clusters (for debugging extraction issues)
     const mismatchClusters = computed(() => {
-      if (!clusters.value || clusters.value.length === 0) return []
+      if (!clusters.value || clusters.value.length === 0) {
+        console.log('⚠️ [MISMATCH] No clusters available')
+        return []
+      }
       
-      return clusters.value.filter(cluster => {
+      console.log(`⚠️ [MISMATCH] Checking ${clusters.value.length} clusters for mismatches`)
+      
+      const mismatches = clusters.value.filter(cluster => {
         const clusterCitations = cluster.citations || []
         if (clusterCitations.length === 0) return false
         
@@ -281,6 +286,12 @@ export default {
           const normalizedExtracted = extractedName.trim().toLowerCase().replace(/\s+/g, ' ')
           const normalizedCanonical = canonicalName.trim().toLowerCase().replace(/\s+/g, ' ')
           hasNameMismatch = normalizedExtracted !== normalizedCanonical
+          
+          if (hasNameMismatch) {
+            console.log(`🔴 [NAME MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
+            console.log(`   Extracted: "${extractedName}"`)
+            console.log(`   Canonical: "${canonicalName}"`)
+          }
         }
         
         // Check for date mismatch
@@ -293,11 +304,20 @@ export default {
           const normalizedExtractedDate = String(extractedDate).trim()
           const normalizedCanonicalDate = String(canonicalDate).trim()
           hasDateMismatch = normalizedExtractedDate !== normalizedCanonicalDate
+          
+          if (hasDateMismatch) {
+            console.log(`🔴 [DATE MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
+            console.log(`   Extracted: "${extractedDate}"`)
+            console.log(`   Canonical: "${canonicalDate}"`)
+          }
         }
         
         // Return true if either name OR date mismatch detected
         return hasNameMismatch || hasDateMismatch
       })
+      
+      console.log(`⚠️ [MISMATCH] Found ${mismatches.length} clusters with mismatches`)
+      return mismatches
     })
     
     // Helper function to check if cluster has name mismatch
