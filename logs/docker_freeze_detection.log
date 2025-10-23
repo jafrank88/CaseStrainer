@@ -856,3 +856,201 @@ Docker Desktop     27800     0.40625   56651776
 
 
 [2025-10-15 09:32:51] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 16:23:09] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 16:23:09] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 16:23:09] [FREEZE] Timeout: 15 seconds
+[2025-10-17 16:23:09] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 16:23:09] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id          CPU WorkingSet
+-----------           --          --- ----------
+com.docker.backend 65676    10908.125  257327104
+com.docker.backend 68200     1066.625   25223168
+com.docker.build   10968     35.90625   34603008
+Docker Desktop     19700      11.5625   40333312
+Docker Desktop     41616    1289.4375   50245632
+Docker Desktop     41696      1.71875   11280384
+Docker Desktop     42316 12523.984375  136658944
+
+
+
+[2025-10-17 16:23:09] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 16:47:39] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 16:47:39] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 16:47:39] [FREEZE] Timeout: 15 seconds
+[2025-10-17 16:47:39] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 16:47:39] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend 23880   6.703125   33718272
+com.docker.backend 65628 131.109375  121741312
+com.docker.build   47340    2.09375   30896128
+Docker Desktop      6276     9.3125   34271232
+Docker Desktop     44604     0.3125   34721792
+Docker Desktop     61124  14.609375   44040192
+Docker Desktop     80516   93.40625  108040192
+
+
+
+[2025-10-17 16:47:39] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 18:18:19] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 18:18:19] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 18:18:19] [FREEZE] Timeout: 15 seconds
+[2025-10-17 18:18:19] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 18:18:20] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend 38508 401.484375  114962432
+com.docker.backend 56904    29.9375   23715840
+com.docker.build   48860   4.453125   14884864
+docker             65000     0.4375   21590016
+docker             72488       0.25   21356544
+docker             77912     0.1875   22167552
+Docker Desktop      5512   0.234375   13357056
+Docker Desktop     18104   8.796875   15740928
+Docker Desktop     24520  375.03125   93782016
+Docker Desktop     58564     42.125   40910848
+
+
+
+[2025-10-17 18:18:20] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 22:07:37] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 22:07:37] [FREEZE] Test: Docker CLI Version Check
+[2025-10-17 22:07:37] [FREEZE] Timeout: 10 seconds
+[2025-10-17 22:07:37] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 22:07:38] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend 53352 764.359375  105017344
+com.docker.backend 71404  57.921875   32567296
+com.docker.build   80888     6.6875   32227328
+docker             39996               8503296
+docker             62476               8511488
+Docker Desktop     38272   0.265625   34537472
+Docker Desktop     51032 760.453125   89063424
+Docker Desktop     71512   5.765625   34045952
+Docker Desktop     78032  86.796875   42713088
+
+
+
+[2025-10-17 22:07:38] [FREEZE] Docker CLI freeze detected - timeout after 10 seconds
+[2025-10-17 22:08:08] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 22:08:08] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 22:08:08] [FREEZE] Timeout: 15 seconds
+[2025-10-17 22:08:08] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 22:08:08] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id      CPU WorkingSet
+-----------           --      --- ----------
+com.docker.backend 53352  765.125  135950336
+com.docker.backend 71404 57.96875   32567296
+com.docker.build   80888   6.6875   32227328
+Docker Desktop     38272 0.265625   34537472
+Docker Desktop     51032 763.5625  179392512
+Docker Desktop     71512 5.859375   50278400
+Docker Desktop     78032 87.28125   72331264
+
+
+
+[2025-10-17 22:08:08] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 22:18:02] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 22:18:02] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 22:18:02] [FREEZE] Timeout: 15 seconds
+[2025-10-17 22:18:02] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 22:18:02] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id       CPU WorkingSet
+-----------           --       --- ----------
+com.docker.backend 13296    3.3125    5804032
+com.docker.backend 21812  94.84375   92131328
+com.docker.build   78876   2.71875    7376896
+Docker Desktop     29996   7.84375   33067008
+Docker Desktop     52756   0.28125    5455872
+Docker Desktop     66368 35.234375   89268224
+Docker Desktop     67936  5.734375    2949120
+
+
+
+[2025-10-17 22:18:02] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-17 22:33:07] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-17 22:33:07] [FREEZE] Test: Docker Daemon Info
+[2025-10-17 22:33:07] [FREEZE] Timeout: 15 seconds
+[2025-10-17 22:33:07] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-17 22:33:07] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id      CPU WorkingSet
+-----------           --      --- ----------
+com.docker.backend  7896  3.53125   32452608
+com.docker.backend 33012 99.65625  102432768
+com.docker.build   73928     3.25   32129024
+Docker Desktop     21732 0.234375   34377728
+Docker Desktop     25584  0.90625   34340864
+Docker Desktop     42404 9.609375   38457344
+Docker Desktop     76296  51.3125   80363520
+
+
+
+[2025-10-17 22:33:07] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-18 09:42:24] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-18 09:42:24] [FREEZE] Test: Docker Daemon Info
+[2025-10-18 09:42:24] [FREEZE] Timeout: 15 seconds
+[2025-10-18 09:42:24] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-18 09:42:24] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend 19136 1742.21875  148983808
+com.docker.backend 66168 186.046875   34451456
+com.docker.build   63260     3.4375   33910784
+Docker Desktop     30968 220.109375   74948608
+Docker Desktop     58840    0.40625   40304640
+Docker Desktop     64920  23.796875   21540864
+
+
+
+[2025-10-18 09:42:24] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-18 19:32:31] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-18 19:32:31] [FREEZE] Test: Docker Daemon Info
+[2025-10-18 19:32:31] [FREEZE] Timeout: 15 seconds
+[2025-10-18 19:32:31] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-18 19:32:31] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id         CPU WorkingSet
+-----------           --         --- ----------
+com.docker.backend  8324  144.046875   61837312
+com.docker.backend  9332 1895.796875  317157376
+com.docker.build   10380     23.5625   41172992
+Docker Desktop     10532    7.203125   78524416
+Docker Desktop     10748  203.171875  149475328
+Docker Desktop     11152    0.359375   49471488
+Docker Desktop     11756 2051.171875  179625984
+docker-buildx      16900     1.21875   49176576
+docker-compose      8304    1.171875   38637568
+
+
+
+[2025-10-18 19:32:31] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds
+[2025-10-19 12:42:30] [FREEZE] === DOCKER FREEZE DETECTED ===
+[2025-10-19 12:42:30] [FREEZE] Test: Docker Daemon Info
+[2025-10-19 12:42:30] [FREEZE] Timeout: 15 seconds
+[2025-10-19 12:42:30] [FREEZE] Docker appears to be frozen/unresponsive
+[2025-10-19 12:42:30] [FREEZE] Docker processes during freeze:
+
+ProcessName           Id        CPU WorkingSet
+-----------           --        --- ----------
+com.docker.backend     8 3129.59375  225263616
+com.docker.backend  8816     298.75   33730560
+com.docker.build   16544   17.84375   31588352
+Docker Desktop      3748   0.609375   40042496
+Docker Desktop     10216     3.0625   40009728
+Docker Desktop     10660 3303.53125  113115136
+Docker Desktop     11204 361.078125   41611264
+docker-buildx      15908   1.671875   47890432
+docker-compose     15012   2.078125   39940096
+
+
+
+[2025-10-19 12:42:30] [FREEZE] Docker daemon freeze detected - timeout after 15 seconds

@@ -39,14 +39,20 @@ class DataSeparationValidator:
         Validate a single citation for data separation.
         
         Args:
-            citation: Citation dictionary with extracted_case_name and canonical_name
+            citation: Citation dictionary or object with extracted_case_name and canonical_name
             
         Returns:
             True if validation passes, False if contamination detected
         """
-        extracted_name = citation.get('extracted_case_name')
-        canonical_name = citation.get('canonical_name')
-        citation_text = citation.get('citation', 'unknown')
+        # USER FIX: Handle both dict and object citations
+        if isinstance(citation, dict):
+            extracted_name = citation.get('extracted_case_name')
+            canonical_name = citation.get('canonical_name')
+            citation_text = citation.get('citation', 'unknown')
+        else:
+            extracted_name = getattr(citation, 'extracted_case_name', None)
+            canonical_name = getattr(citation, 'canonical_name', None)
+            citation_text = getattr(citation, 'citation', 'unknown')
         
         if not extracted_name or not canonical_name:
             return True  # No contamination possible if one is missing

@@ -132,7 +132,9 @@ class UnifiedCaseExtractionMaster:
         cleaned = case_name.strip()
         if len(cleaned) < 5:
             return False
-        if cleaned.lower().startswith("in re "):
+        # Accept special case types (In re, Ex parte, In the matter) or adversarial cases (v.)
+        lower = cleaned.lower()
+        if lower.startswith("in re ") or lower.startswith("ex parte ") or lower.startswith("in the matter"):
             return True
         return " v. " in cleaned
     
@@ -194,9 +196,9 @@ class UnifiedCaseExtractionMaster:
             r'([A-Z][a-zA-Z\s\'&\-\.,]{2,40}?)\s+[Vv]\.?\s+State\s+(?:of\s+)?([A-Z][a-zA-Z\s]{2,30}?)',
             r'STATE\s+(?:OF\s+)?([A-Z][A-Z\s]{2,30}?)\s+[Vv]\.?\s+([A-Z][A-Z\s\'&\-\.,]{2,40}?)',
             
-            # Government patterns (ALREADY non-greedy)
+            # Government patterns - made defendant pattern greedy to capture full names
             r'([A-Z][a-zA-Z\s\'&\-\.,]*?)\s+[Vv]\.?\s+(United\s+States|U\.S\.|UNITED\s+STATES)',
-            r'(United\s+States|U\.S\.|UNITED\s+STATES)\s+[Vv]\.?\s+([A-Z][a-zA-Z\s\'&\-\.,]*?)',
+            r'(United\s+States|U\.S\.|UNITED\s+STATES)\s+[Vv]\.?\s+([A-Z][a-zA-Z\s\'&\-\.,]+)',  # Made greedy to get full defendant
         ]
         
         # Context detection patterns - MUST match case name format (Name v. Name)
@@ -259,6 +261,26 @@ class UnifiedCaseExtractionMaster:
         # Normalize text to handle Unicode issues
         normalized_text = self._normalize_text(text)
         
+        # USER FIX: Strategy -1 - Simple citation format (NEW - PREPROCESSING)
+        # Handle case where user submits just "Case Name, Citation (Year)" without context
+        # Pattern: "Carman v. Adventure Bound, 198 Cal.App.3d 449 (1986)"
+        if citation:
+            simple_pattern = r'^([A-Z][a-zA-Z\s\'&\-,\.]+\s+[Vv]\.?\s+[A-Z][a-zA-Z\s\'&\-,\.]+),\s+\d+\s+[A-Z][a-z\.]+\d*\s+\d+\s*\((\d{4})\)\s*$'
+            match = re.match(simple_pattern, text.strip())
+            if match:
+                extracted_name = match.group(1).strip()
+                extracted_year = match.group(2)
+                logger.warning(f"✅ [SIMPLE-FORMAT] Extracted from standalone citation: '{extracted_name}' ({extracted_year})")
+                return MasterExtractionResult(
+                    case_name=extracted_name,
+                    year=extracted_year,
+                    confidence=0.95,
+                    method="simple_citation_format",
+                    debug_info={"pattern": "standalone_citation"},
+                    extracted_case_name=extracted_name,
+                    extracted_year=extracted_year
+                )
+        
         # FIX #69: Strategy 0 - Comma-anchored extraction (NEW - HIGHEST PRIORITY)
         # Use comma before citation as anchor to work backwards and find full case name
         # This fixes truncation issues like "E. Palo Alto v. U." → "Cmty. Legal Servs. in E. Palo Alto v. U.S. Dep't..."
@@ -267,6 +289,8 @@ class UnifiedCaseExtractionMaster:
                 logger.warning(f"🔍 FIX #69: Trying Strategy 0 - Comma-anchored extraction")
             result = self._extract_with_comma_anchor(text, citation, start_index, debug or force_debug)
             if result and result.case_name and result.case_name != 'N/A':
+                # Validate extraction against canonical metadata
+                self._validate_extraction(result, citation, debug or force_debug)
                 if force_debug:
                     logger.warning(f"✅ FIX #69: Strategy 0 succeeded! Extracted: '{result.case_name}'")
                 return result
@@ -280,6 +304,8 @@ class UnifiedCaseExtractionMaster:
             # Indices are calculated from original text, so MUST use original text for slicing!
             result = self._extract_with_position(text, citation, start_index, end_index, debug or force_debug)
             if result and result.case_name and result.case_name != 'N/A':
+                # Validate extraction against canonical metadata if available
+                self._validate_extraction(result, citation, debug or force_debug)
                 if force_debug:
                     logger.warning(f"✅ FIX #33: Strategy 1 succeeded! Extracted: '{result.case_name}'")
                     logger.warning(f"   extracted_case_name: '{result.extracted_case_name}'")
@@ -291,6 +317,8 @@ class UnifiedCaseExtractionMaster:
             # FIX #43: Use ORIGINAL text for same reason as Strategy 1
             result = self._extract_with_citation_context(text, citation, debug)
             if result and result.case_name and result.case_name != 'N/A':
+                # Validate extraction against canonical metadata
+                self._validate_extraction(result, citation, debug)
                 return result
         
         # Strategy 3: Pattern-based extraction (last resort)
@@ -299,23 +327,124 @@ class UnifiedCaseExtractionMaster:
             return result
         
         # No extraction succeeded
+        logger.warning(f"⚠️ [EXTRACTION-FAILED] All strategies failed for citation: '{citation}'")
+        
+        # FIX #MISMATCH: Try to get canonical metadata as last resort
+        if citation:
+            canonical_metadata = self._get_canonical_metadata(citation)
+            if canonical_metadata and canonical_metadata.get('canonical_name'):
+                logger.warning(f"📚 [CANONICAL-FALLBACK] Using canonical name for failed extraction: {canonical_metadata['canonical_name']}")
+                return MasterExtractionResult(
+                    case_name=canonical_metadata['canonical_name'],
+                    year=canonical_metadata.get('canonical_date', 'N/A'),
+                    confidence=0.8,  # High confidence since it's from canonical source
+                    method="canonical_fallback",
+                    debug_info={"reason": "Extraction failed, used canonical metadata"},
+                    canonical_name=canonical_metadata['canonical_name'],
+                    canonical_year=canonical_metadata.get('canonical_date'),
+                    extracted_case_name='N/A',  # Mark that extraction failed
+                    extracted_year='N/A'
+                )
+        
         return MasterExtractionResult(
             case_name="N/A",
             year="N/A",
             confidence=0.0,
             method="extraction_failed",
-            debug_info={"reason": "All extraction strategies failed"}
+            debug_info={"reason": "All extraction strategies failed and no canonical metadata available"}
         )
+    
+    def _validate_extraction(self, result: MasterExtractionResult, citation: str, debug: bool) -> None:
+        """
+        FIX #MISMATCH: Validate extracted name against canonical metadata.
+        
+        This helps identify extraction errors by comparing what we extracted
+        with what the authoritative source says. Logs warnings for significant mismatches.
+        
+        Args:
+            result: The extraction result to validate
+            citation: The citation being validated
+            debug: Enable debug logging
+        """
+        if not citation or not result.case_name or result.case_name == 'N/A':
+            return
+        
+        # Get canonical metadata
+        canonical_metadata = self._get_canonical_metadata(citation)
+        if not canonical_metadata or not canonical_metadata.get('canonical_name'):
+            return  # No canonical data to validate against
+        
+        canonical_name = canonical_metadata['canonical_name']
+        extracted_name = result.case_name
+        
+        # Normalize for comparison
+        norm_extracted = extracted_name.lower().strip().replace('  ', ' ')
+        norm_canonical = canonical_name.lower().strip().replace('  ', ' ')
+        
+        # Check if names are similar (handle abbreviations)
+        if norm_extracted == norm_canonical:
+            return  # Perfect match
+        
+        # Check for common abbreviations
+        abbreviations = {
+            'ins': 'immigration and naturalization service',
+            'dep\'t': 'department',
+            'att\'y': 'attorney',
+            'gen.': 'general'
+        }
+        
+        exp_extracted = norm_extracted
+        exp_canonical = norm_canonical
+        for abbr, full in abbreviations.items():
+            exp_extracted = exp_extracted.replace(abbr, full)
+            exp_canonical = exp_canonical.replace(abbr, full)
+        
+        if exp_extracted == exp_canonical:
+            return  # Match after abbreviation expansion
+        
+        # Check if extracted is contained in canonical (partial extraction)
+        if len(norm_extracted) > 10 and norm_canonical.find(norm_extracted) >= 0:
+            logger.info(f"ℹ️ [PARTIAL-MATCH] Extracted name is subset of canonical for {citation}")
+            return  # Acceptable partial match
+        
+        # Check if canonical is contained in extracted (over-extraction)
+        if len(norm_canonical) > 10 and norm_extracted.find(norm_canonical) >= 0:
+            logger.info(f"ℹ️ [OVER-EXTRACTION] Extracted name contains canonical for {citation}")
+            return  # Acceptable over-extraction
+        
+        # Check last names match (common for abbreviated forms)
+        extracted_parts = norm_extracted.split(' v. ')
+        canonical_parts = norm_canonical.split(' v. ')
+        if len(extracted_parts) == 2 and len(canonical_parts) == 2:
+            ext_last = extracted_parts[0].split()[-1]
+            can_last = canonical_parts[0].split()[-1]
+            if ext_last == can_last:
+                logger.info(f"ℹ️ [LASTNAME-MATCH] Last names match for {citation}, likely abbreviation")
+                return
+        
+        # Significant mismatch detected - log warning
+        logger.warning(f"⚠️ [EXTRACTION-MISMATCH] Possible extraction error for {citation}")
+        logger.warning(f"   Extracted: '{extracted_name}'")
+        logger.warning(f"   Canonical: '{canonical_name}'")
+        logger.warning(f"   Method: {result.method}")
+        logger.warning(f"   Confidence: {result.confidence}")
+        
+        # Store canonical data in result for reference
+        result.canonical_name = canonical_name
+        result.canonical_year = canonical_metadata.get('canonical_date')
     
     def _filter_header_contamination(self, context: str, debug: bool) -> str:
         """
         FIX #67: Remove document headers and metadata that contaminate extraction.
         
+        CRITICAL FIX: Only filter lines that are PURE headers, not case discussion.
+        Lines with case names (containing "v.") should NEVER be filtered.
+        
         Filters out lines containing:
-        - Court identifiers: "SUPREME COURT", "COURT OF APPEALS", "CLERK"
-        - Filing metadata: "FILED", "FILE ", "CLERK'S OFFICE"
+        - Court identifiers IN ALL CAPS: "SUPREME COURT" (but not "Supreme Court")
+        - Filing metadata headers: "FILED", "FILE ", "CLERK'S OFFICE"
         - Dates in header format
-        - All-caps lines (likely headers)
+        - Pure all-caps lines (likely headers)
         - Document numbers and case numbers in header format
         
         Args:
@@ -335,38 +464,43 @@ class UnifiedCaseExtractionMaster:
         lines = context.split('\n')
         filtered_lines = []
         
-        # Header patterns to exclude
+        # CRITICAL: Case name pattern - lines containing this should NEVER be filtered
+        case_name_pattern = r'\bv\.\s+[A-Z]'  # " v. " followed by capital letter
+        
+        # Header patterns to exclude - ONLY for pure headers, not case discussion
         header_patterns = [
-            r'\bSUPREME COURT\b',
-            r'\bCOURT OF APPEALS\b',
-            r'\bCLERK\b',
-            r'\bFILED\b',
-            r'\bFILE\s',
-            r"CLERK'S OFFICE",
-            r'IN THE \w+ COURT',
-            r'STATE OF \w+',
-            r'No\.\s+\d+-\d+',  # Case numbers like "No. 102976-4"
-            r'^\s*[A-Z\s,\.\-]+$',  # All-caps lines (headers)
-            r'^\s*\d{1,2}/\d{1,2}/\d{4}\s*$',  # Date stamps
-            r'^\s*[A-Z]{2,}\s+\d{1,2},\s+\d{4}\s*$',  # "JUNE 12, 2025"
+            r'^\s*[A-Z\s,\.\-]{10,}$',  # All-caps lines (at least 10 chars, only caps/spaces/punctuation)
+            r'^\s*IN THE .+ COURT\s*$',  # Pure court header lines (start of line)
+            r'^\s*FILED:?\s*\d',  # "FILED: 01/15/2024"
+            r"^\s*CLERK['\']?S? OFFICE\s*$",  # Pure clerk line
+            r'^\s*No\.\s+\d+-\d+\s*$',  # Pure case number like "No. 102976-4" (alone on line)
+            r'^\s*\d{1,2}/\d{1,2}/\d{4}\s*$',  # Pure date stamps
+            r'^\s*[A-Z]{3,}\s+\d{1,2},\s+\d{4}\s*$',  # "JUNE 12, 2025" (alone on line)
         ]
         
         for line in lines:
             line_stripped = line.strip()
             if not line_stripped:
                 continue
+            
+            # CRITICAL: Never filter lines containing case names (have " v. ")
+            if re.search(case_name_pattern, line_stripped):
+                filtered_lines.append(line)
+                if debug:
+                    logger.warning(f"[FIX #67] KEPT case name line: '{line_stripped[:80]}'")
+                continue
                 
             # Check if line matches any header pattern
             is_header = False
             for pattern in header_patterns:
-                if re.search(pattern, line_stripped, re.IGNORECASE):
+                if re.search(pattern, line_stripped):
                     is_header = True
                     if debug:
                         logger.warning(f"[FIX #67] Filtering header line: '{line_stripped[:80]}'")
                     break
             
-            # Also filter very short lines (< 10 chars) that are likely headers
-            if not is_header and len(line_stripped) < 10:
+            # Also filter very short lines (< 8 chars) that are likely headers (lowered from 10)
+            if not is_header and len(line_stripped) < 8:
                 is_header = True
                 if debug:
                     logger.warning(f"[FIX #67] Filtering short line: '{line_stripped}'")
@@ -415,12 +549,18 @@ class UnifiedCaseExtractionMaster:
         
         original_context = context
         
+        # FIX #9: Enhanced line break handling for citations split across lines
+        # Handles: "17 F.\n4th 901" → "17 F. 4th 901"
         # Replace newlines with spaces
         # This allows case names that span multiple lines to be captured as a single string
         normalized = context.replace('\n', ' ')
         
         # Replace tabs with spaces
         normalized = normalized.replace('\t', ' ')
+        
+        # FIX #9b: Collapse multiple spaces that result from line break removal
+        # "F.  4th" → "F. 4th" (ensures proper citation format)
+        normalized = re.sub(r'\s{2,}', ' ', normalized)
         
         # FIX #68B: Replace common PDF Unicode artifacts
         # � (U+FFFD) is the Unicode replacement character used when PDF can't encode properly
@@ -479,9 +619,13 @@ class UnifiedCaseExtractionMaster:
         """
         # FIX #69 DEBUG: ALWAYS log entry to verify method is called
         logger.error(f"[FIX #69 ENTRY] Citation: '{citation}', Start: {start_index}, Text len: {len(text)}")
+        print(f"[PHASE6-ENTRY] Comma anchor called for: {citation} at pos {start_index}", flush=True)
         
-        # Step 1: Find comma before citation (within 10 chars, allowing for whitespace)
-        pre_citation_text = text[max(0, start_index - 10):start_index]
+        # Step 1: Find comma before citation (within 100 chars, allowing for whitespace and semicolons)
+        # PHASE 6 FIX: Increased from 10 to 100 to handle:
+        #   - Pinpoint citations like ", 157"
+        #   - Semicolon-separated citation series (semicolon can be 40+ chars before citation)
+        pre_citation_text = text[max(0, start_index - 100):start_index]
         
         # FIX #69 DEBUG: Log what we're checking for comma
         logger.error(f"[FIX #69 COMMA CHECK] Pre-citation text: '{pre_citation_text}'")
@@ -489,136 +633,353 @@ class UnifiedCaseExtractionMaster:
         
         if ',' not in pre_citation_text:
             logger.error(f"[FIX #69 FAIL] No comma found in '{pre_citation_text}' - falling back")
+            print(f"[PHASE6-FAIL] No comma in 100 chars before {citation}: '{pre_citation_text}'", flush=True)
             return None  # No comma anchor, fall back to other methods
+        else:
+            print(f"[PHASE6-OK] Found comma in pre-text: '{pre_citation_text}'", flush=True)
         
-        # Find position of the comma
-        comma_offset = pre_citation_text.rfind(',')
-        comma_pos = start_index - (len(pre_citation_text) - comma_offset)
+        # PHASE 6 FIX: Check for semicolons FIRST (they separate different cases)
+        # If there's a semicolon in the pre-text, only search for comma AFTER the last semicolon
+        # Example: "Cayuga..., 761 F.3d 218; Oneida..., 605 F.3d 149"
+        #                          comma1 ↑    semicolon ↑    comma2 ↑ (we want comma2)
+        if ';' in pre_citation_text:
+            # Find the LAST semicolon (in case there are multiple citation groups)
+            last_semicolon_offset = pre_citation_text.rfind(';')
+            print(f"[PHASE6] Semicolon found in pre-text - searching for comma after it", flush=True)
+            
+            # Only search for comma AFTER the last semicolon
+            text_after_semicolon = pre_citation_text[last_semicolon_offset + 1:]
+            if ',' in text_after_semicolon:
+                comma_offset_after_semicolon = text_after_semicolon.rfind(',')
+                # Calculate absolute position
+                comma_pos = start_index - (len(pre_citation_text) - last_semicolon_offset - 1 - comma_offset_after_semicolon)
+                print(f"[PHASE6] Found comma after semicolon", flush=True)
+            else:
+                print(f"[PHASE6] No comma after semicolon - falling back", flush=True)
+                return None
+        else:
+            # No semicolon - just find the last comma in the pre-text
+            comma_offset = pre_citation_text.rfind(',')
+            comma_pos = start_index - (len(pre_citation_text) - comma_offset)
         
         # FIX #69 DEBUG: Always log comma position
         logger.error(f"[FIX #69 SUCCESS] Found comma at position {comma_pos} (citation at {start_index})")
         
-        # Step 2: Get context before comma (400 chars to capture full case name)
-        search_start = max(0, comma_pos - 400)
+        # Step 2: Detect subsequent history and expand context if needed
+        # Subsequent history indicators: "affirmed by", "reversed by", "vacated by", etc.
+        subsequent_history_phrases = [
+            r'judgment\s+vacated\s+(?:and\s+opinion\s+)?(?:repudiated\s+)?by',
+            r"(?:aff['\u2019]?d|affirmed)(?:\s+(?:in\s+part|by))?",
+            r"(?:rev['\u2019]?d|reversed)(?:\s+(?:in\s+part|by))?",
+            r'(?:vacated|remanded)(?:\s+(?:and\s+remanded|by))?',
+            r'overruled\s+by',
+            r'superseded\s+by',
+            r'modified\s+by',
+            r'cert\.\s+(?:denied|granted)(?:\s+by)?',
+        ]
+        
+        # Check for subsequent history in the 200 chars before the citation
+        check_window = text[max(0, comma_pos - 200):comma_pos]
+        has_subsequent_history = False
+        
+        for phrase_pattern in subsequent_history_phrases:
+            if re.search(phrase_pattern, check_window, re.IGNORECASE):
+                has_subsequent_history = True
+                logger.error(f"[FIX #7 SUBSEQUENT] Detected subsequent history: '{phrase_pattern}'")
+                break
+        
+        # Expand context window for subsequent history citations
+        # FIX #12: Increased standard window from 400 to 600 to catch more short-form citations
+        # Standard: 600 chars, Subsequent history: 800 chars (to reach original case name)
+        context_window = 800 if has_subsequent_history else 600
+        search_start = max(0, comma_pos - context_window)
         potential_case_name = text[search_start:comma_pos]
         
         # FIX #69 DEBUG: Always log context
-        logger.error(f"[FIX #69 CONTEXT] Length: {len(potential_case_name)} chars")
+        logger.error(f"[FIX #69 CONTEXT] Length: {len(potential_case_name)} chars (window: {context_window})")
         logger.error(f"[FIX #69 CONTEXT] Last 100: '{potential_case_name[-100:]}'")
+        
+        # USER FIX: Handle "vacated and remanded" pattern  
+        # When Supreme Court citations follow "vacated and remanded", extract case name from BEFORE vacatur
+        vacatur_patterns = [
+            r'vacated\s+and\s+remanded',
+            r'vacated',
+            r'aff\'d',
+            r'affirmed', 
+            r'reversed',
+            r'rev\'d',
+            r'remanded'
+        ]
+        
+        if debug:
+            logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: Checking for vacatur patterns before citation '{citation}'")
+        
+        for vacatur_pattern in vacatur_patterns:
+            vacatur_match = re.search(vacatur_pattern, potential_case_name, re.IGNORECASE)
+            if debug:
+                logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: Pattern '{vacatur_pattern}' -> {'FOUND' if vacatur_match else 'NOT FOUND'}")
+            
+            if vacatur_match:
+                # USER FIX: Check if there's a semicolon between vacatur and citation
+                # Semicolons separate different cases - don't apply vacatur across this boundary
+                text_after_vacatur = potential_case_name[vacatur_match.end():]
+                if ';' in text_after_vacatur:
+                    if debug:
+                        logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: SEMICOLON found between vacatur and citation - SKIPPING vacatur logic")
+                    continue  # Skip this vacatur pattern - it's for a different case
+                
+                # Found vacatur - extract case name BEFORE it
+                text_before_vacatur = potential_case_name[:vacatur_match.start()]
+                
+                # Look for case name pattern: "Name v. Name, ### F.3d"
+                case_name_pattern = r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*)\s+v\.\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*),\s+\d+\s+F\.'
+                case_matches = list(re.finditer(case_name_pattern, text_before_vacatur))
+                
+                if debug:
+                    logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: Found {len(case_matches)} matches before vacatur")
+                    if case_matches:
+                        for idx, match in enumerate(case_matches):
+                            logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: Match {idx+1}: '{match.group(0)}'")
+                
+                if case_matches:
+                    # Take LAST match (closest to vacatur)
+                    last_match = case_matches[-1]
+                    plaintiff = last_match.group(1).strip()
+                    defendant = last_match.group(2).strip()
+                    
+                    # Clean case names
+                    from src.utils.text_normalizer import clean_extracted_case_name
+                    plaintiff = clean_extracted_case_name(plaintiff)
+                    defendant = clean_extracted_case_name(defendant)
+                    vacatur_case_name = f"{plaintiff} v. {defendant}"
+                    
+                    if debug:
+                        logger.warning(f"✅ VACATUR_COMMA_ANCHOR: Detected '{vacatur_pattern}'")
+                        logger.warning(f"✅ VACATUR_COMMA_ANCHOR: Extracted '{vacatur_case_name}'")
+                    
+                    # Validate
+                    if len(plaintiff) >= 3 and len(defendant) >= 3 and len(vacatur_case_name) > 10:
+                        # USER FIX: For Supreme Court citations, look for year AFTER the current citation
+                        # Example: "562 U.S. 42, 131 S. Ct. 704, 178 L. Ed. 2d 587 (2011)"
+                        # The year (2011) is at the END of all parallel citations
+                        
+                        # Check if this is a Supreme Court citation (U.S., S.Ct., L.Ed.)
+                        is_supreme_court = any(x in citation for x in ['U.S.', 'S. Ct.', 'L. Ed.']) if citation else False
+                        
+                        year = None
+                        
+                        if is_supreme_court:
+                            # For Supreme Court citations, look for year AFTER current citation
+                            # This handles parallel citations like "562 U.S. 42, 131 S. Ct. 704 (2011)"
+                            after_citation_text = text[start_index:start_index + 200]
+                            year = self._extract_year_from_context(after_citation_text, debug)
+                            
+                            if debug and year:
+                                logger.warning(f"🔍 VACATUR_YEAR: Found Supreme Court year '{year}' after citation")
+                        
+                        # Fallback: Extract from Federal reporter citation
+                        if not year:
+                            fed_match_end_pos = last_match.end()
+                            year_search_text = text_before_vacatur[fed_match_end_pos:fed_match_end_pos + 50]
+                            year = self._extract_year_from_context(year_search_text, debug)
+                            
+                            if debug and year:
+                                logger.warning(f"🔍 VACATUR_YEAR: Found year '{year}' from Federal citation")
+                        
+                        if debug:
+                            logger.warning(f"🔍 VACATUR_YEAR: Final extracted year '{year}' for '{vacatur_case_name}'")
+                        
+                        logger.error(f"[VACATUR_SUCCESS] Returning: '{vacatur_case_name}' ({year}) for '{citation}'")
+                        return MasterExtractionResult(
+                            case_name=vacatur_case_name,
+                            year=year or "Unknown",
+                            confidence=0.98,
+                            method="vacatur_comma_anchor",
+                            debug_info={"vacatur_pattern": vacatur_pattern, "year": year},
+                            extracted_case_name=vacatur_case_name,
+                            extracted_year=year
+                        )
+                
+                if debug:
+                    logger.warning(f"🔍 VACATUR_COMMA_ANCHOR: Found '{vacatur_pattern}' but no case name match")
+                break  # Only check first matching vacatur pattern
         
         # Step 3: Normalize whitespace and Unicode artifacts (Fix #68)
         potential_case_name = self._normalize_whitespace_for_extraction(potential_case_name, debug)
         logger.error(f"[FIX #69 NORMALIZED] Length: {len(potential_case_name)} chars")
         
-        # Step 4: Extract case name using right-anchored pattern
-        # Pattern matches case name that ENDS at the comma position
-        # Looks for: [Capital letter]...text... v. ...text...$ ($ = end of string)
+        # FIX #11/#13: Clean case/docket numbers from context BEFORE pattern matching
+        # This prevents header contamination like "No. 103430 -0 15" from breaking patterns
+        # NOTE: Don't add digits to patterns - that would capture page numbers!
+        context_cleaned = potential_case_name
         
-        # Try multiple patterns in priority order
-        # USER REQUESTED: Support "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
-        # USER FIX 2024-10-16: Add "See [Case Name]" pattern with HIGHEST priority
+        # FIX #13: More aggressive case number removal
+        # Pattern: "No. 103430-0 15 v." where the case number has internal spaces/breaks
+        # Strategy: Remove ANY sequence of "No." + [digits/hyphens/spaces] that ends before " v."
+        # This handles: "Inc. No. 103430-0 15 v. Marston" → "Inc. v. Marston"
+        context_cleaned = re.sub(r'\s+No\.\s+[\d\-\s]+(?=\s+v\.)', ' ', context_cleaned, flags=re.IGNORECASE)
+        
+        # Remove case numbers after "v." (from page headers)
+        context_cleaned = re.sub(r'\s+\d+\s+No\.\s+[\d\-]+\s+', ' ', context_cleaned, flags=re.IGNORECASE)
+        context_cleaned = re.sub(r'\s+No\.\s+[\d\-\s]+\-[\d\-\s]+\s+', ' ', context_cleaned, flags=re.IGNORECASE)
+        
+        if context_cleaned != potential_case_name:
+            logger.error(f"[FIX #11] Cleaned case numbers from context")
+            logger.error(f"[FIX #11] Before: '{potential_case_name[-100:]}'")
+            logger.error(f"[FIX #11] After:  '{context_cleaned[-100:]}'")
+        
+        # Step 4: FIX #8 - Proximity-based case name extraction
+        # Find ALL candidate case names and pick the CLOSEST one to the citation
+        
+        # Define patterns for case names (not anchored to end)
+        # IMPORTANT: NO DIGITS in patterns - page numbers would match!
         patterns = [
-            # Pattern 0: "See [Case Name]" - HIGHEST PRIORITY (USER FIX)
-            # Matches: "See Flying T Ranch, Inc. v. Stillaguamish Tribe of Indians"
-            r'(?:See|see|Citing|citing|Compare|compare)\s+([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
+            # Pattern 0: "See [Case Name]" - HIGHEST PRIORITY
+            (r'(?:See|see|Citing|citing|Compare|compare)\s+([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})', 0, 'signal_word'),
             
-            # Pattern 1: "In re" cases - greedy match to end of string
-            r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            # Pattern 1: "In re" cases
+            (r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})', 1, 'in_re'),
             
-            # Pattern 2: "In the matter of" cases (full form)
-            r'(In\s+the\s+matter\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            # Pattern 2: "Ex parte" cases
+            (r'(Ex\s+parte\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})', 1, 'ex_parte'),
             
-            # Pattern 3: "Matter of" cases (short form)
-            r'(Matter\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
+            # Pattern 3: Full case name with "v."
+            (r'([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})', 2, 'standard'),
             
-            # Pattern 4: "Ex parte" cases
-            r'(Ex\s+parte\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
-            
-            # Pattern 5: "Estate of" cases
-            r'(Estate\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
-            
-            # Pattern 6: "In re" after sentence boundary
-            r'(?:^|[.!?]\s+)(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})$',
-            
-            # Pattern 7: Full case name with "v." - greedy match to end of string
-            r'([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
-            
-            # Pattern 8: After sentence boundary (period, question, exclamation)
-            r'(?:^|[.!?]\s+)([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
-            
-            # Pattern 9: After quotation mark
-            r'["\']?\s*([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})$',
+            # Pattern 4: FIX #12 - Short-form citations (single party name at END)
+            # Matches: "... that [Endnote 18] Marston" where full case appears earlier
+            # Only matches if at very end of context (last 20 chars) to avoid false positives
+            # Accepts single capitalized word of 4+ chars (Marston, Smith, etc.)
+            (r'([A-Z][a-zA-Z]{3,}(?:\s+[A-Z][a-zA-Z]+)*)$', 10, 'short_form'),
         ]
         
-        for i, pattern in enumerate(patterns):
-            match = re.search(pattern, potential_case_name, re.IGNORECASE)
-            if match:
+        # Find all candidate case names with their positions
+        # FIX #11: Use cleaned context for pattern matching AND position calculations
+        candidates = []
+        for pattern, priority, pattern_type in patterns:
+            for match in re.finditer(pattern, context_cleaned, re.IGNORECASE):
                 case_name = match.group(1).strip()
+                # FIX #11b: Use cleaned context length for distance calculation
+                distance_from_end = len(context_cleaned) - match.end()
                 
-                # FIX #69 DEBUG: Always log pattern matches
-                logger.error(f"[FIX #69 MATCH] Pattern {i+1} matched! Raw: '{case_name[:100]}'")
+                # FIX #8: Check if this crosses a section header boundary
+                # FIX #11b: Use cleaned context for boundary check
+                # PHASE 6 FIX: Add semicolon as boundary - semicolons separate different cases in legal citations
+                # Example: "See Cayuga...; Oneida...; Hamaatsa..." - each case is separated by semicolon
+                text_after_match = context_cleaned[match.end():]
+                has_semicolon = ';' in text_after_match[:200]
+                has_section_header = bool(re.search(r'\n\s*[A-Z][A-Z\s]{3,}\n', text_after_match[:200]))
+                crosses_boundary = has_semicolon or has_section_header
                 
-                # Step 5: Clean the case name
-                case_name = self._clean_case_name(case_name)
-                logger.error(f"[FIX #69 CLEANED] After clean: '{case_name[:100]}'")
+                # PHASE 6 DEBUG
+                if has_semicolon:
+                    logger.error(f"[PHASE6] SEMICOLON detected after '{case_name[:30]}' - applying boundary penalty")
                 
-                # FIX #69: Remove common citation introducers
-                introducer_patterns = [
-                    r'^(?:See|Citing|Quoting|Following|E\.g\.,)\s+',  # "quoting Kidwell..." → "Kidwell..."
-                    r'^(?:see|citing|quoting|following|e\.g\.,)\s+',  # lowercase versions
-                ]
-                
-                original_name = case_name
-                for intro_pattern in introducer_patterns:
-                    case_name = re.sub(intro_pattern, '', case_name, flags=re.IGNORECASE)
-                
-                if case_name != original_name:
-                    logger.error(f"[FIX #69 INTRODUCER] Removed introducer: '{original_name[:50]}' -> '{case_name[:50]}'")
-                
-                # Step 6: Validate it looks like a case name
-                if not self._looks_like_case_name(case_name, debug):
-                    logger.error(f"[FIX #69 VALIDATION FAIL] Doesn't look like case name: '{case_name[:100]}'")
-                    continue  # Try next pattern
-                
-                logger.error(f"[FIX #69 VALIDATION OK] Passed validation!")
-                
-                # Step 7: Extract year from context after citation
-                year_context = text[start_index:start_index + 100]
-                year = self._extract_year_from_context(year_context, debug)
-                
-                logger.error(f"[FIX #69 FINAL] Case name: '{case_name}' ({len(case_name)} chars), Year: {year}")
-                
-                # FIX #69: Apply canonical preferences if available
-                preferred_name, preferred_year, canonical_meta = self._apply_canonical_preferences(
-                    citation,
-                    case_name,
-                    year,
-                )
-                canonical_year_value = extract_year_value(
-                    canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date")
-                )
-                
-                return MasterExtractionResult(
-                    case_name=preferred_name or "N/A",
-                    year=preferred_year or "N/A",
-                    confidence=0.9,  # High confidence - comma anchor is reliable
-                    method="comma_anchored",
-                    context=f"...{potential_case_name[-100:]}",
-                    debug_info={
-                        "comma_position": comma_pos,
-                        "case_name_length": len(case_name),
-                        "pattern_used": i + 1,
-                        "canonical": canonical_meta
-                    },
-                    canonical_name=canonical_meta.get("canonical_name"),
-                    canonical_year=canonical_year_value,
-                    extracted_case_name=case_name,
-                    extracted_year=year,
-                )
+                candidates.append({
+                    'name': case_name,
+                    'distance': distance_from_end,
+                    'priority': priority,
+                    'pattern_type': pattern_type,
+                    'position': match.start(),
+                    'crosses_boundary': crosses_boundary
+                })
         
-        # FIX #69 DEBUG: Always log when no pattern matches
-        logger.error(f"[FIX #69 NO MATCH] None of the {len(patterns)} patterns matched")
-        logger.error(f"[FIX #69 NO MATCH] Context was: '{potential_case_name[-200:]}'")
+        # FIX #8 DEBUG: Log all candidates
+        if candidates:
+            logger.error(f"[FIX #8] Found {len(candidates)} candidate case names")
+            for idx, cand in enumerate(candidates):
+                logger.error(f"  Candidate {idx+1}: '{cand['name'][:50]}' (distance: {cand['distance']}, priority: {cand['priority']}, boundary: {cand['crosses_boundary']})")
+        
+        # FIX #8: Score and sort candidates
+        # Lower score = better match
+        for cand in candidates:
+            score = (
+                cand['priority'] * 1000 +      # Pattern priority (0-2) x1000
+                cand['distance'] +              # Distance from citation
+                (10000 if cand['crosses_boundary'] else 0)  # Heavy penalty for crossing boundaries
+            )
+            cand['score'] = score
+        
+        # Sort by score (ascending - lower is better)
+        candidates.sort(key=lambda x: x['score'])
+        
+        # Pick the best candidate
+        best_match = None
+        if candidates:
+            best_match = candidates[0]
+            logger.error(f"[FIX #8 SELECTED] Best match: '{best_match['name'][:50]}' (score: {best_match['score']})")
+        
+        if best_match:
+            # Step 5: Extract and clean the best match
+            case_name = best_match['name']
+            
+            # FIX #8 DEBUG: Log the selected case name
+            logger.error(f"[FIX #8 EXTRACTED] Raw: '{case_name[:100]}'")
+            
+            # Step 6: Clean the case name
+            case_name = self._clean_case_name(case_name)
+            logger.error(f"[FIX #8 CLEANED] After clean: '{case_name[:100]}'")
+            
+            # Step 7: Remove common citation introducers
+            introducer_patterns = [
+                r'^(?:See|Citing|Quoting|Following|E\.g\.,)\s+',  # "quoting Kidwell..." → "Kidwell..."
+                r'^(?:see|citing|quoting|following|e\.g\.,)\s+',  # lowercase versions
+            ]
+            
+            original_name = case_name
+            for intro_pattern in introducer_patterns:
+                case_name = re.sub(intro_pattern, '', case_name, flags=re.IGNORECASE)
+            
+            if case_name != original_name:
+                logger.error(f"[FIX #8 INTRODUCER] Removed introducer: '{original_name[:50]}' -> '{case_name[:50]}'")
+            
+            # Step 8: Validate it looks like a case name
+            if not self._looks_like_case_name(case_name, debug):
+                logger.error(f"[FIX #8 VALIDATION FAIL] Doesn't look like case name: '{case_name[:100]}'")
+                return None  # No valid match found
+            
+            logger.error(f"[FIX #8 VALIDATION OK] Passed validation!")
+            
+            # Step 9: Extract year from context after citation
+            year_context = text[start_index:start_index + 100]
+            year = self._extract_year_from_context(year_context, debug)
+            
+            logger.error(f"[FIX #8 FINAL] Case name: '{case_name}' ({len(case_name)} chars), Year: {year}")
+            
+            # Step 10: Apply canonical preferences if available
+            preferred_name, preferred_year, canonical_meta = self._apply_canonical_preferences(
+                citation,
+                case_name,
+                year,
+            )
+            canonical_year_value = extract_year_value(
+                canonical_meta.get("canonical_year") or canonical_meta.get("canonical_date")
+            )
+            
+            print(f"[PHASE6-RETURN] Comma anchor returning: '{preferred_name or case_name}'", flush=True)
+            return MasterExtractionResult(
+                case_name=preferred_name or "N/A",
+                year=preferred_year or "N/A",
+                confidence=0.9,  # High confidence - proximity-based selection
+                method="comma_anchored_proximity",
+                context=f"...{potential_case_name[-100:]}",
+                debug_info={
+                    "comma_position": comma_pos,
+                    "case_name_length": len(case_name),
+                    "pattern_type": best_match['pattern_type'],
+                    "distance": best_match['distance'],
+                    "score": best_match['score'],
+                    "canonical": canonical_meta
+                },
+                canonical_name=canonical_meta.get("canonical_name"),
+                canonical_year=canonical_year_value,
+                extracted_case_name=case_name,
+                extracted_year=year,
+            )
+        
+        # FIX #8 DEBUG: Log when no candidates found
+        logger.error(f"[FIX #8 NO MATCH] No candidate case names found")
+        logger.error(f"[FIX #8 NO MATCH] Context was: '{potential_case_name[-200:]}'")
         
         return None
     
@@ -642,6 +1003,7 @@ class UnifiedCaseExtractionMaster:
         """
         # FIX #69 DEBUG: Always log validation attempts
         logger.error(f"[FIX #69 VALIDATE] Checking: '{text[:100] if text else 'None'}'")
+        print(f"[PHASE6-VALIDATION-START] Checking: '{text}'", flush=True)
         
         # USER FIX: Allow special case types in addition to " v. " cases
         # Support: "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
@@ -657,6 +1019,7 @@ class UnifiedCaseExtractionMaster:
         
         if not text or (not has_v_pattern and not is_special_case):
             logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' or special case pattern in text")
+            print(f"[PHASE6-VALIDATION-FAIL] No v. or special case pattern", flush=True)
             return False
         
         if len(text) < 10:
@@ -724,10 +1087,12 @@ class UnifiedCaseExtractionMaster:
         # FIX: Check if extracted name matches document's primary case name (CONTAMINATION)
         if self.document_primary_case_name:
             logger.error(f"[CONTAMINATION-FILTER] Checking '{text[:80]}' against primary '{self.document_primary_case_name[:80]}'")
+            print(f"[PHASE6-CONTAMINATION-CHECK] Primary case: '{self.document_primary_case_name}'", flush=True)
             contamination_result = self._is_document_case_contamination(text, True)  # Force debug
             if contamination_result:
                 logger.error(f"[CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case")
                 logger.error(f"[CONTAMINATION-FILTER]    Rejected text: '{text[:100]}'")
+                print(f"[PHASE6-VALIDATION-FAIL] Contamination: matches primary case '{self.document_primary_case_name}'", flush=True)
                 return False
             else:
                 logger.error(f"[CONTAMINATION-FILTER] ⚠️  Passed (no match): '{text[:80]}'")
@@ -735,6 +1100,7 @@ class UnifiedCaseExtractionMaster:
             logger.error(f"[CONTAMINATION-FILTER] ⚠️  SKIPPED: No document primary case name set!")
         
         logger.error(f"[FIX #69 VALIDATE] SUCCESS: All checks passed!")
+        print(f"[PHASE6-VALIDATION-PASS] All checks passed!", flush=True)
         return True
     
     def _is_document_case_contamination(self, extracted_name: str, debug: bool) -> bool:
@@ -798,7 +1164,11 @@ class UnifiedCaseExtractionMaster:
                 return True
             
             # FIX: Also check for distinctive words from PLAINTIFF
-            common_parties = ['united states', 'state', 'county', 'city', 'government', 'people']
+            # PHASE 6 FIX: Added common organizational/tribal words to prevent false matches
+            # (e.g., "Cayuga Indian Nation" vs "Oneida Indian Nation" should not match on "indian nation")
+            common_parties = ['united states', 'state', 'county', 'city', 'government', 'people', 
+                             'indian', 'nation', 'tribe', 'tribal', 'band', 'company', 'corporation',
+                             'incorporated', 'limited', 'association', 'society']
             plaintiff_words = [word for word in plaintiff.split() if len(word) > 5]  # Very distinctive words
             for plaint_word in plaintiff_words:
                 if plaint_word not in common_parties and plaint_word in extracted_normalized:
@@ -810,13 +1180,15 @@ class UnifiedCaseExtractionMaster:
             
             # If defendant is distinctive (>8 chars, not common) and appears, likely contamination
             # Common defendants like "United States" don't count
-            common_parties = ['united states', 'state', 'county', 'city', 'government']
+            # PHASE 6 FIX: Use same extended list as plaintiff check
+            common_parties_def = ['united states', 'state', 'county', 'city', 'government',
+                                 'indian', 'nation', 'tribe', 'tribal', 'band']
             
             # FIX: Check for ANY distinctive word from defendant, not just full name
             # "MELONE Railroad" should match defendant "andrew melone" via "melone"
             defendant_words = [word for word in defendant.split() if len(word) > 4]  # Significant words only
             for def_word in defendant_words:
-                if def_word not in common_parties and def_word in extracted_normalized:
+                if def_word not in common_parties_def and def_word in extracted_normalized:
                     if debug:
                         logger.warning(f"[CONTAMINATION-FILTER] Defendant word match:")
                         logger.warning(f"  Extracted: '{extracted_name}'")
@@ -825,7 +1197,7 @@ class UnifiedCaseExtractionMaster:
             
             # Also check full defendant name (original logic)
             if (len(defendant) > 8 and 
-                defendant not in common_parties and 
+                defendant not in common_parties_def and 
                 defendant in extracted_normalized):
                 if debug:
                     logger.warning(f"[CONTAMINATION-FILTER] Full defendant match:")
@@ -857,11 +1229,11 @@ class UnifiedCaseExtractionMaster:
     
     def _extract_with_position(self, text: str, citation: str, start_index: int, end_index: int, debug: bool) -> Optional[MasterExtractionResult]:
         """Position-aware extraction with optimized context window."""
-        # USER FIX 2024-10-16: CRITICAL - Reduce context from 400 to 150 chars!
-        # 400 chars was picking up case names from OTHER nearby citations
-        # Example: "76 Idaho 374" was getting "Oneida Indian Nation" from 300 chars away
-        # Strict proximity (150 chars) ensures we only get the CORRECT case name
-        context_start = max(0, start_index - 150)  # USER FIX: Reduced from 400 to 150
+        # USER FIX 2024-10-21: Increase to 300 chars for vacatur pattern detection
+        # 150 chars wasn't enough to reach both "vacated and remanded" AND the case name before it
+        # Example: "Oneida v. Madison, 605 F.3d 149...vacated and remanded, 562 U.S. 42" needs ~200+ chars
+        # 300 chars should be safe while still avoiding contamination from distant citations
+        context_start = max(0, start_index - 300)  # USER FIX: Increased from 150 to 300 for vacatur
         # FIX #38: ONLY look BACKWARD! Context must end at START of citation, not END!
         # Fix #32 used end_index which allowed 15 chars of forward context (citation length),
         # causing extraction of "Spokane County" (after citation) instead of "Lopez Demetrio" (before).
@@ -887,6 +1259,26 @@ class UnifiedCaseExtractionMaster:
         # Example: "E. Palo Alto v. U.S. Dep't\nof Health" → "E. Palo Alto v. U.S. Dep't of Health"
         context = self._normalize_whitespace_for_extraction(context, debug)
         
+        # PHASE 6 FIX: Check for semicolons in context (they separate different cases)
+        # If there's a semicolon, only use text AFTER the last semicolon
+        # Example: "Cayuga..., 761 F.3d 218; Oneida..., 605 F.3d 149"
+        #          We want "Oneida" (after semicolon), not "Cayuga" (before)
+        if ';' in context:
+            last_semicolon_pos = context.rfind(';')
+            print(f"[PHASE6-POSITION] Semicolon found at position {last_semicolon_pos} in context - using text after it", flush=True)
+            old_context = context
+            context = context[last_semicolon_pos + 1:]  # Only use text AFTER last semicolon
+            # Strip leading/trailing whitespace and commas to help patterns match
+            context = context.strip().rstrip(',').strip()
+            print(f"[PHASE6-POSITION] Old context: '{old_context[-80:]}'", flush=True)
+            print(f"[PHASE6-POSITION] New context (trimmed): '{context}'", flush=True)
+            
+            # IMPORTANT: After trimming, context_start is no longer accurate!
+            # The trimmed context ends at start_index and has length len(context)
+            # So it starts at: start_index - len(context)
+            context_start = start_index - len(context)
+            print(f"[PHASE6-POSITION] Adjusted context_start from {max(0, start_index - 300)} to {context_start}", flush=True)
+        
         # FIX #40: CRITICAL ASSERTION - Context must NOT include the citation itself!
         # This catches any bugs where context extends past start_index
         citation_snippet = citation[:min(10, len(citation))]  # First 10 chars of citation
@@ -903,7 +1295,118 @@ class UnifiedCaseExtractionMaster:
             logger.warning(f"   Full context: '{context}'")
             logger.warning(f"   Text AFTER citation (next 150 chars): '{text[end_index:end_index+150]}'")
         
+        # USER FIX: Handle "vacated and remanded" pattern
+        # When Supreme Court citations follow appellate decisions with "vacated and remanded",
+        # extract the case name from IMMEDIATELY BEFORE the vacatur phrase, not from earlier in the paragraph
+        vacatur_patterns = [
+            r'vacated\s+and\s+remanded',
+            r'vacated',
+            r'aff\'d',
+            r'affirmed',
+            r'reversed',
+            r'rev\'d',
+            r'remanded'
+        ]
+        
+        if debug:
+            logger.warning(f"🔍 VACATUR_DEBUG: Checking for vacatur patterns before citation '{citation}'")
+            logger.warning(f"🔍 VACATUR_DEBUG: Search context ({len(context)} chars): '{context[-200:]}'")
+        
+        for vacatur_pattern in vacatur_patterns:
+            vacatur_match = re.search(vacatur_pattern, context, re.IGNORECASE)
+            if debug:
+                logger.warning(f"🔍 VACATUR_DEBUG: Pattern '{vacatur_pattern}' -> {'FOUND' if vacatur_match else 'NOT FOUND'}")
+            
+            if vacatur_match:
+                # USER FIX: Check if there's a semicolon between vacatur and citation
+                # Semicolons separate different cases - don't apply vacatur across this boundary
+                text_after_vacatur = context[vacatur_match.end():]
+                if ';' in text_after_vacatur:
+                    if debug:
+                        logger.warning(f"🔍 VACATUR_DEBUG: SEMICOLON found between vacatur and citation - SKIPPING vacatur logic")
+                    continue  # Skip this vacatur pattern - it's for a different case
+                
+                # Found vacatur language - now find the case name BEFORE it
+                vacatur_pos_in_context = vacatur_match.start()
+                text_before_vacatur = context[:vacatur_pos_in_context]
+                
+                # Look for case name pattern immediately before vacatur
+                # Pattern: "Plaintiff Name v. Defendant Name, 123 F.3d 149" (or F.2d, F., etc.)
+                # Handles multi-word names like "Oneida Indian Nation v. Madison County"
+                case_name_pattern = r'([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*)\s+v\.\s+([A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*(?:\s+of\s+[A-Z\.\s]+)*),\s+\d+\s+F\.'
+                case_matches = list(re.finditer(case_name_pattern, text_before_vacatur))
+                
+                if debug:
+                    logger.warning(f"🔍 VACATUR_DEBUG: Found {len(case_matches)} case name matches before vacatur")
+                    if case_matches:
+                        for idx, match in enumerate(case_matches):
+                            logger.warning(f"🔍 VACATUR_DEBUG: Match {idx+1}: '{match.group(0)}'")
+                    logger.warning(f"🔍 VACATUR_DEBUG: Text before vacatur ({len(text_before_vacatur)} chars): '{text_before_vacatur[-200:]}'")
+                
+                if case_matches:
+                    # Take the LAST match (closest to vacatur phrase)
+                    last_match = case_matches[-1]
+                    plaintiff = last_match.group(1).strip()
+                    defendant = last_match.group(2).strip()
+                    
+                    # Clean up case names
+                    from src.utils.text_normalizer import clean_extracted_case_name
+                    plaintiff = clean_extracted_case_name(plaintiff)
+                    defendant = clean_extracted_case_name(defendant)
+                    vacatur_case_name = f"{plaintiff} v. {defendant}"
+                    
+                    if debug:
+                        logger.warning(f"✅ VACATUR_DETECTED: Found '{vacatur_pattern}' before citation")
+                        logger.warning(f"✅ VACATUR_CASE: Extracted '{vacatur_case_name}' from text before vacatur")
+                    
+                    # Validate the case name
+                    if len(plaintiff) >= 3 and len(defendant) >= 3 and len(vacatur_case_name) > 10:
+                        # USER FIX: For Supreme Court citations, look for year AFTER the current citation
+                        # Example: "562 U.S. 42, 131 S. Ct. 704, 178 L. Ed. 2d 587 (2011)"
+                        # The year (2011) is at the END of all parallel citations
+                        
+                        # Check if this is a Supreme Court citation (U.S., S.Ct., L.Ed.)
+                        is_supreme_court = any(x in citation for x in ['U.S.', 'S. Ct.', 'L. Ed.']) if citation else False
+                        
+                        year = None
+                        
+                        if is_supreme_court:
+                            # For Supreme Court citations, look for year AFTER current citation
+                            # This handles parallel citations like "562 U.S. 42, 131 S. Ct. 704 (2011)"
+                            after_citation_text = text[start_index:start_index + 200]
+                            year = self._extract_year_from_context(after_citation_text, debug)
+                            
+                            if debug and year:
+                                logger.warning(f"🔍 VACATUR_YEAR: Found Supreme Court year '{year}' after citation")
+                        
+                        # Fallback: Extract from Federal reporter citation
+                        if not year:
+                            fed_match_end_pos = last_match.end()
+                            year_search_text = text_before_vacatur[fed_match_end_pos:fed_match_end_pos + 50]
+                            year = self._extract_year_from_context(year_search_text, debug)
+                            
+                            if debug and year:
+                                logger.warning(f"🔍 VACATUR_YEAR: Found year '{year}' from Federal citation")
+                        
+                        if debug:
+                            logger.warning(f"🔍 VACATUR_YEAR: Final extracted year '{year}' for '{vacatur_case_name}'")
+                        
+                        return MasterExtractionResult(
+                            case_name=vacatur_case_name,
+                            year=year or "Unknown",
+                            confidence=0.98,
+                            method="vacatur_pattern",
+                            debug_info={"vacatur_pattern": vacatur_pattern, "case_name": vacatur_case_name, "year": year},
+                            extracted_case_name=vacatur_case_name,
+                            extracted_year=year
+                        )
+                
+                if debug:
+                    logger.warning(f"🔍 VACATUR_SKIP: Found '{vacatur_pattern}' but couldn't extract case name before it")
+                break  # Only check first matching vacatur pattern
+        
         # Try all patterns on the focused context
+        print(f"[PHASE6-PATTERN] Starting pattern matching on context: '{context[:60]}'", flush=True)
         for i, pattern in enumerate(self.case_name_patterns):
             # FIX #41: CRITICAL - Log EXACTLY what's passed to regex.search
             if debug:
@@ -917,6 +1420,7 @@ class UnifiedCaseExtractionMaster:
             
             match = re.search(pattern, context, re.IGNORECASE)
             if match:
+                print(f"[PHASE6-PATTERN] Pattern {i} MATCHED! Extracting...", flush=True)
                 if debug:
                     logger.warning(f"✅ Pattern {i} matched: {pattern[:60]}...")
                     logger.warning(f"   Groups: {match.groups()}")
@@ -949,16 +1453,24 @@ class UnifiedCaseExtractionMaster:
                     # Reject if extracted name is >100 chars away from citation
                     match_pos_in_original = context_start + match.start()
                     distance_from_citation = start_index - match_pos_in_original
+                    
+                    # PHASE 6 DEBUG
+                    print(f"[PHASE6-PROXIMITY] match.start()={match.start()}, context_start={context_start}, match_pos={match_pos_in_original}, start_index={start_index}, distance={distance_from_citation}", flush=True)
+                    
                     if distance_from_citation > 100:
+                        print(f"[PHASE6-REJECT-PROXIMITY] Rejected: distance {distance_from_citation} > 100", flush=True)
                         if debug:
                             logger.warning(f"   ❌ REJECTED: Too far from citation ({distance_from_citation} chars away)")
                         continue  # Try next pattern
                     
                     # P3 FIX: CRITICAL - Validate to filter contamination BEFORE accepting extraction
                     if not self._looks_like_case_name(cleaned_name, debug):
+                        print(f"[PHASE6-REJECT-VALIDATION] Rejected: name validation failed for '{cleaned_name}'", flush=True)
                         if debug:
                             logger.warning(f"   ❌ REJECTED by validation (contamination or invalid): '{cleaned_name[:100]}'")
                         continue  # Try next pattern
+                    
+                    print(f"[PHASE6-ACCEPT] Passed all validation! Returning: '{cleaned_name}'", flush=True)
                     
                     preferred_name, preferred_year, canonical_meta = self._apply_canonical_preferences(
                         citation,
@@ -1000,6 +1512,7 @@ class UnifiedCaseExtractionMaster:
                         extracted_year=year,
                     )
         
+        print(f"[PHASE6-PATTERN] NO patterns matched context: '{context[:60]}' - returning None (will fallback)", flush=True)
         return None
     
     def _extract_with_citation_context(self, text: str, citation: str, debug: bool) -> Optional[MasterExtractionResult]:
@@ -1171,8 +1684,21 @@ class UnifiedCaseExtractionMaster:
         
         # Remove common prefixes that indicate contamination
         # USER FIX: Protect special case type prefixes from removal
+        # CRITICAL: Remove signal words first, before other cleaning
         contamination_prefixes = [
-            r'^(?:The case of|As stated in|Citing|Following|See)\s+',
+            # Signal words FIRST - these introduce citations but aren't part of the case name
+            r'^(?:See|see|See also|see also|Citing|citing|Compare|compare|But see|but see|Cf\.|cf\.|quoting|Quoting|accord|Accord)\s+',
+            r'^(?:The case of|As stated in|Following)\s+',
+            
+            # Phase 4 USER FIX: Additional contamination phrases
+            r'^(?:The parties are|The parties were)\s+',
+            r'^(?:The court in|The court held|The court decided|The defendant|The plaintiff)\s+',
+            r'^(?:If in|As in)\s+',
+            
+            # Phase 4 USER FIX v2: Remove connecting phrases after signal words are removed
+            r'^(?:this|that|such|the)\s+(?:precedent|case|decision|holding|rule|standard|doctrine),?\s+in\s+',
+            r'^(?:precedent|case|decision|holding|rule|standard|doctrine),?\s+in\s+',
+            
             r'^(?:court held that|established|the defendant)\s*[.\s]*',
             r'^(?:of\s+law)[\s\.]*',
             # Only remove "In " if NOT part of case type prefixes
@@ -1186,15 +1712,49 @@ class UnifiedCaseExtractionMaster:
             r'^Ex\s+(?!parte\s)',
         ]
         
+        # FIX #9: Remove case/docket numbers that appear due to page breaks
+        # CRITICAL: Handle spaces within case numbers from line breaks: "No. 103430 -0 15"
+        
+        # Pattern 1: Before "v." - Standard case numbers
+        cleaned = re.sub(r'\s+No\.\s+[\d\-]+\s+\d+(?=\s+v\.)', '', cleaned, flags=re.IGNORECASE)
+        cleaned = re.sub(r'\s+No\.\s+[\d\-]+(?=\s+v\.)', '', cleaned, flags=re.IGNORECASE)
+        
+        # Pattern 1b: Complex case numbers with hyphens (continuous or with spaces)
+        # "No. 103430-0-15" OR "No. 103430 -0 15" → remove before "v."
+        cleaned = re.sub(r'\s+No\.\s+[\d\-\s]+\-[\d\-\s]+(?=\s+v\.)', '', cleaned, flags=re.IGNORECASE)
+        
+        # Pattern 1c: Case numbers with spaces from line breaks: "No. 103430 -0 15"
+        # This specifically targets the problematic pattern with internal spaces
+        cleaned = re.sub(r'\s+No\.\s+\d+\s+-\d+\s+\d+(?=\s+v\.)', '', cleaned, flags=re.IGNORECASE)
+        
+        # Pattern 2: After "v." - Page number contamination
+        # "Inc. v. Band 6 No. 103430-0 Tribe" → "Inc. v. Band Tribe"
+        cleaned = re.sub(r'\s+\d+\s+No\.\s+[\d\-]+\s+', ' ', cleaned, flags=re.IGNORECASE)
+        
+        # Pattern 2b: Complex case numbers after "v." (with or without spaces)
+        cleaned = re.sub(r'\s+No\.\s+[\d\-\s]+\-[\d\-\s]+\s+', ' ', cleaned, flags=re.IGNORECASE)
+        
+        # Pattern 3: Standalone page numbers between words (page breaks)
+        # "Band 6 Potawatomi" → "Band Potawatomi" (only if surrounded by capitals)
+        cleaned = re.sub(r'([A-Z][a-z]+)\s+\d{1,2}\s+([A-Z][a-z]+)', r'\1 \2', cleaned)
+        
+        # USER FIX 2024-10-21: Strip whitespace before applying patterns
+        # Ensures ^ anchor works correctly even if there's leading whitespace
+        cleaned = cleaned.strip()
+        
         for prefix in contamination_prefixes:
-            cleaned = re.sub(prefix, '', cleaned, flags=re.IGNORECASE)
+            before = cleaned
+            cleaned = re.sub(prefix, '', cleaned, flags=re.IGNORECASE).strip()
+            if before != cleaned:
+                logger.error(f"[CLEAN_DEBUG] Removed prefix: '{before}' → '{cleaned}'")
         
         # NEW: Remove descriptive legal phrases and status words that contaminate case names
         # Strategy: If we detect contamination words, try to extract just the case name portion
         
         # First, remove common procedural introducers at the start
+        # NOTE: Signal words are now handled in contamination_prefixes above
         procedural_prefixes = [
-            r'^(?:under|applying|following|citing|relying on|See|see)\s+',
+            r'^(?:under|applying|following|relying on)\s+',
         ]
         for pattern in procedural_prefixes:
             cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
@@ -1275,8 +1835,10 @@ class UnifiedCaseExtractionMaster:
         
         # Check if this looks like a document header
         if self._is_document_header(cleaned):
+            logger.error(f"[CLEAN_DEBUG] REJECTED as header: '{cleaned}'")
             return "N/A"
         
+        logger.error(f"[CLEAN_DEBUG] FINAL cleaned: '{cleaned}'")
         return cleaned.strip()
     
     def _is_document_header(self, text: str) -> bool:
@@ -1285,8 +1847,9 @@ class UnifiedCaseExtractionMaster:
             return True
         
         # Document header patterns
+        # CRITICAL: These should NOT match valid case names (containing " v. ")
         header_patterns = [
-            r'^IN THE\s+',
+            r'^IN THE\s+(?!.*\s+v\.\s+)',  # "IN THE..." but not "IN THE MATTER OF X v. Y"
             r'^CASE NO\.\s*',
             r'^NO\.\s*\d+',
             r'^FILED:\s*',
@@ -1297,8 +1860,10 @@ class UnifiedCaseExtractionMaster:
             r'^APPEAL:\s*',
             r'^APPELLATE:\s*',
             r'^SUPREME:\s*',
-            r'^STATE OF\s+',
-            r'^UNITED STATES\s+',
+            r'^STATE OF\s+(?!.*\s+v\.\s+)',  # "STATE OF..." but not case name
+            # CRITICAL FIX: Don't reject "United States v. X" as header!
+            # Only reject standalone "UNITED STATES" or "UNITED STATES" followed by punctuation
+            r'^UNITED STATES\s*[,;:\.]?\s*$',  # Standalone only
             r'^PLAINTIFFS,?\s*$',
             r'^DEFENDANTS\.?\s*$',
             r'^PLAINTIFFS-APPELLEES,?\s*$',

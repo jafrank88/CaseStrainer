@@ -88,24 +88,33 @@ def is_valid_case_name(case_name: Optional[str], min_length: int = 5) -> bool:
         logger.debug(f"Rejected: Ends with article/preposition: '{case_name}'")
         return False
     
-    # Must have at least one word before and after "v."
+    # For adversarial cases (with "v."), must have parts before and after
     parts = re.split(r'\bv\.?\b|\bvs\.?\b', case_name, flags=re.IGNORECASE)
-    if len(parts) < 2:
-        logger.debug(f"Rejected: Not enough parts around 'v.': '{case_name}'")
-        return False
     
-    plaintiff = parts[0].strip()
-    defendant = parts[1].strip() if len(parts) > 1 else ''
-    
-    # Both sides must have actual content
-    if len(plaintiff) < 2 or len(defendant) < 2:
-        logger.debug(f"Rejected: Plaintiff or defendant too short: '{case_name}'")
-        return False
-    
-    # At least one side should start with a capital letter (proper noun)
-    if not (plaintiff[0].isupper() or defendant[0].isupper()):
-        logger.debug(f"Rejected: Neither side starts with capital: '{case_name}'")
-        return False
+    if has_v:
+        # Adversarial case validation
+        if len(parts) < 2:
+            logger.debug(f"Rejected: Not enough parts around 'v.': '{case_name}'")
+            return False
+        
+        plaintiff = parts[0].strip()
+        defendant = parts[1].strip() if len(parts) > 1 else ''
+        
+        # Both sides must have actual content
+        if len(plaintiff) < 2 or len(defendant) < 2:
+            logger.debug(f"Rejected: Plaintiff or defendant too short: '{case_name}'")
+            return False
+        
+        # At least one side should start with a capital letter (proper noun)
+        if not (plaintiff[0].isupper() or defendant[0].isupper()):
+            logger.debug(f"Rejected: Neither side starts with capital: '{case_name}'")
+            return False
+    else:
+        # Special case validation (In re, Ex parte, etc.)
+        # Just check that it's not all lowercase or obviously malformed
+        if case_name.islower():
+            logger.debug(f"Rejected: Special case is all lowercase: '{case_name}'")
+            return False
     
     return True
 

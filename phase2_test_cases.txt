@@ -1,0 +1,55 @@
+Phase 2 Test Cases - Case Name Extraction Fixes
+
+TEST 1: Signal Word Contamination ("If in Worcester v. Georgia")
+================================================================================
+Text to submit:
+If in Worcester v. Georgia, the Supreme Court held that federal law preempted state authority. See Martin v. Lessee of Waddell, 16 Pet. 367, 10 L. Ed. 997 (1842).
+
+Expected Results:
+- Citation: 16 Pet. 367
+- Case Name: "Martin v. Lessee of Waddell" (NOT "If in Worcester v. Georgia")
+- No signal word contamination
+
+
+TEST 2: Corporate Suffix Capture ("Outsource Services Management, LLC")
+================================================================================
+Text to submit:
+Outsource Services Management, LLC v. Nooksack Business Corp., 181 Wn.2d 272, 333 P.3d 380 (2014).
+
+Expected Results:
+- Citation: 181 Wn.2d 272
+- Case Name: "Outsource Services Management, LLC v. Nooksack Business Corp." (NOT "N/A")
+- Full corporate names captured including LLC
+
+
+TEST 3: Wrong Case Extraction ("State v. Lazcano")
+================================================================================
+Text to submit:
+In Gorman v. City of Woodinville, 175 Wn.2d 68, 283 P.3d 1082 (2012), the court followed the reasoning in State v. Lazcano.
+
+Expected Results:
+- Citation: 175 Wn.2d 68
+- Case Name: "Gorman v. City of Woodinville" (NOT "State v. Lazcano")
+- Correct case name from immediate context
+
+
+TEST 4: Combined Test (All fixes together)
+================================================================================
+Text to submit:
+If in Worcester v. Georgia, the Court established important principles. Later, Outsource Services Management, LLC v. Nooksack Business Corp., 181 Wn.2d 272 (2014), clarified this. In Gorman v. City of Woodinville, 175 Wn.2d 68 (2012), the court followed State v. Lazcano's reasoning.
+
+Expected Results:
+- 181 Wn.2d 272: "Outsource Services Management, LLC v. Nooksack Business Corp."
+- 175 Wn.2d 68: "Gorman v. City of Woodinville"
+- No "If in Worcester" contamination
+- No "N/A" results
+
+
+VERIFICATION CHECKLIST:
+================================================================================
+✓ No signal words ("If", "When", "Where") in extracted names
+✓ Full corporate names with LLC, Inc., Corp. captured
+✓ No "N/A" for valid case names
+✓ Correct case name from immediate context (not nearby references)
+✓ No cross-citation contamination
+✓ Semicolon boundaries still respected (Phase 1 fix maintained)

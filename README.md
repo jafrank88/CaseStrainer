@@ -235,6 +235,24 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 - [Enhanced Citation Processing](docs/ENHANCED_CITATION_PROCESSING.md) - Citation processing details
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Deployment Guide](docs/DEPLOYMENT_VUE.md) - Complete deployment instructions
+- [Word Add-In (BriefCheck)](docs/WORD_ADDIN.md) - Microsoft Word integration guide
+- [Browser Extension](docs/BROWSER_EXTENSION.md) - Browser extension documentation (planned feature)
+
+## 📦 Extensions & Integrations
+
+### Word Add-In (BriefCheck)
+Analyze and verify citations directly within Microsoft Word documents. See [WORD_ADDIN.md](docs/WORD_ADDIN.md) for installation and usage instructions.
+
+### Browser Extension (Planned)
+Verify citations in real-time while browsing legal websites. See [BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md) for planned features and development roadmap.
+
+## 🔗 Repository
+
+**GitHub**: https://github.com/jafrank88/casestrainer
+
+- **Issues**: https://github.com/jafrank88/casestrainer/issues
+- **Discussions**: https://github.com/jafrank88/casestrainer/discussions
+- **Contributing**: See CONTRIBUTING.md for guidelines
 
 ## 🔄 Recent Updates (v1.3.0)
 

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaseStrainer</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚖️ CaseStrainer</h1>
+      <p class="subtitle">Citation Verification</p>
+    </header>
+
+    <div class="stats">
+      <div class="stat-item">
+        <span class="stat-number" id="totalCitations">0</span>
+        <span class="stat-label">Citations Found</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number verified" id="verifiedCount">0</span>
+        <span class="stat-label">Verified</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number unverified" id="unverifiedCount">0</span>
+        <span class="stat-label">Unverified</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="reanalyze" class="btn btn-primary">
+        <span>🔄</span> Re-analyze Page
+      </button>
+      <button id="openOptions" class="btn btn-secondary">
+        <span>⚙️</span> Settings
+      </button>
+    </div>
+
+    <div id="citationsList" class="citations-list"></div>
+
+    <div id="loading" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <p>Analyzing citations...</p>
+    </div>
+
+    <div id="error" class="error" style="display: none;"></div>
+
+    <footer>
+      <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank">CaseStrainer</a>
+      |
+      <a href="https://github.com/jafrank88/casestrainer" target="_blank">GitHub</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

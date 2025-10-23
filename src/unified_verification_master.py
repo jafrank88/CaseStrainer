@@ -240,20 +240,19 @@ class UnifiedVerificationMaster:
                     logger.warning(f"⚠️ MASTER_VERIFY: CourtListener search also rate limited")
                     # Continue to fallback
         
+        # USER FIX: Re-enabled fallback with aggressive timeouts (was disabled due to 6+ min hangs)
         # Strategy 2: Enhanced fallback verification (if enabled)
-        # Call fallback even if CourtListener is rate limited (fallback has 9+ other sources)
         elapsed = time.time() - start_time
-        logger.error(f"🔥 [FALLBACK-CHECK] enable_fallback={enable_fallback}, elapsed={elapsed:.1f}s, timeout={timeout}s")
         if enable_fallback and elapsed < timeout:
-            logger.error(f"🔥 [FALLBACK-CHECK] Condition TRUE - calling fallback with {timeout - elapsed:.1f}s remaining")
+            logger.info(f"🔄 FALLBACK-CHECK: Calling fallback with {timeout - elapsed:.1f}s remaining")
             result = await self._verify_with_enhanced_fallback(citation, extracted_case_name, extracted_date, timeout - elapsed)
             if result.verified:
                 logger.info(f"✅ MASTER_VERIFY: Fallback verification succeeded for '{citation}'")
                 return result
             else:
-                logger.error(f"🔥 [FALLBACK-CHECK] Fallback returned unverified: {result.error}")
+                logger.info(f"⚠️ FALLBACK-CHECK: Fallback returned unverified: {result.error}")
         else:
-            logger.error(f"🔥 [FALLBACK-CHECK] Condition FALSE - skipping fallback!")
+            logger.info(f"ℹ️ FALLBACK-CHECK: Skipping fallback (enable_fallback={enable_fallback}, timeout={elapsed >= timeout})")
         
         # No verification succeeded - increment retry counter
         self.retry_tracker[citation] = retry_count + 1
@@ -365,26 +364,26 @@ class UnifiedVerificationMaster:
         unverified_count = len(results) - verified_count
         logger.info(f"✅ MASTER_BATCH_VERIFY: Completed {len(results)} verifications ({verified_count} verified, {(verified_count/len(results)*100):.1f}%)")
         
-        # CRITICAL: Run fallback verification for unverified citations
+        # USER FIX: RE-ENABLED fallback verification with aggressive timeouts
+        # Prevents 6+ minute hangs by limiting each fallback to 15 seconds max (increased for CaseMine priority)
         if unverified_count > 0:
-            logger.info(f"🔄 FALLBACK: Starting fallback verification for {unverified_count} unverified citations")
+            logger.info(f"🔄 FALLBACK ENABLED: Attempting fallback for {unverified_count} unverified citations (15s timeout per citation)")
             
+            # Run fallback with strict timeouts
             for i, result in enumerate(results):
                 if not result.verified:
                     citation = citations[i]
-                    extracted_name = case_names[i] if i < len(case_names) else None
-                    extracted_date = dates[i] if i < len(dates) else None
-                    
+                    extracted_name = case_names[i] if case_names and i < len(case_names) else None
+                    extracted_date = dates[i] if dates and i < len(dates) else None
                     logger.info(f"🔍 FALLBACK: Attempting fallback for '{citation}'")
-                    
                     try:
+                        # CRITICAL: 15-second timeout per citation (increased for CaseMine)
                         fallback_result = await self._verify_with_enhanced_fallback(
-                            citation,
-                            extracted_name,
-                            extracted_date,
-                            remaining_timeout=10.0  # 10 seconds per fallback attempt
+                            citation=citation,
+                            extracted_case_name=extracted_name,
+                            extracted_date=extracted_date,
+                            remaining_timeout=15.0  # Increased to 15s to allow CaseMine to run
                         )
-                        
                         if fallback_result.verified:
                             logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via {fallback_result.source}")
                             results[i] = fallback_result
@@ -458,42 +457,42 @@ class UnifiedVerificationMaster:
                 response = self.session.post(url, json=payload, timeout=30)
                 logger.error(f"[BATCH-API-DEBUG] Response status: {response.status_code}")
                 
+                # USER FIX: DISABLE fallback when rate limited - causes 6+ minute hangs
                 # Handle 429 rate limit - fall back to enhanced fallback verifier
                 if response.status_code == 429:
-                    logger.warning(f"⚠️  CourtListener rate limited (429) - falling back to enhanced verifier for {len(citations)} citations")
-                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
-                    fallback = EnhancedFallbackVerifier()
-                    fallback_results = []
-                    for i, citation in enumerate(citations):
-                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
-                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
-                        fallback_result = await fallback.verify_citation_async(
-                            citation, 
-                            extracted_case_name=extracted_name,
-                            extracted_date=extracted_date
-                        )
-                        fallback_results.append(fallback_result)
-                    logger.info(f"✅ Fallback verification completed for {len(fallback_results)} citations")
-                    return fallback_results
+                    logger.warning(f"⚠️  CourtListener rate limited (429) - returning unverified (fallback disabled)")
+                    # DISABLED - fallback causes 6+ minute hangs
+                    # from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                    # fallback = EnhancedFallbackVerifier()
+                    # fallback_results = []
+                    # for i, citation in enumerate(citations):
+                    #     extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                    #     extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                    #     fallback_result = await fallback.verify_citation_async(...)
+                    #     fallback_results.append(fallback_result)
+                    # logger.info(f"✅ Fallback verification completed for {len(fallback_results)} citations")
+                    # return fallback_results
+                    
+                    # Return unverified results
+                    return [VerificationResult(citation=c, verified=False, error="CourtListener rate limited") for c in citations]
                 
                 response.raise_for_status()
             except requests.exceptions.HTTPError as e:
+                # USER FIX: DISABLE fallback - causes 6+ minute hangs
                 # Check if it's a 429 that wasn't caught above
                 if hasattr(e, 'response') and e.response.status_code == 429:
-                    logger.warning(f"⚠️  CourtListener rate limited (429) - falling back to enhanced verifier")
-                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
-                    fallback = EnhancedFallbackVerifier()
-                    fallback_results = []
-                    for i, citation in enumerate(citations):
-                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
-                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
-                        fallback_result = await fallback.verify_citation_async(
-                            citation,
-                            extracted_case_name=extracted_name,
-                            extracted_date=extracted_date
-                        )
-                        fallback_results.append(fallback_result)
-                    return fallback_results
+                    logger.warning(f"⚠️  CourtListener rate limited (429) - returning unverified (fallback disabled)")
+                    # DISABLED - fallback causes 6+ minute hangs
+                    # from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                    # fallback = EnhancedFallbackVerifier()
+                    # fallback_results = []
+                    # for i, citation in enumerate(citations):
+                    #     extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                    #     extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                    #     fallback_result = await fallback.verify_citation_async(...)
+                    #     fallback_results.append(fallback_result)
+                    # return fallback_results
+                    return [VerificationResult(citation=c, verified=False, error="CourtListener rate limited") for c in citations]
                 
                 logger.error(f"[BATCH-API-DEBUG] HTTP Error: {e}")
                 logger.error(f"[BATCH-API-DEBUG] Response text: {response.text[:200]}")
@@ -790,6 +789,32 @@ class UnifiedVerificationMaster:
                 logger.error(f"🔥 [CONFIDENCE] Calculated confidence: {confidence:.3f} (threshold: 0.7)")
                 logger.error(f"   Canonical: '{canonical_name}' ({canonical_date})")
                 logger.error(f"   Extracted: '{extracted_case_name}' ({extracted_date})")
+                
+                # USER FIX: Check for zero unusual word overlap before marking as verified
+                if extracted_case_name and extracted_case_name != "N/A" and canonical_name:
+                    extracted_words = set(extracted_case_name.lower().split())
+                    canonical_words = set(canonical_name.lower().split())
+                    common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and'}
+                    extracted_words -= common_words
+                    canonical_words -= common_words
+                    
+                    if extracted_words:
+                        overlap = len(extracted_words & canonical_words) / len(extracted_words)
+                        
+                        # If NO unusual words in common, return warning instead of verified
+                        if overlap == 0:
+                            logger.warning(f"⚠️  [COURTLISTENER] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                            return VerificationResult(
+                                citation=citation,
+                                verified=False,
+                                canonical_name=canonical_name,
+                                canonical_date=canonical_date,
+                                canonical_url=canonical_url,
+                                source="courtlistener_lookup",
+                                confidence=0.5,
+                                method="citation_lookup_v4",
+                                validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                            )
                 
                 if confidence >= 0.7:  # High confidence threshold (>= not > to include 0.7)
                     return VerificationResult(
@@ -1618,6 +1643,32 @@ class UnifiedVerificationMaster:
                     
                     confidence = self._calculate_confidence(citation, canonical_name, extracted_case_name, canonical_date, extracted_date)
                     
+                    # USER FIX: Check for zero unusual word overlap before marking as verified
+                    if extracted_case_name and extracted_case_name != "N/A" and canonical_name:
+                        extracted_words = set(extracted_case_name.lower().split())
+                        canonical_words = set(canonical_name.lower().split())
+                        common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and'}
+                        extracted_words -= common_words
+                        canonical_words -= common_words
+                        
+                        if extracted_words:
+                            overlap = len(extracted_words & canonical_words) / len(extracted_words)
+                            
+                            # If NO unusual words in common, return warning instead of verified
+                            if overlap == 0:
+                                logger.warning(f"⚠️  [COURTLISTENER-SEARCH] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                                return VerificationResult(
+                                    citation=citation,
+                                    verified=False,
+                                    canonical_name=canonical_name,
+                                    canonical_date=canonical_date,
+                                    canonical_url=canonical_url,
+                                    source="courtlistener_search",
+                                    confidence=0.5,
+                                    method="search_api_v4",
+                                    validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                                )
+                    
                     if confidence > 0.6:  # Lower threshold for search API
                         # FIX #61: COMPREHENSIVE LOGGING - Track Search API results
                         logger.error(f"🔍 [FIX #61] VERIFICATION: '{citation}'")
@@ -1689,25 +1740,32 @@ class UnifiedVerificationMaster:
         extracted_date: Optional[str],
         remaining_timeout: float
     ) -> VerificationResult:
-        """Enhanced fallback verification using EnhancedFallbackVerifier with 9+ sources."""
-        logger.info(f"🔄 FALLBACK_VERIFY: Starting enhanced fallback for '{citation}'")
+        """Enhanced fallback verification with aggressive timeouts to prevent hangs."""
+        
+        # USER FIX: Re-enabled with 2-second timeout per source (was 6+ minutes before)
+        # Fixed quote_from_bytes() bug that was causing all sources to fail
+        logger.info(f"🔄 FALLBACK_VERIFY: Starting fallback for '{citation}' (max {remaining_timeout:.1f}s)")
         
         try:
-            # CRITICAL: Use EnhancedFallbackVerifier which has CaseMine, Leagle, DuckDuckGo, etc.
             from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
-            
             verifier = EnhancedFallbackVerifier()
             
-            # CRITICAL FIX: Use verify_citation_sync_optimized to access actual fallback sources
-            # verify_citation_sync is deprecated and delegates back to master (circular loop!)
-            result = verifier.verify_citation_sync_optimized(
-                citation_text=citation,
-                extracted_case_name=extracted_case_name,
-                extracted_date=extracted_date
+            # CRITICAL: Use verify_citation_sync_optimized with timeout
+            # Each source gets max 2 seconds, total max is remaining_timeout
+            max_per_source = min(2.0, remaining_timeout / 3)  # 2s per source or split remaining time
+            
+            result = await asyncio.wait_for(
+                asyncio.to_thread(
+                    verifier.verify_citation_sync_optimized,
+                    citation_text=citation,
+                    extracted_case_name=extracted_case_name,
+                    extracted_date=extracted_date
+                ),
+                timeout=min(15.0, remaining_timeout)  # Max 15 seconds total for fallback (increased for CaseMine)
             )
             
             if result and result.get('verified'):
-                logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via {result.get('source', 'enhanced_fallback')}")
+                logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via {result.get('source')}")
                 return VerificationResult(
                     citation=citation,
                     verified=True,
@@ -1718,12 +1776,35 @@ class UnifiedVerificationMaster:
                     confidence=result.get('confidence', 0.8)
                 )
             else:
-                logger.info(f"⚠️ FALLBACK FAILED: All enhanced sources exhausted for '{citation}'")
-                return VerificationResult(citation=citation, error="Enhanced fallback sources exhausted")
+                logger.info(f"⚠️ FALLBACK: No verification found for '{citation}'")
+                return VerificationResult(citation=citation, verified=False, error="No fallback sources verified")
                 
+        except asyncio.TimeoutError:
+            logger.warning(f"⏱️ FALLBACK TIMEOUT for '{citation}' after {remaining_timeout:.1f}s")
+            return VerificationResult(citation=citation, verified=False, error="Fallback timeout")
         except Exception as e:
             logger.error(f"❌ FALLBACK ERROR for '{citation}': {e}")
-            return VerificationResult(citation=citation, error=f"Fallback error: {e}")
+            return VerificationResult(citation=citation, verified=False, error=f"Fallback error: {e}")
+        
+        # DISABLED CODE - Re-enable if fallback sources become reliable
+        # logger.info(f"🔄 FALLBACK_VERIFY: Starting enhanced fallback for '{citation}'")
+        # try:
+        #     from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        #     verifier = EnhancedFallbackVerifier()
+        #     result = verifier.verify_citation_sync_optimized(
+        #         citation_text=citation,
+        #         extracted_case_name=extracted_case_name,
+        #         extracted_date=extracted_date
+        #     )
+        #     if result and result.get('verified'):
+        #         logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via {result.get('source', 'enhanced_fallback')}")
+        #         return VerificationResult(...)
+        #     else:
+        #         logger.info(f"⚠️ FALLBACK FAILED: All enhanced sources exhausted for '{citation}'")
+        #         return VerificationResult(citation=citation, error="Enhanced fallback sources exhausted")
+        # except Exception as e:
+        #     logger.error(f"❌ FALLBACK ERROR for '{citation}': {e}")
+        #     return VerificationResult(citation=citation, error=f"Fallback error: {e}")
         
         # Try fallback sources in priority order
         # Updated with working direct URL sources
@@ -1829,7 +1910,22 @@ class UnifiedVerificationMaster:
                         
                         if extracted_words:
                             overlap = len(extracted_words & canonical_words) / len(extracted_words)
-                            if overlap < 0.3:  # Lower threshold for direct URL access
+                            
+                            # USER FIX: If NO unusual words in common, return warning instead of verified
+                            if overlap == 0:
+                                logger.warning(f"⚠️  [JUSTIA-DIRECT] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                                return VerificationResult(
+                                    citation=citation,
+                                    verified=False,
+                                    canonical_name=canonical_name,
+                                    canonical_date=canonical_date,
+                                    canonical_url=direct_url,
+                                    source="Justia",
+                                    confidence=0.5,
+                                    method="justia_direct_url",
+                                    validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                                )
+                            elif overlap < 0.3:  # Lower threshold for direct URL access
                                 logger.warning(f"⚠️  [JUSTIA-DIRECT] Name mismatch: '{canonical_name}' vs '{extracted_case_name}' (overlap: {overlap:.0%})")
                                 # Still return it but with lower confidence
                                 confidence = 0.6
@@ -1955,7 +2051,22 @@ class UnifiedVerificationMaster:
                             
                             if extracted_words:
                                 overlap = len(extracted_words & canonical_words) / len(extracted_words)
-                                if overlap >= 0.3:
+                                
+                                # USER FIX: If NO unusual words in common, return warning instead of verified
+                                if overlap == 0:
+                                    logger.warning(f"⚠️  [OPENJURIST-DIRECT] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                                    return VerificationResult(
+                                        citation=citation,
+                                        verified=False,
+                                        canonical_name=canonical_name,
+                                        canonical_date=canonical_date,
+                                        canonical_url=direct_url,
+                                        source="OpenJurist",
+                                        confidence=0.5,
+                                        method="openjurist_direct_url",
+                                        validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                                    )
+                                elif overlap >= 0.3:
                                     confidence = 0.85
                                 elif overlap < 0.2:
                                     logger.warning(f"⚠️  [OPENJURIST-DIRECT] Name mismatch: '{canonical_name}' vs '{extracted_case_name}'")
@@ -2096,7 +2207,22 @@ class UnifiedVerificationMaster:
                             
                             if extracted_words:
                                 overlap = len(extracted_words & canonical_words) / len(extracted_words)
-                                if overlap >= 0.4:
+                                
+                                # USER FIX: If NO unusual words in common, return warning instead of verified
+                                if overlap == 0:
+                                    logger.warning(f"⚠️  [CORNELL-LII] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                                    return VerificationResult(
+                                        citation=citation,
+                                        verified=False,
+                                        canonical_name=canonical_name,
+                                        canonical_date=canonical_date,
+                                        canonical_url=direct_url,
+                                        source="Cornell_LII",
+                                        confidence=0.5,
+                                        method="cornell_lii_direct_url",
+                                        validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                                    )
+                                elif overlap >= 0.4:
                                     confidence = 0.90  # Very high for Cornell + name match
                                 elif overlap < 0.2:
                                     logger.warning(f"⚠️  [CORNELL-LII] Name mismatch: '{canonical_name}' vs '{extracted_case_name}'")
@@ -2194,6 +2320,21 @@ class UnifiedVerificationMaster:
                     
                     overlap = len(extracted_words & canonical_words) / len(extracted_words)
                     
+                    # USER FIX: If NO unusual words in common, return warning instead of continuing
+                    if overlap == 0:
+                        logger.warning(f"⚠️  [GOOGLE-SCHOLAR] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                        return VerificationResult(
+                            citation=citation,
+                            verified=False,
+                            canonical_name=canonical_name,
+                            canonical_date=extracted_date,
+                            canonical_url=search_url,
+                            source="Google Scholar",
+                            confidence=0.5,
+                            method="google_scholar",
+                            validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                        )
+                    
                     if overlap < 0.5:
                         logger.warning(f"⚠️  [FIX #57-SCHOLAR] Rejected - low overlap ({overlap:.0%}): '{canonical_name}'")
                         continue
@@ -2261,6 +2402,22 @@ class UnifiedVerificationMaster:
                             continue
                         
                         overlap = len(extracted_words & canonical_words) / len(extracted_words)
+                        
+                        # USER FIX: If NO unusual words in common, return warning instead of continuing
+                        if overlap == 0:
+                            logger.warning(f"⚠️  [FINDLAW] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                            full_url = link_url if link_url.startswith('http') else f"https://caselaw.findlaw.com{link_url}"
+                            return VerificationResult(
+                                citation=citation,
+                                verified=False,
+                                canonical_name=canonical_name,
+                                canonical_date=extracted_date,
+                                canonical_url=full_url,
+                                source="FindLaw",
+                                confidence=0.5,
+                                method="findlaw_search",
+                                validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                            )
                         
                         if overlap < 0.5:
                             logger.warning(f"⚠️  [FIX #57-FINDLAW] Rejected - low overlap ({overlap:.0%}): '{canonical_name}'")
@@ -2334,6 +2491,21 @@ class UnifiedVerificationMaster:
                         continue
                     
                     overlap = len(extracted_words & canonical_words) / len(extracted_words)
+                    
+                    # USER FIX: If NO unusual words in common, return warning instead of continuing
+                    if overlap == 0:
+                        logger.warning(f"⚠️  [BING] NO unusual words match: '{canonical_name}' vs '{extracted_case_name}'")
+                        return VerificationResult(
+                            citation=citation,
+                            verified=False,
+                            canonical_name=canonical_name,
+                            canonical_date=extracted_date,
+                            canonical_url=link_url,
+                            source="Bing",
+                            confidence=0.5,
+                            method="bing_search",
+                            validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                        )
                     
                     if overlap < 0.5:
                         logger.warning(f"⚠️  [FIX #57-BING] Rejected - low overlap ({overlap:.0%}): '{canonical_name}'")

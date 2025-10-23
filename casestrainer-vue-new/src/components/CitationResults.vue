@@ -49,23 +49,23 @@
           <!-- Verifying Source (Canonical) -->
           <div class="cluster-line verifying-source">
             <strong>Verifying Source: </strong>
-            <template v-if="cluster.citations?.[0]?.canonical_url">
-              <a :href="cluster.citations[0].canonical_url" target="_blank" class="canonical-link">
-                <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ cluster.citations[0].canonical_name || 'N/A' }}</span>, 
-                <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ cluster.citations[0].canonical_date || 'N/A' }}</span>
+            <template v-if="getMismatchDisplayCitation(cluster)?.canonical_url">
+              <a :href="getMismatchDisplayCitation(cluster).canonical_url" target="_blank" class="canonical-link">
+                <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster).canonical_name || 'N/A' }}</span>, 
+                <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster).canonical_date || 'N/A' }}</span>
               </a>
             </template>
             <template v-else>
-              <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ cluster.citations?.[0]?.canonical_name || 'N/A' }}</span>, 
-              <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ cluster.citations?.[0]?.canonical_date || 'N/A' }}</span>
+              <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster)?.canonical_name || 'N/A' }}</span>, 
+              <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster)?.canonical_date || 'N/A' }}</span>
             </template>
           </div>
           
           <!-- Submitted Document (Extracted) -->
           <div class="cluster-line submitted-document mismatch-extracted">
             <strong>Submitted Document: </strong>
-            <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}</span>, 
-            <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ cluster.citations?.[0]?.extracted_date || 'N/A' }}</span>
+            <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster)?.extracted_case_name || 'N/A' }}</span>, 
+            <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getMismatchDisplayCitation(cluster)?.extracted_date || 'N/A' }}</span>
           </div>
           
           <!-- Citations -->
@@ -270,70 +270,142 @@ export default {
       return yearMatch ? yearMatch[1] : null
     }
     
+    // Helper function to check if names are similar (handles abbreviations)
+    const areNamesSimilar = (extracted, canonical) => {
+      if (!extracted || !canonical) return true; // Skip if either is missing
+      
+      const norm1 = extracted.trim().toLowerCase().replace(/\s+/g, ' ')
+      const norm2 = canonical.trim().toLowerCase().replace(/\s+/g, ' ')
+      
+      // Exact match
+      if (norm1 === norm2) return true
+      
+      // Common abbreviation expansions
+      const abbreviations = {
+        'ins': 'immigration and naturalization service',
+        'immigration & naturalization service': 'immigration and naturalization service',
+        'dep\'t': 'department',
+        'dept': 'department',
+        'att\'y': 'attorney',
+        'atty': 'attorney',
+        'gen.': 'general',
+        'gen': 'general',
+        'sec.': 'secretary',
+        'sec': 'secretary',
+        'comm\'r': 'commissioner',
+        'gov\'t': 'government',
+        'govt': 'government',
+        'co.': 'company',
+        'co': 'company',
+        'inc.': 'incorporated',
+        'inc': 'incorporated',
+        'auth.': 'authority',
+        'auth': 'authority',
+        'ctr.': 'center',
+        'ctr': 'center',
+        'servs.': 'services',
+        'servs': 'services',
+        'mach.': 'machine',
+        'mach': 'machine',
+        'hosp.': 'hospital',
+        'hosp': 'hospital',
+        'pub.': 'public',
+        'pub': 'public',
+        'ry.': 'railway',
+        'ry': 'railway',
+        'r.r.': 'railroad',
+        'r.r': 'railroad',
+        'n.c.': 'north carolina',
+        'n.c': 'north carolina'
+      }
+      
+      // Expand abbreviations in both names
+      let expanded1 = norm1
+      let expanded2 = norm2
+      Object.entries(abbreviations).forEach(([abbr, full]) => {
+        const regex = new RegExp('\\b' + abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')
+        expanded1 = expanded1.replace(regex, full)
+        expanded2 = expanded2.replace(regex, full)
+      })
+      
+      if (expanded1 === expanded2) return true
+      
+      // Check if extracted is a reasonable abbreviation of canonical
+      // (e.g., "Wang v. INS" vs "Jiamu Wang v. Immigration and Naturalization Service")
+      const extractedParts = norm1.split(/\s+v\.?\s+/)
+      const canonicalParts = norm2.split(/\s+v\.?\s+/)
+      
+      if (extractedParts.length === 2 && canonicalParts.length === 2) {
+        // Check if the last names match
+        const extractedLastName = extractedParts[0].split(/\s+/).pop()
+        const canonicalLastName = canonicalParts[0].split(/\s+/).pop()
+        
+        // If last names match and defendants match (possibly abbreviated), consider similar
+        if (extractedLastName === canonicalLastName) {
+          // Check defendant side
+          const extDef = extractedParts[1]
+          const canDef = canonicalParts[1]
+          
+          // Expand abbreviations and check
+          let expExtDef = extDef
+          let expCanDef = canDef
+          Object.entries(abbreviations).forEach(([abbr, full]) => {
+            const regex = new RegExp('\\b' + abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')
+            expExtDef = expExtDef.replace(regex, full)
+            expCanDef = expCanDef.replace(regex, full)
+          })
+          
+          if (expExtDef === expCanDef || canDef.includes(extDef) || expCanDef.includes(expExtDef)) {
+            return true
+          }
+        }
+      }
+      
+      // Check if one name is contained in the other (for partial name extraction)
+      if (norm2.includes(norm1) && norm1.length > 10) return true
+      if (norm1.includes(norm2) && norm2.length > 10) return true
+      
+      return false
+    }
+    
+    // Check per-citation mismatches (name/date)
+    const citationHasNameMismatch = (cit) => {
+      if (!cit) return false
+      const extractedName = cit.extracted_case_name
+      const canonicalName = cit.canonical_name
+      if (!extractedName || !canonicalName) return false
+      if (extractedName === 'N/A') return true
+      return !areNamesSimilar(extractedName, canonicalName)
+    }
+    
+    const extractYear = (dateStr) => {
+      if (!dateStr) return null
+      const str = String(dateStr).trim()
+      const yearMatch = str.match(/\b(\d{4})\b/)
+      return yearMatch ? yearMatch[1] : null
+    }
+    
+    const citationHasDateMismatch = (cit) => {
+      if (!cit) return false
+      const extractedYear = extractYear(cit.extracted_date)
+      const canonicalYear = extractYear(cit.canonical_date)
+      if (!extractedYear || !canonicalYear) return false
+      return extractedYear !== canonicalYear
+    }
+    
     // NEW: Name/Date mismatch clusters (for debugging extraction issues)
     const mismatchClusters = computed(() => {
       if (!clusters.value || clusters.value.length === 0) {
         console.log('⚠️ [MISMATCH] No clusters available')
         return []
       }
-      
       console.log(`⚠️ [MISMATCH] Checking ${clusters.value.length} clusters for mismatches`)
-      
       const mismatches = clusters.value.filter(cluster => {
         const clusterCitations = cluster.citations || []
         if (clusterCitations.length === 0) return false
-        
-        const firstCitation = clusterCitations[0]
-        
-        // DEBUG: Log first citation structure
-        if (cluster.cluster_id === 'cluster_1_supreme') {
-          console.log('🔍 [DEBUG] First citation of cluster_1_supreme:', firstCitation)
-          console.log('🔍 [DEBUG] Keys in firstCitation:', Object.keys(firstCitation))
-        }
-        
-        // Check for name mismatch
-        const extractedName = firstCitation.extracted_case_name
-        const canonicalName = firstCitation.canonical_name
-        let hasNameMismatch = false
-        
-        if (extractedName && canonicalName) {
-          // Normalize for comparison (remove extra whitespace, convert to lowercase)
-          const normalizedExtracted = extractedName.trim().toLowerCase().replace(/\s+/g, ' ')
-          const normalizedCanonical = canonicalName.trim().toLowerCase().replace(/\s+/g, ' ')
-          hasNameMismatch = normalizedExtracted !== normalizedCanonical
-          
-          if (hasNameMismatch) {
-            console.log(`🔴 [NAME MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
-            console.log(`   Extracted: "${extractedName}"`)
-            console.log(`   Canonical: "${canonicalName}"`)
-          }
-        }
-        
-        // Check for date mismatch
-        const extractedDate = firstCitation.extracted_date
-        const canonicalDate = firstCitation.canonical_date
-        let hasDateMismatch = false
-        
-        if (extractedDate && canonicalDate) {
-          // Normalize to years only for comparison
-          const extractedYear = extractYear(extractedDate)
-          const canonicalYear = extractYear(canonicalDate)
-          
-          if (extractedYear && canonicalYear) {
-            hasDateMismatch = extractedYear !== canonicalYear
-            
-            if (hasDateMismatch) {
-              console.log(`🔴 [DATE MISMATCH] Citation: ${firstCitation.citation || firstCitation.text}`)
-              console.log(`   Extracted: "${extractedDate}" (year: ${extractedYear})`)
-              console.log(`   Canonical: "${canonicalDate}" (year: ${canonicalYear})`)
-            }
-          }
-        }
-        
-        // Return true if either name OR date mismatch detected
-        return hasNameMismatch || hasDateMismatch
+        // Any citation in the cluster with a mismatch counts
+        return clusterCitations.some(cit => citationHasNameMismatch(cit) || citationHasDateMismatch(cit))
       })
-      
       console.log(`⚠️ [MISMATCH] Found ${mismatches.length} clusters with mismatches`)
       return mismatches
     })
@@ -342,37 +414,14 @@ export default {
     const hasNameMismatch = (cluster) => {
       const clusterCitations = cluster.citations || []
       if (clusterCitations.length === 0) return false
-      
-      const firstCitation = clusterCitations[0]
-      const extractedName = firstCitation.extracted_case_name
-      const canonicalName = firstCitation.canonical_name
-      
-      if (!extractedName || !canonicalName) return false
-      
-      const normalizedExtracted = extractedName.trim().toLowerCase().replace(/\s+/g, ' ')
-      const normalizedCanonical = canonicalName.trim().toLowerCase().replace(/\s+/g, ' ')
-      
-      return normalizedExtracted !== normalizedCanonical
+      return clusterCitations.some(citationHasNameMismatch)
     }
     
     // Helper function to check if cluster has date mismatch
     const hasDateMismatch = (cluster) => {
       const clusterCitations = cluster.citations || []
       if (clusterCitations.length === 0) return false
-      
-      const firstCitation = clusterCitations[0]
-      const extractedDate = firstCitation.extracted_date
-      const canonicalDate = firstCitation.canonical_date
-      
-      if (!extractedDate || !canonicalDate) return false
-      
-      // Compare years only
-      const extractedYear = extractYear(extractedDate)
-      const canonicalYear = extractYear(canonicalDate)
-      
-      if (!extractedYear || !canonicalYear) return false
-      
-      return extractedYear !== canonicalYear
+      return clusterCitations.some(citationHasDateMismatch)
     }
     
     const allCitationsVerified = computed(() => {
@@ -401,6 +450,19 @@ export default {
       // Return citation objects with their verification status
       // Backend sends 'citations', but also check 'citation_objects' for backward compatibility
       return cluster.citations || cluster.citation_objects || []
+    }
+
+    // For displaying the specific mismatched citation for a cluster
+    const getMismatchDisplayCitation = (cluster) => {
+      const cits = cluster.citations || cluster.citation_objects || []
+      if (cits.length === 0) return null
+      // Prefer name mismatch over date mismatch for display
+      const nameMismatch = cits.find(citationHasNameMismatch)
+      if (nameMismatch) return nameMismatch
+      const dateMismatch = cits.find(citationHasDateMismatch)
+      if (dateMismatch) return dateMismatch
+      // Fallback to first citation
+      return cits[0]
     }
 
     const getCitationStatusClass = (citation) => {
@@ -436,6 +498,7 @@ export default {
       allCitationsVerified,
       getClusterSource,
       getClusterCitations,
+      getMismatchDisplayCitation,
       getCitationStatusClass,
       getCitationStatusText
     }

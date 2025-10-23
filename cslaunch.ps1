@@ -17,18 +17,72 @@ $containers = @(docker ps --format '{{.Names}}' | Where-Object { $_ -match 'case
 if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
     Write-Host "[OK] Found $($containers.Count) running containers" -ForegroundColor Green
     
-    # Check if frontend needs rebuilding (Vue dist files changed)
+    # Check if Vue source files are newer than dist files
+    $needsVueBuild = $false
+    if (Test-Path "casestrainer-vue-new\src") {
+        $vueSourceFiles = Get-ChildItem -Path "casestrainer-vue-new\src" -Recurse -File -Include "*.vue","*.js" -ErrorAction SilentlyContinue
+        $distIndexPath = "casestrainer-vue-new\dist\index.html"
+        
+        if (Test-Path $distIndexPath) {
+            $distTime = (Get-Item $distIndexPath).LastWriteTime
+            $newestSource = $vueSourceFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            
+            if ($newestSource -and $newestSource.LastWriteTime -gt $distTime) {
+                Write-Host "[DETECT] Vue source files changed - rebuild needed" -ForegroundColor Yellow
+                $needsVueBuild = $true
+            }
+        } else {
+            # No dist folder exists, need to build
+            Write-Host "[DETECT] No dist folder found - initial build needed" -ForegroundColor Yellow
+            $needsVueBuild = $true
+        }
+    }
+    
+    # Build Vue frontend if needed
+    if ($needsVueBuild) {
+        Write-Host "[VUE BUILD] Building Vue frontend..." -ForegroundColor Yellow
+        Write-Host ""
+        
+        Push-Location "casestrainer-vue-new"
+        $vueBuildStart = [System.Diagnostics.Stopwatch]::StartNew()
+        
+        try {
+            & npm run build
+            $vueBuildStart.Stop()
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "`n✅ Vue build completed in $([math]::Round($vueBuildStart.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
+            } else {
+                Write-Host "`n[ERROR] Vue build failed" -ForegroundColor Red
+                Pop-Location
+                exit 1
+            }
+        } catch {
+            Write-Host "`n[ERROR] Vue build failed: $($_.Exception.Message)" -ForegroundColor Red
+            Pop-Location
+            exit 1
+        }
+        
+        Pop-Location
+        Write-Host ""
+    }
+    
+    # Check if frontend container needs rebuilding (Vue dist files changed)
     $needsFrontendRebuild = $false
-    if (Test-Path "casestrainer-vue-new\dist") {
-        $vueDistTime = (Get-Item "static\vue\index.html" -ErrorAction SilentlyContinue).LastWriteTime
+    if (Test-Path "casestrainer-vue-new\dist\index.html") {
+        # Check the actual dist folder that Docker uses
+        $vueDistTime = (Get-Item "casestrainer-vue-new\dist\index.html" -ErrorAction SilentlyContinue).LastWriteTime
         $containerDistTime = docker exec casestrainer-frontend-prod stat -c %Y /usr/share/nginx/html/index.html 2>$null
         
         if ($vueDistTime -and $containerDistTime) {
             $containerTime = [DateTimeOffset]::FromUnixTimeSeconds([long]$containerDistTime).LocalDateTime
             if ($vueDistTime -gt $containerTime) {
-                Write-Host "[DETECT] Vue frontend files updated - rebuild needed" -ForegroundColor Yellow
+                Write-Host "[DETECT] Vue dist files updated - Docker rebuild needed" -ForegroundColor Yellow
                 $needsFrontendRebuild = $true
             }
+        } elseif ($needsVueBuild) {
+            # Just built Vue, so definitely need Docker rebuild
+            $needsFrontendRebuild = $true
         }
     }
     
@@ -92,11 +146,78 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
         }
         Write-Host ""
         
-        # REBUILD backend AND workers to ensure absolutely fresh code
-        Write-Host "[REBUILD] Rebuilding backend + workers for clean deployment..." -ForegroundColor Yellow
-        $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
-        $sw.Stop()
+        # SMART DETECTION: Check if source files are newer than Docker images
+        Write-Host "[DETECT] Checking if Python source files changed..." -ForegroundColor Yellow
+        $needsNoCacheRebuild = $false
+        
+        try {
+            # Get newest Python file in src/
+            $srcFiles = Get-ChildItem -Path "src" -Recurse -Filter "*.py" -File -ErrorAction SilentlyContinue
+            if ($srcFiles) {
+                $newestSrcFile = ($srcFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
+                $newestSrcTime = $newestSrcFile.LastWriteTime
+                
+                # Get Docker image creation time for backend
+                # USER FIX: Check actual Docker Compose image name (casestrainer_backend or casestrainer-backend)
+                $imageCreated = $null
+                $imageName = $null
+                
+                # Try common Docker Compose image naming patterns
+                $possibleImageNames = @(
+                    "casestrainer_backend",
+                    "casestrainer-backend", 
+                    "casestrainer_backend:latest",
+                    "casestrainer-backend:latest"
+                )
+                
+                foreach ($name in $possibleImageNames) {
+                    $testCreated = docker inspect $name --format='{{.Created}}' 2>$null
+                    if ($testCreated) {
+                        $imageCreated = $testCreated
+                        $imageName = $name
+                        break
+                    }
+                }
+                
+                if ($imageCreated) {
+                    $imageTime = [DateTime]::Parse($imageCreated)
+                    
+                    if ($newestSrcTime -gt $imageTime) {
+                        $timeDiff = ($newestSrcTime - $imageTime).TotalMinutes
+                        Write-Host "  🔍 Source files changed $([math]::Round($timeDiff, 1)) minutes after last build" -ForegroundColor Yellow
+                        Write-Host "  📝 Newest: $($newestSrcFile.Name) (modified: $($newestSrcTime.ToString('HH:mm:ss')))" -ForegroundColor Gray
+                        Write-Host "  🐳 Image: $imageName built at $($imageTime.ToString('HH:mm:ss'))" -ForegroundColor Gray
+                        Write-Host "  ⚠️  FORCING --no-cache rebuild to ensure fresh code" -ForegroundColor Red
+                        $needsNoCacheRebuild = $true
+                    } else {
+                        Write-Host "  ✅ Source files unchanged since last build ($imageName) - using cached layers" -ForegroundColor Green
+                    }
+                } else {
+                    Write-Host "  ⚠️  Could not find backend image - forcing --no-cache rebuild for safety" -ForegroundColor Yellow
+                    Write-Host "  💡 Tried: $($possibleImageNames -join ', ')" -ForegroundColor Gray
+                    $needsNoCacheRebuild = $true
+                }
+            }
+        } catch {
+            Write-Host "  ⚠️  Detection failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "  ⚠️  Forcing --no-cache rebuild for safety" -ForegroundColor Yellow
+            $needsNoCacheRebuild = $true
+        }
+        Write-Host ""
+        
+        # REBUILD backend AND workers with smart caching
+        if ($needsNoCacheRebuild) {
+            Write-Host "[FULL REBUILD] Building backend + workers with --no-cache (6-7 minutes)..." -ForegroundColor Red
+            $sw = [System.Diagnostics.Stopwatch]::StartNew()
+            docker-compose -f docker-compose.prod.yml build --no-cache backend rqworker1 rqworker2 rqworker3
+            docker-compose -f docker-compose.prod.yml up -d backend rqworker1 rqworker2 rqworker3
+            $sw.Stop()
+        } else {
+            Write-Host "[QUICK REBUILD] Rebuilding backend + workers with cache (10-15 seconds)..." -ForegroundColor Yellow
+            $sw = [System.Diagnostics.Stopwatch]::StartNew()
+            docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
+            $sw.Stop()
+        }
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n✅ Backend + workers rebuilt and deployed in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
@@ -282,11 +403,13 @@ if (-not (Test-Path $fullScriptPath)) {
     exit 1
 }
 
-# Forward parameters
-$params = @{ Command = 'prod' }
-if ($Build) { $params.Build = $true }
-if ($Force) { $params.Force = $true }
-if ($NoCache) { $params.NoCache = $true }
+# Forward parameters using hashtable for proper splatting
+$scriptParams = @{
+    Command = 'prod'
+}
+if ($Build) { $scriptParams['Build'] = $true }
+if ($Force) { $scriptParams['Force'] = $true }
+if ($NoCache) { $scriptParams['NoCache'] = $true }
 
-& $fullScriptPath @params
+& $fullScriptPath @scriptParams
 exit $LASTEXITCODE

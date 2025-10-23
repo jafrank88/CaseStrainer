@@ -368,16 +368,7 @@
               </div>
             </div>
 
-            <!-- Simple Processing Indicator -->
-            <div 
-              v-show="showProcessing" 
-              class="processing-indicator mt-4 p-4 bg-primary text-white rounded text-center"
-            >
-              <h4 class="mb-2">⏳ Processing Your Document...</h4>
-              <p class="mb-0">
-                Extracting and verifying citations. This may take 1-2 minutes for large documents.
-              </p>
-            </div>
+            <!-- Static processing indicator removed - SimpleProgress now provides real-time updates -->
           </div>
         </div>
 
@@ -386,7 +377,9 @@
           <RecentInputs @load-input="loadRecentInput" />
         </div> -->
 
-        <!-- Async Task Progress Section -->
+        <!-- Async Task Progress Section - DISABLED: Using globalProgress instead -->
+        <!-- AsyncTaskProgress component shows static progress, globalProgress shows real-time updates -->
+        <!--
         <AsyncTaskProgress
           v-if="asyncTaskProgress && !analysisResults && !analysisError"
           :task-id="asyncTaskProgress.taskId"
@@ -395,6 +388,12 @@
           @cancel="handleCancelAsyncTask"
           @complete="handleAsyncTaskComplete"
           @error="handleAsyncTaskError"
+        />
+        -->
+
+        <!-- Real-time Progress Display - Works for both sync and async -->
+        <SimpleProgress 
+          component-id="home"
         />
 
         <!-- Results Section - Replaces input area when results are available -->
@@ -443,6 +442,7 @@ import api, { analyze } from '@/api/api';
 import { globalProgress as globalProgressStore } from '@/stores/progressStore';
 import CitationResults from '@/components/CitationResults.vue';
 import AsyncTaskProgress from '@/components/AsyncTaskProgress.vue';
+import SimpleProgress from '@/components/SimpleProgress.vue';
 import pollingService from '@/services/pollingService';
 import logger from '@/utils/logger';
 
@@ -460,7 +460,7 @@ const selectedFile = ref(null);
 const fileError = ref('');
 const urlError = ref('');
 const isAnalyzing = ref(false);
-const showProcessing = ref(false); // Simple processing indicator
+// showProcessing removed - SimpleProgress component handles all progress display
 const isDragOver = ref(false);
 const dragOver = ref(false);
 const analysisResults = ref(null);
@@ -1202,12 +1202,13 @@ const processImmediateResults = (response) => {
   };
   analysisError.value = '';
 
-  console.log('Results stored for display:', {
+  console.log('✅ Results stored for display:', {
     citations: response.result?.citations?.length || 0,
     clusters: response.result?.clusters?.length || 0,
     message: response.message,
-    reformattedData: analysisResults.value
+    hasResults: !!analysisResults.value
   });
+  console.log('✅ analysisResults.value =', analysisResults.value);
 };
 
 const analyzeContent = async () => {
@@ -1229,9 +1230,8 @@ const analyzeContent = async () => {
   }
   
   isAnalyzing.value = true;
-  showProcessing.value = true; // Show simple spinner
+  // showProcessing removed - SimpleProgress component handles progress display
   console.log('🔄 isAnalyzing set to:', isAnalyzing.value);
-  console.log('🔄 showProcessing set to:', showProcessing.value);
   
   // Force Vue to recognize the change
   await nextTick();
@@ -1264,6 +1264,12 @@ const analyzeContent = async () => {
     // Start progress tracking AFTER we have requestData
     try {
       globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
+      
+      // Set metadata for processing mode detection
+      globalProgress.progressState.metadata = {
+        processing_mode: 'sync', // Will be updated to 'async' if job_id received
+        input_type: activeTab.value
+      };
       
       // Ensure progress state is properly initialized before proceeding
       await new Promise(resolve => setTimeout(resolve, 100));
@@ -1312,16 +1318,39 @@ const analyzeContent = async () => {
     const analyzePromise = analyze(requestData);
     
     // Start polling after a short delay (give backend time to initialize)
+    let pollAttempts = 0;
+    const MAX_POLL_ATTEMPTS = 300; // 5 minutes max (300 seconds)
+    
     setTimeout(() => {
       pollingInterval = setInterval(async () => {
+        pollAttempts++;
+        
+        // Safety timeout - prevent infinite polling
+        if (pollAttempts > MAX_POLL_ATTEMPTS) {
+          clearInterval(pollingInterval);
+          pollingInterval = null;
+          console.error('⚠️ Polling timeout after 5 minutes - stopping');
+          globalProgress.setError('Request timed out after 5 minutes');
+          return;
+        }
+        
         try {
           const progressResponse = await axios.get(`/processing_progress?request_id=${clientRequestId}`);
           if (progressResponse.data && progressResponse.data.progress_percent !== undefined) {
-            console.log('📊 Real-time progress:', progressResponse.data.progress_percent + '%', progressResponse.data.current_message);
+            const percent = progressResponse.data.progress_percent;
+            const message = progressResponse.data.current_message;
+            
+            console.log(`📊 [${pollAttempts}] Progress: ${percent}% - ${message}`);
+            
+            // Log when we reach 100% to help diagnose stuck responses
+            if (percent >= 100) {
+              console.log('⏳ Progress at 100% - waiting for response to complete...');
+            }
+            
             globalProgress.updateProgress({
-              step: progressResponse.data.current_message || 'Processing...',
-              progress: progressResponse.data.progress_percent || 0,
-              total_progress: progressResponse.data.progress_percent || 0
+              step: message || 'Processing...',
+              progress: percent || 0,
+              total_progress: percent || 0
             });
           }
         } catch (error) {
@@ -1332,11 +1361,14 @@ const analyzeContent = async () => {
     }, 1000); // Wait 1 second before starting to poll
     
     // Now await the response
+    console.log('⏳ Waiting for main API response...');
     const response = await analyzePromise;
+    console.log('✅ Main API response received!');
     
     // Stop polling once we have the response
     if (pollingInterval) {
       clearInterval(pollingInterval);
+      pollingInterval = null;
       console.log('✅ Stopped polling - response received');
     }
     // Debug alert removed for cleaner interface
@@ -1354,6 +1386,13 @@ const analyzeContent = async () => {
     // Handle async processing with dedicated polling
     if (processingMode === 'queued' && jobId) {
       console.log('🔄 Large document detected - starting enhanced async polling');
+      
+      // Update metadata to indicate async mode
+      globalProgress.progressState.metadata = {
+        processing_mode: 'async',
+        input_type: activeTab.value,
+        job_id: jobId
+      };
       
       try {
         const asyncResults = await pollAsyncJob(jobId);
@@ -1399,6 +1438,13 @@ const analyzeContent = async () => {
     if (response && response.status === 'completed' && response.result) {
       console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', response.result?.citations?.length || 0);
       
+      // CRITICAL: Stop polling immediately before processing results to prevent errors
+      if (pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+        console.log('🛑 Stopped polling before processing results');
+      }
+      
       // Check if we have a task_id - if so, poll for progress even though task is complete
       // This shows the progress animation for sync tasks
       if (response.task_id || response.result?.task_id) {
@@ -1440,10 +1486,14 @@ const analyzeContent = async () => {
         await new Promise(resolve => setTimeout(resolve, 500));
         
         // Process results after progress is shown
+        console.log('📦 Calling processImmediateResults...');
         processImmediateResults(response);
+        console.log('📦 processImmediateResults completed, analysisResults.value =', !!analysisResults.value);
         
         // Complete progress tracking with route scoping
+        console.log('📦 Calling completeProgress with results:', analysisResults.value);
         globalProgress.completeProgress(analysisResults.value, 'home');
+        console.log('📦 completeProgress called - results should now be visible');
       }, 100);
     }
     
@@ -1533,6 +1583,10 @@ const analyzeContent = async () => {
             const progressResponse = await axios.get(`/processing_progress?request_id=${response.task_id}`);
             if (progressResponse.data && progressResponse.data.progress_percent !== undefined) {
               console.log('📊 Real async progress:', progressResponse.data.progress_percent + '%', progressResponse.data.current_message);
+              
+              // DON'T stop polling when reaching 100% - let it continue until task actually completes
+              // The completion callback will handle final cleanup
+              
               globalProgress.updateProgress({
                 step: progressResponse.data.current_message || 'Processing...',
                 progress: progressResponse.data.progress_percent || 0,
@@ -1621,7 +1675,7 @@ const analyzeContent = async () => {
           asyncTaskProgress.value = null;
           isAsyncProcessing.value = false; // Clear async flag
           isAnalyzing.value = false; // NOW reset spinner since async is complete
-          showProcessing.value = false; // Hide simple spinner
+          // showProcessing removed - SimpleProgress component handles progress display
           
           // Complete progress tracking with route scoping
           globalProgress.completeProgress(analysisResults.value, 'home');
@@ -1639,7 +1693,7 @@ const analyzeContent = async () => {
           asyncTaskProgress.value = null;
           isAsyncProcessing.value = false; // Clear async flag
           isAnalyzing.value = false; // Reset spinner on error
-          showProcessing.value = false; // Hide simple spinner
+          // showProcessing removed - SimpleProgress component handles progress display
           
           // Complete progress tracking
           globalProgress.completeProgress(null);
@@ -1796,6 +1850,20 @@ const analyzeContent = async () => {
     globalProgress.setError(errorMessage);
   } finally {
     console.log('=== ANALYSIS COMPLETED ===');
+    
+    // CRITICAL: Ensure polling is stopped in all cases (success, error, timeout)
+    // Use try-catch because pollingInterval may not exist in async mode
+    try {
+      if (typeof pollingInterval !== 'undefined' && pollingInterval) {
+        clearInterval(pollingInterval);
+        pollingInterval = null;
+        console.log('🛑 Cleanup: Stopped polling in finally block');
+      }
+    } catch (e) {
+      // pollingInterval doesn't exist in this scope (async mode) - that's ok
+      console.log('ℹ️ No polling interval to clean up (async mode)');
+    }
+    
     console.log('🔍 isAsyncProcessing:', isAsyncProcessing.value);
     console.log('🔍 activeAsyncTask:', activeAsyncTask.value);
     
@@ -1803,7 +1871,7 @@ const analyzeContent = async () => {
     // Async mode will reset it in the polling callbacks
     if (!isAsyncProcessing.value && !activeAsyncTask.value) {
       isAnalyzing.value = false;
-      showProcessing.value = false;
+      // showProcessing removed - SimpleProgress component handles progress display
       console.log('✅ Spinner reset (sync mode)');
     } else {
       console.log('⏳ Spinner still active (async mode - will reset in callback)');
@@ -1933,7 +2001,7 @@ const handleAsyncTaskError = (errorMessage) => {
   
   // Reset analysis state
   isAnalyzing.value = false;
-  showProcessing.value = false;
+  // showProcessing removed - SimpleProgress component handles progress display
   
   // Complete progress tracking
   globalProgress.completeProgress(null);

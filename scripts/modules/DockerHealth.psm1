@@ -33,14 +33,14 @@ function Test-DockerCLI {
     try {
         $version = docker --version 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Docker CLI not found or not responding" -ForegroundColor Red
+            Write-Host "[FAIL] Docker CLI not found or not responding" -ForegroundColor Red
             return $false
         }
         
-        Write-Host "✅ Docker CLI: $version" -ForegroundColor Green
+        Write-Host "[OK] Docker CLI: $version" -ForegroundColor Green
         return $true
     } catch {
-        Write-Host "❌ Docker CLI error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Docker CLI error: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -54,7 +54,7 @@ function Test-DockerDaemon {
         # Test daemon connectivity
         $info = docker info 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Docker daemon not accessible" -ForegroundColor Red
+            Write-Host "[FAIL] Docker daemon not accessible" -ForegroundColor Red
             Write-Host "Error: $info" -ForegroundColor Red
             return $false
         }
@@ -72,20 +72,20 @@ function Test-DockerDaemon {
             $versionLine = $infoLines | Where-Object { $_ -match "Server Version:" } | Select-Object -First 1
             $serverVersion = if ($versionLine) { $versionLine.Split(":")[1].Trim() } else { "Unknown" }
         } catch {
-            Write-Host "⚠️  Could not parse daemon info details" -ForegroundColor Yellow
+            Write-Host "[WARN] Could not parse daemon info details" -ForegroundColor Yellow
             $containers = "Unknown"
             $images = "Unknown" 
             $serverVersion = "Unknown"
         }
         
-        Write-Host "✅ Docker daemon healthy" -ForegroundColor Green
+        Write-Host "[OK] Docker daemon healthy" -ForegroundColor Green
         Write-Host "  - Server Version: $serverVersion" -ForegroundColor Gray
         Write-Host "  - Containers: $containers" -ForegroundColor Gray
         Write-Host "  - Images: $images" -ForegroundColor Gray
         
         return $true
     } catch {
-        Write-Host "❌ Docker daemon error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Docker daemon error: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -102,21 +102,21 @@ function Test-DockerContainerRun {
         $result = docker run --rm hello-world 2>&1
         
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Container execution failed" -ForegroundColor Red
+            Write-Host "[FAIL] Container execution failed" -ForegroundColor Red
             Write-Host "Error: $result" -ForegroundColor Red
             return $false
         }
         
         if ($result -like "*Hello from Docker*") {
-            Write-Host "✅ Container execution successful" -ForegroundColor Green
+            Write-Host "[OK] Container execution successful" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "❌ Container ran but with unexpected output" -ForegroundColor Red
+            Write-Host "[FAIL] Container ran but with unexpected output" -ForegroundColor Red
             return $false
         }
         
     } catch {
-        Write-Host "❌ Container test error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Container test error: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -129,14 +129,14 @@ function Test-DockerCompose {
     try {
         $version = docker-compose --version 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Docker Compose not available" -ForegroundColor Red
+            Write-Host "[FAIL] Docker Compose not available" -ForegroundColor Red
             return $false
         }
         
-        Write-Host "✅ Docker Compose: $version" -ForegroundColor Green
+        Write-Host "[OK] Docker Compose: $version" -ForegroundColor Green
         return $true
     } catch {
-        Write-Host "❌ Docker Compose error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Docker Compose error: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -150,9 +150,9 @@ function Test-DockerResources {
         # Check Docker disk usage
         $diskUsage = docker system df 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "⚠️  Could not check Docker disk usage" -ForegroundColor Yellow
+            Write-Host "[WARN] Could not check Docker disk usage" -ForegroundColor Yellow
         } else {
-            Write-Host "✅ Docker disk usage:" -ForegroundColor Green
+            Write-Host "[OK] Docker disk usage:" -ForegroundColor Green
             $diskUsage | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
         }
         
@@ -160,22 +160,28 @@ function Test-DockerResources {
         $dockerInfo = docker info --format "{{.DockerRootDir}}" 2>&1
         if ($LASTEXITCODE -eq 0) {
             $rootDir = $dockerInfo.Trim()
-            $drive = (Split-Path $rootDir -Qualifier).Replace(":", "")
-            $freeSpace = Get-WmiObject -Class Win32_LogicalDisk | Where-Object { $_.DeviceID -eq "$drive" + ":" }
             
-            if ($freeSpace) {
-                $freeGB = [math]::Round($freeSpace.FreeSpace / 1GB, 2)
-                if ($freeGB -lt 5) {
-                    Write-Host "⚠️  Low disk space: ${freeGB}GB free" -ForegroundColor Yellow
-                } else {
-                    Write-Host "✅ Disk space: ${freeGB}GB free" -ForegroundColor Green
+            # Skip disk check for WSL/Linux paths (e.g., /var/lib/docker)
+            if ($rootDir -match '^[A-Za-z]:') {
+                # Windows path - check disk space
+                $drive = (Split-Path $rootDir -Qualifier).Replace(":", "")
+                $freeSpace = Get-WmiObject -Class Win32_LogicalDisk | Where-Object { $_.DeviceID -eq "$drive" + ":" }
+                
+                if ($freeSpace) {
+                    $freeGB = [math]::Round($freeSpace.FreeSpace / 1GB, 2)
+                    if ($freeGB -lt 5) {
+                        Write-Host "[WARN] Low disk space: ${freeGB}GB free" -ForegroundColor Yellow
+                    } else {
+                        Write-Host "[OK] Disk space: ${freeGB}GB free" -ForegroundColor Green
+                    }
                 }
             }
+            # For WSL/Linux paths, disk space check is not applicable from Windows
         }
         
         return $true
     } catch {
-        Write-Host "⚠️  Resource check error: $_" -ForegroundColor Yellow
+        Write-Host "[WARN] Resource check error: $_" -ForegroundColor Yellow
         return $true # Don't fail entire health check for this
     }
 }
@@ -189,7 +195,7 @@ function Test-DockerNetwork {
         # List networks
         $networks = docker network ls 2>&1
         if ($LASTEXITCODE -ne 0) {
-            Write-Host "❌ Docker networking not working" -ForegroundColor Red
+            Write-Host "[FAIL] Docker networking not working" -ForegroundColor Red
             return $false
         }
         
@@ -199,15 +205,15 @@ function Test-DockerNetwork {
         $hostNetwork = $networkList | Where-Object { $_ -match "host" }
         
         if ($bridgeNetwork -and $hostNetwork) {
-            Write-Host "✅ Docker networks healthy" -ForegroundColor Green
+            Write-Host "[OK] Docker networks healthy" -ForegroundColor Green
             return $true
         } else {
-            Write-Host "⚠️  Some default networks missing" -ForegroundColor Yellow
+            Write-Host "[WARN] Some default networks missing" -ForegroundColor Yellow
             return $true # Don't fail for this
         }
         
     } catch {
-        Write-Host "❌ Network test error: $_" -ForegroundColor Red
+        Write-Host "[FAIL] Network test error: $_" -ForegroundColor Red
         return $false
     }
 }
@@ -256,18 +262,18 @@ function Invoke-DockerHealthCheck {
     
     # Summary
     Write-Host "`n" + ("=" * 50) -ForegroundColor Cyan
-    Write-Host "🏥 Health Check Summary:" -ForegroundColor Cyan
+    Write-Host "[HEALTH] Health Check Summary:" -ForegroundColor Cyan
     
     foreach ($result in $results.GetEnumerator()) {
-        $status = if ($result.Value) { "✅ PASS" } else { "❌ FAIL" }
+        $status = if ($result.Value) { "[OK] PASS" } else { "[FAIL] FAIL" }
         $color = if ($result.Value) { "Green" } else { "Red" }
         Write-Host "  $($result.Key): $status" -ForegroundColor $color
     }
     
     if ($overallHealthy) {
-        Write-Host "`n🎉 Docker is healthy and ready!" -ForegroundColor Green
+        Write-Host "`n[SUCCESS] Docker is healthy and ready!" -ForegroundColor Green
     } else {
-        Write-Host "`n⚠️  Docker has issues that need attention" -ForegroundColor Yellow
+        Write-Host "`n[WARN] Docker has issues that need attention" -ForegroundColor Yellow
     }
     
     return @{

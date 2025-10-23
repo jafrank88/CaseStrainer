@@ -449,7 +449,7 @@ class UnifiedInputProcessor:
                         'citations': converted_citations,
                         'clusters': result.get('clusters', []),
                         'request_id': request_id,
-                        'task_id': request_id,  # Frontend expects task_id for progress polling
+                        # DON'T return task_id for immediate/sync results - only for async jobs
                         'metadata': response_metadata
                     }
                 except Exception as e:

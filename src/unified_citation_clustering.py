@@ -2108,13 +2108,20 @@ class UnifiedCitationClusterer:
             # If no case name from verified citations, try all citations
             # FIXED: Also prioritize canonical names in fallback
             if not case_name or not year:
-                for citation in citations:
+                # USER FIX: Log each citation to diagnose adoption issue
+                logger.warning(f"🔍 [CLUSTER-ADOPT] Trying to adopt extracted name from {len(citations)} citation(s)")
+                for i, citation in enumerate(citations):
                     if not case_name:
                         # CRITICAL: ONLY use extracted_case_name from user's document
                         # NEVER use canonical_name to populate extracted_case_name
                         name = getattr(citation, 'extracted_case_name', None)
+                        citation_text = getattr(citation, 'citation', 'unknown')
+                        logger.warning(f"  Citation {i+1}: '{citation_text}' has extracted_case_name='{name}'")
                         if name and name != "N/A" and name != "Unknown Case":
                             case_name = name
+                            logger.warning(f"  ✅ Adopted case_name='{case_name}' from citation {i+1}")
+                        else:
+                            logger.warning(f"  ⚠️ Skipped citation {i+1}: name is None, N/A, or Unknown Case")
                         # If no extracted name, leave case_name as None - do NOT use canonical data
                     
                     if not year:
@@ -2165,6 +2172,10 @@ class UnifiedCitationClusterer:
             
             # CRITICAL: extracted_case_name and extracted_date must ONLY contain data from user's document
             # case_name and year will be overwritten with canonical data if available (lines 2187-2196)
+            
+            # USER FIX: Serialize citation objects FIRST so we can use them in citations array
+            serialized_citations = [self._serialize_citation_object(c, citation_texts) for c in citations]
+            
             cluster_dict = {
                 'cluster_id': cluster_id,
                 'case_name': display_case_name,  # Will be overwritten with canonical if available
@@ -2175,8 +2186,8 @@ class UnifiedCitationClusterer:
                 'canonical_date': None,  # Will be set below if verified data available
                 'canonical_url': None,  # Will be set below if verified data available
                 'size': len(citations),
-                'citations': citation_texts,
-                'citation_objects': [self._serialize_citation_object(c, citation_texts) for c in citations],
+                'citations': serialized_citations,  # USER FIX: Use full objects instead of just strings
+                'citation_objects': serialized_citations,  # Keep for backward compatibility
                 'cluster_type': 'unified_extracted'
             }
             

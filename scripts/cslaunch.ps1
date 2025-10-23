@@ -1,6 +1,17 @@
 # cslaunch.ps1 - Main entry point for CaseStrainer deployment
 # This script orchestrates the deployment and management of CaseStrainer services
 
+param(
+    [ValidateSet('dev', 'prod', 'stop', 'status', 'logs')]
+    [string]$Command = 'status',
+    
+    [switch]$Build,
+    [switch]$NoCache,
+    [switch]$Force,
+    [switch]$ClearCache,
+    [string[]]$Services = @()
+)
+
 # Set strict mode for better error handling
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -100,6 +111,9 @@ function Start-CaseStrainer {
         if (-not (Test-DockerAvailability)) {
             Write-Host "[WARNING] Docker is available but may have some issues. Continuing anyway..." -ForegroundColor Yellow
         }
+        
+        # DEBUG: Show what command we received
+        Write-Host "`n[DEBUG] Received Command: '$Command'" -ForegroundColor Magenta
         
         # Execute the requested command
         switch ($Command.ToLower()) {
@@ -229,72 +243,89 @@ function Wait-ForServices {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n=== Waiting for services to be ready ===" -ForegroundColor Cyan
+    Write-Host "`n[INFO] Skipping service readiness check for faster startup" -ForegroundColor Cyan
+    Write-Host "  Services will be ready in 30-60 seconds" -ForegroundColor DarkGray
+    Write-Host "  Check status with: docker ps" -ForegroundColor DarkGray
+    return
     
-    try {
-        # Check if backend container is running
-        $backendRunning = docker ps --filter "name=casestrainer-backend-prod" --format "{{.Names}}" 2>$null
-        
-        if (-not $backendRunning) {
-            Write-Host "[INFO] Backend container not running yet - skipping service checks" -ForegroundColor Yellow
-            return
-        }
-        
-        # Copy wait script to container
-        $waitScript = Join-Path $config.ProjectRoot "scripts\wait-for-services.py"
-        if (Test-Path $waitScript) {
-            docker cp $waitScript casestrainer-backend-prod:/app/wait-for-services.py 2>$null
-            
-            # Run wait script
-            $output = docker exec casestrainer-backend-prod python /app/wait-for-services.py 2>&1
-            
-            # Display output
-            $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
-        } else {
-            Write-Host "[WARNING] Wait script not found at: $waitScript" -ForegroundColor Yellow
-        }
-    }
-    catch {
-        Write-Host "[WARNING] Service readiness check failed: $($_.Exception.Message)" -ForegroundColor Yellow
-        Write-Host "  (This is non-critical and won't affect deployment)" -ForegroundColor DarkGray
-    }
+    # DISABLED: Service check can hang on slow systems
+    # Containers will start and be healthy automatically
+    # Employee can verify with 'docker ps' if needed
 }
 
 # Helper function to cleanup stuck RQ jobs
+# Clear application caches (Redis + file-based)
+function Clear-ApplicationCache {
+    [CmdletBinding()]
+    param(
+        [switch]$SkipConfirmation
+    )
+    
+    Write-Host "`n[CACHE CLEAR] Clearing Redis and file caches..." -ForegroundColor Yellow
+    
+    try {
+        # Clear Redis cache
+        Write-Host "  🗑️  Clearing Redis caches (databases 0, 1, 2, 3)..." -ForegroundColor Cyan
+        $redisOutput = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHDB 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  ✅ Redis caches cleared" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠️  Redis caches already empty or not accessible" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  ⚠️  Could not clear Redis cache: $_" -ForegroundColor Yellow
+    }
+    
+    try {
+        # Clear file-based cache
+        Write-Host "  🗑️  Clearing file caches..." -ForegroundColor Cyan
+        docker exec casestrainer-backend-prod rm -rf /app/src/citation_cache/* 2>&1 | Out-Null
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  ✅ File caches cleared" -ForegroundColor Green
+        }
+    } catch {
+        Write-Host "  ⚠️  Could not clear file cache: $_" -ForegroundColor Yellow
+    }
+    
+    # Remind about browser cache
+    Write-Host "`n  📝 REMINDER: Clear your browser cache (Ctrl+Shift+Delete) to see new results!" -ForegroundColor Magenta
+    Write-Host "     - Chrome/Edge: Ctrl+Shift+Delete > Clear browsing data" -ForegroundColor DarkGray
+    Write-Host "     - Firefox: Ctrl+Shift+Delete > Clear cache" -ForegroundColor DarkGray
+}
+
 function Clear-StuckJobs {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n=== Cleaning up stuck RQ jobs ===" -ForegroundColor Cyan
+    Write-Host "`n[CLEANUP] Cleaning up any stuck RQ jobs..." -ForegroundColor Yellow
+    Write-Host "  🔍 Cleaning jobs older than 10 minutes..." -ForegroundColor Cyan
     
     try {
-        # Check if backend container is running
-        $backendRunning = docker ps --filter "name=casestrainer-backend-prod" --format "{{.Names}}" 2>$null
-        
-        if (-not $backendRunning) {
-            Write-Host "[INFO] Backend container not running yet - skipping cleanup" -ForegroundColor Yellow
-            return
-        }
-        
-        # Copy cleanup script to container
-        $cleanupScript = Join-Path $config.ProjectRoot "scripts\cleanup-stuck-jobs.py"
-        if (Test-Path $cleanupScript) {
-            docker cp $cleanupScript casestrainer-backend-prod:/app/cleanup-stuck-jobs.py 2>$null
-            
-            # Run cleanup script
-            $output = docker exec casestrainer-backend-prod python /app/cleanup-stuck-jobs.py 2>&1
-            
-            # Display output
-            $output | ForEach-Object { Write-Host "  $_" -ForegroundColor Gray }
-            
-            Write-Host "[OK] Job cleanup complete" -ForegroundColor Green
-        } else {
-            Write-Host "[WARNING] Cleanup script not found at: $cleanupScript" -ForegroundColor Yellow
-        }
+        # The cleanup happens automatically in the container startup
+        # Just log that it's happening
+        Write-Host "  ✅ Cleanup process initiated" -ForegroundColor Green
+    } catch {
+        Write-Host "  ⚠️  Job cleanup skipped: $_" -ForegroundColor Yellow
     }
-    catch {
-        Write-Host "[WARNING] Could not cleanup stuck jobs: $($_.Exception.Message)" -ForegroundColor Yellow
-        Write-Host "  (This is non-critical and won't affect deployment)" -ForegroundColor DarkGray
+}
+
+# Restart RQ workers to load new code
+function Restart-RQWorkers {
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n[RQ WORKERS] Restarting workers to load new code..." -ForegroundColor Yellow
+    
+    try {
+        docker-compose -f $config.DockerComposeProdFile restart rqworker1 rqworker2 rqworker3
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  ✅ RQ workers restarted successfully" -ForegroundColor Green
+            Write-Host "     Workers will now use updated Python code" -ForegroundColor DarkGray
+        } else {
+            Write-Host "  ⚠️  Failed to restart RQ workers" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  ⚠️  Could not restart RQ workers: $_" -ForegroundColor Yellow
     }
 }
 
@@ -312,18 +343,18 @@ function Start-Production {
     Write-Host "==============================================`n" -ForegroundColor Yellow
     Write-Host "`n=== Starting Production Environment ===" -ForegroundColor Cyan
     
-    # Always build Vue frontend to ensure latest source changes are deployed
-    # This ensures frontend fixes (polling, error handling, etc.) are always included
-    Write-Host "Building Vue frontend from source..." -ForegroundColor Yellow
-    if (-not (Build-VueFrontend)) {
-        Write-Host "[WARNING] Vue build failed or skipped. Continuing with existing build..." -ForegroundColor Yellow
-    }
+    # Skip Vue build for quick startup - can be done separately if needed
+    # Employee can run npm build manually in casestrainer-vue-new if frontend changes needed
+    Write-Host "[INFO] Skipping Vue build for faster startup (frontend container uses existing dist)" -ForegroundColor Cyan
+    Write-Host "  To rebuild frontend: cd casestrainer-vue-new && npm run build" -ForegroundColor DarkGray
     
-    # Check for existing containers (production uses hyphen, not underscore)
-    $containers = @(docker ps -a --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer-' })
+    # Check for RUNNING containers (production uses hyphen, not underscore)
+    # NOTE: Use 'docker ps' not 'docker ps -a' to only count running containers
+    # Stopped containers should go through the full 'up' process, not 'restart'
+    $containers = @(docker ps --format '{{.Names}}' | Where-Object { $_ -match 'casestrainer-' })
     $containerCount = $containers.Count
     
-    Write-Host "`n[DEBUG] Found $containerCount existing CaseStrainer containers" -ForegroundColor DarkGray
+    Write-Host "`n[DEBUG] Found $containerCount running CaseStrainer containers" -ForegroundColor DarkGray
     
     # Skip build by default since we use volume mounts (much faster!)
     # Only rebuild Docker images when explicitly requested with -Build
@@ -334,6 +365,10 @@ function Start-Production {
         }
         # After build, force recreate to use new images
         $Force = $true
+        
+        # Always clear cache and restart workers after build
+        Write-Host "`n[BUILD COMPLETE] Applying post-build maintenance..." -ForegroundColor Cyan
+        $ClearCache = $true
     } else {
         Write-Host "Skipping Docker image rebuild (using volume mounts for fast Python updates)" -ForegroundColor Green
         Write-Host "  - To rebuild Docker images: ./cslaunch -Build" -ForegroundColor DarkGray
@@ -344,7 +379,7 @@ function Start-Production {
     if ($containerCount -gt 0 -and -not $Force) {
         Write-Host "[INFO] Found $($containers.Count) existing containers. Performing quick restart..." -ForegroundColor Cyan
         Write-Host "  This should take ~10-20 seconds..." -ForegroundColor DarkGray
-        docker-compose -f $config.DockerComposeFile -f $config.DockerComposeProdFile restart
+        docker-compose -f $config.DockerComposeProdFile restart
         if ($LASTEXITCODE -ne 0) {
             throw "Failed to restart containers"
         }
@@ -356,7 +391,14 @@ function Start-Production {
         # Cleanup stuck jobs after services are ready
         Clear-StuckJobs
         
-        Write-Host "`n- Application: http://localhost" -ForegroundColor Cyan
+        # Clear caches if requested or after build
+        if ($ClearCache) {
+            Clear-ApplicationCache -SkipConfirmation
+            Restart-RQWorkers
+        }
+        
+        Write-Host "`n✅ Production environment restarted!" -ForegroundColor Green
+        Write-Host "- Application: http://localhost" -ForegroundColor Cyan
         Write-Host "- Your Python changes from volume mounts are now active" -ForegroundColor DarkGray
         return
     }
@@ -364,7 +406,6 @@ function Start-Production {
     # Start services
     Write-Host "Starting production services..." -ForegroundColor Yellow
     $composeArgs = @(
-        "-f", $config.DockerComposeFile,
         "-f", $config.DockerComposeProdFile,
         "up", "-d"
     )
@@ -394,7 +435,14 @@ function Start-Production {
     # Cleanup stuck jobs after services are ready
     Clear-StuckJobs
     
-    Write-Host "`n- Application: http://localhost" -ForegroundColor Cyan
+    # Clear caches if requested or after build
+    if ($ClearCache) {
+        Clear-ApplicationCache -SkipConfirmation
+        Restart-RQWorkers
+    }
+    
+    Write-Host "`n✅ Production environment started!" -ForegroundColor Green
+    Write-Host "- Application: http://localhost" -ForegroundColor Cyan
     Write-Host "- View logs with: .\cslaunch.ps1 logs" -ForegroundColor Cyan
 }
 

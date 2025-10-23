@@ -1,0 +1,22 @@
+﻿================================================================================
+≡ƒöì DEBUG STEP 1: main() function entered
+================================================================================
+≡ƒöì DEBUG STEP 2: Logging configured
+================================================================================
+≡ƒÜÇ RQ WORKER MAIN() CALLED - AUTO-RELOAD CHECK STARTING
+================================================================================
+≡ƒöì DEBUG STEP 3: Startup info logged
+≡ƒöì DEBUG STEP 4: Signal handlers configured
+≡ƒöì DEBUG STEP 5: Queue=casestrainer, Worker=worker-8@1e4fdd3dcf07
+≡ƒöì DEBUG STEP 6: Worker kwargs configured
+≡ƒöì DEBUG STEP 7: Auto-reload check: RQ_WORKER_AUTORELOAD=true, auto_reload=True
+≡ƒöì DEBUG STEP 8: About to enter worker loop (max_restarts=10)
+≡ƒöì DEBUG STEP 9: Loop iteration 1/10
+≡ƒöì DEBUG STEP 10: Inside try block
+≡ƒöì DEBUG STEP 11: About to create RobustWorker
+≡ƒöì DEBUG STEP 12: RobustWorker created successfully
+≡ƒöì DEBUG STEP 13: Auto-reload is TRUE, starting monitor...
+≡ƒöì DEBUG STEP 14: Creating CodeChangeMonitor instance
+≡ƒöì DEBUG STEP 15: CodeChangeMonitor created, starting monitoring
+Γ£à DEBUG STEP 16: Auto-reload monitor started successfully!
+≡ƒöì DEBUG STEP 17: About to call worker.work()

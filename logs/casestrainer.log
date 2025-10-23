@@ -1,237 +1,1059 @@
-2025-10-17 15:55:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:32 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:32 - src.app_final_vue - INFO - [RESPONSE #34] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:32 - src.app_final_vue - INFO - [RESPONSE #35] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:33 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:34 - src.app_final_vue - INFO - [RESPONSE #36] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:34 - src.app_final_vue - INFO - [RESPONSE #37] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:35 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:36 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:36 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:36 - src.app_final_vue - INFO - [RESPONSE #38] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:36 - src.app_final_vue - INFO - [RESPONSE #39] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:37 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:38 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:38 - src.app_final_vue - INFO - [RESPONSE #40] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:38 - src.app_final_vue - INFO - [RESPONSE #41] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:39 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:40 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:40 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:40 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:40 - src.app_final_vue - INFO - [RESPONSE #42] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:40 - src.app_final_vue - INFO - [RESPONSE #43] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:41 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:42 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:42 - src.app_final_vue - INFO - [RESPONSE #44] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:42 - src.app_final_vue - INFO - [RESPONSE #45] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:43 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:44 - src.app_final_vue - INFO - [RESPONSE #46] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:44 - src.app_final_vue - INFO - [RESPONSE #47] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:45 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:46 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:46 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:46 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:46 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:46 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:46 - src.app_final_vue - INFO - [RESPONSE #48] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:46 - src.app_final_vue - INFO - [RESPONSE #49] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:47 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:48 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:48 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:48 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:48 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:48 - src.app_final_vue - INFO - [RESPONSE #50] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:48 - src.app_final_vue - INFO - [RESPONSE #51] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: started
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: False
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:49 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: True
-2025-10-17 15:55:50 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:50 - src.app_final_vue - INFO - [RESPONSE #52] GET vue_api.task_status -> 200 (157 chars)
-2025-10-17 15:55:50 - src.app_final_vue - INFO - [RESPONSE #53] GET vue_api.processing_progress -> 200 (255 chars)
-2025-10-17 15:55:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1760716509391-qa3bnuplf
-2025-10-17 15:55:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
-2025-10-17 15:55:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
-2025-10-17 15:55:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
-2025-10-17 15:55:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
-2025-10-17 15:55:51 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: finished
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf meta: {}
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_finished: True
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_failed: False
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_started: False
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf is_queued: False
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf result type: <class 'dict'>
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf result keys: dict_keys(['success', 'task_id', 'status', 'result'])
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf citations count: 0
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf clusters count: 0
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf success: True
-2025-10-17 15:55:52 - src.vue_api_endpoints_updated - INFO - Job client-1760716509391-qa3bnuplf status: completed
-2025-10-17 15:55:52 - src.app_final_vue - INFO - [RESPONSE #54] GET vue_api.task_status -> 200 (247708 chars)
-2025-10-17 15:55:55 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:55:55 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:55:55 - src.app_final_vue - INFO - [RESPONSE #55] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:56:25 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:56:25 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:56:25 - src.app_final_vue - INFO - [RESPONSE #56] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:56:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:56:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:56:56 - src.app_final_vue - INFO - [RESPONSE #57] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:57:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:57:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:57:26 - src.app_final_vue - INFO - [RESPONSE #58] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:57:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:57:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:57:56 - src.app_final_vue - INFO - [RESPONSE #59] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:58:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:58:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:58:26 - src.app_final_vue - INFO - [RESPONSE #60] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:58:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:58:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:58:56 - src.app_final_vue - INFO - [RESPONSE #61] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:59:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:59:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:59:26 - src.app_final_vue - INFO - [RESPONSE #62] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 15:59:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:59:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 15:59:56 - src.app_final_vue - INFO - [RESPONSE #63] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:00:20 - src.memory_monitor - INFO - Memory usage: 219.4MB (1.4%)
-2025-10-17 16:00:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:00:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:00:27 - src.app_final_vue - INFO - [RESPONSE #64] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:00:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:00:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:00:57 - src.app_final_vue - INFO - [RESPONSE #65] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:01:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:01:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:01:27 - src.app_final_vue - INFO - [RESPONSE #66] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:01:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:01:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:01:57 - src.app_final_vue - INFO - [RESPONSE #67] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:02:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:02:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:02:27 - src.app_final_vue - INFO - [RESPONSE #68] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:02:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:02:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:02:57 - src.app_final_vue - INFO - [RESPONSE #69] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:03:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:03:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:03:27 - src.app_final_vue - INFO - [RESPONSE #70] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:03:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:03:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:03:58 - src.app_final_vue - INFO - [RESPONSE #71] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:04:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:04:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:04:28 - src.app_final_vue - INFO - [RESPONSE #72] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:04:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:04:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:04:58 - src.app_final_vue - INFO - [RESPONSE #73] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:05:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:05:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:05:28 - src.app_final_vue - INFO - [RESPONSE #74] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:05:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:05:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:05:58 - src.app_final_vue - INFO - [RESPONSE #75] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:06:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:06:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:06:28 - src.app_final_vue - INFO - [RESPONSE #76] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:06:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:06:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:06:59 - src.app_final_vue - INFO - [RESPONSE #77] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:07:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:07:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:07:29 - src.app_final_vue - INFO - [RESPONSE #78] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:07:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:07:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:07:59 - src.app_final_vue - INFO - [RESPONSE #79] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:08:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:08:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:08:29 - src.app_final_vue - INFO - [RESPONSE #80] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:08:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:08:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:08:59 - src.app_final_vue - INFO - [RESPONSE #81] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:09:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:09:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:09:29 - src.app_final_vue - INFO - [RESPONSE #82] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:10:00 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:10:00 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:10:00 - src.app_final_vue - INFO - [RESPONSE #83] GET vue_api.health_check -> 200 (446 chars)
-2025-10-17 16:10:21 - src.memory_monitor - INFO - Memory usage: 219.4MB (1.4%)
-2025-10-17 16:10:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:10:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
-2025-10-17 16:10:30 - src.app_final_vue - INFO - [RESPONSE #84] GET vue_api.health_check -> 200 (446 chars)
+2025-10-23 14:44:02 - src.app_final_vue - INFO - [RESPONSE #3040] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:44:32 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:44:32 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:44:32 - src.app_final_vue - INFO - [RESPONSE #3041] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:44:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:45:02 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:45:02 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:45:02 - src.app_final_vue - INFO - [RESPONSE #3042] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:45:32 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:45:32 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:45:32 - src.app_final_vue - INFO - [RESPONSE #3043] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:45:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:46:02 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:46:02 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:46:02 - src.app_final_vue - INFO - [RESPONSE #3044] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:46:33 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:46:33 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:46:33 - src.app_final_vue - INFO - [RESPONSE #3045] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:46:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:47:03 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:47:03 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:47:03 - src.app_final_vue - INFO - [RESPONSE #3046] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:47:33 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:47:33 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:47:33 - src.app_final_vue - INFO - [RESPONSE #3047] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:47:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:48:03 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:48:03 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:48:03 - src.app_final_vue - INFO - [RESPONSE #3048] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:48:33 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:48:33 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:48:33 - src.app_final_vue - INFO - [RESPONSE #3049] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:48:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:49:03 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:49:03 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:49:03 - src.app_final_vue - INFO - [RESPONSE #3050] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:49:33 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:49:33 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:49:33 - src.app_final_vue - INFO - [RESPONSE #3051] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:49:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:50:03 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:50:03 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:50:03 - src.app_final_vue - INFO - [RESPONSE #3052] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:50:05 - src.app_final_vue - WARNING - [RESPONSE #3053] GET None -> 404 (22 chars)
+2025-10-23 14:50:05 - src.app_final_vue - WARNING - [RESPONSE #3054] GET None -> 404 (22 chars)
+2025-10-23 14:50:34 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:50:34 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:50:34 - src.app_final_vue - INFO - [RESPONSE #3055] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:50:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:51:04 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:51:04 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:51:04 - src.app_final_vue - INFO - [RESPONSE #3056] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:51:34 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:51:34 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:51:34 - src.app_final_vue - INFO - [RESPONSE #3057] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:51:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:52:04 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:52:04 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:52:04 - src.app_final_vue - INFO - [RESPONSE #3058] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:52:34 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:52:34 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:52:34 - src.app_final_vue - INFO - [RESPONSE #3059] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:52:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:53:04 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:53:04 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:53:04 - src.app_final_vue - INFO - [RESPONSE #3060] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:53:34 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:53:34 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:53:34 - src.app_final_vue - INFO - [RESPONSE #3061] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:53:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:54:04 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:54:04 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:54:04 - src.app_final_vue - INFO - [RESPONSE #3062] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:54:35 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:54:35 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:54:35 - src.app_final_vue - INFO - [RESPONSE #3063] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:54:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:55:05 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:55:05 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:55:05 - src.app_final_vue - INFO - [RESPONSE #3064] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:55:35 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:55:35 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:55:35 - src.app_final_vue - INFO - [RESPONSE #3065] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:55:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:56:05 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:56:05 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:56:05 - src.app_final_vue - INFO - [RESPONSE #3066] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:56:35 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:56:35 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:56:35 - src.app_final_vue - INFO - [RESPONSE #3067] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:56:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:57:05 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:57:05 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:57:05 - src.app_final_vue - INFO - [RESPONSE #3068] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:57:35 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:57:35 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:57:35 - src.app_final_vue - INFO - [RESPONSE #3069] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:57:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:58:05 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:58:05 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:58:05 - src.app_final_vue - INFO - [RESPONSE #3070] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:58:36 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:58:36 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:58:36 - src.app_final_vue - INFO - [RESPONSE #3071] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:58:37 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 14:59:06 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:59:06 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:59:06 - src.app_final_vue - INFO - [RESPONSE #3072] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:59:36 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:59:36 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 14:59:36 - src.app_final_vue - INFO - [RESPONSE #3073] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 14:59:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:00:06 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:00:06 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:00:06 - src.app_final_vue - INFO - [RESPONSE #3074] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:00:36 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:00:36 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:00:36 - src.app_final_vue - INFO - [RESPONSE #3075] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:00:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:01:06 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:01:06 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:01:06 - src.app_final_vue - INFO - [RESPONSE #3076] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:01:36 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:01:36 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:01:36 - src.app_final_vue - INFO - [RESPONSE #3077] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:01:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:02:06 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:02:06 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:02:06 - src.app_final_vue - INFO - [RESPONSE #3078] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:02:37 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:02:37 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:02:37 - src.app_final_vue - INFO - [RESPONSE #3079] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:02:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:03:07 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:03:07 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:03:07 - src.app_final_vue - INFO - [RESPONSE #3080] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:03:37 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:03:37 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:03:37 - src.app_final_vue - INFO - [RESPONSE #3081] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:03:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:04:07 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:04:07 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:04:07 - src.app_final_vue - INFO - [RESPONSE #3082] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:04:37 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:04:37 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:04:37 - src.app_final_vue - INFO - [RESPONSE #3083] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:04:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:05:07 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:05:07 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:05:07 - src.app_final_vue - INFO - [RESPONSE #3084] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:05:37 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:05:37 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:05:37 - src.app_final_vue - INFO - [RESPONSE #3085] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:05:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:06:07 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:06:07 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:06:07 - src.app_final_vue - INFO - [RESPONSE #3086] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:06:37 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:06:37 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:06:37 - src.app_final_vue - INFO - [RESPONSE #3087] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:06:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:07:08 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:07:08 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:07:08 - src.app_final_vue - INFO - [RESPONSE #3088] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:07:38 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:07:38 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:07:38 - src.app_final_vue - INFO - [RESPONSE #3089] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:07:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:08:08 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:08:08 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:08:08 - src.app_final_vue - INFO - [RESPONSE #3090] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:08:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:08:38 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:08:38 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:08:38 - src.app_final_vue - INFO - [RESPONSE #3091] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:09:08 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:09:08 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:09:08 - src.app_final_vue - INFO - [RESPONSE #3092] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:09:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:09:38 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:09:38 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:09:38 - src.app_final_vue - INFO - [RESPONSE #3093] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:10:08 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:10:08 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:10:08 - src.app_final_vue - INFO - [RESPONSE #3094] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:10:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:10:39 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:10:39 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:10:39 - src.app_final_vue - INFO - [RESPONSE #3095] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:11:09 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:11:09 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:11:09 - src.app_final_vue - INFO - [RESPONSE #3096] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:11:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:11:39 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:11:39 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:11:39 - src.app_final_vue - INFO - [RESPONSE #3097] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:12:09 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:12:09 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:12:09 - src.app_final_vue - INFO - [RESPONSE #3098] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:12:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:12:39 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:12:39 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:12:39 - src.app_final_vue - INFO - [RESPONSE #3099] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:13:09 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:13:09 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:13:09 - src.app_final_vue - INFO - [RESPONSE #3100] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:13:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:13:39 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:13:39 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:13:39 - src.app_final_vue - INFO - [RESPONSE #3101] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:14:09 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:14:09 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:14:09 - src.app_final_vue - INFO - [RESPONSE #3102] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:14:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:14:40 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:14:40 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:14:40 - src.app_final_vue - INFO - [RESPONSE #3103] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:15:10 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:15:10 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:15:10 - src.app_final_vue - INFO - [RESPONSE #3104] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:15:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:15:40 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:15:40 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:15:40 - src.app_final_vue - INFO - [RESPONSE #3105] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:16:10 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:16:10 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:16:10 - src.app_final_vue - INFO - [RESPONSE #3106] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:16:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:16:40 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:16:40 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:16:40 - src.app_final_vue - INFO - [RESPONSE #3107] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:17:10 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:17:10 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:17:10 - src.app_final_vue - INFO - [RESPONSE #3108] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:17:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:17:40 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:17:40 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:17:40 - src.app_final_vue - INFO - [RESPONSE #3109] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:18:10 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:18:10 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:18:10 - src.app_final_vue - INFO - [RESPONSE #3110] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:18:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:18:41 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:18:41 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:18:41 - src.app_final_vue - INFO - [RESPONSE #3111] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:19:11 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:19:11 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:19:11 - src.app_final_vue - INFO - [RESPONSE #3112] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:19:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:19:41 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:19:41 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:19:41 - src.app_final_vue - INFO - [RESPONSE #3113] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:20:11 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:20:11 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:20:11 - src.app_final_vue - INFO - [RESPONSE #3114] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:20:38 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:20:41 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:20:41 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:20:41 - src.app_final_vue - INFO - [RESPONSE #3115] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:21:11 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:21:11 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:21:11 - src.app_final_vue - INFO - [RESPONSE #3116] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:21:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:21:41 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:21:41 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:21:41 - src.app_final_vue - INFO - [RESPONSE #3117] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:22:11 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:22:11 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:22:11 - src.app_final_vue - INFO - [RESPONSE #3118] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:22:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:22:42 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:22:42 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:22:42 - src.app_final_vue - INFO - [RESPONSE #3119] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:23:12 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:23:12 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:23:12 - src.app_final_vue - INFO - [RESPONSE #3120] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:23:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:23:42 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:23:42 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:23:42 - src.app_final_vue - INFO - [RESPONSE #3121] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:24:12 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:24:12 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:24:12 - src.app_final_vue - INFO - [RESPONSE #3122] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:24:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:24:42 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:24:42 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:24:42 - src.app_final_vue - INFO - [RESPONSE #3123] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:25:12 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:25:12 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:25:12 - src.app_final_vue - INFO - [RESPONSE #3124] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:25:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:25:42 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:25:42 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:25:42 - src.app_final_vue - INFO - [RESPONSE #3125] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:26:12 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:26:12 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:26:12 - src.app_final_vue - INFO - [RESPONSE #3126] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:26:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:26:43 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:26:43 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:26:43 - src.app_final_vue - INFO - [RESPONSE #3127] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:27:13 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:27:13 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:27:13 - src.app_final_vue - INFO - [RESPONSE #3128] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:27:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:27:43 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:27:43 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:27:43 - src.app_final_vue - INFO - [RESPONSE #3129] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:28:13 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:28:13 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:28:13 - src.app_final_vue - INFO - [RESPONSE #3130] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:28:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:28:43 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:28:43 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:28:43 - src.app_final_vue - INFO - [RESPONSE #3131] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:29:13 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:29:13 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:29:13 - src.app_final_vue - INFO - [RESPONSE #3132] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:29:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:29:43 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:29:43 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:29:43 - src.app_final_vue - INFO - [RESPONSE #3133] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:30:13 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:30:13 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:30:13 - src.app_final_vue - INFO - [RESPONSE #3134] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:30:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:30:44 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:30:44 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:30:44 - src.app_final_vue - INFO - [RESPONSE #3135] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:31:14 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:31:14 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:31:14 - src.app_final_vue - INFO - [RESPONSE #3136] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:31:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:31:44 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:31:44 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:31:44 - src.app_final_vue - INFO - [RESPONSE #3137] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:32:14 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:32:14 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:32:14 - src.app_final_vue - INFO - [RESPONSE #3138] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:32:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:32:44 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:32:44 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:32:44 - src.app_final_vue - INFO - [RESPONSE #3139] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:33:14 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:33:14 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:33:14 - src.app_final_vue - INFO - [RESPONSE #3140] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:33:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:33:44 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:33:44 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:33:44 - src.app_final_vue - INFO - [RESPONSE #3141] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:34:14 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:34:14 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:34:14 - src.app_final_vue - INFO - [RESPONSE #3142] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:34:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:34:45 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:34:45 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:34:45 - src.app_final_vue - INFO - [RESPONSE #3143] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:35:15 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:35:15 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:35:15 - src.app_final_vue - INFO - [RESPONSE #3144] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:35:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:35:45 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:35:45 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:35:45 - src.app_final_vue - INFO - [RESPONSE #3145] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:36:15 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:36:15 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:36:15 - src.app_final_vue - INFO - [RESPONSE #3146] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:36:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:36:45 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:36:45 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:36:45 - src.app_final_vue - INFO - [RESPONSE #3147] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:37:15 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:37:15 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:37:15 - src.app_final_vue - INFO - [RESPONSE #3148] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:37:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:37:45 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:37:45 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:37:45 - src.app_final_vue - INFO - [RESPONSE #3149] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:38:15 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:38:15 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:38:15 - src.app_final_vue - INFO - [RESPONSE #3150] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:38:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:38:46 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:38:46 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:38:46 - src.app_final_vue - INFO - [RESPONSE #3151] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:39:16 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:39:16 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:39:16 - src.app_final_vue - INFO - [RESPONSE #3152] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:39:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:39:46 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:39:46 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:39:46 - src.app_final_vue - INFO - [RESPONSE #3153] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:40:16 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:40:16 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:40:16 - src.app_final_vue - INFO - [RESPONSE #3154] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:40:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:40:46 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:40:46 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:40:46 - src.app_final_vue - INFO - [RESPONSE #3155] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:41:16 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:41:16 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:41:16 - src.app_final_vue - INFO - [RESPONSE #3156] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:41:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:41:46 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:41:46 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:41:46 - src.app_final_vue - INFO - [RESPONSE #3157] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:42:17 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:42:17 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:42:17 - src.app_final_vue - INFO - [RESPONSE #3158] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:42:39 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:42:47 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:42:47 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:42:47 - src.app_final_vue - INFO - [RESPONSE #3159] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:43:17 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:43:17 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:43:17 - src.app_final_vue - INFO - [RESPONSE #3160] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:43:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:43:47 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:43:47 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:43:47 - src.app_final_vue - INFO - [RESPONSE #3161] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:44:17 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:44:17 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:44:17 - src.app_final_vue - INFO - [RESPONSE #3162] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:44:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:44:47 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:44:47 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:44:47 - src.app_final_vue - INFO - [RESPONSE #3163] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:45:17 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:45:17 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:45:17 - src.app_final_vue - INFO - [RESPONSE #3164] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:45:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:45:47 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:45:47 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:45:47 - src.app_final_vue - INFO - [RESPONSE #3165] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:46:18 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:46:18 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:46:18 - src.app_final_vue - INFO - [RESPONSE #3166] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:46:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:46:48 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:46:48 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:46:48 - src.app_final_vue - INFO - [RESPONSE #3167] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:47:18 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:47:18 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:47:18 - src.app_final_vue - INFO - [RESPONSE #3168] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:47:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:47:48 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:47:48 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:47:48 - src.app_final_vue - INFO - [RESPONSE #3169] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:48:18 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:48:18 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:48:18 - src.app_final_vue - INFO - [RESPONSE #3170] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:48:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:48:48 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:48:48 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:48:48 - src.app_final_vue - INFO - [RESPONSE #3171] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:49:18 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:49:18 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:49:18 - src.app_final_vue - INFO - [RESPONSE #3172] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:49:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:49:48 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:49:48 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:49:48 - src.app_final_vue - INFO - [RESPONSE #3173] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:50:19 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:50:19 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:50:19 - src.app_final_vue - INFO - [RESPONSE #3174] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:50:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:50:49 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:50:49 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:50:49 - src.app_final_vue - INFO - [RESPONSE #3175] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:51:19 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:51:19 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:51:19 - src.app_final_vue - INFO - [RESPONSE #3176] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:51:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:51:49 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:51:49 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:51:49 - src.app_final_vue - INFO - [RESPONSE #3177] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:52:19 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:52:19 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:52:19 - src.app_final_vue - INFO - [RESPONSE #3178] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:52:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:52:49 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:52:49 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:52:49 - src.app_final_vue - INFO - [RESPONSE #3179] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:53:19 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:53:19 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:53:19 - src.app_final_vue - INFO - [RESPONSE #3180] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:53:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:53:50 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:53:50 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:53:50 - src.app_final_vue - INFO - [RESPONSE #3181] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:54:20 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:54:20 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:54:20 - src.app_final_vue - INFO - [RESPONSE #3182] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:54:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:54:50 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:54:50 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:54:50 - src.app_final_vue - INFO - [RESPONSE #3183] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:55:20 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:55:20 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:55:20 - src.app_final_vue - INFO - [RESPONSE #3184] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:55:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:55:50 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:55:50 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:55:50 - src.app_final_vue - INFO - [RESPONSE #3185] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:56:20 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:56:20 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:56:20 - src.app_final_vue - INFO - [RESPONSE #3186] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:56:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:56:50 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:56:50 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:56:50 - src.app_final_vue - INFO - [RESPONSE #3187] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:57:20 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:57:20 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:57:20 - src.app_final_vue - INFO - [RESPONSE #3188] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:57:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:57:51 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:57:51 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:57:51 - src.app_final_vue - INFO - [RESPONSE #3189] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:58:21 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:58:21 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:58:21 - src.app_final_vue - INFO - [RESPONSE #3190] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:58:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:58:51 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:58:51 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:58:51 - src.app_final_vue - INFO - [RESPONSE #3191] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:59:21 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:59:21 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:59:21 - src.app_final_vue - INFO - [RESPONSE #3192] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 15:59:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 15:59:51 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:59:51 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 15:59:51 - src.app_final_vue - INFO - [RESPONSE #3193] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:00:21 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:00:21 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:00:21 - src.app_final_vue - INFO - [RESPONSE #3194] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:00:40 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:00:51 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:00:51 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:00:51 - src.app_final_vue - INFO - [RESPONSE #3195] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:01:21 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:01:21 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:01:21 - src.app_final_vue - INFO - [RESPONSE #3196] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:01:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:01:52 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:01:52 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:01:52 - src.app_final_vue - INFO - [RESPONSE #3197] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:02:22 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:02:22 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:02:22 - src.app_final_vue - INFO - [RESPONSE #3198] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:02:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:02:52 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:02:52 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:02:52 - src.app_final_vue - INFO - [RESPONSE #3199] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:03:22 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:03:22 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:03:22 - src.app_final_vue - INFO - [RESPONSE #3200] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:03:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:03:52 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:03:52 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:03:52 - src.app_final_vue - INFO - [RESPONSE #3201] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:04:22 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:04:22 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:04:22 - src.app_final_vue - INFO - [RESPONSE #3202] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:04:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:04:52 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:04:52 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:04:52 - src.app_final_vue - INFO - [RESPONSE #3203] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:05:23 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:05:23 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:05:23 - src.app_final_vue - INFO - [RESPONSE #3204] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:05:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:05:53 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:05:53 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:05:53 - src.app_final_vue - INFO - [RESPONSE #3205] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:06:23 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:06:23 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:06:23 - src.app_final_vue - INFO - [RESPONSE #3206] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:06:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:06:53 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:06:53 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:06:53 - src.app_final_vue - INFO - [RESPONSE #3207] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:07:23 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:07:23 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:07:23 - src.app_final_vue - INFO - [RESPONSE #3208] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:07:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:07:53 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:07:53 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:07:53 - src.app_final_vue - INFO - [RESPONSE #3209] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:08:23 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:08:23 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:08:23 - src.app_final_vue - INFO - [RESPONSE #3210] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:08:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:08:53 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:08:53 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:08:53 - src.app_final_vue - INFO - [RESPONSE #3211] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:09:24 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:09:24 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:09:24 - src.app_final_vue - INFO - [RESPONSE #3212] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:09:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:09:54 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:09:54 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:09:54 - src.app_final_vue - INFO - [RESPONSE #3213] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:10:24 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:10:24 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:10:24 - src.app_final_vue - INFO - [RESPONSE #3214] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:10:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:10:54 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:10:54 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:10:54 - src.app_final_vue - INFO - [RESPONSE #3215] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:11:24 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:11:24 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:11:24 - src.app_final_vue - INFO - [RESPONSE #3216] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:11:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:11:54 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:11:54 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:11:54 - src.app_final_vue - INFO - [RESPONSE #3217] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:12:24 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:12:24 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:12:24 - src.app_final_vue - INFO - [RESPONSE #3218] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:12:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:12:54 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:12:54 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:12:55 - src.app_final_vue - INFO - [RESPONSE #3219] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:13:25 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:13:25 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:13:25 - src.app_final_vue - INFO - [RESPONSE #3220] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:13:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:13:55 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:13:55 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:13:55 - src.app_final_vue - INFO - [RESPONSE #3221] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:14:25 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:14:25 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:14:25 - src.app_final_vue - INFO - [RESPONSE #3222] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:14:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:14:55 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:14:55 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:14:55 - src.app_final_vue - INFO - [RESPONSE #3223] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:15:25 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:15:25 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:15:25 - src.app_final_vue - INFO - [RESPONSE #3224] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:15:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:15:55 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:15:55 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:15:55 - src.app_final_vue - INFO - [RESPONSE #3225] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:16:25 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:16:25 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:16:25 - src.app_final_vue - INFO - [RESPONSE #3226] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:16:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:16:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:16:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:16:56 - src.app_final_vue - INFO - [RESPONSE #3227] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:17:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:17:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:17:26 - src.app_final_vue - INFO - [RESPONSE #3228] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:17:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:17:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:17:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:17:56 - src.app_final_vue - INFO - [RESPONSE #3229] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:18:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:18:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:18:26 - src.app_final_vue - INFO - [RESPONSE #3230] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:18:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:18:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:18:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:18:56 - src.app_final_vue - INFO - [RESPONSE #3231] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:19:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:19:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:19:26 - src.app_final_vue - INFO - [RESPONSE #3232] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:19:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:19:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:19:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:19:56 - src.app_final_vue - INFO - [RESPONSE #3233] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:20:26 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:20:26 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:20:26 - src.app_final_vue - INFO - [RESPONSE #3234] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:20:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:20:56 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:20:56 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:20:56 - src.app_final_vue - INFO - [RESPONSE #3235] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:21:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:21:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:21:27 - src.app_final_vue - INFO - [RESPONSE #3236] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:21:41 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:21:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:21:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:21:57 - src.app_final_vue - INFO - [RESPONSE #3237] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:22:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:22:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:22:27 - src.app_final_vue - INFO - [RESPONSE #3238] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:22:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:22:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:22:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:22:57 - src.app_final_vue - INFO - [RESPONSE #3239] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:23:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:23:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:23:27 - src.app_final_vue - INFO - [RESPONSE #3240] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:23:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:23:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:23:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:23:57 - src.app_final_vue - INFO - [RESPONSE #3241] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:24:27 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:24:27 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:24:27 - src.app_final_vue - INFO - [RESPONSE #3242] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:24:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:24:57 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:24:57 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:24:57 - src.app_final_vue - INFO - [RESPONSE #3243] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:25:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:25:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:25:28 - src.app_final_vue - INFO - [RESPONSE #3244] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:25:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:25:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:25:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:25:58 - src.app_final_vue - INFO - [RESPONSE #3245] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:26:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:26:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:26:28 - src.app_final_vue - INFO - [RESPONSE #3246] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:26:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:26:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:26:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:26:58 - src.app_final_vue - INFO - [RESPONSE #3247] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:27:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:27:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:27:28 - src.app_final_vue - INFO - [RESPONSE #3248] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:27:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:27:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:27:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:27:58 - src.app_final_vue - INFO - [RESPONSE #3249] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:28:28 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:28:28 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:28:28 - src.app_final_vue - INFO - [RESPONSE #3250] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:28:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:28:58 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:28:58 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:28:58 - src.app_final_vue - INFO - [RESPONSE #3251] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:29:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:29:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:29:29 - src.app_final_vue - INFO - [RESPONSE #3252] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:29:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:29:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:29:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:29:59 - src.app_final_vue - INFO - [RESPONSE #3253] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:30:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:30:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:30:29 - src.app_final_vue - INFO - [RESPONSE #3254] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:30:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:30:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:30:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:30:59 - src.app_final_vue - INFO - [RESPONSE #3255] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:31:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:31:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:31:29 - src.app_final_vue - INFO - [RESPONSE #3256] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:31:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:31:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:31:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:31:59 - src.app_final_vue - INFO - [RESPONSE #3257] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:32:29 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:32:29 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:32:29 - src.app_final_vue - INFO - [RESPONSE #3258] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:32:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:32:59 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:32:59 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:32:59 - src.app_final_vue - INFO - [RESPONSE #3259] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:33:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:33:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:33:30 - src.app_final_vue - INFO - [RESPONSE #3260] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:33:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:34:00 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:34:00 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:34:00 - src.app_final_vue - INFO - [RESPONSE #3261] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:34:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:34:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:34:30 - src.app_final_vue - INFO - [RESPONSE #3262] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:34:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:35:00 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:35:00 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:35:00 - src.app_final_vue - INFO - [RESPONSE #3263] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:35:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:35:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:35:30 - src.app_final_vue - INFO - [RESPONSE #3264] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:35:42 - src.memory_monitor - INFO - Memory usage: 114.6MB (0.7%)
+2025-10-23 16:36:00 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:36:00 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:36:00 - src.app_final_vue - INFO - [RESPONSE #3265] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: c55293b9-789c-41f8-85ef-3c73688953a1] ===
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request c55293b9-789c-41f8-85ef-3c73688953a1] Method: POST
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request c55293b9-789c-41f8-85ef-3c73688953a1] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request c55293b9-789c-41f8-85ef-3c73688953a1] Content-Type: application/json
+2025-10-23 16:36:21 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request client-1761237381738-rde3hdsni] Using client-provided request_id for progress tracking
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request client-1761237381738-rde3hdsni] Processing JSON input
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request client-1761237381738-rde3hdsni] Processing url input
+2025-10-23 16:36:21 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-23 16:36:21 - src.vue_api_endpoints_updated - INFO - [Request client-1761237381738-rde3hdsni] Using UnifiedInputProcessor for url input
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🚀 process_any_input CALLED!
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Processing url input
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Input data type: <class 'str'>
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Input data length: 54
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Source name: None, Force mode: None
+2025-10-23 16:36:21 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 📥 Calling _extract_text_from_input...
+2025-10-23 16:36:21 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Extracting text from URL: https://appellate.nccourts.org/opinions/?c=1&pdf=45257
+2025-10-23 16:36:21 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Validating URL...
+2025-10-23 16:36:21 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] URL validation passed, fetching content...
+2025-10-23 16:36:21 - src.progress_manager - INFO - Fetching URL: https://appellate.nccourts.org/opinions/?c=1&pdf=45257
+2025-10-23 16:36:23 - src.app_final_vue - INFO - [RESPONSE #3266] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:24 - src.app_final_vue - INFO - [RESPONSE #3267] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:25 - src.app_final_vue - INFO - [RESPONSE #3268] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:26 - src.app_final_vue - INFO - [RESPONSE #3269] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:26 - src.progress_manager - INFO - Response status: 200
+2025-10-23 16:36:26 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-23 16:36:26 - src.progress_manager - INFO - Extracting PDF from URL using extract_text_from_pdf_smart()
+2025-10-23 16:36:26 - src.robust_pdf_extractor - INFO - PDF extraction libraries available: fitz, pdfplumber, pypdf, PyPDF2, pdfminer
+2025-10-23 16:36:26 - src.robust_pdf_extractor - INFO - ✅ PDF extracted in 0.1s using fitz
+2025-10-23 16:36:26 - src.progress_manager - INFO - Successfully extracted 41008 characters from URL PDF
+2025-10-23 16:36:26 - src.progress_manager - INFO - After preprocessing: 39570 characters
+2025-10-23 16:36:26 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Content fetched, length: 39570
+2025-10-23 16:36:26 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Successfully extracted 39570 characters from URL
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] ✅ _extract_text_from_input returned: success=True
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🎬 _process_citations_unified CALLED!
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Processing citations from url
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Text length: 39570 characters
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Text preview: IN THE SUPREME COURT OF NORTH CAROLINA No. 303A20-2 Filed October 2025 ESTATE OF MELVIN JOSEPH LONG, by and through MARLA HUDSON LONG, Administratrix, v. JAMES D. FOWLER, individually; DAVID A. MATTHE...
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] Input metadata: {'input_type': 'url', 'url': 'https://appellate.nccourts.org/opinions/?c=1&pdf=45257', 'url_domain': 'appellate.nccourts.org', 'content_length': 39570, 'source': 'url_fetch'}
+2025-10-23 16:36:26 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Checking if should process immediately...
+2025-10-23 16:36:26 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-23 16:36:26 - src.api.services.citation_service - INFO - Text size 39570 bytes >= 5120 bytes - using ASYNC processing
+2025-10-23 16:36:26 - src.unified_input_processor - INFO - [Unified Processor client-1761237381738-rde3hdsni] Should process immediately: False
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 📝 Text length: 39570 chars
+2025-10-23 16:36:26 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 📋 Source: url, Input type from metadata: url
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] ✅ Imported RQ and Redis modules
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🔍 Trying 3 Redis configurations...
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 🎯 Creating queue 'casestrainer'...
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] ✅ Queue created successfully
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] 📤 About to enqueue job...
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni]    Function: src.progress_manager.process_citation_task_direct
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni]    Args: (client-1761237381738-rde3hdsni, 'text', {text: 39570 chars})
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni]    Job ID: client-1761237381738-rde3hdsni
+2025-10-23 16:36:27 - rq.queue - DEBUG - Pushed job client-1761237381738-rde3hdsni into casestrainer
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni] ✅ Task enqueued successfully!
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni]    Job ID: client-1761237381738-rde3hdsni
+2025-10-23 16:36:27 - src.unified_input_processor - ERROR - [Unified Processor client-1761237381738-rde3hdsni]    Job status: queued
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - [Request client-1761237381738-rde3hdsni] Request completed successfully in 5964ms
+2025-10-23 16:36:27 - src.app_final_vue - INFO - [RESPONSE #3270] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:27 - src.app_final_vue - INFO - [RESPONSE #3271] POST vue_api.analyze -> 200 (1542 chars)
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:27 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:27 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:27 - src.app_final_vue - INFO - [RESPONSE #3272] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:27 - src.app_final_vue - INFO - [RESPONSE #3273] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:29 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:29 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:29 - src.app_final_vue - INFO - [RESPONSE #3274] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:29 - src.app_final_vue - INFO - [RESPONSE #3275] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:36:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:36:30 - src.app_final_vue - INFO - [RESPONSE #3276] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:31 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:31 - src.app_final_vue - INFO - [RESPONSE #3277] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:31 - src.app_final_vue - INFO - [RESPONSE #3278] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:33 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:33 - src.app_final_vue - INFO - [RESPONSE #3279] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:33 - src.app_final_vue - INFO - [RESPONSE #3280] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:35 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:35 - src.app_final_vue - INFO - [RESPONSE #3281] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:35 - src.app_final_vue - INFO - [RESPONSE #3282] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:37 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:37 - src.app_final_vue - INFO - [RESPONSE #3283] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:37 - src.app_final_vue - INFO - [RESPONSE #3284] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:39 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:39 - src.app_final_vue - INFO - [RESPONSE #3285] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:39 - src.app_final_vue - INFO - [RESPONSE #3286] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:41 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:41 - src.app_final_vue - INFO - [RESPONSE #3287] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:41 - src.app_final_vue - INFO - [RESPONSE #3288] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:42 - src.memory_monitor - INFO - Memory usage: 115.6MB (0.7%)
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:43 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:43 - src.app_final_vue - INFO - [RESPONSE #3289] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:43 - src.app_final_vue - INFO - [RESPONSE #3290] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:45 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:45 - src.app_final_vue - INFO - [RESPONSE #3291] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:45 - src.app_final_vue - INFO - [RESPONSE #3292] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:47 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:47 - src.app_final_vue - INFO - [RESPONSE #3293] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:47 - src.app_final_vue - INFO - [RESPONSE #3294] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:49 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:49 - src.app_final_vue - INFO - [RESPONSE #3295] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:49 - src.app_final_vue - INFO - [RESPONSE #3296] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: started
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: False
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: True
+2025-10-23 16:36:51 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:51 - src.app_final_vue - INFO - [RESPONSE #3297] GET vue_api.task_status -> 200 (157 chars)
+2025-10-23 16:36:51 - src.app_final_vue - INFO - [RESPONSE #3298] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761237381738-rde3hdsni
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-23 16:36:53 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: finished
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni meta: {}
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_finished: True
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_failed: False
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_started: False
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni is_queued: False
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni result type: <class 'dict'>
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni citations count: 0
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni clusters count: 0
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni success: True
+2025-10-23 16:36:53 - src.vue_api_endpoints_updated - INFO - Job client-1761237381738-rde3hdsni status: completed
+2025-10-23 16:36:53 - src.app_final_vue - INFO - [RESPONSE #3299] GET vue_api.task_status -> 200 (47200 chars)
+2025-10-23 16:37:00 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:37:00 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:37:00 - src.app_final_vue - INFO - [RESPONSE #3300] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:37:30 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:37:30 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:37:30 - src.app_final_vue - INFO - [RESPONSE #3301] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:37:42 - src.memory_monitor - INFO - Memory usage: 115.6MB (0.7%)
+2025-10-23 16:38:01 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:38:01 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:38:01 - src.app_final_vue - INFO - [RESPONSE #3302] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:38:31 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:38:31 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:38:31 - src.app_final_vue - INFO - [RESPONSE #3303] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:38:42 - src.memory_monitor - INFO - Memory usage: 115.6MB (0.7%)
+2025-10-23 16:39:01 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:39:01 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:39:01 - src.app_final_vue - INFO - [RESPONSE #3304] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:39:31 - src.database_manager - ERROR - Database connection error: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:39:31 - src.database_manager - ERROR - Failed to get database stats: [Errno 2] No such file or directory: '/app/data/citations.db'
+2025-10-23 16:39:31 - src.app_final_vue - INFO - [RESPONSE #3305] GET vue_api.health_check -> 200 (444 chars)
+2025-10-23 16:39:42 - src.memory_monitor - INFO - Memory usage: 115.6MB (0.7%)

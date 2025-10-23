@@ -579,9 +579,21 @@ def _format_response(result, request_id, metadata, start_time):
         'success': result.get('success', True)
     })
     
+    # USER FIX 2024-10-21: Convert CitationResult objects to dicts BEFORE building response
+    citations_raw = result.get('citations', [])
+    citations_serialized = []
+    for cit in citations_raw:
+        if hasattr(cit, 'to_dict'):
+            citations_serialized.append(cit.to_dict())
+        elif isinstance(cit, dict):
+            citations_serialized.append(cit)
+        else:
+            # Fallback
+            citations_serialized.append(cit.__dict__ if hasattr(cit, '__dict__') else str(cit))
+    
     response_data = {
         'result': {
-            'citations': result.get('citations', []),
+            'citations': citations_serialized,
             'clusters': result.get('clusters', []),
             'statistics': result.get('statistics', {}),
         },
@@ -618,10 +630,12 @@ def _format_response(result, request_id, metadata, start_time):
     
     def safe_serialize(obj):
         """Safely serialize objects to JSON, handling custom objects"""
-        if hasattr(obj, '__dict__'):
-            return obj.__dict__
-        elif hasattr(obj, 'to_dict'):
+        # USER FIX 2024-10-21: Check to_dict() FIRST before __dict__
+        # CitationResult has both, but to_dict() includes proper serialization logic
+        if hasattr(obj, 'to_dict'):
             return obj.to_dict()
+        elif hasattr(obj, '__dict__'):
+            return obj.__dict__
         elif isinstance(obj, (list, tuple)):
             return [safe_serialize(item) for item in obj]
         elif isinstance(obj, dict):

@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CaseStrainer Settings</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #f8f9fa;
+      padding: 40px;
+      line-height: 1.6;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #0d6efd;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      color: #6c757d;
+      margin-bottom: 32px;
+    }
+    
+    .setting-group {
+      margin-bottom: 32px;
+    }
+    
+    .setting-group h2 {
+      font-size: 18px;
+      color: #212529;
+      margin-bottom: 16px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #e9ecef;
+    }
+    
+    .setting-item {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #495057;
+    }
+    
+    input[type="text"],
+    input[type="url"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+    
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+    
+    input[type="color"] {
+      width: 60px;
+      height: 38px;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .color-input {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .help-text {
+      font-size: 13px;
+      color: #6c757d;
+      margin-top: 4px;
+    }
+    
+    .buttons {
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 2px solid #e9ecef;
+    }
+    
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .btn-primary {
+      background: #0d6efd;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #0b5ed7;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+    }
+    
+    .btn-secondary:hover {
+      background: #5c636a;
+    }
+    
+    .success-message {
+      display: none;
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 16px;
+      font-size: 14px;
+    }
+    
+    .success-message.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>⚖️ CaseStrainer Settings</h1>
+    <p class="subtitle">Configure how citations are detected and highlighted</p>
+    
+    <form id="settingsForm">
+      <div class="setting-group">
+        <h2>General</h2>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="autoVerify" checked>
+            Automatically verify citations on page load
+          </label>
+          <p class="help-text">When enabled, citations will be detected and verified automatically when you visit a page</p>
+        </div>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="showConfidence" checked>
+            Show confidence scores
+          </label>
+          <p class="help-text">Display confidence percentages for verified citations</p>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <h2>API Configuration</h2>
+        
+        <div class="setting-item">
+          <label for="apiUrl">CaseStrainer API URL</label>
+          <input type="url" id="apiUrl" placeholder="https://wolf.law.uw.edu/casestrainer/api">
+          <p class="help-text">The API endpoint for citation verification</p>
+        </div>
+      </div>
+      
+      <div class="setting-group">
+        <h2>Highlighting</h2>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="highlightVerified" checked>
+            Highlight verified citations
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label class="checkbox-label">
+            <input type="checkbox" id="highlightUnverified" checked>
+            Highlight unverified citations
+          </label>
+        </div>
+        
+        <div class="setting-item">
+          <label for="verifiedColor">Verified citation color</label>
+          <div class="color-input">
+            <input type="color" id="verifiedColor" value="#28a745">
+            <span>Green - indicates citation is verified</span>
+          </div>
+        </div>
+        
+        <div class="setting-item">
+          <label for="unverifiedColor">Unverified citation color</label>
+          <div class="color-input">
+            <input type="color" id="unverifiedColor" value="#dc3545">
+            <span>Red - indicates citation could not be verified</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="buttons">
+        <button type="submit" class="btn-primary">Save Settings</button>
+        <button type="button" id="resetButton" class="btn-secondary">Reset to Defaults</button>
+      </div>
+      
+      <div id="successMessage" class="success-message">
+        ✓ Settings saved successfully!
+      </div>
+    </form>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>

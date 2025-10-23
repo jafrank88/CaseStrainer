@@ -313,6 +313,48 @@ function Start-DockerBuild {
             throw "Docker Compose file not found: $DockerComposeFile"
         }
         
+        # SMART DETECTION: Auto-detect if source files changed since last build
+        if (-not $NoCache) {
+            Write-Host "[DETECT] Checking if Python source files changed..." -ForegroundColor Yellow
+            try {
+                $srcPath = Join-Path (Get-Location) "src"
+                if (Test-Path $srcPath) {
+                    # Get newest Python file
+                    $srcFiles = Get-ChildItem -Path $srcPath -Recurse -Filter "*.py" -File -ErrorAction SilentlyContinue
+                    if ($srcFiles) {
+                        $newestSrcFile = ($srcFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
+                        $newestSrcTime = $newestSrcFile.LastWriteTime
+                        
+                        # Get Docker image creation time
+                        $imageCreated = docker inspect casestrainer-backend:latest --format='{{.Created}}' 2>$null
+                        if ($imageCreated) {
+                            $imageTime = [DateTime]::Parse($imageCreated)
+                            
+                            if ($newestSrcTime -gt $imageTime) {
+                                $timeDiff = ($newestSrcTime - $imageTime).TotalMinutes
+                                Write-Host "  [DETECT] Source files changed $([math]::Round($timeDiff, 1)) minutes after last build" -ForegroundColor Yellow
+                                Write-Host "  [DETECT] Newest: $($newestSrcFile.Name) (modified: $($newestSrcTime.ToString(""HH:mm:ss"")))" -ForegroundColor Gray
+                                Write-Host "  [DETECT] Image: built at $($imageTime.ToString(""HH:mm:ss""))" -ForegroundColor Gray
+                                Write-Host "  [DETECT] AUTO-ENABLING --no-cache to ensure fresh code" -ForegroundColor Red
+                                $NoCache = $true
+                            } else {
+                                Write-Host "  [OK] Source unchanged - using cached Docker layers (fast build)" -ForegroundColor Green
+                            }
+                        } else {
+                            Write-Host "  [WARN] No existing image found - forcing --no-cache" -ForegroundColor Yellow
+                            $NoCache = $true
+                        }
+                    }
+                }
+            } catch {
+                Write-Host "  [WARN] Detection failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                Write-Host "  [WARN] Forcing --no-cache for safety" -ForegroundColor Yellow
+                $NoCache = $true
+            }
+        } else {
+            Write-Host "  [INFO] --no-cache explicitly requested by user" -ForegroundColor Cyan
+        }
+        
         $buildArgs = @("-f", $DockerComposeFile, "build")
         if ($NoCache) { $buildArgs += "--no-cache" }
         if ($ForceRebuild) { $buildArgs += "--force-rm", "--pull" }

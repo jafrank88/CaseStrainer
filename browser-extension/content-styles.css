@@ -1,0 +1,21 @@
+/* CaseStrainer - Content Script Styles for Citation Highlighting */
+
+.casestrainer-citation {
+  position: relative;
+  transition: all 0.2s ease;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.casestrainer-citation:hover {
+  opacity: 0.8;
+  transform: translateY(-1px);
+}
+
+/* Ensure citations don't break page layout */
+.casestrainer-citation {
+  display: inline;
+  line-height: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}

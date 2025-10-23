@@ -1,16 +1,266 @@
 <template>
   <div class="container py-5">
     <div class="row justify-content-center">
-      <div class="col-lg-8 text-center">
-        <h1 class="display-4 mb-3"><i class="bi bi-file-earmark-word me-2"></i> CaseStrainer Word Plug-in</h1>
-        <p class="lead mb-4">Validate legal citations directly inside your Microsoft Word documents. Highlight, verify, and correct citations as you write.</p>
-        <div class="alert alert-info py-4">
-          <h4 class="mb-2">Coming Soon!</h4>
-          <p>We are developing a Microsoft Word add-in for seamless in-document citation validation. Stay tuned for updates and download links.</p>
+      <div class="col-lg-10">
+        <h1 class="display-4 mb-3 text-center">
+          <i class="bi bi-file-earmark-word me-2"></i> CaseStrainer Word Add-In (BriefCheck)
+        </h1>
+        <p class="lead mb-4 text-center">
+          Analyze and verify legal citations directly within Microsoft Word documents. Detect hallucinated or incorrect citations in briefs, memos, and legal documents.
+        </p>
+
+        <!-- Status Alert -->
+        <div class="alert alert-success mb-4">
+          <h4 class="mb-2"><i class="bi bi-check-circle me-2"></i> Available Now!</h4>
+          <p class="mb-0">
+            The CaseStrainer Word Add-In (branded as <strong>BriefCheck</strong>) is currently available for installation. 
+            Download the manifest file and follow the installation instructions below to get started.
+          </p>
         </div>
-        <router-link to="/" class="btn btn-primary mt-3">
-          <i class="bi bi-house-door me-1"></i> Back to Home
-        </router-link>
+
+        <!-- Quick Start -->
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <h3 class="mb-0"><i class="bi bi-rocket me-2"></i> Quick Start</h3>
+          </div>
+          <div class="card-body">
+            <ol class="mb-0">
+              <li class="mb-2">
+                <strong>Download</strong> the 
+                <a href="https://github.com/jafrank88/casestrainer/tree/main/word_addin" target="_blank">
+                  manifest.xml file
+                </a> from GitHub
+              </li>
+              <li class="mb-2">
+                <strong>Copy</strong> to your Office Web Extensions folder:
+                <ul class="mt-2">
+                  <li>Windows: <code>%USERPROFILE%\AppData\Local\Microsoft\Office\16.0\Wef\</code></li>
+                  <li>Mac: <code>~/Library/Containers/com.microsoft.Word/Data/Documents/wef/</code></li>
+                </ul>
+              </li>
+              <li class="mb-2">
+                <strong>Restart</strong> Microsoft Word
+              </li>
+              <li class="mb-0">
+                <strong>Enable</strong> BriefCheck from <strong>Insert → Add-ins → My Add-ins</strong>
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Features Section -->
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="bi bi-star me-2"></i> Features</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6 mb-3">
+                <h5><i class="bi bi-file-text text-primary me-2"></i> Citation Analysis</h5>
+                <ul>
+                  <li>Document-wide citation analysis</li>
+                  <li>Selection-based analysis</li>
+                  <li>Real-time processing</li>
+                  <li>Confidence scoring</li>
+                </ul>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h5><i class="bi bi-search text-success me-2"></i> Verification Methods</h5>
+                <ul>
+                  <li>CourtListener API lookup</li>
+                  <li>Summary comparison analysis</li>
+                  <li>Multi-iteration verification</li>
+                  <li>Adjustable similarity threshold</li>
+                </ul>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h5><i class="bi bi-eye text-info me-2"></i> Visual Feedback</h5>
+                <ul>
+                  <li>Color-coded results (green/red)</li>
+                  <li>Detailed accordion view</li>
+                  <li>Confidence bars</li>
+                  <li>Toggle-able case summaries</li>
+                </ul>
+              </div>
+              <div class="col-md-6 mb-3">
+                <h5><i class="bi bi-gear text-warning me-2"></i> Advanced Features</h5>
+                <ul>
+                  <li>Local PDF search option</li>
+                  <li>Batch processing</li>
+                  <li>Customizable settings</li>
+                  <li>Export options</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- How It Works -->
+        <div class="card mb-4">
+          <div class="card-header bg-success text-white">
+            <h3 class="mb-0"><i class="bi bi-info-circle me-2"></i> How It Works</h3>
+          </div>
+          <div class="card-body">
+            <h5 class="mb-3">The BriefCheck Process:</h5>
+            <ol>
+              <li class="mb-2">
+                <strong>Citation Extraction:</strong> Extracts case citations from your document using specialized legal citation parsers
+              </li>
+              <li class="mb-2">
+                <strong>API Verification:</strong> Each citation is checked against legal databases like CourtListener
+              </li>
+              <li class="mb-2">
+                <strong>Summary Generation:</strong> Generates multiple summaries using AI for additional verification
+              </li>
+              <li class="mb-2">
+                <strong>Similarity Calculation:</strong> Calculates similarity between summaries to detect hallucinations
+              </li>
+              <li class="mb-0">
+                <strong>Results Display:</strong> Citations with low similarity scores are flagged as potentially hallucinated
+              </li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Usage Instructions -->
+        <div class="card mb-4">
+          <div class="card-header bg-warning text-dark">
+            <h3 class="mb-0"><i class="bi bi-play-circle me-2"></i> Using BriefCheck</h3>
+          </div>
+          <div class="card-body">
+            <h5 class="mb-3">Basic Usage:</h5>
+            <ol>
+              <li>Open your legal brief in Microsoft Word</li>
+              <li>Click the <strong>BriefCheck</strong> button in the Home tab</li>
+              <li>Configure settings (iterations: 2-5, threshold: 0.5-0.9)</li>
+              <li>Click <strong>Analyze Document</strong></li>
+              <li>Review results with confidence scores and case summaries</li>
+            </ol>
+
+            <h5 class="mt-4 mb-3">Settings:</h5>
+            <ul>
+              <li><strong>Iterations (2-5):</strong> More iterations = higher accuracy but slower</li>
+              <li><strong>Similarity Threshold (0.5-0.9):</strong> Higher = stricter verification</li>
+              <li><strong>Local PDF Search:</strong> Search local PDF repositories (slower but comprehensive)</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- System Requirements -->
+        <div class="card mb-4">
+          <div class="card-header bg-secondary text-white">
+            <h3 class="mb-0"><i class="bi bi-laptop me-2"></i> System Requirements</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-6">
+                <h5>Software:</h5>
+                <ul>
+                  <li>Microsoft Word 2016 or later</li>
+                  <li>Office 365 or standalone Office</li>
+                  <li>Windows or macOS</li>
+                </ul>
+              </div>
+              <div class="col-md-6">
+                <h5>Other:</h5>
+                <ul>
+                  <li>Internet connection required</li>
+                  <li>Connects to: wolf.law.uw.edu</li>
+                  <li>No API key needed</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Documentation & Support -->
+        <div class="card mb-4">
+          <div class="card-header bg-dark text-white">
+            <h3 class="mb-0"><i class="bi bi-book me-2"></i> Documentation & Support</h3>
+          </div>
+          <div class="card-body">
+            <p>
+              For detailed installation instructions, troubleshooting, and development information:
+            </p>
+            <div class="list-group">
+              <a href="https://github.com/jafrank88/casestrainer/tree/main/docs/WORD_ADDIN.md" 
+                 target="_blank" 
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-file-text me-2"></i> Complete Word Add-In Documentation
+              </a>
+              <a href="https://github.com/jafrank88/casestrainer/tree/main/word_addin" 
+                 target="_blank" 
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-download me-2"></i> Download Add-In Files
+              </a>
+              <a href="https://github.com/jafrank88/casestrainer" 
+                 target="_blank" 
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-github me-2"></i> GitHub Repository
+              </a>
+              <a href="https://github.com/jafrank88/casestrainer/issues" 
+                 target="_blank" 
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-bug me-2"></i> Report Issues
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <h3 class="mb-0"><i class="bi bi-calendar-check me-2"></i> Roadmap</h3>
+          </div>
+          <div class="card-body">
+            <div class="row">
+              <div class="col-md-4">
+                <h5>Current (v1.0)</h5>
+                <ul>
+                  <li>✅ Basic citation detection</li>
+                  <li>✅ API integration</li>
+                  <li>✅ Confidence scoring</li>
+                  <li>✅ Summary comparison</li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <h5>Planned (v1.1)</h5>
+                <ul>
+                  <li>Batch document processing</li>
+                  <li>BibTeX/EndNote export</li>
+                  <li>Custom verification rules</li>
+                  <li>Team collaboration</li>
+                </ul>
+              </div>
+              <div class="col-md-4">
+                <h5>Future (v2.0)</h5>
+                <ul>
+                  <li>ML citation classifier</li>
+                  <li>Real-time verification</li>
+                  <li>Citation management tools</li>
+                  <li>Advanced analytics</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="text-center">
+          <router-link to="/" class="btn btn-primary btn-lg me-2">
+            <i class="bi bi-house-door me-1"></i> Back to Home
+          </router-link>
+          <a href="https://github.com/jafrank88/casestrainer/tree/main/word_addin" 
+             target="_blank" 
+             class="btn btn-success btn-lg me-2">
+            <i class="bi bi-download me-1"></i> Download Add-In
+          </a>
+          <a href="https://github.com/jafrank88/casestrainer/tree/main/docs/WORD_ADDIN.md" 
+             target="_blank" 
+             class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-book me-1"></i> View Documentation
+          </a>
+        </div>
       </div>
     </div>
   </div>

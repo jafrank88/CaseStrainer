@@ -1,8 +1,0 @@
-Add documentation for neutral citation support
-
-Comprehensive documentation explaining:
-- What neutral citations are
-- The issue that was fixed
-- States supported (8 states)
-- Before/after examples
-- Testing instructions

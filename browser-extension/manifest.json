@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "CaseStrainer - Legal Citation Verifier",
+  "version": "1.0.0",
+  "description": "Verify legal citations in real-time while browsing. Highlights verified and unverified citations on legal websites.",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "permissions": [
+    "activeTab",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://wolf.law.uw.edu/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://scholar.google.com/*",
+        "https://www.courtlistener.com/*",
+        "https://www.justia.com/*",
+        "https://www.findlaw.com/*",
+        "https://*.law.*.edu/*",
+        "https://*.courts.*.gov/*"
+      ],
+      "js": ["content-script.js"],
+      "css": ["content-styles.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_title": "CaseStrainer Citation Verifier"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

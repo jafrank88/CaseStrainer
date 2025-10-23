@@ -1,78 +1,56 @@
-#!/usr/bin/env python3
-"""
-Check what's actually stored in Redis for the completed job
-"""
-import os
-os.environ['REDIS_URL'] = 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0'
-
-from rq import Queue
-from redis import Redis
+import redis
 import json
 
-# The job ID from our test
-task_id = "56fa947d-f29e-4883-8470-1e2643170891"
+r = redis.Redis.from_url('redis://:***REDACTED_REDIS_PASSWORD***@localhost:6379/0')
 
-redis_conn = Redis.from_url(os.environ['REDIS_URL'])
-queue = Queue('casestrainer', connection=redis_conn)
+task_id = "ddc1dd94-cb04-45ca-8a54-9cc393c14dc2"
 
-job = queue.fetch_job(task_id)
+# Get job data
+job_key = f"rq:job:{task_id}"
+job_data = r.hgetall(job_key)
 
-if not job:
-    print(f"❌ Job {task_id} not found")
-    exit(1)
+print("🔍 Job Data Keys:")
+for key in job_data.keys():
+    print(f"  - {key.decode()}")
 
-print("=" * 80)
-print(f"JOB RESULT INSPECTION: {task_id}")
-print("=" * 80)
-print()
+# Get status
+status = job_data.get(b'status', b'unknown').decode()
+print(f"\n📊 Status: {status}")
 
-print(f"Status: {job.get_status()}")
-print(f"Finished: {job.is_finished}")
-print(f"Failed: {job.is_failed}")
-print()
+# Get result
+result_key = f"rq:results:{task_id}"
+result_data = r.get(result_key)
 
-if job.is_finished:
-    result = job.result
-    print("Result Type:", type(result))
-    print()
+if result_data:
+    result = json.loads(result_data)
+    print(f"\n✅ Result exists!")
+    print(f"  - Success: {result.get('success')}")
+    print(f"  - Status: {result.get('status')}")
     
-    if isinstance(result, dict):
-        print("Result Keys:", list(result.keys()))
-        print()
-        
-        # Check for citations
-        if 'citations' in result:
-            citations = result['citations']
-            print(f"✅ Found 'citations' key: {len(citations)} citations")
-            if citations:
-                print(f"   First citation: {citations[0]}")
+    if 'result' in result:
+        inner_result = result['result']
+        if isinstance(inner_result, dict):
+            citations = inner_result.get('citations', [])
+            clusters = inner_result.get('clusters', [])
+            
+            print(f"\n📝 Citations: {len(citations)}")
+            print(f"📚 Clusters: {len(clusters)}")
+            
+            # Show cluster sizes
+            for idx, cluster in enumerate(clusters, 1):
+                size = cluster.get('size', 0)
+                case_name = cluster.get('case_name', 'Unknown')
+                print(f"\nCluster {idx}: {case_name} (size: {size})")
+                if size > 1:
+                    members = cluster.get('cluster_members', [])
+                    for member in members:
+                        print(f"  - {member}")
         else:
-            print("❌ NO 'citations' key in result")
-        
-        # Check for nested result
-        if 'result' in result:
-            nested = result['result']
-            print(f"✅ Found nested 'result' key")
-            if isinstance(nested, dict):
-                print(f"   Nested keys: {list(nested.keys())}")
-                if 'citations' in nested:
-                    citations = nested['citations']
-                    print(f"   ✅ Nested citations: {len(citations)}")
-        
-        # Check metadata
-        if 'metadata' in result:
-            metadata = result['metadata']
-            print(f"✅ Metadata: {metadata}")
-        
-        # Print full structure (truncated)
-        print()
-        print("Full Result Structure:")
-        print(json.dumps(result, indent=2, default=str)[:2000])
-        
-    else:
-        print(f"Result is not dict: {result}")
-        
+            print(f"\n⚠️  Inner result is not a dict: {type(inner_result)}")
+    
+    # Save full result
+    with open('job_result_details.json', 'w') as f:
+        json.dump(result, f, indent=2)
+    print(f"\n💾 Full result saved to job_result_details.json")
 else:
-    print("Job not finished yet")
-    if hasattr(job, 'meta'):
-        print("Job meta:", job.meta)
+    print(f"\n❌ No result data found!")
