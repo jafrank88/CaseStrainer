@@ -154,6 +154,26 @@ def get_strict_context_for_citation(
     
     # Extract ONLY the text before this citation
     strict_context = text[context_start:citation_start].strip()
+
+    # Additional boundary trimming to prefer the nearest case segment
+    # If there's a semicolon-separated series, keep only the segment AFTER the last semicolon
+    # within a reasonable proximity window to the citation (prevents pulling prior cases).
+    if strict_context:
+        # Consider only if the last semicolon is relatively close to the citation
+        last_sc = strict_context.rfind(';')
+        if last_sc != -1 and (len(strict_context) - last_sc) < 220:
+            strict_context = strict_context[last_sc + 1:].strip()
+
+        # Also trim after the last em-dash or long dash which often separates cites
+        for dash in ('—', '–', '--'):
+            last_dash = strict_context.rfind(dash)
+            if last_dash != -1 and (len(strict_context) - last_dash) < 220:
+                strict_context = strict_context[last_dash + len(dash):].strip()
+                break
+
+        # Cap context length to the last 300 chars to bias towards the nearest match
+        if len(strict_context) > 300:
+            strict_context = strict_context[-300:]
     
     logger.debug(
         f"[STRICT-CONTEXT] Citation at {citation_start}-{citation_end}: "

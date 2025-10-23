@@ -495,6 +495,7 @@ class UnifiedCitationProcessorV2:
             # Names match or no extracted name available - use CourtListener data as normal (only if not None)
             if canonical_name:
                 citation.canonical_name = canonical_name
+                
             canonical_date = verify_result.get("canonical_date")
             if canonical_date:
                 citation.canonical_date = canonical_date
@@ -505,6 +506,16 @@ class UnifiedCitationProcessorV2:
             citation.source = verify_result.get("source", source)
             citation.metadata = citation.metadata or {}
             citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
+            
+            # NEW: If extraction failed ('N/A' or missing), backfill extracted_case_name from canonical
+            # This avoids confusing 'N/A' in the UI when we have authoritative canonical data.
+            try:
+                if (not extracted_name) or (isinstance(extracted_name, str) and extracted_name.strip().upper() == 'N/A'):
+                    if canonical_name:
+                        citation.extracted_case_name = canonical_name
+            except Exception:
+                # Be conservative: do not break verification on fallback
+                pass
             return True
         else:
             # FIXED: Ensure unverified citations have consistent status
