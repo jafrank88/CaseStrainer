@@ -224,17 +224,25 @@ def identify_state_from_citation(citation: str) -> tuple[str, str]:
     Returns:
         tuple: (state_name, court_url) or (None, None) if not found
     """
+    import re
     citation_upper = citation.upper()
     
     # Check each reporter abbreviation
     for reporter, info in STATE_REPORTERS.items():
-        reporter_check = reporter.upper().replace('.', r'\.')
-        if reporter_check in citation_upper:
+        # Create regex pattern for the reporter
+        reporter_pattern = reporter.upper().replace('.', r'\.')
+        
+        # Use regex to find the pattern
+        if re.search(reporter_pattern, citation_upper):
             if 'state' in info:
                 return info['state'], info.get('court_url', '')
             elif 'states' in info:
-                # Regional reporter - need more context
-                return f"Regional_{info['reporter']}", ''
+                # Regional reporter - try to identify specific state from context
+                # For Southern Reporter (So.), prioritize Mississippi since it's most common
+                if reporter.upper() == 'SO.' and 'Mississippi' in info['states']:
+                    return 'Mississippi', 'https://courts.ms.gov/'
+                elif info['states']:
+                    return info['states'][0], ''  # Return first state as default
     
     return None, None
 

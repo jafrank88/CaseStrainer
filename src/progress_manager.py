@@ -709,13 +709,35 @@ def fetch_url_content(url: str) -> str:
         retry_delay = 5  # Start with 5 seconds
         
         for attempt in range(max_attempts):
-            response = requests.get(
-                url,
-                headers=headers,
-                timeout=DEFAULT_REQUEST_TIMEOUT,  # 30 second timeout
-                allow_redirects=True,
-                stream=True  # Stream the response for large files
-            )
+            # Try with SSL verification first, then fallback to unverified if SSL fails
+            try:
+                response = requests.get(
+                    url,
+                    headers=headers,
+                    timeout=DEFAULT_REQUEST_TIMEOUT,  # 30 second timeout
+                    allow_redirects=True,
+                    stream=True,  # Stream the response for large files
+                    verify=True  # Try SSL verification first
+                )
+            except requests.exceptions.SSLError as ssl_error:
+                logger.warning(f"SSL verification failed for {url} (attempt {attempt + 1}), trying without verification: {ssl_error}")
+                try:
+                    # Suppress SSL warnings for unverified requests
+                    import urllib3
+                    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+                    
+                    response = requests.get(
+                        url,
+                        headers=headers,
+                        timeout=DEFAULT_REQUEST_TIMEOUT,
+                        allow_redirects=True,
+                        stream=True,
+                        verify=False  # Disable SSL verification as fallback
+                    )
+                    logger.info(f"Successfully fetched {url} without SSL verification")
+                except Exception as e:
+                    logger.error(f"Failed to fetch {url} even without SSL verification: {e}")
+                    raise
             
             logger.info(f"Response status: {response.status_code}")
             
