@@ -305,8 +305,28 @@ class ChunkedCitationProcessor:
             task_id = str(uuid.uuid4())
             logger.info(f"Created task ID: {task_id}")
             
-            tracker = ProgressTracker(task_id, total_steps=100)
-            logger.info("Initialized progress tracker")
+            # CITATION-BASED PROGRESS: First do a quick citation count to determine realistic progress steps
+            logger.info(f"[Task {task_id}] Counting citations for citation-based progress tracking...")
+            try:
+                from src.citation_extraction_endpoint import extract_citations_with_clustering
+                # Do a quick extraction without verification to count citations
+                quick_result = extract_citations_with_clustering(document_text, enable_verification=False)
+                citation_count = len(quick_result.get('citations', []))
+                
+                # Calculate realistic total steps based on citation count
+                # Base steps: initialization, extraction, clustering, verification, completion
+                base_steps = 5
+                # Citation processing steps: more citations = more steps
+                citation_steps = max(1, min(citation_count, 100))  # Cap at 100 steps for performance
+                total_steps = base_steps + citation_steps
+                
+                logger.info(f"[Task {task_id}] Citation-based progress: {citation_count} citations → {total_steps} total steps")
+            except Exception as e:
+                logger.warning(f"[Task {task_id}] Failed to count citations, using default steps: {e}")
+                total_steps = 25  # Fallback to reasonable default
+            
+            tracker = ProgressTracker(task_id, total_steps=total_steps)
+            logger.info(f"Initialized progress tracker with {total_steps} steps")
             
             self.progress_manager.active_tasks[task_id] = tracker
             logger.info(f"Stored task in active_tasks. Total active tasks: {len(self.progress_manager.active_tasks)}")
@@ -519,7 +539,7 @@ class ChunkedCitationProcessor:
                 # Store final results in tracker
                 if task_id in self.progress_manager.active_tasks:
                     tracker = self.progress_manager.active_tasks[task_id]
-                    tracker.results = final_results
+                    tracker.results.extend(final_results)  # Use extend instead of assignment
                 
                 self.progress_manager.update_progress(
                     task_id, 100, "completed", 
@@ -1122,6 +1142,11 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 progress_tracker.start_step(2, 'Analyzing and normalizing citations...')
                 sync_progress_to_redis('clustering', 60, 'Clustering citations...')  # FIX #21
                 
+                # DYNAMIC PROGRESS: Update progress based on citation processing
+                citations = result.get('citations', [])
+                citation_count = len(citations)
+                logger.info(f"[Task {task_id}] Processing {citation_count} citations with dynamic progress tracking")
+                
                 # Ensure we have the expected structure from UnifiedCitationProcessorV2
                 if not isinstance(result, dict):
                     result = {'citations': [], 'clusters': []}
@@ -1131,7 +1156,39 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 clusters = result.get('clusters', [])
                 citation_dicts = []
                 
-                progress_tracker.update_step(2, 50, f'Processing {len(citations)} citations...')
+                # CITATION-COUNT-BASED PROGRESS: Process citations with realistic progress updates
+                total_citations = len(citations)
+                logger.info(f"[Task {task_id}] Starting citation processing: {total_citations} citations to process")
+                
+                # Update progress to show we're starting citation processing
+                progress_tracker.update_step(2, 50, f'Processing {total_citations} citations...')
+                sync_progress_to_redis('processing', 50, f'Starting citation processing: {total_citations} citations found')
+                
+                # Process each citation with granular progress updates
+                for i, citation in enumerate(citations):
+                    try:
+                        # Convert citation to dict format
+                        if hasattr(citation, 'to_dict'):
+                            citation_dict = citation.to_dict()
+                        else:
+                            citation_dict = citation
+                        
+                        citation_dicts.append(citation_dict)
+                        
+                        # CITATION-BASED PROGRESS: Update progress based on actual citation processing
+                        if total_citations > 0:
+                            # Calculate progress: 50% (extraction) + 30% (citation processing) + 20% (verification/clustering)
+                            citation_progress = 50 + int(30 * (i + 1) / total_citations)  # 50-80% range
+                            
+                            # Update progress every 5 citations or at the end to avoid spam
+                            if (i + 1) % 5 == 0 or (i + 1) == total_citations:
+                                progress_tracker.update_step(2, citation_progress, f'Processed {i+1}/{total_citations} citations')
+                                sync_progress_to_redis('processing', citation_progress, f'Processing citations: {i+1}/{total_citations} completed')
+                                logger.info(f"[Task {task_id}] Citation progress: {i+1}/{total_citations} ({citation_progress}%)")
+                        
+                    except Exception as e:
+                        logger.error(f"[Task {task_id}] Error processing citation {i}: {e}")
+                        continue
                 
                 for citation in citations:
                     if hasattr(citation, 'to_dict'):
@@ -1305,7 +1362,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
                         citation_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', '?')
                         
-                        if extracted and extracted != 'N/A':
+                        if extracted and extracted != 'N/A' and citation_text:
                             # Validate extracted name
                             validation = validate_extracted_name_for_citation(
                                 extracted_name=extracted,
@@ -1421,8 +1478,13 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 
                 logger.error(f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data")
 
+                # CITATION-BASED PROGRESS: Update clustering progress based on actual work done
                 progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
+                sync_progress_to_redis('clustering', 80, f'Clustering completed - {len(cluster_dicts)} clusters found')
                 progress_tracker.start_step(5, 'Verifying citations...')
+                
+                # CITATION-BASED PROGRESS: Start verification with realistic progress
+                sync_progress_to_redis('verifying', 82, f'Starting verification of {len(citation_dicts)} citations...')
                 
                 # CRITICAL FIX: Update top-level citations with verification data from clusters
                 # AND add any citations that are only in clusters (like vendor-neutral citations)
@@ -1431,9 +1493,17 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 verified_count_before = len([c for c in citation_dicts if c.get('verified', False)])
                 citations_added = 0
                 
-                for cluster in cluster_dicts:
+                # CITATION-BASED PROGRESS: Update progress during verification sync with citation count
+                sync_progress_to_redis('verifying', 85, f'Syncing verification data for {len(citation_dicts)} citations...')
+                
+                # Count total citations to process for progress tracking
+                total_citations_to_sync = sum(len(cluster.get('citations', [])) for cluster in cluster_dicts)
+                citations_processed = 0
+                
+                for cluster_idx, cluster in enumerate(cluster_dicts):
                     for cluster_citation in cluster.get('citations', []):
                         citation_text = cluster_citation.get('citation')
+                        citations_processed += 1
                         
                         if citation_text in citation_map:
                             # Update existing top-level citation with verification data from cluster
@@ -1449,11 +1519,19 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             citation_dicts.append(cluster_citation)
                             citation_map[citation_text] = cluster_citation
                             citations_added += 1
+                        
+                        # Update progress every 10 citations or at the end
+                        if citations_processed % 10 == 0 or citations_processed == total_citations_to_sync:
+                            verification_progress = 85 + int(10 * citations_processed / total_citations_to_sync)  # 85-95% range
+                            sync_progress_to_redis('verifying', verification_progress, f'Verifying citations: {citations_processed}/{total_citations_to_sync} processed')
                 
                 verified_count_after = len([c for c in citation_dicts if c.get('verified', False)])
                 logger.info(f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations")
                 if citations_added > 0:
                     logger.info(f"[Task {task_id}] Added {citations_added} citations from clusters to top-level array")
+                
+                # CITATION-BASED PROGRESS: Update progress after verification sync
+                sync_progress_to_redis('verifying', 95, f'Verification completed - {len(citation_dicts)} citations processed')
                 
                 citation_result = {
                     'citations': citation_dicts,
@@ -1472,15 +1550,39 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 }
                 
                 progress_tracker.complete_step(5, 'Verification completed')
-                progress_tracker.complete_all('Async processing completed successfully')
+                
+                # CITATION-BASED PROGRESS: Don't mark as 100% complete until results are stored and available
+                # Update to 98% to show we're in final stages but not complete yet
+                sync_progress_to_redis('finalizing', 98, f'Finalizing results... Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters')
                 
                 # Add progress data to result
                 citation_result['progress_data'] = progress_tracker.get_progress_data()
                 
                 logger.info(f"[Task {task_id}] Processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters")
                 
-                # FIX #21: Final progress update - mark as completed at 100%
-                sync_progress_to_redis('completed', 100, f'Completed! Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters')
+                # Store results in Redis for frontend access
+                try:
+                    from redis import Redis
+                    from src.config import REDIS_URL
+                    import json
+                    
+                    redis_conn = Redis.from_url(REDIS_URL)
+                    
+                    # Store the complete result in Redis
+                    result_key = f"task_result:{task_id}"
+                    redis_conn.setex(
+                        result_key,
+                        3600,  # 1 hour expiry
+                        json.dumps(citation_result)
+                    )
+                    logger.info(f"[Task {task_id}] Results stored in Redis: {result_key}")
+                    
+                except Exception as e:
+                    logger.error(f"[Task {task_id}] Failed to store results in Redis: {e}")
+                
+                # CITATION-BASED PROGRESS: Only mark as 100% complete AFTER results are stored and accessible
+                progress_tracker.complete_all('Async processing completed successfully')
+                sync_progress_to_redis('completed', 100, f'Completed! Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters - Results available')
                 
                 return {
                     'success': True,

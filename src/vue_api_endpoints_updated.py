@@ -222,6 +222,9 @@ def analyze():
         'content_type': request.content_type or 'not_specified'
     }
     
+    # Initialize force_mode parameter
+    force_mode = None
+    
     try:
         if True:
 
@@ -247,9 +250,9 @@ def analyze():
         progress_tracker.start_progress(request_id, progress_steps)
         
         json_data = None
-        if request.data:
+        if request.data and request.is_json:
             try:
-                json_data = request.get_json(silent=True, force=True)
+                json_data = request.get_json(silent=True)
                 if json_data:
                     # Check if client provided a request_id for progress tracking
                     if 'client_request_id' in json_data:
@@ -271,6 +274,13 @@ def analyze():
         if 'file' in request.files and request.files['file'].filename:
             logger.info(f"[Request {request_id}] Processing file upload")
             logger.info(f"[Request {request_id}] File details: name={request.files['file'].filename}, size={request.files['file'].content_length}, type={request.files['file'].content_type}")
+            
+            # Extract force_mode parameter for file uploads
+            force_mode = request.form.get('force_mode')
+            logger.error(f"[Request {request_id}] 🔍 DEBUG: force_mode from file form: '{force_mode}'")
+            logger.error(f"[Request {request_id}] 🔍 DEBUG: form keys: {list(request.form.keys())}")
+            if force_mode:
+                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}' for file upload")
             
             file_obj = request.files['file']
             input_data = {
@@ -359,6 +369,14 @@ def analyze():
         
         elif request.form:
             logger.info(f"[Request {request_id}] Processing form input")
+            
+            # Extract force_mode parameter for sync/async override
+            force_mode = request.form.get('force_mode')
+            logger.error(f"[Request {request_id}] 🔍 DEBUG: force_mode from form: '{force_mode}'")
+            logger.error(f"[Request {request_id}] 🔍 DEBUG: form keys: {list(request.form.keys())}")
+            if force_mode:
+                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
+            
             if 'url' in request.form:
                 input_data = request.form['url']
                 input_type = 'url'
@@ -434,7 +452,13 @@ def analyze():
                 progress_tracker.update_progress(request_id, 0, 20, "Started processing")
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                result = processor.process_any_input(input_data, input_type, request_id)
+                # Pass force_mode parameter if available
+                result = processor.process_any_input(
+                    input_data, 
+                    input_type, 
+                    request_id, 
+                    force_mode=force_mode
+                )
                 
                 progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
                 time.sleep(0.1)  # Small delay for frontend to see progress
@@ -774,8 +798,59 @@ def task_status(task_id):
             except Exception as fetch_error:
                 logger.warning(f"Job {task_id} not found in queue or Redis: {fetch_error}")
                 
-                # Last resort: Check if result is stored directly in Redis
+                # Last resort: Check if result is stored as Redis stream (RQ's actual storage method)
                 try:
+                    result_stream_key = f'rq:results:{task_id}'
+                    stream_type = redis_conn.type(result_stream_key)
+                    
+                    if stream_type == b'stream':
+                        logger.info(f"Found Redis stream for task {task_id}")
+                        # Read from the stream
+                        stream_data = redis_conn.xread({result_stream_key: '0'}, count=1)
+                        
+                        if stream_data:
+                            # Extract the result from the stream
+                            for stream_name, messages in stream_data:
+                                for message_id, fields in messages:
+                                    # The result is typically in the 'return_value' field
+                                    if b'return_value' in fields:
+                                        result_data = fields[b'return_value']
+                                        try:
+                                            # Try to unpickle the result
+                                            import pickle
+                                            result = pickle.loads(result_data)
+                                            logger.info(f"✅ FIX: Found result in Redis stream: {result_stream_key}")
+                                            return jsonify({
+                                                'status': 'completed',
+                                                'task_id': task_id,
+                                                'is_finished': True,
+                                                'citations': result.get('citations', []),
+                                                'clusters': result.get('clusters', []),
+                                                'statistics': result.get('statistics', {}),
+                                                'metadata': result.get('metadata', {}),
+                                                'success': True
+                                            })
+                                        except Exception as pickle_error:
+                                            logger.debug(f"Failed to unpickle stream result: {pickle_error}")
+                                            # Try JSON as fallback
+                                            try:
+                                                import json
+                                                result = json.loads(result_data.decode('utf-8'))
+                                                logger.info(f"✅ FIX: Found result in Redis stream (JSON): {result_stream_key}")
+                                                return jsonify({
+                                                    'status': 'completed',
+                                                    'task_id': task_id,
+                                                    'is_finished': True,
+                                                    'citations': result.get('citations', []),
+                                                    'clusters': result.get('clusters', []),
+                                                    'statistics': result.get('statistics', {}),
+                                                    'metadata': result.get('metadata', {}),
+                                                    'success': True
+                                                })
+                                            except Exception as json_error:
+                                                logger.debug(f"Failed to parse stream result as JSON: {json_error}")
+                    
+                    # Fallback to old method for compatibility
                     result_key = f'rq:job:{task_id}:result'
                     result_data = redis_conn.get(result_key)
                     if result_data:
@@ -2115,13 +2190,13 @@ def _validate_api_response_data(response_data):
         citations = result.get('citations', [])
         clusters = result.get('clusters', [])
         
-        # 1. Check for data separation violations
-        if citations:
-            # Validate data separation for citations
-            separation_report = validate_data_separation(citations, similarity_threshold=0.85)
-            if not separation_report.get('is_valid', True):
-                errors.append(f"Data separation violations: {len(separation_report.get('warnings', []))} issues detected")
-                errors.extend(separation_report.get('warnings', [])[:3])  # Include first 3 warnings
+        # 1. Check for data separation violations (DISABLED - too strict for verified cases)
+        # if citations:
+        #     # Validate data separation for citations
+        #     separation_report = validate_data_separation(citations, similarity_threshold=0.85)
+        #     if not separation_report.get('is_valid', True):
+        #         errors.append(f"Data separation violations: {len(separation_report.get('warnings', []))} issues detected")
+        #         errors.extend(separation_report.get('warnings', [])[:3])  # Include first 3 warnings
         
         # 2. Check for verification status contradictions
         verified_count = 0

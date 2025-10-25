@@ -2011,9 +2011,15 @@ class UnifiedClusteringMaster:
                     continue
                 
                 for cit_idx, citation_obj in enumerate(citations):
-                    citation_text = getattr(citation_obj, 'citation', str(citation_obj))
-                    case_name = getattr(citation_obj, 'extracted_case_name', None)
-                    case_date = getattr(citation_obj, 'extracted_date', None)
+                    # Handle both dict and object citation formats
+                    if isinstance(citation_obj, dict):
+                        citation_text = citation_obj.get('citation', str(citation_obj))
+                        case_name = citation_obj.get('extracted_case_name', None)
+                        case_date = citation_obj.get('extracted_date', None)
+                    else:
+                        citation_text = getattr(citation_obj, 'citation', str(citation_obj))
+                        case_name = getattr(citation_obj, 'extracted_case_name', None)
+                        case_date = getattr(citation_obj, 'extracted_date', None)
                     
                     # Skip citations that already have errors
                     if hasattr(citation_obj, 'error') and citation_obj.error:
@@ -2083,9 +2089,11 @@ class UnifiedClusteringMaster:
             
             # DEBUG: Log verification success rate
             verified_count = sum(1 for r in batch_results if r.verified)
-            logger.error(f"[BATCH-VERIFY-DEBUG] Verified: {verified_count}/{len(batch_results)}")
+            possible_match_count = sum(1 for r in batch_results if getattr(r, 'possible_match', False))
+            logger.error(f"[BATCH-VERIFY-DEBUG] Verified: {verified_count}/{len(batch_results)}, Possible Matches: {possible_match_count}/{len(batch_results)}")
             for r in batch_results[:5]:
-                logger.error(f"  - {r.citation}: verified={r.verified}, source={r.source if r.verified else r.error}")
+                possible_match = getattr(r, 'possible_match', False)
+                logger.error(f"  - {r.citation}: verified={r.verified}, possible_match={possible_match}, source={r.source if (r.verified or possible_match) else r.error}")
             
             # Apply results back to citations
             for idx, (cit_info, result) in enumerate(zip(all_citations, batch_results)):
@@ -2108,6 +2116,7 @@ class UnifiedClusteringMaster:
                         citation_obj.canonical_date = result.canonical_date
                         citation_obj.canonical_url = result.canonical_url
                         citation_obj.verification_source = result.source
+                        citation_obj.possible_match = False  # Explicitly set for verified citations
                         logger.error(f"   ✅ AFTER (object): verified=True, canonical_name = {citation_obj.canonical_name}")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = True
@@ -2115,7 +2124,32 @@ class UnifiedClusteringMaster:
                         citation_obj['canonical_date'] = result.canonical_date
                         citation_obj['canonical_url'] = result.canonical_url
                         citation_obj['verification_source'] = result.source
+                        citation_obj['possible_match'] = False  # Explicitly set for verified citations
                         logger.error(f"   ✅ AFTER (dict): verified=True, canonical_name = {citation_obj['canonical_name']}")
+                elif getattr(result, 'possible_match', False):
+                    # POSSIBLE MATCH: Apply canonical data but mark as possible match
+                    logger.error(f"🔶 [APPLY-VERIFICATION] Citation: {citation_text} - POSSIBLE MATCH")
+                    logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
+                    logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
+                    
+                    if hasattr(citation_obj, '__dict__'):
+                        citation_obj.verified = False
+                        citation_obj.possible_match = True
+                        citation_obj.canonical_name = result.canonical_name
+                        citation_obj.canonical_date = result.canonical_date
+                        citation_obj.canonical_url = result.canonical_url
+                        citation_obj.verification_source = result.source
+                        citation_obj.verification_error = result.error
+                        logger.error(f"   🔶 AFTER (object): verified=False, possible_match=True, canonical_name = {citation_obj.canonical_name}")
+                    elif isinstance(citation_obj, dict):
+                        citation_obj['verified'] = False
+                        citation_obj['possible_match'] = True
+                        citation_obj['canonical_name'] = result.canonical_name
+                        citation_obj['canonical_date'] = result.canonical_date
+                        citation_obj['canonical_url'] = result.canonical_url
+                        citation_obj['verification_source'] = result.source
+                        citation_obj['verification_error'] = result.error
+                        logger.error(f"   🔶 AFTER (dict): verified=False, possible_match=True, canonical_name = {citation_obj['canonical_name']}")
                 else:
                     # UNVERIFIED: Mark as unverified, store error
                     logger.error(f"❌ [APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
@@ -2123,10 +2157,11 @@ class UnifiedClusteringMaster:
                     
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = False
+                        citation_obj.possible_match = False
                         citation_obj.verification_error = result.error
                         citation_obj.canonical_name = None
                         citation_obj.canonical_date = None
-                        logger.error(f"   ❌ AFTER (object): verified=False, will need true_by_parallel")
+                        logger.error(f"   ❌ AFTER (object): verified=False, possible_match=False, will need true_by_parallel")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = False
                         citation_obj['verification_error'] = result.error

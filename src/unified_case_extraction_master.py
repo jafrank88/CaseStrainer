@@ -42,7 +42,7 @@ class MasterExtractionResult:
     start_index: Optional[int] = None
     end_index: Optional[int] = None
     context: str = ""
-    debug_info: Dict[str, Any] = None
+    debug_info: Optional[Dict[str, Any]] = None
     canonical_name: Optional[str] = None
     canonical_year: Optional[str] = None
     extracted_case_name: Optional[str] = None
@@ -157,20 +157,29 @@ class UnifiedCaseExtractionMaster:
         # the one BEFORE the citation. This was the root cause of "183 Wn.2d 649" extracting
         # "Spokane County" (116 chars AFTER) instead of "Lopez Demetrio" (40 chars BEFORE).
         self.case_name_patterns = [
-            # PRIORITY 0A: ALL CAPS case names (common in court documents)
+            # PRIORITY 0: Complex legal names with full party descriptions (HIGHEST PRIORITY - MOVED TO TOP)
+            # Matches: "Chance Gresser, individually and as parent, natural guardian, next of friendand on behalf of his daughter, C.G., and Erin Gresser, individually and asparent, natural guardian, next of friend and on behalf of her daughter, C.G. v. Banner Health, d/b/a North Colorado Medical Center"
+            # Matches: "Francis Rudnicki and Pamela Rudnicki, as parents, guardians and next friends of Alexander Rudnicki, a minor v. Bianco"
+            r'([A-Z][a-zA-Z\s\'&\-\.,]*(?:,\s*(?:individually|as\s+(?:parent|guardian|next\s+friend|administrator|executor|trustee|personal\s+representative)|and\s+on\s+behalf\s+of|by\s+and\s+through)[^,]*)*)\s+[Vv]\.?\s+([A-Z][a-zA-Z\s\'&\-\.,]*(?:,\s*(?:d/b/a|doing\s+business\s+as|a\s+(?:Delaware|California|New\s+York)\s+(?:Corporation|Corp|Inc|LLC|Ltd))[^,]*)*)',
+            
+            # PRIORITY 0A: "In re" cases with full party names (HIGH PRIORITY)
+            # Matches: "In re: The PEOPLE of the State of Colorado v. Regina M. SPRINKLE"
+            r'In\s+re:\s+([A-Z][A-Z\s\'&\-\.,]+)\s+[Vv]\.?\s+([A-Z][A-Z\s\'&\-\.,]+)',
+            
+            # PRIORITY 0B: Complex estate and multi-party cases
+            # Matches: "ESTATE OF MELVIN JOSEPH LONG, by and through MARLA HUDSON LONG, Administratrix, v. JAMES D. FOWLER"
+            # This fixes the "Long v. Fowler" false extraction issue
+            r'(ESTATE\s+OF\s+[A-Z][A-Z\s\'&\-\.,]+(?:,\s+by\s+and\s+through\s+[A-Z][A-Z\s\'&\-\.,]+(?:,\s+[A-Z][a-zA-Z\s\'&\-\.,]+)?)?)\s+[Vv]\.?\s+([A-Z][A-Z\s\'&\-\.,]+)',
+            r'(Estate\s+of\s+[A-Z][a-zA-Z\s\'&\-\.,]+(?:,\s+by\s+and\s+through\s+[A-Z][a-zA-Z\s\'&\-\.,]+(?:,\s+[A-Z][a-zA-Z\s\'&\-\.,]+)?)?)\s+[Vv]\.?\s+([A-Z][a-zA-Z\s\'&\-\.,]+)',
+            
+            # PRIORITY 0C: ALL CAPS case names (common in court documents)
             # Matches: "CMTY. LEGAL SERVICES V . U.S. HHS" or "COMMUNITY LEGAL SERVICES V. UNITED STATES"
             r'([A-Z][A-Z\'\.\&\s\-,]{2,150})\s+[Vv]\.?\s+([A-Z][A-Z\'\.\&\s\-,]{2,150})',
-            
-            # PRIORITY 0B: Case name immediately before parallel citations (most accurate)
-            # Matches: "Ass'n of Wash. Spirits & Wine Distribs. v. Wash. State Liquor Control Bd., 182 Wn.2d 342"
-            # FIX #68D: Removed ? from quantifiers to make GREEDY (match full names, not minimum)
-            # This captures "Cmty. Legal Servs. in E. Palo Alto v. U.S. Dep't" instead of just "E. Palo Alto v. U.S."
-            r'([A-Z][a-zA-Z\'\.\&\s\-,]{2,150})\s+[Vv]\.?\s+([A-Z][a-zA-Z\'\.\&\s\-,]{2,150}),\s*\d+\s+[A-Z][a-z.]+\s+\d+',
             
             # PRIORITY 1: Standard citation format - match case name immediately before citation
             # Use lookbehind to ensure sentence boundary without capturing non-case-name text
             # Matches: "Spokeo, Inc. v. Robins, 578 U.S. 330" or "Raines v. Byrd, 521 U.S. 811"
-            # FIX #68D: Removed ? to make greedy
+            # FIXED: Made patterns GREEDY to capture full legal names with complex party descriptions
             # FIX #69: Added [Vv]\.? to handle both "v." and "V ." variations
             r'(?:(?<=\.)\s+|(?<=\?)\s+|(?<=!)\s+|^)([A-Z][a-zA-Z\s\'&\-\.,]*(?:,\s*(?:Inc|Corp|LLC|Ltd|Co|L\.P\.|L\.L\.P\.)\.?)?)\s+[Vv]\.?\s+([A-Z][a-zA-Z\s\'&\-\.,]+)(?:,\s*\d+)',
             
@@ -287,10 +296,10 @@ class UnifiedCaseExtractionMaster:
         if citation and start_index is not None:
             if force_debug:
                 logger.warning(f"🔍 FIX #69: Trying Strategy 0 - Comma-anchored extraction")
-            result = self._extract_with_comma_anchor(text, citation, start_index, debug or force_debug)
+            result = self._extract_with_comma_anchor(text, citation, start_index, bool(debug or force_debug))
             if result and result.case_name and result.case_name != 'N/A':
                 # Validate extraction against canonical metadata
-                self._validate_extraction(result, citation, debug or force_debug)
+                self._validate_extraction(result, citation, bool(debug or force_debug))
                 if force_debug:
                     logger.warning(f"✅ FIX #69: Strategy 0 succeeded! Extracted: '{result.case_name}'")
                 return result
@@ -302,10 +311,11 @@ class UnifiedCaseExtractionMaster:
             # FIX #43: CRITICAL - Use ORIGINAL text, not normalized!
             # Normalization removes line breaks (\n → space), shifting ALL positions!
             # Indices are calculated from original text, so MUST use original text for slicing!
-            result = self._extract_with_position(text, citation, start_index, end_index, debug or force_debug)
+            result = self._extract_with_position(text, citation or "", start_index, end_index, bool(debug or force_debug))
             if result and result.case_name and result.case_name != 'N/A':
                 # Validate extraction against canonical metadata if available
-                self._validate_extraction(result, citation, debug or force_debug)
+                if citation:
+                    self._validate_extraction(result, citation, bool(debug or force_debug))
                 if force_debug:
                     logger.warning(f"✅ FIX #33: Strategy 1 succeeded! Extracted: '{result.case_name}'")
                     logger.warning(f"   extracted_case_name: '{result.extracted_case_name}'")
@@ -1427,6 +1437,13 @@ class UnifiedCaseExtractionMaster:
                     logger.warning(f"   Match position in context: {match.start()}-{match.end()}")
                     logger.warning(f"   Match text: '{match.group(0)}'")
                 case_name = self._build_case_name_from_match(match, pattern, debug)
+                
+                # CRITICAL FIX: Validate the extraction to prevent false extractions
+                if not self._validate_case_name_extraction(case_name, context, debug):
+                    if debug:
+                        logger.warning(f"🚫 Skipping invalid extraction: '{case_name}'")
+                    continue  # Skip this match and try the next pattern
+                
                 if debug:
                     logger.warning(f"   Built case name: '{case_name}'")
                     # FIX #40B: Track if "Spokane" appears at this stage
@@ -1595,6 +1612,13 @@ class UnifiedCaseExtractionMaster:
             match = re.search(pattern, sample_text, re.IGNORECASE)
             if match:
                 case_name = self._build_case_name_from_match(match, pattern, debug)
+                
+                # CRITICAL FIX: Validate the extraction to prevent false extractions
+                if not self._validate_case_name_extraction(case_name, sample_text, debug):
+                    if debug:
+                        logger.warning(f"🚫 Skipping invalid extraction: '{case_name}'")
+                    continue  # Skip this match and try the next pattern
+                
                 year = self._extract_year_from_context(sample_text[:500], debug)
                 
                 if case_name and len(case_name.strip()) > 3:
@@ -1622,6 +1646,59 @@ class UnifiedCaseExtractionMaster:
         
         return None
     
+    def _validate_case_name_extraction(self, case_name: str, context: str, debug: bool) -> bool:
+        """
+        Validate that the extracted case name is not a false extraction from a complex case name.
+        
+        This prevents issues like extracting "Long v. Fowler" from 
+        "ESTATE OF MELVIN JOSEPH LONG, by and through MARLA HUDSON LONG, Administratrix, v. JAMES D. FOWLER"
+        
+        Args:
+            case_name: The extracted case name to validate
+            context: The context where the case name was extracted
+            debug: Enable debug logging
+            
+        Returns:
+            True if the extraction is valid, False if it's a false extraction
+        """
+        if not case_name or case_name == "N/A":
+            return True  # Don't validate empty names
+        
+        # Check for false extractions from complex case names
+        case_name_lower = case_name.lower()
+        context_lower = context.lower()
+        
+        # Pattern 1: Check if we extracted a simple "Last v. Last" from a complex estate case
+        # Example: "Long v. Fowler" from "ESTATE OF MELVIN JOSEPH LONG...v. JAMES D. FOWLER"
+        if re.match(r'^[A-Z][a-z]+\s+v\.\s+[A-Z][a-z]+$', case_name):
+            # Check if context contains "ESTATE OF" or "Estate of" with the same last names
+            estate_pattern = r'estate\s+of\s+[^,]+' + re.escape(case_name.split(' v. ')[0].split()[-1]) + r'[^,]*v\.\s+[^,]*' + re.escape(case_name.split(' v. ')[1].split()[-1])
+            if re.search(estate_pattern, context_lower):
+                if debug:
+                    logger.warning(f"🚫 FALSE EXTRACTION DETECTED: '{case_name}' is a simplified extraction from complex estate case")
+                return False
+        
+        # Pattern 2: Check for other complex case patterns that might be simplified incorrectly
+        # Look for patterns like "by and through", "Administratrix", "Executor", etc.
+        complex_indicators = [
+            r'by\s+and\s+through',
+            r'administratrix',
+            r'executor',
+            r'personal\s+representative',
+            r'trustee',
+            r'guardian'
+        ]
+        
+        for indicator in complex_indicators:
+            if re.search(indicator, context_lower):
+                # If context has complex indicators but case name is simple, it might be false
+                if len(case_name.split()) <= 4 and ' v. ' in case_name:
+                    if debug:
+                        logger.warning(f"🚫 POTENTIAL FALSE EXTRACTION: '{case_name}' from complex case context with '{indicator}'")
+                    return False
+        
+        return True
+    
     def _build_case_name_from_match(self, match, pattern: str, debug: bool) -> str:
         """Build case name from regex match groups."""
         groups = match.groups()
@@ -1648,7 +1725,7 @@ class UnifiedCaseExtractionMaster:
         
         return None
     
-    def _clean_case_name(self, case_name: str, context: str = None) -> str:
+    def _clean_case_name(self, case_name: str, context: Optional[str] = None) -> str:
         """
         Clean and normalize case name using best practices from all implementations.
         

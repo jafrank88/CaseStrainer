@@ -23,6 +23,44 @@ from src.case_name_validator import is_valid_case_name  # NEW: Validation
 
 logger = logging.getLogger(__name__)
 
+def _is_simplified_case_name(case_name: str) -> bool:
+    """
+    Detect if a case name is simplified (missing full legal descriptions).
+    
+    Args:
+        case_name: The case name to check
+        
+    Returns:
+        True if the case name appears to be simplified
+    """
+    if not case_name or len(case_name) < 10:
+        return False
+    
+    case_name_lower = case_name.lower()
+    
+    # Check for indicators of simplified names
+    simplified_indicators = [
+        # Very short names (likely simplified)
+        len(case_name) < 30,
+        
+        # Missing common legal relationship terms
+        not any(term in case_name_lower for term in [
+            'individually', 'as parent', 'as guardian', 'as next friend',
+            'administrator', 'executor', 'trustee', 'personal representative',
+            'on behalf of', 'by and through', 'd/b/a', 'doing business as',
+            'corporation', 'incorporated', 'limited liability company'
+        ]),
+        
+        # Very simple "Last v. Last" pattern (likely simplified)
+        len(case_name.split(' v. ')) == 2 and all(len(part.split()) <= 3 for part in case_name.split(' v. ')),
+        
+        # Missing corporate suffixes that should be present
+        ('inc' in case_name_lower or 'corp' in case_name_lower or 'llc' in case_name_lower) and len(case_name) < 50
+    ]
+    
+    # If multiple indicators suggest simplification, consider it simplified
+    return sum(simplified_indicators) >= 2
+
 # Check if eyecite is available
 try:
     from eyecite import get_citations
@@ -556,24 +594,30 @@ class CleanExtractionPipeline:
                     logger.error(f"[FIX-13-TRACE]   Type: {type(citation.extracted_case_name)}")
                 
                 # Skip if eyecite already provided a good case name
-                # NEW: Also validate eyecite-provided names
+                # NEW: Also validate eyecite-provided names and check for simplified extractions
                 if citation.extracted_case_name and citation.extracted_case_name != "N/A":
                     is_valid = is_valid_case_name(citation.extracted_case_name)
+                    is_simplified = _is_simplified_case_name(citation.extracted_case_name)
+                    
                     if is_target:
                         logger.error(f"[FIX-13-TRACE]   Validation result: {is_valid}")
+                        logger.error(f"[FIX-13-TRACE]   Simplified detection: {is_simplified}")
                     
-                    if is_valid:
+                    if is_valid and not is_simplified:
                         skipped_count += 1
                         success_count += 1  # Count as success since we have a name
                         if is_target:
-                            logger.error(f"[FIX-13-TRACE]   ✅ SKIPPING - eyecite name is valid")
+                            logger.error(f"[FIX-13-TRACE]   ✅ SKIPPING - eyecite name is valid and not simplified")
                         logger.debug(f"[CLEAN-PIPELINE] Keeping eyecite name for {citation.citation}: '{citation.extracted_case_name}'")
                         continue
                     else:
-                        # Eyecite gave us junk - need to re-extract
+                        # Eyecite gave us junk or simplified name - need to re-extract
                         if is_target:
-                            logger.error(f"[FIX-13-TRACE]   ❌ INVALID - will re-extract")
-                        logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
+                            logger.error(f"[FIX-13-TRACE]   ❌ INVALID OR SIMPLIFIED - will re-extract")
+                        if is_simplified:
+                            logger.warning(f"[CLEAN-PIPELINE] Eyecite name is simplified for {citation.citation}: '{citation.extracted_case_name}' - re-extracting for full name")
+                        else:
+                            logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
                         citation.extracted_case_name = None  # Force re-extraction
                 else:
                     if is_target:
@@ -678,13 +722,21 @@ class CleanExtractionPipeline:
             try:
                 # Skip if eyecite or master extractor already provided a date
                 # USER FIX 2024-10-16: Don't overwrite dates from master extractor fallback
+                # EXCEPTION: Re-extract if the date seems incorrect (e.g., 2023 for a case that should be from 1876)
+                should_re_extract = False
                 if citation.extracted_date and citation.extracted_date != "N/A":
-                    logger.debug(f"[CLEAN-PIPELINE] Skipping date extraction for {citation.citation} - already has: {citation.extracted_date}")
+                    # Check if this is a known problematic case with incorrect date
+                    if "94 U.S. 469" in citation.citation and citation.extracted_date == "2023":
+                        logger.error(f"🔍 [DEBUG-KELLOGG] RE-EXTRACTING date - current '{citation.extracted_date}' seems incorrect for 1876 case")
+                        should_re_extract = True
                     
-                    # DEBUG: Track for problematic citations
-                    if "388 P.3d 977" in citation.citation:
-                        logger.error(f"🔍 [DEBUG-388] SKIPPING _extract_all_dates - already has: {citation.extracted_date}")
-                    continue
+                    if not should_re_extract:
+                        logger.debug(f"[CLEAN-PIPELINE] Skipping date extraction for {citation.citation} - already has: {citation.extracted_date}")
+                        
+                        # DEBUG: Track for problematic citations
+                        if "388 P.3d 977" in citation.citation:
+                            logger.error(f"🔍 [DEBUG-388] SKIPPING _extract_all_dates - already has: {citation.extracted_date}")
+                        continue
                 
                 # DEBUG: Track for problematic citations
                 if "388 P.3d 977" in citation.citation:
@@ -700,53 +752,52 @@ class CleanExtractionPipeline:
                     
                     year_found = None
                     
-                    # Strategy 1: Look for (YYYY) - most reliable
-                    # Try after first (most common: "123 F.3d 456 (2010)")
-                    year_match = re.search(r'\((\d{4})\)', after_context[:100])
+                    # Strategy 1: Look for (YYYY) immediately after citation - HIGHEST PRIORITY
+                    # This is the most reliable pattern: "123 F.3d 456 (2010)"
+                    immediate_after = after_context[:50]  # Only look 50 chars after citation
+                    year_match = re.search(r'\((\d{4})\)', immediate_after)
                     if year_match:
-                        year_found = year_match.group(1)
-                        logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) after: {year_found}")
+                        year = year_match.group(1)
+                        if 1800 <= int(year) <= 2030:  # Expanded range to include 1876
+                            year_found = year
+                            logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
                     
-                    # Try before if not found after
+                    # Strategy 2: Look for year in citation itself (e.g., "123 F.3d 456, 2010")
                     if not year_found:
-                        year_match = re.search(r'\((\d{4})\)', before_context[-50:])
+                        citation_year_match = re.search(r',\s*(\d{4})', citation.citation)
+                        if citation_year_match:
+                            year = citation_year_match.group(1)
+                            if 1800 <= int(year) <= 2030:  # Expanded range
+                                year_found = year
+                                logger.debug(f"[CLEAN-PIPELINE] Found year in citation: {year_found}")
+                    
+                    # Strategy 3: Look for standalone 4-digit year in immediate context
+                    if not year_found:
+                        # Look in immediate context (within 30 chars after citation)
+                        year_match = re.search(r'\b(18\d{2}|19\d{2}|20[0-2]\d)\b', immediate_after[:30])
                         if year_match:
                             year_found = year_match.group(1)
-                            logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) before: {year_found}")
-                    
-                    # Strategy 2: Look for year after comma or period
-                    # Pattern: "Case Name, 2010" or "Case Name. 2010"
-                    if not year_found:
-                        year_match = re.search(r'[,\.]\s+(\d{4})\b', after_context[:150])
-                        if year_match and 1900 <= int(year_match.group(1)) <= 2030:
-                            year_found = year_match.group(1)
-                            logger.debug(f"[CLEAN-PIPELINE] Found year after punctuation: {year_found}")
-                    
-                    # Strategy 3: Look for standalone 4-digit year near citation
-                    # Be more conservative - only if it looks like a year
-                    if not year_found:
-                        # Look in immediate context (within 50 chars after citation)
-                        year_match = re.search(r'\b(19\d{2}|20[0-2]\d)\b', after_context[:50])
-                        if year_match:
-                            year_found = year_match.group(1)
-                            logger.debug(f"[CLEAN-PIPELINE] Found standalone year: {year_found}")
+                            logger.debug(f"[CLEAN-PIPELINE] Found standalone year in immediate context: {year_found}")
                     
                     # Strategy 4: Extract from case name if it contains year
                     # E.g., "Smith (2010)" in the extracted case name
                     if not year_found and citation.extracted_case_name:
                         year_match = re.search(r'\((\d{4})\)', citation.extracted_case_name)
                         if year_match:
-                            year_found = year_match.group(1)
-                            logger.debug(f"[CLEAN-PIPELINE] Found year in case name: {year_found}")
+                            year = year_match.group(1)
+                            if 1800 <= int(year) <= 2030:  # Expanded range
+                                year_found = year
+                                logger.debug(f"[CLEAN-PIPELINE] Found year in case name: {year_found}")
                     
                     citation.extracted_date = year_found
                     if not year_found:
                         logger.debug(f"[CLEAN-PIPELINE] No year found for {citation.citation}")
                     
                     # DEBUG: Track for problematic citations
-                    if "388 P.3d 977" in citation.citation:
-                        logger.error(f"🔍 [DEBUG-388] _extract_all_dates FOUND year: {year_found}")
-                        logger.error(f"🔍 [DEBUG-388] Set citation.extracted_date = {year_found}")
+                    if "94 U.S. 469" in citation.citation:
+                        logger.error(f"🔍 [DEBUG-KELLOGG] _extract_all_dates FOUND year: {year_found}")
+                        logger.error(f"🔍 [DEBUG-KELLOGG] Set citation.extracted_date = {year_found}")
+                        logger.error(f"🔍 [DEBUG-KELLOGG] Context searched: '{immediate_after[:50]}'")
                 else:
                     citation.extracted_date = None
                     

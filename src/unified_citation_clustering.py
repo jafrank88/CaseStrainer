@@ -1568,15 +1568,15 @@ class UnifiedCitationClusterer:
         - And many other legal databases
         """
         try:
-            from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+            from src.unified_verification_master import UnifiedVerificationMaster
         except ImportError:
-            logger.warning("EnhancedFallbackVerifier module not available - skipping fallback")
+            logger.warning("UnifiedVerificationMaster module not available - skipping fallback")
             return
         
         try:
-            logger.info(f"Applying enhanced fallback verification to {len(citations)} unverified citations")
+            logger.info(f"Applying unified verification with possible match support to {len(citations)} unverified citations")
             
-            verifier = EnhancedFallbackVerifier()
+            verifier = UnifiedVerificationMaster()
             
             for citation in citations:
                 try:
@@ -1595,50 +1595,64 @@ class UnifiedCitationClusterer:
                         logger.info(f"Skipping fallback verification for {citation_text} - already verified via enhanced verification")
                         continue
                     
-                    result = verifier.verify_citation_sync(citation_text, extracted_case_name, extracted_date)
+                    import asyncio
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            # If we're already in an async context, we can't use run_until_complete
+                            # Create a new event loop in a thread
+                            import concurrent.futures
+                            with concurrent.futures.ThreadPoolExecutor() as executor:
+                                future = executor.submit(asyncio.run, verifier.verify_citation(citation_text, extracted_case_name, extracted_date))
+                                result = future.result()
+                        else:
+                            # If no loop is running, run the async function
+                            result = loop.run_until_complete(verifier.verify_citation(citation_text, extracted_case_name, extracted_date))
+                    except RuntimeError:
+                        # No event loop, create one
+                        result = asyncio.run(verifier.verify_citation(citation_text, extracted_case_name, extracted_date))
                     
                     logger.info(f"DEBUG: Verification result for {citation_text}: {result}")
                     if result:
-                        logger.info(f"DEBUG: Result keys: {list(result.keys())}")
-                        logger.info(f"DEBUG: Source field: {result.get('source', 'MISSING')}")
-                        logger.info(f"DEBUG: Verified field: {result.get('verified', 'MISSING')}")
+                        logger.info(f"DEBUG: Result verified: {result.verified}")
+                        logger.info(f"DEBUG: Result possible_match: {getattr(result, 'possible_match', False)}")
+                        logger.info(f"DEBUG: Result source: {result.source}")
                     
-                    # FIXED: If we have any canonical information, the citation is verified
-                    if result and (result.get('verified', False) or result.get('canonical_name') or result.get('canonical_url') or result.get('canonical_date')):
-                        citation.verified = True
-                        citation.is_verified = True
-                        citation.source = result.get('source', 'enhanced_fallback')  # Use user-friendly source directly
-                        citation.url = result.get('url')
-                        logger.warning(f"VERIFICATION_FIX: Set verified=True for citation '{citation.citation}' (canonical info available)")
-                        if hasattr(citation, 'canonical_url'):
-                            if not getattr(citation, 'canonical_url'):
-                                citation.canonical_url = result.get('canonical_url') or result.get('url')
-                        else:
-                            citation.canonical_url = result.get('canonical_url') or result.get('url')
+                    # Handle both verified and possible_match results
+                    if result and (result.verified or getattr(result, 'possible_match', False)):
+                        citation.verified = result.verified
+                        citation.is_verified = result.verified
+                        citation.source = result.source
+                        citation.url = result.canonical_url
                         
-                        if result.get('canonical_name'):
-                            citation.canonical_name = result['canonical_name']
-                        if result.get('canonical_date'):
-                            citation.canonical_date = result['canonical_date']
+                        # Set possible_match flag if available
+                        if hasattr(result, 'possible_match'):
+                            citation.possible_match = result.possible_match
+                        
+                        logger.warning(f"VERIFICATION_FIX: Set verified={result.verified}, possible_match={getattr(result, 'possible_match', False)} for citation '{citation.citation}'")
+                        
+                        if not getattr(citation, 'canonical_url', None):
+                            citation.canonical_url = result.canonical_url
+                        
+                        if result.canonical_name:
+                            citation.canonical_name = result.canonical_name
+                        if result.canonical_date:
+                            citation.canonical_date = result.canonical_date
                         
                         if not hasattr(citation, 'source') or not citation.source:
-                            citation.source = result.get('source', 'enhanced_fallback')
-                        
-                        # Ensure consistency: verified_via_fallback should set verified=True
-                        citation.verified = True
-                        citation.is_verified = True
+                            citation.source = result.source
                         
                         if not hasattr(citation, 'metadata'):
                             citation.metadata = {}
                         citation.metadata.update({
-                            'verification_status': 'verified_via_fallback',
-                            'verification_source': f"fallback_{result.get('source', 'enhanced_fallback')}",
+                            'verification_status': 'verified_via_unified_master',
+                            'verification_source': result.source,
+                            'possible_match': getattr(result, 'possible_match', False),
                             'canonical_data_available': True,
-                            'fallback_source': result.get('source'),
-                            'confidence': result.get('confidence', 0.0)
+                            'confidence': getattr(result, 'confidence', 0.0)
                         })
                         
-                        logger.info(f"✓ Enhanced fallback verified: {citation_text} -> {result.get('canonical_name', 'N/A')} (via {result.get('source', 'N/A')})")
+                        logger.info(f"✓ Unified verification: {citation_text} -> {result.canonical_name or 'N/A'} (via {result.source}) - verified={result.verified}, possible_match={getattr(result, 'possible_match', False)}")
                     else:
                         # Ensure consistency: failed verification should set verified=False
                         citation.verified = False

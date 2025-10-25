@@ -5,10 +5,54 @@
       <div class="results-header">
         <h2>🔍 SECTION 1: Unverified Clusters</h2>
         <p>{{ unverifiedClusters?.length || 0 }} cluster(s) with unverified citations</p>
+        
+        <!-- Informational message about unverified cases -->
+        <div class="unverified-info">
+          <h3>ℹ️ Why are these cases unverified?</h3>
+          <ul>
+            <li><strong>Recent Cases (2022-2024):</strong> May not yet be indexed in legal databases</li>
+            <li><strong>State Cases:</strong> CourtListener focuses on federal cases; state coverage varies</li>
+            <li><strong>North Carolina Cases:</strong> Limited coverage in current verification sources</li>
+            <li><strong>Database Limitations:</strong> Not all cases are available in public databases</li>
+          </ul>
+          <p class="help-text">
+            💡 <strong>Tip:</strong> These cases may still be valid - consider checking official court websites or legal databases manually.
+          </p>
+        </div>
       </div>
       
       <div class="clusters-list">
         <div v-for="cluster in unverifiedClusters" :key="cluster.cluster_id" class="cluster-item unverified-cluster">
+          <!-- Cluster Header -->
+          <div class="cluster-line cluster-header-line">
+            <strong>📚</strong>
+            <span class="cluster-case-name">{{ cluster.citations?.[0]?.extracted_case_name || 'N/A' }}</span>
+            <span v-if="cluster.citations?.[0]?.extracted_date" class="cluster-date">({{ cluster.citations[0].extracted_date }})</span>
+          </div>
+          
+          <!-- Citations in Cluster -->
+          <div class="cluster-citations">
+            <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
+              <strong>Citation {{ index + 1 }}: </strong>
+              <span class="citation-text">{{ citation.citation }}</span>
+              <span class="citation-status" :class="getCitationStatusClass(citation)">
+                {{ getCitationStatusText(citation) }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECTION 1.1: Possible Match Clusters -->
+    <div v-if="(possibleMatchClusters?.length || 0) > 0" class="results-content">
+      <div class="results-header">
+        <h2>🔍 SECTION 1.1: Possible Match Clusters</h2>
+        <p>{{ possibleMatchClusters?.length || 0 }} cluster(s) with possible matches</p>
+      </div>
+      
+      <div class="clusters-list">
+        <div v-for="cluster in possibleMatchClusters" :key="cluster.cluster_id" class="cluster-item possible-match-cluster">
           <!-- Cluster Header -->
           <div class="cluster-line cluster-header-line">
             <strong>📚</strong>
@@ -256,8 +300,19 @@ export default {
       
       return clusters.value.filter(cluster => {
         const clusterCitations = cluster.citations || []
-        // A cluster is "unverified" if it has at least one citation that is not verified and not true_by_parallel
-        return clusterCitations.some(cit => !cit.verified && !cit.true_by_parallel)
+        // A cluster is "unverified" if it has at least one citation that is not verified, not true_by_parallel, and not possible_match
+        return clusterCitations.some(cit => !cit.verified && !cit.true_by_parallel && !cit.possible_match)
+      })
+    })
+    
+    // NEW: Possible match clusters (clusters with at least one possible match citation)
+    const possibleMatchClusters = computed(() => {
+      if (!clusters.value || clusters.value.length === 0) return []
+      
+      return clusters.value.filter(cluster => {
+        const clusterCitations = cluster.citations || []
+        // A cluster is "possible match" if it has at least one citation with possible_match=true
+        return clusterCitations.some(cit => cit.possible_match)
       })
     })
     
@@ -282,8 +337,10 @@ export default {
       
       // Common abbreviation expansions
       const abbreviations = {
-        'ins': 'immigration and naturalization service',
-        'immigration & naturalization service': 'immigration and naturalization service',
+        'ins.': 'insurance',  // ADDED: Handle 'ins.' with period
+        'ins': 'insurance',  // FIXED: 'ins' should expand to 'insurance', not 'immigration and naturalization service'
+        'mut.': 'mutual',  // ADDED: Missing abbreviation for 'mutual'
+        'mut': 'mutual',
         'dep\'t': 'department',
         'dept': 'department',
         'att\'y': 'attorney',
@@ -297,6 +354,7 @@ export default {
         'govt': 'government',
         'co.': 'company',
         'co': 'company',
+        'company': 'company',  // Ensure consistency
         'inc.': 'incorporated',
         'inc': 'incorporated',
         'auth.': 'authority',
@@ -315,20 +373,237 @@ export default {
         'ry': 'railway',
         'r.r.': 'railroad',
         'r.r': 'railroad',
-        'n.c.': 'north carolina',
-        'n.c': 'north carolina'
+        'railroad': 'railway',  // Railroad and Railway are often interchangeable
+        'railway': 'railroad',  // Bidirectional mapping
+        'railroad company': 'railway company',  // Specific company name mapping
+        'railway company': 'railroad company',  // Bidirectional company mapping
+        // US STATE ABBREVIATIONS - Comprehensive list
+        'al.': 'alabama', 'al': 'alabama', 'alabama': 'alabama',
+        'ak.': 'alaska', 'ak': 'alaska', 'alaska': 'alaska',
+        'az.': 'arizona', 'az': 'arizona', 'arizona': 'arizona',
+        'ar.': 'arkansas', 'ar': 'arkansas', 'arkansas': 'arkansas',
+        'ca.': 'california', 'ca': 'california', 'california': 'california',
+        'co.': 'colorado', 'co': 'colorado', 'colorado': 'colorado',
+        'ct.': 'connecticut', 'ct': 'connecticut', 'connecticut': 'connecticut',
+        'de.': 'delaware', 'de': 'delaware', 'delaware': 'delaware',
+        'fl.': 'florida', 'fl': 'florida', 'florida': 'florida',
+        'ga.': 'georgia', 'ga': 'georgia', 'georgia': 'georgia',
+        'hi.': 'hawaii', 'hi': 'hawaii', 'hawaii': 'hawaii',
+        'id.': 'idaho', 'id': 'idaho', 'idaho': 'idaho',
+        'il.': 'illinois', 'il': 'illinois', 'illinois': 'illinois',
+        'in.': 'indiana', 'in': 'indiana', 'indiana': 'indiana',
+        'ia.': 'iowa', 'ia': 'iowa', 'iowa': 'iowa',
+        'ks.': 'kansas', 'ks': 'kansas', 'kansas': 'kansas',
+        'ky.': 'kentucky', 'ky': 'kentucky', 'kentucky': 'kentucky',
+        'la.': 'louisiana', 'la': 'louisiana', 'louisiana': 'louisiana',
+        'me.': 'maine', 'me': 'maine', 'maine': 'maine',
+        'md.': 'maryland', 'md': 'maryland', 'maryland': 'maryland',
+        'ma.': 'massachusetts', 'ma': 'massachusetts', 'massachusetts': 'massachusetts',
+        'mi.': 'michigan', 'mi': 'michigan', 'michigan': 'michigan',
+        'mn.': 'minnesota', 'mn': 'minnesota', 'minnesota': 'minnesota',
+        'ms.': 'mississippi', 'ms': 'mississippi', 'mississippi': 'mississippi',
+        'mo.': 'missouri', 'mo': 'missouri', 'missouri': 'missouri',
+        'mt.': 'montana', 'mt': 'montana', 'montana': 'montana',
+        'ne.': 'nebraska', 'ne': 'nebraska', 'nebraska': 'nebraska',
+        'nv.': 'nevada', 'nv': 'nevada', 'nevada': 'nevada',
+        'nh.': 'new hampshire', 'nh': 'new hampshire', 'new hampshire': 'new hampshire',
+        'nj.': 'new jersey', 'nj': 'new jersey', 'new jersey': 'new jersey',
+        'nm.': 'new mexico', 'nm': 'new mexico', 'new mexico': 'new mexico',
+        'ny.': 'new york', 'ny': 'new york', 'new york': 'new york',
+        'n.c.': 'north carolina', 'nc': 'north carolina', 'north carolina': 'north carolina',
+        'nd.': 'north dakota', 'nd': 'north dakota', 'north dakota': 'north dakota',
+        'oh.': 'ohio', 'oh': 'ohio', 'ohio': 'ohio',
+        'ok.': 'oklahoma', 'ok': 'oklahoma', 'oklahoma': 'oklahoma',
+        'or.': 'oregon', 'or': 'oregon', 'oregon': 'oregon',
+        'pa.': 'pennsylvania', 'pa': 'pennsylvania', 'pennsylvania': 'pennsylvania',
+        'ri.': 'rhode island', 'ri': 'rhode island', 'rhode island': 'rhode island',
+        's.c.': 'south carolina', 'sc': 'south carolina', 'south carolina': 'south carolina',
+        'sd.': 'south dakota', 'sd': 'south dakota', 'south dakota': 'south dakota',
+        'tn.': 'tennessee', 'tn': 'tennessee', 'tennessee': 'tennessee',
+        'tx.': 'texas', 'tx': 'texas', 'texas': 'texas',
+        'ut.': 'utah', 'ut': 'utah', 'utah': 'utah',
+        'vt.': 'vermont', 'vt': 'vermont', 'vermont': 'vermont',
+        'va.': 'virginia', 'va': 'virginia', 'virginia': 'virginia',
+        'wa.': 'washington', 'wa': 'washington', 'washington': 'washington',
+        'wv.': 'west virginia', 'wv': 'west virginia', 'west virginia': 'west virginia',
+        'wi.': 'wisconsin', 'wi': 'wisconsin', 'wisconsin': 'wisconsin',
+        'wy.': 'wyoming', 'wy': 'wyoming', 'wyoming': 'wyoming',
+        // DC and territories
+        'd.c.': 'district of columbia', 'dc': 'district of columbia', 'district of columbia': 'district of columbia',
+        'pr.': 'puerto rico', 'pr': 'puerto rico', 'puerto rico': 'puerto rico',
+        'vi.': 'virgin islands', 'vi': 'virgin islands', 'virgin islands': 'virgin islands',
+        'gu.': 'guam', 'gu': 'guam', 'guam': 'guam',
+        'as.': 'american samoa', 'as': 'american samoa', 'american samoa': 'american samoa',
+        'mp.': 'northern mariana islands', 'mp': 'northern mariana islands', 'northern mariana islands': 'northern mariana islands',
+        // COMMON LEGAL ABBREVIATIONS
+        'mut.': 'mutual', 'mut': 'mutual', 'mutual': 'mutual',
+        'ins.': 'insurance', 'ins': 'insurance', 'insurance': 'insurance',
+        'corp.': 'corporation', 'corp': 'corporation', 'corporation': 'corporation',
+        'ltd.': 'limited', 'ltd': 'limited', 'limited': 'limited',
+        'llc': 'limited liability company', 'l.l.c.': 'limited liability company', 'limited liability company': 'limited liability company',
+        'assoc.': 'association', 'assoc': 'association', 'association': 'association',
+        'soc.': 'society', 'soc': 'society', 'society': 'society',
+        'found.': 'foundation', 'found': 'foundation', 'foundation': 'foundation',
+        'trust': 'trust', 'tr.': 'trust', 'tr': 'trust',
+        'est.': 'estate', 'est': 'estate', 'estate': 'estate',
+        'part.': 'partnership', 'part': 'partnership', 'partnership': 'partnership',
+        'lp': 'limited partnership', 'l.p.': 'limited partnership', 'limited partnership': 'limited partnership',
+        'llp': 'limited liability partnership', 'l.l.p.': 'limited liability partnership', 'limited liability partnership': 'limited liability partnership',
+        'gp': 'general partnership', 'g.p.': 'general partnership', 'general partnership': 'general partnership',
+        'jv': 'joint venture', 'j.v.': 'joint venture', 'joint venture': 'joint venture',
+        'hold.': 'holding', 'hold': 'holding', 'holding': 'holding', 'holdings': 'holding',
+        'grp.': 'group', 'grp': 'group', 'group': 'group',
+        'intl.': 'international', 'intl': 'international', 'international': 'international',
+        'natl.': 'national', 'natl': 'national', 'national': 'national',
+        'fed.': 'federal', 'fed': 'federal', 'federal': 'federal',
+        'govt.': 'government', 'govt': 'government', 'government': 'government',
+        'admin.': 'administration', 'admin': 'administration', 'administration': 'administration',
+        'dept.': 'department', 'dept': 'department', 'department': 'department',
+        'div.': 'division', 'div': 'division', 'division': 'division',
+        'sect.': 'section', 'sect': 'section', 'section': 'section',
+        'subdiv.': 'subdivision', 'subdiv': 'subdivision', 'subdivision': 'subdivision',
+        'dist.': 'district', 'dist': 'district', 'district': 'district',
+        'ctr.': 'center', 'ctr': 'center', 'center': 'center', 'cent.': 'center', 'cent': 'center',
+        'inst.': 'institute', 'inst': 'institute', 'institute': 'institute',
+        'univ.': 'university', 'univ': 'university', 'university': 'university',
+        'coll.': 'college', 'coll': 'college', 'college': 'college',
+        'sch.': 'school', 'sch': 'school', 'school': 'school',
+        'elem.': 'elementary', 'elem': 'elementary', 'elementary': 'elementary',
+        'sec.': 'secondary', 'sec': 'secondary', 'secondary': 'secondary',
+        'high': 'high school', 'hs': 'high school', 'h.s.': 'high school', 'high school': 'high school',
+        'middle': 'middle school', 'ms': 'middle school', 'm.s.': 'middle school', 'middle school': 'middle school',
+        'jr.': 'junior', 'jr': 'junior', 'junior': 'junior',
+        'sr.': 'senior', 'sr': 'senior', 'senior': 'senior',
+        'inter.': 'intermediate', 'inter': 'intermediate', 'intermediate': 'intermediate',
+        'adv.': 'advanced', 'adv': 'advanced', 'advanced': 'advanced',
+        'tech.': 'technical', 'tech': 'technical', 'technical': 'technical',
+        'voc.': 'vocational', 'voc': 'vocational', 'vocational': 'vocational',
+        'prof.': 'professional', 'prof': 'professional', 'professional': 'professional',
+        'comm.': 'community', 'comm': 'community', 'community': 'community',
+        'pub.': 'public', 'pub': 'public', 'public': 'public',
+        'priv.': 'private', 'priv': 'private', 'private': 'private',
+        'munic.': 'municipal', 'munic': 'municipal', 'municipal': 'municipal',
+        'county': 'county', 'co.': 'county',
+        'state': 'state', 'st.': 'state', 'st': 'state',
+        'city': 'city', 'town': 'town', 'village': 'village', 'borough': 'borough', 'township': 'township',
+        'parish': 'parish', 'province': 'province', 'territory': 'territory', 'region': 'region',
+        'area': 'area', 'zone': 'zone', 'ward': 'ward', 'precinct': 'precinct',
+        'block': 'block', 'lot': 'lot', 'parcel': 'parcel', 'tract': 'tract',
+        'development': 'development', 'suburb': 'suburb', 'neighborhood': 'neighborhood',
+        'club': 'club', 'organization': 'organization', 'org.': 'organization', 'org': 'organization',
+        'academy': 'academy', 'hospital': 'hospital', 'hosp.': 'hospital', 'hosp': 'hospital',
+        'medical': 'medical', 'med.': 'medical', 'med': 'medical', 'health': 'health', 'care': 'care',
+        'service': 'service', 'serv.': 'service', 'serv': 'service',
+        'facility': 'facility', 'fac.': 'facility', 'fac': 'facility',
+        'building': 'building', 'bldg.': 'building', 'bldg': 'building',
+        'structure': 'structure', 'complex': 'complex', 'plaza': 'plaza', 'mall': 'mall',
+        'shopping': 'shopping', 'retail': 'retail', 'commercial': 'commercial',
+        'business': 'business', 'enterprise': 'enterprise', 'firm': 'firm',
+        'agency': 'agency', 'bureau': 'bureau', 'office': 'office', 'off.': 'office', 'off': 'office',
+        'headquarters': 'headquarters', 'hq': 'headquarters', 'h.q.': 'headquarters',
+        'branch': 'branch', 'unit': 'unit', 'team': 'team',
+        'committee': 'committee', 'comm.': 'committee', 'comm': 'committee',
+        'board': 'board', 'council': 'council', 'commission': 'commission', 'authority': 'authority',
+        // ADD MISSING ABBREVIATIONS
+        'equip.': 'equipment',
+        'equip': 'equipment',
+        'express co.': 'express company',
+        'express co': 'express company',
+        's. express co.': 'southern express company',
+        's. express co': 'southern express company',
+        'southern railway company': 'railway company',
+        'railway company': 'railroad company',
+        'farm bureau mut. ins. co.': 'farm bureau mutual insurance company',
+        'farm bureau mut ins co': 'farm bureau mutual insurance company',
+        'n.c. farm bureau mut. ins. co.': 'north carolina farm bureau mutual insurance company',
+        'n.c. farm bureau mut ins co': 'north carolina farm bureau mutual insurance company',
+        'n.c. farm bureau mutual insurance': 'north carolina farm bureau mutual insurance company',
+        'north carolina farm bureau mutual insurance': 'north carolina farm bureau mutual insurance company',
+        'monarch elevator & mach. co.': 'monarch elevator and machine company',
+        'monarch elevator & mach co': 'monarch elevator and machine company',
+        'alexander tank & equip. co.': 'alexander tank and equipment company',
+        'alexander tank & equip co': 'alexander tank and equipment company',
+        // ADDITIONAL RAILWAY/RAILROAD MAPPINGS
+        'p.r. co.': 'pennsylvania railroad company',
+        'p.r. co': 'pennsylvania railroad company',
+        'pennsylvania railroad co.': 'pennsylvania railroad company',
+        'pennsylvania railroad co': 'pennsylvania railroad company',
+        'milwaukee & saint paul railway co.': 'milwaukee and saint paul railway company',
+        'milwaukee & saint paul railway co': 'milwaukee and saint paul railway company',
+        'milwaukee & saint paul railroad co.': 'milwaukee and saint paul railroad company',
+        'milwaukee & saint paul railroad co': 'milwaukee and saint paul railroad company',
+        // COMPREHENSIVE RAILWAY COMPANY MAPPINGS
+        'milwaukee & saint paul railway co.': 'railway company',
+        'milwaukee & saint paul railway co': 'railway company',
+        'southern railway company': 'railway company',
+        'railway company': 'railroad company',  // Railway and railroad are interchangeable
+        'railroad company': 'railway company'
       }
       
       // Expand abbreviations in both names
       let expanded1 = norm1
       let expanded2 = norm2
-      Object.entries(abbreviations).forEach(([abbr, full]) => {
-        const regex = new RegExp('\\b' + abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')
-        expanded1 = expanded1.replace(regex, full)
-        expanded2 = expanded2.replace(regex, full)
+      
+      // Sort abbreviations by length (longest first) to handle nested abbreviations
+      const sortedAbbreviations = Object.entries(abbreviations).sort((a, b) => b[0].length - a[0].length)
+      
+      sortedAbbreviations.forEach(([abbr, full]) => {
+        // Create a regex that matches the abbreviation with proper word boundaries
+        const escapedAbbr = abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+        
+        // Handle abbreviations with periods differently
+        if (abbr.includes('.')) {
+          // For abbreviations with periods, match word boundary at start and space/punctuation at end
+          const regex = new RegExp(`\\b${escapedAbbr}(?=\\s|$)`, 'gi')
+          expanded1 = expanded1.replace(regex, full)
+          expanded2 = expanded2.replace(regex, full)
+        } else {
+          // For abbreviations without periods, use standard word boundaries
+          const regex = new RegExp(`\\b${escapedAbbr}\\b`, 'gi')
+          expanded1 = expanded1.replace(regex, full)
+          expanded2 = expanded2.replace(regex, full)
+        }
       })
       
-      if (expanded1 === expanded2) return true
+      // NEW: Check for simplified vs. full legal names
+      // Handle cases where extracted name is simplified version of canonical name
+      if (norm1.length < norm2.length * 0.6) { // Extracted is significantly shorter
+        // Extract the core parts (before "v.")
+        const extractedParts = norm1.split(/\s+v\.?\s+/)
+        const canonicalParts = norm2.split(/\s+v\.?\s+/)
+        
+        if (extractedParts.length === 2 && canonicalParts.length === 2) {
+          const extractedPlaintiff = extractedParts[0].trim()
+          const canonicalPlaintiff = canonicalParts[0].trim()
+          const extractedDefendant = extractedParts[1].trim()
+          const canonicalDefendant = canonicalParts[1].trim()
+          
+          // Check if plaintiff last names match
+          const extractedPlaintiffWords = extractedPlaintiff.split(/\s+/)
+          const canonicalPlaintiffWords = canonicalPlaintiff.split(/\s+/)
+          const extractedPlaintiffLastName = extractedPlaintiffWords[extractedPlaintiffWords.length - 1]
+          const canonicalPlaintiffLastName = canonicalPlaintiffWords[canonicalPlaintiffWords.length - 1]
+          
+          // Check if last names match or extracted plaintiff is contained in canonical
+          if (extractedPlaintiffLastName === canonicalPlaintiffLastName || 
+              canonicalPlaintiff.includes(extractedPlaintiff)) {
+            
+            // Check defendant side - check if extracted defendant is contained in canonical
+            if (canonicalDefendant.includes(extractedDefendant) || 
+                extractedDefendant.includes(canonicalDefendant)) {
+              return true // Simplified name is valid
+            }
+          }
+        }
+      }
+      
+      // NEW: Check for full vs. simplified legal names (reverse case)
+      if (norm2.length < norm1.length * 0.6) { // Canonical is significantly shorter
+        // Check if canonical name is contained in extracted name
+        if (norm1.includes(norm2)) {
+          return true // Canonical is simplified version of extracted
+        }
+      }
       
       // Check if extracted is a reasonable abbreviation of canonical
       // (e.g., "Wang v. INS" vs "Jiamu Wang v. Immigration and Naturalization Service")
@@ -350,12 +625,23 @@ export default {
           let expExtDef = extDef
           let expCanDef = canDef
           Object.entries(abbreviations).forEach(([abbr, full]) => {
-            const regex = new RegExp('\\b' + abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\b', 'g')
-            expExtDef = expExtDef.replace(regex, full)
-            expCanDef = expCanDef.replace(regex, full)
+            // FIXED: Use word boundaries with proper handling of periods
+            const regex = new RegExp('(^|\\s)' + abbr.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\s|$)', 'g')
+            expExtDef = expExtDef.replace(regex, '$1' + full + '$2')
+            expCanDef = expCanDef.replace(regex, '$1' + full + '$2')
           })
           
           if (expExtDef === expCanDef || canDef.includes(extDef) || expCanDef.includes(expExtDef)) {
+            return true
+          }
+          
+          // SPECIAL CASE: Both defendants are railway/railroad companies
+          // Even if names are different, if both are railway companies, consider similar
+          const railwayKeywords = ['railway', 'railroad', 'r.r.', 'p.r. co.', 'southern railway', 'milwaukee', 'saint paul']
+          const extIsRailway = railwayKeywords.some(keyword => expExtDef.includes(keyword))
+          const canIsRailway = railwayKeywords.some(keyword => expCanDef.includes(keyword))
+          
+          if (extIsRailway && canIsRailway) {
             return true
           }
         }
@@ -364,6 +650,26 @@ export default {
       // Check if one name is contained in the other (for partial name extraction)
       if (norm2.includes(norm1) && norm1.length > 10) return true
       if (norm1.includes(norm2) && norm2.length > 10) return true
+      
+      // IMPROVED: More permissive similarity check for legal case names
+      // Check word overlap - if most words match, consider similar
+      const words1 = new Set(norm1.split(/\s+/).filter(w => w.length > 2))
+      const words2 = new Set(norm2.split(/\s+/).filter(w => w.length > 2))
+      
+      if (words1.size > 0 && words2.size > 0) {
+        const intersection = new Set([...words1].filter(x => words2.has(x)))
+        const union = new Set([...words1, ...words2])
+        
+        // If more than 50% of words overlap, consider similar
+        const similarity = intersection.size / union.size
+        if (similarity > 0.5) return true
+        
+        // Special case: if all words from shorter name are in longer name
+        const shorter = words1.size <= words2.size ? words1 : words2
+        const longer = words1.size <= words2.size ? words2 : words1
+        const shorterInLonger = [...shorter].every(word => longer.has(word))
+        if (shorterInLonger && shorter.size >= 2) return true
+      }
       
       return false
     }
@@ -378,19 +684,16 @@ export default {
       return !areNamesSimilar(extractedName, canonicalName)
     }
     
-    const extractYear = (dateStr) => {
-      if (!dateStr) return null
-      const str = String(dateStr).trim()
-      const yearMatch = str.match(/\b(\d{4})\b/)
-      return yearMatch ? yearMatch[1] : null
-    }
-    
     const citationHasDateMismatch = (cit) => {
       if (!cit) return false
       const extractedYear = extractYear(cit.extracted_date)
       const canonicalYear = extractYear(cit.canonical_date)
       if (!extractedYear || !canonicalYear) return false
-      return extractedYear !== canonicalYear
+      
+      const yearDiff = Math.abs(parseInt(extractedYear) - parseInt(canonicalYear))
+      // Only flag as mismatch if years are more than 5 years apart
+      // This prevents flagging minor date variations as mismatches
+      return yearDiff > 5
     }
     
     // NEW: Name/Date mismatch clusters (for debugging extraction issues)
@@ -470,6 +773,8 @@ export default {
         return 'status-verified'
       } else if (citation.true_by_parallel) {
         return 'status-parallel'
+      } else if (citation.possible_match) {
+        return 'status-possible-match'
       } else {
         return 'status-unverified'
       }
@@ -480,6 +785,8 @@ export default {
         return 'Verified'
       } else if (citation.true_by_parallel) {
         return 'Verified by Parallel'
+      } else if (citation.possible_match) {
+        return 'Possible Match'
       } else {
         return 'Unverified'
       }
@@ -492,6 +799,7 @@ export default {
       unverifiedCitations,
       verifiedByParallelCitations,
       unverifiedClusters,
+      possibleMatchClusters,
       mismatchClusters,
       hasNameMismatch,
       hasDateMismatch,
@@ -682,6 +990,17 @@ export default {
   background: #FFEBEE;
 }
 
+.status-possible-match {
+  color: #FF9800;
+  background: #FFF8E1;
+  border: 1px solid #FFB74D;
+}
+
+.possible-match-cluster {
+  border-left: 4px solid #FF9800;
+  background: #FFF8E1;
+}
+
 .citation-card, .cluster-card {
   border: 1px solid #eee;
   border-radius: 6px;
@@ -744,5 +1063,41 @@ export default {
   text-align: center;
   padding: 40px;
   color: #666;
+}
+
+/* Unverified cases informational styling */
+.unverified-info {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  margin: 20px 0;
+  font-size: 0.95em;
+}
+
+.unverified-info h3 {
+  margin: 0 0 15px 0;
+  color: #495057;
+  font-size: 1.1em;
+}
+
+.unverified-info ul {
+  margin: 0 0 15px 0;
+  padding-left: 20px;
+}
+
+.unverified-info li {
+  margin: 8px 0;
+  color: #6c757d;
+}
+
+.unverified-info .help-text {
+  margin: 0;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-left: 4px solid #2196f3;
+  border-radius: 4px;
+  color: #1565c0;
+  font-style: italic;
 }
 </style>

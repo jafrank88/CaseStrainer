@@ -355,6 +355,7 @@ class UnifiedInputProcessor:
                     
                     # Extract, cluster, and verify citations using full pipeline
                     text = input_data.get('text', '')
+                    logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True")
                     result = extract_citations_with_clustering(text, enable_verification=True)
                     
                     # Check if any citations show CourtListener rate limit messages

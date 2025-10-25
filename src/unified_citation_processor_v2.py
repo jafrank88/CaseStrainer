@@ -1533,12 +1533,14 @@ class UnifiedCitationProcessorV2:
             'by the federal court'
         ]
         
-        # FIXED: Updated pattern to handle commas in company names like "Spokeo, Inc."
-        v_pattern_improved = r'([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,]*(?:\s+(?:[A-Z][a-zA-Z\'\.\&,]*|of|the|and|&))*)(?:\s*,|\s*\(|\s*$)'
+        # IMPROVED: Pattern to preserve full legal names with complex party descriptions
+        # This pattern is more permissive and captures longer legal names
+        v_pattern_improved = r'([A-Z][a-zA-Z\'\.\&,\s]*(?:,\s*(?:individually|as\s+(?:parent|guardian|next\s+friend|administrator|executor|trustee|personal\s+representative)|and\s+on\s+behalf\s+of|by\s+and\s+through|d/b/a|doing\s+business\s+as|a\s+(?:Delaware|California|New\s+York)\s+(?:Corporation|Corp|Inc|LLC|Ltd))[^,]*)*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&,\s]*(?:,\s*(?:individually|as\s+(?:parent|guardian|next\s+friend|administrator|executor|trustee|personal\s+representative)|and\s+on\s+behalf\s+of|by\s+and\s+through|d/b/a|doing\s+business\s+as|a\s+(?:Delaware|California|New\s+York)\s+(?:Corporation|Corp|Inc|LLC|Ltd))[^,]*)*)(?:\s*,|\s*\(|\s*$)'
         match = re.search(v_pattern_improved, case_name)
         if match:
             extracted = f"{match.group(1).strip()} v. {match.group(2).strip()}"
-            if len(extracted) < 200 and ' v. ' in extracted:
+            # Increased length limit to accommodate full legal names
+            if len(extracted) < 500 and ' v. ' in extracted:
                 return extracted
         
         case_name_lower = case_name.lower()
@@ -2980,7 +2982,7 @@ class UnifiedCitationProcessorV2:
                     
                     # Call batch verification
                     try:
-                        batch_results = asyncio.run(verifier._batch_verify_with_courtlistener(
+                        batch_results = asyncio.run(verifier.verify_citations_batch(
                             citations=citation_strings,
                             extracted_case_names=case_names,
                             extracted_dates=dates

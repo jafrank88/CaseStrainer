@@ -257,22 +257,29 @@ def extract_case_name_from_strict_context(
             context = ' '.join(sentences[-2:]).strip()
             logger.debug(f"[STRICT-EXTRACT] Reduced context to last 2 sentences")
     
-    # Patterns to extract case names (BALANCED - not too strict, not too loose)
+    # Patterns to extract case names (IMPROVED - GREEDY patterns for full legal names)
     patterns = [
-        # Standard "v." pattern - must have "v." but flexible ending
-        # USER FIX 2024-10-17: Make defendant pattern GREEDY to capture full names like "Bay Mills Indian Cmty."
-        # USER FIX 2024-10-21: Add comma to character class to capture corporate suffixes
-        # Allows "Outsource Services Management, LLC v. Nooksack Business Corp."
+        # PRIORITY 1: Complex legal names with full party descriptions (NEW - HIGHEST PRIORITY)
+        # Matches: "Chance Gresser, individually and as parent, natural guardian, next of friendand on behalf of his daughter, C.G., and Erin Gresser, individually and asparent, natural guardian, next of friend and on behalf of her daughter, C.G. v. Banner Health, d/b/a North Colorado Medical Center"
+        # Matches: "Francis Rudnicki and Pamela Rudnicki, as parents, guardians and next friends of Alexander Rudnicki, a minor v. Bianco"
+        r'([A-Z][a-zA-Z\s\'&\-\.,]*(?:,\s*(?:individually|as\s+(?:parent|guardian|next\s+friend|administrator|executor|trustee|personal\s+representative)|and\s+on\s+behalf\s+of|by\s+and\s+through)[^,]*)*)\s+v\.\s+([A-Z][a-zA-Z\s\'&\-\.,]*(?:,\s*(?:d/b/a|doing\s+business\s+as|a\s+(?:Delaware|California|New\s+York)\s+(?:Corporation|Corp|Inc|LLC|Ltd))[^,]*)*)(?:\s*[;\(]|,\s*\d|$)',
+        
+        # PRIORITY 2: "In re" cases with full party names
+        # Matches: "In re: The PEOPLE of the State of Colorado v. Regina M. SPRINKLE"
+        r'In\s+re:\s+([A-Z][A-Z\s\'&\-\.,]+)\s+v\.\s+([A-Z][A-Z\s\'&\-\.,]+)(?:\s*[;\(]|,\s*\d|$)',
+        
+        # PRIORITY 3: Standard "v." pattern - GREEDY to capture full names
+        # USER FIX: Made patterns GREEDY to capture full legal names instead of simplified versions
         # Stop at semicolon or opening paren to prevent cross-citation contamination
-        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,80}?)\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120})(?:\s*[;\(]|,\s*\d|$)',
+        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[;\(]|,\s*\d|$)',
         
-        # In re/Matter of/Estate of patterns
-        r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100}?)(?:\s*[,;\(]|$)',
+        # PRIORITY 4: In re/Matter of/Estate of patterns
+        r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)',
         
-        # Ex parte pattern  
-        r'Ex\s+parte\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100}?)(?:\s*[,;\(]|$)',
+        # PRIORITY 5: Ex parte pattern  
+        r'Ex\s+parte\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)',
         
-        # Fallback: Capitalized name before punctuation/end
+        # PRIORITY 6: Fallback: Capitalized name before punctuation/end
         # Match multi-word capitalized phrases
         r'([A-Z][A-Za-z\'\.\&,\-]{3,}(?:\s+[A-Z][A-Za-z\'\.\&,\-]{2,})+)(?:\s*[,;\(]|$)',
     ]
@@ -286,7 +293,7 @@ def extract_case_name_from_strict_context(
             
             match = matches[-1]  # Take the last (closest) match
             
-            if pattern_idx == 1:  # Standard "v." pattern (2 groups)
+            if pattern_idx in [1, 2, 3]:  # Patterns with 2 groups (plaintiff v. defendant)
                 plaintiff = match.group(1).strip()
                 defendant = match.group(2).strip()
                 
@@ -339,10 +346,23 @@ def extract_case_name_from_strict_context(
             reject_phrases = [
                 'we do not', 'this holding', 'the court', 'decision in',
                 'holding that', 'pursuant to', 'under', 'based on',
-                'principles set forth', 'intervening decision', 'recused'
+                'principles set forth', 'intervening decision', 'recused',
+                'at common law', 'determining the amount', 'within the province'
             ]
             if any(phrase in case_name.lower() for phrase in reject_phrases):
                 continue
+            
+            # Reject if starts with common sentence starters
+            sentence_starters = [
+                'at ', 'the ', 'this ', 'that ', 'these ', 'those ',
+                'in ', 'for ', 'with ', 'without ', 'under ', 'over ',
+                'determining ', 'establishing ', 'calculating '
+            ]
+            case_lower = case_name.lower()
+            if any(case_lower.startswith(starter) for starter in sentence_starters):
+                # Unless it's a valid case name pattern (has "v.")
+                if ' v. ' not in case_lower:
+                    continue
             
             # For "v." patterns, validate both party names
             if ' v. ' in case_name.lower():
