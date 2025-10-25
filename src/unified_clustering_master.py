@@ -568,6 +568,97 @@ class UnifiedClusteringMaster:
         
         return groups
     
+    def _are_citations_same_case(self, citation1: Any, citation2: Any) -> bool:
+        """
+        Check if two citations likely refer to the same case.
+        This prevents cross-contamination of canonical data between different cases.
+        """
+        # Helper functions to get citation properties
+        def get_case_name(cit):
+            if isinstance(cit, dict):
+                return cit.get('extracted_case_name', cit.get('case_name', ''))
+            return getattr(cit, 'extracted_case_name', getattr(cit, 'case_name', ''))
+            
+        def get_date(cit):
+            if isinstance(cit, dict):
+                return cit.get('extracted_date', cit.get('year', ''))
+            return getattr(cit, 'extracted_date', getattr(cit, 'year', ''))
+        
+        name1 = get_case_name(citation1)
+        name2 = get_case_name(citation2)
+        
+        # Must have case names to compare
+        if not name1 or not name2:
+            return False
+        
+        # Normalize case names for comparison
+        name1_norm = self._normalize_case_name_for_clustering(name1)
+        name2_norm = self._normalize_case_name_for_clustering(name2)
+        
+        # Check case name similarity
+        if name1_norm != name2_norm:
+            similarity = self._calculate_case_name_similarity(name1_norm, name2_norm)
+            if similarity < 0.9:  # Require high similarity
+                return False
+        
+        # Check date compatibility
+        date1 = get_date(citation1)
+        date2 = get_date(citation2)
+        
+        if date1 and date2:
+            try:
+                year1 = int(str(date1)[:4])  # Extract year
+                year2 = int(str(date2)[:4])
+                if abs(year1 - year2) > 1:  # Allow 1 year difference
+                    return False
+            except (ValueError, TypeError):
+                return False
+        
+        return True
+    
+    def _normalize_case_name_for_clustering(self, name: str) -> str:
+        """Normalize case name for clustering comparison."""
+        if not name:
+            return ""
+        
+        # Convert to lowercase and remove common variations
+        normalized = name.lower().strip()
+        
+        # Remove common legal suffixes
+        suffixes_to_remove = [
+            ', inc.', ', inc', 'inc.', 'inc',
+            ', corp.', ', corp', 'corp.', 'corp',
+            ', llc', 'llc',
+            ', ltd.', ', ltd', 'ltd.', 'ltd',
+            ', co.', ', co', 'co.', 'co'
+        ]
+        
+        for suffix in suffixes_to_remove:
+            if normalized.endswith(suffix):
+                normalized = normalized[:-len(suffix)].strip()
+        
+        # Remove extra whitespace
+        normalized = ' '.join(normalized.split())
+        
+        return normalized
+    
+    def _calculate_case_name_similarity(self, name1: str, name2: str) -> float:
+        """Calculate similarity between two case names."""
+        if not name1 or not name2:
+            return 0.0
+        
+        # Simple word-based similarity
+        words1 = set(name1.split())
+        words2 = set(name2.split())
+        
+        if not words1 or not words2:
+            return 0.0
+        
+        intersection = words1.intersection(words2)
+        union = words1.union(words2)
+        
+        return len(intersection) / len(union) if union else 0.0
+    
     def _are_parallel_citations(self, citations: List[Any], text: str) -> bool:
         """Check if citations are parallel (refer to the same case)."""
         if len(citations) < 2:
@@ -2239,28 +2330,33 @@ class UnifiedClusteringMaster:
                 sorted_positions = sorted(positions)
                 max_distance = sorted_positions[-1] - sorted_positions[0]
                 if max_distance <= 200:
-                    # Proximity suggests parallel, but verify canonical names match
-                    canonical_names = set()
+                    # Proximity suggests parallel, but verify EXTRACTED case names match
+                    # CRITICAL FIX: Use extracted names, not canonical names, for clustering decisions
+                    # Canonical names can be contaminated and shouldn't be used for clustering
+                    extracted_names = set()
                     for citation in citations:
-                        if hasattr(citation, 'canonical_name'):
-                            canon = citation.canonical_name
+                        if hasattr(citation, 'extracted_case_name'):
+                            extracted = citation.extracted_case_name
                         elif isinstance(citation, dict):
-                            canon = citation.get('canonical_name')
+                            extracted = citation.get('extracted_case_name')
                         else:
-                            canon = None
+                            extracted = None
                         
-                        if canon and canon != 'N/A':
-                            canonical_names.add(canon)
+                        if extracted and extracted != 'N/A' and extracted.strip():
+                            # Normalize the extracted name for comparison
+                            normalized = self._normalize_case_name_for_clustering(extracted)
+                            if normalized:
+                                extracted_names.add(normalized)
                     
-                    # If we have multiple different canonical names, these are DIFFERENT cases!
-                    if len(canonical_names) > 1:
+                    # If we have multiple different extracted names, these are DIFFERENT cases!
+                    if len(extracted_names) > 1:
                         logger.error(
-                            f"🚫 [PROXIMITY-OVERRIDE-FAILED] Citations within {max_distance} chars BUT have different canonical names: {canonical_names}. "
+                            f"🚫 [PROXIMITY-OVERRIDE-FAILED] Citations within {max_distance} chars BUT have different extracted names: {extracted_names}. "
                             f"These are DIFFERENT cases incorrectly grouped by proximity. Applying P5_FIX validation..."
                         )
                         # Continue to P5_FIX validation below
                     else:
-                        logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars and matching canonical names - definitely parallel")
+                        logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars and matching extracted names - definitely parallel")
                         validated_clusters.append(cluster)
                         continue
                 else:
@@ -2738,20 +2834,25 @@ class UnifiedClusteringMaster:
                 for cit in citations:
                     is_verified = getattr(cit, 'verified', False)
                     if not is_verified:
-                        # Mark as true_by_parallel but keep verified=False
-                        # Each citation is independently verified
-                        if hasattr(cit, '__dict__'):
-                            cit.true_by_parallel = True
-                            cit.canonical_name = getattr(best_verified, 'canonical_name', None)
-                            cit.canonical_date = getattr(best_verified, 'canonical_date', None)
-                            cit.canonical_url = getattr(best_verified, 'canonical_url', None)
-                            # Don't change verified status - keep it False
-                        elif isinstance(cit, dict):
-                            cit['true_by_parallel'] = True
-                            cit['canonical_name'] = getattr(best_verified, 'canonical_name', None)
-                            cit['canonical_date'] = getattr(best_verified, 'canonical_date', None)
-                            cit['canonical_url'] = getattr(best_verified, 'canonical_url', None)
-                            # Don't change verified status - keep it False
+                        # CRITICAL FIX: Only propagate canonical data if citations are from the same case
+                        if self._are_citations_same_case(cit, best_verified):
+                            # Mark as true_by_parallel but keep verified=False
+                            # Each citation is independently verified
+                            if hasattr(cit, '__dict__'):
+                                cit.true_by_parallel = True
+                                cit.canonical_name = getattr(best_verified, 'canonical_name', None)
+                                cit.canonical_date = getattr(best_verified, 'canonical_date', None)
+                                cit.canonical_url = getattr(best_verified, 'canonical_url', None)
+                                # Don't change verified status - keep it False
+                                logger.info(f"✅ CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {getattr(cit, 'citation', str(cit))[:50]} (same case)")
+                            elif isinstance(cit, dict):
+                                cit['true_by_parallel'] = True
+                                cit['canonical_name'] = getattr(best_verified, 'canonical_name', None)
+                                cit['canonical_date'] = getattr(best_verified, 'canonical_date', None)
+                                cit['canonical_url'] = getattr(best_verified, 'canonical_url', None)
+                                logger.info(f"✅ CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {cit.get('citation', str(cit))[:50]} (same case)")
+                        else:
+                            logger.warning(f"⚠️ CLUSTER_FORMAT: Skipping canonical data propagation - citations are from different cases: {getattr(cit, 'citation', str(cit))[:50]} vs {best_verified.citation}")
                         logger.info(f"✅ Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
             
             # CRITICAL FIX: Extract cluster-level canonical data from verified citations

@@ -47553,3 +47553,5 @@ Another citation: 150 Wn. App. 476'
 2025-10-25 18:32:35,809 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-10-25 18:34:34,125 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2025-10-25 18:40:59,517 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-25 18:54:56,472 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2025-10-25 18:57:37,190 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log

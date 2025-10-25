@@ -31849,3 +31849,1197 @@ Exception: Could not connect to the URL. Please check your internet connection a
 2025-10-25 18:44:05 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.health_check -> 200 (447 chars)
 2025-10-25 18:44:05 - src.app_final_vue - INFO - [RESPONSE #12] GET vue_api.processing_progress -> 200 (255 chars)
 2025-10-25 18:44:35 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:45:05 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:45:05 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:45:35 - src.app_final_vue - INFO - [RESPONSE #16] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:46:05 - src.app_final_vue - INFO - [RESPONSE #17] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:46:05 - src.app_final_vue - INFO - [RESPONSE #18] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:46:35 - src.app_final_vue - INFO - [RESPONSE #19] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:47:05 - src.app_final_vue - INFO - [RESPONSE #20] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:47:06 - src.app_final_vue - INFO - [RESPONSE #21] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:47:36 - src.app_final_vue - INFO - [RESPONSE #22] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:48:05 - src.app_final_vue - INFO - [RESPONSE #23] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:48:06 - src.app_final_vue - INFO - [RESPONSE #24] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:48:36 - src.app_final_vue - INFO - [RESPONSE #25] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:49:05 - src.app_final_vue - INFO - [RESPONSE #26] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:49:06 - src.app_final_vue - INFO - [RESPONSE #27] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:49:36 - src.app_final_vue - INFO - [RESPONSE #28] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:50:00 - src.memory_monitor - INFO - Memory usage: 113.8MB (0.7%)
+2025-10-25 18:50:05 - src.app_final_vue - INFO - [RESPONSE #29] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:06 - src.app_final_vue - INFO - [RESPONSE #30] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:50:29 - src.app_final_vue - INFO - [RESPONSE #31] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:31 - src.app_final_vue - INFO - [RESPONSE #32] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:32 - src.app_final_vue - INFO - [RESPONSE #33] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:33 - src.app_final_vue - INFO - [RESPONSE #34] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:34 - src.app_final_vue - INFO - [RESPONSE #35] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:35 - src.app_final_vue - INFO - [RESPONSE #36] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:36 - src.app_final_vue - INFO - [RESPONSE #37] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:36 - src.app_final_vue - INFO - [RESPONSE #38] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:50:37 - src.app_final_vue - INFO - [RESPONSE #39] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:37 - src.app_final_vue - INFO - [RESPONSE #40] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:38 - src.app_final_vue - INFO - [RESPONSE #41] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:39 - src.app_final_vue - INFO - [RESPONSE #42] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:40 - src.app_final_vue - INFO - [RESPONSE #43] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:41 - src.app_final_vue - INFO - [RESPONSE #44] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:42 - src.app_final_vue - INFO - [RESPONSE #45] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:43 - src.app_final_vue - INFO - [RESPONSE #46] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:44 - src.app_final_vue - INFO - [RESPONSE #47] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:45 - src.app_final_vue - INFO - [RESPONSE #48] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:46 - src.app_final_vue - INFO - [RESPONSE #49] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:47 - src.app_final_vue - INFO - [RESPONSE #50] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:48 - src.app_final_vue - INFO - [RESPONSE #51] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:49 - src.app_final_vue - INFO - [RESPONSE #52] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:50 - src.app_final_vue - INFO - [RESPONSE #53] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:51 - src.app_final_vue - INFO - [RESPONSE #54] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:52 - src.app_final_vue - INFO - [RESPONSE #55] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:53 - src.app_final_vue - INFO - [RESPONSE #56] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:54 - src.app_final_vue - INFO - [RESPONSE #57] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:55 - src.app_final_vue - INFO - [RESPONSE #58] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:56 - src.app_final_vue - INFO - [RESPONSE #59] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:57 - src.app_final_vue - INFO - [RESPONSE #60] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:58 - src.app_final_vue - INFO - [RESPONSE #61] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:50:59 - src.app_final_vue - INFO - [RESPONSE #62] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:01 - src.app_final_vue - INFO - [RESPONSE #63] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:02 - src.app_final_vue - INFO - [RESPONSE #64] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:03 - src.app_final_vue - INFO - [RESPONSE #65] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:04 - src.app_final_vue - INFO - [RESPONSE #66] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:05 - src.app_final_vue - INFO - [RESPONSE #67] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:06 - src.app_final_vue - INFO - [RESPONSE #68] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:07 - src.app_final_vue - INFO - [RESPONSE #69] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:51:07 - src.app_final_vue - INFO - [RESPONSE #70] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:08 - src.app_final_vue - INFO - [RESPONSE #71] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:09 - src.app_final_vue - INFO - [RESPONSE #72] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:10 - src.app_final_vue - INFO - [RESPONSE #73] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:11 - src.app_final_vue - INFO - [RESPONSE #74] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 9edbf7e9-fc42-4aa3-82a0-26c9eec813b4] ===
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request 9edbf7e9-fc42-4aa3-82a0-26c9eec813b4] Method: POST
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request 9edbf7e9-fc42-4aa3-82a0-26c9eec813b4] URL: http://wolf.law.uw.edu/casestrainer/api/analyze
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request 9edbf7e9-fc42-4aa3-82a0-26c9eec813b4] Content-Type: application/json
+2025-10-25 18:51:12 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request client-1761418272119-xvn0wyusy] Using client-provided request_id for progress tracking
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request client-1761418272119-xvn0wyusy] Processing JSON input
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request client-1761418272119-xvn0wyusy] Processing url input
+2025-10-25 18:51:12 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:51:12 - src.vue_api_endpoints_updated - INFO - [Request client-1761418272119-xvn0wyusy] Using UnifiedInputProcessor for url input
+2025-10-25 18:51:12 - src.app_final_vue - INFO - [RESPONSE #75] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🚀 process_any_input CALLED!
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Processing url input
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Input data type: <class 'str'>
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Input data length: 50
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Source name: None, Force mode: None
+2025-10-25 18:51:12 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 📥 Calling _extract_text_from_input...
+2025-10-25 18:51:12 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Extracting text from URL: https://courts.ms.gov/images/Opinions/CO186333.pdf
+2025-10-25 18:51:12 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Validating URL...
+2025-10-25 18:51:12 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] URL validation passed, fetching content...
+2025-10-25 18:51:12 - src.progress_manager - INFO - Fetching URL: https://courts.ms.gov/images/Opinions/CO186333.pdf
+2025-10-25 18:51:12 - src.progress_manager - WARNING - SSL verification failed for https://courts.ms.gov/images/Opinions/CO186333.pdf (attempt 1), trying without verification: HTTPSConnectionPool(host='courts.ms.gov', port=443): Max retries exceeded with url: /images/Opinions/CO186333.pdf (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1017)')))
+2025-10-25 18:51:12 - src.progress_manager - INFO - Successfully fetched https://courts.ms.gov/images/Opinions/CO186333.pdf without SSL verification
+2025-10-25 18:51:12 - src.progress_manager - INFO - Response status: 200
+2025-10-25 18:51:12 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-25 18:51:13 - src.progress_manager - INFO - Extracting PDF from URL using extract_text_from_pdf_smart()
+2025-10-25 18:51:13 - src.robust_pdf_extractor - INFO - PDF extraction libraries available: fitz, pdfplumber, pypdf, PyPDF2, pdfminer
+2025-10-25 18:51:13 - src.robust_pdf_extractor - INFO - ✅ PDF extracted in 0.1s using fitz
+2025-10-25 18:51:13 - src.progress_manager - INFO - Successfully extracted 23846 characters from URL PDF
+2025-10-25 18:51:13 - src.progress_manager - INFO - After preprocessing: 23301 characters
+2025-10-25 18:51:13 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Content fetched, length: 23301
+2025-10-25 18:51:13 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Successfully extracted 23301 characters from URL
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] ✅ _extract_text_from_input returned: success=True
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🎬 _process_citations_unified CALLED!
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Processing citations from url
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Text length: 23301 characters
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Text preview: IN THE SUPREME COURT OF MISSISSIPPI NO. 2024-IA-00194-SCT PALMER’S GROCERY INC. d/b/a PALMER’S SHOPPERS VALUE FOODS, JASON PALMER AND DAMON PALMER v. CHANDLER’S JKE, INC., ROBERT W. CHANDLER, JR. AND ...
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] Input metadata: {'input_type': 'url', 'url': 'https://courts.ms.gov/images/Opinions/CO186333.pdf', 'url_domain': 'courts.ms.gov', 'content_length': 23301, 'source': 'url_fetch'}
+2025-10-25 18:51:13 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Checking if should process immediately...
+2025-10-25 18:51:13 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-25 18:51:13 - src.api.services.citation_service - INFO - Text size 23301 bytes >= 5120 bytes - using ASYNC processing
+2025-10-25 18:51:13 - src.unified_input_processor - INFO - [Unified Processor client-1761418272119-xvn0wyusy] Should process immediately: False
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 📝 Text length: 23301 chars
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 📋 Source: url, Input type from metadata: url
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] ✅ Imported RQ and Redis modules
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🔍 Trying 3 Redis configurations...
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 🎯 Creating queue 'casestrainer'...
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] ✅ Queue created successfully
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] 📤 About to enqueue job...
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy]    Function: src.progress_manager.process_citation_task_direct
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy]    Args: (client-1761418272119-xvn0wyusy, 'text', {text: 23301 chars})
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy]    Job ID: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:13 - rq.queue - DEBUG - Pushed job client-1761418272119-xvn0wyusy into casestrainer
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy] ✅ Task enqueued successfully!
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy]    Job ID: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:13 - src.unified_input_processor - ERROR - [Unified Processor client-1761418272119-xvn0wyusy]    Job status: queued
+2025-10-25 18:51:13 - src.app_final_vue - INFO - [RESPONSE #76] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - [Request client-1761418272119-xvn0wyusy] Request completed successfully in 1435ms
+2025-10-25 18:51:13 - src.app_final_vue - INFO - [RESPONSE #77] POST vue_api.analyze -> 200 (1529 chars)
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:13 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:13 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:13 - src.app_final_vue - INFO - [RESPONSE #78] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:13 - src.app_final_vue - INFO - [RESPONSE #79] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:14 - src.app_final_vue - INFO - [RESPONSE #80] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:15 - src.app_final_vue - INFO - [RESPONSE #81] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:15 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:15 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:15 - src.app_final_vue - INFO - [RESPONSE #82] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:15 - src.app_final_vue - INFO - [RESPONSE #83] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:16 - src.app_final_vue - INFO - [RESPONSE #84] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:17 - src.app_final_vue - INFO - [RESPONSE #85] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:17 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:17 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:17 - src.app_final_vue - INFO - [RESPONSE #86] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:17 - src.app_final_vue - INFO - [RESPONSE #87] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:18 - src.app_final_vue - INFO - [RESPONSE #88] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:19 - src.app_final_vue - INFO - [RESPONSE #89] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:19 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:19 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:19 - src.app_final_vue - INFO - [RESPONSE #90] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:19 - src.app_final_vue - INFO - [RESPONSE #91] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:20 - src.app_final_vue - INFO - [RESPONSE #92] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:21 - src.app_final_vue - INFO - [RESPONSE #93] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:21 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:21 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:21 - src.app_final_vue - INFO - [RESPONSE #94] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:21 - src.app_final_vue - INFO - [RESPONSE #95] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:22 - src.app_final_vue - INFO - [RESPONSE #96] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:23 - src.app_final_vue - INFO - [RESPONSE #97] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:23 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:23 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:23 - src.app_final_vue - INFO - [RESPONSE #98] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:23 - src.app_final_vue - INFO - [RESPONSE #99] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:24 - src.app_final_vue - INFO - [RESPONSE #100] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:25 - src.app_final_vue - INFO - [RESPONSE #101] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:25 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:25 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:25 - src.app_final_vue - INFO - [RESPONSE #102] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:25 - src.app_final_vue - INFO - [RESPONSE #103] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:26 - src.app_final_vue - INFO - [RESPONSE #104] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:27 - src.app_final_vue - INFO - [RESPONSE #105] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:27 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:27 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:27 - src.app_final_vue - INFO - [RESPONSE #106] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:27 - src.app_final_vue - INFO - [RESPONSE #107] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:28 - src.app_final_vue - INFO - [RESPONSE #108] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:29 - src.app_final_vue - INFO - [RESPONSE #109] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:29 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:29 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:29 - src.app_final_vue - INFO - [RESPONSE #110] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:29 - src.app_final_vue - INFO - [RESPONSE #111] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:30 - src.app_final_vue - INFO - [RESPONSE #112] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:31 - src.app_final_vue - INFO - [RESPONSE #113] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:31 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:31 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:31 - src.app_final_vue - INFO - [RESPONSE #114] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:31 - src.app_final_vue - INFO - [RESPONSE #115] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:32 - src.app_final_vue - INFO - [RESPONSE #116] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:33 - src.app_final_vue - INFO - [RESPONSE #117] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:33 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:33 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:33 - src.app_final_vue - INFO - [RESPONSE #118] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:33 - src.app_final_vue - INFO - [RESPONSE #119] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:34 - src.app_final_vue - INFO - [RESPONSE #120] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:35 - src.app_final_vue - INFO - [RESPONSE #121] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:35 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:35 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:35 - src.app_final_vue - INFO - [RESPONSE #122] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:35 - src.app_final_vue - INFO - [RESPONSE #123] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:36 - src.app_final_vue - INFO - [RESPONSE #124] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:37 - src.app_final_vue - INFO - [RESPONSE #125] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:51:37 - src.app_final_vue - INFO - [RESPONSE #126] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:37 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:37 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:37 - src.app_final_vue - INFO - [RESPONSE #127] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:37 - src.app_final_vue - INFO - [RESPONSE #128] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:38 - src.app_final_vue - INFO - [RESPONSE #129] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:39 - src.app_final_vue - INFO - [RESPONSE #130] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:39 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:39 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:39 - src.app_final_vue - INFO - [RESPONSE #131] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:39 - src.app_final_vue - INFO - [RESPONSE #132] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:40 - src.app_final_vue - INFO - [RESPONSE #133] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:41 - src.app_final_vue - INFO - [RESPONSE #134] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:41 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:41 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:41 - src.app_final_vue - INFO - [RESPONSE #135] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:41 - src.app_final_vue - INFO - [RESPONSE #136] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:42 - src.app_final_vue - INFO - [RESPONSE #137] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:43 - src.app_final_vue - INFO - [RESPONSE #138] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:43 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:43 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:43 - src.app_final_vue - INFO - [RESPONSE #139] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:43 - src.app_final_vue - INFO - [RESPONSE #140] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:44 - src.app_final_vue - INFO - [RESPONSE #141] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:45 - src.app_final_vue - INFO - [RESPONSE #142] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:45 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:45 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:45 - src.app_final_vue - INFO - [RESPONSE #143] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:45 - src.app_final_vue - INFO - [RESPONSE #144] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:46 - src.app_final_vue - INFO - [RESPONSE #145] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:47 - src.app_final_vue - INFO - [RESPONSE #146] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:47 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:47 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:47 - src.app_final_vue - INFO - [RESPONSE #147] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:47 - src.app_final_vue - INFO - [RESPONSE #148] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:48 - src.app_final_vue - INFO - [RESPONSE #149] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:49 - src.app_final_vue - INFO - [RESPONSE #150] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:49 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:49 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:49 - src.app_final_vue - INFO - [RESPONSE #151] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:49 - src.app_final_vue - INFO - [RESPONSE #152] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:50 - src.app_final_vue - INFO - [RESPONSE #153] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:51 - src.app_final_vue - INFO - [RESPONSE #154] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:51 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:51 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:51 - src.app_final_vue - INFO - [RESPONSE #155] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:51 - src.app_final_vue - INFO - [RESPONSE #156] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:52 - src.app_final_vue - INFO - [RESPONSE #157] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:53 - src.app_final_vue - INFO - [RESPONSE #158] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:53 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:53 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:53 - src.app_final_vue - INFO - [RESPONSE #159] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:53 - src.app_final_vue - INFO - [RESPONSE #160] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:54 - src.app_final_vue - INFO - [RESPONSE #161] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:55 - src.app_final_vue - INFO - [RESPONSE #162] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:55 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:55 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:55 - src.app_final_vue - INFO - [RESPONSE #163] GET vue_api.task_status -> 200 (157 chars)
+2025-10-25 18:51:55 - src.app_final_vue - INFO - [RESPONSE #164] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:56 - src.app_final_vue - INFO - [RESPONSE #165] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:57 - src.app_final_vue - INFO - [RESPONSE #166] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Checking status for task_id: client-1761418272119-xvn0wyusy
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Connecting to Redis at: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Successfully connected to Redis
+2025-10-25 18:51:57 - rq.queue - DEBUG - Getting jobs for queue casestrainer: 0 found.
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Found 0 jobs in queue. Job IDs: []
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: started
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy meta: {}
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_finished: False
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_failed: False
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_started: True
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy is_queued: False
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy result type: <class 'dict'>
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy result keys: dict_keys(['success', 'task_id', 'status', 'result'])
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy citations count: 0
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy clusters count: 0
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy success: True
+2025-10-25 18:51:57 - src.vue_api_endpoints_updated - INFO - Job client-1761418272119-xvn0wyusy status: completed
+2025-10-25 18:51:57 - src.app_final_vue - INFO - [RESPONSE #167] GET vue_api.task_status -> 200 (17340 chars)
+2025-10-25 18:51:58 - src.app_final_vue - INFO - [RESPONSE #168] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:51:59 - src.app_final_vue - INFO - [RESPONSE #169] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:05 - src.app_final_vue - INFO - [RESPONSE #170] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:07 - src.app_final_vue - INFO - [RESPONSE #171] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:52:37 - src.app_final_vue - INFO - [RESPONSE #172] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:52:56 - src.app_final_vue - INFO - [RESPONSE #173] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:56 - src.app_final_vue - INFO - [RESPONSE #174] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:57 - src.app_final_vue - INFO - [RESPONSE #175] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:58 - src.app_final_vue - INFO - [RESPONSE #176] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:52:59 - src.app_final_vue - INFO - [RESPONSE #177] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:00 - src.app_final_vue - INFO - [RESPONSE #178] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:01 - src.app_final_vue - INFO - [RESPONSE #179] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:02 - src.app_final_vue - INFO - [RESPONSE #180] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:03 - src.app_final_vue - INFO - [RESPONSE #181] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:04 - src.app_final_vue - INFO - [RESPONSE #182] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:05 - src.app_final_vue - INFO - [RESPONSE #183] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:06 - src.app_final_vue - INFO - [RESPONSE #184] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:07 - src.app_final_vue - INFO - [RESPONSE #185] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:07 - src.app_final_vue - INFO - [RESPONSE #186] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:53:08 - src.app_final_vue - INFO - [RESPONSE #187] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:09 - src.app_final_vue - INFO - [RESPONSE #188] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:10 - src.app_final_vue - INFO - [RESPONSE #189] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:11 - src.app_final_vue - INFO - [RESPONSE #190] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:12 - src.app_final_vue - INFO - [RESPONSE #191] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:13 - src.app_final_vue - INFO - [RESPONSE #192] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:14 - src.app_final_vue - INFO - [RESPONSE #193] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:15 - src.app_final_vue - INFO - [RESPONSE #194] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:16 - src.app_final_vue - INFO - [RESPONSE #195] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:17 - src.app_final_vue - INFO - [RESPONSE #196] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:18 - src.app_final_vue - INFO - [RESPONSE #197] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:19 - src.app_final_vue - INFO - [RESPONSE #198] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:20 - src.app_final_vue - INFO - [RESPONSE #199] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:21 - src.app_final_vue - INFO - [RESPONSE #200] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:22 - src.app_final_vue - INFO - [RESPONSE #201] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:23 - src.app_final_vue - INFO - [RESPONSE #202] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:24 - src.app_final_vue - INFO - [RESPONSE #203] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:25 - src.app_final_vue - INFO - [RESPONSE #204] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:26 - src.app_final_vue - INFO - [RESPONSE #205] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:27 - src.app_final_vue - INFO - [RESPONSE #206] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:28 - src.app_final_vue - WARNING - [RESPONSE #207] GET None -> 404 (22 chars)
+2025-10-25 18:53:28 - src.app_final_vue - INFO - [RESPONSE #208] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:29 - src.app_final_vue - INFO - [RESPONSE #209] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:30 - src.app_final_vue - INFO - [RESPONSE #210] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:31 - src.app_final_vue - INFO - [RESPONSE #211] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:32 - src.app_final_vue - INFO - [RESPONSE #212] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:33 - src.app_final_vue - INFO - [RESPONSE #213] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:34 - src.app_final_vue - INFO - [RESPONSE #214] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:35 - src.app_final_vue - INFO - [RESPONSE #215] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:36 - src.app_final_vue - INFO - [RESPONSE #216] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:37 - src.app_final_vue - INFO - [RESPONSE #217] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:37 - src.app_final_vue - INFO - [RESPONSE #218] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:53:38 - src.app_final_vue - INFO - [RESPONSE #219] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:39 - src.app_final_vue - INFO - [RESPONSE #220] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:40 - src.app_final_vue - INFO - [RESPONSE #221] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:41 - src.app_final_vue - INFO - [RESPONSE #222] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:42 - src.app_final_vue - INFO - [RESPONSE #223] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:43 - src.app_final_vue - INFO - [RESPONSE #224] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:44 - src.app_final_vue - INFO - [RESPONSE #225] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:45 - src.app_final_vue - INFO - [RESPONSE #226] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:46 - src.app_final_vue - INFO - [RESPONSE #227] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:47 - src.app_final_vue - INFO - [RESPONSE #228] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:48 - src.app_final_vue - INFO - [RESPONSE #229] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:49 - src.app_final_vue - INFO - [RESPONSE #230] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:50 - src.app_final_vue - INFO - [RESPONSE #231] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:51 - src.app_final_vue - INFO - [RESPONSE #232] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:52 - src.app_final_vue - INFO - [RESPONSE #233] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:53 - src.app_final_vue - INFO - [RESPONSE #234] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:54 - src.app_final_vue - INFO - [RESPONSE #235] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:55 - src.app_final_vue - INFO - [RESPONSE #236] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:56 - src.app_final_vue - INFO - [RESPONSE #237] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:57 - src.app_final_vue - INFO - [RESPONSE #238] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:58 - src.app_final_vue - INFO - [RESPONSE #239] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:53:59 - src.app_final_vue - INFO - [RESPONSE #240] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:00 - src.app_final_vue - INFO - [RESPONSE #241] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:01 - src.app_final_vue - INFO - [RESPONSE #242] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:02 - src.app_final_vue - INFO - [RESPONSE #243] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:03 - src.app_final_vue - INFO - [RESPONSE #244] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:04 - src.app_final_vue - INFO - [RESPONSE #245] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:05 - src.app_final_vue - INFO - [RESPONSE #246] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:06 - src.app_final_vue - INFO - [RESPONSE #247] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:07 - src.app_final_vue - INFO - [RESPONSE #248] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:08 - src.app_final_vue - INFO - [RESPONSE #249] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:54:08 - src.app_final_vue - INFO - [RESPONSE #250] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:09 - src.app_final_vue - INFO - [RESPONSE #251] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:10 - src.app_final_vue - INFO - [RESPONSE #252] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:11 - src.app_final_vue - INFO - [RESPONSE #253] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:12 - src.app_final_vue - INFO - [RESPONSE #254] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:13 - src.app_final_vue - INFO - [RESPONSE #255] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:14 - src.app_final_vue - INFO - [RESPONSE #256] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:15 - src.app_final_vue - INFO - [RESPONSE #257] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:16 - src.app_final_vue - INFO - [RESPONSE #258] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:17 - src.app_final_vue - INFO - [RESPONSE #259] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:18 - src.app_final_vue - INFO - [RESPONSE #260] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:19 - src.app_final_vue - INFO - [RESPONSE #261] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:20 - src.app_final_vue - INFO - [RESPONSE #262] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:21 - src.app_final_vue - INFO - [RESPONSE #263] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:22 - src.app_final_vue - INFO - [RESPONSE #264] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:23 - src.app_final_vue - INFO - [RESPONSE #265] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:24 - src.app_final_vue - INFO - [RESPONSE #266] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:25 - src.app_final_vue - INFO - [RESPONSE #267] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:26 - src.app_final_vue - INFO - [RESPONSE #268] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:27 - src.app_final_vue - INFO - [RESPONSE #269] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:28 - src.app_final_vue - INFO - [RESPONSE #270] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:29 - src.app_final_vue - INFO - [RESPONSE #271] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:30 - src.app_final_vue - INFO - [RESPONSE #272] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:31 - src.app_final_vue - INFO - [RESPONSE #273] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:32 - src.app_final_vue - INFO - [RESPONSE #274] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:33 - src.app_final_vue - INFO - [RESPONSE #275] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:34 - src.app_final_vue - INFO - [RESPONSE #276] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:35 - src.app_final_vue - INFO - [RESPONSE #277] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:36 - src.app_final_vue - INFO - [RESPONSE #278] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:37 - src.app_final_vue - INFO - [RESPONSE #279] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:38 - src.app_final_vue - INFO - [RESPONSE #280] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:54:38 - src.app_final_vue - INFO - [RESPONSE #281] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:39 - src.app_final_vue - INFO - [RESPONSE #282] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:40 - src.app_final_vue - INFO - [RESPONSE #283] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:41 - src.app_final_vue - INFO - [RESPONSE #284] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:42 - src.app_final_vue - INFO - [RESPONSE #285] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:43 - src.app_final_vue - INFO - [RESPONSE #286] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:44 - src.app_final_vue - INFO - [RESPONSE #287] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:45 - src.app_final_vue - INFO - [RESPONSE #288] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:46 - src.app_final_vue - INFO - [RESPONSE #289] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:47 - src.app_final_vue - INFO - [RESPONSE #290] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:48 - src.app_final_vue - INFO - [RESPONSE #291] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:49 - src.app_final_vue - INFO - [RESPONSE #292] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:50 - src.app_final_vue - INFO - [RESPONSE #293] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:51 - src.app_final_vue - INFO - [RESPONSE #294] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:52 - src.app_final_vue - INFO - [RESPONSE #295] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:53 - src.app_final_vue - INFO - [RESPONSE #296] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:54 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
+2025-10-25 18:54:56 - root - INFO - Configured case_name_extraction logger to level: INFO (20)
+2025-10-25 18:54:56 - src.app_final_vue - INFO - === Logging Configuration ===
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Python version: 3.10.19 (main, Oct 21 2025, 02:10:12) [GCC 14.2.0]
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Working directory: /app
+2025-10-25 18:54:56 - src.app_final_vue - INFO - ✅ PDFMiner DEBUG logging suppressed
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Configuration loaded successfully
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Creating new Flask application instance
+2025-10-25 18:54:56 - src.app_final_vue - INFO - 🔍 Starting memory monitoring...
+2025-10-25 18:54:56 - src.memory_monitor - INFO - Memory monitoring started (threshold: 1024MB, interval: 60s)
+2025-10-25 18:54:56 - src.app_final_vue - INFO - ✅ Memory monitoring started
+2025-10-25 18:54:56 - src.app_final_vue - INFO - === STARTING BLUEPRINT REGISTRATION ===
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Current working directory: /app
+2025-10-25 18:54:56 - src.app_final_vue - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-25 18:54:56 - src.api.blueprints - INFO - === REGISTERING BLUEPRINTS ===
+2025-10-25 18:54:56 - src.api.blueprints - INFO - Current working directory: /app
+2025-10-25 18:54:56 - src.api.blueprints - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-25 18:54:56 - src.api.blueprints - INFO - Attempting to import Vue API blueprint...
+2025-10-25 18:54:56 - root - WARNING - [DEBUG] sys.executable: /usr/local/bin/python3.10
+2025-10-25 18:54:56 - root - WARNING - [DEBUG] sys.path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2025-10-25 18:54:57 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:54:57 - src.api.blueprints - INFO - ✅ Successfully imported Vue API blueprint from UPDATED endpoints (production version)
+2025-10-25 18:54:57 - src.api.blueprints - INFO - Blueprint details: <Blueprint 'vue_api'>
+2025-10-25 18:54:57 - src.api.blueprints - INFO - - Name: vue_api
+2025-10-25 18:54:57 - src.api.blueprints - INFO - - Import Name: src.vue_api_endpoints_updated
+2025-10-25 18:54:57 - src.api.blueprints - INFO - Registering Vue API blueprint...
+2025-10-25 18:54:57 - src.api.blueprints - INFO - ✅ Vue API blueprint registered successfully
+2025-10-25 18:54:57 - src.api.blueprints - INFO - 
+=== CURRENTLY REGISTERED BLUEPRINTS ===
+2025-10-25 18:54:57 - src.api.blueprints - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-10-25 18:54:57 - src.api.blueprints - INFO -   - URL Prefix: None
+2025-10-25 18:54:57 - src.api.blueprints - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-10-25 18:54:57 - src.app_final_vue - INFO - ✅ Successfully registered all blueprints
+2025-10-25 18:54:57 - src.app_final_vue - INFO - ✅ Vue API blueprint registered successfully
+2025-10-25 18:54:57 - src.app_final_vue - INFO - === REGISTERED BLUEPRINTS ===
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api: <Blueprint 'vue_api'>
+2025-10-25 18:54:57 - src.app_final_vue - INFO -   - URL Prefix: None
+2025-10-25 18:54:57 - src.app_final_vue - INFO -   - Import Name: src.vue_api_endpoints_updated
+2025-10-25 18:54:57 - src.app_final_vue - INFO - 
+=== REGISTERED ROUTES ===
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - static: /casestrainer/<path:filename> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.analyze: /casestrainer/api/analyze (POST, OPTIONS)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.progress_stream: /casestrainer/api/analyze/progress-stream/<request_id> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.verification_results: /casestrainer/api/analyze/verification-results/<request_id> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.verification_status: /casestrainer/api/analyze/verification-status/<request_id> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.verification_stream: /casestrainer/api/analyze/verification-stream/<request_id> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.health_check_alias: /casestrainer/api/casestrainer/api/health (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.db_stats: /casestrainer/api/db_stats (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.processing_progress: /casestrainer/api/processing_progress (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - - vue_api.task_status: /casestrainer/api/task_status/<task_id> (OPTIONS, HEAD, GET)
+2025-10-25 18:54:57 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu', 'http://localhost:5000', 'http://localhost:8080']
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Upload directory ready: /app/uploads
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Secure upload directory setup completed: /app/uploads
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Application routes registered
+2025-10-25 18:54:57 - src.app_final_vue - INFO - === REGISTERED ROUTES ===
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/<path:filename> -> Endpoint: static
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/health -> Endpoint: vue_api.health_check
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health -> vue_api.health_check (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/casestrainer/api/health -> Endpoint: vue_api.health_check_alias
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/casestrainer/api/health -> vue_api.health_check_alias (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/db_stats -> Endpoint: vue_api.db_stats
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/db_stats -> vue_api.db_stats (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: vue_api.analyze
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> vue_api.analyze (methods: {'POST', 'OPTIONS'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/task_status/<task_id> -> Endpoint: vue_api.task_status
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/task_status/<task_id> -> vue_api.task_status (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/processing_progress -> Endpoint: vue_api.processing_progress
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/processing_progress -> vue_api.processing_progress (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<request_id> -> Endpoint: vue_api.progress_stream
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<request_id> -> vue_api.progress_stream (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-stream/<request_id> -> Endpoint: vue_api.verification_stream
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-stream/<request_id> -> vue_api.verification_stream (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-status/<request_id> -> Endpoint: vue_api.verification_status
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-status/<request_id> -> vue_api.verification_status (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-results/<request_id> -> Endpoint: vue_api.verification_results
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-results/<request_id> -> vue_api.verification_results (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/ -> Endpoint: serve_vue_app
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/<path:path> -> Endpoint: serve_vue_app
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /test -> Endpoint: test
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/routes -> Endpoint: list_routes
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/routes -> list_routes (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/memory -> Endpoint: memory_status
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory -> memory_status (methods: {'OPTIONS', 'HEAD', 'GET'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Route: /casestrainer/api/memory/force-gc -> Endpoint: force_garbage_collection
+2025-10-25 18:54:57 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory/force-gc -> force_garbage_collection (methods: {'POST', 'OPTIONS'})
+2025-10-25 18:54:57 - src.app_final_vue - INFO - Flask application created successfully
+2025-10-25 18:54:57 - waitress - INFO - Serving on http://0.0.0.0:5000
+2025-10-25 18:54:57 - src.app_final_vue - INFO - [RESPONSE #1] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:58 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:54:59 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:55:00 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:55:00 - src.database_manager - INFO - Updated existing citations table schema
+2025-10-25 18:55:00 - src.database_manager - INFO - Database indexes created/verified
+2025-10-25 18:55:01 - src.database_manager - INFO - Database initialized with optimizations: /app/data/citations.db
+2025-10-25 18:55:01 - src.app_final_vue - INFO - [RESPONSE #5] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:55:01 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:55:02 - src.app_final_vue - INFO - [RESPONSE #7] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:55:03 - src.app_final_vue - INFO - [RESPONSE #8] GET vue_api.processing_progress -> 200 (255 chars)
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 4a590235-d716-4f21-8541-d877ac3efd90] ===
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request 4a590235-d716-4f21-8541-d877ac3efd90] Method: POST
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request 4a590235-d716-4f21-8541-d877ac3efd90] URL: http://localhost:5000/casestrainer/api/analyze
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request 4a590235-d716-4f21-8541-d877ac3efd90] Content-Type: application/json
+2025-10-25 18:55:27 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request test-cross-contamination-fix] Using client-provided request_id for progress tracking
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request test-cross-contamination-fix] Processing JSON input
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request test-cross-contamination-fix] Processing url input
+2025-10-25 18:55:27 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:55:27 - src.vue_api_endpoints_updated - INFO - [Request test-cross-contamination-fix] Using UnifiedInputProcessor for url input
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🚀 process_any_input CALLED!
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Processing url input
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Input data type: <class 'str'>
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Input data length: 50
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Source name: None, Force mode: None
+2025-10-25 18:55:27 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 📥 Calling _extract_text_from_input...
+2025-10-25 18:55:27 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Extracting text from URL: https://courts.ms.gov/images/Opinions/CO186333.pdf
+2025-10-25 18:55:27 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Validating URL...
+2025-10-25 18:55:27 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] URL validation passed, fetching content...
+2025-10-25 18:55:27 - src.progress_manager - INFO - Fetching URL: https://courts.ms.gov/images/Opinions/CO186333.pdf
+2025-10-25 18:55:27 - src.progress_manager - WARNING - SSL verification failed for https://courts.ms.gov/images/Opinions/CO186333.pdf (attempt 1), trying without verification: HTTPSConnectionPool(host='courts.ms.gov', port=443): Max retries exceeded with url: /images/Opinions/CO186333.pdf (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1017)')))
+2025-10-25 18:55:28 - src.progress_manager - INFO - Successfully fetched https://courts.ms.gov/images/Opinions/CO186333.pdf without SSL verification
+2025-10-25 18:55:28 - src.progress_manager - INFO - Response status: 200
+2025-10-25 18:55:28 - src.progress_manager - INFO - Content type: application/pdf
+2025-10-25 18:55:28 - src.progress_manager - INFO - Extracting PDF from URL using extract_text_from_pdf_smart()
+2025-10-25 18:55:30 - src.robust_pdf_extractor - INFO - PDF extraction libraries available: fitz, pdfplumber, pypdf, PyPDF2, pdfminer
+2025-10-25 18:55:30 - src.robust_pdf_extractor - INFO - ✅ PDF extracted in 0.1s using fitz
+2025-10-25 18:55:30 - src.progress_manager - INFO - Successfully extracted 23846 characters from URL PDF
+2025-10-25 18:55:30 - src.progress_manager - INFO - After preprocessing: 23301 characters
+2025-10-25 18:55:30 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Content fetched, length: 23301
+2025-10-25 18:55:30 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Successfully extracted 23301 characters from URL
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] ✅ _extract_text_from_input returned: success=True
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🎬 _process_citations_unified CALLED!
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Processing citations from url
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Text length: 23301 characters
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Text preview: IN THE SUPREME COURT OF MISSISSIPPI NO. 2024-IA-00194-SCT PALMER’S GROCERY INC. d/b/a PALMER’S SHOPPERS VALUE FOODS, JASON PALMER AND DAMON PALMER v. CHANDLER’S JKE, INC., ROBERT W. CHANDLER, JR. AND ...
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] Input metadata: {'input_type': 'url', 'url': 'https://courts.ms.gov/images/Opinions/CO186333.pdf', 'url_domain': 'courts.ms.gov', 'content_length': 23301, 'source': 'url_fetch'}
+2025-10-25 18:55:30 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Checking if should process immediately...
+2025-10-25 18:55:30 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-25 18:55:30 - src.api.services.citation_service - INFO - Text size 23301 bytes >= 5120 bytes - using ASYNC processing
+2025-10-25 18:55:30 - src.unified_input_processor - INFO - [Unified Processor test-cross-contamination-fix] Should process immediately: False
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 📝 Text length: 23301 chars
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 📋 Source: url, Input type from metadata: url
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] ✅ Imported RQ and Redis modules
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🔍 Trying 3 Redis configurations...
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🔗 Attempt 1: Connecting to redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] ✅ Connected to Redis: redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 🎯 Creating queue 'casestrainer'...
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] ✅ Queue created successfully
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] 📤 About to enqueue job...
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix]    Function: src.progress_manager.process_citation_task_direct
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix]    Args: (test-cross-contamination-fix, 'text', {text: 23301 chars})
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix]    Job ID: test-cross-contamination-fix
+2025-10-25 18:55:30 - rq.queue - DEBUG - Pushed job test-cross-contamination-fix into casestrainer
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix] ✅ Task enqueued successfully!
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix]    Job ID: test-cross-contamination-fix
+2025-10-25 18:55:30 - src.unified_input_processor - ERROR - [Unified Processor test-cross-contamination-fix]    Job status: queued
+2025-10-25 18:55:31 - src.vue_api_endpoints_updated - INFO - [Request test-cross-contamination-fix] Request completed successfully in 3412ms
+2025-10-25 18:55:31 - src.app_final_vue - INFO - [RESPONSE #9] POST vue_api.analyze -> 200 (1520 chars)
+2025-10-25 18:55:31 - src.app_final_vue - INFO - [RESPONSE #10] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:56:01 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - === ANALYZE ENDPOINT CALLED [Request ID: 0154de22-0a2c-4c90-bc77-13ce1fdc4832] ===
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request 0154de22-0a2c-4c90-bc77-13ce1fdc4832] Method: POST
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request 0154de22-0a2c-4c90-bc77-13ce1fdc4832] URL: http://localhost:5000/casestrainer/api/analyze
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request 0154de22-0a2c-4c90-bc77-13ce1fdc4832] Content-Type: application/json
+2025-10-25 18:56:23 - src.redis_distributed_processor - INFO - Redis connection established
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request test-specific-cross-contamination] Using client-provided request_id for progress tracking
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request test-specific-cross-contamination] Processing JSON input
+2025-10-25 18:56:23 - src.api.services.citation_service - INFO - [CitationService] Using automatic sync/async routing based on content size
+2025-10-25 18:56:23 - src.api.services.citation_service - INFO - Text size 124 bytes < 5120 bytes - using SYNC processing
+2025-10-25 18:56:23 - src.vue_api_endpoints_updated - INFO - [Request test-specific-cross-contamination] Processing JSON text immediately (short text)
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - Eyecite successfully imported
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - Comprehensive websearch engine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - Citation utils successfully imported
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - Models successfully imported
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - Citation clustering successfully imported (unified_clustering_master)
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - Citation clustering utilities import failed with unexpected error: expected an indented block after 'if' statement on line 486 (citation_clustering.py, line 487)
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - Canonical case name service import failed with unexpected error: expected an indented block after 'if' statement on line 498 (canonical_case_name_service.py, line 499)
+2025-10-25 18:56:23 - src.api.services.citation_service - INFO - [CitationService] Using UnifiedCitationProcessorV2 for immediate processing
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - [DEBUG] ENTERED UnifiedCitationProcessorV2.__init__
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - [CONFIG-CHECK] extract_case_names=True, extract_dates=True
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - ComprehensiveWebSearchEngine not available: No module named 'src.comprehensive_websearch_engine'
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - [DEBUG] EXITED UnifiedCitationProcessorV2.__init__
+2025-10-25 18:56:23 - src.api.services.citation_service - INFO - [CitationService] Processing 124 characters for immediate processing
+2025-10-25 18:56:23 - asyncio - DEBUG - Using selector: EpollSelector
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting unified citation processing pipeline
+2025-10-25 18:56:23 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-25 18:56:23 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:23 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Starting CLEAN extraction pipeline for 100% accuracy
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Using shared citation patterns from citation_patterns.py
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Starting clean extraction pipeline for 124 chars
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] EYECITE_AVAILABLE = True
+2025-10-25 18:56:23 - src.citation_extractor - INFO - Eyecite successfully imported
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Preprocessing: 124 -> 112 chars (removed 12 chars)
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [EYECITE] Starting eyecite extraction for 112 chars
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [EYECITE] Eyecite found 2 raw citations
+2025-10-25 18:56:23 - src.clean_extraction_pipeline - INFO - [EYECITE-META] Raw from eyecite: Co. v. Reid Bros. Logging Co.
+2025-10-25 18:56:24 - src.services.citation_extractor - INFO - Eyecite successfully imported for CitationExtractor
+2025-10-25 18:56:24 - src.services.citation_extractor - INFO - Adaptive learning service available for CitationExtractor
+2025-10-25 18:56:24 - src.unified_case_extraction_master - INFO - UnifiedCaseExtractionMaster initialized - all duplicates deprecated
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [CLEAN-DELEGATE] 'Co. v. Reid Bros. Logging Co.' -> 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [EYECITE-META] After cleaning: A & G Constr. Co. v. Reid Bros. Logging Co.
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [EYECITE-META] Extracted year: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [EYECITE-META] Extracted year: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Eyecite found 2 citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Regex found 1 citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 1: Found 2 total citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 2: 2 after deduplication
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extracting case names for 2 citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Keeping eyecite name for 547 P.2d 1207: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.utils.unified_case_name_extractor - INFO - [UNIFIED-EXTRACT] Starting strict extraction for 32 So. 3d 496 at pos 90-103
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Found 1 citation positions
+2025-10-25 18:56:24 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Found 1 total citation positions in document
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - ERROR - [PAREN-DEBUG] Found '(' but has ')' between - not in parenthetical
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - DEBUG - [STRICT-CONTEXT] Citation at 90-103: context from 60 to 90 (29 chars)
+2025-10-25 18:56:24 - src.utils.unified_case_name_extractor - DEBUG - [UNIFIED-EXTRACT] Isolated context for 32 So. 3d 496: 29 chars
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - ERROR - [STRICT-EXTRACT-DEBUG] Citation: 32 So. 3d 496
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - ERROR - [STRICT-EXTRACT-DEBUG] Context (29 chars): '(1976). State v. Bayer Corp.,'
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - ERROR - [FIX #13] No case numbers found to clean in context
+2025-10-25 18:56:24 - src.utils.strict_context_isolator - INFO - [STRICT-EXTRACT] Extracted 'State v. Bayer Corp.' for 32 So. 3d 496 using pattern 1
+2025-10-25 18:56:24 - src.utils.unified_case_name_extractor - INFO - [UNIFIED-EXTRACT-SUCCESS] 32 So. 3d 496 → 'State v. Bayer Corp.'
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Extracted: 32 So. 3d 496 → 'State v. Bayer Corp.'
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Extraction complete: 2 with names (1 from eyecite), 0 failed
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - [DEBUG-ALL-DATES] Logging ALL citations with their extracted dates:
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - [ALL-DATES] 547 P.2d 1207                  → Date: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - [ALL-DATES] 32 So. 3d 496                  → Date: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 3: Case names extracted for all citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - [DEBUG-BEFORE-DATE-EXTRACT] Dates BEFORE _extract_all_dates:
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Skipping date extraction for 547 P.2d 1207 - already has: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - DEBUG - [CLEAN-PIPELINE] Skipping date extraction for 32 So. 3d 496 - already has: 1976
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 4: Dates extracted for all citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CITATION-GROUPS] Detecting citation groups in 2 citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CITATION-GROUPS] Found 0 groups, shared names with 0 citations
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Step 4.5: Shared case names within citation groups
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - [DEBUG-AFTER-DATE-EXTRACT] Dates AFTER _extract_all_dates:
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - ERROR - ================================================================================
+2025-10-25 18:56:24 - src.clean_extraction_pipeline - INFO - [CLEAN-PIPELINE] Pipeline complete: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Clean pipeline extracted 2 citations with 100% accuracy
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 1 complete: 2 citations extracted
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - 🎯🎯🎯 [MASTER_EXTRACT ENTRY] citation='547 P.2d 1207', start_index=46
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '547 P.2d 1207', Start: 46, Text len: 124
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '
+    A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: 'o., 547 P.2d 1207 (1976).
+    State v. Bayer Corp.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 FAIL] No comma found in '
+    A & G Constr. Co. v. Reid Bros. Logging C' - falling back
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 46
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 50
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 112
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - WARNING - 🔍 [MASTER-EXTRACT] For '547 P.2d 1207': master_name='A & G Constr. Co. v. Reid Bros. Logging Co.', method='pattern_fallback'
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - WARNING - ✅ [EXTRACT-M1] Master SUCCESS: 'A & G Constr. Co. v. Reid Bros. Logging Co.' for 547 P.2d 1207
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'A & G Constr. Co. v. Reid Bros. Logging Co' for 547 P.2d 1207
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - 🎯🎯🎯 [MASTER_EXTRACT ENTRY] citation='32 So. 3d 496', start_index=90
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '32 So. 3d 496', Start: 90, Text len: 124
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '
+    A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).
+    State v. Bayer'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: ' Corp., 32 So. 3d 496 (2010).
+    '
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 48 (citation at 90)
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 48 chars (window: 600)
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+    A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 43 chars
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #8] Found 1 candidate case names
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR -   Candidate 1: 'A & G Constr. Co. v. Reid Bros. Logging Co.' (distance: 0, priority: 2, boundary: False)
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #8 SELECTED] Best match: 'A & G Constr. Co. v. Reid Bros. Logging Co.' (score: 2000)
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #8 EXTRACTED] Raw: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #8 CLEANED] After clean: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #8 VALIDATION FAIL] Doesn't look like case name: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 90
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 98
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 112
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - WARNING - 🔍 [MASTER-EXTRACT] For '32 So. 3d 496': master_name='A & G Constr. Co. v. Reid Bros. Logging Co.', method='pattern_fallback'
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - WARNING - ✅ [EXTRACT-M1] Master SUCCESS: 'A & G Constr. Co. v. Reid Bros. Logging Co.' for 32 So. 3d 496
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [EXTRACT-SUCCESS] Set 'A & G Constr. Co. v. Reid Bros. Logging Co' for 32 So. 3d 496
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 2: Detecting parallel citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Analyzing 2 citations for parallel relationships
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found parallel group: ['547 P.2d 1207', '32 So. 3d 496']
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [PARALLEL_DETECTION] Found 1 parallel groups
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After parallel detection: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After bidirectional parallels: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After canonical propagation: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - False positive filter: 2 → 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After false positive filtering: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR - 🔍 [FIX #54] PRE-VERIFICATION CHECK:
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR -    enable_verification: True
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR -    citations count: 2
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR -    Will verification run: [CitationResult(citation='547 P.2d 1207', extracted_case_name='A & G Constr. Co. v. Reid Bros. Logging Co', extracted_date='1976', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.9, method='clean_pipeline_v1', pattern='', context='', start_index=46, end_index=59, is_parallel=True, is_cluster=False, parallel_citations=['32 So. 3d 496'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'eyecite', 'type': 'FullCaseCitation', 'eyecite_extracted': True}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None, name_mismatch=False, mismatch_confidence=0.0), CitationResult(citation='32 So. 3d 496', extracted_case_name='A & G Constr. Co. v. Reid Bros. Logging Co', extracted_date='1976', canonical_name=None, canonical_date=None, canonical_url=None, verified=False, url=None, court=None, docket_number=None, confidence=0.9, method='clean_pipeline_v1', pattern='', context='', start_index=90, end_index=103, is_parallel=True, is_cluster=False, parallel_citations=['547 P.2d 1207'], cluster_members=[], pinpoint_pages=[], docket_numbers=[], case_history=[], publication_status=None, source='Unknown', error=None, metadata={'detector': 'eyecite', 'type': 'FullCaseCitation', 'eyecite_extracted': False}, cluster_id=None, true_by_parallel=False, is_pinpoint=False, verification_citation=None, name_mismatch=False, mismatch_confidence=0.0)]
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 4.75: Verifying citations BEFORE clustering (CRITICAL)
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR - 🔥 [BATCH-VERIFY] Starting BATCH verification for 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [VERIFICATION] Using BATCH VERIFICATION (50 citations per API call)
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR - 🚫 [FIX #62] SKIPPING '547 P.2d 1207': verification_status=None, is_parallel=True
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - ERROR - 🚫 [FIX #62] SKIPPING '32 So. 3d 496': verification_status=None, is_parallel=True
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [BATCH-VERIFY] Completed all batches
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] After pre-clustering verification: 2 citations
+2025-10-25 18:56:24 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - UnifiedClusteringMaster initialized - all duplicate clusterers deprecated
+2025-10-25 18:56:24 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Found primary case (Strategy 2): 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_clustering_master - WARNING - [CONTAMINATION-FILTER] Document primary case detected: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🎯 [CLUSTER-ENTRY] Starting clustering: 2 citations, verification=True
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - 🎯 MASTER_CLUSTER: Starting clustering for 2 citations (verification: True)
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 1 - Detecting parallel citations
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔍 [CLUSTER-DEBUG] Input: 2 citations
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔍 [CLUSTER-DEBUG] Citation 1: 547 P.2d 1207, has_position=True, position=46
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔍 [CLUSTER-DEBUG] Citation 2: 32 So. 3d 496, has_position=True, position=90
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔥 [FIX #58D DEBUG] Eyecite parallel validation: similarity=1.00, threshold=0.95, name1='A & G Constr. Co. v. Reid Bros. Logging ', name2='A & G Constr. Co. v. Reid Bros. Logging '
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - ✅ [FIX #58D] ACCEPTED eyecite parallel - name match (1.00 >= 0.95)
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 parallel groups
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔍 [CLUSTER-DEBUG] Output: 1 parallel groups (expected < 2 if parallels detected)
+2025-10-25 18:56:24 - src.unified_clustering_master - ERROR - 🔍 [CLUSTER-DEBUG] Group 1 size: 2 citations
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 2 - Extracting and propagating metadata
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - [CLUSTERING-SKIP-TRUNCATED] Skipping truncated name: 'A & G Constr. Co. v. Reid Bros. Logging Co'
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - [CLUSTERING-SKIP-TRUNCATED] Skipping truncated name: 'A & G Constr. Co. v. Reid Bros. Logging Co'
+2025-10-25 18:56:24 - src.unified_clustering_master - INFO - [CLUSTERING-CLEAR-TRUNCATED] Clearing truncated name 'A & G Constr. Co. v. Reid Bros. Logging Co' - will re-extract
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - 🎯🎯🎯 [MASTER_EXTRACT ENTRY] citation='547 P.2d 1207', start_index=46
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '547 P.2d 1207', Start: 46, Text len: 124
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '
+    A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: 'o., 547 P.2d 1207 (1976).
+    State v. Bayer Corp.'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 FAIL] No comma found in '
+    A & G Constr. Co. v. Reid Bros. Logging C' - falling back
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 46
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:24 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging C' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging C'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 50
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 112
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - [CLUSTERING-REEXTRACTED] 'A & G Constr. Co. v. Reid Bros. Logging Co' -> 'A & G Constr. Co. v. Reid Bros. Logging Co.' for 547 P.2d 1207
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - [CLUSTERING-CLEAR-TRUNCATED] Clearing truncated name 'A & G Constr. Co. v. Reid Bros. Logging Co' - will re-extract
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Set document primary case: 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - 🎯🎯🎯 [MASTER_EXTRACT ENTRY] citation='32 So. 3d 496', start_index=90
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 ENTRY] Citation: '32 So. 3d 496', Start: 90, Text len: 124
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Pre-citation text: '
+    A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).
+    State v. Bayer'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 COMMA CHECK] Text at citation pos: ' Corp., 32 So. 3d 496 (2010).
+    '
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 SUCCESS] Found comma at position 48 (citation at 90)
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Length: 48 chars (window: 600)
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 CONTEXT] Last 100: '
+    A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 NORMALIZED] Length: 43 chars
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #8] Found 1 candidate case names
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR -   Candidate 1: 'A & G Constr. Co. v. Reid Bros. Logging Co.' (distance: 0, priority: 2, boundary: False)
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #8 SELECTED] Best match: 'A & G Constr. Co. v. Reid Bros. Logging Co.' (score: 2000)
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #8 EXTRACTED] Raw: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #8 CLEANED] After clean: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #8 VALIDATION FAIL] Doesn't look like case name: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 90
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #69 VALIDATE] Checking: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] Checking 'A & G Constr. Co. v. Reid Bros. Logging Co.' against primary 'A & G Constr. Co. v. Reid Bros. Logging Co., 547 P.2d 1207 (1976).'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING - [CONTAMINATION-FILTER] Plaintiff word match:
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Extracted: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - WARNING -   Matched word: 'constr' from plaintiff 'a & g constr co'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER] ✅ REJECTED: Matches document primary case
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CONTAMINATION-FILTER]    Rejected text: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 98
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [FIX #67] FILTERING CALLED! Context length: 112
+2025-10-25 18:56:25 - src.unified_case_extraction_master - ERROR - [CLEAN_DEBUG] FINAL cleaned: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - [CLUSTERING-REEXTRACTED] 'A & G Constr. Co. v. Reid Bros. Logging Co' -> 'A & G Constr. Co. v. Reid Bros. Logging Co.' for 32 So. 3d 496
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - [CLUSTERING-FALLBACK] Using non-truncated extracted name: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - 🔧 [STANDARDIZE-CLUSTER] Group has 2 cleaned names → using best: 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - 🔧 [STANDARDIZE-CLUSTER] Group has 2 extracted years → using best: '1976'
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR -    ✅ Keeping existing extracted_date: '1976' (not overwriting with '1976')
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR -    ✅ Keeping existing extracted_date: '1976' (not overwriting with '1976')
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Enhanced 2 citations
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 3 - Creating final clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Created 1 final clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4 - Applying verification
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - 🔥 [VERIFY-DEBUG] _apply_verification_to_clusters called: enable_verification=True, clusters=1
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - 🔥 [VERIFY-DEBUG] Verification ENABLED - proceeding with 1 clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - 🚀 BATCH VERIFICATION: Verifying 2 citations in single batch API call
+2025-10-25 18:56:25 - src.unified_verification_master - INFO - UnifiedVerificationMaster initialized - API key loaded (length: 40)
+2025-10-25 18:56:25 - src.unified_verification_master - INFO - All duplicate verifiers deprecated
+2025-10-25 18:56:25 - src.unified_verification_master - INFO - Max verification retries set to: 3
+2025-10-25 18:56:25 - asyncio - DEBUG - Using selector: EpollSelector
+2025-10-25 18:56:25 - src.unified_verification_master - INFO - 🎯 MASTER_BATCH_VERIFY: Starting batch verification of 2 citations
+2025-10-25 18:56:25 - src.unified_verification_master - INFO - Processing batch 1/1 (2 citations)
+2025-10-25 18:56:25 - src.unified_verification_master - INFO -  Normalized 2 citations for batch verification
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Sending 2 citations
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3: ['547 P.2d 1207', '32 So. 3d 496']
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] API Key set: True
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Session has Auth header: True
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Auth header: Token 443a87912e4f44...
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Response status: 200
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] Received 2 results
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-API-DEBUG] First 3 returned: ['547 P.2d 1207', '32 So. 3d 496']
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 547 P.2d 1207: status=200, clusters=1
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 547 P.2d 1207: Using single cluster directly
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 547 P.2d 1207: matched_cluster=YES
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - 🔍 [TOP-LEVEL] 547 P.2d 1207: Found case_name = A & G Const. Co., Inc. v. Reid Brothers Logging Co., Inc.
+2025-10-25 18:56:25 - src.unified_verification_master - WARNING - ❌ REJECTING SUSPICIOUS MATCH for 547 P.2d 1207: Low similarity (0.46) between canonical 'A & G Const. Co., Inc. v. Reid Brothers Logging Co., Inc.' and extracted 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_verification_master - WARNING -    CourtListener returned wrong case - skipping this result
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 32 So. 3d 496: status=200, clusters=1
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 32 So. 3d 496: Using single cluster directly
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - [BATCH-DEBUG] 32 So. 3d 496: matched_cluster=YES
+2025-10-25 18:56:25 - src.unified_verification_master - ERROR - 🔍 [TOP-LEVEL] 32 So. 3d 496: Found case_name = State v. Bayer Corp.
+2025-10-25 18:56:25 - src.unified_verification_master - WARNING - ❌ REJECTING SUSPICIOUS MATCH for 32 So. 3d 496: Low similarity (0.08) between canonical 'State v. Bayer Corp.' and extracted 'A & G Constr. Co. v. Reid Bros. Logging Co.'
+2025-10-25 18:56:25 - src.unified_verification_master - WARNING -    CourtListener returned wrong case - skipping this result
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - MASTER_CLUSTER: Error in verification: division by zero
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4.5 - Validating canonical consistency (Fix #22)
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - 🔍 [PROXIMITY-CHECK] 2 citations, distance=44 chars, is_close=True
+2025-10-25 18:56:25 - src.unified_clustering_master - DEBUG - ✅ [FIX #48] Cluster validation: 1 extracted group(s) - keeping intact
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - 🔍 FIX #48: EXTRACTED data validation: 1 input clusters → 1 output clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: After canonical validation: 1 clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 4.6 - Enriching dates from canonical data
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Date enrichment complete
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5 - Merging and deduplicating
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Final result: 1 clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Step 5.5 - Validating cluster integrity
+2025-10-25 18:56:25 - src.unified_clustering_master - ERROR - ✅ [PROXIMITY-OVERRIDE] Cluster with 2 citations within 44 chars and matching canonical names - definitely parallel
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - MASTER_CLUSTER: Validated 1 clusters
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - 🔍 CLUSTER_FORMAT: Checking citation 547 P.2d 1207 - verified=False, has_canonical=False
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - 🔍 CLUSTER_FORMAT: Checking citation 32 So. 3d 496 - verified=False, has_canonical=False
+2025-10-25 18:56:25 - src.unified_clustering_master - WARNING - ⚠️ CLUSTER_FORMAT: No best_verified found for cluster cluster_1 with 2 citations
+2025-10-25 18:56:25 - src.unified_clustering_master - INFO - ✅ MASTER_CLUSTER: Completed clustering in 0.67s - 1 clusters
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Created 1 clusters using MASTER clustering
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 5.5: Updating citations with cluster information
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - ERROR - 🔍 [PHASE-5.5-DEBUG] Processing 1 clusters
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - ERROR - 🔍 [PHASE-5.5-DEBUG] Cluster cluster_1: Extracted dates=['1976', '1976'], using=1976
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - ERROR - 🔍 [PHASE-5.5-DEBUG] Cluster cluster_1: 2 citations
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - ERROR - 🔍 [PHASE-5.5-DEBUG]   547 P.2d 1207: verified=False, canonical_date=None
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - ERROR - 🔍 [PHASE-5.5-DEBUG]   32 So. 3d 496: verified=False, canonical_date=None
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - DEBUG - [PHASE-5.5] Synchronized extracted_date=1976 for 547 P.2d 1207
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - DEBUG - [PHASE-5.5] Synchronized extracted_date=1976 for 32 So. 3d 496
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Updated 2 citations with cluster information
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 6: Verification already completed before clustering
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Phase 7: Validating cluster consistency
+2025-10-25 18:56:25 - src.unified_citation_processor_v2 - INFO - [UNIFIED_PIPELINE] Pipeline complete: 2 final citations, 1 clusters
+2025-10-25 18:56:25 - src.api.services.citation_service - INFO - [CitationService] Immediate processing completed via UnifiedCitationProcessorV2 in 0.000s
+2025-10-25 18:56:25 - src.models - DEBUG - DATA_SEPARATION: case_name='A & G Constr. Co. v. Reid Bros. Logging Co.', cluster='A & G Constr. Co. v. Reid Bros. Logging Co.', extracted='A & G Constr. Co. v. Reid Bros. Logging Co.', canonical='None'
+2025-10-25 18:56:25 - src.models - DEBUG - DATA_SEPARATION: case_name='A & G Constr. Co. v. Reid Bros. Logging Co.', cluster='A & G Constr. Co. v. Reid Bros. Logging Co.', extracted='A & G Constr. Co. v. Reid Bros. Logging Co.', canonical='None'
+2025-10-25 18:56:25 - src.vue_api_endpoints_updated - ERROR - [Request test-specific-cross-contamination] Data integrity validation failed: ["Missing cluster definitions for IDs: ['cluster_1']"]
+2025-10-25 18:56:25 - src.vue_api_endpoints_updated - INFO - [Request test-specific-cross-contamination] Request completed successfully in 2594ms
+2025-10-25 18:56:25 - src.app_final_vue - INFO - [RESPONSE #12] POST vue_api.analyze -> 200 (4789 chars)
+2025-10-25 18:56:31 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:57:01 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:57:32 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.health_check -> 200 (447 chars)
+2025-10-25 18:57:35 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
