@@ -207,6 +207,16 @@ def extract_case_name_from_strict_context(
     logger.error(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
     logger.error(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-200:]}'")  # Last 200 chars
     
+    # CRITICAL: Normalize Unicode characters BEFORE pattern matching
+    # Convert smart quotes and apostrophes to ASCII equivalents
+    context = context.replace('\u2019', "'")  # Right single quotation mark → apostrophe
+    context = context.replace('\u2018', "'")  # Left single quotation mark → apostrophe
+    context = context.replace('\u201C', '"')  # Left double quotation mark
+    context = context.replace('\u201D', '"')  # Right double quotation mark
+    context = context.replace('\u00B4', "'")  # Acute accent → apostrophe
+    context = context.replace('\u0060', "'")  # Grave accent → apostrophe
+    context = context.replace('\u00A0', ' ')  # Non-breaking space → space
+    
     # CRITICAL: Remove signal words and case history notations BEFORE pattern matching
     
     # FIRST: Remove entire lines containing legal concepts that aren't case names
@@ -268,10 +278,11 @@ def extract_case_name_from_strict_context(
         # Matches: "In re: The PEOPLE of the State of Colorado v. Regina M. SPRINKLE"
         r'In\s+re:\s+([A-Z][A-Z\s\'&\-\.,]+)\s+v\.\s+([A-Z][A-Z\s\'&\-\.,]+)(?:\s*[;\(]|,\s*\d|$)',
         
-        # PRIORITY 3: Standard "v." pattern - GREEDY to capture full names
-        # USER FIX: Made patterns GREEDY to capture full legal names instead of simplified versions
+        # PRIORITY 3: Standard "v." pattern - BALANCED to capture reasonable names
         # Stop at semicolon or opening paren to prevent cross-citation contamination
-        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[;\(]|,\s*\d|$)',
+        # Reduced from 200 to 100 characters to be more selective and avoid long lookback
+        # Unicode characters are normalized to ASCII before this pattern is applied
+        r'([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100})\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,100})(?:\s*[;\(]|,\s*\d|$)',
         
         # PRIORITY 4: In re/Matter of/Estate of patterns
         r'(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)',
@@ -286,12 +297,30 @@ def extract_case_name_from_strict_context(
     
     for pattern_idx, pattern in enumerate(patterns, 1):
         try:
-            # Look for matches, preferring the LAST one (closest to citation)
+            # Look for matches - find ALL matches
             matches = list(re.finditer(pattern, context, re.IGNORECASE))
             if not matches:
                 continue
             
-            match = matches[-1]  # Take the last (closest) match
+            # USER FIX 2024-10-26: Take the match CLOSEST to the end of context (closest to citation)
+            # Calculate distance from end of context for each match
+            context_length = len(context)
+            best_match = None
+            best_distance = float('inf')
+            
+            for match in matches:
+                # Distance from end of context = how far from the citation
+                match_end = match.end()
+                distance_from_end = context_length - match_end
+                
+                if distance_from_end < best_distance:
+                    best_distance = distance_from_end
+                    best_match = match
+            
+            if best_match is None:
+                continue
+            
+            match = best_match  # Use the closest match to citation
             
             if pattern_idx in [1, 2, 3]:  # Patterns with 2 groups (plaintiff v. defendant)
                 plaintiff = match.group(1).strip()

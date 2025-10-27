@@ -38,6 +38,8 @@ STATE_REPORTERS = {
     
     # Florida
     'Fla.': {'state': 'Florida', 'court_url': 'https://www.flcourts.org/'},
+    'Fla. Sup. Ct.': {'state': 'Florida', 'court_url': 'https://www.flcourts.org/'},
+    'Fla. DCA': {'state': 'Florida', 'court_url': 'https://www.flcourts.org/'},
     
     # Georgia
     'Ga.': {'state': 'Georgia', 'court_url': 'https://www.gasupreme.us/'},
@@ -51,6 +53,7 @@ STATE_REPORTERS = {
     
     # Illinois
     'Ill.': {'state': 'Illinois', 'court_url': 'https://www.illinoiscourts.gov/'},
+    'IL': {'state': 'Illinois', 'court_url': 'https://www.illinoiscourts.gov/'},
     'N.E.': {'states': ['Illinois', 'Indiana', 'Massachusetts', 'New York', 'Ohio'], 'reporter': 'North Eastern Reporter'},
     
     # Indiana
@@ -104,6 +107,8 @@ STATE_REPORTERS = {
     
     # New Jersey
     'N.J.': {'state': 'New Jersey', 'court_url': 'https://www.njcourts.gov/'},
+    'N.J. Sup. Ct.': {'state': 'New Jersey', 'court_url': 'https://www.njcourts.gov/'},
+    'N.J. App. Div.': {'state': 'New Jersey', 'court_url': 'https://www.njcourts.gov/'},
     
     # New Mexico
     'N.M.': {'state': 'New Mexico', 'court_url': 'https://www.nmcourts.gov/'},
@@ -144,6 +149,7 @@ STATE_REPORTERS = {
     
     # Texas
     'Tex.': {'state': 'Texas', 'court_url': 'https://www.txcourts.gov/'},
+    'Tex. App.': {'state': 'Texas', 'court_url': 'https://www.txcourts.gov/'},
     
     # Utah
     'Utah': {'state': 'Utah', 'court_url': 'https://www.utcourts.gov/'},
@@ -153,6 +159,7 @@ STATE_REPORTERS = {
     
     # Virginia
     'Va.': {'state': 'Virginia', 'court_url': 'https://www.vacourts.gov/'},
+    'Va. App.': {'state': 'Virginia', 'court_url': 'https://www.vacourts.gov/'},
     
     # Washington
     'Wash.': {'state': 'Washington', 'court_url': 'https://www.courts.wa.gov/'},

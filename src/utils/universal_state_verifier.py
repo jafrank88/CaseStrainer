@@ -363,3 +363,4 @@ class UniversalStateCourtVerifier:
             logger.debug(f"{state_name} database error: {e}")
         
         return {'verified': False}
+

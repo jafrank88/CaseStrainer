@@ -481,13 +481,16 @@ class CleanExtractionPipeline:
                         eyecite_case_name = self._clean_eyecite_case_name(eyecite_case_name, text_context=text)
                         logger.info(f"[EYECITE-META] Extracted plaintiff only: {eyecite_case_name}")
                     
+                    # FIX: Skip eyecite's year extraction - it's often wrong for complex citations
+                    # Eyecite was extracting 1976 for both citations in our test case
+                    # Let our custom date extraction handle this instead
                     if year:
-                        eyecite_date = str(year)
-                        logger.debug(f"[EYECITE-META] Extracted year: {eyecite_date}")
+                        logger.info(f"[EYECITE-SKIP] Eyecite found year '{year}' for {cit_text}, but will use better extraction instead")
+                        # DON'T set eyecite_date - let _extract_all_dates handle it
                         
                         # DEBUG: Track for problematic citations
                         if "388 P.3d 977" in cit_text:
-                            logger.error(f"🔍 [DEBUG-388] EYECITE provided year: {eyecite_date}")
+                            logger.error(f"🔍 [DEBUG-388] EYECITE provided year: {year} (skipped)")
                 
                 # FIX #13 DIAGNOSTIC: Log eyecite output for problematic citation
                 if "17 F.4th 901" in cit_text or "17 F. 4th 901" in cit_text:
@@ -743,12 +746,17 @@ class CleanExtractionPipeline:
                     logger.error(f"🔍 [DEBUG-388] RUNNING _extract_all_dates - no date set yet")
                 
                 if citation.start_index is not None and citation.end_index is not None:
-                    # Search context around citation
-                    search_start = max(0, citation.start_index - 100)
-                    search_end = min(len(text), citation.end_index + 300)
+                    # Search context around citation - USE SMALLER WINDOW TO PREVENT CROSS-CONTAMINATION
+                    search_start = max(0, citation.start_index - 50)  # Reduced from 100
+                    search_end = min(len(text), citation.end_index + 100)  # Reduced from 300
                     before_context = text[search_start:citation.start_index]
                     after_context = text[citation.end_index:search_end]
                     full_context = before_context + citation.citation + after_context
+                    
+                    # DEBUG: Log search window for cross-contamination debugging
+                    logger.debug(f"[CLEAN-PIPELINE] Citation '{citation.citation}' search window: {search_start}-{search_end}")
+                    logger.debug(f"[CLEAN-PIPELINE] Before context: '{before_context}'")
+                    logger.debug(f"[CLEAN-PIPELINE] After context: '{after_context}'")
                     
                     year_found = None
                     

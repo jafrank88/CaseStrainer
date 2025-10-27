@@ -281,6 +281,24 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
         except Exception as prop_error:
             logger.warning(f"[PRODUCTION] Parallel propagation failed (non-critical): {prop_error}")
         
+        # Filter out court-year-only and pin-only artifacts
+        try:
+            filtered = []
+            for cit in citation_dicts:
+                s = str(cit.get('citation') or '').strip()
+                if not s:
+                    continue
+                # Drop court-year only like "N.J. 1997" or "N.J. Super. 1997"
+                if re.match(r'^(N\.?J\.?)(?:\s+Super\.?\s*(?:Ct\.)?)?\s*\(?\d{4}\)?$', s, re.IGNORECASE):
+                    continue
+                # Drop pure pin cites like "274"
+                if re.match(r'^\d{1,4}$', s):
+                    continue
+                filtered.append(cit)
+            citation_dicts = filtered
+        except Exception:
+            pass
+        
         return {
             'citations': citation_dicts,
             'total': len(citations),
@@ -421,6 +439,76 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
         if enable_verification:
             verified_count = sum(1 for c in citations if c.get('verified', False))
             logger.info(f"[PRODUCTION] Step 3: Verification complete - {verified_count}/{len(citations)} verified")
+            # Fallback: If nothing got verified via clustering path, attempt a direct batch verify
+            if verified_count == 0 and citations:
+                try:
+                    logger.error("🔥 [VERIFY-FALLBACK] No verified citations after clustering. Running direct batch verification.")
+                    from src.unified_verification_master import get_master_verifier
+                    verifier = get_master_verifier()
+                    # Prepare inputs
+                    citation_texts = [c.get('citation') for c in citations]
+                    case_names = [c.get('extracted_case_name') for c in citations]
+                    case_dates = [c.get('extracted_date') for c in citations]
+                    # Run async batch from sync context (new event loop)
+                    import asyncio
+                    loop = None
+                    try:
+                        loop = asyncio.get_event_loop()
+                        if loop.is_running():
+                            from concurrent.futures import ThreadPoolExecutor
+                            def run_batch():
+                                new_loop = asyncio.new_event_loop()
+                                asyncio.set_event_loop(new_loop)
+                                try:
+                                    return new_loop.run_until_complete(
+                                        verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                                    )
+                                finally:
+                                    new_loop.close()
+                            with ThreadPoolExecutor(max_workers=1) as ex:
+                                results = ex.submit(run_batch).result(timeout=60.0)
+                        else:
+                            results = loop.run_until_complete(
+                                verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            )
+                    except RuntimeError:
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        try:
+                            results = loop.run_until_complete(
+                                verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            )
+                        finally:
+                            loop.close()
+                    # Apply results back to citations (by index order)
+                    for i, r in enumerate(results or []):
+                        if not isinstance(citations[i], dict):
+                            continue
+                        if getattr(r, 'verified', False):
+                            citations[i]['verified'] = True
+                            citations[i]['possible_match'] = False
+                            citations[i]['canonical_name'] = getattr(r, 'canonical_name', None)
+                            citations[i]['canonical_date'] = getattr(r, 'canonical_date', None)
+                            citations[i]['canonical_url'] = getattr(r, 'canonical_url', None)
+                            citations[i]['verification_source'] = getattr(r, 'source', None)
+                            citations[i]['verification_error'] = None
+                        elif getattr(r, 'possible_match', False):
+                            citations[i]['verified'] = False
+                            citations[i]['possible_match'] = True
+                            citations[i]['canonical_name'] = getattr(r, 'canonical_name', None)
+                            citations[i]['canonical_date'] = getattr(r, 'canonical_date', None)
+                            citations[i]['canonical_url'] = getattr(r, 'canonical_url', None)
+                            citations[i]['verification_source'] = getattr(r, 'source', None)
+                            citations[i]['verification_error'] = getattr(r, 'error', None)
+                        else:
+                            citations[i]['verified'] = False
+                            citations[i]['possible_match'] = False
+                            citations[i]['verification_source'] = getattr(r, 'source', None)
+                            citations[i]['verification_error'] = getattr(r, 'error', None)
+                    verified_count = sum(1 for c in citations if c.get('verified', False))
+                    logger.error(f"🔥 [VERIFY-FALLBACK] Direct batch verification done - {verified_count}/{len(citations)} verified")
+                except Exception as vf_err:
+                    logger.error(f"[VERIFY-FALLBACK] Direct verification failed: {vf_err}")
 
         # Step 3.5: Annotate mismatch flags and cluster summaries (backend-driven)
         try:

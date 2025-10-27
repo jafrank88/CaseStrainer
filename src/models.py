@@ -37,7 +37,9 @@ class CitationResult:
     is_pinpoint: bool = False
     verification_citation: Optional[str] = None
     name_mismatch: bool = False
+    date_mismatch: bool = False
     mismatch_confidence: float = 0.0
+    possible_match: bool = False
 
     def __post_init__(self):
         if self.parallel_citations is None:
@@ -114,7 +116,9 @@ class CitationResult:
             'true_by_parallel': self.true_by_parallel,
             'is_verified': self.verified,  # Add is_verified alias for backward compatibility
             'name_mismatch': self.name_mismatch,  # Flag when extracted ≠ canonical
-            'mismatch_confidence': self.mismatch_confidence  # How certain validation is
+            'date_mismatch': self.date_mismatch,
+            'mismatch_confidence': self.mismatch_confidence,
+            'possible_match': self.possible_match
         }
         return result
 

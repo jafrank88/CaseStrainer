@@ -1,0 +1,140 @@
+﻿[PHASE6-ENTRY] Comma anchor called for: 486 P.2d 906 at pos 17431
+[PHASE6-OK] Found comma in pre-text: '.310. Further, the substance of and justification for the repeal are consistent Kelly v. Zamarello, '
+[PHASE6-VALIDATION-START] Checking: 'Further, the substance of and justification for the repeal are consistent Kelly v. Zamarello'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'Further, the substance of and justification for the repeal are consistent Kelly v. Zamarello'
+[PHASE6-ENTRY] Comma anchor called for: 663 P.2d 923 at pos 22252
+[PHASE6-OK] Found comma in pre-text: 'o carry outö statute (quoting AS 38.05.020(b)(1))). 40 See, e.g., Chevron U.S.A., Inc. v. LeResche, '
+[PHASE6-VALIDATION-START] Checking: 'See, e.g., Chevron U.S.A., Inc. v. LeResche'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'See, e.g., Chevron U.S.A., Inc. v. LeResche'
+[PHASE6-ENTRY] Comma anchor called for: 996 P.2d 88 at pos 25654
+[PHASE6-OK] Found comma in pre-text: 'ation, however, because the regulatory action at issue here does not involve hunting or fishing. 46 '
+[PHASE6-VALIDATION-START] Checking: 'however'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 'use AS 16.20.510 grants the Boards authority to regulate hun'
+[PHASE6-PATTERN] NO patterns matched context: 'use AS 16.20.510 grants the Boards authority to regulate hun' - returning None (will fallback)
+[PHASE6-ENTRY] Comma anchor called for: 118 P.3d 1039 at pos 27654
+[PHASE6-OK] Found comma in pre-text: 'ligns with past Attorney General opinions, which ôare entitled to some deference.ö State v. Dupier, '
+[PHASE6-VALIDATION-START] Checking: 'Dupier'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 'ommissioner the authority to provide "written approval . . .'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=283, context_start=27354, match_pos=27637, start_index=27654, distance=17
+[PHASE6-VALIDATION-START] Checking: 'State v. Dupier'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'State v. Dupier'
+[PHASE6-ENTRY] Comma anchor called for: 703 A.2d 268 at pos 31738
+[PHASE6-OK] Found comma in pre-text: ' hunting, trapping, fishing, viewing, and photographyö). 60 See County of Hudson v. DepÆt of Corr., '
+[PHASE6-VALIDATION-START] Checking: 'County of Hudson v. Dep't of Corr.'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'County of Hudson v. Dep't of Corr.'
+[PHASE6-ENTRY] Comma anchor called for: 390 U.S. 747 at pos 32648
+[PHASE6-OK] Found comma in pre-text: ' policies to the demands of changing circumstancesÆ ö (quoting In re Permian Basin Area Rate Cases, '
+[PHASE6-VALIDATION-START] Checking: 'Ass'n of U.S., Inc. v. State Farm Mut. Auto Ins. Co.'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'Ass'n of U.S., Inc. v. State Farm Mut. Auto Ins. Co.'
+[PHASE6-ENTRY] Comma anchor called for: 749 P.2d 1342 at pos 34746
+[PHASE6-OK] Found comma in pre-text: 'erv. Emps. v. Mich. Civ. Serv. CommÆn, 226 N.W.2d 550, 552 (Mich. App. 1975). 63 State v. Anderson, '
+[PHASE6-VALIDATION-START] Checking: 'Serv. Emps. v. Mich. Civ. Serv. Comm'n'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'Serv. Emps. v. Mich. Civ. Serv. Comm'n'
+[PHASE6-ENTRY] Comma anchor called for: 486 P.2d 906 at pos 36346
+[PHASE6-OK] Found comma in pre-text: 'HA statutesÆ limited legislative history does not conflict with our reading. 65 Kelly v. Zamarello, '
+[PHASE6-VALIDATION-START] Checking: 'Zamarello'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 'and Commissioner significant discretion in determining what '
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=279, context_start=36046, match_pos=36325, start_index=36346, distance=21
+[PHASE6-VALIDATION-START] Checking: 'Kelly v. Zamarello'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'Kelly v. Zamarello'
+[PHASE6-ENTRY] Comma anchor called for: 537 P.3d 770 at pos 40123
+[PHASE6-OK] Found comma in pre-text: 'ing which uses are compatible with the primary conservation purpose of CHAs.77 See Guerin v. State, '
+[PHASE6-VALIDATION-START] Checking: 'State'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 'nly reasonable construction that can be placed on the statut'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=279, context_start=39823, match_pos=40102, start_index=40123, distance=21
+[PHASE6-VALIDATION-START] Checking: 'Guerin v. State'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'Guerin v. State'
+[PHASE6-ENTRY] Comma anchor called for: 864 P.2d 526 at pos 42546
+[PHASE6-OK] Found comma in pre-text: 'e that promoting public access is a See AS 16.20.510, .530. 79 See Rydwell v. Anchorage Sch. Dist., '
+[PHASE6-VALIDATION-START] Checking: 'Rydwell v. Anchorage Sch. Dist.'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'Rydwell v. Anchorage Sch. Dist.'
+[PHASE6-ENTRY] Comma anchor called for: 109 P.3d 924 at pos 44852
+[PHASE6-OK] Found comma in pre-text: ' that is compatible with the purpose for which the [CHA] is establishedö). 83 See Grunert v. State, '
+[PHASE6-VALIDATION-START] Checking: 'State'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-POSITION] Semicolon found at position 70 in context - using text after it
+[PHASE6-POSITION] Old context: ' with the purpose for which the [CHA] is established"). 83 See Grunert v. State,'
+[PHASE6-POSITION] New context (trimmed): 'AS 16.20.625(e) (directing ADF&G to permit "snowmachining, boating, and the landing of aircraft" in Redoubt Bay CHA "in a manner that is compatible with the purpose for which the [CHA] is established"). 83 See Grunert v. State'
+[PHASE6-POSITION] Adjusted context_start from 44552 to 44626
+[PHASE6-PATTERN] Starting pattern matching on context: 'AS 16.20.625(e) (directing ADF&G to permit "snowmachining, b'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=206, context_start=44626, match_pos=44832, start_index=44852, distance=20
+[PHASE6-VALIDATION-START] Checking: 'Grunert v. State'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'Grunert v. State'
+[PHASE6-ENTRY] Comma anchor called for: 471 P.3d 569 at pos 48496
+[PHASE6-OK] Found comma in pre-text: ' still be ôreasonable and not arbitrary.ö96 92 1972 H. Journal 1790. 93 See, e.g., Forrer v. State, '
+[PHASE6-VALIDATION-START] Checking: 'State'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 'Was Reasonable And Not Arbitrary. While the Commissioner has'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=271, context_start=48196, match_pos=48467, start_index=48496, distance=29
+[PHASE6-VALIDATION-START] Checking: 'See, e.g., Forrer v. State'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'See, e.g., Forrer v. State'
+[PHASE6-ENTRY] Comma anchor called for: 95 P.3d 924 at pos 54864
+[PHASE6-OK] Found comma in pre-text: 'gree with the State that this ôis a reasonable approach.ö 106 See Alaska Ctr. for the EnvÆt v. Rue, '
+[PHASE6-PATTERN] Starting pattern matching on context: 'fact were, prohibited in the Fox River Flats CHA. The Commis'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=261, context_start=54564, match_pos=54825, start_index=54864, distance=39
+[PHASE6-VALIDATION-START] Checking: 'Alaska Ctr. for the Env't v. Rue'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-ACCEPT] Passed all validation! Returning: 'Alaska Ctr. for the Env't v. Rue'
+[PHASE6-ENTRY] Comma anchor called for: 685 P.2d 715 at pos 60600
+[PHASE6-FAIL] No comma in 100 chars before 685 P.2d 715: ' (giving ôan interested personö right to petition agency for adoption or repeal of regulation). 110 '
+[PHASE6-POSITION] Semicolon found at position 186 in context - using text after it
+[PHASE6-POSITION] Old context: 'sted person" right to petition agency for adoption or repeal of regulation). 110'
+[PHASE6-POSITION] New context (trimmed): 'AS 44.62.220 (giving "an interested person" right to petition agency for adoption or repeal of regulation). 110'
+[PHASE6-POSITION] Adjusted context_start from 60300 to 60489
+[PHASE6-PATTERN] Starting pattern matching on context: 'AS 44.62.220 (giving "an interested person" right to petitio'
+[PHASE6-PATTERN] NO patterns matched context: 'AS 44.62.220 (giving "an interested person" right to petitio' - returning None (will fallback)
+[PHASE6-ENTRY] Comma anchor called for: 83 P.3d 1060 at pos 62606
+[PHASE6-OK] Found comma in pre-text: ' amount of public support before repealing the prohibition, 113 See State v. Kenaitze Indian Tribe, '
+[PHASE6-VALIDATION-START] Checking: 'State v. Kenaitze Indian Tribe'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'State v. Kenaitze Indian Tribe'
+[PHASE6-ENTRY] Comma anchor called for: 990 P.2d 1 at pos 62746
+[PHASE6-OK] Found comma in pre-text: 'e Manning v. State, DepÆt of Fish & Game, 355 P.3d 530, 536 (Alaska 2015). 115 Id. at 532, 536. 116 '
+[PHASE6-VALIDATION-START] Checking: 'Manning v. State, Dep't of Fish & Game'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'Manning v. State, Dep't of Fish & Game'
+[PHASE6-ENTRY] Comma anchor called for: 109 P.3d 924 at pos 68670
+[PHASE6-OK] Found comma in pre-text: 'tions, we would reject this argument for the same reasons as explained above. See Grunert v. State, '
+[PHASE6-VALIDATION-START] Checking: 'State'
+[PHASE6-VALIDATION-FAIL] No v. or special case pattern
+[PHASE6-PATTERN] Starting pattern matching on context: 't plan and cooperative agreement as a matter of law. Even as'
+[PHASE6-PATTERN] Pattern 0 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=177, context_start=68370, match_pos=68547, start_index=68670, distance=123
+[PHASE6-REJECT-PROXIMITY] Rejected: distance 123 > 100
+[PHASE6-PATTERN] Pattern 4 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=177, context_start=68370, match_pos=68547, start_index=68670, distance=123
+[PHASE6-REJECT-PROXIMITY] Rejected: distance 123 > 100
+[PHASE6-PATTERN] Pattern 7 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=177, context_start=68370, match_pos=68547, start_index=68670, distance=123
+[PHASE6-REJECT-PROXIMITY] Rejected: distance 123 > 100
+[PHASE6-PATTERN] Pattern 8 MATCHED! Extracting...
+[PHASE6-PROXIMITY] match.start()=177, context_start=68370, match_pos=68547, start_index=68670, distance=123
+[PHASE6-REJECT-PROXIMITY] Rejected: distance 123 > 100
+[PHASE6-PATTERN] NO patterns matched context: 't plan and cooperative agreement as a matter of law. Even as' - returning None (will fallback)
+[PHASE6-ENTRY] Comma anchor called for: N.J. 1997 at pos 31757
+[PHASE6-OK] Found comma in pre-text: ' fishing, viewing, and photographyö). 60 See County of Hudson v. DepÆt of Corr., 703 A.2d 268, 274 ('
+[PHASE6-VALIDATION-START] Checking: 'County of Hudson v. Dep't of Corr.'
+[PHASE6-VALIDATION-PASS] All checks passed!
+[PHASE6-RETURN] Comma anchor returning: 'County of Hudson v. Dep't of Corr.'
+{"cluster_count": 0, "mismatch_cluster_count": 0, "possible_match_count": 0, "mismatch_clusters": []}

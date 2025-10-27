@@ -112,3 +112,4 @@ python test_pdf_comprehensive.py
 - **Verification rate**: 60% verified (good for state court cases)
 
 The system is now more accurate and provides better information to users about the differences between simplified citations in briefs and full legal names in official records.
+

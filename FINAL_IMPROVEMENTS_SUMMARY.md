@@ -212,3 +212,4 @@ When using CaseStrainer with the improved system:
 The system is now **significantly more reliable** and **rejects false matches from CourtListener**. While the verification rate is lower (31%), **all verified cases are correct**, which is far better than having 69% with 37.5% being wrong.
 
 The main limitation is **CourtListener API reliability** for state courts, not CaseStrainer's logic. Future improvements should focus on adding state-specific verification sources.
+

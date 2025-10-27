@@ -476,13 +476,37 @@ class UnifiedCitationProcessorV2:
                 canonical_norm = self._normalize_case_name_for_comparison(canonical_name)
                 extracted_norm = self._normalize_case_name_for_comparison(extracted_name)
 
-                # Log the comparison but ALWAYS prefer CourtListener canonical data
-                if not self._case_names_match(canonical_norm, extracted_norm):
-                    logger.warning(f"⚠️ CourtListener canonical name differs from extracted: '{canonical_name}' vs extracted '{extracted_name}' for {citation.citation}")
-                    logger.warning(f"   Using CourtListener canonical data (more authoritative than extraction)")
+                # Compute an overlap similarity on normalized tokens
+                words1 = set(canonical_norm.split())
+                words2 = set(extracted_norm.split())
+                smaller = min(words1, words2, key=len) if words1 and words2 else set()
+                overlap = len(words1 & words2)
+                similarity = (overlap / len(smaller)) if smaller else 0.0
 
-                    # Use CourtListener canonical data (it's more authoritative than extraction)
-                    citation.canonical_name = canonical_name  # Always use CourtListener canonical
+                names_match_bool = self._case_names_match(canonical_norm, extracted_norm)
+                if not names_match_bool:
+                    logger.warning(f"⚠️ CourtListener canonical name differs from extracted: '{canonical_name}' vs extracted '{extracted_name}' for {citation.citation} (sim={similarity:.2f})")
+                    # Low-similarity guard: downgrade to possible_match instead of verified
+                    if similarity < 0.45 and hasattr(citation, '__dict__'):
+                        citation.canonical_name = canonical_name
+                        citation.canonical_date = verify_result.get("canonical_date")
+                        citation.url = verify_result.get("url")
+                        citation.verified = False
+                        citation.possible_match = True
+                        citation.source = source
+                        citation.metadata = citation.metadata or {}
+                        citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
+                        citation.metadata["canonical_name_validation"] = "possible_match_low_similarity"
+                        # Also tag mismatches coherently
+                        citation.name_mismatch = True
+                        # Confidence proportional to dissimilarity
+                        try:
+                            citation.mismatch_confidence = max(0.0, min(1.0, 1.0 - similarity))
+                        except Exception:
+                            citation.mismatch_confidence = 1.0
+                        return False
+                    # Otherwise, allow verification but note the mismatch
+                    citation.canonical_name = canonical_name
                     citation.canonical_date = verify_result.get("canonical_date")
                     citation.url = verify_result.get("url")
                     citation.verified = True
@@ -516,6 +540,32 @@ class UnifiedCitationProcessorV2:
             except Exception:
                 # Be conservative: do not break verification on fallback
                 pass
+
+            # NEW: Backend-driven mismatch tagging (name/date)
+            try:
+                # Name mismatch: only evaluate if both names present
+                if canonical_name and citation.extracted_case_name and citation.extracted_case_name.strip().upper() != 'N/A':
+                    can_norm = self._normalize_case_name_for_comparison(canonical_name)
+                    ext_norm = self._normalize_case_name_for_comparison(citation.extracted_case_name)
+                    names_match = self._case_names_match(can_norm, ext_norm)
+                    # Set flag; keep verification status as decided above
+                    if hasattr(citation, '__dict__'):
+                        citation.name_mismatch = not names_match
+                        # Provide a coarse confidence: 1.0 when clearly different, else 0.0
+                        citation.mismatch_confidence = 1.0 if not names_match else 0.0
+                # Date mismatch: compare years if both present
+                def _extract_year(val):
+                    if not val:
+                        return None
+                    import re
+                    m = re.search(r'(19|20)\d{2}', str(val))
+                    return m.group(0) if m else None
+                ext_year = _extract_year(getattr(citation, 'extracted_date', None))
+                can_year = _extract_year(getattr(citation, 'canonical_date', None))
+                if ext_year and can_year and hasattr(citation, '__dict__'):
+                    citation.date_mismatch = (ext_year != can_year)
+            except Exception as e:
+                logger.warning(f"[MISMATCH-TAGGING] Failed to tag mismatch for {getattr(citation, 'citation', 'unknown')}: {e}")
             return True
         else:
             # FIXED: Ensure unverified citations have consistent status
@@ -1237,11 +1287,13 @@ class UnifiedCitationProcessorV2:
                 
                 # DON'T set citation.extracted_case_name here - let _extract_metadata do it
                 
-                # Also extract year from eyecite metadata if available
+                # FIX: Also skip eyecite's year extraction - it's often wrong for complex citations
+                # Eyecite was extracting 1976 for both citations in our test case
+                # Let our custom date extraction handle this instead
                 eyecite_year = getattr(citation_obj.metadata, 'year', None)
                 if eyecite_year:
-                    citation.extracted_date = str(eyecite_year)
-                    logger.info(f"[EYECITE-EXTRACT] Set extracted_date from eyecite: '{eyecite_year}' for {citation.citation}")
+                    logger.info(f"[EYECITE-SKIP] Eyecite found year '{eyecite_year}' for {citation.citation}, but will use better extraction instead")
+                # DON'T set citation.extracted_date here - let _extract_all_dates do it
         except Exception as e:
             logger.debug(f"Error extracting eyecite metadata: {e}")
     

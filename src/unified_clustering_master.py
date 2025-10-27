@@ -24,7 +24,7 @@ import time
 from typing import Dict, Any, Optional, List, Union, Set, Tuple
 from dataclasses import dataclass
 from enum import Enum
-from collections import defaultdict, Counter
+from collections import defaultdict, Counter, deque
 
 logger = logging.getLogger(__name__)
 
@@ -69,7 +69,7 @@ class UnifiedClusteringMaster:
         self.debug_mode = self.config.get('debug_mode', False)
         self.min_cluster_size = self.config.get('min_cluster_size', 1)
         self.case_name_similarity_threshold = self.config.get('case_name_similarity_threshold', 0.95)  # FIX #58E: Raised from 0.6 to prevent different cases from clustering
-        self.proximity_threshold = self.config.get('proximity_threshold', 200)  # characters
+        self.proximity_threshold = self.config.get('proximity_threshold', 50)  # characters - USER FIX: Reduced from 200 to 50 for stricter proximity
         self.enable_verification = self.config.get('enable_verification', False)
         
         self._setup_patterns()
@@ -481,9 +481,17 @@ class UnifiedClusteringMaster:
                     has_semicolon_boundary = True
                     logger.error(f"[PROXIMITY-DEBUG] ❌ SEMICOLON BOUNDARY - citations separated")
             
+            # CRITICAL FIX: Check if citations are from the same case before grouping by proximity
+            are_same_case = self._are_citations_same_case(previous_citation, current_citation)
+            
             if distance <= self.proximity_threshold and not has_semicolon_boundary:
-                logger.error(f"[PROXIMITY-DEBUG] ✅ GROUPING citations (distance={distance} <= {self.proximity_threshold})")
-                current_group.append(current_citation)
+                if are_same_case:
+                    logger.error(f"[PROXIMITY-DEBUG] ✅ GROUPING citations (distance={distance} <= {self.proximity_threshold}) - same case")
+                    current_group.append(current_citation)
+                else:
+                    logger.error(f"[PROXIMITY-DEBUG] ❌ NOT GROUPING - different cases despite proximity (distance={distance})")
+                    groups.append(current_group)
+                    current_group = [current_citation]
             else:
                 logger.error(f"[PROXIMITY-DEBUG] ❌ NEW GROUP (distance={distance} > {self.proximity_threshold} OR semicolon={has_semicolon_boundary})")
                 groups.append(current_group)
@@ -587,8 +595,10 @@ class UnifiedClusteringMaster:
         name1 = get_case_name(citation1)
         name2 = get_case_name(citation2)
         
-        # Must have case names to compare
+        # CRITICAL: MUST have case names to safely group citations
+        # If we can't compare names, DO NOT group them (too risky!)
         if not name1 or not name2:
+            logger.warning(f"[SAME-CASE-CHECK] Missing case names - {name1} vs {name2} - REJECTING grouping")
             return False
         
         # Normalize case names for comparison
@@ -597,23 +607,36 @@ class UnifiedClusteringMaster:
         
         # Check case name similarity
         if name1_norm != name2_norm:
+            # CRITICAL: For clustering, we need EXTREMELY strict matching
+            # Two citations from different cases should NEVER be grouped together
             similarity = self._calculate_case_name_similarity(name1_norm, name2_norm)
-            if similarity < 0.9:  # Require high similarity
+            logger.error(f"[SAME-CASE-CHECK] Comparing: '{name1_norm}' vs '{name2_norm}' (similarity={similarity:.2f})")
+            if similarity < 0.98:  # USER FIX: Increased from 0.95 to 0.98 for ultra-strict matching (>98% overlap)
+                logger.warning(f"[SAME-CASE-CHECK] REJECTING grouping - similarity {similarity:.2f} < 0.98")
                 return False
+            else:
+                logger.error(f"[SAME-CASE-CHECK] ACCEPTING grouping - similarity {similarity:.2f} >= 0.98")
         
         # Check date compatibility
         date1 = get_date(citation1)
         date2 = get_date(citation2)
         
+        logger.error(f"[SAME-CASE-CHECK] Dates: '{date1}' vs '{date2}'")
+        
         if date1 and date2:
             try:
                 year1 = int(str(date1)[:4])  # Extract year
                 year2 = int(str(date2)[:4])
-                if abs(year1 - year2) > 1:  # Allow 1 year difference
+                year_diff = abs(year1 - year2)
+                logger.error(f"[SAME-CASE-CHECK] Years: {year1} vs {year2} (diff={year_diff})")
+                if year_diff > 1:  # Allow 1 year difference
+                    logger.warning(f"[SAME-CASE-CHECK] REJECTING grouping - year difference {year_diff} > 1")
                     return False
-            except (ValueError, TypeError):
+            except (ValueError, TypeError) as e:
+                logger.error(f"[SAME-CASE-CHECK] Date parsing failed: {e}")
                 return False
         
+        logger.error(f"[SAME-CASE-CHECK] ✅ FINAL APPROVAL - citations are from same case")
         return True
     
     def _normalize_case_name_for_clustering(self, name: str) -> str:
@@ -756,14 +779,15 @@ class UnifiedClusteringMaster:
                     if case_years[i] and case_years[j]:
                         year_match = case_years[i] == case_years[j]
                     
-                    # USER FIX: If names are highly similar (>80%) AND years match, they're parallel!
-                    if similarity >= 0.80 and year_match:  # Lowered from 0.95 to 0.80 when year also matches
+                    # CRITICAL FIX: Require EXTREMELY high similarity (>98%) + year match to prevent cross-contamination
+                    # Two citations from different cases (like Fischer 2024 vs Sulzbach 2022) should NEVER be parallel
+                    if similarity >= 0.98 and year_match:  # Ultra-strict: >98% similarity AND same year
                         logger.error(f"✅ [PARALLEL-MATCH] Clustering via name+year: {case_names[i][:40]} ({case_years[i]}) ↔ {case_names[j][:40]} ({case_years[j]})")
                         logger.error(f"   Citations: {citation_texts[i]} ↔ {citation_texts[j]}")
                         logger.error(f"   Similarity: {similarity:.2%}, Years match: {year_match}")
                         return True
-                    elif similarity >= self.case_name_similarity_threshold:
-                        logger.debug(f"PARALLEL_CHECK Accepted via name similarity ({similarity:.2f}): {case_names[i][:30]} | {citation_texts[i]} ↔ {citation_texts[j]}")
+                    elif similarity >= 0.98:  # Only if similarity is extremely high (same case name)
+                        logger.error(f"PARALLEL_CHECK Accepted via ultra-high name similarity ({similarity:.2f}): {case_names[i][:30]} | {citation_texts[i]} ↔ {citation_texts[j]}")
                         return True
 
         return False
@@ -2186,28 +2210,40 @@ class UnifiedClusteringMaster:
                 possible_match = getattr(r, 'possible_match', False)
                 logger.error(f"  - {r.citation}: verified={r.verified}, possible_match={possible_match}, source={r.source if (r.verified or possible_match) else r.error}")
             
-            # Apply results back to citations
-            for idx, (cit_info, result) in enumerate(zip(all_citations, batch_results)):
+            # Apply results back to citations (match by citation text, not by list order)
+            citation_to_queue = defaultdict(deque)
+            for i, info in enumerate(all_citations):
+                citation_to_queue[info['citation']].append(i)
+
+            for result in batch_results:
+                # Get the citation text from the result
+                res_text = getattr(result, 'citation', None) or getattr(result, 'text', None) or ''
+                if not res_text or res_text not in citation_to_queue or not citation_to_queue[res_text]:
+                    logger.warning(f"[APPLY-VERIFICATION] Could not map verification result back to request for citation='{res_text}'")
+                    continue
+
+                req_idx = citation_to_queue[res_text].popleft()
+                cit_info = all_citations[req_idx]
                 cluster_idx = cit_info['cluster_idx']
                 cit_idx = cit_info['cit_idx']
                 cluster = clusters[cluster_idx]
                 citations = cluster.get('citations', [])
                 citation_obj = citations[cit_idx]
                 citation_text = cit_info['citation']
-                
+
                 if result.verified:
                     # VERIFIED: Apply canonical data
                     logger.error(f"🔧 [APPLY-VERIFICATION] Citation: {citation_text} - VERIFIED")
                     logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
                     logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
-                    
+
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = True
                         citation_obj.canonical_name = result.canonical_name
                         citation_obj.canonical_date = result.canonical_date
                         citation_obj.canonical_url = result.canonical_url
                         citation_obj.verification_source = result.source
-                        citation_obj.possible_match = False  # Explicitly set for verified citations
+                        citation_obj.possible_match = False
                         logger.error(f"   ✅ AFTER (object): verified=True, canonical_name = {citation_obj.canonical_name}")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = True
@@ -2215,14 +2251,14 @@ class UnifiedClusteringMaster:
                         citation_obj['canonical_date'] = result.canonical_date
                         citation_obj['canonical_url'] = result.canonical_url
                         citation_obj['verification_source'] = result.source
-                        citation_obj['possible_match'] = False  # Explicitly set for verified citations
+                        citation_obj['possible_match'] = False
                         logger.error(f"   ✅ AFTER (dict): verified=True, canonical_name = {citation_obj['canonical_name']}")
                 elif getattr(result, 'possible_match', False):
                     # POSSIBLE MATCH: Apply canonical data but mark as possible match
                     logger.error(f"🔶 [APPLY-VERIFICATION] Citation: {citation_text} - POSSIBLE MATCH")
                     logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
                     logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
-                    
+
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = False
                         citation_obj.possible_match = True
@@ -2245,7 +2281,7 @@ class UnifiedClusteringMaster:
                     # UNVERIFIED: Mark as unverified, store error
                     logger.error(f"❌ [APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
                     logger.error(f"   ⚠️ Error: {result.error}")
-                    
+
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = False
                         citation_obj.possible_match = False
@@ -2324,12 +2360,12 @@ class UnifiedClusteringMaster:
                 if pos is not None:
                     positions.append(pos)
             
-            # If citations are in close proximity (<= 200 chars), they're LIKELY parallel
+            # If citations are in close proximity (<= 50 chars), they're LIKELY parallel
             # BUT still check canonical names to prevent grouping different cases!
             if len(positions) >= 2:
                 sorted_positions = sorted(positions)
                 max_distance = sorted_positions[-1] - sorted_positions[0]
-                if max_distance <= 200:
+                if max_distance <= 50:  # USER FIX: Reduced from 200 to 50 chars for stricter proximity
                     # Proximity suggests parallel, but verify EXTRACTED case names match
                     # CRITICAL FIX: Use extracted names, not canonical names, for clustering decisions
                     # Canonical names can be contaminated and shouldn't be used for clustering
@@ -2874,6 +2910,11 @@ class UnifiedClusteringMaster:
             serialized_citations = []
             for cit in citations:
                 if isinstance(cit, dict):
+                    # Ensure mismatch flags exist in dict citations as well
+                    cit.setdefault('name_mismatch', False)
+                    cit.setdefault('date_mismatch', False)
+                    cit.setdefault('mismatch_confidence', 0.0)
+                    cit.setdefault('possible_match', False)
                     serialized_citations.append(cit)
                 else:
                     # Convert object to dict
@@ -2890,6 +2931,11 @@ class UnifiedClusteringMaster:
                         'method': getattr(cit, 'method', None),
                         'source': getattr(cit, 'source', None),
                         'error': getattr(cit, 'error', None),
+                        # Backend-driven mismatch flags
+                        'name_mismatch': getattr(cit, 'name_mismatch', False),
+                        'date_mismatch': getattr(cit, 'date_mismatch', False),
+                        'mismatch_confidence': getattr(cit, 'mismatch_confidence', 0.0),
+                        'possible_match': getattr(cit, 'possible_match', False),
                     }
                     serialized_citations.append(cit_dict)
             
@@ -2905,7 +2951,11 @@ class UnifiedClusteringMaster:
                 'canonical_name': cluster_canonical_name,
                 'canonical_date': cluster_canonical_date,
                 'metadata': cluster.get('metadata', {}),
-                'cluster_members': []
+                'cluster_members': [],
+                # Backend-driven cluster-level mismatch summary
+                'has_name_mismatch': any(c.get('name_mismatch') for c in serialized_citations),
+                'has_date_mismatch': any(c.get('date_mismatch') for c in serialized_citations),
+                'mismatch_indices': [idx for idx, c in enumerate(serialized_citations) if c.get('name_mismatch') or c.get('date_mismatch')]
             }
             
             for citation in citations:

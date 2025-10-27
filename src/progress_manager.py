@@ -925,7 +925,48 @@ def fetch_url_content(url: str) -> str:
         if status_code == 404:
             raise Exception(f"The document was not found at this URL (404 error). Please check that the URL is correct.")
         elif status_code == 403:
-            raise Exception(f"Access to this document is forbidden (403 error). The document may require special permissions.")
+            # Check if this is a Cloudflare protection issue
+            response_text = ""
+            if e.response:
+                try:
+                    response_text = e.response.text[:500].lower()  # Get first 500 chars
+                except:
+                    response_text = ""
+            
+            # Detect anti-bot protection indicators
+            protection_indicators = [
+                "cloudflare",
+                "just a moment",
+                "checking your browser",
+                "cf-mitigated",
+                "cf-ray",
+                "ddos protection",
+                "security check",
+                "incapsula",
+                "sucuri",
+                "akamai",
+                "bot protection",
+                "access denied",
+                "blocked by",
+                "please wait",
+                "verifying you are human"
+            ]
+            
+            is_protected = any(indicator in response_text for indicator in protection_indicators)
+            
+            if is_protected:
+                # Determine if this is likely a PDF or HTML page
+                is_pdf = url.lower().endswith('.pdf') or 'pdf' in url.lower()
+                file_type = "PDF file" if is_pdf else "web page"
+                action = "download the PDF file manually from the URL and upload it directly to the tool" if is_pdf else "copy the text content from the web page and paste it into the tool"
+                
+                raise Exception(
+                    f"This website is protected by anti-bot protection and blocks automated access. "
+                    f"Please {action} instead. "
+                    f"This will allow the citation extraction to work properly."
+                )
+            else:
+                raise Exception(f"Access to this document is forbidden (403 error). The document may require special permissions.")
         elif status_code == 500:
             raise Exception(f"The server encountered an error (500 error). Please try again later.")
         elif status_code and 400 <= status_code < 500:
@@ -933,7 +974,42 @@ def fetch_url_content(url: str) -> str:
         elif status_code and status_code >= 500:
             raise Exception(f"The server is experiencing problems ({status_code} error). Please try again later.")
         else:
-            raise Exception(f"The URL returned an error ({status_code}). Please check the URL and try again.")
+            # If we can't determine the status code, check the error message for anti-bot protection indicators
+            error_message = str(e).lower()
+            protection_indicators = [
+                "cloudflare",
+                "just a moment",
+                "checking your browser",
+                "cf-mitigated",
+                "cf-ray",
+                "ddos protection",
+                "security check",
+                "incapsula",
+                "sucuri",
+                "akamai",
+                "bot protection",
+                "access denied",
+                "blocked by",
+                "please wait",
+                "verifying you are human",
+                "403 client error: forbidden"
+            ]
+            
+            is_protected = any(indicator in error_message for indicator in protection_indicators)
+            
+            if is_protected:
+                # Determine if this is likely a PDF or HTML page
+                is_pdf = url.lower().endswith('.pdf') or 'pdf' in url.lower()
+                file_type = "PDF file" if is_pdf else "web page"
+                action = "download the PDF file manually from the URL and upload it directly to the tool" if is_pdf else "copy the text content from the web page and paste it into the tool"
+                
+                raise Exception(
+                    f"This website is protected by anti-bot protection and blocks automated access. "
+                    f"Please {action} instead. "
+                    f"This will allow the citation extraction to work properly."
+                )
+            else:
+                raise Exception(f"The URL returned an error ({status_code}). Please check the URL and try again.")
     
     except requests.exceptions.RequestException as e:
         logger.error(f"Error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")

@@ -646,17 +646,14 @@ class UnifiedVerificationMaster:
                     # CRITICAL: Validate that canonical name makes sense with extracted name
                     # If they're completely different, log warning and reduce confidence
                     confidence = self._calculate_confidence(citation, canonical_name, extracted_name, canonical_date, extracted_date)
-                    
-                    # Additional validation: Check for obvious mismatches
                     validation_warning = None
-                    if extracted_name and extracted_name != "N/A" and canonical_name:
+                    if canonical_name and extracted_name:
                         similarity = self._calculate_name_similarity(canonical_name, extracted_name)
-                        if similarity < 0.5:  # Different names - REJECT this match (raised from 0.3 to 0.5)
+                        if similarity < 0.5:
+                            # Do NOT reject exact citation matches from CourtListener.
+                            # Record a warning and proceed with lower confidence.
                             validation_warning = f"Low similarity ({similarity:.2f}) between canonical '{canonical_name}' and extracted '{extracted_name}'"
-                            logger.warning(f"❌ REJECTING SUSPICIOUS MATCH for {citation}: {validation_warning}")
-                            logger.warning(f"   CourtListener returned wrong case - skipping this result")
-                            # Don't add this to results - it's a false match from CourtListener
-                            continue
+                            logger.warning(f"⚠️ SUSPICIOUS NAME MISMATCH for {citation}: {validation_warning}")
                     
                     # FIX #61: COMPREHENSIVE LOGGING - Track every verification result
                     logger.error(f"🔍 [FIX #61] VERIFICATION: '{citation}'")
@@ -1792,22 +1789,23 @@ class UnifiedVerificationMaster:
         # This ensures our "possible match" logic is used instead of the old enhanced fallback verifier
         logger.info(f"🔄 FALLBACK_VERIFY: Skipping enhanced fallback verifier, using unified fallback sources for '{citation}'")
         
-        # Try fallback sources in priority order
-        # Updated with working direct URL sources and state-specific sources
+        # Try fallback sources in optimized priority order
+        # Prioritize state reporters via CaseMine, then reliable direct/known sources.
         fallback_sources = [
-            ('Universal_State', self._verify_with_universal_state),  # NEW: All 50 states support!
+            ('Universal_State', self._verify_with_universal_state),  # All 50 states support
+            ('State_Courts', self._verify_with_state_courts),        # CaseMine-backed state lookups
             (VerificationSource.JUSTIA, self._verify_with_justia),
-            ('OpenJurist', self._verify_with_openjurist),  # NEW: Direct URL access
-            ('Cornell_LII', self._verify_with_cornell_lii),  # NEW: Cornell Legal Information Institute
-            ('NC_Courts', self._verify_with_nc_courts),  # ENHANCED: North Carolina Courts (direct API)
-            ('CO_Courts', self._verify_with_co_courts),  # NEW: Colorado Courts (Casetext)
-            ('State_Courts', self._verify_with_state_courts),  # ENHANCED: General State Courts (CaseMine)
+            ('OpenJurist', self._verify_with_openjurist),            # Federal direct URL
+            ('Cornell_LII', self._verify_with_cornell_lii),
+            ('NC_Courts', self._verify_with_nc_courts),
+            ('CO_Courts', self._verify_with_co_courts),
             (VerificationSource.GOOGLE_SCHOLAR, self._verify_with_google_scholar),
-            (VerificationSource.FINDLAW, self._verify_with_findlaw),
-            (VerificationSource.BING, self._verify_with_bing),
         ]
         
-        time_per_source = remaining_timeout / len(fallback_sources)
+        # Guard against division by zero / zero timeout
+        time_per_source = (remaining_timeout / len(fallback_sources)) if fallback_sources else 0
+        if time_per_source <= 0:
+            time_per_source = 0.5
         
         for source, verify_func in fallback_sources:
             if remaining_timeout <= 0:
