@@ -97,6 +97,29 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n✅ Frontend rebuilt in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
             
+            # NEW: Always restart backend + workers after a frontend rebuild so API picks up new Python code
+            Write-Host "[BACKEND RESTART] Restarting backend API and workers to load latest code..." -ForegroundColor Yellow
+            try {
+                # Clear Python caches on host
+                Get-ChildItem -Path "src" -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+                Get-ChildItem -Path "src" -Recurse -Filter "*.pyc" -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
+                
+                # Quick rebuild with cache for backend+workers
+                $sw2 = [System.Diagnostics.Stopwatch]::StartNew()
+                docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
+                $sw2.Stop()
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  ✅ Backend + workers restarted in $([math]::Round($sw2.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
+                    # Clear caches inside container (best-effort)
+                    docker exec casestrainer-backend-prod find /app/src -type d -name '__pycache__' -exec rm -rf {} + 2>$null | Out-Null
+                    docker exec casestrainer-backend-prod find /app/src -name '*.pyc' -delete 2>$null | Out-Null
+                } else {
+                    Write-Host "  ⚠️  Warning: Backend restart returned non-zero exit code" -ForegroundColor Yellow
+                }
+            } catch {
+                Write-Host "  [WARNING] Backend restart failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+            
             # Wait for services to be ready
             Write-Host "`n[WAIT] Ensuring services are ready..." -ForegroundColor Yellow
             try {

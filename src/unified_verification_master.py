@@ -1601,12 +1601,38 @@ class UnifiedVerificationMaster:
         # Convert to lowercase for case-insensitive comparison
         normalized = normalized.lower()
         return normalized
+
+    def _normalize_citation_for_search(self, citation: str) -> str:
+        """
+        Normalize a citation string for CourtListener search queries.
+        - Collapse excessive whitespace
+        - Normalize common reporter variants (F.4th/F. 4th, F.3d/F. 3d)
+        - Keep dots but avoid multiple spacing
+        """
+        try:
+            q = citation or ""
+            # Collapse whitespace
+            q = re.sub(r"\s+", " ", q).strip()
+            # Normalize F.4th / F. 4th
+            q = re.sub(r"\bF\.?\s*4th\b", "F.4th", q, flags=re.IGNORECASE)
+            q = re.sub(r"\bF\.?\s*3d\b", "F.3d", q, flags=re.IGNORECASE)
+            q = re.sub(r"\bF\.?\s*2d\b", "F.2d", q, flags=re.IGNORECASE)
+            # Normalize A.2d / A. 2d
+            q = re.sub(r"\bA\.?\s*2d\b", "A.2d", q, flags=re.IGNORECASE)
+            q = re.sub(r"\bA\.?\s*3d\b", "A.3d", q, flags=re.IGNORECASE)
+            # Normalize P.2d / P.3d
+            q = re.sub(r"\bP\.?\s*2d\b", "P.2d", q, flags=re.IGNORECASE)
+            q = re.sub(r"\bP\.?\s*3d\b", "P.3d", q, flags=re.IGNORECASE)
+            return q
+        except Exception:
+            return citation
     
     async def _verify_with_courtlistener_search(
         self, 
         citation: str, 
         extracted_case_name: Optional[str], 
-        extracted_date: Optional[str]
+        extracted_date: Optional[str],
+        timeout: float = 5.0
     ) -> VerificationResult:
         """Verify using CourtListener search API (fallback method)."""
         if not self.api_key:
@@ -1618,7 +1644,7 @@ class UnifiedVerificationMaster:
         try:
             url = "https://www.courtlistener.com/api/rest/v4/search/"
             params = {
-                'q': citation,
+                'q': self._normalize_citation_for_search(citation),
                 'type': 'o',  # Opinions
                 'format': 'json'
             }
@@ -1794,6 +1820,7 @@ class UnifiedVerificationMaster:
         fallback_sources = [
             ('Universal_State', self._verify_with_universal_state),  # All 50 states support
             ('State_Courts', self._verify_with_state_courts),        # CaseMine-backed state lookups
+            (VerificationSource.COURTLISTENER_SEARCH, self._verify_with_courtlistener_search),  # NEW: Search API when lookup fails
             (VerificationSource.JUSTIA, self._verify_with_justia),
             ('OpenJurist', self._verify_with_openjurist),            # Federal direct URL
             ('Cornell_LII', self._verify_with_cornell_lii),
@@ -3110,8 +3137,25 @@ class UnifiedVerificationMaster:
             if response.status_code == 200:
                 content = response.text
                 
-                # Check if we found results
-                if citation in content and 'v.' in content:
+                # Check if we found results (flexible matching for reporter variants)
+                found_hit = False
+                # Exact text
+                if citation in content:
+                    found_hit = True
+                else:
+                    # Flexible spacing and optional periods
+                    flex_patterns = [
+                        re.sub(r'\s+', r'\\s+', re.escape(citation)),
+                    ]
+                    flex_patterns.append(re.sub(r'\.', r'\\.?', flex_patterns[0]))
+                    for pat in flex_patterns:
+                        try:
+                            if re.search(pat, content, re.IGNORECASE):
+                                found_hit = True
+                                break
+                        except re.error:
+                            continue
+                if found_hit and 'v.' in content:
                     logger.info(f"✅ [STATE-COURTS] Found citation {citation} on CaseMine")
                     
                     # Try to extract case name
