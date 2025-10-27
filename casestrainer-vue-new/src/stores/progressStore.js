@@ -292,6 +292,9 @@ export function useUnifiedProgress() {
       progressState.verificationStream = null;
     }
     
+    // Clear any previous error on success
+    progressState.processingError = null;
+    progressState.canRetry = false;
     progressState.isActive = false;
     progressState.currentStep = 'Completed';
     progressState.totalProgress = 100;

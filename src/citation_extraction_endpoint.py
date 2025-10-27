@@ -17,11 +17,157 @@ Usage:
 """
 
 import logging
+import difflib
+import re
 from typing import Dict, List, Any
 from src.clean_extraction_pipeline import extract_citations_clean
 from src.models import CitationResult
 
 logger = logging.getLogger(__name__)
+
+
+def _extract_year(value: str) -> str:
+    if not value:
+        return ""
+    m = re.search(r"(19|20)\d{2}", str(value))
+    return m.group(0) if m else ""
+
+
+def _normalize_name_tokens(name: str) -> set:
+    if not name or name == 'N/A':
+        return set()
+    s = str(name).lower()
+    s = s.replace("’", "'")
+    repl = {
+        "dep't": "department",
+        "dep’t": "department",
+        "dept": "department",
+        "dept.": "department",
+        "nat'l": "natural",
+        "natl": "natural",
+        "nat.": "natural",
+        "nat": "natural",
+        "res.": "resources",
+        "res": "resources",
+        "ass'n": "association",
+        "assn": "association",
+        "mfrs.": "manufacturers",
+        "mut.": "mutual",
+        "auto": "automobile",
+        "sch.": "school",
+        "dist.": "district",
+        "co.": "company",
+        "corp.": "corporation",
+        "u.s.": "us"
+    }
+    for k, v in repl.items():
+        s = s.replace(k, v)
+    cleaned = re.sub(r"[^a-z0-9\s]", " ", s)
+    raw = [t for t in cleaned.split() if len(t) > 2 and not t.isdigit()]
+    stop = {
+        "state","department","of","the","and","city","borough","board",
+        "commission","commissioner","united","states","inc","llc","company","corporation",
+        "association","foundation","institute","agency","services","service","us","et","al","v"
+    }
+    tokens = [t for t in raw if t not in stop]
+    return set(tokens)
+
+
+def _name_similarity(extracted: str, canonical: str) -> float:
+    a = _normalize_name_tokens(extracted)
+    b = _normalize_name_tokens(canonical)
+    if not a or not b:
+        # Fall back to a light normalization without stopword removal
+        def light_tokens(s: str) -> set:
+            s2 = re.sub(r"[^a-z0-9\s]", " ", str(s).lower())
+            return set(t for t in s2.split() if len(t) > 2 and not t.isdigit())
+        la = light_tokens(extracted)
+        lb = light_tokens(canonical)
+        if not la or not lb:
+            return 0.0
+        inter = la.intersection(lb)
+        union = la.union(lb)
+        return (len(inter) / len(union)) if union else 0.0
+
+    # Fuzzy token matching for rare/unusual tokens (e.g., ellingson vs ellingston)
+    matched_a = set()
+    matched_b = set()
+    for ta in a:
+        # Exact match first
+        if ta in b:
+            matched_a.add(ta)
+            matched_b.add(ta)
+            continue
+        # Fuzzy match
+        best = None
+        best_r = 0.0
+        for tb in b:
+            r = difflib.SequenceMatcher(None, ta, tb).ratio()
+            if r > best_r:
+                best_r = r
+                best = tb
+        if best_r >= 0.88 and (len(ta) >= 5 or len(best or "") >= 5):
+            matched_a.add(ta)
+            matched_b.add(best)
+
+    inter_size = len(matched_a)
+    union_size = len(a.union(b))
+    j = (inter_size / union_size) if union_size else 0.0
+    cov_a = (inter_size / len(a)) if a else 0.0
+    cov_b = (inter_size / len(b)) if b else 0.0
+    return max(j, cov_a, cov_b)
+
+
+def _annotate_mismatch_flags(citations: list, clusters: list, name_threshold: float = 0.6, year_tolerance: int = 0) -> None:
+    """Annotate per-citation mismatch flags and compute cluster-level summaries in-place.
+    - name_mismatch: True when extracted vs canonical name similarity < threshold and both present
+    - date_mismatch: True when both years present and |diff| > year_tolerance
+    - possible_match: mirror name_mismatch for verified citations (soft flag)
+    - cluster.has_name_mismatch / cluster.has_date_mismatch and mismatch_indices
+    """
+    try:
+        # Per-citation flags
+        for cit in citations or []:
+            if not isinstance(cit, dict):
+                continue
+            extracted = cit.get('extracted_case_name')
+            canonical = cit.get('canonical_name')
+            sim = _name_similarity(extracted, canonical) if (extracted and canonical) else 0.0
+            name_mismatch = bool(extracted and canonical and sim < name_threshold)
+
+            y_ex = _extract_year(cit.get('extracted_date'))
+            y_ca = _extract_year(cit.get('canonical_date'))
+            date_mismatch = bool(y_ex and y_ca and abs(int(y_ex) - int(y_ca)) > year_tolerance)
+
+            cit['name_mismatch'] = name_mismatch
+            cit['date_mismatch'] = date_mismatch
+            # Soft flag to surface questionable verifies without overriding verified
+            if cit.get('verified') and name_mismatch:
+                cit['possible_match'] = True
+
+        # Cluster-level summaries
+        for cluster in clusters or []:
+            cluster_cits = cluster.get('citations') or []
+            mm_indices = []
+            has_name = False
+            has_date = False
+            for idx, c in enumerate(cluster_cits):
+                if isinstance(c, dict):
+                    nm = bool(c.get('name_mismatch'))
+                    dm = bool(c.get('date_mismatch'))
+                else:
+                    nm = bool(getattr(c, 'name_mismatch', False))
+                    dm = bool(getattr(c, 'date_mismatch', False))
+                if nm or dm:
+                    mm_indices.append(idx)
+                has_name = has_name or nm
+                has_date = has_date or dm
+
+            cluster['has_name_mismatch'] = has_name
+            cluster['has_date_mismatch'] = has_date
+            cluster['mismatch_indices'] = mm_indices
+    except Exception as e:
+        logger.warning(f"[MISMATCH-ANNOTATE] Failed to annotate mismatch flags: {e}")
 
 
 def _organize_clusters_by_verification(clusters: List[Dict]) -> Dict[str, List[Dict]]:
@@ -275,7 +421,14 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
         if enable_verification:
             verified_count = sum(1 for c in citations if c.get('verified', False))
             logger.info(f"[PRODUCTION] Step 3: Verification complete - {verified_count}/{len(citations)} verified")
-        
+
+        # Step 3.5: Annotate mismatch flags and cluster summaries (backend-driven)
+        try:
+            _annotate_mismatch_flags(citations, clusters, name_threshold=0.6, year_tolerance=0)
+            logger.info("[PRODUCTION] Step 3.5: Mismatch flags annotated on citations and clusters")
+        except Exception as e:
+            logger.warning(f"[PRODUCTION] Step 3.5 failed to annotate mismatches: {e}")
+
         # Step 4: Organize clusters - unverified clusters first
         logger.info(f"[PRODUCTION] Step 4: Organizing clusters by verification status")
         organized_clusters = _organize_clusters_by_verification(clusters)

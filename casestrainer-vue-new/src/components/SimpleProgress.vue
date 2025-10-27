@@ -20,8 +20,8 @@
           
           <div class="header-content">
             <h4 class="title">
-              <span v-if="hasError">Processing Failed</span>
-              <span v-else-if="isComplete">Processing Complete</span>
+              <span v-if="isComplete">Processing Complete</span>
+              <span v-else-if="hasError">Processing Failed</span>
               <span v-else>Processing Content</span>
             </h4>
             <p class="subtitle">{{ currentMessage }}</p>
@@ -67,7 +67,7 @@
         </div>
 
         <!-- Error Message -->
-        <div v-if="hasError" class="error-section">
+        <div v-if="hasError && !isComplete" class="error-section">
           <div class="alert alert-danger mb-0">
             <i class="bi bi-exclamation-triangle-fill me-2"></i>
             {{ errorMessage }}
