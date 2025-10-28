@@ -508,9 +508,31 @@ def analyze():
                         ]
                     }
                 })
+                # If we have a task identifier, register verification so polling has a source
+                try:
+                    from src.verification_manager import VerificationManager
+                    vm = VerificationManager()
+                    job_id_candidate = None
+                    if 'task_id' in result:
+                        job_id_candidate = result['task_id']
+                    elif result.get('verification_status', {}).get('verification_job_id'):
+                        job_id_candidate = result['verification_status'].get('verification_job_id')
+                    if job_id_candidate:
+                        total_cites = len(result.get('citations', [])) if isinstance(result.get('citations'), list) else 0
+                        vm.register_verification(request_id, job_id_candidate, total_cites)
+                except Exception as _e:
+                    logger.warning(f"[Request {request_id}] Could not register verification: {_e}")
                 
                 if result.get('async_verification_queued') and result.get('verification_status', {}).get('verification_queued'):
                     verification_job_id = result['verification_status'].get('verification_job_id', request_id)
+                    # Explicit registration for verification queue
+                    try:
+                        from src.verification_manager import VerificationManager
+                        vm = VerificationManager()
+                        total_cites = len(result.get('citations', [])) if isinstance(result.get('citations'), list) else 0
+                        vm.register_verification(request_id, verification_job_id, total_cites)
+                    except Exception as _e:
+                        logger.warning(f"[Request {request_id}] Could not register async verification: {_e}")
                     return jsonify({
                         'status': 'processing',
                         'task_id': verification_job_id,
@@ -946,14 +968,27 @@ def task_status(task_id):
             })
         
         elif job.is_started:
-            return jsonify({
+            try:
+                from src.verification_manager import VerificationManager
+                vm = VerificationManager()
+                vstatus = vm.get_verification_status(task_id)
+            except Exception:
+                vstatus = None
+            response = {
                 'status': 'processing',
                 'task_id': task_id,
                 'message': 'Task is currently being processed',
                 'success': True,
                 'citations': [],
                 'clusters': []
-            })
+            }
+            if isinstance(vstatus, dict):
+                response['verification_status'] = vstatus
+                if 'progress_percent' in vstatus:
+                    response['progress_percent'] = vstatus.get('progress_percent')
+                if 'current_message' in vstatus:
+                    response['current_message'] = vstatus.get('current_message')
+            return jsonify(response)
         
         else:
             try:
@@ -961,8 +996,13 @@ def task_status(task_id):
             except Exception as e:
                 logger.warning(f"Could not get job position: {e}")
                 position = -1
-                
-            return jsonify({
+            try:
+                from src.verification_manager import VerificationManager
+                vm = VerificationManager()
+                vstatus = vm.get_verification_status(task_id)
+            except Exception:
+                vstatus = None
+            response = {
                 'status': 'queued',
                 'task_id': task_id,
                 'message': f'Task is queued and waiting to be processed (position: {position})',
@@ -970,7 +1010,14 @@ def task_status(task_id):
                 'success': True,
                 'citations': [],
                 'clusters': []
-            })
+            }
+            if isinstance(vstatus, dict):
+                response['verification_status'] = vstatus
+                if 'progress_percent' in vstatus:
+                    response['progress_percent'] = vstatus.get('progress_percent')
+                if 'current_message' in vstatus:
+                    response['current_message'] = vstatus.get('current_message')
+            return jsonify(response)
             
     except Exception as e:
         error_msg = f"Error checking task status for {task_id}: {str(e)}"
@@ -1197,6 +1244,19 @@ def _handle_file_upload(service, request_id):
         logger.info(f"[File Upload {request_id}] Processing file: {filename}")
         logger.info(f"[File Upload {request_id}] Content type: {file.content_type}")
         
+        # EARLY verification registration so frontend polling gets 200 immediately
+        try:
+            from src.verification_manager import VerificationManager
+            vm = VerificationManager()
+            client_request_id = request.form.get('client_request_id')
+            total_cites = 0
+            if client_request_id:
+                vm.register_verification(client_request_id, request_id, total_cites)
+            vm.register_verification(request_id, request_id, total_cites)
+            logger.info(f"[File Upload {request_id}] Early verification registered (client_id={client_request_id})")
+        except Exception as _e:
+            logger.warning(f"[File Upload {request_id}] Early verification registration failed: {_e}")
+        
         allowed_extensions = {'pdf', 'txt', 'doc', 'docx', 'rtf', 'md', 'html', 'htm', 'xml', 'xhtml'}
         file_ext = filename.rsplit('.', 1)[1].lower() if '.' in filename else ''
         
@@ -1242,7 +1302,10 @@ def _handle_file_upload(service, request_id):
             
             file_size = os.path.getsize(file_path)
             input_data = {'type': 'file', 'file_path': file_path, 'filename': filename, 'file_size': file_size}
-            should_process_immediately = service.should_process_immediately(input_data)
+            force_mode = request.form.get('force_mode')
+            if force_mode:
+                logger.info(f"[File Upload {request_id}] Force mode requested: {force_mode}")
+            should_process_immediately = service.should_process_immediately(input_data, force_mode=force_mode)
             
             if not should_process_immediately:
                 from rq import Queue
@@ -1267,6 +1330,20 @@ def _handle_file_upload(service, request_id):
                 )
                 
                 logger.info(f"[File Upload {request_id}] File processing task enqueued with job_id: {job.id}")
+                
+                # Register verification immediately so polling endpoints return 200
+                try:
+                    from src.verification_manager import VerificationManager
+                    vm = VerificationManager()
+                    client_request_id = request.form.get('client_request_id')
+                    total_cites = 0
+                    # Register under client_request_id (early polling) -> maps to job_id=request_id
+                    if client_request_id:
+                        vm.register_verification(client_request_id, request_id, total_cites)
+                    # Also register under backend request_id for later polling consistency
+                    vm.register_verification(request_id, request_id, total_cites)
+                except Exception as _e:
+                    logger.warning(f"[File Upload {request_id}] Could not register verification immediately: {_e}")
                 
                 return {
                     'task_id': request_id,
@@ -1353,16 +1430,19 @@ def _handle_file_upload(service, request_id):
                 logger.info(f"[File Upload {request_id}] Processing extracted text synchronously")
                 logger.info(f"[File Upload {request_id}] Text to process length: {len(text)} characters")
                 logger.info(f"[File Upload {request_id}] Text preview: {text[:300]}...")
-                
-                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                processor = UnifiedCitationProcessorV2()
-                
-                citations = processor._extract_citations_unified(text)
-                
+
+                # Use the same clean extraction pipeline used by the async worker
+                from src.citation_extraction_endpoint import extract_citations_production
+                clean_result = extract_citations_production(text)
+
+                citations_list = []
+                if isinstance(clean_result, dict) and clean_result.get('status') == 'success':
+                    citations_list = list(clean_result.get('citations', []))
+
                 result = {
-                    'citations': [citation.__dict__ if hasattr(citation, '__dict__') else citation for citation in citations],
+                    'citations': citations_list,
                     'clusters': [],  # Clustering will be handled by full async pipeline if needed
-                    'statistics': {'total_citations': len(citations)}
+                    'statistics': {'total_citations': len(citations_list)}
                 }
                 
                 logger.info(f"[File Upload {request_id}] Citation processing completed")
@@ -1970,7 +2050,7 @@ def verification_stream(request_id):
         Server-Sent Events stream with verification updates
     """
     try:
-        from verification_manager import VerificationManager
+        from src.verification_manager import VerificationManager
         
         verification_manager = VerificationManager()
         
@@ -2112,7 +2192,7 @@ def verification_status(request_id):
         Current verification status and progress
     """
     try:
-        from verification_manager import VerificationManager
+        from src.verification_manager import VerificationManager
         
         verification_manager = VerificationManager()
         status = verification_manager.get_verification_status(request_id)
@@ -2148,7 +2228,7 @@ def verification_results(request_id):
         Verification results if available
     """
     try:
-        from verification_manager import VerificationManager
+        from src.verification_manager import VerificationManager
         
         verification_manager = VerificationManager()
         results = verification_manager.get_verification_results(request_id)

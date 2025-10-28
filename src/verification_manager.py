@@ -28,6 +28,146 @@ from rq.job import Job
 
 logger = logging.getLogger(__name__)
 
+class VerificationManager:
+    """Minimal VerificationManager to support status polling without 500s.
+
+    This stub ensures the Flask route can import the class. It returns
+    no status for unknown request IDs so the API responds 404 instead of 500.
+    A fuller implementation can wire into Redis and background jobs.
+    """
+    def __init__(self, redis_conn: Optional[redis.Redis] = None):
+        # Lightweight placeholders; full wiring is handled elsewhere
+        self._active_verifications: Dict[str, Any] = {}
+        self._result_cache: Dict[str, Any] = {}
+        # Prefer Redis so status survives across requests
+        try:
+            self.redis_conn = redis_conn or redis.Redis.from_url(
+                os.environ.get('REDIS_URL', 'redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+            )
+        except Exception:
+            self.redis_conn = None
+
+    def get_verification_status(self, request_id: str) -> Optional[Dict[str, Any]]:
+        # Try Redis first (two keys: by request_id and by job_id)
+        try:
+            if self.redis_conn:
+                for key in (
+                    f"verification:status:{request_id}",
+                    f"verification:job:{request_id}",
+                ):
+                    raw = self.redis_conn.get(key)
+                    if raw:
+                        try:
+                            return json.loads(raw)
+                        except Exception:
+                            pass
+        except Exception:
+            pass
+        # Fallback to in-memory cache if present
+        return self._active_verifications.get(request_id)
+
+    def get_verification_results(self, request_id: str) -> Optional[Dict[str, Any]]:
+        # Return cached results if present
+        return self._result_cache.get(request_id)
+
+    # Registration helpers used by the API layer
+    def register_verification(self, request_id: str, job_id: str, total_citations: int = 0):
+        """Register a new verification task so polling can report progress."""
+        status = {
+            'state': 'queued',
+            'progress_percent': 0,
+            'current_message': 'Verification queued',
+            'job_id': job_id,
+            'request_id': request_id,
+            'total_citations': total_citations,
+            'citations_processed': 0,
+            'start_time': time.time(),
+            'updated_at': time.time(),
+        }
+        self._active_verifications[request_id] = status
+        if job_id:
+            self._active_verifications[job_id] = status
+        # Persist to Redis (two keys so polling by either id works)
+        try:
+            if self.redis_conn:
+                payload = json.dumps(status)
+                self.redis_conn.setex(f"verification:status:{request_id}", 3600, payload)
+                if job_id:
+                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+        except Exception:
+            pass
+
+    def update_progress(self, id_or_job: str, processed: int, total: Optional[int] = None, message: Optional[str] = None):
+        """Update progress for a verification task."""
+        status = self.get_verification_status(id_or_job) or {}
+        total_citations = total if total is not None else status.get('total_citations', 0)
+        citations_processed = processed
+        percent = 0
+        if total_citations:
+            percent = max(0, min(100, int((citations_processed / total_citations) * 100)))
+        status.update({
+            'state': 'running',
+            'citations_processed': citations_processed,
+            'total_citations': total_citations,
+            'progress_percent': percent,
+            'current_message': message or status.get('current_message', 'Verifying...'),
+            'updated_at': time.time(),
+        })
+        # Write back
+        self._active_verifications[id_or_job] = status
+        try:
+            if self.redis_conn:
+                payload = json.dumps(status)
+                # Always write under the id used for lookup
+                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                # Also mirror under job key if available so either ID can be used
+                job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
+                if job_id:
+                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+        except Exception:
+            pass
+
+    def complete(self, id_or_job: str, results: Optional[Dict[str, Any]] = None):
+        status = self.get_verification_status(id_or_job) or {}
+        status.update({
+            'state': 'completed',
+            'progress_percent': 100,
+            'current_message': 'Verification completed',
+            'completed_at': time.time(),
+            'updated_at': time.time(),
+        })
+        if results is not None:
+            self._result_cache[id_or_job] = results
+        self._active_verifications[id_or_job] = status
+        try:
+            if self.redis_conn:
+                payload = json.dumps(status)
+                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
+                if job_id:
+                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+        except Exception:
+            pass
+
+    def fail(self, id_or_job: str, message: str = 'Verification failed'):
+        status = self.get_verification_status(id_or_job) or {}
+        status.update({
+            'state': 'failed',
+            'current_message': message,
+            'updated_at': time.time(),
+            'completed_at': time.time(),
+        })
+        self._active_verifications[id_or_job] = status
+        try:
+            if self.redis_conn:
+                payload = json.dumps(status)
+                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
+                if job_id:
+                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+        except Exception:
+            pass
+
 class VerificationStatus(Enum):
     """Verification status enumeration"""
     QUEUED = "queued"

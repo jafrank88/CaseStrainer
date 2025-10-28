@@ -385,6 +385,20 @@ function Start-Production {
         }
         Write-Host "`n✅ Production environment restarted in seconds!" -ForegroundColor Green
         
+        # Reload reverse-proxy to ensure latest routing is active
+        try {
+            Write-Host "[NGINX] Validating and reloading reverse-proxy configuration..." -ForegroundColor Yellow
+            docker exec casestrainer-nginx-prod nginx -t > $null 2>&1
+            docker exec casestrainer-nginx-prod nginx -s reload > $null 2>&1
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  ✅ Reverse-proxy reloaded" -ForegroundColor Green
+            } else {
+                Write-Host "  ⚠️  Warning: Reverse-proxy reload returned non-zero exit code" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "  ⚠️  Warning: Could not reload reverse-proxy: $($_.Exception.Message)" -ForegroundColor Yellow
+        }
+        
         # Wait for services to be ready
         Wait-ForServices
         
@@ -428,6 +442,20 @@ function Start-Production {
     }
     
     Write-Host "`nProduction environment is now running!" -ForegroundColor Green
+    
+    # Reload reverse-proxy to ensure latest routing is active after start
+    try {
+        Write-Host "[NGINX] Validating and reloading reverse-proxy configuration..." -ForegroundColor Yellow
+        docker exec casestrainer-nginx-prod nginx -t > $null 2>&1
+        docker exec casestrainer-nginx-prod nginx -s reload > $null 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Host "  ✅ Reverse-proxy reloaded" -ForegroundColor Green
+        } else {
+            Write-Host "  ⚠️  Warning: Reverse-proxy reload returned non-zero exit code" -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  ⚠️  Warning: Could not reload reverse-proxy: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
     
     # Wait for services to be ready
     Wait-ForServices

@@ -27,6 +27,7 @@ except ImportError:
     logging.warning("psutil not available - memory monitoring disabled")
 
 from rq import Worker, Queue
+from src.verification_manager import VerificationManager
 from redis import Redis
 from src.redis_distributed_processor import extract_pdf_pages, extract_pdf_optimized
 from src.optimized_pdf_processor import extract_pdf_optimized_v2
@@ -176,6 +177,14 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
         logger.info(f"[DIAGNOSTIC:{task_id}] ========== MAIN PROCESSING BEGINS ==========")
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Starting processing of type: {input_type}")
         
+        # Register verification/progress so the UI can poll immediately
+        try:
+            vm = VerificationManager()
+            vm.register_verification(task_id, task_id, total_citations=4)  # treat as 4-step progress initially
+            vm.update_progress(task_id, processed=0, total=4, message='Initializing async processing')
+        except Exception as _e:
+            logger.warning(f"[TASK:{task_id}] Could not register verification progress: {_e}")
+        
         # Log input data (truncated if too large)
         input_data_str = str(input_data)
         if len(input_data_str) > 500:
@@ -267,6 +276,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Clean pipeline import SUCCESS")
                     
                     logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting clean extraction pipeline")
+                    try:
+                        vm.update_progress(task_id, processed=1, total=4, message='Extracting citations')
+                    except Exception:
+                        pass
                     
                     # Use the clean extraction pipeline
                     clean_result = extract_citations_production(text)
@@ -283,6 +296,11 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                                 confidence=cit_dict.get('confidence', 0.9)
                             ))
                     
+                    try:
+                        vm.update_progress(task_id, processed=2, total=4, message='Normalizing citations')
+                    except Exception:
+                        pass
+
                     result_data = {
                         'citations': citations_found,
                         'clusters': []
@@ -328,6 +346,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         if len(citations_list) < original_count:
                             logger.info(f"[TASK:{task_id}] Deduplication SUCCESS: "
                                        f"({original_count - len(citations_list)} duplicates removed)")
+                        try:
+                            vm.update_progress(task_id, processed=3, total=4, message='Deduplication complete')
+                        except Exception:
+                            pass
                         
                     except Exception as e:
                         logger.error(f"[TASK:{task_id}] Deduplication FAILED: {e}")
@@ -406,6 +428,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         'text_length': len(text)
                     }
                 }
+                try:
+                    vm.complete(task_id)
+                except Exception:
+                    pass
             else:
                 result = {
                     'status': 'failed',
@@ -416,7 +442,21 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
         else:
             # For non-text inputs, fall back to the original method
             logger.info(f"[TASK:{task_id}] Using CitationService for non-text input type: {input_type}")
+            # Update progress milestones for file/other inputs
+            try:
+                vm.update_progress(task_id, processed=1, total=4, message='Extracting citations')
+            except Exception:
+                pass
             result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
+            try:
+                vm.update_progress(task_id, processed=3, total=4, message='Finalizing results')
+            except Exception:
+                pass
+            try:
+                if isinstance(result, dict) and (result.get('status') in ('completed', 'success') or result.get('success') is True):
+                    vm.complete(task_id)
+            except Exception:
+                pass
         
         # Ensure the result is JSON serializable
         processing_time = time.time() - start_time
@@ -492,6 +532,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     except TimeoutError as e:
         error_msg = f"Task {task_id} timed out after 10 minutes"
         logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
+        try:
+            vm.fail(task_id, error_msg)
+        except Exception:
+            pass
         return {
             'status': 'failed',
             'error': error_msg,
@@ -503,6 +547,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     except Exception as e:
         error_msg = f"Task {task_id} failed: {str(e)}"
         logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
+        try:
+            vm.fail(task_id, error_msg)
+        except Exception:
+            pass
         return {
             'status': 'failed',
             'error': error_msg,
