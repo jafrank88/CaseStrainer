@@ -120,10 +120,14 @@ class VerificationManager:
                 payload = json.dumps(status)
                 # Always write under the id used for lookup
                 self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
-                # Also mirror under job key if available so either ID can be used
+                # Mirror under job key if available
                 job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
                 if job_id:
                     self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                # Mirror under client request_id if available
+                req_id = status.get('request_id')
+                if req_id:
+                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
         except Exception:
             pass
 
@@ -146,6 +150,9 @@ class VerificationManager:
                 job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
                 if job_id:
                     self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                req_id = status.get('request_id')
+                if req_id:
+                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
         except Exception:
             pass
 
@@ -165,6 +172,9 @@ class VerificationManager:
                 job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
                 if job_id:
                     self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                req_id = status.get('request_id')
+                if req_id:
+                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
         except Exception:
             pass
 

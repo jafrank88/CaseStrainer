@@ -15,6 +15,7 @@ from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_
 import logging
 import signal
 import time
+import platform
 import threading
 from pathlib import Path
 from datetime import datetime
@@ -29,7 +30,7 @@ except ImportError:
 from rq import Worker, Queue
 from src.verification_manager import VerificationManager
 from redis import Redis
-from src.redis_distributed_processor import extract_pdf_pages, extract_pdf_optimized
+from src.redis_distributed_processor import extract_pdf_pages, extract_pdf_optimized, DockerOptimizedProcessor
 from src.optimized_pdf_processor import extract_pdf_optimized_v2
 
 logging.basicConfig(
@@ -269,101 +270,88 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: Using CLEAN PIPELINE for async processing (87-93% accuracy)")
                 
                 try:
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing clean pipeline...")
-                    from src.citation_extraction_endpoint import extract_citations_production
-                    from src.models import CitationResult
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Importing full pipeline (with clustering & verification)...")
+                    from src.citation_extraction_endpoint import extract_citations_with_clustering
                     import time
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Clean pipeline import SUCCESS")
-                    
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 11: Starting clean extraction pipeline")
-                    try:
-                        vm.update_progress(task_id, processed=1, total=4, message='Extracting citations')
-                    except Exception:
-                        pass
-                    
-                    # Use the clean extraction pipeline
-                    clean_result = extract_citations_production(text)
-                    
-                    # Convert clean pipeline results to CitationResult objects
-                    citations_found = []
-                    if clean_result['status'] == 'success':
-                        for cit_dict in clean_result['citations']:
-                            citations_found.append(CitationResult(
-                                citation=cit_dict['citation'],
-                                extracted_case_name=cit_dict.get('extracted_case_name'),
-                                extracted_date=cit_dict.get('extracted_date'),
-                                method=cit_dict.get('method', 'clean_pipeline_v1'),
-                                confidence=cit_dict.get('confidence', 0.9)
-                            ))
-                    
-                    try:
-                        vm.update_progress(task_id, processed=2, total=4, message='Normalizing citations')
-                    except Exception:
-                        pass
+                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Full pipeline import SUCCESS")
 
-                    result_data = {
-                        'citations': citations_found,
-                        'clusters': []
-                    }
-                    
-                    logger.info(f"[TASK:{task_id}] Full pipeline found {len(citations_found)} citations")
-                    
-                    # Convert CitationResult objects to dictionaries if needed
-                    citations_list = []
-                    for citation in citations_found:
-                        if hasattr(citation, 'to_dict'):
-                            citations_list.append(citation.to_dict())
-                        elif isinstance(citation, dict):
-                            citations_list.append(citation)
-                        else:
-                            # Fallback conversion with case_name mapping
-                            cluster_case_name = getattr(citation, 'cluster_case_name', None)
-                            extracted_case_name = getattr(citation, 'extracted_case_name', None)
-                            canonical_name = getattr(citation, 'canonical_name', None)
-                            
-                            # REMOVED: case_name field eliminated to prevent contamination and maintain data clarity
-                            # Frontend will use extracted_case_name and canonical_name directly
-                            
-                            citations_list.append({
-                                'citation': getattr(citation, 'citation', str(citation)),
-                                'extracted_case_name': extracted_case_name,
-                                'canonical_name': canonical_name,
-                                'cluster_case_name': cluster_case_name,
-                                'verified': getattr(citation, 'verified', False),
-                                'confidence': getattr(citation, 'confidence', 1.0),
-                                'method': getattr(citation, 'method', 'full_async')
-                            })
-                    
-                    # Apply deduplication to rq_worker async processing (MISSING FEATURE ADDED)
-                    logger.info(f"[TASK:{task_id}] Starting deduplication of {len(citations_list)} citations")
+                    # Run full pipeline with clustering and verification
                     try:
-                        from src.citation_deduplication import deduplicate_citations
-                        
-                        original_count = len(citations_list)
-                        citations_list = deduplicate_citations(citations_list, debug=True)
-                        
-                        logger.info(f"[TASK:{task_id}] Deduplication completed: {original_count} → {len(citations_list)} citations")
-                        if len(citations_list) < original_count:
-                            logger.info(f"[TASK:{task_id}] Deduplication SUCCESS: "
-                                       f"({original_count - len(citations_list)} duplicates removed)")
+                        vm.update_progress(task_id, processed=1, total=4, message='Extracting and clustering citations')
+                    except Exception:
+                        pass
+                    pipeline_result = extract_citations_with_clustering(text, enable_verification=True)
+
+                    citations_list = list(pipeline_result.get('citations', []) or [])
+                    clusters_list = list(pipeline_result.get('clusters', []) or [])
+
+                    # If any citations remain unverified, run enhanced fallback verification and merge improvements
+                    try:
+                        unverified_count = sum(1 for c in citations_list if isinstance(c, dict) and not c.get('verified'))
+                    except Exception:
+                        unverified_count = 0
+                    if citations_list and unverified_count > 0:
+                        logger.info(f"[TASK:{task_id}] {unverified_count} citations unverified after pipeline; running enhanced fallback verification")
                         try:
-                            vm.update_progress(task_id, processed=3, total=4, message='Deduplication complete')
+                            vm.update_progress(task_id, processed=3, total=max(4, len(citations_list)), message='Running fallback verification')
                         except Exception:
                             pass
-                        
-                    except Exception as e:
-                        logger.error(f"[TASK:{task_id}] Deduplication FAILED: {e}")
-                        # Continue with original citations if deduplication fails
-                    
+                        try:
+                            from src.async_verification_worker import verify_citations_enhanced as _verify_enhanced
+                            # Performance guardrails
+                            import os
+                            elapsed = time.time() - start_time
+                            if elapsed > 90:
+                                logger.info(f"[TASK:{task_id}] Skipping fallback (elapsed {elapsed:.1f}s > 90s budget)")
+                                enriched = {'success': False, 'citations': []}
+                            else:
+                                max_targets = int(os.environ.get('FALLBACK_VERIFY_MAX', '12'))
+                                priority_tokens = ('F.4th','F.3d','U.S.','S. Ct.','L. Ed.','P.3d','P.2d','A.3d','A.2d')
+                                unv = [c for c in citations_list if isinstance(c, dict) and not c.get('verified')]
+                                pri = [c for c in unv if any(tok in (c.get('citation') or '') for tok in priority_tokens)]
+                                non = [c for c in unv if c not in pri]
+                                targets = (pri + non)[:max_targets]
+                                if targets:
+                                    logger.info(f"[TASK:{task_id}] Fallback targets: {len(targets)}/{len(unv)} (max {max_targets})")
+                                    enriched = _verify_enhanced(targets, text, task_id, input_type, {'source': 'worker_fallback'})
+                                else:
+                                    enriched = {'success': False, 'citations': []}
+                            if isinstance(enriched, dict) and enriched.get('success') and enriched.get('citations'):
+                                enriched_list = enriched['citations']
+                                # Merge enriched results back into citations_list for items still unverified
+                                # Build simple index by citation text
+                                try:
+                                    by_citation = {}
+                                    for e in enriched_list:
+                                        key = (e.get('citation') or '').strip()
+                                        if key and key not in by_citation:
+                                            by_citation[key] = e
+                                    for i, orig in enumerate(citations_list):
+                                        if not isinstance(orig, dict):
+                                            continue
+                                        if orig.get('verified'):
+                                            continue
+                                        k = (orig.get('citation') or '').strip()
+                                        if k and k in by_citation:
+                                            cand = by_citation[k]
+                                            if isinstance(cand, dict) and cand.get('verified'):
+                                                citations_list[i] = cand
+                                    logger.info(f"[TASK:{task_id}] Fallback verification merged; remaining unverified: {sum(1 for c in citations_list if isinstance(c, dict) and not c.get('verified'))}")
+                                except Exception as merge_err:
+                                    logger.warning(f"[TASK:{task_id}] Fallback merge warning: {merge_err}")
+                            else:
+                                logger.warning(f"[TASK:{task_id}] Fallback verification returned no enhancements")
+                        except Exception as e:
+                            logger.error(f"[TASK:{task_id}] Fallback verification error: {e}")
+
                     result = {
                         'success': True,
                         'citations': citations_list,
-                        'clusters': result_data.get('clusters', []),
-                        'processing_strategy': 'full_async_unified',
+                        'clusters': clusters_list,
+                        'processing_strategy': 'full_async_with_verification',
                         'processing_time': time.time() - start_time
                     }
-                    
-                    logger.info(f"[TASK:{task_id}] Full async processing completed successfully")
+                    logger.info(f"[TASK:{task_id}] Full async processing (with verification) completed successfully")
                     
                 except Exception as e:
                     logger.error(f"[TASK:{task_id}] Full async processing failed: {e}")
@@ -440,21 +428,126 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 }
             
         else:
-            # For non-text inputs, fall back to the original method
-            logger.info(f"[TASK:{task_id}] Using CitationService for non-text input type: {input_type}")
-            # Update progress milestones for file/other inputs
+            # File inputs: extract text then run full pipeline with verification+clustering
+            logger.info(f"[TASK:{task_id}] Using FULL PIPELINE for file input")
             try:
-                vm.update_progress(task_id, processed=1, total=4, message='Extracting citations')
+                vm.update_progress(task_id, processed=1, total=4, message='Extracting text from file')
             except Exception:
                 pass
-            result = asyncio.run(service.process_citation_task(task_id, input_type, input_data))
+
+            text = ''
             try:
-                vm.update_progress(task_id, processed=3, total=4, message='Finalizing results')
+                file_path = input_data.get('file_path')
+                if not file_path:
+                    raise ValueError('Missing file_path in input_data')
+                dop = DockerOptimizedProcessor()
+                text = dop.extract_text_from_file_sync(file_path)
+                logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters from file")
+            except Exception as e:
+                logger.error(f"[TASK:{task_id}] File text extraction failed: {e}")
+                result = {
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': f'File text extraction failed: {str(e)}'
+                }
+                return result
+
+            try:
+                vm.update_progress(task_id, processed=2, total=4, message='Extracting and clustering citations')
             except Exception:
                 pass
+
             try:
-                if isinstance(result, dict) and (result.get('status') in ('completed', 'success') or result.get('success') is True):
-                    vm.complete(task_id)
+                from src.citation_extraction_endpoint import extract_citations_with_clustering
+                pipeline_result = extract_citations_with_clustering(text, enable_verification=True)
+            except Exception as e:
+                logger.error(f"[TASK:{task_id}] Full pipeline failed: {e}")
+                result = {
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': f'Pipeline failed: {str(e)}'
+                }
+                return result
+
+            citations = pipeline_result.get('citations', [])
+            clusters = pipeline_result.get('clusters', [])
+
+            # If any remain unverified, run enhanced fallback verification and merge
+            try:
+                unverified_count = sum(1 for c in citations if isinstance(c, dict) and not c.get('verified'))
+            except Exception:
+                unverified_count = 0
+            if citations and unverified_count > 0:
+                logger.info(f"[TASK:{task_id}] {unverified_count} citations unverified after pipeline; running enhanced fallback verification")
+                try:
+                    vm.update_progress(task_id, processed=3, total=max(4, len(citations)), message='Running fallback verification')
+                except Exception:
+                    pass
+                try:
+                    from src.async_verification_worker import verify_citations_enhanced as _verify_enhanced
+                    # Performance guardrails
+                    import os
+                    elapsed = time.time() - start_time
+                    if elapsed > 90:
+                        logger.info(f"[TASK:{task_id}] Skipping fallback (elapsed {elapsed:.1f}s > 90s budget)")
+                        enriched = {'success': False, 'citations': []}
+                    else:
+                        max_targets = int(os.environ.get('FALLBACK_VERIFY_MAX', '12'))
+                        priority_tokens = ('F.4th','F.3d','U.S.','S. Ct.','L. Ed.','P.3d','P.2d','A.3d','A.2d')
+                        unv = [c for c in citations if isinstance(c, dict) and not c.get('verified')]
+                        pri = [c for c in unv if any(tok in (c.get('citation') or '') for tok in priority_tokens)]
+                        non = [c for c in unv if c not in pri]
+                        targets = (pri + non)[:max_targets]
+                        if targets:
+                            logger.info(f"[TASK:{task_id}] Fallback targets: {len(targets)}/{len(unv)} (max {max_targets})")
+                            enriched = _verify_enhanced(targets, text, task_id, 'file', {'source': 'worker_fallback'})
+                        else:
+                            enriched = {'success': False, 'citations': []}
+                    if isinstance(enriched, dict) and enriched.get('success') and enriched.get('citations'):
+                        enriched_list = enriched['citations']
+                        try:
+                            by_citation = {}
+                            for e in enriched_list:
+                                key = (e.get('citation') or '').strip()
+                                if key and key not in by_citation:
+                                    by_citation[key] = e
+                            for i, orig in enumerate(citations):
+                                if not isinstance(orig, dict):
+                                    continue
+                                if orig.get('verified'):
+                                    continue
+                                k = (orig.get('citation') or '').strip()
+                                if k and k in by_citation:
+                                    cand = by_citation[k]
+                                    if isinstance(cand, dict) and cand.get('verified'):
+                                        citations[i] = cand
+                            logger.info(f"[TASK:{task_id}] Fallback verification merged; remaining unverified: {sum(1 for c in citations if isinstance(c, dict) and not c.get('verified'))}")
+                        except Exception as merge_err:
+                            logger.warning(f"[TASK:{task_id}] Fallback merge warning: {merge_err}")
+                    else:
+                        logger.warning(f"[TASK:{task_id}] Fallback verification returned no enhancements")
+                except Exception as e:
+                    logger.error(f"[TASK:{task_id}] Fallback verification error: {e}")
+
+            try:
+                total = max(4, len(citations) or 4)
+                vm.update_progress(task_id, processed=3, total=total, message='Verifying citations and finalizing')
+            except Exception:
+                pass
+
+            result = {
+                'status': 'completed',
+                'task_id': task_id,
+                'citations': citations,
+                'clusters': clusters,
+                'metadata': {
+                    'processing_strategy': 'full_async_with_verification',
+                    'text_length': len(text)
+                }
+            }
+
+            try:
+                vm.complete(task_id)
             except Exception:
                 pass
         

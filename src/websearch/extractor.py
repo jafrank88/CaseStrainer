@@ -4,12 +4,17 @@ Comprehensive web content extraction for legal documents and search results.
 """
 
 import re
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
-
 import logging
-from typing import Any, Dict, List, Optional
+from typing import List, Dict, Any, Optional
 from urllib.parse import urlparse
 from bs4 import BeautifulSoup
+
+from src.config import (
+    DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, 
+    WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT, WEBCONF_BASE_CONFIDENCE, 
+    WEBCONF_MULTIPLE_OCCURRENCES_BONUS, WEBCONF_CITATION_NEARBY_BONUS, 
+    WEBCONF_LENGTH_BONUS, WEBCONF_LENGTH_THRESHOLD
+)
 
 logger = logging.getLogger(__name__)
 
@@ -192,17 +197,17 @@ class ComprehensiveWebExtractor:
     
     def _calculate_case_name_confidence(self, case_name: str, text: str) -> float:
         """Calculate confidence score for a case name."""
-        confidence = 0.5  # Base confidence
+        confidence = WEBCONF_BASE_CONFIDENCE  # Base confidence from config
         
         occurrences = text.lower().count(case_name.lower())
         if occurrences > 1:
-            confidence += 0.2
+            confidence += WEBCONF_MULTIPLE_OCCURRENCES_BONUS
         
         if self._has_citation_nearby(case_name, text):
-            confidence += 0.3
+            confidence += WEBCONF_CITATION_NEARBY_BONUS
         
-        if len(case_name) > 20:
-            confidence += 0.1
+        if len(case_name) > WEBCONF_LENGTH_THRESHOLD:
+            confidence += WEBCONF_LENGTH_BONUS
         
         return min(1.0, confidence)
     

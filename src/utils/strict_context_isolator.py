@@ -17,6 +17,7 @@ This module provides strict context boundaries by:
 """
 
 import re
+import html
 import logging
 from typing import List, Tuple, Optional, Dict, Any
 from src.citation_patterns import CitationPatterns  # CONSOLIDATED: Import shared patterns
@@ -47,6 +48,10 @@ def find_all_citation_positions(text: str) -> List[Tuple[int, int, str]]:
         compiled_patterns['f_3d'],
         compiled_patterns['f_4th'],
         compiled_patterns['f_supp_2d'],
+        # Atlantic reporters (NJ, PA, etc.)
+        compiled_patterns['a_general'],
+        compiled_patterns['a_2d'],
+        compiled_patterns['a_3d'],
         compiled_patterns['p_2d'],
         compiled_patterns['p_3d'],
         compiled_patterns['wn_2d'],
@@ -159,17 +164,36 @@ def get_strict_context_for_citation(
     # If there's a semicolon-separated series, keep only the segment AFTER the last semicolon
     # within a reasonable proximity window to the citation (prevents pulling prior cases).
     if strict_context:
-        # Consider only if the last semicolon is relatively close to the citation
+        # Always keep only the segment AFTER the last semicolon to avoid pulling
+        # case names from earlier clauses in multi-citation sentences.
         last_sc = strict_context.rfind(';')
-        if last_sc != -1 and (len(strict_context) - last_sc) < 220:
+        if last_sc != -1:
             strict_context = strict_context[last_sc + 1:].strip()
 
         # Also trim after the last em-dash or long dash which often separates cites
         for dash in ('—', '–', '--'):
             last_dash = strict_context.rfind(dash)
-            if last_dash != -1 and (len(strict_context) - last_dash) < 220:
+            if last_dash != -1:
                 strict_context = strict_context[last_dash + len(dash):].strip()
                 break
+
+        # Additional boundary tokens near the citation to prevent cross-clause bleed
+        try:
+            lc = strict_context.lower()
+            tokens = ['see also', 'but see', 'compare', 'accord', 'cf.', 'see ']
+            best_idx = -1
+            best_len = 0
+            for t in tokens:
+                idx = lc.rfind(t)
+                if idx != -1:
+                    # Only consider if close to the citation (towards end of context)
+                    if (len(strict_context) - idx) <= 150 and idx > best_idx:
+                        best_idx = idx
+                        best_len = len(t)
+            if best_idx != -1 and best_len > 0:
+                strict_context = strict_context[best_idx + best_len:].strip()
+        except Exception:
+            pass
 
         # Cap context length to the last 300 chars to bias towards the nearest match
         if len(strict_context) > 300:
@@ -207,6 +231,12 @@ def extract_case_name_from_strict_context(
     logger.error(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
     logger.error(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-200:]}'")  # Last 200 chars
     
+    # First unescape any HTML entities (e.g., &#039;, &amp;)
+    try:
+        context = html.unescape(context)
+    except Exception:
+        pass
+    
     # CRITICAL: Normalize Unicode characters BEFORE pattern matching
     # Convert smart quotes and apostrophes to ASCII equivalents
     context = context.replace('\u2019', "'")  # Right single quotation mark → apostrophe
@@ -216,6 +246,12 @@ def extract_case_name_from_strict_context(
     context = context.replace('\u00B4', "'")  # Acute accent → apostrophe
     context = context.replace('\u0060', "'")  # Grave accent → apostrophe
     context = context.replace('\u00A0', ' ')  # Non-breaking space → space
+    # Normalize dashes and unusual spaces
+    context = context.replace('\u2013', '-')   # En dash
+    context = context.replace('\u2014', '-')   # Em dash
+    context = re.sub(r'[\u2000-\u200B\u202F\u205F\u3000]', ' ', context)  # other thin/figure spaces
+    # Collapse whitespace
+    context = re.sub(r'\s+', ' ', context).strip()
     
     # CRITICAL: Remove signal words and case history notations BEFORE pattern matching
     
@@ -289,10 +325,6 @@ def extract_case_name_from_strict_context(
         
         # PRIORITY 5: Ex parte pattern  
         r'Ex\s+parte\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)',
-        
-        # PRIORITY 6: Fallback: Capitalized name before punctuation/end
-        # Match multi-word capitalized phrases
-        r'([A-Z][A-Za-z\'\.\&,\-]{3,}(?:\s+[A-Z][A-Za-z\'\.\&,\-]{2,})+)(?:\s*[,;\(]|$)',
     ]
     
     for pattern_idx, pattern in enumerate(patterns, 1):
@@ -321,7 +353,65 @@ def extract_case_name_from_strict_context(
                 continue
             
             match = best_match  # Use the closest match to citation
+            # SAFETY GUARD: Only accept matches within close proximity to the citation
+            # to avoid inheriting names from distant earlier clauses.
+            if best_distance > 120:
+                # Too far from citation; try next pattern
+                continue
+
+            # NEARBY FRAGMENT GUARD: If the last ~120 chars contain a recent comma
+            # followed by a capitalized fragment WITHOUT 'v.', prefer that fragment
+            # over an earlier 'v.' match (common in shortened references like
+            # "Nat'l Ass'n of Mfrs., 105 F.4th 802").
+            try:
+                recent = context[-120:]
+                comma_idx = recent.rfind(',')
+                if comma_idx != -1:
+                    fragment = recent[comma_idx+1:].strip()
+                    # Only consider fragment if it clearly looks like a case name signal
+                    has_v = ' v. ' in fragment.lower()
+                    has_prefix = re.search(r'^(in\s+re|ex\s+parte|estate\s+of|matter\s+of)\b', fragment, re.IGNORECASE)
+                    if (has_v or has_prefix):
+                        fragment_abs_start = len(context) - len(recent) + comma_idx + 1
+                        if match.end() < fragment_abs_start:
+                            frag_clean = re.sub(r'\s+', ' ', fragment).strip(' ,;\n()"')
+                            if len(frag_clean) >= 5 and re.search(r'[A-Za-z]{3,}', frag_clean):
+                                logger.info(f"[STRICT-EXTRACT] Using nearby case-like fragment: '{frag_clean}' for {citation_text}")
+                                return frag_clean
+            except Exception:
+                pass
             
+            # REPORTER FAMILY GUARD: If the text between this match and the citation
+            # clearly references a different reporter family than the target citation,
+            # treat this match as belonging to that other citation and skip it.
+            try:
+                def _detect_family(s: str) -> str:
+                    s2 = s.lower()
+                    # Order matters: check more specific tokens first
+                    for token, fam in (
+                        ('f. 4th', 'f4th'), ('f.4th', 'f4th'),
+                        ('f. 3d', 'f3d'), ('f.3d', 'f3d'),
+                        ('f. 2d', 'f2d'), ('f.2d', 'f2d'),
+                        ('u.s.', 'us'), ('s. ct.', 'sct'), ('l. ed. 2d', 'led2d'),
+                        ('a. 3d', 'a3d'), ('a.3d', 'a3d'),
+                        ('a. 2d', 'a2d'), ('a.2d', 'a2d'),
+                        ('a.', 'a'),
+                        ('p. 3d', 'p3d'), ('p.3d', 'p3d'),
+                        ('p. 2d', 'p2d'), ('p.2d', 'p2d'),
+                        ('p.', 'p'),
+                    ):
+                        if token in s2:
+                            return fam
+                    return ''
+                target_fam = _detect_family(citation_text)
+                between_seg = context[match.end():]
+                between_fam = _detect_family(between_seg)
+                if between_fam and target_fam and between_fam != target_fam:
+                    logger.debug(f"[STRICT-EXTRACT] Reporter family mismatch between match and citation (between='{between_fam}', target='{target_fam}') - skipping match")
+                    continue
+            except Exception:
+                pass
+
             if pattern_idx in [1, 2, 3]:  # Patterns with 2 groups (plaintiff v. defendant)
                 plaintiff = match.group(1).strip()
                 defendant = match.group(2).strip()
@@ -346,6 +436,19 @@ def extract_case_name_from_strict_context(
                     logger.warning(f"[STRICT-EXTRACT] Detected truncated defendant: '{defendant}'")
                     continue
                 
+                # Heuristic: restore governmental prefixes if present in recent context
+                try:
+                    recent_ctx = context[-220:]
+                    mgov = re.search(r"(County|City|Township|Borough)\s+of\s+([A-Z][A-Za-z\.'\-]+)", recent_ctx, flags=re.IGNORECASE)
+                    if mgov:
+                        loc = mgov.group(2)
+                        if plaintiff.lower() == loc.lower() or loc.lower() in plaintiff.lower():
+                            # Rebuild with normalized casing
+                            gov_word = mgov.group(1).capitalize()
+                            loc_word = loc[0].upper() + loc[1:]
+                            plaintiff = f"{gov_word} of {loc_word}"
+                except Exception:
+                    pass
                 case_name = f"{plaintiff} v. {defendant}"
                 
             else:  # Single-group patterns (In re, Ex parte, fallback)
@@ -410,9 +513,15 @@ def extract_case_name_from_strict_context(
                 # USER FIX 2024-10-17: Allow common abbreviations like Cmty., Ass'n, Dep't
                 if plaintiff_part.endswith(('.', ',')) or defendant_part.endswith(('.', ',')):
                     combined = plaintiff_part + defendant_part
-                    if not re.search(r'(Inc|LLC|Corp|Co|Ltd|Cmty|Ass\'n|Dep\'t|Bd|Dist|Comm|Div)', combined):
+                    if not re.search(r"(Inc|LLC|Corp|Co|Ltd|Cmty|Ass'n|Dep't|Dept|Bd|Dist|Comm|Div)", combined):
                         continue  # Suspicious punctuation unless it's corporate or known abbreviation
             
+            # If we reach here and there is no 'v.' and not an accepted prefix (In re, Ex parte, Estate of, Matter of), reject to avoid narrative fragments
+            if ' v. ' not in case_name.lower():
+                if not re.search(r'^(In\s+re|Ex\s+parte|Estate\s+of|Matter\s+of)\b', case_name, re.IGNORECASE):
+                    logger.debug(f"[STRICT-EXTRACT] Rejecting non-case-like fragment: '{case_name}'")
+                    continue
+
             # === FINAL CLEANUP ===
             
             # USER FIX 2024-10-21: Remove signal words from extracted case name
@@ -449,6 +558,19 @@ def extract_case_name_from_strict_context(
             logger.debug(f"[STRICT-EXTRACT] Pattern {pattern_idx} failed: {e}")
     
     logger.warning(f"[STRICT-EXTRACT] No case name found for {citation_text}")
+    # Fallback: capture '... v. ...,' immediately before the citation (common formatting)
+    try:
+        recent = context[-160:]
+        m = re.search(r"([A-Z][^,;()]{2,120})\s+v\.\s+([^,;()]{2,120})\s*,\s*$", recent)
+        if m:
+            plaintiff = re.sub(r'\s+', ' ', m.group(1)).strip(' ,;\n')
+            defendant = re.sub(r'\s+', ' ', m.group(2)).strip(' ,;\n')
+            if len(plaintiff) >= 2 and len(defendant) >= 2:
+                fallback_name = f"{plaintiff} v. {defendant}"
+                logger.info(f"[STRICT-EXTRACT:FALLBACK] Extracted '{fallback_name}' for {citation_text}")
+                return fallback_name
+    except Exception:
+        pass
     return None
 
 

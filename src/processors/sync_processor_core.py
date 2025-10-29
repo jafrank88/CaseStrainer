@@ -57,15 +57,11 @@ class SyncProcessorCore:
     def _initialize_enhanced_components(self):
         """Initialize enhanced verification and confidence scoring components."""
         try:
-            from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
-            if (self.options.enable_enhanced_verification and 
-                self.options.courtlistener_api_key):
-                self.enhanced_verifier = EnhancedCourtListenerVerifier(self.options.courtlistener_api_key)
-                logger.info("Enhanced verification initialized successfully")
-        except ImportError:
-            logger.warning("Enhanced verification not available")
+            # Enhanced courtlistener verification has been deprecated
+            # Use unified_verification_master.py instead
+            logger.info("Enhanced verification components deprecated - using unified verification system")
         except Exception as e:
-            logger.warning(f"Failed to initialize enhanced verification: {e}")
+            logger.error(f"Error initializing enhanced components: {e}")
         
         try:
             from src.citation_utils_consolidated import ConfidenceScorer

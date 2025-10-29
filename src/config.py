@@ -146,6 +146,14 @@ REDIS_URL: str = get_config_value("REDIS_URL", "redis://localhost:6379/0")
 
 USE_ENHANCED_EXTRACTION: bool = get_bool_config_value("USE_ENHANCED_EXTRACTION", True)
 EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))
+DATA_SEPARATION_SIMILARITY_THRESHOLD: float = float(get_config_value("DATA_SEPARATION_SIMILARITY_THRESHOLD", "0.85"))
+
+# Websearch Extraction Confidence Values
+WEBCONF_BASE_CONFIDENCE: float = float(get_config_value("WEBCONF_BASE_CONFIDENCE", "0.5"))
+WEBCONF_MULTIPLE_OCCURRENCES_BONUS: float = float(get_config_value("WEBCONF_MULTIPLE_OCCURRENCES_BONUS", "0.2"))
+WEBCONF_CITATION_NEARBY_BONUS: float = float(get_config_value("WEBCONF_CITATION_NEARBY_BONUS", "0.3"))
+WEBCONF_LENGTH_BONUS: float = float(get_config_value("WEBCONF_LENGTH_BONUS", "0.1"))
+WEBCONF_LENGTH_THRESHOLD: int = int(get_config_value("WEBCONF_LENGTH_THRESHOLD", "20"))
 
 DEBUG_EXTRACTION: bool = get_bool_config_value("DEBUG_EXTRACTION", False)
 LOG_EXTRACTION_DETAILS: bool = get_bool_config_value("LOG_EXTRACTION_DETAILS", False)

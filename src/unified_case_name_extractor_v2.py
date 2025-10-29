@@ -565,6 +565,37 @@ class UnifiedCaseNameExtractorV2:
             best_confidence = 0.0
             best_pattern = None
             best_raw_match = None
+
+            # New: compute citation position in context and parenthetical/signal hints
+            citation_pos = citation_start - context_start
+            # Prefer matches inside the nearest open parenthetical if it exists
+            paren_start = context.rfind('(')
+            paren_end = context.rfind(')')
+            window_start = paren_start + 1 if (paren_start != -1 and (paren_end == -1 or paren_start > paren_end)) else max(0, citation_pos - 200)
+            # Detect helpful signal words near the citation
+            signal_regex = re.compile(r"\b(quoting|see\s+also|accord|cf\.)\b", re.IGNORECASE)
+            signal_anchor = -1
+            tail_start = max(0, citation_pos - 120)
+            tail_segment = context[tail_start:citation_pos]
+            m_signal = signal_regex.search(tail_segment)
+            if m_signal:
+                signal_anchor = tail_start + m_signal.start()
+
+            # Strong near-tail preference: immediate 'In re …' right before citation
+            inre_tail = re.search(r"(In\s+re\s+[A-Z][A-Za-z0-9'\.\s&\-]+?)\s*(?=,|\(|$)", tail_segment, re.IGNORECASE)
+            if inre_tail:
+                best_match = inre_tail.group(1).strip()
+                best_confidence = 0.96
+                best_pattern = 'near_tail_in_re'
+                best_raw_match = inre_tail.group(0)
+                # Early accept if found, since this is the exact local reference
+                return ExtractionResult(
+                    case_name=best_match,
+                    confidence=best_confidence,
+                    method=best_pattern,
+                    strategy=ExtractionStrategy.CONTEXT_BASED,
+                    raw_matches=[best_raw_match] if best_raw_match else [best_match]
+                )
             
             # First pass: look for high-confidence patterns
             for pattern_info in sorted(self.patterns, key=lambda x: -x['confidence']):
@@ -584,6 +615,9 @@ class UnifiedCaseNameExtractorV2:
                 for match in matches:
                     match_start, match_end = match.span()
                     match_text = match.group(0)
+                    # Skip matches that start outside our focused window
+                    if match_start < window_start:
+                        continue
                     
                     # Calculate position-based score (higher is better)
                     # Prefer matches that end just before the citation starts
@@ -591,19 +625,19 @@ class UnifiedCaseNameExtractorV2:
                     
                     # Case 1: Match ends before citation (ideal case)
                     if match_end <= citation_pos:
-                        # Closer to citation is better (but not too close)
+                        # Closer to citation is better – strongly prefer immediate names
                         distance = citation_pos - match_end
-                        if distance < 5:  # Too close might be part of citation
-                            position_score = 0.3
-                        elif distance < 20:
+                        if distance <= 10:
                             position_score = 1.0
-                        elif distance < 50:
-                            position_score = 0.8
+                        elif distance <= 30:
+                            position_score = 0.9
+                        elif distance <= 70:
+                            position_score = 0.7
                         else:
-                            position_score = 0.5
+                            position_score = 0.4
                     # Case 2: Match overlaps with citation (less ideal)
                     elif match_start < citation_pos:
-                        position_score = 0.2
+                        position_score = 0.3
                     # Case 3: Match is after citation (least ideal)
                     else:
                         position_score = 0.1
@@ -621,6 +655,9 @@ class UnifiedCaseNameExtractorV2:
                     score = (pattern_info['confidence'] * 0.5 + 
                             position_score * 0.3 + 
                             length_score * 0.2)
+                    # Signal boost: if a legal signal (e.g., quoting) precedes, reward matches after it
+                    if signal_anchor != -1 and match_start >= signal_anchor:
+                        score += 0.2
                     
                     if score > best_score_for_pattern:
                         best_score_for_pattern = score

@@ -121,21 +121,28 @@ def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, 
 
 def verify_with_courtlistener(courtlistener_api_key, citation, extracted_case_name=None):
     """
-    Verify a citation with CourtListener using enhanced cross-validation system.
-    This replaces the previous two-step verification with a more robust approach.
+    Verify a citation with CourtListener using basic verification.
+    Enhanced verification has been deprecated - use unified_verification_master.py instead.
     """
     
-    
     try:
-        from src.enhanced_courtlistener_verification import verify_with_courtlistener_enhanced
-        
-        result = verify_with_courtlistener_enhanced(courtlistener_api_key, citation, extracted_case_name)
-        
-        return result
-        
-    except ImportError as e:
-        
+        # Use basic verification since enhanced verification is deprecated
         return _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name)
+        
+    except Exception as e:
+        logger.error(f"Error in CourtListener verification: {e}")
+        return _create_error_result(citation, str(e))
+
+def _create_error_result(citation, error_message):
+    """Create an error result for failed verification"""
+    return {
+        "canonical_name": None,
+        "canonical_date": None,
+        "url": None,
+        "verified": False,
+        "source": None,
+        "error": error_message
+    }
 
 def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_case_name=None):
     """Two-step CourtListener verification with strict validation requiring both canonical name and year"""

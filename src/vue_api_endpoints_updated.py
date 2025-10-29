@@ -4,7 +4,7 @@ Main API routes for the CaseStrainer application
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT, DATA_SEPARATION_SIMILARITY_THRESHOLD
 
 import sys
 import uuid
@@ -14,6 +14,8 @@ import time
 import json
 import copy
 from datetime import datetime
+import re
+import html
 from urllib.parse import urlparse
 from typing import Dict, Any, Optional, List, Union
 from flask import Blueprint, request, jsonify, current_app, Response
@@ -21,56 +23,25 @@ from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
 from src.data_separation_validator import validate_data_separation, enforce_data_separation, restore_extracted_name_if_contaminated
+from src.utils.strict_context_isolator import (
+    find_all_citation_positions,
+    get_strict_context_for_citation,
+    extract_case_name_from_strict_context,
+)
+import threading
+from src.schemas import normalize_citation_dict, normalize_cluster_dict
+from src.metrics import (
+    record_document,
+    record_citations,
+    get_daily_counts,
+    get_totals,
+    get_counts_last_n_days,
+)
 
 from src.rq_worker import process_citation_task_direct
 # UnifiedInputProcessor is imported locally where needed to avoid startup issues
 
 logger = logging.getLogger(__name__)
-
-class ProgressTracker:
-    """Simple progress tracking for real-time updates."""
-    
-    def __init__(self):
-        self.progress_store = {}
-        self.progress_lock = {}
-    
-    def start_progress(self, request_id: str, steps: List[Dict[str, Any]]):
-        """Start progress tracking for a request."""
-        self.progress_store[request_id] = {
-            'steps': steps,
-            'current_step': 0,
-            'current_progress': 0,
-            'start_time': time.time(),
-            'status': 'active'
-        }
-        self.progress_lock[request_id] = False
-    
-    def update_progress(self, request_id: str, step_index: int, progress: int, message: str = ""):
-        """Update progress for a specific step."""
-        if request_id in self.progress_store:
-            self.progress_store[request_id]['current_step'] = step_index
-            self.progress_store[request_id]['current_progress'] = progress
-            if message:
-                self.progress_store[request_id]['steps'][step_index]['message'] = message
-    
-    def get_progress(self, request_id: str) -> Optional[Dict[str, Any]]:
-        """Get current progress for a request."""
-        return self.progress_store.get(request_id)
-    
-    def complete_progress(self, request_id: str):
-        """Mark progress as completed."""
-        if request_id in self.progress_store:
-            self.progress_store[request_id]['status'] = 'completed'
-            self.progress_store[request_id]['current_progress'] = 100
-    
-    def cleanup_progress(self, request_id: str):
-        """Clean up progress data for a request."""
-        if request_id in self.progress_store:
-            del self.progress_store[request_id]
-        if request_id in self.progress_lock:
-            del self.progress_lock[request_id]
-
-progress_tracker = ProgressTracker()
 
 vue_api = Blueprint('vue_api', __name__)
 
@@ -172,6 +143,211 @@ def db_stats():
         logger.error(f"Database stats error: {e}")
         return jsonify({'error': 'Database stats unavailable'}), 503
 
+
+@vue_api.route('/metrics/summary', methods=['GET'])
+def metrics_summary():
+    """Public: totals and today's counts (UTC)."""
+    try:
+        day = request.args.get('date')
+        daily = get_daily_counts(day)
+        totals = get_totals()
+        payload = {'daily': daily, 'totals': totals}
+        resp = jsonify(payload)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Cache-Control'] = 'public, max-age=60'
+        return resp
+    except Exception as e:
+        logger.warning(f"metrics_summary error: {e}")
+        return jsonify({'error': 'metrics unavailable'}), 503
+
+@vue_api.route('/metrics', methods=['GET'])
+def metrics_dashboard():
+    try:
+        html = """<!doctype html>
+<html lang=\"en\">
+<head>
+  <meta charset=\"utf-8\">
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
+  <title>CaseStrainer Usage Metrics</title>
+  <link rel=\"preconnect\" href=\"https://cdn.jsdelivr.net\">
+  <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>
+  <style>
+    :root { --bg:#0b1120; --panel:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --accent2:#34d399; }
+    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
+    .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+    .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
+    .title { font-size:20px; font-weight:600; }
+    .controls { display:flex; gap:8px; align-items:center; }
+    .controls input { background:#0f172a; border:1px solid #1f2937; color:var(--text); padding:8px 10px; border-radius:8px; width:90px; }
+    .controls button { background:var(--accent); color:#001; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .panel { background:var(--panel); border:1px solid #1f2937; border-radius:12px; padding:16px; }
+    .panel h2 { margin:0 0 8px 0; font-size:14px; color:var(--muted); font-weight:600; letter-spacing:.02em; text-transform:uppercase; }
+    .cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
+    .card { background:#0b1220; border:1px solid #1f2937; border-radius:12px; padding:12px; }
+    .card .label { font-size:12px; color:var(--muted); }
+    .card .value { font-size:24px; font-weight:700; margin-top:4px; }
+    a.link { color:var(--accent); text-decoration:none; }
+  </style>
+  <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />
+  <meta http-equiv=\"Pragma\" content=\"no-cache\" />
+  <meta http-equiv=\"Expires\" content=\"0\" />
+  <meta name=\"robots\" content=\"noindex\" />
+  <script>
+    async function fetchJSON(url) {
+      const res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return await res.json();
+    }
+    function formatNum(n) { return (n||0).toLocaleString(); }
+    function makeChart(ctx, label, labels, data, color) {
+      return new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '33', fill: true, tension: 0.25, pointRadius: 0 }] },
+        options: { plugins: { legend: { labels: { color: '#e5e7eb' } } }, scales: { x: { ticks:{ color:'#9ca3af' } }, y: { ticks:{ color:'#9ca3af' }, beginAtZero:true } } }
+      });
+    }
+    async function loadMetrics() {
+      const days = parseInt(document.getElementById('days').value || '30', 10);
+      const seriesUrl = new URL(window.location.origin + window.location.pathname.replace(/\/metrics$/, '/metrics/series'));
+      seriesUrl.searchParams.set('days', days);
+      const summaryUrl = new URL(window.location.origin + window.location.pathname.replace(/\/metrics$/, '/metrics/summary'));
+      const [series, summary] = await Promise.all([
+        fetchJSON(seriesUrl.toString()),
+        fetchJSON(summaryUrl.toString())
+      ]);
+      const labels = series.series.map(p => p.date);
+      const docs = series.series.map(p => p.documents);
+      const cites = series.series.map(p => p.citations);
+      document.getElementById('docsToday').textContent = formatNum(summary.daily.documents);
+      document.getElementById('citesToday').textContent = formatNum(summary.daily.citations);
+      document.getElementById('docsTotal').textContent = formatNum(summary.totals.documents);
+      document.getElementById('citesTotal').textContent = formatNum(summary.totals.citations);
+      window._docsChart && window._docsChart.destroy();
+      window._citesChart && window._citesChart.destroy();
+      window._docsChart = makeChart(document.getElementById('docsChart'), 'Documents / day', labels, docs, '#60a5fa');
+      window._citesChart = makeChart(document.getElementById('citesChart'), 'Citations / day', labels, cites, '#34d399');
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('refresh').addEventListener('click', (e) => { e.preventDefault(); loadMetrics().catch(()=>{}); });
+      loadMetrics().catch(()=>{});
+    });
+  </script>
+  <link rel=\"icon\" href=\"data:,\">
+</head>
+<body>
+  <div class=\"wrap\">
+    <div class=\"header\">
+      <div class=\"title\">CaseStrainer Usage Metrics</div>
+      <div class=\"controls\">
+        <input id=\"days\" type=\"number\" min=\"1\" max=\"365\" value=\"30\" />
+        <button id=\"refresh\">Refresh</button>
+      </div>
+    </div>
+    <div class=\"cards\">
+      <div class=\"card\">
+        <div class=\"label\">Documents today</div>
+        <div id=\"docsToday\" class=\"value\">-</div>
+      </div>
+      <div class=\"card\">
+        <div class=\"label\">Citations today</div>
+        <div id=\"citesToday\" class=\"value\">-</div>
+      </div>
+      <div class=\"card\">
+        <div class=\"label\">Documents total</div>
+        <div id=\"docsTotal\" class=\"value\">-</div>
+      </div>
+      <div class=\"card\">
+        <div class=\"label\">Citations total</div>
+        <div id=\"citesTotal\" class=\"value\">-</div>
+      </div>
+    </div>
+    <div class=\"grid\">
+      <div class=\"panel\">
+        <h2>Documents</h2>
+        <canvas id=\"docsChart\" height=\"120\"></canvas>
+      </div>
+      <div class=\"panel\">
+        <h2>Citations</h2>
+        <canvas id=\"citesChart\" height=\"120\"></canvas>
+      </div>
+    </div>
+    <div style=\"margin-top:16px;color:#9ca3af;\">API: <a class=\"link\" href=\"./metrics/summary\">/metrics/summary</a> · <a class=\"link\" href=\"./metrics/series\">/metrics/series</a></div>
+  </div>
+</body>
+</html>
+"""
+        return Response(html, mimetype='text/html')
+    except Exception as e:
+        return jsonify({'error': 'metrics dashboard unavailable', 'detail': str(e)}), 503
+
+
+@vue_api.route('/metrics/daily', methods=['GET'])
+def metrics_daily():
+    """Public: single day's counts (UTC)."""
+    try:
+        day = request.args.get('date')
+        payload = get_daily_counts(day)
+        resp = jsonify(payload)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Cache-Control'] = 'public, max-age=60'
+        return resp
+    except Exception as e:
+        logger.warning(f"metrics_daily error: {e}")
+        return jsonify({'error': 'metrics unavailable'}), 503
+
+
+@vue_api.route('/metrics/series', methods=['GET'])
+def metrics_series():
+    """Public: per-day counts for the last N days (UTC)."""
+    try:
+        try:
+            days = int(request.args.get('days', 30))
+        except Exception:
+            days = 30
+        end_date = request.args.get('end')  # YYYY-MM-DD
+        series = get_counts_last_n_days(days=days, end_date=end_date)
+        payload = {'days': days, 'end': end_date, 'series': series}
+        resp = jsonify(payload)
+        resp.headers['Access-Control-Allow-Origin'] = '*'
+        resp.headers['Cache-Control'] = 'public, max-age=60'
+        return resp
+    except Exception as e:
+        logger.warning(f"metrics_series error: {e}")
+        return jsonify({'error': 'metrics unavailable'}), 503
+
+
+@vue_api.route('/analyze/progress/<request_id>', methods=['GET'])
+def analyze_progress(request_id):
+    try:
+        from src.unified_input_processor import get_progress_manager
+        pm = get_progress_manager()
+        data = pm.get_progress(request_id) if hasattr(pm, 'get_progress') else pm.progress_store.get(request_id, {})
+        return jsonify({
+            'request_id': request_id,
+            'status': 'ok',
+            'progress_data': data or {}
+        })
+    except Exception as e:
+        return jsonify({'request_id': request_id, 'status': 'error', 'error': str(e)}), 500
+
+
+@vue_api.route('/analyze/progress-stream/<request_id>', methods=['GET'])
+def analyze_progress_stream(request_id):
+    def _stream():
+        try:
+            from time import sleep
+            from src.unified_input_processor import get_progress_manager
+            pm = get_progress_manager()
+            for _ in range(60):
+                data = pm.get_progress(request_id) if hasattr(pm, 'get_progress') else pm.progress_store.get(request_id, {})
+                payload = json.dumps({'request_id': request_id, 'progress_data': data or {}})
+                yield f"data: {payload}\n\n"
+                sleep(1)
+        except Exception:
+            yield f"data: {json.dumps({'request_id': request_id, 'progress_data': {}})}\n\n"
+    return Response(_stream(), mimetype='text/event-stream')
+
 @vue_api.route('/analyze', methods=['POST'])
 def analyze():
     """
@@ -224,6 +400,8 @@ def analyze():
     
     # Initialize force_mode parameter
     force_mode = None
+    # Precomputed result (used to harmonize early-return paths)
+    precomputed_result = None
     
     try:
         if True:
@@ -233,7 +411,12 @@ def analyze():
         
             pass  # Empty block
 
-        
+        # Best-effort: record one document submission for this request
+        try:
+            record_document()
+        except Exception:
+            pass
+
         if request.files:
             logger.info(f"[Request {request_id}] Files received: {[f.filename for f in request.files.values()]}")
         
@@ -247,7 +430,13 @@ def analyze():
             {"name": "Cluster", "progress": 80, "message": "Citations clustered successfully..."},
             {"name": "Verify", "progress": 90, "message": "Verification completed..."}
         ]
-        progress_tracker.start_progress(request_id, progress_steps)
+        # Initialize progress manager (SSEProgressManager) and start progress for this request
+        try:
+            from src.unified_input_processor import get_progress_manager
+            progress_tracker = get_progress_manager()
+            progress_tracker.start_progress(request_id, progress_steps)
+        except Exception as _e:
+            logger.warning(f"[Request {request_id}] Progress manager initialization failed: {_e}")
         
         json_data = None
         if request.data and request.is_json:
@@ -258,6 +447,22 @@ def analyze():
                     if 'client_request_id' in json_data:
                         request_id = json_data['client_request_id']
                         logger.info(f"[Request {request_id}] Using client-provided request_id for progress tracking")
+                        # EARLY: Start progress and register verification so polling by client_request_id returns 200
+                        try:
+                            # Start progress under the client-provided ID (in addition to any earlier default)
+                            try:
+                                # Ensure progress is started for the client-provided ID
+                                if request_id not in progress_tracker.progress_store:
+                                    progress_tracker.start_progress(request_id, progress_steps)
+                            except Exception as __e:
+                                logger.warning(f"[Request {request_id}] Progress start failed: {__e}")
+                            from src.verification_manager import VerificationManager
+                            vm = VerificationManager()
+                            total_cites = 0
+                            vm.register_verification(request_id, request_id, total_cites)
+                            logger.info(f"[Request {request_id}] Early progress + verification registered for JSON input")
+                        except Exception as _e:
+                            logger.warning(f"[Request {request_id}] Early JSON verification registration failed: {_e}")
                     
                     sanitized_data = {}
                     for k, v in json_data.items():
@@ -281,6 +486,19 @@ def analyze():
             logger.error(f"[Request {request_id}] 🔍 DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
                 logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}' for file upload")
+
+            # EARLY: Register verification so client_request_id polling returns 200 immediately
+            try:
+                from src.verification_manager import VerificationManager
+                vm = VerificationManager()
+                client_request_id = request.form.get('client_request_id')
+                total_cites = 0
+                if client_request_id:
+                    vm.register_verification(client_request_id, request_id, total_cites)
+                vm.register_verification(request_id, request_id, total_cites)
+                logger.info(f"[Request {request_id}] Early verification registered (client_id={client_request_id})")
+            except Exception as _e:
+                logger.warning(f"[Request {request_id}] Early verification registration failed: {_e}")
             
             file_obj = request.files['file']
             input_data = {
@@ -315,10 +533,11 @@ def analyze():
                     input_dict = {'type': 'text', 'text': text_data}
                     
                     if service.should_process_immediately(input_dict):
-                        logger.info(f"[Request {request_id}] Processing JSON text immediately (short text)")
+                        logger.info(f"[Request {request_id}] Processing JSON text immediately via UnifiedInputProcessor")
                         try:
-                            result = service.process_immediately(input_dict)
-                            
+                            from src.unified_input_processor import UnifiedInputProcessor
+                            uip = UnifiedInputProcessor()
+                            result = uip.process_any_input(text_data, 'text', request_id, source_name='json_text')
                             result['request_id'] = request_id
                             if 'metadata' not in result:
                                 result['metadata'] = {}
@@ -327,8 +546,7 @@ def analyze():
                                 'input_type': 'text',
                                 'text_length': len(text_data)
                             })
-                            
-                            return _format_response(result, request_id, metadata, start_time)
+                            precomputed_result = result
                         except Exception as e:
                             logger.error(f"[Request {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
                     
@@ -343,10 +561,11 @@ def analyze():
                     input_dict = {'type': 'text', 'text': text_data}
                     
                     if service.should_process_immediately(input_dict):
-                        logger.info(f"[Request {request_id}] Processing legacy JSON text immediately (short text)")
+                        logger.info(f"[Request {request_id}] Processing legacy JSON text immediately via UnifiedInputProcessor")
                         try:
-                            result = service.process_immediately(input_dict)
-                            
+                            from src.unified_input_processor import UnifiedInputProcessor
+                            uip = UnifiedInputProcessor()
+                            result = uip.process_any_input(text_data, 'text', request_id, source_name='json_text_legacy')
                             result['request_id'] = request_id
                             if 'metadata' not in result:
                                 result['metadata'] = {}
@@ -355,8 +574,7 @@ def analyze():
                                 'input_type': 'text',
                                 'text_length': len(text_data)
                             })
-                            
-                            return _format_response(result, request_id, metadata, start_time)
+                            precomputed_result = result
                         except Exception as e:
                             logger.error(f"[Request {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
                     
@@ -449,31 +667,128 @@ def analyze():
                 
                 logger.info(f"[Request {request_id}] Using UnifiedInputProcessor for {input_type} input")
                 
-                progress_tracker.update_progress(request_id, 0, 20, "Started processing")
+                try:
+                    progress_tracker.update_progress(request_id, 0, 20, "Started processing")
+                except Exception:
+                    pass
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
                 # Pass force_mode parameter if available
-                result = processor.process_any_input(
-                    input_data, 
-                    input_type, 
-                    request_id, 
-                    force_mode=force_mode
-                )
+                if precomputed_result is not None:
+                    result = precomputed_result
+                else:
+                    result = processor.process_any_input(
+                        input_data, 
+                        input_type, 
+                        request_id, 
+                        force_mode=force_mode
+                    )
                 
-                progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
+                try:
+                    progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
+                except Exception:
+                    pass
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                progress_tracker.update_progress(request_id, 2, 60, "Citations normalized locally")
+                try:
+                    progress_tracker.update_progress(request_id, 2, 60, "Citations normalized locally")
+                except Exception:
+                    pass
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                progress_tracker.update_progress(request_id, 3, 80, "Case names and years extracted")
+                try:
+                    progress_tracker.update_progress(request_id, 3, 80, "Case names and years extracted")
+                except Exception:
+                    pass
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                progress_tracker.update_progress(request_id, 4, 90, "Citations clustered successfully")
+                try:
+                    progress_tracker.update_progress(request_id, 4, 90, "Citations clustered successfully")
+                except Exception:
+                    pass
                 time.sleep(0.1)  # Small delay for frontend to see progress
                 
-                progress_tracker.complete_progress(request_id)
+                try:
+                    progress_tracker.complete_progress(request_id)
+                except Exception:
+                    pass
                 
+                # === Strict context repair (Vue path) ===
+                # For text inputs, ensure extracted_case_name appears in the strict pre-citation context; otherwise re-extract.
+                try:
+                    if isinstance(input_data, str):
+                        all_positions = find_all_citation_positions(input_data)
+                        debug_flag = str(request.args.get('debug', '')).lower() in ('1', 'true', 'yes')
+                        for _ci in (result.get('citations') or []):
+                            # Get citation text and current name
+                            if isinstance(_ci, dict):
+                                cit_text = _ci.get('citation') or _ci.get('text')
+                                cur_name = _ci.get('extracted_case_name') or ''
+                            else:
+                                cit_text = getattr(_ci, 'citation', None)
+                                cur_name = getattr(_ci, 'extracted_case_name', '') or ''
+                            if not cit_text:
+                                continue
+                            # Resolve citation position
+                            pos = None
+                            for (s, e, t) in all_positions:
+                                if t == cit_text:
+                                    pos = (s, e)
+                                    break
+                            if pos is None:
+                                m = input_data.find(cit_text)
+                                if m != -1:
+                                    pos = (m, m + len(cit_text))
+                            # Robust fallback: regex search allowing flexible spaces/dots
+                            if pos is None and cit_text:
+                                try:
+                                    def _build_citation_regex(s: str) -> str:
+                                        # Escape everything then relax spaces and dots
+                                        pat = re.escape(str(s))
+                                        # Allow flexible whitespace between tokens
+                                        pat = pat.replace(r"\ ", r"\\s+")
+                                        # Make dots optional and allow optional following space
+                                        pat = pat.replace(r"\.", r"\\.?")
+                                        return pat
+                                    rx = _build_citation_regex(cit_text)
+                                    mx = re.search(rx, input_data, flags=re.IGNORECASE)
+                                    if mx:
+                                        pos = (mx.start(), mx.end())
+                                except Exception:
+                                    pass
+                            if pos is None:
+                                continue
+                            s_idx, e_idx = pos
+                            strict_ctx = get_strict_context_for_citation(input_data, s_idx, e_idx, all_positions, max_lookback=200)
+                            # Normalize for containment check (use only the tail near the citation to avoid earlier-name bleed)
+                            tail_for_check = (strict_ctx or '')[-160:]
+                            def _norm(x: str) -> str:
+                                return (x or '').lower().replace('\u2019', "'").replace('\u2018', "'").replace('`', "'")
+                            if (not cur_name) or (str(cur_name).strip().upper() == 'N/A') or (_norm(cur_name) not in _norm(tail_for_check)):
+                                re_name = extract_case_name_from_strict_context(strict_ctx, cit_text)
+                                if re_name and re_name != 'N/A':
+                                    if isinstance(_ci, dict):
+                                        _ci['extracted_case_name'] = re_name
+                                        _ci['method'] = 'clean_pipeline_v1_strict_repair'
+                                    else:
+                                        try:
+                                            setattr(_ci, 'extracted_case_name', re_name)
+                                            setattr(_ci, 'method', 'clean_pipeline_v1_strict_repair')
+                                        except Exception:
+                                            pass
+                                    logger.info(f"[STRICT-REPAIR] Overwrote extracted name for {cit_text}: '{cur_name}' -> '{re_name}'")
+                            if debug_flag:
+                                tail = (strict_ctx or '')[-120:]
+                                if isinstance(_ci, dict):
+                                    _ci['strict_context_tail'] = tail
+                                else:
+                                    try:
+                                        setattr(_ci, 'strict_context_tail', tail)
+                                    except Exception:
+                                        pass
+                except Exception as _e:
+                    logger.warning(f"[STRICT-REPAIR] Skipped due to error: {_e}")
+
                 if result.get('success') is False or result.get('error'):
                     return _format_error(
                         result.get('error', 'Unknown error'),
@@ -625,22 +940,406 @@ def _format_response(result, request_id, metadata, start_time):
         'success': result.get('success', True)
     })
     
+    def _normalize_legal_name(s):
+        try:
+            import re, html
+            if not s:
+                return ''
+            x = html.unescape(str(s)).lower()
+            x = x.replace('’', "'").replace('`', "'").replace('‘', "'")
+            patterns = [
+                (r"\bdep[’'\.]?t\b", 'dept'),
+                (r"\bcomm[’'\.]?n\b", 'commission'),
+                (r"\bpub\.?\b", 'public'),
+                (r"\butil\.?\b", 'utility'),
+                (r"\bins\.?\b", 'insurance'),
+                (r"\bfed[’'\.]?n\b", 'federation'),
+                (r"\bass[’'\.]?n\b", 'association'),
+                (r"\bpa\.?\b", 'pennsylvania'),
+                (r"\bu\.?s\.?\b", 'united states'),
+                (r"\bsec\.?\b", 'securities'),
+                (r"\bexch\.?\b", 'exchange'),
+                (r"\bmfrs?\.?\b", 'manufacturers'),
+                (r"\bindus\.?\b", 'industries'),
+                (r"\bnat\.?l\b", 'national'),
+                (r"\bcommw\.?\b", 'commonwealth'),
+            ]
+            for pat, repl in patterns:
+                x = re.sub(pat, repl, x)
+            x = re.sub(r"[\.,\-_/&()]+", ' ', x)
+            x = re.sub(r"\s+", ' ', x).strip()
+            stop = {
+                'inc','llc','ltd','corp','co','company','limited','plc','s.a.','sa','gmbh','ag',
+                # permissive: ignore common agency qualifiers to reduce false negatives
+                'department','dept','division','bureau','office','ministry','agency','administration'
+            }
+            tokens = [t for t in x.split() if t not in stop]
+            return ' '.join(tokens)
+        except Exception:
+            return str(s or '').strip().lower()
+
+    def _jaccard(a, b):
+        sa = set((a or '').split())
+        sb = set((b or '').split())
+        if not sa or not sb:
+            return 0.0
+        inter = len(sa & sb)
+        uni = len(sa | sb)
+        return inter / max(1, uni)
+
+    def _names_equivalent(a, b):
+        """Lenient: prefer false positives over false negatives."""
+        try:
+            if not a or not b:
+                return False
+            if a == b:
+                return True
+            # Accept substring containment after normalization
+            if a in b or b in a:
+                return True
+            # Lower Jaccard threshold to be lenient
+            return _jaccard(a, b) >= 0.5
+        except Exception:
+            return False
+    
     # USER FIX 2024-10-21: Convert CitationResult objects to dicts BEFORE building response
     citations_raw = result.get('citations', [])
     citations_serialized = []
     for cit in citations_raw:
+        # Serialize citation object/dict first
         if hasattr(cit, 'to_dict'):
-            citations_serialized.append(cit.to_dict())
+            d = cit.to_dict()
         elif isinstance(cit, dict):
-            citations_serialized.append(cit)
+            d = dict(cit)
         else:
-            # Fallback
-            citations_serialized.append(cit.__dict__ if hasattr(cit, '__dict__') else str(cit))
+            d = cit.__dict__ if hasattr(cit, '__dict__') else {'raw': str(cit)}
+
+        # Enforce strict data separation: extracted_* must come from document
+        try:
+            # Prefer original_case_name/date captured pre-verification
+            original_case = None
+            original_date = None
+            if isinstance(cit, dict):
+                original_case = cit.get('original_case_name')
+                original_date = cit.get('original_date')
+            else:
+                original_case = getattr(cit, 'original_case_name', None)
+                original_date = getattr(cit, 'original_date', None)
+
+            if original_case:
+                if not d.get('extracted_case_name') or d.get('extracted_case_name') == 'N/A':
+                    d['extracted_case_name'] = original_case
+                d['extracted_source'] = 'document'
+            # Do not overwrite extracted_date with canonical; restore original when present
+            if original_date:
+                if not d.get('extracted_date') or d.get('extracted_date') == 'N/A':
+                    d['extracted_date'] = original_date
+
+            # Ensure canonical fields remain separate
+            # (no action needed if d already has 'canonical_name'/'canonical_date')
+        except Exception as _e:
+            logger.warning(f"[RESPONSE] Data separation enforcement skipped for a citation: {_e}")
+
+        citations_serialized.append(d)
     
+    # Filter out court-year-only items (e.g., "N.J. 1997") from citations and clusters
+    try:
+        import re
+        def _is_court_year_only(cit_text: str) -> bool:
+            if not cit_text:
+                return False
+            t = str(cit_text).strip()
+            looks_like_reporter = re.match(r'^\d+\s+[A-Za-z\.]', t) is not None
+            has_year = re.search(r'(17|18|19|20)\d{2}\b', t) is not None
+            # If it doesn't start like a reporter citation but contains a year, treat as court-year-only
+            return (not looks_like_reporter) and has_year
+        # Filter individual citations
+        before_c = len(citations_serialized)
+        citations_serialized = [c for c in citations_serialized if not _is_court_year_only(c.get('citation'))]
+        after_c = len(citations_serialized)
+        if before_c != after_c:
+            logger.info(f"[FILTER] Removed {before_c - after_c} court-year-only items from citations")
+    except Exception as _e:
+        logger.warning(f"[FILTER] Failed filtering court-year-only citations: {_e}")
+
+    # Normalize citations to stable DTO shape
+    try:
+        citations_serialized = [normalize_citation_dict(c) for c in citations_serialized]
+    except Exception as _e:
+        logger.warning(f"[SCHEMAS] Citation normalization failed, using raw dicts: {_e}")
+
+    try:
+        import re
+        def _year_from(s):
+            if not s:
+                return ''
+            m = re.search(r"(17|18|19|20)\d{2}", str(s))
+            return m.group(0) if m else ''
+        for c in citations_serialized:
+            exn = c.get('extracted_case_name') or ''
+            can = c.get('canonical_name') or c.get('canonical_case_name') or ''
+            nex = _normalize_legal_name(exn)
+            ncan = _normalize_legal_name(can)
+            c['normalized_extracted_name'] = nex
+            c['normalized_canonical_name'] = ncan
+            eq = _names_equivalent(nex, ncan) if (nex and ncan) else False
+            c['names_equivalent'] = eq
+            # Only flag mismatch on strong disagreement (very low similarity and no substring)
+            if nex and ncan:
+                j = _jaccard(nex, ncan)
+                c['name_mismatch'] = (nex not in ncan) and (ncan not in nex) and (j < 0.3)
+            else:
+                c['name_mismatch'] = False
+            c['submitted_display_name'] = html.unescape(exn or c.get('citation') or '')
+            c['submitted_display_date'] = c.get('extracted_date') or _year_from(c.get('extracted_date')) or ''
+            # CAPTCHA masking: if canonical appears to be 'capcha/captcha', treat as unverified with no verifying display
+            if ncan and ('captcha' in ncan or ncan == 'capcha'):
+                try:
+                    c['verified'] = False
+                except Exception:
+                    pass
+                # Clear canonical fields so UI won't display placeholder
+                if 'canonical_name' in c:
+                    c['canonical_name'] = None
+                if 'canonical_case_name' in c:
+                    c['canonical_case_name'] = None
+                if 'canonical_date' in c and not c.get('canonical_date'):
+                    c['canonical_date'] = None
+                c['verifying_display_name'] = ''
+                c['error'] = (c.get('error') or 'captcha_blocked')
+            else:
+                # Clean canonical fields for API consumers
+                if c.get('canonical_name'):
+                    c['canonical_name'] = html.unescape(c['canonical_name'])
+                if c.get('canonical_case_name'):
+                    c['canonical_case_name'] = html.unescape(c['canonical_case_name'])
+                c['verifying_display_name'] = html.unescape(can)
+            c['verifying_display_date'] = c.get('canonical_date') or _year_from(c.get('canonical_date')) or ''
+    except Exception as _e:
+        logger.warning(f"[RESPONSE] Failed to add name normalization fields: {_e}")
+
+    # Add progress endpoints for UI polling/streaming
+    result['progress_endpoint'] = f"/casestrainer/api/analyze/progress/{request_id}"
+    result['progress_stream'] = f"/casestrainer/api/analyze/progress-stream/{request_id}"
+
+    # Prepare clusters with filtered inner citations if present (preserve objects and verified flags)
+    clusters_data = result.get('clusters', [])
+    try:
+        def _filter_cluster_citations(citations_list):
+            cleaned = []
+            for it in (citations_list or []):
+                if isinstance(it, dict):
+                    text = it.get('citation') or it.get('text') or ''
+                    if _is_court_year_only(text):
+                        continue
+                    # ensure 'citation' field exists for matching
+                    if not it.get('citation') and it.get('text'):
+                        it['citation'] = it['text']
+                    cleaned.append(it)
+                else:
+                    text = str(it)
+                    if _is_court_year_only(text):
+                        continue
+                    cleaned.append(text)
+            return cleaned
+
+        def _norm_cit(v):
+            return (str(v or '')).strip()
+        def _extract_cit_key(v: str) -> str:
+            s = _norm_cit(v)
+            try:
+                m = re.search(r"\b\d+\s+[A-Za-z][A-Za-z\.\d]*\s+\d+\b", s)
+                if m:
+                    return m.group(0).strip()
+            except Exception:
+                pass
+            # as-is fallback
+            return s
+
+        # build lookup from individual citations for enrichment
+        _cit_lut = {}
+        for c in citations_serialized:
+            key = _norm_cit(c.get('citation'))
+            if key:
+                _cit_lut[key] = c
+
+        for cl in clusters_data:
+            if isinstance(cl, dict) and 'citations' in cl:
+                items = _filter_cluster_citations(cl.get('citations'))
+                enriched = []
+                for it in items:
+                    if isinstance(it, dict):
+                        key = _extract_cit_key(it.get('citation') or it.get('text'))
+                        match = _cit_lut.get(key)
+                        if match:
+                            merged = dict(match)
+                            # overlay original minimal fields cautiously (don't overwrite protected fields)
+                            protected = {
+                                'extracted_case_name', 'extracted_date',
+                                'canonical_name', 'canonical_case_name', 'canonical_date',
+                                'verified', 'verification_source', 'verification_url'
+                            }
+                            for k, v in it.items():
+                                if v in [None, '']:
+                                    continue
+                                if k in protected:
+                                    # do not overwrite protected keys
+                                    if not merged.get(k):
+                                        merged[k] = v
+                                else:
+                                    merged[k] = v
+                            enriched.append(merged)
+                        else:
+                            # ensure 'verified' key present for UI logic
+                            if 'verified' not in it:
+                                it['verified'] = False
+                            enriched.append(it)
+                    else:
+                        key = _extract_cit_key(it)
+                        match = _cit_lut.get(key)
+                        if match:
+                            enriched.append(match)
+                        else:
+                            enriched.append({'text': key, 'citation': key, 'verified': False})
+                cl['citations'] = enriched
+
+                # propagate cluster canonical fields to children that are missing them
+                cl_can_name = cl.get('canonical_name') or cl.get('canonical_case_name')
+                cl_can_date = cl.get('canonical_date')
+                if cl_can_name or cl_can_date:
+                    for cit in cl['citations']:
+                        if not isinstance(cit, dict):
+                            continue
+                        if cl_can_name and not (cit.get('canonical_name') or cit.get('canonical_case_name')):
+                            cit['canonical_name'] = cl_can_name
+                        if cl_can_date and not cit.get('canonical_date'):
+                            cit['canonical_date'] = cl_can_date
+
+        # annotate mismatch flags on clusters using representative citation
+        import re
+        def _nname(s):
+            return _normalize_legal_name(s)
+
+        for cl in clusters_data:
+            if not isinstance(cl, dict):
+                continue
+            cits = cl.get('citations') or []
+            rep = None
+            for it in cits:
+                if isinstance(it, dict) and it.get('extracted_case_name'):
+                    rep = it
+                    if it.get('verified'):
+                        break
+            if rep is None and cits:
+                rep = cits[0] if isinstance(cits[0], dict) else None
+
+            has_nm = False
+            has_dm = False
+            if rep:
+                exn = _nname(rep.get('extracted_case_name'))
+                can = _nname(rep.get('canonical_name') or rep.get('canonical_case_name'))
+                if can and exn:
+                    # Reuse lenient rule; flag mismatch only on strong disagreement
+                    if not _names_equivalent(exn, can) and _jaccard(exn, can) < 0.4:
+                        has_nm = True
+                exd = str(rep.get('extracted_date') or '')
+                cand = str(rep.get('canonical_date') or '')
+                try:
+                    exy = re.search(r"(17|18|19|20)\d{2}", exd)
+                    cay = re.search(r"(17|18|19|20)\d{2}", cand)
+                    if exy and cay and exy.group(0) != cay.group(0):
+                        has_dm = True
+                except Exception:
+                    pass
+            # scan all citations to detect any mismatches within cluster
+            # optional indices for UI
+            idxs = []
+            d_idxs = []
+            any_equiv = False
+            for i, it in enumerate(cits):
+                if not isinstance(it, dict):
+                    continue
+                exn = _nname(it.get('extracted_case_name'))
+                can = _nname(it.get('canonical_name') or it.get('canonical_case_name'))
+                if can and exn:
+                    if _names_equivalent(exn, can):
+                        any_equiv = True
+                    elif exn != can:
+                        idxs.append(i)
+                exd = str(it.get('extracted_date') or '')
+                cand = str(it.get('canonical_date') or '')
+                try:
+                    exy = re.search(r"(17|18|19|20)\d{2}", exd)
+                    cay = re.search(r"(17|18|19|20)\d{2}", cand)
+                    if exy and cay and exy.group(0) != cay.group(0):
+                        d_idxs.append(i)
+                except Exception:
+                    pass
+            # set cluster-level flags if any mismatches exist
+            cl['has_name_mismatch'] = False if any_equiv else bool(has_nm or idxs)
+            cl['has_date_mismatch'] = bool(has_dm or d_idxs)
+            if idxs:
+                cl['mismatch_indices'] = idxs
+    except Exception as _e:
+        logger.warning(f"[FILTER] Failed filtering/annotating clusters: {_e}")
+
+    # Normalize clusters to stable DTO shape (preserve enriched data)
+    try:
+        clusters_data = [normalize_cluster_dict(cl) if isinstance(cl, dict) else cl for cl in clusters_data]
+    except Exception as _e:
+        logger.warning(f"[SCHEMAS] Cluster normalization failed, using raw dicts: {_e}")
+
+    # Add cluster-level display fields and lenient equivalence for UI
+    try:
+        import re
+        def _year_only(s):
+            if not s:
+                return ''
+            m = re.search(r"(17|18|19|20)\d{2}", str(s))
+            return m.group(0) if m else ''
+        for cl in clusters_data:
+            if not isinstance(cl, dict):
+                continue
+            cits = cl.get('citations') or []
+            rep = None
+            for it in cits:
+                if isinstance(it, dict) and (it.get('extracted_case_name') or it.get('canonical_name') or it.get('canonical_case_name')):
+                    rep = it
+                    if it.get('verified'):
+                        break
+            if rep is None and cits:
+                rep = cits[0] if isinstance(cits[0], dict) else None
+            exn = _normalize_legal_name(rep.get('extracted_case_name') if rep else '')
+            can = _normalize_legal_name((rep.get('canonical_name') or rep.get('canonical_case_name')) if rep else '')
+            j = _jaccard(exn, can) if (exn and can) else 0.0
+            names_eq = _names_equivalent(exn, can) if (exn and can) else False
+            name_mm = False if names_eq else (exn not in can and can not in exn and j < 0.4) if (exn and can) else False
+            # Display strings (un-normalized originals)
+            cl['submitted_display_name'] = (rep.get('extracted_case_name') if rep else '') or ''
+            cl['submitted_display_date'] = (rep.get('extracted_date') if rep else '') or _year_only(rep.get('extracted_date') if rep else '')
+            cl['verifying_display_name'] = (rep.get('canonical_name') or rep.get('canonical_case_name')) if rep else ''
+            cl['verifying_display_date'] = (rep.get('canonical_date') if rep else '') or _year_only(rep.get('canonical_date') if rep else '')
+            # Lenient flags for UI
+            cl['names_equivalent'] = names_eq
+            cl['name_mismatch'] = name_mm
+            cl['name_similarity'] = j
+    except Exception as _e:
+        logger.warning(f"[RESPONSE] Failed to add cluster display fields: {_e}")
+
+    # Best-effort: record citations count when returning a completed, successful response
+    try:
+        if isinstance(citations_serialized, list):
+            status_flag = result.get('status', 'completed')
+            success_flag = bool(result.get('success', True))
+            if success_flag and status_flag == 'completed' and len(citations_serialized) > 0:
+                record_citations(len(citations_serialized))
+    except Exception:
+        pass
+
     response_data = {
         'result': {
             'citations': citations_serialized,
-            'clusters': result.get('clusters', []),
+            'clusters': clusters_data,
             'statistics': result.get('statistics', {}),
         },
         'request_id': request_id,
@@ -1054,60 +1753,34 @@ def processing_progress():
             logger.debug(f"[Progress API] Found progress in global manager: {progress_data}")
             
             if progress_data and 'error' not in progress_data:
+                pct = progress_data.get('progress', 0)
+                status_str = str(progress_data.get('status', 'processing'))
+                is_complete = status_str.lower() in ('complete', 'completed', 'done', 'success') or pct >= 100
                 return jsonify({
                     'status': 'success',
                     'request_id': request_id,
-                    'progress_percent': progress_data.get('progress', 0),
-                    'current_step': progress_data.get('current_step', 0),
-                    'total_steps': progress_data.get('total_steps', 100),
+                    'progress_percent': pct,
+                    'current_step': int(pct),
+                    'total_steps': 100,
                     'current_message': progress_data.get('message', 'Processing...'),
-                    'status_detail': progress_data.get('status', 'processing'),
-                    'is_complete': progress_data.get('status') == 'Complete',
-                    'processed_citations': progress_data.get('results_count', 0),
-                    'total_citations': progress_data.get('results_count', 0)
+                    'status_detail': status_str,
+                    'is_complete': is_complete,
+                    'processed_citations': int(pct),
+                    'total_citations': 100
                 })
-        
-        # Fall back to local progress tracker (for async processing)
-        progress_data = progress_tracker.get_progress(request_id)
-        
-        if progress_data:
-            current_step = progress_data.get('current_step', 0)
-            current_progress = progress_data.get('current_progress', 0)
-            status = progress_data.get('status', 'active')
-            steps = progress_data.get('steps', [])
-            
-            progress_percent = current_progress
-            
-            is_complete = status == 'completed'
-            
-            current_step_info = steps[current_step] if steps and current_step < len(steps) else {}
-            current_message = current_step_info.get('message', 'Processing...')
-            
-            return jsonify({
-                'status': 'success',
-                'request_id': request_id,
-                'processed_citations': current_step + 1,  # Use step index as processed count
-                'total_citations': len(steps) if steps else 5,  # Use total steps as total count
-                'is_complete': is_complete,
-                'progress_percent': progress_percent,
-                'current_step': current_step + 1,
-                'total_steps': len(steps) if steps else 5,
-                'current_message': current_message,
-                'status_detail': status
-            })
-        else:
-            return jsonify({
-                'status': 'success',
-                'request_id': request_id,
-                'processed_citations': 5,  # Assume completed
-                'total_citations': 5,
-                'is_complete': True,
-                'progress_percent': 100,
-                'current_step': 5,
-                'total_steps': 5,
-                'current_message': 'Processing completed',
-                'status_detail': 'completed'
-            })
+        # Not found in SSE manager; report pending
+        return jsonify({
+            'status': 'pending',
+            'request_id': request_id,
+            'progress_percent': 0,
+            'current_step': 0,
+            'total_steps': 100,
+            'current_message': 'Waiting for processing to start...',
+            'status_detail': 'pending',
+            'is_complete': False,
+            'processed_citations': 0,
+            'total_citations': 100
+        })
             
     except Exception as e:
         logger.error(f"Error getting progress for {request_id}: {e}")
@@ -1127,66 +1800,41 @@ def progress_stream(request_id):
     This provides a streaming connection for progress updates during processing.
     """
     def generate_progress_stream():
-        """Generate progress updates as Server-Sent Events."""
         try:
             yield 'data: {"type": "connected", "message": "Progress stream connected"}\n\n'
-            
-            progress_data = progress_tracker.get_progress(request_id)
-            
-            if progress_data and progress_data.get('status') == 'active':
-                steps = progress_data.get('steps', [])
-                current_step = progress_data.get('current_step', 0)
-                current_progress = progress_data.get('current_progress', 0)
-                
-                progress_event = {
-                    "type": "progress",
-                    "data": {
-                        "step": steps[current_step].get('name', "Processing...") if steps and current_step < len(steps) else "Processing...",
-                        "progress": current_progress,
-                        "message": steps[current_step].get('message', "Processing...") if steps and current_step < len(steps) else "Processing...",
-                        "total_steps": len(steps) if steps else 0,
-                        "current_step": current_step + 1
-                    }
-                }
-                yield f'data: {json.dumps(progress_event)}\n\n'
-                
-                start_time = time.time()
-                while progress_data and progress_data.get('status') == 'active' and (time.time() - start_time) < 30:  # 30 second timeout
-                    time.sleep(0.5)
-                    progress_data = progress_tracker.get_progress(request_id)
-                    if progress_data and progress_data.get('status') == 'completed':
-                        yield 'data: {"type": "complete", "message": "Processing completed successfully!"}\n\n'
+            from src.unified_input_processor import get_progress_manager
+            sse_mgr = get_progress_manager()
+            start_time = time.time()
+            last_pct = -1
+            while True:
+                time.sleep(0.5)
+                pdata = sse_mgr.get_progress(request_id)
+                if not pdata or 'error' in pdata:
+                    if time.time() - start_time > 30:
+                        yield 'data: {"type": "timeout", "message": "No progress available"}\n\n'
                         break
-                
-                progress_tracker.cleanup_progress(request_id)
-                
-            else:
-                progress_steps = [
-                    {"step": "Initializing...", "progress": 0, "message": "Starting unified processing..."},
-                    {"step": "Extract", "progress": 20, "message": "Extracting citations..."},
-                    {"step": "Analyze", "progress": 40, "message": "Citations analyzed and normalized..."},
-                    {"step": "Extract Names", "progress": 60, "message": "Case names and years extracted..."},
-                    {"step": "Cluster", "progress": 80, "message": "Citations clustered successfully..."},
-                    {"step": "Verify", "progress": 90, "message": "Verification completed..."},
-                    {"step": "Complete", "progress": 100, "message": "Processing completed successfully!"}
-                ]
-                
-                for i, step_data in enumerate(progress_steps):
+                    continue
+                pct = int(pdata.get('progress', 0))
+                if pct != last_pct:
+                    last_pct = pct
                     progress_event = {
                         "type": "progress",
                         "data": {
-                            "step": step_data["step"],
-                            "progress": step_data["progress"],
-                            "message": step_data["message"],
-                            "total_steps": len(progress_steps),
-                            "current_step": i + 1
+                            "step": pdata.get('status', 'processing'),
+                            "progress": pct,
+                            "message": pdata.get('message', 'Processing...'),
+                            "total_steps": 100,
+                            "current_step": pct
                         }
                     }
                     yield f'data: {json.dumps(progress_event)}\n\n'
-                    time.sleep(0.3)  # Faster simulation
-                
-                yield 'data: {"type": "complete", "message": "Progress stream completed"}\n\n'
-            
+                if pct >= 100 or str(pdata.get('status','')).lower() in ('complete','completed','done','success'):
+                    yield 'data: {"type": "complete", "message": "Processing completed successfully!"}\n\n'
+                    break
+            try:
+                sse_mgr.cleanup_task(request_id)
+            except Exception:
+                pass
         except Exception as e:
             logger.error(f"Error in progress stream for {request_id}: {e}")
             yield f'data: {{"type": "error", "message": "Progress stream error: {str(e)}"}}\n\n'
@@ -1331,6 +1979,53 @@ def _handle_file_upload(service, request_id):
                 
                 logger.info(f"[File Upload {request_id}] File processing task enqueued with job_id: {job.id}")
                 
+                # Heartbeat for file async path: reflect queued/verification progress via SSEProgressManager
+                try:
+                    from src.unified_input_processor import get_progress_manager
+                    from src.progress_manager import ProgressTracker as SSETracker
+                    sse_mgr = get_progress_manager()
+                    sse_mgr.active_tasks[request_id] = SSETracker(request_id, total_steps=100)
+                    sse_mgr.update_progress(request_id, 10, 'queued', 'Queued for background processing')
+                    
+                    def _file_async_hb_and_watch():
+                        try:
+                            hb = 12
+                            from src.verification_manager import VerificationManager
+                            vm = VerificationManager()
+                            while True:
+                                time.sleep(1.0)
+                                task = sse_mgr.active_tasks.get(request_id)
+                                if not task:
+                                    break
+                                status = getattr(task, 'status', '')
+                                vstat = None
+                                try:
+                                    vstat = vm.get_verification_status(request_id) or vm.get_verification_status(job.id)
+                                except Exception:
+                                    vstat = None
+                                if isinstance(vstat, dict):
+                                    pct = int(vstat.get('progress_percent', 0))
+                                    msg = vstat.get('current_message', 'Verifying...')
+                                    if pct > hb:
+                                        hb = pct
+                                    if pct >= 100 or str(vstat.get('state', '')).lower() in ('completed','complete','done','success'):
+                                        sse_mgr.update_progress(request_id, 100, 'completed', 'Verification completed')
+                                        break
+                                    sse_mgr.update_progress(request_id, max(hb, min(95, pct)), 'processing', msg)
+                                    continue
+                                if status in ('completed','failed'):
+                                    break
+                                if hb < 60:
+                                    hb = min(60, hb + 2)
+                                    sse_mgr.update_progress(request_id, hb, 'processing', 'Processing in background...')
+                                else:
+                                    pass
+                        except Exception:
+                            pass
+                    threading.Thread(target=_file_async_hb_and_watch, daemon=True).start()
+                except Exception:
+                    pass
+                
                 # Register verification immediately so polling endpoints return 200
                 try:
                     from src.verification_manager import VerificationManager
@@ -1430,6 +2125,7 @@ def _handle_file_upload(service, request_id):
                 logger.info(f"[File Upload {request_id}] Processing extracted text synchronously")
                 logger.info(f"[File Upload {request_id}] Text to process length: {len(text)} characters")
                 logger.info(f"[File Upload {request_id}] Text preview: {text[:300]}...")
+                # Progress heartbeat handled centrally in UnifiedInputProcessor where applicable
 
                 # Use the same clean extraction pipeline used by the async worker
                 from src.citation_extraction_endpoint import extract_citations_production
@@ -1469,6 +2165,13 @@ def _handle_file_upload(service, request_id):
                     'content_type': file.content_type,
                     'processing_mode': 'sync'
                 })
+                try:
+                    # Mark completion
+                    from src.unified_input_processor import get_progress_manager
+                    sse_mgr = get_progress_manager()
+                    sse_mgr.update_progress(request_id, 100, 'completed', 'Processing completed successfully')
+                except Exception:
+                    pass
                 
                 return formatted_result
                 
@@ -2273,29 +2976,63 @@ def _validate_api_response_data(response_data):
         # 1. Check for data separation violations (DISABLED - too strict for verified cases)
         # if citations:
         #     # Validate data separation for citations
-        #     separation_report = validate_data_separation(citations, similarity_threshold=0.85)
+        #     separation_report = validate_data_separation(citations, similarity_threshold=DATA_SEPARATION_SIMILARITY_THRESHOLD)
         #     if not separation_report.get('is_valid', True):
         #         errors.append(f"Data separation violations: {len(separation_report.get('warnings', []))} issues detected")
         #         errors.extend(separation_report.get('warnings', [])[:3])  # Include first 3 warnings
         
-        # 2. Check for verification status contradictions
+        # 2. Check for verification status contradictions and name mismatches
         verified_count = 0
         error_count = 0
+        mismatch_count = 0
         
         for citation in citations:
             if isinstance(citation, dict):
                 if citation.get('verified') is True:
                     verified_count += 1
                     
+                    # Use the correct canonical field name
+                    canonical_name = citation.get('canonical_name') or citation.get('canonical_case_name')
+                    canonical_date = citation.get('canonical_date')
+                    
                     # Check if verified citation has canonical data
-                    if (citation.get('canonical_case_name') is None and 
-                        citation.get('canonical_date') in [None, '', '']):
+                    if (canonical_name is None and canonical_date in [None, '', '']):
                         errors.append(f"Verified citation '{citation.get('citation', 'unknown')}' missing canonical data")
                     
                     # Check for verification errors
                     if citation.get('error') and 'not be verified' in str(citation.get('error', '')):
                         error_count += 1
                         errors.append(f"Verified citation '{citation.get('citation', 'unknown')}' has verification error: {citation.get('error')}")
+                    
+                    # Flag extracted vs canonical name mismatches (major and minor)
+                    extracted = citation.get('extracted_case_name')
+                    if extracted and canonical_name:
+                        try:
+                            import re
+                            from difflib import SequenceMatcher
+                            def _clean(n: str) -> str:
+                                n = re.sub(r"[\s\-\.,'\(\)]+", ' ', n.lower()).strip()
+                                # remove common corporate suffixes for comparison
+                                n = re.sub(r"\b(inc|llc|ltd|corp|co|company|limited|plc|s\.a\.|gmbh|ag)\b\.?", '', n)
+                                return re.sub(r"\s+", ' ', n).strip()
+                            sim = SequenceMatcher(None, _clean(extracted), _clean(canonical_name)).ratio()
+                            if sim < 0.65:
+                                mismatch_count += 1
+                                errors.append(
+                                    f"Name mismatch for '{citation.get('citation','unknown')}': extracted='{extracted}' vs canonical='{canonical_name}' (similarity {sim:.2f})"
+                                )
+                            else:
+                                # Even when similarity is high, flag minor diffs when cleaned strings differ (e.g., Dept. vs Dep't)
+                                cleaned_ex = _clean(extracted)
+                                cleaned_ca = _clean(canonical_name)
+                                if cleaned_ex != cleaned_ca:
+                                    # classify as minor difference
+                                    errors.append(
+                                        f"Minor name difference for '{citation.get('citation','unknown')}': extracted='{extracted}' vs canonical='{canonical_name}'"
+                                    )
+                        except Exception as _e:
+                            # Non-fatal: skip mismatch calc
+                            pass
         
         if verified_count > 0 and error_count > 0:
             errors.append(f"Verification contradiction: {verified_count} verified citations but {error_count} have verification errors")

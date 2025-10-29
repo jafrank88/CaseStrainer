@@ -47,13 +47,10 @@ import unicodedata
 import os
 from collections import defaultdict, deque
 
-# DEPRECATED IMPORTS - Use unified_case_extraction_master instead
-# These imports are kept for backwards compatibility but will be removed in v2.0
-# TODO: Migrate all code to use unified_case_extraction_master directly
-from src.unified_case_name_extractor_v2 import (
-    get_unified_extractor,
-    extract_case_name_and_date_master,  # DEPRECATED: Use extract_case_name_and_date_unified_master
-    extract_case_name_only_unified
+# UNIFIED IMPORTS - Use unified_case_extraction_master instead
+# These imports provide the single source of truth for extraction
+from src.unified_case_extraction_master import (
+    extract_case_name_and_date_unified_master
 )
 
 from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
@@ -76,7 +73,8 @@ except Exception as e:
     EYECITE_AVAILABLE = False
     logger.warning(f"Eyecite import failed with unexpected error: {e}")
 
-from src.case_name_extraction_core import extract_case_name_and_date, extract_case_name_only
+# REMOVED: Unused imports from case_name_extraction_core
+# These functions are not used in this module since we use unified_case_extraction_master
 
 try:
     from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
@@ -91,21 +89,8 @@ except Exception as e:
     logger.warning(f"Comprehensive websearch engine import failed with unexpected error: {e}")
     search_cluster_for_canonical_sources = None
 
-try:
-    from src.citation_utils_consolidated import normalize_citation, generate_citation_variants
-    CITATION_UTILS_AVAILABLE = True
-    logger.info("Citation utils successfully imported")
-except ImportError as e:
-    CITATION_UTILS_AVAILABLE = False
-    logger.warning(f"Citation utils not available: {e}")
-    normalize_citation = None
-    generate_citation_variants = None
-except Exception as e:
-    CITATION_UTILS_AVAILABLE = False
-    logger.warning(f"Citation utils import failed with unexpected error: {e}")
-    normalize_citation = None
-    generate_citation_variants = None
-
+# REMOVED: Unused imports from citation_utils_consolidated
+# These functions are not used in this module
 
 try:
     from src.models import CitationResult, ProcessingConfig
@@ -1710,9 +1695,9 @@ class UnifiedCitationProcessorV2:
         except Exception as e:
             logger.warning(f"[STRICT-ISOLATION-FAILED] Error: {e}")
         
-        # FALLBACK: Use the old extraction method if strict isolation failed
+        # FALLBACK: Use the unified master extraction method
         try:
-            from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+            from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
             
             # FIX #33: Enable debug for problematic citation
             citation_text = getattr(citation, 'citation', None)
@@ -1722,12 +1707,12 @@ class UnifiedCitationProcessorV2:
             if citation_text and (' U.S. ' in citation_text or ' S. Ct. ' in citation_text or ' L. Ed. ' in citation_text):
                 force_debug = True
             
-            result = extract_case_name_and_date_master(
+            result = extract_case_name_and_date_unified_master(
                 text=text,
                 citation=citation_text,
-                citation_start=getattr(citation, 'start_index', None),
+                start_index=getattr(citation, 'start_index', None),
                 document_primary_case_name=getattr(self, 'document_primary_case_name', None),
-                citation_end=getattr(citation, 'end_index', None),
+                end_index=getattr(citation, 'end_index', None),
                 debug=force_debug  # FIX #33: Enable debug for problematic citations
             )
             
@@ -2181,12 +2166,12 @@ class UnifiedCitationProcessorV2:
         citation_text = citation.citation
         force_debug = citation_text and (' U.S. ' in citation_text or ' S. Ct. ' in citation_text or ' L. Ed. ' in citation_text)
         
-        result = extract_case_name_and_date_master(
+        result = extract_case_name_and_date_unified_master(
             text=text, 
             citation=citation.citation,
-            citation_start=citation.start_index,
+            start_index=citation.start_index,
             document_primary_case_name=getattr(self, 'document_primary_case_name', None),
-            citation_end=citation.end_index,
+            end_index=citation.end_index,
             debug=force_debug
         )
         
@@ -2648,6 +2633,21 @@ class UnifiedCitationProcessorV2:
         
         final = list(seen.values())
         logger.info(f"[DEDUP] Finished: {len(citations)} → {len(final)} citations ({len(citations) - len(final)} removed)")
+        
+        # FILTER: Remove court-year-only parentheticals (e.g., "(N.J. 1997)", "N.J. 1997")
+        # These are not standalone citations and should not appear in the individual citations list.
+        try:
+            import re
+            court_year_pattern = re.compile(r"^\(?\s*[A-Z][A-Za-z\.'\s]{1,40}\s*\(?\d{4}\)?\s*$")
+            # Keep entries that look like true citations (typically start with a volume number)
+            is_true_citation = lambda s: bool(re.match(r"^\d+\s+", s))
+            before = len(final)
+            final = [c for c in final if not (court_year_pattern.match(c.citation or '') and not is_true_citation(c.citation or ''))]
+            removed = before - len(final)
+            if removed > 0:
+                logger.info(f"[FILTER] Removed {removed} court-year-only items (e.g., '(N.J. 1997)')")
+        except Exception as _e:
+            logger.warning(f"[FILTER] Court-year-only filter failed: {_e}")
         
         return final
     
@@ -3732,7 +3732,7 @@ class UnifiedCitationProcessorV2:
         
         # ENHANCED: Multi-method extraction with truncation repair and aggressive fallbacks
         try:
-            from src.unified_case_name_extractor_v2 import extract_case_name_and_date_master
+            from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
             import re
             
             for c in citations:
@@ -3757,11 +3757,11 @@ class UnifiedCitationProcessorV2:
                         # USER DEBUG: Enable debug for U.S. Reports, S.Ct., L.Ed. to diagnose vacatur pattern
                         force_debug = citation_text and (' U.S. ' in citation_text or ' S. Ct. ' in citation_text or ' L. Ed. ' in citation_text)
                         
-                        res = extract_case_name_and_date_master(
+                        res = extract_case_name_and_date_unified_master(
                             text=text,
                             citation=citation_text,
-                            citation_start=start_index if start_index != -1 else None,
-                            citation_end=end_index,
+                            start_index=start_index if start_index != -1 else None,
+                            end_index=end_index,
                             debug=force_debug,
                             document_primary_case_name=self.document_primary_case_name  # P3 FIX: Pass contamination filter
                         )

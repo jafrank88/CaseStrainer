@@ -25,6 +25,7 @@ class CitationContext:
     start_pos: int
     end_pos: int
     reporter: str
+    year: Optional[str] = None
     
 
 class ParallelCitationPropagator:
@@ -73,7 +74,7 @@ class ParallelCitationPropagator:
         # Propagate case names within each group
         propagated_count = 0
         for group in groups:
-            propagated_count += self._propagate_within_group(group, citations)
+            propagated_count += self._propagate_within_group(group, citations, original_text)
         
         logger.info(f"[PROPAGATION] Propagated case names to {propagated_count} citations")
         
@@ -90,6 +91,14 @@ class ParallelCitationPropagator:
         for cite_dict in citations:
             citation = cite_dict.get('citation', '')
             case_name = cite_dict.get('extracted_case_name')
+            # Attempt to read year from extracted_date
+            extracted_date = cite_dict.get('extracted_date')
+            year = None
+            if extracted_date:
+                import re as _re
+                m = _re.search(r'(18\d{2}|19\d{2}|20[0-2]\d)', str(extracted_date))
+                if m:
+                    year = m.group(1)
             
             # Find citation position in text
             # Clean citation for matching
@@ -110,7 +119,8 @@ class ParallelCitationPropagator:
                     case_name=case_name if case_name and case_name != 'N/A' else None,
                     start_pos=match.start(),
                     end_pos=match.end(),
-                    reporter=reporter
+                    reporter=reporter,
+                    year=year
                 ))
         
         # Sort by position
@@ -165,7 +175,8 @@ class ParallelCitationPropagator:
     def _propagate_within_group(
         self, 
         group: List[CitationContext],
-        citations: List[Dict[str, Any]]
+        citations: List[Dict[str, Any]],
+        original_text: str
     ) -> int:
         """
         Propagate case name within a parallel citation group.
@@ -173,28 +184,49 @@ class ParallelCitationPropagator:
         Returns:
             Number of citations that received propagated names
         """
-        # Find the citation with a case name
-        source_name = None
-        for ctx in group:
-            if ctx.case_name:
-                source_name = ctx.case_name
-                break
-        
-        if not source_name:
-            return 0
-        
+        # Helper: find the nearest preceding context with a case name
+        def nearest_preceding_source(target: CitationContext) -> Optional[CitationContext]:
+            candidates = [c for c in group if c.case_name and c.end_pos <= target.start_pos]
+            # Year guard: if target has a year, require same year in source (when available)
+            if target.year:
+                same_year = [c for c in candidates if c.year == target.year]
+                if same_year:
+                    candidates = same_year
+            if not candidates:
+                return None
+            # Choose the one closest to the target
+            return max(candidates, key=lambda c: c.end_pos)
+
+        # Guard: do not propagate across clause boundaries like semicolons or "see also"
+        def same_clause(src: CitationContext, dst: CitationContext) -> bool:
+            seg = original_text[src.end_pos:dst.start_pos]
+            if not seg:
+                return False
+            # If there's a semicolon, or explicit transition phrases, treat as new clause
+            if ';' in seg:
+                return False
+            if re.search(r"\bsee\s+also\b", seg, re.IGNORECASE):
+                return False
+            # Otherwise allow within reasonable span (already constrained by proximity threshold)
+            return True
+
         # Propagate to citations without names
         propagated = 0
         for ctx in group:
             if not ctx.case_name:
+                src_ctx = nearest_preceding_source(ctx)
+                if not src_ctx:
+                    continue
+                if not same_clause(src_ctx, ctx):
+                    continue
                 # Find this citation in the original list and update it
                 for cite_dict in citations:
                     if cite_dict.get('citation') == ctx.citation:
                         old_name = cite_dict.get('extracted_case_name')
                         if not old_name or old_name == 'N/A':
-                            cite_dict['extracted_case_name'] = source_name
+                            cite_dict['extracted_case_name'] = src_ctx.case_name
                             cite_dict['propagated_from_parallel'] = True
-                            logger.info(f"[PROPAGATION] {ctx.citation} ← {source_name}")
+                            logger.info(f"[PROPAGATION] {ctx.citation} ← {src_ctx.case_name}")
                             propagated += 1
                             break
         

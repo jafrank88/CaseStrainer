@@ -10,12 +10,13 @@ import sys
 import time
 import logging
 import tempfile
+import threading
 from typing import Dict, Any, Optional, Union
 from urllib.parse import urlparse
 from werkzeug.datastructures import FileStorage
 
 from src.robust_pdf_extractor import extract_text_from_pdf_smart
-from src.progress_manager import fetch_url_content, SSEProgressManager, ProgressTracker
+from src.progress_manager import fetch_url_content, SSEProgressManager, ProgressTracker, estimate_citations_cheap
 from src.api.services.citation_service import CitationService
 
 logger = logging.getLogger(__name__)
@@ -353,6 +354,21 @@ class UnifiedInputProcessor:
                     # Update progress
                     progress_callback(10, "Extract", "Using full pipeline with verification and clustering")
                     
+                    # Start centralized ETA heartbeat towards ~85% using cheap citation estimate
+                    try:
+                        qn = estimate_citations_cheap(input_data.get('text', '') or '')
+                        expected_seconds = max(4.0, min(45.0, 3.0 + 0.6 * qn))
+                        self.progress_manager.start_eta_heartbeat(
+                            request_id,
+                            start_pct=10,
+                            cap_pct=85,
+                            expected_seconds=expected_seconds,
+                            message='Analyzing document...',
+                            interval=0.8
+                        )
+                    except Exception:
+                        pass
+                    
                     # Extract, cluster, and verify citations using full pipeline
                     text = input_data.get('text', '')
                     logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True")
@@ -402,6 +418,17 @@ class UnifiedInputProcessor:
                     }
                     
                     progress_callback(100, "Complete", f"Full pipeline: {len(citations)} citations, {len(clusters)} clusters")
+                    # Cleanup completed task after a brief delay
+                    try:
+                        def _cleanup_done():
+                            try:
+                                time.sleep(3.0)
+                                self.progress_manager.cleanup_task(request_id)
+                            except Exception:
+                                pass
+                        threading.Thread(target=_cleanup_done, daemon=True).start()
+                    except Exception:
+                        pass
                     
                     logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
                     
@@ -500,12 +527,12 @@ class UnifiedInputProcessor:
                     logger.error(f"[Unified Processor {request_id}] ✅ Queue created successfully")
                     
                     logger.error(f"[Unified Processor {request_id}] 📤 About to enqueue job...")
-                    logger.error(f"[Unified Processor {request_id}]    Function: src.progress_manager.process_citation_task_direct")
+                    logger.error(f"[Unified Processor {request_id}]    Function: src.rq_worker.process_citation_task_direct")
                     logger.error(f"[Unified Processor {request_id}]    Args: ({request_id}, 'text', {{text: {len(text)} chars}})")
                     logger.error(f"[Unified Processor {request_id}]    Job ID: {request_id}")
                     
                     job = queue.enqueue(
-                        'src.progress_manager.process_citation_task_direct',  # FIXED: String path instead of function object
+                        'src.rq_worker.process_citation_task_direct',  # Use RQ worker that reports VM progress
                         args=(request_id, 'text', {'text': text}),
                         job_id=request_id,  # Use request_id as the job ID
                         job_timeout=600,  # 10 minutes timeout
@@ -516,6 +543,76 @@ class UnifiedInputProcessor:
                     logger.error(f"[Unified Processor {request_id}] ✅ Task enqueued successfully!")
                     logger.error(f"[Unified Processor {request_id}]    Job ID: {job.id}")
                     logger.error(f"[Unified Processor {request_id}]    Job status: {job.get_status()}")
+                    
+                    # Heartbeat for async path: ETA-based progress while background job runs (centralized)
+                    try:
+                        tracker = ProgressTracker(request_id, total_steps=100)
+                        self.progress_manager.active_tasks[request_id] = tracker
+                        self.progress_manager.update_progress(request_id, 10, 'queued', 'Queued for background processing')
+                        # Estimate duration from cheap citation estimate and start ETA heartbeat up to ~60%
+                        try:
+                            qn = estimate_citations_cheap(text)
+                            expected_seconds = max(6.0, min(90.0, 5.0 + 0.5 * qn))
+                            self.progress_manager.start_eta_heartbeat(
+                                request_id,
+                                start_pct=10,
+                                cap_pct=60,
+                                expected_seconds=expected_seconds,
+                                message='Processing in background...',
+                                interval=1.0
+                            )
+                        except Exception:
+                            pass
+                        
+                        def _async_heartbeat_and_watcher():
+                            try:
+                                hb = 12
+                                # Lazy import to avoid heavy deps at import time
+                                from src.verification_manager import VerificationManager
+                                vm = VerificationManager()
+                                while True:
+                                    time.sleep(1.0)
+                                    task = self.progress_manager.active_tasks.get(request_id)
+                                    if not task:
+                                        break
+                                    status = getattr(task, 'status', '')
+                                    # Poll verification status; when done, complete and exit
+                                    vstat = None
+                                    try:
+                                        vstat = vm.get_verification_status(request_id) or vm.get_verification_status(job.id)
+                                    except Exception:
+                                        vstat = None
+                                    if isinstance(vstat, dict):
+                                        pct = int(vstat.get('progress_percent', 0))
+                                        msg = vstat.get('current_message', 'Verifying...')
+                                        if pct > hb:
+                                            hb = pct
+                                        if pct >= 100 or str(vstat.get('state', '')).lower() in ('completed','complete','done','success'):
+                                            self.progress_manager.update_progress(request_id, 100, 'completed', 'Verification completed')
+                                            # Cleanup after a brief delay
+                                            try:
+                                                def _cleanup_async():
+                                                    try:
+                                                        time.sleep(3.0)
+                                                        self.progress_manager.cleanup_task(request_id)
+                                                    except Exception:
+                                                        pass
+                                                threading.Thread(target=_cleanup_async, daemon=True).start()
+                                            except Exception:
+                                                pass
+                                            break
+                                        # Reflect verification progress above heartbeat floor
+                                        self.progress_manager.update_progress(request_id, max(hb, min(95, pct)), 'processing', msg)
+                                        continue
+                                    # No verification yet; rely on central ETA heartbeat; do not double-update
+                                    if status in ('completed', 'failed'):
+                                        break
+                                    pass
+                            except Exception:
+                                pass
+                        threading.Thread(target=_async_heartbeat_and_watcher, daemon=True).start()
+                    except Exception:
+                        pass
                     
                     return {
                         'success': True,

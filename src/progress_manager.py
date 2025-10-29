@@ -7,6 +7,7 @@ AUTO-RELOAD LIVE TEST: This change should trigger immediate restart!
 
 import os
 import re
+import threading
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import sys
@@ -239,6 +240,60 @@ class SSEProgressManager:
         except Exception as e:
             logger.error(f"Failed to get progress from Redis: {e}")
         return {'error': 'Task not found'}
+
+    def start_eta_heartbeat(self, task_id: str, start_pct: int, cap_pct: int, expected_seconds: float,
+                             message: str = 'Processing...', interval: float = 0.8) -> None:
+        """Start an ETA-based heartbeat that advances progress smoothly up to cap_pct.
+
+        - Never decreases progress (monotonic).
+        - Stops when task completes or fails.
+        - Uses elapsed/expected to compute target percent in [start_pct..cap_pct].
+        """
+        try:
+            start_time = time.time()
+
+            def _hb():
+                try:
+                    while True:
+                        time.sleep(interval)
+                        task = self.active_tasks.get(task_id)
+                        if not task:
+                            break
+                        status = getattr(task, 'status', '')
+                        if status in ('completed', 'failed'):
+                            break
+                        elapsed = max(0.0, time.time() - start_time)
+                        frac = min(1.0, elapsed / max(1.0, expected_seconds))
+                        target = start_pct + int((cap_pct - start_pct) * frac)
+                        # Monotonic increase: don't regress existing current_step
+                        current = int(getattr(task, 'current_step', 0))
+                        nxt = max(current, max(start_pct, min(cap_pct, target)))
+                        self.update_progress(task_id, nxt, 'processing', message)
+                except Exception:
+                    pass
+            threading.Thread(target=_hb, daemon=True).start()
+        except Exception:
+            pass
+
+
+def estimate_citations_cheap(text: str) -> int:
+    """Fast, cheap estimate of citation count without full parsing.
+
+    Combines a few regex heuristics:
+    - Reporter pattern like "123 F.3d 456" / "159 Wn.2d 700"
+    - Presence of " v. " case markers (bounded to avoid overcounting)
+    Returns the max of the two counts.
+    """
+    if not text:
+        return 0
+    try:
+        reporter_pat = re.compile(r"\b\d{1,3}\s+[A-Z][A-Za-z\d\.]*(?:\s?[A-Za-z\d\.]*)\s+\d{1,4}\b")
+        v_mark_pat = re.compile(r"\b\w[\w\.'-]{1,}\s+v\.\s+\w")
+        c1 = len(reporter_pat.findall(text))
+        c2 = len(v_mark_pat.findall(text))
+        return max(c1, c2)
+    except Exception:
+        return 0
 
 
 

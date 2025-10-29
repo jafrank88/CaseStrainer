@@ -20,8 +20,54 @@ from src.models import CitationResult
 from src.utils.unified_case_name_extractor import extract_case_name_with_strict_isolation
 from src.citation_patterns import CitationPatterns  # CONSOLIDATED: Import shared patterns
 from src.case_name_validator import is_valid_case_name  # NEW: Validation
+from src.utils.strict_context_isolator import get_strict_context_for_citation  # Context validation for eyecite names
 
 logger = logging.getLogger(__name__)
+
+def _eyecite_name_in_strict_context(text: str, citation: CitationResult) -> bool:
+    """Return True if the existing extracted_case_name appears in the strict
+    pre-citation context (last ~100-300 chars), indicating it belongs to this
+    specific citation rather than an earlier clause/citation.
+    """
+    try:
+        if not citation or not getattr(citation, 'extracted_case_name', None):
+            return False
+        name = citation.extracted_case_name
+        if not name or name == 'N/A':
+            return False
+        start = getattr(citation, 'start_index', None)
+        end = getattr(citation, 'end_index', None)
+        if start is None or end is None:
+            return False
+        # Obtain strictly isolated context (respects previous citation and semicolons)
+        strict_context = get_strict_context_for_citation(text, start, end, None, max_lookback=300)
+        if not strict_context:
+            return False
+        # Normalize quotes for comparison
+        ctx = strict_context.replace('\u2019', "'").replace('\u2018', "'").lower()
+        nm = str(name).replace('\u2019', "'").replace('\u2018', "'").lower()
+        # Require that the name (or its main portion before an opening paren/comma) appears
+        # near the end of the strict context (closest to the citation)
+        core = nm.split('(')[0].split(',')[0].strip()
+        if not core or len(core) < 5:
+            core = nm
+        hit = ctx.rfind(core)
+        if hit == -1:
+            return False
+        # Ensure proximity (name should end within ~150 chars before the citation)
+        distance = len(ctx) - (hit + len(core))
+        if distance > 150:
+            return False
+        # Ensure no hard boundary between the name end and citation
+        between = ctx[hit + len(core):]
+        if ';' in between:
+            return False
+        import re as _re
+        if _re.search(r"\bsee\s+also\b", between, _re.IGNORECASE):
+            return False
+        return True
+    except Exception:
+        return False
 
 def _is_simplified_case_name(case_name: str) -> bool:
     """
@@ -261,6 +307,10 @@ class CleanExtractionPipeline:
                 # Check text between citations - should be mostly commas/whitespace
                 between_text = text[current.end_index:next_cit.start_index] if current.end_index else ""
                 between_clean = re.sub(r'[,\s]+', '', between_text)
+                
+                # HARD BOUNDARY: Do not share across semicolons or transition phrases like 'see also'
+                if ';' in between_text or re.search(r"\bsee\s+also\b", between_text, re.IGNORECASE):
+                    break
                 
                 # If there's significant text between citations (not just commas), it's a new group
                 if len(between_clean) > 10:
@@ -601,12 +651,16 @@ class CleanExtractionPipeline:
                 if citation.extracted_case_name and citation.extracted_case_name != "N/A":
                     is_valid = is_valid_case_name(citation.extracted_case_name)
                     is_simplified = _is_simplified_case_name(citation.extracted_case_name)
+                    in_context = _eyecite_name_in_strict_context(text, citation)
                     
                     if is_target:
                         logger.error(f"[FIX-13-TRACE]   Validation result: {is_valid}")
                         logger.error(f"[FIX-13-TRACE]   Simplified detection: {is_simplified}")
+                        logger.error(f"[FIX-13-TRACE]   In strict context: {in_context}")
                     
-                    if is_valid and not is_simplified:
+                    # Accept eyecite name ONLY if it is valid, not simplified,
+                    # AND appears in the strict context near this citation.
+                    if is_valid and not is_simplified and in_context:
                         skipped_count += 1
                         success_count += 1  # Count as success since we have a name
                         if is_target:
@@ -616,11 +670,11 @@ class CleanExtractionPipeline:
                     else:
                         # Eyecite gave us junk or simplified name - need to re-extract
                         if is_target:
-                            logger.error(f"[FIX-13-TRACE]   ❌ INVALID OR SIMPLIFIED - will re-extract")
+                            logger.error(f"[FIX-13-TRACE]   ❌ INVALID/SIMPLIFIED/OUT-OF-CONTEXT - will re-extract")
                         if is_simplified:
                             logger.warning(f"[CLEAN-PIPELINE] Eyecite name is simplified for {citation.citation}: '{citation.extracted_case_name}' - re-extracting for full name")
                         else:
-                            logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
+                            logger.warning(f"[CLEAN-PIPELINE] Eyecite name invalid or out-of-context for {citation.citation}: '{citation.extracted_case_name}' - re-extracting")
                         citation.extracted_case_name = None  # Force re-extraction
                 else:
                     if is_target:
@@ -668,16 +722,66 @@ class CleanExtractionPipeline:
                             else:
                                 extracted_name = getattr(master_result, 'case_name', None)
                                 extracted_year = getattr(master_result, 'year', None)
-                            
-                            if extracted_name and extracted_name != "N/A":
+                        
+                            # SAFETY: Only accept master name if it is near this citation and in the same clause
+                            def _accept_master_name(doc_text: str, cit_start: int, name: str, target_citation_text: str) -> bool:
+                                try:
+                                    if not doc_text or not name or cit_start is None:
+                                        return False
+                                    # Find the last occurrence of the name before the citation
+                                    search_window_start = max(0, cit_start - 600)
+                                    window = doc_text[search_window_start:cit_start]
+                                    pos = window.lower().rfind(str(name).lower())
+                                    if pos == -1:
+                                        return False
+                                    abs_end = search_window_start + pos + len(name)
+                                    # Reject if there is a semicolon or 'see also' between name end and citation
+                                    between = doc_text[abs_end:cit_start]
+                                    if ';' in between:
+                                        return False
+                                    import re as _re
+                                    if _re.search(r"\bsee\s+also\b", between, _re.IGNORECASE):
+                                        return False
+                                    # Reporter-family guard: if text between contains a reporter token
+                                    # that belongs to a DIFFERENT family than the target citation, reject.
+                                    def _detect_family(s: str) -> str:
+                                        s2 = s.lower()
+                                        for token, fam in (
+                                            ('f. 4th', 'f4th'), ('f.4th', 'f4th'),
+                                            ('f. 3d', 'f3d'), ('f.3d', 'f3d'),
+                                            ('f. 2d', 'f2d'), ('f.2d', 'f2d'),
+                                            ('u.s.', 'us'), ('s. ct.', 'sct'), ('l. ed. 2d', 'led2d'),
+                                            ('a. 3d', 'a3d'), ('a.3d', 'a3d'),
+                                            ('a. 2d', 'a2d'), ('a.2d', 'a2d'),
+                                            ('a.', 'a'),
+                                            ('p. 3d', 'p3d'), ('p.3d', 'p3d'),
+                                            ('p. 2d', 'p2d'), ('p.2d', 'p2d'),
+                                            ('p.', 'p'),
+                                        ):
+                                            if token in s2:
+                                                return fam
+                                        return ''
+                                    target_fam = _detect_family(str(target_citation_text or ''))
+                                    between_fam = _detect_family(between)
+                                    if between_fam and target_fam and between_fam != target_fam:
+                                        return False
+                                    # Require close proximity
+                                    if (cit_start - abs_end) > 150:
+                                        return False
+                                    return True
+                                except Exception:
+                                    return False
+
+                            if extracted_name and extracted_name != "N/A" and _accept_master_name(text, citation.start_index, extracted_name, citation.citation):
                                 case_name = extracted_name
-                                logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor succeeded: '{case_name}'")
+                                logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor accepted (nearby, same clause): '{case_name}'")
+                            else:
+                                logger.info(f"[CLEAN-PIPELINE-FALLBACK] Master extractor name rejected due to distance/boundary: '{extracted_name}'")
                                 
                                 # USER FIX 2024-10-16: Also use the year from master extractor
                                 # Master extractor has the fixed year extraction (looks forward first)
                                 if extracted_year and extracted_year != "N/A":
                                     citation.extracted_date = extracted_year
-                                    logger.info(f"[CLEAN-PIPELINE-FALLBACK] Using year from master: {extracted_year}")
                                     
                                     # DEBUG: Track for problematic citations
                                     if "388 P.3d 977" in citation.citation:

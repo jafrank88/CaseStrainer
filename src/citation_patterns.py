@@ -48,6 +48,13 @@ class CitationPatterns:
     P_GENERAL = r'\b\d+\s+P\.\s+\d+\b'  # Older Pacific Reporter
     P_2D = r'\b\d+\s+P\.\s*2d\s+\d+\b'
     P_3D = r'\b\d+\s+P\.\s*3d\s+\d+\b'
+
+    # ============================================================================
+    # STATE REPORTERS - ATLANTIC
+    # ============================================================================
+    A_GENERAL = r'\b\d+\s+A\.\s+\d+\b'
+    A_2D = r'\b\d+\s+A\.\s*2d\s+\d+\b'
+    A_3D = r'\b\d+\s+A\.\s*3d\s+\d+\b'
     
     # ============================================================================
     # STATE REPORTERS - WASHINGTON
@@ -508,6 +515,10 @@ class CitationPatterns:
             'p_general': re.compile(cls.P_GENERAL, re.IGNORECASE),
             'p_2d': re.compile(cls.P_2D, re.IGNORECASE),
             'p_3d': re.compile(cls.P_3D, re.IGNORECASE),
+            # State reporters - Atlantic
+            'a_general': re.compile(cls.A_GENERAL, re.IGNORECASE),
+            'a_2d': re.compile(cls.A_2D, re.IGNORECASE),
+            'a_3d': re.compile(cls.A_3D, re.IGNORECASE),
             
             # State reporters - Washington
             'wn_first': re.compile(cls.WN_FIRST, re.IGNORECASE),
