@@ -909,19 +909,20 @@ def fetch_url_content(url: str) -> str:
                 data = response.json()
                 
                 # Extract text from CourtListener API opinion response
-                if 'plain_text' in data:
+                # Check plain_text first, but only if it actually contains content
+                if 'plain_text' in data and data['plain_text'] and len(data['plain_text'].strip()) > 0:
                     text = data['plain_text']
                     logger.info(f"✅ Extracted opinion plain_text: {len(text)} characters")
                     return text
-                elif 'html_with_citations' in data:
-                    # Fallback to HTML version
+                elif 'html_with_citations' in data and data['html_with_citations'] and len(data['html_with_citations'].strip()) > 0:
+                    # Fallback to HTML version with citations
                     from bs4 import BeautifulSoup
                     html = data['html_with_citations']
                     soup = BeautifulSoup(html, 'html.parser')
                     text = soup.get_text(separator=' ', strip=True)
                     logger.info(f"✅ Extracted from html_with_citations: {len(text)} characters")
                     return text
-                elif 'html' in data:
+                elif 'html' in data and data['html'] and len(data['html'].strip()) > 0:
                     from bs4 import BeautifulSoup
                     html = data['html']
                     soup = BeautifulSoup(html, 'html.parser')
