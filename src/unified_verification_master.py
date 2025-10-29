@@ -32,6 +32,8 @@ from urllib.parse import quote
 
 # CRITICAL: Import from config to ensure .env files are loaded
 from src.config import COURTLISTENER_API_KEY, get_bool_config_value
+from src.verification.registry import VerificationRegistry
+from src.http.clients import get_retrying_session, build_default_headers
 
 logger = logging.getLogger(__name__)
 
@@ -166,7 +168,8 @@ class UnifiedVerificationMaster:
         """Initialize the master verification engine."""
         # CRITICAL FIX: Use config import instead of os.getenv to ensure .env is loaded
         self.api_key = COURTLISTENER_API_KEY
-        self.session = requests.Session()
+        # Use centralized retrying session for resilience
+        self.session = get_retrying_session(total=3, backoff=0.5)
         self._setup_session()
         self._setup_rate_limits()
         
@@ -182,16 +185,32 @@ class UnifiedVerificationMaster:
             logger.error("   Check .env, .env.production, or config.env files")
         logger.info("All duplicate verifiers deprecated")
         logger.info(f"Max verification retries set to: {self.MAX_VERIFICATION_RETRIES}")
+
+        # Optional: enable provider registry (feature flag)
+        self.use_registry = bool(get_bool_config_value('VERIFY_USE_REGISTRY', False))
+        self.registry: Optional[VerificationRegistry] = None
+        if self.use_registry:
+            async def _p_cl_lookup(cit, name_hint, date_hint, per_timeout):
+                return await self._verify_with_courtlistener_lookup(cit, name_hint, date_hint)
+            async def _p_cl_search(cit, name_hint, date_hint, per_timeout):
+                return await self._verify_with_courtlistener_search(cit, name_hint, date_hint)
+            async def _p_casemine(cit, name_hint, date_hint, per_timeout):
+                return await self._verify_with_casemine(cit, name_hint, date_hint, min(per_timeout, 12.0))
+            async def _p_justia(cit, name_hint, date_hint, per_timeout):
+                return await self._verify_with_justia(cit, name_hint, date_hint, min(per_timeout, 10.0))
+
+            self.registry = VerificationRegistry([
+                _p_cl_lookup,
+                _p_cl_search,
+                _p_casemine,
+                _p_justia,
+            ])
+            logger.info("VerificationRegistry enabled via VERIFY_USE_REGISTRY")
     
     def _setup_session(self):
-        """Setup HTTP session with optimal settings."""
-        self.session.headers.update({
-            'User-Agent': 'CaseStrainer/1.0 (https://github.com/casestrainer/casestrainer)',
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-        })
-        if self.api_key:
-            self.session.headers['Authorization'] = f'Token {self.api_key}'
+        """Setup HTTP session with optimal settings (centralized headers)."""
+        headers = build_default_headers(self.api_key)
+        self.session.headers.update(headers)
     
     def _setup_rate_limits(self):
         """Setup rate limiting for different sources."""
@@ -232,6 +251,29 @@ class UnifiedVerificationMaster:
         logger.error(f"   📌 Extracted: '{extracted_case_name}' ({extracted_date})")
         logger.error(f"   🚀 Starting verification strategies...")
         
+        # Fast-path via registry when enabled
+        if getattr(self, 'use_registry', False) and getattr(self, 'registry', None):
+            reg_data = await self.registry.verify(citation, extracted_case_name, extracted_date, timeout)
+            try:
+                return VerificationResult(
+                    citation=citation,
+                    verified=bool(reg_data.get('verified')),
+                    possible_match=bool(reg_data.get('possible_match', False)),
+                    canonical_name=reg_data.get('canonical_name'),
+                    canonical_date=reg_data.get('canonical_date'),
+                    canonical_url=reg_data.get('canonical_url'),
+                    source=reg_data.get('source'),
+                    confidence=float(reg_data.get('confidence', 0.0) or 0.0),
+                    method=str(reg_data.get('method') or 'registry'),
+                    raw_data=reg_data.get('raw_data'),
+                    validation_warning=reg_data.get('validation_warning'),
+                    warnings=reg_data.get('warnings'),
+                    error=reg_data.get('error'),
+                )
+            except Exception:
+                # Fall through to legacy strategy on any mapping error
+                pass
+
         # CRITICAL FIX: Check retry limit to prevent infinite loops
         retry_count = self.retry_tracker.get(citation, 0)
         if retry_count >= self.MAX_VERIFICATION_RETRIES:
@@ -1815,12 +1857,22 @@ class UnifiedVerificationMaster:
         # This ensures our "possible match" logic is used instead of the old enhanced fallback verifier
         logger.info(f"🔄 FALLBACK_VERIFY: Skipping enhanced fallback verifier, using unified fallback sources for '{citation}'")
         
+        # NEW: If extracted case name is N/A or too short/invalid, try reporter-first lookup immediately
+        if not extracted_case_name or extracted_case_name == "N/A" or len(extracted_case_name.strip()) < 3:
+            logger.info(f"🔍 [FALLBACK] Extracted name missing/invalid; trying reporter-first lookup for '{citation}'")
+            reporter_result = await self._verify_by_reporter_first(citation, extracted_case_name, extracted_date, remaining_timeout)
+            if reporter_result.verified:
+                logger.info(f"✅ [FALLBACK] Reporter-first verification succeeded for '{citation}'")
+                return reporter_result
+        
         # Try fallback sources in optimized priority order
-        # Prioritize state reporters via CaseMine, then reliable direct/known sources.
+        # Prioritize reporter-first for missing/invalid case names, then state reporters via CaseMine, then reliable direct/known sources.
         fallback_sources = [
+            ('Reporter_First', self._verify_by_reporter_first),      # NEW: Reporter-first for missing/invalid case names
             ('Universal_State', self._verify_with_universal_state),  # All 50 states support
             ('State_Courts', self._verify_with_state_courts),        # CaseMine-backed state lookups
             (VerificationSource.COURTLISTENER_SEARCH, self._verify_with_courtlistener_search),  # NEW: Search API when lookup fails
+            (VerificationSource.CASEMINE, self._verify_with_casemine),  # CaseMine citation-first path (federal/state)
             (VerificationSource.JUSTIA, self._verify_with_justia),
             ('OpenJurist', self._verify_with_openjurist),            # Federal direct URL
             ('Cornell_LII', self._verify_with_cornell_lii),
@@ -1843,16 +1895,168 @@ class UnifiedVerificationMaster:
                 result = await verify_func(citation, extracted_case_name, extracted_date, time_per_source)
                 
                 if result.verified or getattr(result, 'possible_match', False):
-                    logger.info(f"✅ FALLBACK_VERIFY: {source.value} succeeded for '{citation}' (verified={result.verified}, possible_match={getattr(result, 'possible_match', False)})")
+                    src_name = getattr(source, 'value', source)
+                    logger.info(f"✅ FALLBACK_VERIFY: {src_name} succeeded for '{citation}' (verified={result.verified}, possible_match={getattr(result, 'possible_match', False)})")
                     return result
                 
                 remaining_timeout -= (time.time() - source_start)
                 
             except Exception as e:
-                logger.warning(f"Fallback source {source.value} failed for {citation}: {e}")
+                src_name = getattr(source, 'value', source)
+                logger.warning(f"Fallback source {src_name} failed for {citation}: {e}")
                 continue
         
         return VerificationResult(citation=citation, error="All fallback sources failed")
+
+    async def _verify_by_reporter_first(self, citation: str, extracted_case_name: Optional[str], extracted_date: Optional[str], timeout: float) -> VerificationResult:
+        """Try to verify by parsing the citation and searching CourtListener by reporter string."""
+        logger.info(f"🔍 [REPORTER-FIRST] Verifying {citation}")
+        try:
+            # Parse volume, reporter, page
+            parts = re.split(r'\s+', citation.strip())
+            if len(parts) < 3:
+                logger.info(f"[REPORTER-FIRST] Cannot parse citation: {citation}")
+                return VerificationResult(citation=citation, error="Cannot parse citation format")
+            volume, reporter, page = parts[0], parts[1], parts[2]
+            if not (volume.isdigit() and reporter and page.isdigit()):
+                logger.info(f"[REPORTER-FIRST] Invalid citation format: volume={volume}, reporter={reporter}, page={page}")
+                return VerificationResult(citation=citation, error="Invalid citation format")
+            logger.info(f"[REPORTER-FIRST] Parsed: volume={volume}, reporter={reporter}, page={page}")
+            
+            # Use CourtListener search API with the exact citation string
+            api_key = getattr(self, 'api_key', None) or os.environ.get('COURTLISTENER_API_KEY')
+            if not api_key:
+                logger.warning("[REPORTER-FIRST] No CourtListener API key available")
+                return VerificationResult(citation=citation, error="No CourtListener API key available")
+            
+            search_url = "https://www.courtlistener.com/api/rest/v4/search/"
+            params = {
+                'q': f'"{volume} {reporter} {page}"',
+                'format': 'json',
+                'stat_Precedential': 'on',
+                'type': 'o',
+                'order_by': 'relevance',
+                'page_size': 3
+            }
+            headers = {"Authorization": f"Token {api_key}"}
+            resp = self.session.get(search_url, params=params, headers=headers, timeout=min(timeout, 10))
+            if resp.status_code != 200:
+                logger.warning(f"[REPORTER-FIRST] CourtListener search failed: {resp.status_code}")
+                return VerificationResult(citation=citation, error=f" CourtListener search failed: {resp.status_code}")
+            
+            data = resp.json()
+            if not data.get('results'):
+                logger.info(f"[REPORTER-FIRST] No results from CourtListener search for {citation}")
+                return VerificationResult(citation=citation, error="No results from CourtListener search")
+            
+            # Choose the first result; optionally validate citation match
+            top = data['results'][0]
+            case_name = top.get('caseName')
+            date_filed = top.get('dateFiled', '')
+            year = date_filed.split('-')[0] if date_filed else None
+            url = top.get('absolute_url')
+            if url and not url.startswith('http'):
+                url = f"https://www.courtlistener.com{url}"
+            
+            logger.info(f"✅ [REPORTER-FIRST] CourtListener result: {case_name} ({year}) for {citation}")
+            return VerificationResult(
+                citation=citation,
+                verified=True,
+                source="CourtListener (reporter-first)",
+                canonical_name=case_name,
+                canonical_date=year,
+                canonical_url=url,
+                confidence=0.85
+            )
+        except Exception as e:
+            logger.error(f"❌ [REPORTER-FIRST] Exception for {citation}: {e}")
+            return VerificationResult(citation=citation, error=f"Reporter-first verification failed: {str(e)}")
+
+    async def _verify_with_casemine(self, citation: str, extracted_case_name: Optional[str], extracted_date: Optional[str], timeout: float) -> VerificationResult:
+        """Verify using CaseMine via citation-first search and judgment page parsing."""
+        logger.info(f"🔍 [CASEMINE] Verifying {citation}")
+        try:
+            # Normalize query: use citation primarily; avoid quotes
+            query = citation.replace('"', '').replace("'", '').strip()
+            search_url = f"https://www.casemine.com/search?q={quote(query).replace('%20','+')}"
+            headers = {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            }
+            resp = self.session.get(search_url, headers=headers, timeout=min(timeout, 8))
+            if resp.status_code != 200:
+                return VerificationResult(citation=citation, error=f"CaseMine search status {resp.status_code}")
+
+            html = resp.text
+            # Look for judgment links
+            judgement_pattern = r"href=\"(/judgement/[^\"]+)\""
+            matches = re.findall(judgement_pattern, html, re.IGNORECASE)
+            matches = list(dict.fromkeys(matches))  # dedupe, preserve order
+            # Try up to 3 judgment pages
+            for idx, rel in enumerate(matches[:3]):
+                case_url = rel if rel.startswith('http') else f"https://www.casemine.com{rel}"
+                try:
+                    page = self.session.get(case_url, headers=headers, timeout=min(6, timeout))
+                    if page.status_code != 200:
+                        continue
+                    content = page.text
+
+                    # Extract canonical case name
+                    name = None
+                    for pat in [r'<h1[^>]*>([^<]+)</h1>', r'<title>([^<]+?)\s*\|']:
+                        m = re.search(pat, content, re.IGNORECASE)
+                        if m:
+                            name = re.sub(r'\s+', ' ', m.group(1)).strip()
+                            break
+
+                    # Check citation presence on page (flexible spacing/periods)
+                    cit_patterns = [
+                        re.escape(citation),
+                        citation.replace(' ', r'\s+'),
+                        citation.replace('.', r'\.?' ),
+                    ]
+                    found_citation = any(re.search(p, content, re.IGNORECASE) for p in cit_patterns)
+
+                    # Extract a plausible year
+                    canonical_date = extracted_date
+                    ym = re.search(r'\b(19|20)\d{2}\b', content[:4000])
+                    if ym:
+                        canonical_date = ym.group(0)
+
+                    if found_citation:
+                        return VerificationResult(
+                            citation=citation,
+                            verified=True,
+                            possible_match=False,
+                            canonical_name=name or extracted_case_name,
+                            canonical_date=canonical_date,
+                            canonical_url=case_url,
+                            source=VerificationSource.CASEMINE.value,
+                            confidence=0.85,
+                            method="casemine_direct"
+                        )
+
+                    # If name present and years align, return possible match
+                    if name and extracted_date and canonical_date:
+                        ey = re.search(r'(\d{4})', str(extracted_date))
+                        cy = re.search(r'(\d{4})', str(canonical_date))
+                        if ey and cy and ey.group(1) == cy.group(1):
+                            return VerificationResult.create_possible_match(
+                                citation=citation,
+                                canonical_name=name,
+                                canonical_url=case_url,
+                                canonical_date=canonical_date,
+                                extracted_date=extracted_date,
+                                source=VerificationSource.CASEMINE.value,
+                                confidence=0.7,
+                                method="casemine_possible_match"
+                            )
+                except Exception:
+                    continue
+
+            return VerificationResult(citation=citation, error="CaseMine: no suitable judgment pages")
+        except Exception as e:
+            return VerificationResult(citation=citation, error=f"CaseMine error: {e}")
     
     async def _verify_with_justia(self, citation: str, extracted_case_name: Optional[str], extracted_date: Optional[str], timeout: float) -> VerificationResult:
         """Verify using Justia legal database via DIRECT URL construction (bypasses anti-bot)."""
