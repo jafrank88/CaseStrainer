@@ -464,7 +464,7 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
         }
 
 
-def extract_citations_with_clustering(text: str, enable_verification: bool = False) -> Dict[str, Any]:
+def extract_citations_with_clustering(text: str, enable_verification: bool = False, progress_callback=None) -> Dict[str, Any]:
     """
     PRODUCTION endpoint with extraction + clustering.
     
@@ -476,6 +476,7 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
     Args:
         text: Document text
         enable_verification: Whether to verify citations with CourtListener API
+        progress_callback: Optional callback function for progress updates
         
     Returns:
         Dictionary with citations and clusters
@@ -485,6 +486,10 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
     try:
         # Step 1: Extract citations with clean pipeline
         logger.info(f"[PRODUCTION] Step 1: Extracting citations from {len(text)} chars")
+        if progress_callback:
+            progress_callback(5, "Initializing", "Starting citation extraction")
+            progress_callback(10, "Initializing", "Preparing extraction pipeline")
+            progress_callback(20, "Extracting", "Extracting citations from text")
         extraction_result = extract_citations_production(text)
         
         if extraction_result['status'] == 'error':
@@ -498,6 +503,9 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
             preverify_threshold = 10  # Only pre-verify small batches to keep latency low
             if citations and (enable_verification or len(citations) <= preverify_threshold):
                 logger.error(f"🔥 [PRE-VERIFY] Running batch verification BEFORE clustering (n={len(citations)})")
+                if progress_callback:
+                    progress_callback(30, "Analyzing", "Analyzing citation patterns")
+                    progress_callback(40, "Verifying", "Verifying citations with external sources")
                 from src.unified_verification_master import get_master_verifier
                 verifier = get_master_verifier()
 
@@ -516,7 +524,7 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
                             asyncio.set_event_loop(new_loop)
                             try:
                                 return new_loop.run_until_complete(
-                                    verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                                    verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                                 )
                             finally:
                                 new_loop.close()
@@ -524,14 +532,14 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
                             results = ex.submit(run_batch).result(timeout=60.0)
                     else:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                         )
                 except RuntimeError:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                         )
                     finally:
                         loop.close()
@@ -570,6 +578,10 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
         
         # Step 2: Cluster parallel citations
         logger.info(f"[PRODUCTION] Step 2: Clustering {len(citations)} citations")
+        if progress_callback:
+            progress_callback(50, "Processing", "Processing extracted citations")
+            progress_callback(60, "Organizing", "Organizing citation data")
+            progress_callback(70, "Clustering", "Creating citation clusters")
         try:
             from src.unified_clustering_master import cluster_citations_unified_master
             
@@ -676,7 +688,7 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
                             asyncio.set_event_loop(new_loop)
                             try:
                                 return new_loop.run_until_complete(
-                                    verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                                    verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                                 )
                             finally:
                                 new_loop.close()
@@ -684,14 +696,14 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
                             results = ex.submit(run_batch).result(timeout=60.0)
                     else:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                         )
                 except RuntimeError:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(citation_texts, case_names, case_dates)
+                            verifier.verify_citations_batch(citation_texts, case_names, case_dates, progress_callback=progress_callback)
                         )
                     finally:
                         loop.close()
@@ -752,6 +764,11 @@ def extract_citations_with_clustering(text: str, enable_verification: bool = Fal
             'verification_enabled': enable_verification,
             'status': 'success'
         }
+        
+        if progress_callback:
+            progress_callback(80, "Finalizing", "Finalizing citation clusters")
+            progress_callback(90, "Completing", "Preparing final results")
+            progress_callback(100, "Complete", f"Processing complete: {len(citations)} citations, {len(clusters)} clusters")
         
     except Exception as e:
         logger.error(f"[PRODUCTION] Full pipeline failed: {e}", exc_info=True)

@@ -371,8 +371,9 @@ class UnifiedInputProcessor:
                     
                     # Extract, cluster, and verify citations using full pipeline
                     text = input_data.get('text', '')
-                    logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True")
-                    result = extract_citations_with_clustering(text, enable_verification=True)
+                    enable_verification = input_data.get('enable_verification', True)
+                    logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification={enable_verification}")
+                    result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=progress_callback)
                     
                     # Check if any citations show CourtListener rate limit messages
                     courtlistener_rate_limited = False
@@ -673,7 +674,9 @@ class UnifiedInputProcessor:
                             # instead of just extraction
                             from src.citation_extraction_endpoint import extract_citations_with_clustering
                             
-                            result = extract_citations_with_clustering(text, enable_verification=True)
+                            # Extract enable_verification flag from input_data
+                            enable_verification = input_data.get('enable_verification', True)
+                            result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=progress_callback)
                             
                             # Check if any citations show CourtListener rate limit messages
                             courtlistener_rate_limited = False

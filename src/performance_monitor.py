@@ -1,251 +1,180 @@
 """
-Performance Monitor for Enhanced Adaptive Learning Pipeline
-Tracks processing metrics and provides performance optimization insights
+Performance Monitor for CaseStrainer Optimization
+
+This module monitors the performance of the simplified vs legacy processors
+to ensure optimization goals are met.
 """
 
-import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
-
-import json
 import time
-from pathlib import Path
-from typing import Dict, Any, Optional, List
-from dataclasses import dataclass, asdict
-from collections import defaultdict
-import statistics
+import json
+import logging
+from datetime import datetime, timedelta
+from typing import Dict, List, Any
+import os
 
-@dataclass
-class OperationMetrics:
-    """Metrics for a single processing operation"""
-    operation_id: str
-    filename: str
-    file_size: int
-    start_time: float
-    end_time: Optional[float] = None
-    text_length: Optional[int] = None
-    citations_found: Optional[int] = None
-    clusters_created: Optional[int] = None
-    cache_hits: Optional[int] = None
-    cache_misses: Optional[int] = None
-    error: Optional[str] = None
-    processing_time: Optional[float] = None
+logger = logging.getLogger(__name__)
+
 
 class PerformanceMonitor:
-    """
-    Performance monitor for tracking and analyzing processing metrics
-    """
+    """Monitor performance metrics for citation processing."""
     
-    def __init__(self, output_dir: str):
-        self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        self.operations: Dict[str, OperationMetrics] = {}
-        self.session_start = time.time()
-        self.performance_data = {
-            'session_info': {
-                'start_time': self.session_start,
-                'total_operations': 0,
-                'successful_operations': 0,
-                'failed_operations': 0
+    def __init__(self):
+        self.metrics = {
+            'simplified': {
+                'requests': 0,
+                'total_time': 0.0,
+                'errors': 0,
+                'citations_processed': 0,
+                'verification_rate': 0.0
             },
-            'processing_metrics': {
-                'total_processing_time': 0.0,
-                'average_processing_time': 0.0,
-                'fastest_operation': float('inf'),
-                'slowest_operation': 0.0,
-                'total_files_processed': 0,
-                'total_text_processed': 0,
-                'total_citations_found': 0,
-                'total_clusters_created': 0
-            },
-            'cache_performance': {
-                'total_cache_hits': 0,
-                'total_cache_misses': 0,
-                'hit_rate': 0.0
-            },
-            'error_analysis': {
-                'error_types': defaultdict(int),
-                'error_frequency': {}
+            'legacy': {
+                'requests': 0,
+                'total_time': 0.0,
+                'errors': 0,
+                'citations_processed': 0,
+                'verification_rate': 0.0
             }
         }
+        self.start_time = datetime.now()
     
-    def start_operation(self, operation_id: str, filename: str, file_size: int):
-        """Start monitoring an operation"""
-        operation = OperationMetrics(
-            operation_id=operation_id,
-            filename=filename,
-            file_size=file_size,
-            start_time=time.time()
-        )
-        self.operations[operation_id] = operation
-        self.performance_data['session_info']['total_operations'] += 1
+    def record_request(self, processor_type: str, duration: float, success: bool, 
+                      citation_count: int, verification_rate: float = 0.0):
+        """Record a processing request."""
+        if processor_type not in self.metrics:
+            processor_type = 'legacy'  # Default to legacy
+        
+        self.metrics[processor_type]['requests'] += 1
+        self.metrics[processor_type]['total_time'] += duration
+        self.metrics[processor_type]['citations_processed'] += citation_count
+        self.metrics[processor_type]['verification_rate'] += verification_rate
+        
+        if not success:
+            self.metrics[processor_type]['errors'] += 1
     
-    def end_operation(self, operation_id: str, **kwargs):
-        """End monitoring an operation with results"""
-        if operation_id not in self.operations:
-            return
+    def get_summary(self) -> Dict[str, Any]:
+        """Get performance summary."""
+        summary = {}
         
-        operation = self.operations[operation_id]
-        operation.end_time = time.time()
-        operation.processing_time = operation.end_time - operation.start_time
-        
-        for key, value in kwargs.items():
-            if hasattr(operation, key):
-                setattr(operation, key, value)
-        
-        self._update_performance_data(operation)
-        
-        if operation.error:
-            self.performance_data['session_info']['failed_operations'] += 1
-            self._record_error(operation.error)
-        else:
-            self.performance_data['session_info']['successful_operations'] += 1
-    
-    def _update_performance_data(self, operation: OperationMetrics):
-        """Update performance data with operation metrics"""
-        metrics = self.performance_data['processing_metrics']
-        
-        if operation.processing_time:
-            metrics['total_processing_time'] += operation.processing_time
-            metrics['fastest_operation'] = min(metrics['fastest_operation'], operation.processing_time)
-            metrics['slowest_operation'] = max(metrics['slowest_operation'], operation.processing_time)
-        
-        if operation.text_length:
-            metrics['total_text_processed'] += operation.text_length
-        if operation.citations_found:
-            metrics['total_citations_found'] += operation.citations_found
-        if operation.clusters_created:
-            metrics['total_clusters_created'] += operation.clusters_created
-        
-        metrics['total_files_processed'] += 1
-        
-        cache_metrics = self.performance_data['cache_performance']
-        if operation.cache_hits is not None:
-            cache_metrics['total_cache_hits'] += operation.cache_hits
-        if operation.cache_misses is not None:
-            cache_metrics['total_cache_misses'] += operation.cache_misses
-        
-        total_cache_ops = cache_metrics['total_cache_hits'] + cache_metrics['total_cache_misses']
-        if total_cache_ops > 0:
-            cache_metrics['hit_rate'] = cache_metrics['total_cache_hits'] / total_cache_ops
-        
-        successful_ops = self.performance_data['session_info']['successful_operations']
-        if successful_ops > 0:
-            metrics['average_processing_time'] = metrics['total_processing_time'] / successful_ops
-    
-    def _record_error(self, error: str):
-        """Record error for analysis"""
-        error_analysis = self.performance_data['error_analysis']
-        error_analysis['error_types'][error] += 1
-    
-    def get_operation_summary(self, operation_id: str) -> Optional[Dict[str, Any]]:
-        """Get summary for a specific operation"""
-        if operation_id not in self.operations:
-            return None
-        
-        operation = self.operations[operation_id]
-        return asdict(operation)
-    
-    def get_performance_summary(self) -> Dict[str, Any]:
-        """Get overall performance summary"""
-        session_duration = time.time() - self.session_start
-        throughput = self.performance_data['processing_metrics']['total_files_processed'] / session_duration if session_duration > 0 else 0
-        
-        summary = {
-            'session_duration': session_duration,
-            'throughput_files_per_second': throughput,
-            'success_rate': self.performance_data['session_info']['successful_operations'] / max(1, self.performance_data['session_info']['total_operations']),
-            **self.performance_data
-        }
-        
-        error_analysis = self.performance_data['error_analysis']
-        total_errors = sum(error_analysis['error_types'].values())
-        if total_errors > 0:
-            error_analysis['error_frequency'] = {
-                error: count / total_errors 
-                for error, count in error_analysis['error_types'].items()
+        for processor_type, data in self.metrics.items():
+            if data['requests'] > 0:
+                avg_time = data['total_time'] / data['requests']
+                error_rate = data['errors'] / data['requests']
+                avg_citations = data['citations_processed'] / data['requests']
+                avg_verification = data['verification_rate'] / data['requests']
+            else:
+                avg_time = error_rate = avg_citations = avg_verification = 0
+            
+            summary[processor_type] = {
+                'requests': data['requests'],
+                'avg_time': avg_time,
+                'error_rate': error_rate,
+                'avg_citations': avg_citations,
+                'avg_verification_rate': avg_verification
             }
         
+        # Calculate improvements
+        if summary['legacy']['requests'] > 0 and summary['simplified']['requests'] > 0:
+            time_improvement = (summary['legacy']['avg_time'] - summary['simplified']['avg_time']) / summary['legacy']['avg_time']
+            error_improvement = (summary['legacy']['error_rate'] - summary['simplified']['error_rate']) / max(summary['legacy']['error_rate'], 0.01)
+            
+            summary['improvements'] = {
+                'time_reduction_percent': time_improvement * 100,
+                'error_reduction_percent': error_improvement * 100
+            }
+        
+        summary['uptime'] = str(datetime.now() - self.start_time)
         return summary
     
-    def print_summary(self):
-        """Print performance summary to console"""
-        summary = self.get_performance_summary()
+    def log_metrics(self):
+        """Log current metrics."""
+        summary = self.get_summary()
         
-        print("\n" + "="*60)
-        print("PERFORMANCE SUMMARY")
-        print("="*60)
+        logger.info("=== Performance Metrics ===")
+        for processor_type, data in summary.items():
+            if processor_type != 'improvements' and processor_type != 'uptime':
+                logger.info(f"{processor_type.capitalize()}:")
+                logger.info(f"  Requests: {data['requests']}")
+                logger.info(f"  Avg time: {data['avg_time']:.2f}s")
+                logger.info(f"  Error rate: {data['error_rate']:.2%}")
+                logger.info(f"  Avg citations: {data['avg_citations']:.1f}")
         
-        print(f"Session Duration: {summary['session_duration']:.2f}s")
-        print(f"Total Operations: {summary['session_info']['total_operations']}")
-        print(f"Successful: {summary['session_info']['successful_operations']}")
-        print(f"Failed: {summary['session_info']['failed_operations']}")
-        print(f"Success Rate: {summary['success_rate']:.1%}")
-        
-        metrics = summary['processing_metrics']
-        print(f"\nProcessing Metrics:")
-        print(f"  Total Files: {metrics['total_files_processed']}")
-        print(f"  Total Text: {metrics['total_text_processed']:,} characters")
-        print(f"  Total Citations: {metrics['total_citations_found']}")
-        print(f"  Total Clusters: {metrics['total_clusters_created']}")
-        print(f"  Throughput: {summary['throughput_files_per_second']:.2f} files/sec")
-        
-        print(f"\nTime Metrics:")
-        print(f"  Total Time: {metrics['total_processing_time']:.2f}s")
-        print(f"  Average Time: {metrics['average_processing_time']:.2f}s")
-        print(f"  Fastest: {metrics['fastest_operation']:.2f}s")
-        print(f"  Slowest: {metrics['slowest_operation']:.2f}s")
-        
-        cache = summary['cache_performance']
-        print(f"\nCache Performance:")
-        print(f"  Hit Rate: {cache['hit_rate']:.1%}")
-        print(f"  Hits: {cache['total_cache_hits']}")
-        print(f"  Misses: {cache['total_cache_misses']}")
-        
-        if summary['error_analysis']['error_types']:
-            print(f"\nError Analysis:")
-            for error, count in summary['error_analysis']['error_types'].items():
-                frequency = summary['error_analysis']['error_frequency'].get(error, 0)
-                print(f"  {error}: {count} times ({frequency:.1%})")
-        
-        print("="*60)
+        if 'improvements' in summary:
+            logger.info(f"Improvements:")
+            logger.info(f"  Time reduction: {summary['improvements']['time_reduction_percent']:.1f}%")
+            logger.info(f"  Error reduction: {summary['improvements']['error_reduction_percent']:.1f}%")
     
-    def save_performance_data(self, filename: str = "performance_data.json"):
-        """Save performance data to file"""
-        data = {
-            'operations': {op_id: asdict(op) for op_id, op in self.operations.items()},
-            'summary': self.get_performance_summary()
-        }
+    def save_metrics(self, filename: str = None):
+        """Save metrics to file."""
+        if filename is None:
+            filename = f"performance_metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
         
-        output_file = self.output_dir / filename
-        with open(output_file, 'w') as f:
-            json.dump(data, f, indent=2, default=str)
+        summary = self.get_summary()
+        summary['timestamp'] = datetime.now().isoformat()
         
-        print(f"Performance data saved to: {output_file}")
+        with open(filename, 'w') as f:
+            json.dump(summary, f, indent=2)
+        
+        logger.info(f"Metrics saved to: {filename}")
+
+
+# Global monitor instance
+_monitor = None
+
+
+def get_monitor() -> PerformanceMonitor:
+    """Get or create the global performance monitor."""
+    global _monitor
+    if _monitor is None:
+        _monitor = PerformanceMonitor()
+    return _monitor
+
+
+def monitor_performance(processor_type: str):
+    """Decorator to monitor function performance."""
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            monitor = get_monitor()
+            start_time = time.time()
+            
+            try:
+                result = func(*args, **kwargs)
+                success = True
+                
+                # Extract metrics from result if available
+                citation_count = 0
+                verification_rate = 0.0
+                
+                if isinstance(result, dict):
+                    citation_count = len(result.get('citations', []))
+                    verification_results = result.get('verification_results', {})
+                    if isinstance(verification_results, dict):
+                        verified_count = verification_results.get('verified_count', 0)
+                        total_count = verification_results.get('total_citations', 1)
+                        verification_rate = verified_count / max(total_count, 1)
+                
+            except Exception as e:
+                success = False
+                result = None
+                logger.error(f"Performance monitor caught error: {str(e)}")
+                raise
+            finally:
+                duration = time.time() - start_time
+                monitor.record_request(processor_type, duration, success, citation_count, verification_rate)
+            
+            return result
+        return wrapper
+    return decorator
+
+
+if __name__ == '__main__':
+    # Test the performance monitor
+    monitor = PerformanceMonitor()
     
-    def get_recommendations(self) -> List[str]:
-        """Get performance optimization recommendations"""
-        recommendations = []
-        summary = self.get_performance_summary()
-        
-        avg_time = summary['processing_metrics']['average_processing_time']
-        if avg_time > 30:
-            recommendations.append("Consider implementing parallel processing for large files")
-        elif avg_time > 10:
-            recommendations.append("Optimize text extraction algorithms for better performance")
-        
-        hit_rate = summary['cache_performance']['hit_rate']
-        if hit_rate < 0.5:
-            recommendations.append("Improve caching strategy - low hit rate detected")
-        elif hit_rate < 0.7:
-            recommendations.append("Consider expanding cache size or improving cache keys")
-        
-        success_rate = summary['success_rate']
-        if success_rate < 0.8:
-            recommendations.append("Investigate error patterns - low success rate detected")
-        
-        throughput = summary['throughput_files_per_second']
-        if throughput < 0.1:
-            recommendations.append("Consider batch processing for better throughput")
-        
-        return recommendations 
+    # Simulate some requests
+    monitor.record_request('simplified', 2.5, True, 10, 0.8)
+    monitor.record_request('legacy', 3.2, True, 10, 0.8)
+    monitor.record_request('simplified', 2.1, True, 8, 0.75)
+    monitor.record_request('legacy', 3.5, False, 8, 0.0)
+    
+    monitor.log_metrics()
+    monitor.save_metrics()

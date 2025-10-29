@@ -280,7 +280,23 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         vm.update_progress(task_id, processed=1, total=4, message='Extracting and clustering citations')
                     except Exception:
                         pass
-                    pipeline_result = extract_citations_with_clustering(text, enable_verification=True)
+                    
+                    # Create progress callback for worker
+                    def worker_progress_callback(progress: int, step: str, message: str):
+                        """Update progress via verification manager."""
+                        logger.info(f"[TASK:{task_id}] 🔄 PROGRESS UPDATE: {progress}% - {step}: {message}")
+                        try:
+                            vm.update_progress(task_id, processed=progress, total=100, message=f'{progress}% - {step}: {message}')
+                        except Exception as e:
+                            logger.warning(f"[TASK:{task_id}] Failed to update progress: {e}")
+                    
+                    # Extract enable_verification flag from input_data
+                    enable_verification = input_data.get('enable_verification', True)
+                    logger.info(f"[TASK:{task_id}] enable_verification flag: {enable_verification}")
+                    
+                    logger.info(f"[TASK:{task_id}] About to call extract_citations_with_clustering with progress_callback")
+                    pipeline_result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=worker_progress_callback)
+                    logger.info(f"[TASK:{task_id}] extract_citations_with_clustering completed")
 
                     citations_list = list(pipeline_result.get('citations', []) or [])
                     clusters_list = list(pipeline_result.get('clusters', []) or [])
@@ -459,7 +475,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
 
             try:
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
-                pipeline_result = extract_citations_with_clustering(text, enable_verification=True)
+                # Extract enable_verification flag from input_data
+                enable_verification = input_data.get('enable_verification', True)
+                logger.info(f"[TASK:{task_id}] enable_verification flag (file): {enable_verification}")
+                pipeline_result = extract_citations_with_clustering(text, enable_verification=enable_verification)
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] Full pipeline failed: {e}")
                 result = {

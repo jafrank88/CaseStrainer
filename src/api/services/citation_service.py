@@ -81,9 +81,25 @@ class CitationService:
                 return None
             return self._fetch_url_content(url)
         elif input_type == 'file':
-            # Files should still be handled async due to extraction complexity
-            # But we can add basic file text extraction here if needed
-            return None
+            # Extract text from file using the unified text extractor
+            file_path = input_data.get('file_path')
+            if not file_path or not os.path.exists(file_path):
+                logger.warning(f"File path not found or invalid: {file_path}")
+                return None
+            
+            try:
+                from src.unified_text_extractor import UnifiedTextExtractor
+                extractor = UnifiedTextExtractor()
+                text = extractor.extract_text_from_file(file_path)
+                if text and len(text.strip()) > 0:
+                    logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
+                    return text
+                else:
+                    logger.warning(f"No text extracted from file: {file_path}")
+                    return None
+            except Exception as e:
+                logger.error(f"Failed to extract text from file {file_path}: {e}")
+                return None
         
         return None
     

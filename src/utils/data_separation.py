@@ -50,6 +50,47 @@ def extract_year_from_any_date(date_value: Any) -> Optional[str]:
     return None
 
 
+def is_case_name_contaminated(case_name: str) -> bool:
+    """
+    Check if a case name contains contamination from canonical data.
+    
+    Args:
+        case_name: The case name to check
+    
+    Returns:
+        True if contamination is detected, False otherwise
+    """
+    if not case_name or case_name.strip().upper() == 'N/A':
+        return False
+    
+    # CRITICAL FIX: Never flag "In re" cases as contaminated
+    # These are special case types that should never be corrupted
+    if case_name.strip().lower().startswith('in re '):
+        logger.debug(f"[DATA-SEPARATION] 'In re' case '{case_name[:50]}...' - NEVER contaminated")
+        return False
+    
+    # Check for specific contamination patterns
+    contamination_patterns = [
+        r'\d{4}',  # Years (potential date contamination)
+        r'\b(19|20)\d{2}\b',  # Years (potential date contamination)
+        r'https?://',  # URLs
+        r'www\.',  # URLs
+        r'\.com',  # URLs
+        r'\.gov',  # URLs
+        r'\.edu',  # URLs
+        r'\.org',  # URLs
+        r'No\. \d+',  # Case numbers (No. 123)
+        r'No\.\d+',  # Case numbers without space
+        r'\b\d{2,}\b',  # Any 2+ digit numbers (potential page numbers)
+        r'\b\d{1,}\b',  # Any numbers at all
+    ]
+    for pattern in contamination_patterns:
+        if re.search(pattern, case_name, re.IGNORECASE):
+            return True
+    
+    return False
+
+
 def validate_extracted_date(date_value: Any, source: str = "unknown") -> Optional[str]:
     """
     Validate that an extracted_date contains ONLY a year, not a full ISO date.

@@ -100,7 +100,7 @@
             <!-- Cluster Header -->
             <div class="cluster-header">
               <div class="cluster-title">
-                <h4>{{ cluster.canonical_name || cluster.extracted_case_name }}</h4>
+                <h4>{{ cluster.extracted_case_name || cluster.canonical_name }}</h4>
                 <span class="cluster-year">{{ cluster.canonical_date || cluster.extracted_date }}</span>
               </div>
               
@@ -113,6 +113,10 @@
                   <i class="bi bi-clock me-1"></i>
                   Not verified
                 </span>
+                <span v-if="hasNameMismatchCluster(cluster)" class="status-badge name-mismatch">
+                  <i class="bi bi-exclamation-triangle me-1"></i>
+                  Name mismatch
+                </span>
               </div>
             </div>
             
@@ -123,7 +127,7 @@
               </div>
               
               <div class="citations-list">
-                <div v-for="citation in Array.isArray(cluster.citations) && cluster.citations[0] && typeof cluster.citations[0] === 'object' ? cluster.citations : cluster.citations.map(c => ({ text: c, verified: false }))" 
+                <div v-for="citation in formatCitations(cluster.citations)" 
                      :key="citation.text" 
                      class="citation-item" 
                      :class="{ 'verified-citation': citation.verified }">
@@ -233,6 +237,10 @@
                    class="canonical-name">
                 <i class="bi bi-arrow-up"></i>
                 {{ citation.canonical_name }}
+              </div>
+              <div v-if="hasNameMismatchCitation(citation)" class="name-mismatch-inline">
+                <i class="bi bi-exclamation-triangle me-1"></i>
+                Name mismatch
               </div>
             </div>
             
@@ -349,6 +357,45 @@ export default {
       }
       return statusMap[status] || status
     }
+
+    const normalizeName = (n) => {
+      if (!n) return ''
+      let s = ('' + n).toLowerCase()
+      s = s.replace(/[\s\-\.,'()]+/g, ' ')
+      // normalize department abbrev variants
+      s = s.replace(/\bdep't\b/g, 'dept')
+      s = s.replace(/\bdepartment\b/g, 'dept')
+      // remove common corporate suffixes
+      s = s.replace(/\b(inc|llc|ltd|corp|co|company|limited|plc|s\.a\.|gmbh|ag)\b\.?/g, '')
+      s = s.replace(/\s+/g, ' ').trim()
+      return s
+    }
+
+    const hasNameMismatchCluster = (cluster) => {
+      if (!cluster) return false
+      const ex = normalizeName(cluster.extracted_case_name)
+      const ca = normalizeName(cluster.canonical_name)
+      if (!ca) return false
+      return ex && ex !== ca
+    }
+
+    const hasNameMismatchCitation = (citation) => {
+      if (!citation) return false
+      const ex = normalizeName(citation.extracted_case_name)
+      const ca = normalizeName(citation.canonical_name)
+      if (!ca) return false
+      return ex && ex !== ca
+    }
+
+    const formatCitations = (citations) => {
+      if (!Array.isArray(citations)) return []
+      const toObj = (c) => (typeof c === 'object' && c !== null) ? c : { text: String(c || ''), verified: false }
+      const looksLikeReporter = (t) => /^\d+\s+[A-Za-z\.]/.test(t)
+      const hasYear = (t) => /(17|18|19|20)\d{2}\b/.test(t)
+      const isCourtYearOnly = (t) => !looksLikeReporter(t) && hasYear(t)
+      const cleaned = citations.map(toObj).filter(c => c && c.text && !isCourtYearOnly(c.text))
+      return cleaned
+    }
     
     const startNewAnalysis = () => {
       emit('new-analysis')
@@ -380,6 +427,9 @@ export default {
       verificationResults,
       hasVerificationData,
       getStatusDisplayText,
+      hasNameMismatchCluster,
+      hasNameMismatchCitation,
+      formatCitations,
       startNewAnalysis,
       copyResults,
       downloadResults

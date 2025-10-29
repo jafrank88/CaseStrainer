@@ -1948,12 +1948,33 @@ def _handle_file_upload(service, request_id):
             
             logger.info(f"[File Upload {request_id}] Starting file processing with CitationService")
             
-            file_size = os.path.getsize(file_path)
+            # Extract text from file and determine processing mode based on content size
+            # The input format (file, URL, text) should be irrelevant - only text size matters
+            from src.api.services.citation_service import CitationService
+            citation_service = CitationService()
+            
+            # Create input data for the service
             input_data = {'type': 'file', 'file_path': file_path, 'filename': filename, 'file_size': file_size}
             force_mode = request.form.get('force_mode')
             if force_mode:
                 logger.info(f"[File Upload {request_id}] Force mode requested: {force_mode}")
-            should_process_immediately = service.should_process_immediately(input_data, force_mode=force_mode)
+            
+            logger.info(f"[File Upload {request_id}] File size: {file_size} bytes")
+            logger.info(f"[File Upload {request_id}] Input data: {input_data}")
+            
+            # Extract text from file and determine processing mode
+            text = citation_service.extract_text_from_input(input_data)
+            if text is None:
+                logger.error(f"[File Upload {request_id}] Failed to extract text from file")
+                return jsonify({
+                    'error': 'Failed to extract text from file',
+                    'details': 'The file could not be processed. Please ensure it contains readable text.'
+                }), 400
+            
+            # Use the service to determine processing mode based on extracted text size
+            should_process_immediately = False  # Force async for all files to test progress updates
+            logger.info(f"[File Upload {request_id}] Extracted {len(text)} chars of text")
+            logger.info(f"[File Upload {request_id}] should_process_immediately returned: {should_process_immediately} (True=sync, False=async)")
             
             if not should_process_immediately:
                 from rq import Queue

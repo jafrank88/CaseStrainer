@@ -120,6 +120,18 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                 Write-Host "  [WARNING] Backend restart failed: $($_.Exception.Message)" -ForegroundColor Yellow
             }
             
+            # Reload reverse-proxy to ensure API routing is up-to-date
+            try {
+                docker exec casestrainer-nginx-prod nginx -s reload > $null 2>&1
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  ✅ Nginx configuration reloaded successfully" -ForegroundColor Green
+                } else {
+                    Write-Host "  ⚠️  Warning: Could not reload nginx config (container may not exist)" -ForegroundColor Yellow
+                }
+            } catch {
+                Write-Host "  [WARNING] Nginx reload step failed: $($_.Exception.Message)" -ForegroundColor Yellow
+            }
+            
             # Wait for services to be ready
             Write-Host "`n[WAIT] Ensuring services are ready..." -ForegroundColor Yellow
             try {

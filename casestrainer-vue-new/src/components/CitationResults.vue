@@ -1,7 +1,7 @@
 <template>
   <div class="citation-results">
     <!-- SECTION 1: Unverified Clusters (SHOW FIRST) -->
-    <div v-if="(unverifiedClusters?.length || 0) > 0" class="results-content">
+    <div v-if="false && (unverifiedClusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
         <h2>🔍 SECTION 1: Unverified Clusters</h2>
         <p>{{ unverifiedClusters?.length || 0 }} cluster(s) with unverified citations</p>
@@ -47,7 +47,7 @@
     
 
     <!-- SECTION 1.25: Name/Date Mismatches (DEBUGGING) -->
-    <div v-if="(mismatchClusters?.length || 0) > 0" class="results-content">
+    <div v-if="false && (mismatchClusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
         <h2>⚠️ SECTION 1.25: Extraction Mismatches</h2>
         <p>{{ mismatchClusters?.length || 0 }} cluster(s) with extracted/canonical mismatch</p>
@@ -98,30 +98,8 @@
       </div>
     </div>
 
-    <!-- SECTION 1.5: Citations Verified by Parallel (SHOW THIRD) -->
-    <div v-if="(verifiedByParallelCitations?.length || 0) > 0" class="results-content">
-      <div class="results-header">
-        <h2>🟠 SECTION 1.5: Verified by Parallel</h2>
-        <p>{{ verifiedByParallelCitations?.length || 0 }} citation(s) verified by parallel citations</p>
-      </div>
-      
-      <div class="citations-grid">
-        <div v-for="citation in verifiedByParallelCitations" :key="citation.citation" class="citation-card">
-          <div class="citation-text">{{ citation.citation }}</div>
-          <div class="citation-details">
-            <div><strong>Extracted:</strong> {{ citation.extracted_case_name }} ({{ citation.extracted_date }})</div>
-            <div><strong>Status:</strong> 
-              <span style="color: #FF9800;">
-                ✅ VERIFIED BY PARALLEL
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Perfect Score Celebration (SHOW IF NO ISSUES) -->
-    <div v-else-if="allCitationsVerified" class="perfect-score-celebration">
+    <!-- Perfect Score Celebration (SHOW ONLY IF 100% VERIFIED AND NO MISMATCHES) -->
+    <div v-else-if="allCitationsVerified && (mismatchClusters?.length || 0) === 0" class="perfect-score-celebration">
       <div class="celebration-content">
         <h2>🎉 Perfect Score!</h2>
         <p>All {{ (verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0) }} citations have been successfully verified!</p>
@@ -133,6 +111,14 @@
       </div>
     </div>
 
+    <!-- Coverage banner when there are mismatches (Option A) -->
+    <div v-else-if="allCitationsVerified && (mismatchClusters?.length || 0) > 0" class="results-content" style="border-color:#2196F3;background:#E3F2FD;">
+      <div class="results-header">
+        <h2>✅ 100% Verified Coverage</h2>
+        <p>{{ (verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0) }} citation(s) verified • {{ mismatchClusters?.length || 0 }} mismatch cluster(s) detected</p>
+      </div>
+    </div>
+
     <!-- Clustered Results Display -->
     <div v-if="(clusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
@@ -141,40 +127,146 @@
       </div>
       
       <div class="clusters-list">
-        <div v-for="cluster in clusters" :key="cluster.cluster_id" class="cluster-item">
-          <!-- Line 1: Verifying Source (linked to canonical URL) -->
-          <div class="cluster-line verifying-source">
-            <strong>Verifying Source: </strong>
-            <template v-if="getRepresentativeCitation(cluster)?.canonical_url">
-              <a :href="getRepresentativeCitation(cluster).canonical_url" target="_blank" class="canonical-link">
-                {{ getRepresentativeCitation(cluster).canonical_name || 'N/A' }}, {{ getRepresentativeCitation(cluster).canonical_date || getRepresentativeCitation(cluster).extracted_date || 'N/A' }}
-              </a>
-            </template>
-            <template v-else>
-              {{ getRepresentativeCitation(cluster)?.canonical_name || 'N/A' }}, {{ getRepresentativeCitation(cluster)?.canonical_date || getRepresentativeCitation(cluster)?.extracted_date || 'N/A' }}
-            </template>
-            <span v-if="getClusterSource(cluster)" class="source-badge">
-              ({{ getClusterSource(cluster) }})
-            </span>
-          </div>
-          
-          <!-- Line 2: Submitted Document -->
-          <div class="cluster-line submitted-document">
-            <strong>Submitted Document: </strong>
-            {{ getRepresentativeCitation(cluster)?.extracted_case_name || 'N/A' }}, {{ getRepresentativeCitation(cluster)?.extracted_date || 'N/A' }}
-          </div>
-          
-          <!-- Lines 3+: Individual Citations with Status -->
-          <div class="cluster-citations">
-            <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-${index}`" class="cluster-line citation-line">
-              <strong>Citation {{ index + 1 }}: </strong>
-              <span class="citation-text">{{ citation.text || citation.citation }}</span>
-              <span class="citation-status" :class="getCitationStatusClass(citation)">
-                {{ getCitationStatusText(citation) }}
+        <!-- Group 1: Unverified -->
+        <template v-if="(clustersUnverified?.length || 0) > 0">
+          <div class="results-header"><h3>Unverified</h3></div>
+          <div v-for="cluster in clustersUnverified" :key="cluster.cluster_id + '-unv'" class="cluster-item">
+            <div class="cluster-line verifying-source">
+              <strong>Verifying Source: </strong>
+              <template v-if="getRepresentativeCitation(cluster)?.canonical_url">
+                <a :href="getRepresentativeCitation(cluster).canonical_url" target="_blank" class="canonical-link">
+                  <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterVerifyingName(cluster) }}</span>,
+                  <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterVerifyingDate(cluster) }}</span>
+                </a>
+              </template>
+              <template v-else>
+                <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterVerifyingName(cluster) }}</span>,
+                <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterVerifyingDate(cluster) }}</span>
+              </template>
+              <span v-if="getClusterSource(cluster)" class="source-badge">({{ getClusterSource(cluster) }})</span>
+              <span v-if="hasNameMismatch(cluster) || hasDateMismatch(cluster)" class="source-badge" style="margin-left:8px;color:#FF6F00;">
+                <strong>
+                  <template v-if="hasNameMismatch(cluster) && hasDateMismatch(cluster)">NAME & DATE MISMATCH</template>
+                  <template v-else-if="hasNameMismatch(cluster)">NAME MISMATCH</template>
+                  <template v-else>DATE MISMATCH</template>
+                </strong>
               </span>
             </div>
+            <div class="cluster-line submitted-document">
+              <strong>Submitted Document: </strong>
+              <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterSubmittedName(cluster) }}</span>,
+              <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterSubmittedDate(cluster) }}</span>
+            </div>
+            <div class="cluster-citations">
+              <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-unv-${index}`" class="cluster-line citation-line">
+                <strong>Citation {{ index + 1 }}: </strong>
+                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
+              </div>
+            </div>
           </div>
-        </div>
+        </template>
+
+        <!-- Group 2: Case mismatch -->
+        <template v-if="(clustersCaseMismatch?.length || 0) > 0">
+          <div class="results-header"><h3>Case mismatch</h3></div>
+          <div v-for="cluster in clustersCaseMismatch" :key="cluster.cluster_id + '-nm'" class="cluster-item">
+            <div class="cluster-line verifying-source">
+              <strong>Verifying Source: </strong>
+              <template v-if="getRepresentativeCitation(cluster)?.canonical_url">
+                <a :href="getRepresentativeCitation(cluster).canonical_url" target="_blank" class="canonical-link">
+                  <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterVerifyingName(cluster) }}</span>,
+                  <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterVerifyingDate(cluster) }}</span>
+                </a>
+              </template>
+              <template v-else>
+                <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterVerifyingName(cluster) }}</span>,
+                <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterVerifyingDate(cluster) }}</span>
+              </template>
+              <span v-if="getClusterSource(cluster)" class="source-badge">({{ getClusterSource(cluster) }})</span>
+              <span class="source-badge" style="margin-left:8px;color:#FF6F00;"><strong>NAME MISMATCH</strong></span>
+            </div>
+            <div class="cluster-line submitted-document">
+              <strong>Submitted Document: </strong>
+              <span class="highlight-mismatch">{{ getClusterSubmittedName(cluster) }}</span>,
+              <span>{{ getClusterSubmittedDate(cluster) }}</span>
+            </div>
+            <div class="cluster-citations">
+              <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-nm-${index}`" class="cluster-line citation-line">
+                <strong>Citation {{ index + 1 }}: </strong>
+                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Group 3: Date mismatch -->
+        <template v-if="(clustersDateMismatch?.length || 0) > 0">
+          <div class="results-header"><h3>Date mismatch</h3></div>
+          <div v-for="cluster in clustersDateMismatch" :key="cluster.cluster_id + '-dm'" class="cluster-item">
+            <div class="cluster-line verifying-source">
+              <strong>Verifying Source: </strong>
+              <template v-if="getRepresentativeCitation(cluster)?.canonical_url">
+                <a :href="getRepresentativeCitation(cluster).canonical_url" target="_blank" class="canonical-link">
+                  <span>{{ getClusterVerifyingName(cluster) }}</span>,
+                  <span class="highlight-mismatch">{{ getClusterVerifyingDate(cluster) }}</span>
+                </a>
+              </template>
+              <template v-else>
+                <span>{{ getClusterVerifyingName(cluster) }}</span>,
+                <span class="highlight-mismatch">{{ getClusterVerifyingDate(cluster) }}</span>
+              </template>
+              <span v-if="getClusterSource(cluster)" class="source-badge">({{ getClusterSource(cluster) }})</span>
+              <span class="source-badge" style="margin-left:8px;color:#FF6F00;"><strong>DATE MISMATCH</strong></span>
+            </div>
+            <div class="cluster-line submitted-document">
+              <strong>Submitted Document: </strong>
+              <span>{{ getClusterSubmittedName(cluster) }}</span>,
+              <span class="highlight-mismatch">{{ getClusterSubmittedDate(cluster) }}</span>
+            </div>
+            <div class="cluster-citations">
+              <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-dm-${index}`" class="cluster-line citation-line">
+                <strong>Citation {{ index + 1 }}: </strong>
+                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
+
+        <!-- Group 4: All other clusters -->
+        <template v-if="(clustersOther?.length || 0) > 0">
+          <div class="results-header"><h3>All other clusters</h3></div>
+          <div v-for="cluster in clustersOther" :key="cluster.cluster_id + '-oth'" class="cluster-item">
+            <div class="cluster-line verifying-source">
+              <strong>Verifying Source: </strong>
+              <template v-if="getRepresentativeCitation(cluster)?.canonical_url">
+                <a :href="getRepresentativeCitation(cluster).canonical_url" target="_blank" class="canonical-link">
+                  <span>{{ getClusterVerifyingName(cluster) }}</span>,
+                  <span>{{ getClusterVerifyingDate(cluster) }}</span>
+                </a>
+              </template>
+              <template v-else>
+                <span>{{ getClusterVerifyingName(cluster) }}</span>,
+                <span>{{ getClusterVerifyingDate(cluster) }}</span>
+              </template>
+              <span v-if="getClusterSource(cluster)" class="source-badge">({{ getClusterSource(cluster) }})</span>
+            </div>
+            <div class="cluster-line submitted-document">
+              <strong>Submitted Document: </strong>
+              <span>{{ getClusterSubmittedName(cluster) }}</span>,
+              <span>{{ getClusterSubmittedDate(cluster) }}</span>
+            </div>
+            <div class="cluster-citations">
+              <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-oth-${index}`" class="cluster-line citation-line">
+                <strong>Citation {{ index + 1 }}: </strong>
+                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
     </div>
 
@@ -365,6 +457,29 @@ export default {
       return cits[0]
     }
 
+    // Backend-driven display fields with safe fallbacks
+    const getClusterVerifyingName = (cluster) => {
+      return cluster?.verifying_display_name
+        || getRepresentativeCitation(cluster)?.canonical_name
+        || 'N/A'
+    }
+    const getClusterVerifyingDate = (cluster) => {
+      return cluster?.verifying_display_date
+        || getRepresentativeCitation(cluster)?.canonical_date
+        || getRepresentativeCitation(cluster)?.extracted_date
+        || 'N/A'
+    }
+    const getClusterSubmittedName = (cluster) => {
+      return cluster?.submitted_display_name
+        || getRepresentativeCitation(cluster)?.extracted_case_name
+        || 'N/A'
+    }
+    const getClusterSubmittedDate = (cluster) => {
+      return cluster?.submitted_display_date
+        || getRepresentativeCitation(cluster)?.extracted_date
+        || 'N/A'
+    }
+
     const getCitationStatusClass = (citation) => {
       if (citation.verified) {
         return 'status-verified'
@@ -389,6 +504,27 @@ export default {
       }
     }
 
+    // Unified grouping for single display
+    const clustersUnverified = unverifiedClusters
+    const clustersCaseMismatch = computed(() => {
+      const base = clusters.value || []
+      const unvIds = new Set((clustersUnverified.value || []).map(c => c.cluster_id))
+      return base.filter(c => !unvIds.has(c.cluster_id) && Boolean(c?.has_name_mismatch))
+    })
+    const clustersDateMismatch = computed(() => {
+      const base = clusters.value || []
+      const unvIds = new Set((clustersUnverified.value || []).map(c => c.cluster_id))
+      const caseIds = new Set((clustersCaseMismatch.value || []).map(c => c.cluster_id))
+      return base.filter(c => !unvIds.has(c.cluster_id) && !caseIds.has(c.cluster_id) && Boolean(c?.has_date_mismatch))
+    })
+    const clustersOther = computed(() => {
+      const base = clusters.value || []
+      const unvIds = new Set((clustersUnverified.value || []).map(c => c.cluster_id))
+      const caseIds = new Set((clustersCaseMismatch.value || []).map(c => c.cluster_id))
+      const dateIds = new Set((clustersDateMismatch.value || []).map(c => c.cluster_id))
+      return base.filter(c => !unvIds.has(c.cluster_id) && !caseIds.has(c.cluster_id) && !dateIds.has(c.cluster_id))
+    })
+
     return {
       citations,
       clusters,
@@ -405,8 +541,16 @@ export default {
       getClusterCitations,
       getMismatchDisplayCitation,
       getRepresentativeCitation,
+      getClusterVerifyingName,
+      getClusterVerifyingDate,
+      getClusterSubmittedName,
+      getClusterSubmittedDate,
       getCitationStatusClass,
       getCitationStatusText
+      ,clustersUnverified
+      ,clustersCaseMismatch
+      ,clustersDateMismatch
+      ,clustersOther
     }
   }
 }

@@ -33,7 +33,47 @@ from urllib.parse import quote
 # CRITICAL: Import from config to ensure .env files are loaded
 from src.config import COURTLISTENER_API_KEY, get_bool_config_value
 from src.verification.registry import VerificationRegistry
-from src.http.clients import get_retrying_session, build_default_headers
+# Fix import conflict - use requests directly instead of src.http.clients
+import requests
+from requests.adapters import HTTPAdapter
+from urllib3.util.retry import Retry
+
+def get_retrying_session(total: int = 3, backoff: float = 0.5,
+                         statuses=None) -> requests.Session:
+    """Create a requests.Session with retry/backoff for transient errors."""
+    if statuses is None:
+        statuses = [429, 500, 502, 503, 504]
+
+    retry = Retry(
+        total=total,
+        read=total,
+        connect=total,
+        status=total,
+        backoff_factor=backoff,
+        status_forcelist=statuses,
+        allowed_methods=frozenset(['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS', 'TRACE'])
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    s = requests.Session()
+    s.mount('http://', adapter)
+    s.mount('https://', adapter)
+    return s
+
+def build_default_headers(api_key: Optional[str] = None) -> Dict:
+    """Build default headers for requests."""
+    headers = {
+        'User-Agent': 'CaseStrainer/1.0 (+https://wolf.law.uw.edu/casestrainer)',
+        'Accept': 'application/json, text/html',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+    }
+    
+    if api_key:
+        headers['Authorization'] = f'Token {api_key}'
+    
+    return headers
 
 logger = logging.getLogger(__name__)
 
@@ -401,7 +441,8 @@ class UnifiedVerificationMaster:
         extracted_case_names: Optional[List[str]] = None,
         extracted_dates: Optional[List[str]] = None,
         batch_size: int = 50,
-        timeout_per_citation: float = 10.0
+        timeout_per_citation: float = 10.0,
+        progress_callback: Optional[callable] = None
     ) -> List[VerificationResult]:
         """
         Batch verification with optimal rate limiting and performance.
@@ -415,6 +456,7 @@ class UnifiedVerificationMaster:
             extracted_dates: Optional list of extracted dates
             batch_size: Number of citations to process in each API call (default 50)
             timeout_per_citation: Maximum time per citation
+            progress_callback: Optional callback function for progress updates
             
         Returns:
             List of VerificationResult objects
@@ -431,6 +473,14 @@ class UnifiedVerificationMaster:
         
         for batch_idx, batch in enumerate(batches):
             logger.info(f"Processing batch {batch_idx + 1}/{len(batches)} ({len(batch)} citations)")
+            
+            # Update progress based on batch completion
+            if progress_callback:
+                # Calculate progress: 40% to 70% during verification
+                base_progress = 40
+                verification_range = 30  # 70% - 40%
+                batch_progress = base_progress + (batch_idx + 1) / len(batches) * verification_range
+                progress_callback(int(batch_progress), "Verifying", f"Verifying citations with external sources ({batch_idx + 1}/{len(batches)})")
             
             # Get case names and dates for this batch
             start_idx = batch_idx * batch_size
@@ -513,18 +563,24 @@ class UnifiedVerificationMaster:
         
         try:
             # CRITICAL: Normalize citations for API compatibility
-            # 1. Remove newlines/tabs (API fails on "161 U.S.\n519")
-            # 2. Normalize dash-separated format (e.g., "123-Ohio-456" → "123 Ohio 456")
+            # 1. Convert Unicode to ASCII (same as earlier in pipeline)
+            # 2. Remove newlines/tabs (API fails on "161 U.S.\n519")
+            # 3. Normalize dash-separated format (e.g., "123-Ohio-456" → "123 Ohio 456")
             from src.citation_patterns import normalize_dashed_citation
+            from src.utils.text_normalizer import normalize_text
             import re
             
             normalized_citations = []
             for cit in citations:
-                # Remove newlines, tabs, and collapse whitespace
-                clean_cit = re.sub(r'[\n\r\t]+', ' ', cit)  # Replace newlines/tabs with space
+                # Step 1: Convert Unicode to ASCII (critical for API compatibility)
+                clean_cit = normalize_text(cit)
+                
+                # Step 2: Remove newlines, tabs, and collapse whitespace
+                clean_cit = re.sub(r'[\n\r\t]+', ' ', clean_cit)  # Replace newlines/tabs with space
                 clean_cit = re.sub(r'\s+', ' ', clean_cit)  # Collapse multiple spaces
                 clean_cit = clean_cit.strip()  # Trim edges
-                # Apply dash normalization
+                
+                # Step 3: Apply dash normalization
                 clean_cit = normalize_dashed_citation(clean_cit)
                 normalized_citations.append(clean_cit)
             
@@ -619,10 +675,32 @@ class UnifiedVerificationMaster:
                 
                 # Find the corresponding result for this citation in the API response
                 citation_result = None
+                
+                # CRITICAL FIX: The batch API returns normalized citations, not full citations
+                # We need to match using partial matching or extract the core citation
                 for result_item in data:
-                    if isinstance(result_item, dict) and result_item.get('citation') == normalized_citation:
-                        citation_result = result_item
-                        break
+                    if isinstance(result_item, dict):
+                        api_citation = result_item.get('citation', '')
+                        
+                        # Method 1: Exact match with normalized citation
+                        if api_citation == normalized_citation:
+                            citation_result = result_item
+                            break
+                        
+                        # Method 2: Partial match - check if API citation is contained in original
+                        if api_citation in citation or citation in api_citation:
+                            citation_result = result_item
+                            break
+                        
+                        # Method 3: Extract core citation (volume + page) and match
+                        import re
+                        # Extract volume and page from original citation
+                        core_match = re.search(r'\b\d+\s+[A-Za-z\.]+\s+\d+\b', citation)
+                        if core_match:
+                            core_citation = core_match.group()
+                            if core_citation in api_citation or api_citation in core_citation:
+                                citation_result = result_item
+                                break
                 
                 if not citation_result:
                     # Citation not found in API response

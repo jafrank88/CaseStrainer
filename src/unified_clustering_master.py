@@ -906,20 +906,25 @@ class UnifiedClusteringMaster:
             year2 = get_year(citation2)
             print(f"  ⚡ Years: '{year1}' vs '{year2}'", flush=True)
             
-            # FIX #6: REQUIRE both citations to have years for parallel clustering
-            # If either lacks a year, reject the clustering (prevents 1916 + 2020 grouping)
-            if not year1 or not year2 or year1 == 'N/A' or year2 == 'N/A':
-                print(f"  ❌ [PHASE5-EYECITE] REJECTED - missing year!", flush=True)
-                logger.error(f"🚫 [FIX #6] REJECTED eyecite parallel - missing year: '{year1}' vs '{year2}'")
+            # FIX #6: ALLOW clustering if at least one citation has a year
+            # P.3d citations don't have years in text, they get them from cluster partners
+            has_year1 = year1 and year1 != 'N/A'
+            has_year2 = year2 and year2 != 'N/A'
+            
+            if not has_year1 and not has_year2:
+                print(f"  ❌ [PHASE5-EYECITE] REJECTED - both missing year!", flush=True)
+                logger.error(f"🚫 [FIX #6] REJECTED eyecite parallel - both missing year: '{year1}' vs '{year2}'")
                 return False
             
-            # Both have years - they MUST match exactly
-            if year1 != year2:
+            # If both have years, they MUST match exactly
+            if has_year1 and has_year2 and year1 != year2:
                 print(f"  ❌ [PHASE5-EYECITE] REJECTED - year mismatch!", flush=True)
                 logger.error(f"🚫 [FIX #6] REJECTED eyecite parallel - year mismatch: {year1} vs {year2}")
                 return False
             
-            print(f"  ✅ [PHASE5-EYECITE] ACCEPTED - names and years match!", flush=True)
+            # If at least one has a year, accept clustering (date will be propagated later)
+            if has_year1 or has_year2:
+                print(f"  ✅ [PHASE5-EYECITE] ACCEPTED - at least one has year and names match!", flush=True)
             
             # Validation passed - accept the parallel relationship
             if self.debug_mode:
@@ -1109,25 +1114,31 @@ class UnifiedClusteringMaster:
         year1 = get_year(citation1)
         year2 = get_year(citation2)
         
-        # STRICT: Reject if either citation lacks extracted year
-        if not year1 or not year2 or year1 == 'N/A' or year2 == 'N/A':
+        # FIX #58C: Allow year validation if at least one citation has a year
+        # P.3d citations don't have years in text, they get them from cluster partners
+        has_year1 = year1 and year1 != 'N/A'
+        has_year2 = year2 and year2 != 'N/A'
+        
+        # If neither has a year, reject clustering
+        if not has_year1 and not has_year2:
             if self.debug_mode:
-                logger.debug(f"PARALLEL_CHECK rejected - missing extracted years: '{year1}' vs '{year2}'")
+                logger.debug(f"PARALLEL_CHECK rejected - both missing extracted years: '{year1}' vs '{year2}'")
             return False
         
-        # STRICT: Years must match exactly
-        if year1 != year2:
+        # If both have years, they MUST match exactly
+        if has_year1 and has_year2 and year1 != year2:
             if self.debug_mode:
                 logger.debug(f"PARALLEL_CHECK rejected - year mismatch: {year1} vs {year2}")
             return False
 
-        # If we get here, the citations are parallel AND have matching extracted names/years
+        # If we get here, the citations are parallel AND have matching names
+        # At least one has a year (dates will be propagated later)
         # PHASE 5 DEBUG: Log successful clustering
         logger.error(f"✅ [PHASE5-DEBUG] ACCEPTED as parallel citations!")
         logger.error(f"   Names match: '{case_name1[:40]}' ≈ '{case_name2[:40]}'")
-        logger.error(f"   Years match: {year1} = {year2}")
+        logger.error(f"   Years: year1={year1}, year2={year2} (at least one valid)")
         logger.error(f"   Distance: {distance}")
-        print(f"✅ [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, year={year1}", flush=True)
+        print(f"✅ [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, years=({year1}, {year2})", flush=True)
         
         if self.debug_mode:
             logger.debug(
@@ -1702,18 +1713,20 @@ class UnifiedClusteringMaster:
             
             # PROPAGATE best extracted name and year to ALL citations in cluster
             # This ensures validation won't split the cluster due to extraction variations
+            # USER FIX: DON'T overwrite extracted_case_name - preserve original document extraction
+            # Only fill in if missing
             for citation in group:
-                if best_extracted_name:
-                    if isinstance(citation, dict):
-                        old_name = citation.get('extracted_case_name')
-                        citation['extracted_case_name'] = best_extracted_name
-                        if old_name and old_name != best_extracted_name:
-                            logger.error(f"   📝 Updated '{old_name}' → '{best_extracted_name}'")
-                    else:
-                        old_name = getattr(citation, 'extracted_case_name', None)
-                        citation.extracted_case_name = best_extracted_name
-                        if old_name and old_name != best_extracted_name:
-                            logger.error(f"   📝 Updated '{old_name}' → '{best_extracted_name}'")
+                existing_name = citation.get('extracted_case_name') if isinstance(citation, dict) else getattr(citation, 'extracted_case_name', None)
+                if not existing_name or existing_name == 'N/A':
+                    if best_extracted_name:
+                        if isinstance(citation, dict):
+                            citation['extracted_case_name'] = best_extracted_name
+                            logger.error(f"   📝 Filled missing name with best: '{best_extracted_name}'")
+                        else:
+                            citation.extracted_case_name = best_extracted_name
+                            logger.error(f"   📝 Filled missing name with best: '{best_extracted_name}'")
+                else:
+                    logger.error(f"   ✅ Keeping existing extracted_case_name: '{existing_name}' (not overwriting with '{best_extracted_name}')")
                 
                 if best_extracted_year:
                     # USER FIX 2024-10-16: DON'T overwrite extracted_date if it already exists!

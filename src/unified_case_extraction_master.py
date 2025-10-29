@@ -847,8 +847,11 @@ class UnifiedCaseExtractionMaster:
             # Pattern 0: "See [Case Name]" - HIGHEST PRIORITY
             (r'(?:See|see|Citing|citing|Compare|compare)\s+([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})', 0, 'signal_word'),
             
-            # Pattern 1: "In re" cases
-            (r'(In\s+re\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})', 1, 'in_re'),
+            # Pattern 1: "In re" cases - ENHANCED for better coverage
+            (r'(In\s+re\s+[A-Z][a-zA-Z0-9\s\'&\-\.,]{5,})', 1, 'in_re'),
+            
+            # Pattern 1b: FALLBACK "In re" cases - more permissive
+            (r'(In\s+re\s+[A-Z][a-zA-Z\s]{3,}(?:\s+[A-Z][a-zA-Z\s]*)*)', 1, 'in_re_fallback'),
             
             # Pattern 2: "Ex parte" cases
             (r'(Ex\s+parte\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})', 1, 'ex_parte'),
@@ -946,6 +949,16 @@ class UnifiedCaseExtractionMaster:
             # Step 8: Validate it looks like a case name
             if not self._looks_like_case_name(case_name, debug):
                 logger.error(f"[FIX #8 VALIDATION FAIL] Doesn't look like case name: '{case_name[:100]}'")
+                
+                # CRITICAL FALLBACK: Try "In re" specific extraction if validation failed
+                if debug:
+                    logger.error(f"[FIX #8 IN-RE FALLBACK] Attempting 'In re' fallback extraction...")
+                
+                in_re_fallback = self._extract_in_re_fallback(text, citation, start_index, debug)
+                if in_re_fallback:
+                    logger.error(f"[FIX #8 IN-RE FALLBACK] SUCCESS: Found '{in_re_fallback.case_name}'")
+                    return in_re_fallback
+                
                 return None  # No valid match found
             
             logger.error(f"[FIX #8 VALIDATION OK] Passed validation!")
@@ -1112,6 +1125,73 @@ class UnifiedCaseExtractionMaster:
         logger.error(f"[FIX #69 VALIDATE] SUCCESS: All checks passed!")
         print(f"[PHASE6-VALIDATION-PASS] All checks passed!", flush=True)
         return True
+    
+    def _extract_in_re_fallback(self, text: str, citation: str, start_index: int, debug: bool) -> Optional[MasterExtractionResult]:
+        """
+        CRITICAL FALLBACK: Special extraction for "In re" cases that might be missed by main patterns.
+        
+        This method is called when the main extraction fails but we suspect this might be an "In re" case.
+        It uses more permissive patterns specifically designed for "In re" citations.
+        
+        Args:
+            text: Full document text
+            citation: Citation string
+            start_index: Position of citation in text
+            debug: Enable debug logging
+            
+        Returns:
+            MasterExtractionResult if "In re" case found, None otherwise
+        """
+        if debug:
+            logger.error(f"[IN-RE-FALLBACK] Looking for 'In re' case before '{citation}' at position {start_index}")
+        
+        # Get text before citation (look back up to 200 chars)
+        pre_citation_start = max(0, start_index - 200)
+        pre_citation_text = text[pre_citation_start:start_index]
+        
+        if debug:
+            logger.error(f"[IN-RE-FALLBACK] Pre-citation text: '{pre_citation_text}'")
+        
+        # More permissive "In re" patterns for fallback
+        in_re_patterns = [
+            # Standard "In re" pattern
+            r'(In\s+re\s+[A-Z][a-zA-Z0-9\s\'&\-\.,]{5,})',
+            # More permissive - allows shorter names
+            r'(In\s+re\s+[A-Z][a-zA-Z\s]{3,})',
+            # Very permissive - just "In re" followed by capitalized words
+            r'(In\s+re\s+[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)',
+        ]
+        
+        for pattern in in_re_patterns:
+            matches = list(re.finditer(pattern, pre_citation_text, re.IGNORECASE))
+            if debug:
+                logger.error(f"[IN-RE-FALLBACK] Pattern '{pattern}' found {len(matches)} matches")
+            
+            for match in matches:
+                case_name = match.group(1).strip()
+                
+                # Validate this is a reasonable case name
+                if len(case_name) >= 10 and case_name != "N/A":  # Minimum reasonable length
+                    # Extract year from citation
+                    year_match = re.search(r'\((19|20)\d{2}\)', citation)
+                    year = year_match.group(0).strip('()') if year_match else "N/A"
+                    
+                    if debug:
+                        logger.error(f"[IN-RE-FALLBACK] SUCCESS: Found '{case_name}' with year {year}")
+                    
+                    return MasterExtractionResult(
+                        case_name=case_name,
+                        year=year,
+                        confidence=0.7,  # Lower confidence for fallback
+                        method="in_re_fallback",
+                        context=pre_citation_text[-100:],
+                        debug_info={"pattern": pattern, "fallback_used": True}
+                    )
+        
+        if debug:
+            logger.error(f"[IN-RE-FALLBACK] No 'In re' case found")
+        
+        return None
     
     def _is_document_case_contamination(self, extracted_name: str, debug: bool) -> bool:
         """

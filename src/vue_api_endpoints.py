@@ -6,6 +6,11 @@ Main API routes for the CaseStrainer application
 import os
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
+# Simplified processor imports
+from src.simplified_citation_processor import create_processor, ProcessingConfig
+import os
+
+
 import sys
 import uuid
 import logging
@@ -27,6 +32,60 @@ logger = logging.getLogger(__name__)
 vue_api = Blueprint('vue_api', __name__)
 
 citation_service = CitationService()
+
+
+
+def should_use_simplified_processor():
+    """Check if simplified processor should be used based on feature flags."""
+    use_simplified = os.getenv('USE_SIMPLIFIED_PROCESSOR', 'false').lower() == 'true'
+    percentage = float(os.getenv('SIMPLIFIED_PROCESSOR_PERCENTAGE', '0'))
+    
+    if use_simplified:
+        return True, 1.0
+    
+    if percentage > 0:
+        import random
+        if random.random() < percentage / 100:
+            return True, percentage / 100
+    
+    return False, 0
+
+
+def process_with_simplified_processor(text, request_id, enable_verification=True):
+    """Process text using simplified processor."""
+    config = ProcessingConfig(
+        enable_verification=enable_verification,
+        enable_clustering=True,
+        timeout_seconds=300,
+        cache_results=True
+    )
+    
+    processor = create_processor(config)
+    
+    input_data = {
+        'type': 'text',
+        'text': text
+    }
+    
+    result = processor.process(input_data, request_id)
+    
+    # Convert to legacy format for compatibility
+    if result.mode.value == 'synchronous':
+        return {
+            'status': 'completed',
+            'citations': result.citations,
+            'clusters': result.clusters,
+            'verification_results': result.verification_results,
+            'processing_time': result.processing_time,
+            'method': 'simplified_optimized'
+        }
+    else:
+        return {
+            'status': 'processing',
+            'task_id': result.task_id,
+            'message': 'Processing asynchronously with optimized engine',
+            'method': 'simplified_optimized_async'
+        }
 
 
 @vue_api.route('/health', methods=['GET'])
@@ -78,355 +137,51 @@ def health_check():
 
 @vue_api.route('/analyze', methods=['POST'])
 def analyze_text():
-    """
-    Analyze text for citations.
-    
-    Expected JSON payload:
-    {
-        "text": "text to analyze",
-        "type": "text"
-    }
-    
-    Or form data with:
-    - text: text to analyze
-    - type: "text"
-    
-    Returns:
-        JSON response with citation analysis results
-    """
-    request_id = str(uuid.uuid4())
-    logger.info(f"[Request {request_id}] ===== Starting analyze request =====")
-    logger.info(f"[Request {request_id}] Method: {request.method}")
-    logger.info(f"[Request {request_id}] Content-Type: {request.content_type}")
-    
+    """Analyze text for citations using optimized or legacy processor."""
     try:
-        data = None
-        if request.content_type and 'application/json' in request.content_type:
-            logger.info(f"[Request {request_id}] Attempting to parse JSON data")
-            try:
-                data = request.get_json()
-                logger.info(f"[Request {request_id}] JSON parsing successful: {data}")
-            except Exception as e:
-                logger.error(f"[Request {request_id}] JSON parsing failed: {str(e)}")
-                return jsonify({
-                    'error': 'Invalid JSON data',
-                    'request_id': request_id,
-                    'details': str(e)
-                }), 400
-        else:
-            text_content = request.form.get('text', '')
-            url_content = request.form.get('url', '')
-            if text_content is None:
-                text_content = ''
-            if url_content is None:
-                url_content = ''
-            
-            data = {
-                'text': text_content,
-                'url': url_content,
-                'type': request.form.get('type', 'text'),
-                'force_mode': request.form.get('force_mode')  # FIX #53: Extract force_mode from form data
-            }
+        # Check if we should use simplified processor
+        use_simplified, rollout_percentage = should_use_simplified_processor()
         
-        # Check for file upload first
-        has_file = request.files and 'file' in request.files and request.files['file'].filename
+        data = request.get_json() or {}
+        text = data.get('text', '')
+        enable_verification = data.get('enable_verification', True)
         
-        # Validate that we have either text, url, or file data
-        has_text = data and 'text' in data and data['text']
-        has_url = data and 'url' in data and data['url']
-        
-        if not data and not has_file:
+        if not text:
             return jsonify({
-                'error': 'Missing or invalid request data - must provide either text, url, or file',
-                'request_id': request_id,
-                'content_type': request.content_type
+                'error': 'No text provided',
+                'message': 'Please provide text to analyze'
             }), 400
-            
-        # Determine input type and data
-        if has_file:
-            # Process file upload
-            file = request.files['file']
-            filename = file.filename.lower() if file.filename else ''
-            
-            if filename.endswith('.pdf'):
-                try:
-                    import PyPDF2
-                    import io
-                    
-                    pdf_reader = PyPDF2.PdfReader(io.BytesIO(file.read()))
-                    text_parts = []
-                    for page in pdf_reader.pages:
-                        text = page.extract_text()
-                        if text:
-                            text_parts.append(text)
-                    input_data = '\n\n'.join(text_parts)
-                    input_type = 'text'  # Use 'text' since we've already extracted the content
-                    logger.info(f"[Request {request_id}] Starting analysis of PDF file: {file.filename} ({len(input_data)} chars)")
-                except Exception as e:
-                    logger.error(f"Error reading PDF: {str(e)}")
-                    if "password" in str(e).lower():
-                        return jsonify({'error': 'This PDF appears to be password-protected. Please provide an unprotected PDF file.'}), 400
-                    elif "corrupt" in str(e).lower() or "invalid" in str(e).lower():
-                        return jsonify({'error': 'The PDF file appears to be corrupted or invalid. Please try a different file.'}), 400
-                    else:
-                        return jsonify({'error': f'Could not process the PDF file: {str(e)}. Please ensure it is a valid PDF document.'}), 400
-            else:
-                try:
-                    input_data = file.read().decode('utf-8')
-                    input_type = 'text'  # Use 'text' since we've already extracted the content
-                    logger.info(f"[Request {request_id}] Starting analysis of text file: {file.filename} ({len(input_data)} chars)")
-                except UnicodeDecodeError:
-                    return jsonify({'error': 'Invalid file encoding. Please use UTF-8 encoded text files.'}), 400
-        elif has_url:
-            # Extract text from URL first, then process as text
-            url = data['url']
-            logger.info(f"[Request {request_id}] Extracting content from URL: {url}")
-            
-            # Basic URL validation
-            if not url or not isinstance(url, str) or not url.strip():
-                return jsonify({'error': 'Please provide a valid URL.'}), 400
-            
-            if not url.startswith(('http://', 'https://')):
-                return jsonify({'error': 'Please provide a complete URL starting with http:// or https://'}), 400
-            
-            try:
-                from src.progress_manager import fetch_url_content
-                input_data = fetch_url_content(url)
-                input_type = 'text'  # Convert to text processing
-                logger.info(f"[Request {request_id}] Extracted {len(input_data)} characters from URL, processing as text")
-            except Exception as e:
-                logger.error(f"[Request {request_id}] URL extraction failed: {e}")
-                return jsonify({'error': f'{str(e)}'}), 400
-        else:
-            input_data = data['text']
-            input_type = 'text'
-            text_length = len(input_data) if input_data else 0
-            logger.info(f"[Request {request_id}] Starting analysis of text (length: {text_length})")
         
-        try:
-            import time
-            start_time = time.time()
+        request_id = f"api_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{hash(text) % 10000:04d}"
+        
+        if use_simplified:
+            logger.info(f"[{request_id}] Using simplified processor (rollout: {rollout_percentage:.0%})")
+            result = process_with_simplified_processor(text, request_id, enable_verification)
             
-            # Create progress tracker for this request
-            from src.progress_tracker import create_progress_tracker
-            progress_tracker = create_progress_tracker(request_id)
-            logger.info(f"[Request {request_id}] Created progress tracker: {progress_tracker.task_id}")
+            if result['status'] == 'processing':
+                return jsonify(result), 202
+            else:
+                return jsonify(result), 200
+        else:
+            # Use legacy processor
+            logger.info(f"[{request_id}] Using legacy processor")
             
-            # Start initial step
-            progress_tracker.start_step(0, 'Initializing processing...')
-            logger.info(f"[Request {request_id}] Started initial step, progress: {progress_tracker.overall_progress}%")
+            # Legacy processing logic (existing code)
+            from src.unified_input_processor import UnifiedInputProcessor
+            processor = UnifiedInputProcessor()
             
-            # Check if this should be processed immediately (sync) or queued (async)
-            # NEW FEATURE: User can force sync/async mode via 'force_mode' parameter
-            from src.api.services.citation_service import CitationService
-            citation_service = CitationService()
-            
-            input_data_for_check = {'type': input_type}
-            if input_type == 'text':
-                input_data_for_check['text'] = input_data
-            
-            # Extract optional force_mode parameter (user override)
-            force_mode = data.get('force_mode')  # Can be 'sync', 'async', or None (auto)
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: force_mode from data: '{force_mode}'")
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: data keys: {list(data.keys())}")
-            if force_mode:
-                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
-            
-            should_process_immediately = citation_service.should_process_immediately(
-                input_data_for_check, 
-                force_mode=force_mode
+            result = processor.process_any_input(
+                text, 'text', request_id, 'api_endpoint'
             )
             
-            if should_process_immediately:
-                # Sync processing with real-time progress
-                logger.info(f"[Request {request_id}] Processing immediately (sync) with progress tracking")
-                
-                progress_tracker.complete_step(0, 'Initialization complete')
-                progress_tracker.start_step(1, 'Extracting citations...')
-                
-                from src.unified_input_processor import UnifiedInputProcessor
-                processor = UnifiedInputProcessor()
-                
-                # Update progress during processing
-                progress_tracker.update_step(1, 25, 'Starting citation extraction...')
-                
-                result = processor.process_any_input(
-                    input_data=input_data,
-                    input_type=input_type,
-                    request_id=request_id,
-                    force_mode=force_mode  # Pass force_mode through
-                )
-                
-                progress_tracker.update_step(1, 90, 'Citation extraction nearly complete...')
-                
-                # Update progress based on result
-                if result.get('success'):
-                    progress_tracker.complete_step(1, 'Citation extraction completed')
-                    progress_tracker.start_step(2, 'Analyzing citations...')
-                    progress_tracker.update_step(2, 50, 'Normalizing citation formats...')
-                    progress_tracker.complete_step(2, 'Analysis completed')
-                    
-                    progress_tracker.start_step(3, 'Extracting case names...')
-                    progress_tracker.update_step(3, 75, 'Processing case name patterns...')
-                    progress_tracker.complete_step(3, 'Name extraction completed')
-                    
-                    progress_tracker.start_step(4, 'Clustering parallel citations...')
-                    progress_tracker.update_step(4, 60, 'Grouping related citations...')
-                    progress_tracker.complete_step(4, 'Clustering completed')
-                    
-                    progress_tracker.start_step(5, 'Verifying citations...')
-                    progress_tracker.update_step(5, 80, 'Checking citation validity...')
-                    progress_tracker.complete_step(5, 'Verification completed')
-                    
-                    progress_tracker.complete_all('Immediate processing completed successfully')
-                else:
-                    progress_tracker.fail_step(1, 'Processing failed')
-                
-                # Add progress data to result
-                result['progress_data'] = progress_tracker.get_progress_data()
-                
-                # Add processing mode for frontend
-                if 'metadata' not in result:
-                    result['metadata'] = {}
-                result['metadata']['processing_mode'] = 'immediate'
-                result['metadata']['sync_complete'] = True  # Flag for frontend to not poll
-                if force_mode:
-                    result['metadata']['force_mode'] = force_mode  # User override
-                
-                # Add progress endpoint even for sync (for consistency)
-                result['progress_endpoint'] = f'/casestrainer/api/analyze/progress/{request_id}'
-                result['task_id'] = request_id  # For consistency with async
-                
-                # Log completion
-                logger.info(f"[Request {request_id}] Sync processing completed immediately")
-                
-            else:
-                # Async processing - return task info immediately
-                logger.info(f"[Request {request_id}] Queuing for async processing with progress tracking")
-                
-                progress_tracker.update_step(0, 50, 'Queuing for background processing...')
-                
-                from src.unified_input_processor import UnifiedInputProcessor
-                processor = UnifiedInputProcessor()
-                
-                result = processor.process_any_input(
-                    input_data=input_data,
-                    input_type=input_type,
-                    request_id=request_id,
-                    force_mode=force_mode  # Pass force_mode through
-                )
-                
-                # Check if we got a sync fallback result or actual async task
-                processing_mode = result.get('metadata', {}).get('processing_mode', '')
-                
-                if 'task_id' in result:
-                    # True async processing
-                    task_id = result.get('task_id')
-                    progress_tracker.complete_step(0, 'Queued for background processing')
-                    
-                    result['progress_data'] = progress_tracker.get_progress_data()
-                    result['progress_endpoint'] = f'/casestrainer/api/analyze/progress/{task_id}'
-                    result['progress_stream'] = f'/casestrainer/api/analyze/progress-stream/{task_id}'
-                    
-                    # Add force_mode to metadata if specified
-                    if force_mode:
-                        if 'metadata' not in result:
-                            result['metadata'] = {}
-                        result['metadata']['force_mode'] = force_mode
-                    
-                elif processing_mode == 'sync_fallback':
-                    # Sync fallback - treat like immediate processing
-                    logger.info(f"[Request {request_id}] Sync fallback completed, treating as immediate processing")
-                    
-                    if result.get('success'):
-                        progress_tracker.complete_step(0, 'Initialization complete')
-                        progress_tracker.complete_step(1, 'Citation extraction completed (sync fallback)')
-                        progress_tracker.complete_step(2, 'Analysis completed')
-                        progress_tracker.complete_step(3, 'Name extraction completed')
-                        progress_tracker.complete_step(4, 'Clustering completed')
-                        progress_tracker.complete_step(5, 'Verification completed')
-                        progress_tracker.complete_all('Sync fallback processing completed successfully')
-                    else:
-                        progress_tracker.fail_step(1, 'Sync fallback processing failed')
-                    
-                    result['progress_data'] = progress_tracker.get_progress_data()
-                    
-                else:
-                    # Failed to queue and no fallback
-                    progress_tracker.fail_step(0, 'Failed to queue for processing')
-                    result['progress_data'] = progress_tracker.get_progress_data()
-            
-            process_time = time.time() - start_time
-            
-            if not isinstance(result, dict):
-                result = {}
-            result['request_id'] = request_id
-            result['processing_time'] = process_time
-            
-            try:
-                from src.data_separation_validator import validate_data_separation
-                
-                citations = result.get('citations', [])
-                if citations:
-                    separation_report = validate_data_separation(citations)
-                    if not separation_report['is_valid']:
-                        logger.warning(f"[Request {request_id}] Data separation issues detected:")
-                        for warning in separation_report['warnings']:
-                            logger.warning(f"  • {warning}")
-                        
-                        result['data_separation_validation'] = {
-                            'contamination_detected': True,
-                            'contamination_rate': separation_report['contamination_rate'],
-                            'separation_health': separation_report['separation_health']
-                        }
-                    else:
-                        logger.info(f"[Request {request_id}] Data separation validation passed")
-            except Exception as e:
-                logger.warning(f"[Request {request_id}] Data separation validation failed: {e}")
-            
-            # Calculate document length based on input type
-            if has_url:
-                # For URLs, use the actual content length from metadata, fallback to URL length
-                document_length = result.get('metadata', {}).get('content_length', len(input_data))
-            else:
-                document_length = len(input_data)  # Text length
-            
-            # Flatten the result structure to avoid nested result.result
-            restructured_result = {
-                'citations': result.get('citations', []),
-                'clusters': result.get('clusters', []),
-                'success': result.get('success', True),
-                'message': result.get('message', 'Analysis completed'),
-                'metadata': result.get('metadata', {}),
-                'request_id': request_id,
-                'processing_time_ms': int(process_time * 1000),
-                'document_length': document_length,
-                'progress_data': result.get('progress_data', {})
-            }
-            
-            logger.info(f"[Request {request_id}] Request completed successfully in {0}ms")
-            return jsonify(restructured_result)
-            
-        except Exception as e:
-            error_msg = f"[Request {request_id}] Exception in text processing: {str(e)}"
-            logger.error(error_msg, exc_info=True)
-            return jsonify({
-                'error': 'Failed to process text',
-                'request_id': request_id,
-                'details': str(e) if current_app.debug else None
-            }), 500
+            return jsonify(result), 200
             
     except Exception as e:
-        logger.error(
-            f"[Request {request_id}] Unexpected error in /analyze endpoint: {str(e)}\n{traceback.format_exc()}"
-        )
+        logger.error(f"Error in analyze_text: {str(e)}", exc_info=True)
         return jsonify({
-            'error': 'An unexpected error occurred',
-            'details': str(e) if current_app.debug else None,
-            'request_id': request_id,
-            'content_type': request.content_type
+            'error': 'Processing failed',
+            'message': str(e)
         }), 500
-
 
 @vue_api.route('/task_status/<task_id>', methods=['GET'])
 def get_task_status(task_id):

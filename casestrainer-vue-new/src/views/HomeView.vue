@@ -1240,6 +1240,23 @@ const analyzeContent = async () => {
   // Force Vue to recognize the change
   await nextTick();
   
+  // Start progress immediately on click so spinner/progress bar show right away
+  try {
+    globalProgress.startProgress(activeTab.value, { kickoff: true }, 30); // 30 seconds estimated
+    // Minimal initial state
+    globalProgress.updateProgress({ 
+      step: 'Initializing...', 
+      total_progress: 5 
+    });
+    // Set initial metadata (will be refined after request starts)
+    globalProgress.progressState.metadata = {
+      processing_mode: 'sync',
+      input_type: activeTab.value
+    };
+  } catch (e) {
+    console.warn('Progress init warning:', e);
+  }
+  
   try {
     let requestData;
     
@@ -1265,21 +1282,13 @@ const analyzeContent = async () => {
       throw new Error('Invalid input configuration');
     }
     
-    // Start progress tracking AFTER we have requestData
+    // Update progress metadata now that we have requestData (without restarting)
     try {
-      globalProgress.startProgress(activeTab.value, requestData, 30); // 30 seconds estimated
-      
-      // Set metadata for processing mode detection
-      globalProgress.progressState.metadata = {
-        processing_mode: 'sync', // Will be updated to 'async' if job_id received
-        input_type: activeTab.value
-      };
-      
       // Ensure progress state is properly initialized before proceeding
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Set up processing steps for text analysis
-      if (activeTab.value === 'text') {
+      // Set up processing steps for pasted text analysis
+      if (activeTab.value === 'paste') {
         globalProgress.setSteps([
           { step: 'Initializing...', estimated_time: 2 },
           { step: 'Extracting citations...', estimated_time: 8 },
@@ -1317,17 +1326,30 @@ const analyzeContent = async () => {
     
     // Start polling for progress in parallel with the analyze request
     let pollingInterval = null;
+    let responseArrived = false;
     
     // Start the analyze request (don't await yet)
-    const analyzePromise = analyze(requestData);
+    const analyzePromise = analyze(requestData, clientRequestId);
     
     // Start polling after a short delay (give backend time to initialize)
     let pollAttempts = 0;
     const MAX_POLL_ATTEMPTS = 300; // 5 minutes max (300 seconds)
     
-    setTimeout(() => {
-      pollingInterval = setInterval(async () => {
-        pollAttempts++;
+    // Always poll server progress as soon as we have a client_request_id
+    const shouldPoll = true;
+    if (shouldPoll) {
+      setTimeout(() => {
+        if (responseArrived) {
+          // Response already received; skip starting polling
+          return;
+        }
+        pollingInterval = setInterval(async () => {
+          if (responseArrived) {
+            clearInterval(pollingInterval);
+            pollingInterval = null;
+            return;
+          }
+          pollAttempts++;
         
         // Safety timeout - prevent infinite polling
         if (pollAttempts > MAX_POLL_ATTEMPTS) {
@@ -1341,34 +1363,28 @@ const analyzeContent = async () => {
         }
         
         try {
-          const progressResponse = await axios.get(`/processing_progress?request_id=${clientRequestId}`);
-          if (progressResponse.data && progressResponse.data.progress_percent !== undefined) {
-            const percent = progressResponse.data.progress_percent;
-            const message = progressResponse.data.current_message;
-            
-            console.log(`📊 [${pollAttempts}] Progress: ${percent}% - ${message}`);
-            
-            // Log when we reach 100% to help diagnose stuck responses
-            if (percent >= 100) {
-              console.log('⏳ Progress at 100% - waiting for response to complete...');
-            }
-            
-            globalProgress.updateProgress({
-              step: message || 'Processing...',
-              progress: percent || 0,
-              total_progress: percent || 0
-            });
-          }
+          const progressResponse = await api.get(`/analyze/progress/${clientRequestId}`);
+          const pd = progressResponse.data?.progress_data || {};
+          const percent = pd.overall_progress ?? pd.total_progress ?? pd.progress ?? 0;
+          const message = pd.current_message || pd.currentStep || pd.message || 'Processing...';
+          console.log(`📊 [${pollAttempts}] Progress: ${percent}% - ${message}`);
+          globalProgress.updateProgress({
+            step: message,
+            progress: percent,
+            total_progress: percent
+          });
         } catch (error) {
           // Ignore polling errors - request might not be ready yet
           console.debug('Polling attempt (request not ready yet)');
         }
       }, 1000); // Poll every second
-    }, 1000); // Wait 1 second before starting to poll
+    }, 1500); // Wait 1.5 seconds before starting to poll to reduce early 404s
+    }
     
     // Now await the response
     console.log('⏳ Waiting for main API response...');
     const response = await analyzePromise;
+    responseArrived = true;
     console.log('✅ Main API response received!');
     
     // Stop polling once we have the response
@@ -1459,18 +1475,17 @@ const analyzeContent = async () => {
         
         // Poll the progress endpoint to show progress animation
         try {
-          const progressResponse = await axios.get(`/api/processing_progress?request_id=${taskId}`);
-          if (progressResponse.data && progressResponse.data.progress_percent !== undefined) {
-            console.log('Progress data retrieved:', progressResponse.data);
-            
-            // Show progress animation
+          const progressResponse = await api.get(`/analyze/verification-status/${taskId}`);
+          const pr = (progressResponse.data && progressResponse.data.result) ? progressResponse.data.result : (progressResponse.data.status || progressResponse.data || {});
+          const percent = (pr.progress_percent !== undefined) ? pr.progress_percent : (pr.progress !== undefined ? pr.progress : pr.total_progress);
+          const message = pr.current_message || pr.message;
+          if (percent !== undefined) {
+            console.log('Progress data retrieved:', { percent, message });
             globalProgress.updateProgress({
-              step: progressResponse.data.current_message || 'Processing complete',
-              progress: progressResponse.data.progress_percent || 100,
-              total_progress: progressResponse.data.progress_percent || 100
+              step: message || 'Processing complete',
+              progress: percent || 100,
+              total_progress: percent || 100
             });
-            
-            // Small delay to show the progress
             await new Promise(resolve => setTimeout(resolve, 800));
           }
         } catch (error) {
@@ -1501,6 +1516,9 @@ const analyzeContent = async () => {
         globalProgress.completeProgress(analysisResults.value, 'home');
         console.log('📦 completeProgress called - results should now be visible');
       }, 100);
+
+      // IMPORTANT: Prevent double-processing in the generic response handler below
+      return;
     }
     
     // Handle async task with task_id
@@ -1586,17 +1604,20 @@ const analyzeContent = async () => {
           
           // Also poll the progress endpoint for real progress data
           try {
-            const progressResponse = await axios.get(`/processing_progress?request_id=${response.task_id}`);
-            if (progressResponse.data && progressResponse.data.progress_percent !== undefined) {
-              console.log('📊 Real async progress:', progressResponse.data.progress_percent + '%', progressResponse.data.current_message);
+            const progressResponse = await api.get(`/analyze/verification-status/${response.task_id}`);
+            const pr = (progressResponse.data && progressResponse.data.result) ? progressResponse.data.result : (progressResponse.data || {});
+            const pct = (pr.progress_percent !== undefined) ? pr.progress_percent : (pr.progress !== undefined ? pr.progress : pr.total_progress);
+            const msg = pr.current_message || pr.message;
+            if (pct !== undefined) {
+              console.log('📊 Real async progress:', pct + '%', msg);
               
               // DON'T stop polling when reaching 100% - let it continue until task actually completes
               // The completion callback will handle final cleanup
               
               globalProgress.updateProgress({
-                step: progressResponse.data.current_message || 'Processing...',
-                progress: progressResponse.data.progress_percent || 0,
-                total_progress: progressResponse.data.progress_percent || 0
+                step: msg || 'Processing...',
+                progress: pct || 0,
+                total_progress: pct || 0
               });
               return; // Use real progress data instead of hardcoded values
             }

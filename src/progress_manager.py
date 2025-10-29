@@ -157,9 +157,33 @@ class SSEProgressManager:
         self.redis_client = None
         if REDIS_AVAILABLE and redis is not None:
             try:
-                self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
-            except:
-                logger.warning("Redis not available, using in-memory progress tracking")
+                # Use REDIS_URL environment variable if available, otherwise fallback to localhost
+                redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
+                if redis_url.startswith('redis://'):
+                    # Parse redis://:password@host:port/db format
+                    import re
+                    match = re.match(r'redis://:(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)', redis_url)
+                    if match:
+                        self.redis_client = redis.Redis(
+                            host=match.group('host'),
+                            port=int(match.group('port')),
+                            db=int(match.group('db')),
+                            password=match.group('password')
+                        )
+                    else:
+                        # Fallback for simple redis://host:port/db
+                        match = re.match(r'redis://(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)', redis_url)
+                        if match:
+                            self.redis_client = redis.Redis(
+                                host=match.group('host'),
+                                port=int(match.group('port')),
+                                db=int(match.group('db'))
+                            )
+                else:
+                    # Direct connection fallback
+                    self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
+            except Exception as e:
+                logger.warning(f"Redis not available, using in-memory progress tracking: {e}")
                 self.redis_client = None
         else:
             logger.info("Redis not installed, using in-memory progress tracking")
@@ -1232,9 +1256,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 # instead of just extraction
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
                 
-                # Verification enabled - uses fallback sources if CourtListener is rate-limited
-                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification=True (with fallback sources)")
-                result = extract_citations_with_clustering(text, enable_verification=True)
+                # Extract enable_verification flag from input_data
+                enable_verification = input_data.get('enable_verification', True)
+                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification={enable_verification} (with fallback sources)")
+                result = extract_citations_with_clustering(text, enable_verification=enable_verification)
                 
                 # Check if any citations show CourtListener rate limit messages
                 courtlistener_rate_limited = False

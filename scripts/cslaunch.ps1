@@ -289,8 +289,6 @@ function Clear-ApplicationCache {
     
     # Remind about browser cache
     Write-Host "`n  📝 REMINDER: Clear your browser cache (Ctrl+Shift+Delete) to see new results!" -ForegroundColor Magenta
-    Write-Host "     - Chrome/Edge: Ctrl+Shift+Delete > Clear browsing data" -ForegroundColor DarkGray
-    Write-Host "     - Firefox: Ctrl+Shift+Delete > Clear cache" -ForegroundColor DarkGray
 }
 
 function Clear-StuckJobs {

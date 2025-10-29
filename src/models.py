@@ -113,7 +113,7 @@ class CitationResult:
             'error': self.error,
             'metadata': self.metadata,
             'cluster_id': self.cluster_id,
-            'true_by_parallel': self.true_by_parallel,
+            'true_by_parallel': self.true_by_parallel,  # Useful for tracking verification by parallel citations
             'is_verified': self.verified,  # Add is_verified alias for backward compatibility
             'name_mismatch': self.name_mismatch,  # Flag when extracted ≠ canonical
             'date_mismatch': self.date_mismatch,

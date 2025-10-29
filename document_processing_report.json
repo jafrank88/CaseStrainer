@@ -1,0 +1,283 @@
+{
+  "ground_truth": {
+    "expected_citations": [
+      {
+        "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+        "case_name": "Brown v. Board of Education",
+        "year": "1954",
+        "type": "Supreme Court",
+        "should_cluster": false
+      },
+      {
+        "citation": "Plessy v. Ferguson, 163 U.S. 537 (1896)",
+        "case_name": "Plessy v. Ferguson",
+        "year": "1896",
+        "type": "Supreme Court",
+        "should_cluster": false
+      },
+      {
+        "citation": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+        "case_name": "Miranda v. Arizona",
+        "year": "1966",
+        "type": "Supreme Court",
+        "should_cluster": false
+      },
+      {
+        "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+        "case_name": "Roe v. Wade",
+        "year": "1973",
+        "type": "Supreme Court",
+        "should_cluster": false
+      }
+    ],
+    "document_type": "Legal Analysis",
+    "expected_clusters": 5,
+    "key_entities": [
+      "Supreme Court",
+      "civil rights",
+      "constitutional law"
+    ],
+    "time_period": "1896-1992",
+    "jurisdiction": "United States Supreme Court"
+  },
+  "optimized_results": {
+    "extraction": {
+      "system": "Optimized",
+      "total_expected": 4,
+      "total_found": 4,
+      "completeness": 1.0,
+      "case_name_accuracy": 0.5,
+      "year_accuracy": 1.0,
+      "missing_citations": [],
+      "found_citations": [
+        {
+          "expected": {
+            "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+            "case_name": "Brown v. Board of Education",
+            "year": "1954",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "347 U.S. 483",
+          "case_name_extracted": false,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Plessy v. Ferguson, 163 U.S. 537 (1896)",
+            "case_name": "Plessy v. Ferguson",
+            "year": "1896",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "163 U.S. 537",
+          "case_name_extracted": true,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+            "case_name": "Miranda v. Arizona",
+            "year": "1966",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "384 U.S. 436",
+          "case_name_extracted": true,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+            "case_name": "Roe v. Wade",
+            "year": "1973",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "410 U.S. 113",
+          "case_name_extracted": false,
+          "year_extracted": true
+        }
+      ]
+    },
+    "clustering": {
+      "system": "Optimized",
+      "total_clusters": 5,
+      "expected_clusters": 4,
+      "clustering_quality": 1.0,
+      "cluster_analysis": [
+        {
+          "cluster_id": 0,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        },
+        {
+          "cluster_id": 1,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "Plessy v. Ferguson"
+          ]
+        },
+        {
+          "cluster_id": 2,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "Fourteenth Amendment. The Court further developed procedural rights in Miranda v. Arizona"
+          ]
+        },
+        {
+          "cluster_id": 3,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        },
+        {
+          "cluster_id": 4,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        }
+      ]
+    },
+    "verification": {
+      "system": "Optimized",
+      "total_citations": 5,
+      "verified_count": 5,
+      "possible_matches": 0,
+      "verification_rate": 1.0,
+      "sources_used": [
+        "courtlistener_lookup_batch"
+      ]
+    },
+    "processing_time": 2.0939738750457764
+  },
+  "legacy_results": {
+    "extraction": {
+      "system": "Legacy",
+      "total_expected": 4,
+      "total_found": 4,
+      "completeness": 1.0,
+      "case_name_accuracy": 0.5,
+      "year_accuracy": 1.0,
+      "missing_citations": [],
+      "found_citations": [
+        {
+          "expected": {
+            "citation": "Brown v. Board of Education, 347 U.S. 483 (1954)",
+            "case_name": "Brown v. Board of Education",
+            "year": "1954",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "347 U.S. 483",
+          "case_name_extracted": false,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Plessy v. Ferguson, 163 U.S. 537 (1896)",
+            "case_name": "Plessy v. Ferguson",
+            "year": "1896",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "163 U.S. 537",
+          "case_name_extracted": true,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Miranda v. Arizona, 384 U.S. 436 (1966)",
+            "case_name": "Miranda v. Arizona",
+            "year": "1966",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "384 U.S. 436",
+          "case_name_extracted": true,
+          "year_extracted": true
+        },
+        {
+          "expected": {
+            "citation": "Roe v. Wade, 410 U.S. 113 (1973)",
+            "case_name": "Roe v. Wade",
+            "year": "1973",
+            "type": "Supreme Court",
+            "should_cluster": false
+          },
+          "actual": "410 U.S. 113",
+          "case_name_extracted": false,
+          "year_extracted": true
+        }
+      ]
+    },
+    "clustering": {
+      "system": "Legacy",
+      "total_clusters": 5,
+      "expected_clusters": 4,
+      "clustering_quality": 1.0,
+      "cluster_analysis": [
+        {
+          "cluster_id": 0,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        },
+        {
+          "cluster_id": 1,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "Plessy v. Ferguson"
+          ]
+        },
+        {
+          "cluster_id": 2,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "Fourteenth Amendment. The Court further developed procedural rights in Miranda v. Arizona"
+          ]
+        },
+        {
+          "cluster_id": 3,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        },
+        {
+          "cluster_id": 4,
+          "size": 1,
+          "is_single_case": true,
+          "case_names": [
+            "N/A"
+          ]
+        }
+      ]
+    },
+    "verification": {
+      "system": "Legacy",
+      "total_citations": 5,
+      "verified_count": 5,
+      "possible_matches": 3,
+      "verification_rate": 1.6,
+      "sources_used": []
+    },
+    "processing_time": 1.014159917831421
+  },
+  "overall_quality": 0.9444444444444445,
+  "recommendations": "READY FOR PRODUCTION"
+}

@@ -86,7 +86,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
-      - RQ_WORKER_AUTORELOAD=true
+      - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=1
     volumes:
       - ./src:/app/src
@@ -129,7 +129,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
-      - RQ_WORKER_AUTORELOAD=true
+      - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=2
     volumes:
       - ./src:/app/src
@@ -172,7 +172,7 @@ services:
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024
-      - RQ_WORKER_AUTORELOAD=true
+      - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=3
     volumes:
       - ./src:/app/src
