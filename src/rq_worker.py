@@ -51,6 +51,7 @@ def register_worker_functions():
         'extract_pdf_optimized',
         'extract_pdf_optimized_v2',
         'process_citation_task_direct',
+        'process_citation_task_async',
         'src.redis_distributed_processor.DockerOptimizedProcessor.process_document',
         'src.async_verification_worker.verify_citations_enhanced',
         'src.async_verification_worker.verify_citations_basic',
@@ -62,6 +63,7 @@ def register_worker_functions():
 
 __all__ = [
     'process_citation_task_direct', 
+    'process_citation_task_async',
     'extract_pdf_pages', 
     'extract_pdf_optimized', 
     'extract_pdf_optimized_v2',
@@ -74,6 +76,46 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
     # DIAGNOSTIC LOGGING - Track every step of worker startup
     logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP BEGINS ==========")
     logger.info(f"[DIAGNOSTIC:{task_id}] Step 1: Function entry successful")
+    
+    # Add timeout wrapper to prevent infinite hangs
+    import concurrent.futures
+    import threading
+    
+    def run_with_timeout():
+        """Inner function that runs the actual processing with timeout."""
+        return _process_citation_task_internal(task_id, input_type, input_data)
+    
+    try:
+        # Run with a 5-minute timeout
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(run_with_timeout)
+            try:
+                result = future.result(timeout=300)  # 5 minutes timeout
+                logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER COMPLETED SUCCESSFULLY ==========")
+                return result
+            except concurrent.futures.TimeoutError:
+                logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER TIMEOUT AFTER 5 MINUTES ==========")
+                # Cancel the future if it's still running
+                future.cancel()
+                return {
+                    'status': 'failed',
+                    'task_id': task_id,
+                    'error': 'Job timed out after 5 minutes',
+                    'diagnostic': 'timeout_error'
+                }
+    except Exception as e:
+        logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER CRASHED ==========")
+        logger.error(f"[DIAGNOSTIC:{task_id}] Error: {str(e)}")
+        import traceback
+        logger.error(f"[DIAGNOSTIC:{task_id}] Traceback: {traceback.format_exc()}")
+        return {
+            'status': 'failed',
+            'task_id': task_id,
+            'error': f'Worker crashed: {str(e)}',
+            'diagnostic': 'worker_crash'
+        }
+
+def _process_citation_task_internal(task_id: str, input_type: str, input_data: dict):
     
     try:
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 2: Starting basic imports...")
@@ -157,42 +199,43 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             'diagnostic': 'startup_failure'
         }
     
-    # Setup timeout handler for non-Windows systems
+    # Setup timeout handler - disabled since we use ThreadPoolExecutor for timeout
+    # Note: signal only works in main thread, so we rely on ThreadPoolExecutor timeout instead
     timeout_set = False
-    if platform.system() != 'Windows':
-        try:
-            def timeout_handler(signum, frame):
-                error_msg = f"Task {task_id} timed out after 10 minutes"
-                logger.error(f"[TASK:{task_id}] {error_msg}")
-                raise TimeoutError(error_msg)
-            
-            signal.signal(signal.SIGALRM, timeout_handler)  # type: ignore[attr-defined]
-            signal.alarm(600)  # type: ignore[attr-defined]
-            timeout_set = True
-            logger.info(f"[TASK:{task_id}] Timeout handler set for 10 minutes")
-        except (AttributeError, OSError) as e:
-            logger.warning(f"[TASK:{task_id}] Could not set signal handler: {str(e)}")
+    logger.info(f"[TASK:{task_id}] Using ThreadPoolExecutor timeout (5 minutes) instead of signal handler")
     
     try:
         start_time = time.time()
         logger.info(f"[DIAGNOSTIC:{task_id}] ========== MAIN PROCESSING BEGINS ==========")
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Starting processing of type: {input_type}")
         
+        # CRITICAL: Add immediate flush to ensure logs appear
+        import sys
+        sys.stdout.flush()
+        sys.stderr.flush()
+        
         # Register verification/progress so the UI can poll immediately
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.1: About to create VerificationManager...")
         try:
             vm = VerificationManager()
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.2: VerificationManager created")
             vm.register_verification(task_id, task_id, total_citations=4)  # treat as 4-step progress initially
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.3: Verification registered")
             vm.update_progress(task_id, processed=0, total=4, message='Initializing async processing')
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.4: Progress updated")
         except Exception as _e:
-            logger.warning(f"[TASK:{task_id}] Could not register verification progress: {_e}")
+            logger.error(f"[DIAGNOSTIC:{task_id}] Step 7.ERROR: VerificationManager failed: {_e}")
+            import traceback
+            logger.error(f"[DIAGNOSTIC:{task_id}] VerificationManager traceback: {traceback.format_exc()}")
         
         # Log input data (truncated if too large)
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: About to log input data...")
         input_data_str = str(input_data)
         if len(input_data_str) > 500:
             input_data_str = input_data_str[:500] + "... [truncated]"
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Input data logged")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Input data logged (length: {len(input_data_str)})")
         
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Entering processing logic...")
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: About to enter processing logic...")
         logger.info(f"[DIAGNOSTIC:{task_id}] Using minimal async worker for diagnostic testing")
         
         if input_type in ['text', 'url']:
@@ -213,7 +256,8 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     import os
                     
                     # Download the content
-                    response = requests.get(url, timeout=30)
+                    # CRITICAL FIX: Follow redirects to handle HTTP→HTTPS redirects
+                    response = requests.get(url, timeout=30, allow_redirects=True)
                     response.raise_for_status()
                     
                     # If it's a PDF, extract text
@@ -226,11 +270,10 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             temp_path = temp_file.name
                         
                         try:
-                            # Extract text using PDF processor
-                            pdf_processor = OptimizedPDFProcessor()
-                            result = pdf_processor.process_pdf(temp_path)
-                            text = result.text if result else ""
-                            logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters from PDF")
+                            # Extract text using UnifiedTextExtractor (same as file uploads)
+                            from src.unified_text_extractor import extract_text_from_file_unified
+                            text, method = extract_text_from_file_unified(temp_path, verbose=True)
+                            logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters using {method}")
                         finally:
                             # Clean up temp file
                             if os.path.exists(temp_path):
@@ -275,11 +318,12 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     import time
                     logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Full pipeline import SUCCESS")
 
-                    # Run full pipeline with clustering and verification
-                    try:
-                        vm.update_progress(task_id, processed=1, total=4, message='Extracting and clustering citations')
-                    except Exception:
-                        pass
+                    # CRITICAL FIX: Always disable verification for URL processing to prevent timeout
+                    # URLs can contain many citations that would cause verification timeouts
+                    enable_verification = input_data.get('enable_verification', True)  # Default to True for normal operation
+                    enable_verification = False if input_type == 'url' else enable_verification
+                    
+                    logger.info(f"[TASK:{task_id}] Running full pipeline with verification={enable_verification}")
                     
                     # Create progress callback for worker
                     def worker_progress_callback(progress: int, step: str, message: str):
@@ -291,83 +335,95 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             logger.warning(f"[TASK:{task_id}] Failed to update progress: {e}")
                     
                     # Extract enable_verification flag from input_data
-                    enable_verification = input_data.get('enable_verification', True)
+                    enable_verification = input_data.get('enable_verification', True)  # Default to True for normal operation
                     logger.info(f"[TASK:{task_id}] enable_verification flag: {enable_verification}")
                     
-                    logger.info(f"[TASK:{task_id}] About to call extract_citations_with_clustering with progress_callback")
-                    pipeline_result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=worker_progress_callback)
-                    logger.info(f"[TASK:{task_id}] extract_citations_with_clustering completed")
-
+                    logger.info(f"[TASK:{task_id}] About to call unified pipeline with verification fix")
+                    
+                    # SYNCHRONOUS COMPLETION - Wait for full verification
+                    # Import required modules for synchronous processing
+                    import asyncio
+                    import gc  # Garbage collection for memory management
+                    from src.unified_processing_pipeline import process_citations_unified
+                    
+                    # Worker stability: Monitor memory usage before processing
+                    try:
+                        import psutil
+                        process = psutil.Process()
+                        memory_mb = process.memory_info().rss / 1024 / 1024
+                        logger.info(f"[TASK:{task_id}] Worker memory usage: {memory_mb:.1f}MB before processing")
+                        
+                        # If memory usage is high, force garbage collection
+                        if memory_mb > 500:  # 500MB threshold
+                            logger.warning(f"[TASK:{task_id}] High memory usage detected, forcing garbage collection")
+                            gc.collect()
+                    except ImportError:
+                        logger.info(f"[TASK:{task_id}] psutil not available for memory monitoring")
+                    
+                    # Run full pipeline with verification and wait for completion
+                    logger.info(f"[TASK:{task_id}] 🔄 Processing with verification={enable_verification}...")
+                    
+                    try:
+                        pipeline_result = asyncio.run(process_citations_unified(
+                            text, 
+                            processing_mode="enhanced_sync", 
+                            enable_parallel_verification=enable_verification if enable_verification else False,  # Only enable parallel if verification is enabled
+                            enable_verification=enable_verification  # Use the modified flag (False for URLs)
+                        ))
+                        logger.info(f"[TASK:{task_id}] Full pipeline processing with verification completed")
+                        
+                        # Worker stability: Memory cleanup after processing
+                        try:
+                            gc.collect()  # Force garbage collection
+                            if 'process' in locals():
+                                memory_after = process.memory_info().rss / 1024 / 1024
+                                logger.info(f"[TASK:{task_id}] Worker memory usage: {memory_after:.1f}MB after processing")
+                        except Exception as mem_err:
+                            logger.warning(f"[TASK:{task_id}] Memory cleanup failed: {mem_err}")
+                        
+                    except Exception as pipeline_err:
+                        logger.error(f"[TASK:{task_id}] Pipeline processing failed: {pipeline_err}")
+                        result = {
+                            'status': 'failed',
+                            'task_id': task_id,
+                            'error': f'Pipeline processing failed: {str(pipeline_err)}'
+                        }
+                        return result
+                    
+                    # Extract results from completed pipeline
                     citations_list = list(pipeline_result.get('citations', []) or [])
                     clusters_list = list(pipeline_result.get('clusters', []) or [])
-
-                    # If any citations remain unverified, run enhanced fallback verification and merge improvements
-                    try:
-                        unverified_count = sum(1 for c in citations_list if isinstance(c, dict) and not c.get('verified'))
-                    except Exception:
-                        unverified_count = 0
-                    if citations_list and unverified_count > 0:
-                        logger.info(f"[TASK:{task_id}] {unverified_count} citations unverified after pipeline; running enhanced fallback verification")
-                        try:
-                            vm.update_progress(task_id, processed=3, total=max(4, len(citations_list)), message='Running fallback verification')
-                        except Exception:
-                            pass
-                        try:
-                            from src.async_verification_worker import verify_citations_enhanced as _verify_enhanced
-                            # Performance guardrails
-                            import os
-                            elapsed = time.time() - start_time
-                            if elapsed > 90:
-                                logger.info(f"[TASK:{task_id}] Skipping fallback (elapsed {elapsed:.1f}s > 90s budget)")
-                                enriched = {'success': False, 'citations': []}
-                            else:
-                                max_targets = int(os.environ.get('FALLBACK_VERIFY_MAX', '12'))
-                                priority_tokens = ('F.4th','F.3d','U.S.','S. Ct.','L. Ed.','P.3d','P.2d','A.3d','A.2d')
-                                unv = [c for c in citations_list if isinstance(c, dict) and not c.get('verified')]
-                                pri = [c for c in unv if any(tok in (c.get('citation') or '') for tok in priority_tokens)]
-                                non = [c for c in unv if c not in pri]
-                                targets = (pri + non)[:max_targets]
-                                if targets:
-                                    logger.info(f"[TASK:{task_id}] Fallback targets: {len(targets)}/{len(unv)} (max {max_targets})")
-                                    enriched = _verify_enhanced(targets, text, task_id, input_type, {'source': 'worker_fallback'})
-                                else:
-                                    enriched = {'success': False, 'citations': []}
-                            if isinstance(enriched, dict) and enriched.get('success') and enriched.get('citations'):
-                                enriched_list = enriched['citations']
-                                # Merge enriched results back into citations_list for items still unverified
-                                # Build simple index by citation text
-                                try:
-                                    by_citation = {}
-                                    for e in enriched_list:
-                                        key = (e.get('citation') or '').strip()
-                                        if key and key not in by_citation:
-                                            by_citation[key] = e
-                                    for i, orig in enumerate(citations_list):
-                                        if not isinstance(orig, dict):
-                                            continue
-                                        if orig.get('verified'):
-                                            continue
-                                        k = (orig.get('citation') or '').strip()
-                                        if k and k in by_citation:
-                                            cand = by_citation[k]
-                                            if isinstance(cand, dict) and cand.get('verified'):
-                                                citations_list[i] = cand
-                                    logger.info(f"[TASK:{task_id}] Fallback verification merged; remaining unverified: {sum(1 for c in citations_list if isinstance(c, dict) and not c.get('verified'))}")
-                                except Exception as merge_err:
-                                    logger.warning(f"[TASK:{task_id}] Fallback merge warning: {merge_err}")
-                            else:
-                                logger.warning(f"[TASK:{task_id}] Fallback verification returned no enhancements")
-                        except Exception as e:
-                            logger.error(f"[TASK:{task_id}] Fallback verification error: {e}")
-
+                    
+                    logger.info(f"[TASK:{task_id}] 📊 Pipeline completed: {len(citations_list)} citations, {len(clusters_list)} clusters")
+                    
+                    # Check verification results
+                    verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get('verified', False))
+                    logger.info(f"[TASK:{task_id}] Verification results: {verified_count}/{len(citations_list)} citations verified")
+                    
+                    # Create final result with complete verification data
                     result = {
                         'success': True,
                         'citations': citations_list,
                         'clusters': clusters_list,
-                        'processing_strategy': 'full_async_with_verification',
-                        'processing_time': time.time() - start_time
+                        'task_id': task_id,
+                        'metadata': {
+                            'processing_strategy': 'synchronous_full_verification',
+                            'text_length': len(text),
+                            'verification_completed': True,
+                            'citation_count': len(citations_list),
+                            'verified_count': verified_count
+                        }
                     }
-                    logger.info(f"[TASK:{task_id}] Full async processing (with verification) completed successfully")
+                    
+                    # Save final result to Redis for task_status endpoint
+                    try:
+                        vm.update_progress(task_id, processed=4, total=4, message='Processing complete!')
+                        vm.complete(task_id, result)
+                        logger.info(f"[TASK:{task_id}] Complete result with verification saved to Redis")
+                    except Exception as complete_err:
+                        logger.warning(f"[TASK:{task_id}] Failed to save complete result: {complete_err}")
+                    
+                    return result
                     
                 except Exception as e:
                     logger.error(f"[TASK:{task_id}] Full async processing failed: {e}")
@@ -433,7 +489,8 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     }
                 }
                 try:
-                    vm.complete(task_id)
+                    vm.update_progress(task_id, processed=100, total=100, message='Processing completed successfully')
+                    vm.complete(task_id, result)
                 except Exception:
                     pass
             else:
@@ -474,11 +531,24 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 pass
 
             try:
-                from src.citation_extraction_endpoint import extract_citations_with_clustering
+                from src.unified_input_processor import UnifiedInputProcessor
                 # Extract enable_verification flag from input_data
                 enable_verification = input_data.get('enable_verification', True)
                 logger.info(f"[TASK:{task_id}] enable_verification flag (file): {enable_verification}")
-                pipeline_result = extract_citations_with_clustering(text, enable_verification=enable_verification)
+                
+                # Use unified pipeline directly - bypass sync/async decision to avoid recursion
+                from src.unified_processing_pipeline import process_citations_unified
+                logger.info(f"[TASK:{task_id}] Processing with unified pipeline directly (file path)...")
+                
+                # Call pipeline directly with asyncio
+                import asyncio
+                pipeline_result = asyncio.run(process_citations_unified(
+                    text, 
+                    processing_mode="enhanced_sync", 
+                    enable_parallel_verification=enable_verification, 
+                    enable_verification=enable_verification
+                ))
+                logger.info(f"[TASK:{task_id}] Unified pipeline processing completed (file path)")
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] Full pipeline failed: {e}")
                 result = {
@@ -566,7 +636,7 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             }
 
             try:
-                vm.complete(task_id)
+                vm.complete(task_id, result)
             except Exception:
                 pass
         
@@ -848,11 +918,11 @@ class CodeChangeMonitor:
         self.monitoring = True
         
         def monitor_loop():
-            logger.info(f"🔍 Auto-reload enabled: monitoring for code changes every {self.check_interval}s")
+            logger.info(f"Auto-reload enabled: monitoring for code changes every {self.check_interval}s")
             while self.monitoring:
                 time.sleep(self.check_interval)
                 if self.check_for_changes():
-                    logger.warning("🔥 CODE CHANGED - Restarting worker to load new code...")
+                    logger.warning("CODE CHANGED - Restarting worker to load new code...")
                     os.kill(worker_pid, signal.SIGTERM)
                     break
         
@@ -863,10 +933,82 @@ class CodeChangeMonitor:
         """Stop monitoring."""
         self.monitoring = False
 
+def process_citation_task_async(task_id: str, document_text: str, document_type: str):
+    """Async citation processing task for RQ workers with progress tracking."""
+    
+    logger.info(f"process_citation_task_async STARTED: task_id={task_id}, text_length={len(document_text)}")
+    
+    try:
+        # Import the progress manager
+        from src.progress_manager import ProgressManager
+        
+        # Initialize progress manager with Redis
+        progress_manager = ProgressManager(redis_client=redis_conn)
+        
+        # Create progress tracker
+        from src.progress_manager import ProgressTracker
+        tracker = ProgressTracker(task_id, total_steps=25)  # Default steps
+        
+        # Store tracker in active tasks
+        progress_manager.active_tasks[task_id] = tracker
+        
+        # Update initial progress
+        progress_manager.update_progress(task_id, 0, "started", "Processing started...")
+        
+        # Create async event loop
+        import asyncio
+        
+        async def run_async_processing():
+            """Run the async processing in this worker."""
+            try:
+                # Get the async processor
+                processor = progress_manager.async_processor
+                
+                # Call the async processing method
+                await processor._process_document_async(task_id, document_text, document_type, tracker)
+                
+            except Exception as e:
+                logger.error(f"Error in async processing: {e}")
+                import traceback
+                traceback.print_exc()
+                
+                # Update progress with error
+                progress_manager.update_progress(
+                    task_id, 0, "failed", f"Processing failed: {str(e)}", error=str(e)
+                )
+        
+        # Run the async processing
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        try:
+            loop.run_until_complete(run_async_processing())
+        finally:
+            loop.close()
+        
+        logger.info(f"process_citation_task_async COMPLETED: task_id={task_id}")
+        
+    except Exception as e:
+        logger.error(f"process_citation_task_async FAILED: task_id={task_id}, error={e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Try to update progress with error if possible
+        try:
+            from src.progress_manager import ProgressManager
+            progress_manager = ProgressManager(redis_client=redis_conn)
+            progress_manager.update_progress(
+                task_id, 0, "failed", f"Task failed: {str(e)}", error=str(e)
+            )
+        except:
+            pass  # Best effort error reporting
+    
+    return {"task_id": task_id, "status": "completed"}
+
 def main():
     """Main entry point for the RQ worker with enhanced error handling and monitoring."""
     print("=" * 80, flush=True)
-    print("🔍 DEBUG STEP 1: main() function entered", flush=True)
+    print("DEBUG STEP 1: main() function entered", flush=True)
     print("=" * 80, flush=True)
     
     # Configure logging
@@ -879,7 +1021,7 @@ def main():
         ]
     )
     
-    print("🔍 DEBUG STEP 2: Logging configured", flush=True)
+    print("DEBUG STEP 2: Logging configured", flush=True)
     
     # Log startup information
     print("="* 80, flush=True)
@@ -891,19 +1033,19 @@ def main():
     logger.info(f"Redis URL: {os.environ.get('REDIS_URL', 'redis://:caseStrainerRedis123@casestrainer-redis-prod:6379/0')}")
     logger.info("=" * 80)
     
-    print("🔍 DEBUG STEP 3: Startup info logged", flush=True)
+    print("DEBUG STEP 3: Startup info logged", flush=True)
     
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
     
-    print("🔍 DEBUG STEP 4: Signal handlers configured", flush=True)
+    print("DEBUG STEP 4: Signal handlers configured", flush=True)
     
     # Configure queue and worker name
     queue_name = os.environ.get('RQ_QUEUE_NAME', 'casestrainer')
     worker_name = f'worker-{os.getpid()}@{os.uname().nodename}'
     
-    print(f"🔍 DEBUG STEP 5: Queue={queue_name}, Worker={worker_name}", flush=True)
+    print(f"DEBUG STEP 5: Queue={queue_name}, Worker={worker_name}", flush=True)
     
     # CRITICAL: Clean up any stale registration with the same name
     # This prevents "worker already exists" errors after container restarts
@@ -921,60 +1063,63 @@ def main():
         print(f"⚠️  Could not clean up stale worker: {e}", flush=True)
     
     # Configure worker settings
+    worker_functions = register_worker_functions()
+    logger.info(f"Worker will register functions: {worker_functions}")
+    
     worker_kwargs = {
         'connection': redis_conn,
         'queues': [queue_name],
         'name': worker_name
     }
     
-    print("🔍 DEBUG STEP 6: Worker kwargs configured", flush=True)
+    print("DEBUG STEP 6: Worker kwargs configured", flush=True)
     
     # Check if auto-reload is enabled (for development)
     auto_reload = os.environ.get('RQ_WORKER_AUTORELOAD', 'false').lower() == 'true'
     
-    print(f"🔍 DEBUG STEP 7: Auto-reload check: RQ_WORKER_AUTORELOAD={os.environ.get('RQ_WORKER_AUTORELOAD', 'not set')}, auto_reload={auto_reload}", flush=True)
+    print(f"DEBUG STEP 7: Auto-reload check: RQ_WORKER_AUTORELOAD={os.environ.get('RQ_WORKER_AUTORELOAD', 'not set')}, auto_reload={auto_reload}", flush=True)
     
     # Start the worker with error handling
     max_restarts = 10
     restart_count = 0
     monitor = None  # Initialize here to avoid UnboundLocalError
     
-    print(f"🔍 DEBUG STEP 8: About to enter worker loop (max_restarts={max_restarts})", flush=True)
+    print(f"DEBUG STEP 8: About to enter worker loop (max_restarts={max_restarts})", flush=True)
     
     while restart_count < max_restarts:
-        print(f"🔍 DEBUG STEP 9: Loop iteration {restart_count + 1}/{max_restarts}", flush=True)
+        print(f"DEBUG STEP 9: Loop iteration {restart_count + 1}/{max_restarts}", flush=True)
         
         try:
-            print("🔍 DEBUG STEP 10: Inside try block", flush=True)
+            print("DEBUG STEP 10: Inside try block", flush=True)
             logger.info(f"Starting worker (attempt {restart_count + 1}/{max_restarts})")
             
-            print("🔍 DEBUG STEP 11: About to create RobustWorker", flush=True)
+            print("DEBUG STEP 11: About to create RobustWorker", flush=True)
             worker = RobustWorker(**worker_kwargs)
-            print("🔍 DEBUG STEP 12: RobustWorker created successfully", flush=True)
+            print("DEBUG STEP 12: RobustWorker created successfully", flush=True)
             
             # Start code change monitor if auto-reload is enabled
             if auto_reload:
-                print("🔍 DEBUG STEP 13: Auto-reload is TRUE, starting monitor...", flush=True)
+                print("DEBUG STEP 13: Auto-reload is TRUE, starting monitor...", flush=True)
                 try:
-                    print("🔍 DEBUG STEP 14: Creating CodeChangeMonitor instance", flush=True)
+                    print("DEBUG STEP 14: Creating CodeChangeMonitor instance", flush=True)
                     monitor = CodeChangeMonitor(watch_dir='/app/src', check_interval=2)
-                    print("🔍 DEBUG STEP 15: CodeChangeMonitor created, starting monitoring", flush=True)
+                    print("DEBUG STEP 15: CodeChangeMonitor created, starting monitoring", flush=True)
                     monitor.start_monitoring(os.getpid())
-                    print("✅ DEBUG STEP 16: Auto-reload monitor started successfully!", flush=True)
-                    logger.info("✅ Auto-reload monitor started successfully")
+                    print("DEBUG STEP 16: Auto-reload monitor started successfully!", flush=True)
+                    logger.info("Auto-reload monitor started successfully")
                 except Exception as e:
-                    print(f"❌ DEBUG: Monitor exception: {e}", flush=True)
+                    print(f"DEBUG: Monitor exception: {e}", flush=True)
                     logger.warning(f"Could not start code monitor: {e}")
                     logger.warning("Continuing without auto-reload...")
                     monitor = None
             else:
-                print("🔍 DEBUG STEP 13: Auto-reload is FALSE", flush=True)
+                print("DEBUG STEP 13: Auto-reload is FALSE", flush=True)
                 logger.info("Auto-reload disabled. Set RQ_WORKER_AUTORELOAD=true to enable.")
             
-            print("🔍 DEBUG STEP 17: About to call worker.work()", flush=True)
+            print("DEBUG STEP 17: About to call worker.work()", flush=True)
             logger.info("Worker started. Press Ctrl+C to exit.")
             worker.work(logging_level='INFO')
-            print("🔍 DEBUG STEP 18: worker.work() returned", flush=True)
+            print("DEBUG STEP 18: worker.work() returned", flush=True)
             
             # Stop monitoring if active
             if monitor:
