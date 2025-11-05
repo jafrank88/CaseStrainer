@@ -37,6 +37,7 @@ services:
       - PYTHONPATH=/app
       - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - ENABLE_VERIFICATION=false
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -88,6 +89,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=1
+      - ENABLE_VERIFICATION=false
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -131,6 +133,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=2
+      - ENABLE_VERIFICATION=false
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -174,6 +177,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=3
+      - ENABLE_VERIFICATION=false
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -199,6 +203,32 @@ services:
         reservations:
           memory: 1G
           cpus: '0.5'
+
+  # Job Health Monitor - Automatically cleans up stuck jobs
+  job-health-monitor:
+    build: .
+    container_name: casestrainer-job-health-monitor-prod
+    command: python src/job_health_monitor.py
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0
+      - PYTHONPATH=/app
+    volumes:
+      - ./src:/app/src
+      - ./logs:/app/logs
+    restart: unless-stopped
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.2'
+        reservations:
+          memory: 256M
+          cpus: '0.1'
 
   # Frontend Development Mode (Live Code)
   frontend-prod:
@@ -226,7 +256,7 @@ services:
   # Infrastructure Layer
   nginx:
     build:
-      context: ./docker/nginx
+      context: ./nginx
       dockerfile: Dockerfile
     container_name: casestrainer-nginx-prod
     ports:
