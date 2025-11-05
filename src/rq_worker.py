@@ -218,15 +218,17 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.1: About to create VerificationManager...")
         try:
             vm = VerificationManager()
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.2: VerificationManager created")
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.1: About to register verification")
             vm.register_verification(task_id, task_id, total_citations=4)  # treat as 4-step progress initially
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.3: Verification registered")
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.2: Verification registered")
             vm.update_progress(task_id, processed=0, total=4, message='Initializing async processing')
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.4: Progress updated")
+            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.3: Progress updated - starting PDF processing")
         except Exception as _e:
             logger.error(f"[DIAGNOSTIC:{task_id}] Step 7.ERROR: VerificationManager failed: {_e}")
             import traceback
             logger.error(f"[DIAGNOSTIC:{task_id}] VerificationManager traceback: {traceback.format_exc()}")
+        
+        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Starting PDF download and processing")
         
         # Log input data (truncated if too large)
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: About to log input data...")
@@ -516,6 +518,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                 dop = DockerOptimizedProcessor()
                 text = dop.extract_text_from_file_sync(file_path)
                 logger.info(f"[TASK:{task_id}] Extracted {len(text)} characters from file")
+                
+                # Update progress after text extraction
+                logger.info(f"[TASK:{task_id}] About to extract and cluster citations...")
+                vm.update_progress(task_id, processed=2, total=4, message='Extracting and clustering citations')
+                
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] File text extraction failed: {e}")
                 result = {
@@ -524,11 +531,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     'error': f'File text extraction failed: {str(e)}'
                 }
                 return result
-
-            try:
-                vm.update_progress(task_id, processed=2, total=4, message='Extracting and clustering citations')
-            except Exception:
-                pass
 
             try:
                 from src.unified_input_processor import UnifiedInputProcessor
