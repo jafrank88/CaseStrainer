@@ -90,17 +90,17 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
         with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(run_with_timeout)
             try:
-                result = future.result(timeout=300)  # 5 minutes timeout
+                result = future.result(timeout=900)  # 15 minutes timeout for large PDFs
                 logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER COMPLETED SUCCESSFULLY ==========")
                 return result
             except concurrent.futures.TimeoutError:
-                logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER TIMEOUT AFTER 5 MINUTES ==========")
+                logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER TIMEOUT AFTER 15 MINUTES ==========")
                 # Cancel the future if it's still running
                 future.cancel()
                 return {
                     'status': 'failed',
                     'task_id': task_id,
-                    'error': 'Job timed out after 5 minutes',
+                    'error': 'Job timed out after 15 minutes',
                     'diagnostic': 'timeout_error'
                 }
     except Exception as e:
@@ -249,6 +249,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                 url = input_data.get('url', '')
                 logger.info(f"[TASK:{task_id}] Processing URL: {url}")
                 
+                # Update progress: Starting URL extraction
+                try:
+                    vm.update_progress(task_id, processed=1, total=100, message='Downloading and extracting text from URL...')
+                except Exception:
+                    pass
+                
                 # Extract text from URL first
                 try:
                     logger.info(f"[TASK:{task_id}] Extracting text from URL...")
@@ -261,6 +267,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     # CRITICAL FIX: Follow redirects to handle HTTP→HTTPS redirects
                     response = requests.get(url, timeout=30, allow_redirects=True)
                     response.raise_for_status()
+                    
+                    # Update progress: Downloaded, extracting text
+                    try:
+                        vm.update_progress(task_id, processed=5, total=100, message='Downloaded document, extracting text...')
+                    except Exception:
+                        pass
                     
                     # If it's a PDF, extract text
                     if 'pdf' in response.headers.get('content-type', '').lower() or url.lower().endswith('.pdf'):
@@ -298,7 +310,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                         skip_full_processing = True
                     else:
                         skip_full_processing = False
-                    
+                        
                 except Exception as e:
                     logger.error(f"[TASK:{task_id}] URL text extraction failed: {e}")
                     result = {
@@ -320,27 +332,14 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     import time
                     logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Full pipeline import SUCCESS")
 
-                    # CRITICAL FIX: Always disable verification for URL processing to prevent timeout
-                    # URLs can contain many citations that would cause verification timeouts
-                    enable_verification = input_data.get('enable_verification', True)  # Default to True for normal operation
-                    enable_verification = False if input_type == 'url' else enable_verification
+                    # Verification is enabled by default for end users
+                    # Can be disabled for testing/troubleshooting via enable_verification parameter
+                    enable_verification = input_data.get('enable_verification', True)  # Default to True for end users
+                    # Note: URLs can have many citations, but verification is still the default behavior
                     
                     logger.info(f"[TASK:{task_id}] Running full pipeline with verification={enable_verification}")
                     
                     # Create progress callback for worker
-                    def worker_progress_callback(progress: int, step: str, message: str):
-                        """Update progress via verification manager."""
-                        logger.info(f"[TASK:{task_id}] 🔄 PROGRESS UPDATE: {progress}% - {step}: {message}")
-                        try:
-                            vm.update_progress(task_id, processed=progress, total=100, message=f'{progress}% - {step}: {message}')
-                        except Exception as e:
-                            logger.warning(f"[TASK:{task_id}] Failed to update progress: {e}")
-                    
-                    # Extract enable_verification flag from input_data
-                    enable_verification = input_data.get('enable_verification', True)  # Default to True for normal operation
-                    logger.info(f"[TASK:{task_id}] enable_verification flag: {enable_verification}")
-                    
-                    logger.info(f"[TASK:{task_id}] About to call unified pipeline with verification fix")
                     
                     # SYNCHRONOUS COMPLETION - Wait for full verification
                     # Import required modules for synchronous processing
@@ -365,12 +364,18 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     # Run full pipeline with verification and wait for completion
                     logger.info(f"[TASK:{task_id}] 🔄 Processing with verification={enable_verification}...")
                     
+                    # Update progress: Starting citation extraction
+                    try:
+                        vm.update_progress(task_id, processed=1, total=100, message='Extracting citations from document...')
+                    except Exception:
+                        pass
+                    
                     try:
                         pipeline_result = asyncio.run(process_citations_unified(
                             text, 
                             processing_mode="enhanced_sync", 
                             enable_parallel_verification=enable_verification if enable_verification else False,  # Only enable parallel if verification is enabled
-                            enable_verification=enable_verification  # Use the modified flag (False for URLs)
+                            enable_verification=enable_verification  # Use the flag from request (defaults to True for end users)
                         ))
                         logger.info(f"[TASK:{task_id}] Full pipeline processing with verification completed")
                         
@@ -398,6 +403,24 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     
                     logger.info(f"[TASK:{task_id}] 📊 Pipeline completed: {len(citations_list)} citations, {len(clusters_list)} clusters")
                     
+                    # Update verification status with actual citation count immediately after extraction
+                    try:
+                        if len(citations_list) > 0:
+                            # Update with actual citation count and show progress
+                            total_cites = len(citations_list)
+                            verify_msg = 'Verifying citations...' if enable_verification else 'Processing complete!'
+                            vm.update_progress(task_id, processed=0, total=total_cites, message=f'Extracted {total_cites} citations, {len(clusters_list)} clusters - {verify_msg}')
+                            logger.info(f"[TASK:{task_id}] ✅ Updated verification status: {total_cites} citations found")
+                            
+                            # Update progress percentage (30% for extraction, 40% for clustering)
+                            progress_pct = 30 if enable_verification else 90
+                            progress_msg = 'Verifying...' if enable_verification else 'Complete!'
+                            vm.update_progress(task_id, processed=progress_pct, total=100, message=f'Found {total_cites} citations in {len(clusters_list)} clusters - {progress_msg}')
+                        else:
+                            vm.update_progress(task_id, processed=90, total=100, message='Processing complete - no citations found')
+                    except Exception as update_err:
+                        logger.warning(f"[TASK:{task_id}] Failed to update verification status: {update_err}")
+                    
                     # Check verification results
                     verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get('verified', False))
                     logger.info(f"[TASK:{task_id}] Verification results: {verified_count}/{len(citations_list)} citations verified")
@@ -419,7 +442,19 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     
                     # Save final result to Redis for task_status endpoint
                     try:
-                        vm.update_progress(task_id, processed=4, total=4, message='Processing complete!')
+                        # Update final progress
+                        final_cites = len(citations_list)
+                        final_clusters = len(clusters_list)
+                        verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get('verified', False))
+                        
+                        if enable_verification and final_cites > 0:
+                            # Update with final verification count
+                            vm.update_progress(task_id, processed=final_cites, total=final_cites, 
+                                             message=f'✅ Complete! {final_cites} citations ({verified_count} verified) in {final_clusters} clusters')
+                        else:
+                            vm.update_progress(task_id, processed=100, total=100, 
+                                             message=f'✅ Complete! {final_cites} citations in {final_clusters} clusters')
+                        
                         vm.complete(task_id, result)
                         logger.info(f"[TASK:{task_id}] Complete result with verification saved to Redis")
                     except Exception as complete_err:
@@ -535,7 +570,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             try:
                 from src.unified_input_processor import UnifiedInputProcessor
                 # Extract enable_verification flag from input_data
-                enable_verification = input_data.get('enable_verification', True)
+                enable_verification = input_data.get('enable_verification', True)  # Default to True for fast verification
                 logger.info(f"[TASK:{task_id}] enable_verification flag (file): {enable_verification}")
                 
                 # Use unified pipeline directly - bypass sync/async decision to avoid recursion

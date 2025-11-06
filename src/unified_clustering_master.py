@@ -70,7 +70,7 @@ class UnifiedClusteringMaster:
         self.min_cluster_size = self.config.get('min_cluster_size', 1)
         self.case_name_similarity_threshold = self.config.get('case_name_similarity_threshold', 0.95)  # FIX #58E: Raised from 0.6 to prevent different cases from clustering
         self.proximity_threshold = self.config.get('proximity_threshold', 50)  # characters - USER FIX: Reduced from 200 to 50 for stricter proximity
-        self.enable_verification = self.config.get('enable_verification', False)
+        self.enable_verification = self.config.get('enable_verification', True)
         
         self._setup_patterns()
         logger.info("UnifiedClusteringMaster initialized - all duplicate clusterers deprecated")
@@ -268,9 +268,37 @@ class UnifiedClusteringMaster:
             logger.warning(f"[CONTAMINATION-FILTER] Document primary case detected: '{self.document_primary_case_name}'")
         
         # CRITICAL: Use ERROR level to ensure this appears in logs
-        logger.error(f"🎯 [CLUSTER-ENTRY] Starting clustering: {len(citations)} citations, verification={enable_verification}")
-        logger.info(f"🎯 MASTER_CLUSTER: Starting clustering for {len(citations)} citations (verification: {enable_verification})")
-        print(f"🎯🎯🎯 CLUSTER ENTRY POINT HIT - {len(citations)} citations", flush=True)
+        logger.error(f"[CLUSTER-ENTRY] Starting clustering: {len(citations)} citations, verification={enable_verification}")
+        logger.info(f"[MASTER_CLUSTER] Starting clustering for {len(citations)} citations (verification: {enable_verification})")
+        print(f"CLUSTER ENTRY POINT HIT - {len(citations)} citations", flush=True)
+        
+        # CRITICAL FIX: Apply verification paradox fix before clustering
+        # If citations have canonical data but verified=False, set verified=True
+        verification_paradox_fixes = 0
+        for citation in citations:
+            if isinstance(citation, dict):
+                has_canonical_data = (
+                    citation.get('canonical_name') and 
+                    citation.get('canonical_date') and 
+                    citation.get('canonical_url')
+                )
+                if has_canonical_data and not citation.get('verified', False):
+                    citation['verified'] = True
+                    verification_paradox_fixes += 1
+                    logger.info(f"[CLUSTER-PARADOX-FIX] {citation.get('citation')}: Setting verified=True based on canonical data presence")
+            elif hasattr(citation, '__dict__'):
+                has_canonical_data = (
+                    getattr(citation, 'canonical_name', None) and 
+                    getattr(citation, 'canonical_date', None) and 
+                    getattr(citation, 'canonical_url', None)
+                )
+                if has_canonical_data and not getattr(citation, 'verified', False):
+                    citation.verified = True
+                    verification_paradox_fixes += 1
+                    logger.info(f"[CLUSTER-PARADOX-FIX] {citation.citation}: Setting verified=True based on canonical data presence")
+        
+        if verification_paradox_fixes > 0:
+            logger.info(f"[CLUSTER-PARADOX-FIX] Applied verification paradox fix to {verification_paradox_fixes} citations")
         
         if not citations:
             logger.warning("MASTER_CLUSTER: No citations provided")
@@ -279,22 +307,22 @@ class UnifiedClusteringMaster:
         try:
             # Step 1: Detect parallel citations and create initial groups
             logger.info("MASTER_CLUSTER: Step 1 - Detecting parallel citations")
-            logger.error(f"🔍 [CLUSTER-DEBUG] Input: {len(citations)} citations")
+            logger.error(f"[CLUSTER-DEBUG] Input: {len(citations)} citations")
             
             # Sample first 3 citations to see their structure
             for i, cit in enumerate(citations[:3]):
                 cit_text = getattr(cit, 'citation', str(cit)) if hasattr(cit, 'citation') else str(cit)
                 has_position = hasattr(cit, 'start_index') or (isinstance(cit, dict) and 'start_index' in cit)
                 position = getattr(cit, 'start_index', None) if hasattr(cit, 'start_index') else (cit.get('start_index') if isinstance(cit, dict) else None)
-                logger.error(f"🔍 [CLUSTER-DEBUG] Citation {i+1}: {cit_text}, has_position={has_position}, position={position}")
+                logger.error(f"[CLUSTER-DEBUG] Citation {i+1}: {cit_text}, has_position={has_position}, position={position}")
             
             parallel_groups = self._detect_parallel_citations(citations, original_text)
             logger.info(f"MASTER_CLUSTER: Created {len(parallel_groups)} parallel groups")
-            logger.error(f"🔍 [CLUSTER-DEBUG] Output: {len(parallel_groups)} parallel groups (expected < {len(citations)} if parallels detected)")
+            logger.error(f"[CLUSTER-DEBUG] Output: {len(parallel_groups)} parallel groups (expected < {len(citations)} if parallels detected)")
             
             # Show size of first few groups
             for i, group in enumerate(parallel_groups[:5]):
-                logger.error(f"🔍 [CLUSTER-DEBUG] Group {i+1} size: {len(group)} citations")
+                logger.error(f"[CLUSTER-DEBUG] Group {i+1} size: {len(group)} citations")
             
             # DEBUG: Find Hamaatsa citations and see if they're grouped together
             for i, group in enumerate(parallel_groups):
@@ -304,8 +332,8 @@ class UnifiedClusteringMaster:
                     if '388 P.3d 977' in cit_text or '2017-NM-007' in cit_text:
                         hamaatsa_in_group.append(cit_text)
                 if hamaatsa_in_group:
-                    logger.error(f"🔴 [HAMAATSA-CLUSTER] Group {i+1} contains {len(hamaatsa_in_group)} Hamaatsa citation(s): {hamaatsa_in_group}")
-                    logger.error(f"🔴 [HAMAATSA-CLUSTER] Group {i+1} total size: {len(group)} citations")
+                    logger.error(f"[ERROR] [HAMAATSA-CLUSTER] Group {i+1} contains {len(hamaatsa_in_group)} Hamaatsa citation(s): {hamaatsa_in_group}")
+                    logger.error(f"[ERROR] [HAMAATSA-CLUSTER] Group {i+1} total size: {len(group)} citations")
             
             # Step 2: Extract and propagate metadata within groups
             logger.info("MASTER_CLUSTER: Step 2 - Extracting and propagating metadata")
@@ -326,8 +354,8 @@ class UnifiedClusteringMaster:
                     if '388 P.3d 977' in cit_text or '2017-NM-007' in cit_text:
                         hamaatsa_in_cluster.append(cit_text)
                 if hamaatsa_in_cluster:
-                    logger.error(f"🟢 [HAMAATSA-FINAL] Cluster {i+1} contains {len(hamaatsa_in_cluster)} Hamaatsa citation(s): {hamaatsa_in_cluster}")
-                    logger.error(f"🟢 [HAMAATSA-FINAL] Cluster {i+1} total size: {len(cluster_cits)} citations")
+                    logger.error(f"[SUCCESS] [HAMAATSA-FINAL] Cluster {i+1} contains {len(hamaatsa_in_cluster)} Hamaatsa citation(s): {hamaatsa_in_cluster}")
+                    logger.error(f"[SUCCESS] [HAMAATSA-FINAL] Cluster {i+1} total size: {len(cluster_cits)} citations")
             
             # Step 4: Apply verification if enabled
             if enable_verification:
@@ -363,12 +391,12 @@ class UnifiedClusteringMaster:
             formatted_clusters = self._format_clusters_for_output(validated_clusters)
             
             elapsed_time = time.time() - start_time
-            logger.info(f"✅ MASTER_CLUSTER: Completed clustering in {elapsed_time:.2f}s - {len(formatted_clusters)} clusters")
+            logger.info(f"[SUCCESS] MASTER_CLUSTER: Completed clustering in {elapsed_time:.2f}s - {len(formatted_clusters)} clusters")
             
             return formatted_clusters
             
         except Exception as e:
-            logger.error(f"❌ MASTER_CLUSTER: Clustering failed: {e}")
+            logger.error(f"[MASTER_CLUSTER] Clustering failed: {e}")
             import traceback
             traceback.print_exc()
             return []
@@ -479,21 +507,21 @@ class UnifiedClusteringMaster:
                 
                 if ';' in text_between:
                     has_semicolon_boundary = True
-                    logger.error(f"[PROXIMITY-DEBUG] ❌ SEMICOLON BOUNDARY - citations separated")
+                    logger.error(f"[PROXIMITY-DEBUG] SEMICOLON BOUNDARY - citations separated")
             
             # CRITICAL FIX: Check if citations are from the same case before grouping by proximity
             are_same_case = self._are_citations_same_case(previous_citation, current_citation)
             
             if distance <= self.proximity_threshold and not has_semicolon_boundary:
                 if are_same_case:
-                    logger.error(f"[PROXIMITY-DEBUG] ✅ GROUPING citations (distance={distance} <= {self.proximity_threshold}) - same case")
+                    logger.error(f"[PROXIMITY-DEBUG] [SUCCESS] GROUPING citations (distance={distance} <= {self.proximity_threshold}) - same case")
                     current_group.append(current_citation)
                 else:
-                    logger.error(f"[PROXIMITY-DEBUG] ❌ NOT GROUPING - different cases despite proximity (distance={distance})")
+                    logger.error(f"[PROXIMITY-DEBUG] NOT GROUPING - different cases despite proximity (distance={distance})")
                     groups.append(current_group)
                     current_group = [current_citation]
             else:
-                logger.error(f"[PROXIMITY-DEBUG] ❌ NEW GROUP (distance={distance} > {self.proximity_threshold} OR semicolon={has_semicolon_boundary})")
+                logger.error(f"[PROXIMITY-DEBUG] NEW GROUP (distance={distance} > {self.proximity_threshold} OR semicolon={has_semicolon_boundary})")
                 groups.append(current_group)
                 current_group = [current_citation]
         
@@ -560,7 +588,7 @@ class UnifiedClusteringMaster:
         groups = []
         for key, group in canonical_groups.items():
             if len(group) >= 2:
-                logger.info(f"[CANONICAL-GROUPING] ✅ Found {len(group)} parallel citations for {key[0]} ({key[1]})")
+                logger.info(f"[CANONICAL-GROUPING] [SUCCESS] Found {len(group)} parallel citations for {key[0]} ({key[1]})")
                 citations_str = ", ".join([getattr(c, 'citation', 'Unknown') for c in group])
                 logger.info(f"[CANONICAL-GROUPING] Citations: {citations_str}")
                 groups.append(group)
@@ -636,7 +664,7 @@ class UnifiedClusteringMaster:
                 logger.error(f"[SAME-CASE-CHECK] Date parsing failed: {e}")
                 return False
         
-        logger.error(f"[SAME-CASE-CHECK] ✅ FINAL APPROVAL - citations are from same case")
+        logger.error(f"[SAME-CASE-CHECK] [SUCCESS] FINAL APPROVAL - citations are from same case")
         return True
     
     def _normalize_case_name_for_clustering(self, name: str) -> str:
@@ -732,16 +760,31 @@ class UnifiedClusteringMaster:
         case_names = []
         case_years = []
         for citation in citations:
-            case_name = (
-                getattr(citation, 'extracted_case_name', None)  # PRIORITIZE extracted over canonical
-                or getattr(citation, 'canonical_name', None)
-                or getattr(citation, 'cluster_case_name', None)
-            )
-            case_year = (
-                getattr(citation, 'extracted_date', None)
-                or getattr(citation, 'canonical_date', None)
-                or getattr(citation, 'cluster_year', None)
-            )
+            # FIXED: Prioritize canonical names for verified citations to enable proper clustering
+            verified = getattr(citation, 'verified', False)
+            canonical_name = getattr(citation, 'canonical_name', None)
+            
+            if verified and canonical_name and canonical_name != 'N/A':
+                case_name = canonical_name  # Use canonical name for verified citations
+            else:
+                case_name = (
+                    getattr(citation, 'extracted_case_name', None)  # Fallback to extracted
+                    or getattr(citation, 'canonical_name', None)    # Or canonical if unverified
+                    or getattr(citation, 'cluster_case_name', None)
+                )
+            
+            # Similar logic for dates - prefer canonical if verified
+            verified = getattr(citation, 'verified', False)
+            canonical_date = getattr(citation, 'canonical_date', None)
+            
+            if verified and canonical_date and canonical_date != 'N/A':
+                case_year = canonical_date  # Use canonical date for verified citations
+            else:
+                case_year = (
+                    getattr(citation, 'extracted_date', None)
+                    or getattr(citation, 'canonical_date', None)
+                    or getattr(citation, 'cluster_year', None)
+                )
             if case_name and case_name != 'N/A':
                 case_names.append(case_name)
             else:
@@ -782,7 +825,7 @@ class UnifiedClusteringMaster:
                     # CRITICAL FIX: Require EXTREMELY high similarity (>98%) + year match to prevent cross-contamination
                     # Two citations from different cases (like Fischer 2024 vs Sulzbach 2022) should NEVER be parallel
                     if similarity >= 0.98 and year_match:  # Ultra-strict: >98% similarity AND same year
-                        logger.error(f"✅ [PARALLEL-MATCH] Clustering via name+year: {case_names[i][:40]} ({case_years[i]}) ↔ {case_names[j][:40]} ({case_years[j]})")
+                        logger.error(f"[SUCCESS] [PARALLEL-MATCH] Clustering via name+year: {case_names[i][:40]} ({case_years[i]}) ↔ {case_names[j][:40]} ({case_years[j]})")
                         logger.error(f"   Citations: {citation_texts[i]} ↔ {citation_texts[j]}")
                         logger.error(f"   Similarity: {similarity:.2%}, Years match: {year_match}")
                         return True
@@ -859,8 +902,14 @@ class UnifiedClusteringMaster:
             citation2_text = getattr(citation2, 'citation', str(citation2))
             citation2_meta = citation2.__dict__ if hasattr(citation1, '__dict__') else {}
         
+        # Skip identical citations to prevent infinite loops
+        if citation1_text == citation2_text:
+            if self.debug_mode:
+                logger.debug("PARALLEL_CHECK skipped: identical citations")
+            return False
+        
         # PHASE 5 DEBUG: Log at the VERY START to see ALL comparisons (even eyecite ones)
-        print(f"🔍 [PHASE5-START] Comparing: {citation1_text[:40]} ↔ {citation2_text[:40]}", flush=True)
+        print(f"[PHASE5-START] Comparing: {citation1_text[:40]} <-> {citation2_text[:40]}", flush=True)
 
         # Check for known parallel citations from metadata first
         def get_parallel_citations(citation_meta):
@@ -871,30 +920,19 @@ class UnifiedClusteringMaster:
         parallel1 = get_parallel_citations(citation1_meta)
         parallel2 = get_parallel_citations(citation2_meta)
         
-        # FIX #58D: Even if marked as parallel by eyecite, VALIDATE extracted names/years!
-        # Eyecite marks citations as parallel based on proximity, but doesn't check if they're the same case.
-        is_marked_parallel = (citation1_text in parallel2 or citation2_text in parallel1)
+        case_name1 = self._get_case_name(citation1)
+        case_name2 = self._get_case_name(citation2)
+        print(f"[PHASE5] Names: '{case_name1}' vs '{case_name2}'", flush=True)
         
-        if is_marked_parallel:
-            print(f"  ⚡ [PHASE5-EYECITE] Marked as parallel by eyecite - validating...", flush=True)
-            
-            if self.debug_mode:
-                logger.debug("PARALLEL_CHECK citations marked parallel by eyecite - VALIDATING names/years...")
-            
-            # STRICT: Get extracted names (never canonical!)
-            case_name1 = self._get_case_name(citation1)
-            case_name2 = self._get_case_name(citation2)
-            print(f"  ⚡ Names: '{case_name1}' vs '{case_name2}'", flush=True)
-            
-            # If BOTH have names, they MUST match
-            if case_name1 and case_name2 and case_name1 != 'N/A' and case_name2 != 'N/A':
-                name_similarity = self._calculate_name_similarity(case_name1, case_name2)
-                logger.error(f"🔥 [FIX #58D DEBUG] Eyecite parallel validation: similarity={name_similarity:.2f}, threshold={self.case_name_similarity_threshold:.2f}, name1='{case_name1[:40]}', name2='{case_name2[:40]}'")
-                if name_similarity < self.case_name_similarity_threshold:
-                    logger.error(f"🚫 [FIX #58D] REJECTED eyecite parallel - name mismatch ({name_similarity:.2f}): '{case_name1[:30]}' vs '{case_name2[:30]}'")
-                    return False
-                else:
-                    logger.error(f"✅ [FIX #58D] ACCEPTED eyecite parallel - name match ({name_similarity:.2f} >= {self.case_name_similarity_threshold:.2f})")
+        # If BOTH have names, they MUST match
+        if case_name1 and case_name2 and case_name1 != 'N/A' and case_name2 != 'N/A':
+            name_similarity = self._calculate_name_similarity(case_name1, case_name2)
+            logger.error(f"[FIX #58D DEBUG] Eyecite parallel validation: similarity={name_similarity:.2f}, threshold={self.case_name_similarity_threshold:.2f}, name1='{case_name1[:40]}', name2='{case_name2[:40]}'")
+            if name_similarity < self.case_name_similarity_threshold:
+                logger.error(f"[FIX #58D] REJECTED eyecite parallel - name mismatch ({name_similarity:.2f}): '{case_name1[:30]}' vs '{case_name2[:30]}'")
+                return False
+            else:
+                logger.error(f"[SUCCESS] [FIX #58D] ACCEPTED eyecite parallel - name match ({name_similarity:.2f} >= {self.case_name_similarity_threshold:.2f})")
             
             # Get extracted years (never canonical!)
             def get_year(cit: Any) -> Optional[str]:
@@ -904,7 +942,7 @@ class UnifiedClusteringMaster:
             
             year1 = get_year(citation1)
             year2 = get_year(citation2)
-            print(f"  ⚡ Years: '{year1}' vs '{year2}'", flush=True)
+            print(f"  [PHASE5] Years: '{year1}' vs '{year2}'", flush=True)
             
             # FIX #6: ALLOW clustering if at least one citation has a year
             # P.3d citations don't have years in text, they get them from cluster partners
@@ -912,19 +950,19 @@ class UnifiedClusteringMaster:
             has_year2 = year2 and year2 != 'N/A'
             
             if not has_year1 and not has_year2:
-                print(f"  ❌ [PHASE5-EYECITE] REJECTED - both missing year!", flush=True)
-                logger.error(f"🚫 [FIX #6] REJECTED eyecite parallel - both missing year: '{year1}' vs '{year2}'")
+                print(f"  [PHASE5-EYECITE] REJECTED - both missing year!", flush=True)
+                logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - both missing year: '{year1}' vs '{year2}'")
                 return False
             
             # If both have years, they MUST match exactly
             if has_year1 and has_year2 and year1 != year2:
-                print(f"  ❌ [PHASE5-EYECITE] REJECTED - year mismatch!", flush=True)
-                logger.error(f"🚫 [FIX #6] REJECTED eyecite parallel - year mismatch: {year1} vs {year2}")
+                print(f"  [PHASE5-EYECITE] REJECTED - year mismatch!", flush=True)
+                logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - year mismatch: {year1} vs {year2}")
                 return False
             
             # If at least one has a year, accept clustering (date will be propagated later)
             if has_year1 or has_year2:
-                print(f"  ✅ [PHASE5-EYECITE] ACCEPTED - at least one has year and names match!", flush=True)
+                print(f"  [SUCCESS] [PHASE5-EYECITE] ACCEPTED - at least one has year and names match!", flush=True)
             
             # Validation passed - accept the parallel relationship
             if self.debug_mode:
@@ -935,13 +973,13 @@ class UnifiedClusteringMaster:
         reporter2 = self._extract_reporter_type(citation2_text)
 
         # PHASE 5 DEBUG: Log ALL parallel checks to diagnose clustering issues
-        logger.error(f"🔍 [PHASE5-DEBUG] PARALLEL_CHECK: {citation1_text} ↔ {citation2_text}")
+        logger.error(f"[PHASE5-DEBUG] PARALLEL_CHECK: {citation1_text} <-> {citation2_text}")
         logger.error(f"   Reporters: {reporter1} vs {reporter2}")
-        print(f"🔍 [PHASE5] CHECK: {citation1_text} ↔ {citation2_text}, reporters: {reporter1} vs {reporter2}", flush=True)
+        print(f"[PHASE5] CHECK: {citation1_text} <-> {citation2_text}, reporters: {reporter1} vs {reporter2}", flush=True)
 
         if self.debug_mode:
             logger.debug(
-                "PARALLEL_CHECK start | %s (%s) ↔ %s (%s)",
+                "PARALLEL_CHECK start | %s (%s) <-> %s (%s)",
                 citation1_text,
                 reporter1,
                 citation2_text,
@@ -989,7 +1027,7 @@ class UnifiedClusteringMaster:
             # If SAME reporter but DIFFERENT volumes, they CANNOT be parallel
             if rep1 and rep2 and rep1 == rep2 and vol1 != vol2:
                 logger.warning(
-                    f"🚫 P5_FIX: Prevented false clustering - same reporter '{rep1}' but different volumes {vol1} vs {vol2} | "
+                    f"[REJECTED] P5_FIX: Prevented false clustering - same reporter '{rep1}' but different volumes {vol1} vs {vol2} | "
                     f"{citation1_text} ↔ {citation2_text}"
                 )
                 return False
@@ -1037,9 +1075,9 @@ class UnifiedClusteringMaster:
         # This prevents false clustering of unrelated citations
         if distance > proximity_threshold:
             # PHASE 5 DEBUG: Log proximity rejections
-            logger.error(f"❌ [PHASE5-DEBUG] REJECTED by proximity: distance={distance} > threshold={proximity_threshold}")
+            logger.error(f"[PHASE5-DEBUG] REJECTED by proximity: distance={distance} > threshold={proximity_threshold}")
             logger.error(f"   Positions: {start1} vs {start2}")
-            print(f"❌ [PHASE5] REJECTED proximity: {citation1_text[:30]} ↔ {citation2_text[:30]}, distance={distance} > {proximity_threshold}", flush=True)
+            print(f"[PHASE5] REJECTED proximity: {citation1_text[:30]} <-> {citation2_text[:30]}, distance={distance} > {proximity_threshold}", flush=True)
             
             if self.debug_mode:
                 logger.debug(
@@ -1054,7 +1092,7 @@ class UnifiedClusteringMaster:
         # Now that we know citations are close together, check parallel patterns
         if not self._match_parallel_patterns(citation1_text, citation2_text):
             # PHASE 5 DEBUG: Log pattern matching failures
-            logger.error(f"⚠️  [PHASE5-DEBUG] Pattern matching failed, trying name fallback...")
+            logger.error(f"[WARNING]  [PHASE5-DEBUG] Pattern matching failed, trying name fallback...")
             
             if self.debug_mode:
                 logger.debug("PARALLEL_CHECK reporter pair not recognized as parallel")
@@ -1068,14 +1106,14 @@ class UnifiedClusteringMaster:
             
             if case_name1 and case_name2 and case_name1 != 'N/A' and case_name2 != 'N/A':
                 similarity = self._calculate_name_similarity(case_name1, case_name2)
-                logger.error(f"🔥 [FIX #58F] Fallback name similarity check: {similarity:.2f} vs threshold {self.case_name_similarity_threshold:.2f} | '{case_name1[:30]}' vs '{case_name2[:30]}'")
+                logger.error(f"[DEBUG] [FIX #58F] Fallback name similarity check: {similarity:.2f} vs threshold {self.case_name_similarity_threshold:.2f} | '{case_name1[:30]}' vs '{case_name2[:30]}'")
                 if similarity >= self.case_name_similarity_threshold:  # FIX #58F: Use configured threshold, not hardcoded 0.8!
-                    logger.error(f"✅ [FIX #58F] ACCEPTED via fallback - name similarity {similarity:.2f} >= {self.case_name_similarity_threshold:.2f}")
+                    logger.error(f"[SUCCESS] [FIX #58F] ACCEPTED via fallback - name similarity {similarity:.2f} >= {self.case_name_similarity_threshold:.2f}")
                     return True
                 else:
-                    logger.error(f"🚫 [FIX #58F] REJECTED via fallback - name similarity {similarity:.2f} < {self.case_name_similarity_threshold:.2f}")
+                    logger.error(f"[REJECTED] [FIX #58F] REJECTED via fallback - name similarity {similarity:.2f} < {self.case_name_similarity_threshold:.2f}")
             else:
-                logger.error(f"❌ [PHASE5-DEBUG] REJECTED - missing case names for fallback")
+                logger.error(f"[PHASE5-DEBUG] REJECTED - missing case names for fallback")
             
             return False
 
@@ -1134,11 +1172,11 @@ class UnifiedClusteringMaster:
         # If we get here, the citations are parallel AND have matching names
         # At least one has a year (dates will be propagated later)
         # PHASE 5 DEBUG: Log successful clustering
-        logger.error(f"✅ [PHASE5-DEBUG] ACCEPTED as parallel citations!")
+        logger.error(f"[SUCCESS] [PHASE5-DEBUG] ACCEPTED as parallel citations!")
         logger.error(f"   Names match: '{case_name1[:40]}' ≈ '{case_name2[:40]}'")
         logger.error(f"   Years: year1={year1}, year2={year2} (at least one valid)")
         logger.error(f"   Distance: {distance}")
-        print(f"✅ [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, years=({year1}, {year2})", flush=True)
+        print(f"[SUCCESS] [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, years=({year1}, {year2})", flush=True)
         
         if self.debug_mode:
             logger.debug(
@@ -1154,18 +1192,42 @@ class UnifiedClusteringMaster:
         
     def _get_case_name(self, citation: Any) -> Optional[str]:
         """
-        FIX #58C: Get case name for clustering - USE ONLY EXTRACTED, NEVER CANONICAL!
+        FIXED: Get case name for clustering - PRIORITIZE VERIFIED CANONICAL NAMES!
         
-        CRITICAL: Clustering MUST use extracted names from the document, NOT canonical names from APIs.
-        Using canonical names causes citations that verify to different cases to cluster together.
+        CRITICAL FIX: For clustering, we need to use canonical names when available and verified,
+        because extracted names can vary (e.g., "Washington State Case" vs "Pacific Reporter Case")
+        even for the same legal case. This prevents parallel citations from being clustered.
+        
+        Priority order:
+        1. canonical_name (if verified and available)
+        2. extracted_case_name (fallback for unverified citations)
+        3. case_name (final fallback)
         """
         if isinstance(citation, dict):
+            verified = citation.get('verified', False)
+            canonical_name = citation.get('canonical_name')
+            
+            # PRIORITY 1: Use canonical name for verified citations
+            if verified and canonical_name and canonical_name != 'N/A':
+                return canonical_name
+                
+            # PRIORITY 2: Fall back to extracted name for unverified citations
             return (
-                citation.get('extracted_case_name')  # FIX #58C: EXTRACTED ONLY!
+                citation.get('extracted_case_name')
                 or citation.get('case_name')
             )
+        
+        # Object citation format
+        verified = getattr(citation, 'verified', False)
+        canonical_name = getattr(citation, 'canonical_name', None)
+        
+        # PRIORITY 1: Use canonical name for verified citations
+        if verified and canonical_name and canonical_name != 'N/A':
+            return canonical_name
+            
+        # PRIORITY 2: Fall back to extracted name for unverified citations
         return (
-            getattr(citation, 'extracted_case_name', None)  # FIX #58C: EXTRACTED ONLY!
+            getattr(citation, 'extracted_case_name', None)
             or getattr(citation, 'case_name', None)
         )
 
@@ -1429,13 +1491,13 @@ class UnifiedClusteringMaster:
                 # Exact match
                 if vol1 == vol2 and page1 == page2:
                     if self.debug_mode:
-                        logger.debug(f"✅ WASHINGTON PARALLEL MATCH (exact): {citation1} ↔ {citation2}")
+                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (exact): {citation1} ↔ {citation2}")
                     return True
                 
                 # Allow for small page differences (same volume, pages within 5)
                 if vol1 == vol2 and abs(page1 - page2) <= 5:
                     if self.debug_mode:
-                        logger.debug(f"✅ WASHINGTON PARALLEL MATCH (close pages): {citation1} ↔ {citation2}")
+                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (close pages): {citation1} ↔ {citation2}")
                     return True
             
             # If volume/page extraction failed, try to extract just page numbers
@@ -1453,7 +1515,7 @@ class UnifiedClusteringMaster:
                     for p2 in pages2[-2:]:
                         if abs(p1 - p2) <= 5:
                             if self.debug_mode:
-                                logger.debug(f"✅ WASHINGTON PARALLEL MATCH (page numbers close): {citation1} ↔ {citation2}")
+                                logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (page numbers close): {citation1} ↔ {citation2}")
                             return True
             
             # Check for case name similarity as a last resort
@@ -1473,12 +1535,12 @@ class UnifiedClusteringMaster:
                 similarity = self._calculate_name_similarity(name1, name2)
                 if similarity >= 0.7:  # 70% similarity threshold
                     if self.debug_mode:
-                        logger.debug(f"✅ WASHINGTON PARALLEL MATCH (similar case names {similarity:.1%}): {name1} ↔ {name2}")
+                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (similar case names {similarity:.1%}): {name1} ↔ {name2}")
                     return True
             
             # If we get here, the citations don't appear to be parallel
             if self.debug_mode:
-                logger.debug(f"❌ No match for: {citation1} ↔ {citation2}")
+                logger.debug(f"No match for: {citation1} <-> {citation2}")
             return False
                 
         return False
@@ -1644,11 +1706,11 @@ class UnifiedClusteringMaster:
                     for other_name in unique_names[1:]:
                         similarity = SequenceMatcher(None, base_name.lower(), other_name.lower()).ratio()
                         if similarity < 0.5:  # Less than 50% similar
-                            logger.error(f"❌ [BAD-CLUSTER] Citations have VERY different names - should NOT be clustered!")
+                            logger.error(f"[BAD-CLUSTER] Citations have VERY different names - should NOT be clustered!")
                             logger.error(f"   Name 1: '{base_name}'")
                             logger.error(f"   Name 2: '{other_name}'")
                             logger.error(f"   Similarity: {similarity:.2%}")
-                            logger.error(f"   ⚠️  SKIPPING cluster standardization to prevent contamination")
+                            logger.error(f"   [WARNING]  SKIPPING cluster standardization to prevent contamination")
                             # Don't standardize - keep each citation's own extracted name
                             skip_standardization = True
                             break
@@ -1666,10 +1728,10 @@ class UnifiedClusteringMaster:
                         logger.error(f"🚨 [CLUSTERING-CONTAMINATION] Detected: '{name}'")
                         cleaned = clean_contaminated_case_name(name)
                         if cleaned and cleaned != name:
-                            logger.error(f"✅ [CLUSTERING-CLEANED] '{name}' → '{cleaned}'")
+                            logger.error(f"[SUCCESS] [CLUSTERING-CLEANED] '{name}' → '{cleaned}'")
                             cleaned_names.append(cleaned)
                         else:
-                            logger.error(f"❌ [CLUSTERING-SKIP] Could not clean, skipping")
+                            logger.error(f"[CLUSTERING-SKIP] Could not clean, skipping")
                             # Don't add contaminated name
                     else:
                         cleaned_names.append(name)
@@ -1698,7 +1760,7 @@ class UnifiedClusteringMaster:
                     if len(set(cleaned_names)) > 1:
                         logger.error(f"   Variations: {list(set(cleaned_names))}")
                 else:
-                    logger.error(f"⚠️ [STANDARDIZE-CLUSTER] All names were contaminated and couldn't be cleaned!")
+                    logger.error(f"[WARNING] [STANDARDIZE-CLUSTER] All names were contaminated and couldn't be cleaned!")
             
             # Pick best extracted year (most common)
             best_extracted_year = None
@@ -1726,7 +1788,7 @@ class UnifiedClusteringMaster:
                             citation.extracted_case_name = best_extracted_name
                             logger.error(f"   📝 Filled missing name with best: '{best_extracted_name}'")
                 else:
-                    logger.error(f"   ✅ Keeping existing extracted_case_name: '{existing_name}' (not overwriting with '{best_extracted_name}')")
+                    logger.error(f"   [SUCCESS] Keeping existing extracted_case_name: '{existing_name}' (not overwriting with '{best_extracted_name}')")
                 
                 if best_extracted_year:
                     # USER FIX 2024-10-16: DON'T overwrite extracted_date if it already exists!
@@ -1741,7 +1803,7 @@ class UnifiedClusteringMaster:
                             citation.extracted_date = best_extracted_year
                             logger.error(f"   📅 Filled missing date with best: '{best_extracted_year}'")
                     else:
-                        logger.error(f"   ✅ Keeping existing extracted_date: '{existing_date}' (not overwriting with '{best_extracted_year}')")
+                        logger.error(f"   [SUCCESS] Keeping existing extracted_date: '{existing_date}' (not overwriting with '{best_extracted_year}')")
 
             for citation in group:
                 enhanced_citation = self._create_enhanced_citation(citation, case_name, case_year, group)
@@ -1775,7 +1837,31 @@ class UnifiedClusteringMaster:
         if verified_flag and canonical_date and canonical_date != 'N/A' and not case_year:
             case_year = self._extract_year_value(canonical_date) or canonical_date
 
-        members = [getattr(c, 'citation', str(c)) for c in group]
+        # CRITICAL FIX: Extract citation text properly from different object types
+        members = []
+        for c in group:
+            if isinstance(c, dict):
+                # For dict objects, get the 'citation' field first, then 'text'
+                cit_text = c.get('citation') or c.get('text') or str(c)
+            else:
+                # For object attributes, get 'citation' first, then convert to string
+                cit_text = getattr(c, 'citation', None) or str(c)
+            
+            # Ensure we're getting clean citation text, not dict representations
+            if isinstance(cit_text, str) and not cit_text.startswith('{'):
+                members.append(cit_text)
+            else:
+                # Fallback: try to extract citation from dict string or use string representation
+                if isinstance(cit_text, str):
+                    import re
+                    # Try to extract citation from dict string like "{'citation': '123 F.3d 456', ...}"
+                    citation_match = re.search(r"'citation':\s*'([^']+)'", cit_text)
+                    if citation_match:
+                        members.append(citation_match.group(1))
+                    else:
+                        members.append(str(cit_text))
+                else:
+                    members.append(str(cit_text))
         parallel = len(group) > 1
 
         if hasattr(enhanced, '__dict__'):
@@ -2120,12 +2206,12 @@ class UnifiedClusteringMaster:
     
     def _apply_verification_to_clusters(self, clusters: List[Dict[str, Any]]) -> None:
         """Apply verification to clusters if enabled - OPTIMIZED WITH BATCH API."""
-        logger.error(f"🔥 [VERIFY-DEBUG] _apply_verification_to_clusters called: enable_verification={self.enable_verification}, clusters={len(clusters)}")
+        logger.error(f"[DEBUG] [VERIFY-DEBUG] _apply_verification_to_clusters called: enable_verification={self.enable_verification}, clusters={len(clusters)}")
         if not self.enable_verification:
-            logger.error(f"🔥 [VERIFY-DEBUG] Verification DISABLED - returning early")
+            logger.error(f"[DEBUG] [VERIFY-DEBUG] Verification DISABLED - returning early")
             return
         
-        logger.error(f"🔥 [VERIFY-DEBUG] Verification ENABLED - proceeding with {len(clusters)} clusters")
+        logger.error(f"[DEBUG] [VERIFY-DEBUG] Verification ENABLED - proceeding with {len(clusters)} clusters")
         
         try:
             # OPTIMIZATION: Use batch verification instead of one-by-one
@@ -2139,15 +2225,36 @@ class UnifiedClusteringMaster:
                     continue
                 
                 for cit_idx, citation_obj in enumerate(citations):
+                    # Debug: Check what type of object we're working with
+                    is_verified = False
+                    source_info = "Unknown"
+                    
+                    if isinstance(citation_obj, dict):
+                        is_verified = citation_obj.get('verified', False)
+                        source_info = citation_obj.get('verification_source', citation_obj.get('source', 'Unknown'))
+                    else:
+                        is_verified = getattr(citation_obj, 'verified', False)
+                        source_info = getattr(citation_obj, 'source', 'Unknown')
+                    
+                    logger.error(f"[DEBUG] [VERIFY-DEBUG] Citation object type: {type(citation_obj)}, verified: {is_verified}, source: {source_info}")
+                    
                     # Handle both dict and object citation formats
                     if isinstance(citation_obj, dict):
                         citation_text = citation_obj.get('citation', str(citation_obj))
                         case_name = citation_obj.get('extracted_case_name', None)
                         case_date = citation_obj.get('extracted_date', None)
+                        # Skip already verified citations to preserve source information
+                        if is_verified:
+                            logger.error(f"[DEBUG] [VERIFY-DEBUG] Skipping already verified citation: {citation_text} (source: {source_info})")
+                            continue
                     else:
                         citation_text = getattr(citation_obj, 'citation', str(citation_obj))
                         case_name = getattr(citation_obj, 'extracted_case_name', None)
                         case_date = getattr(citation_obj, 'extracted_date', None)
+                        # Skip already verified citations to preserve source information
+                        if is_verified:
+                            logger.error(f"[DEBUG] [VERIFY-DEBUG] Skipping already verified citation: {citation_text} (source: {source_info})")
+                            continue
                     
                     # Skip citations that already have errors
                     if hasattr(citation_obj, 'error') and citation_obj.error:
@@ -2213,7 +2320,7 @@ class UnifiedClusteringMaster:
                 finally:
                     loop.close()
             
-            logger.info(f"✅ BATCH VERIFICATION: Received {len(batch_results)} results")
+            logger.info(f"[SUCCESS] BATCH VERIFICATION: Received {len(batch_results)} results")
             
             # DEBUG: Log verification success rate
             verified_count = sum(1 for r in batch_results if r.verified)
@@ -2257,7 +2364,7 @@ class UnifiedClusteringMaster:
                         citation_obj.canonical_url = result.canonical_url
                         citation_obj.verification_source = result.source
                         citation_obj.possible_match = False
-                        logger.error(f"   ✅ AFTER (object): verified=True, canonical_name = {citation_obj.canonical_name}")
+                        logger.error(f"   [SUCCESS] AFTER (object): verified=True, canonical_name = {citation_obj.canonical_name}")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = True
                         citation_obj['canonical_name'] = result.canonical_name
@@ -2265,7 +2372,7 @@ class UnifiedClusteringMaster:
                         citation_obj['canonical_url'] = result.canonical_url
                         citation_obj['verification_source'] = result.source
                         citation_obj['possible_match'] = False
-                        logger.error(f"   ✅ AFTER (dict): verified=True, canonical_name = {citation_obj['canonical_name']}")
+                        logger.error(f"   [SUCCESS] AFTER (dict): verified=True, canonical_name = {citation_obj['canonical_name']}")
                 elif getattr(result, 'possible_match', False):
                     # POSSIBLE MATCH: Apply canonical data but mark as possible match
                     logger.error(f"🔶 [APPLY-VERIFICATION] Citation: {citation_text} - POSSIBLE MATCH")
@@ -2292,8 +2399,8 @@ class UnifiedClusteringMaster:
                         logger.error(f"   🔶 AFTER (dict): verified=False, possible_match=True, canonical_name = {citation_obj['canonical_name']}")
                 else:
                     # UNVERIFIED: Mark as unverified, store error
-                    logger.error(f"❌ [APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
-                    logger.error(f"   ⚠️ Error: {result.error}")
+                    logger.error(f"[APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
+                    logger.error(f"   [WARNING] Error: {result.error}")
 
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = False
@@ -2301,13 +2408,13 @@ class UnifiedClusteringMaster:
                         citation_obj.verification_error = result.error
                         citation_obj.canonical_name = None
                         citation_obj.canonical_date = None
-                        logger.error(f"   ❌ AFTER (object): verified=False, possible_match=False, will need true_by_parallel")
+                        logger.error(f"   AFTER (object): verified=False, possible_match=False, will need true_by_parallel")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = False
                         citation_obj['verification_error'] = result.error
                         citation_obj['canonical_name'] = None
                         citation_obj['canonical_date'] = None
-                        logger.error(f"   ❌ AFTER (dict): verified=False, will need true_by_parallel")
+                        logger.error(f"   AFTER (dict): verified=False, will need true_by_parallel")
         
         except ImportError:
             logger.warning("MASTER_CLUSTER: Verification master not available, skipping verification")
@@ -2400,16 +2507,16 @@ class UnifiedClusteringMaster:
                     # If we have multiple different extracted names, these are DIFFERENT cases!
                     if len(extracted_names) > 1:
                         logger.error(
-                            f"🚫 [PROXIMITY-OVERRIDE-FAILED] Citations within {max_distance} chars BUT have different extracted names: {extracted_names}. "
+                            f"[REJECTED] [PROXIMITY-OVERRIDE-FAILED] Citations within {max_distance} chars BUT have different extracted names: {extracted_names}. "
                             f"These are DIFFERENT cases incorrectly grouped by proximity. Applying P5_FIX validation..."
                         )
                         # Continue to P5_FIX validation below
                     else:
-                        logger.error(f"✅ [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars and matching extracted names - definitely parallel")
+                        logger.error(f"[SUCCESS] [PROXIMITY-OVERRIDE] Cluster with {len(citations)} citations within {max_distance} chars and matching extracted names - definitely parallel")
                         validated_clusters.append(cluster)
                         continue
                 else:
-                    logger.error(f"⚠️ [PROXIMITY-CHECK] Cluster with {len(citations)} citations spread over {max_distance} chars - APPLYING P5_FIX validation")
+                    logger.error(f"[WARNING] [PROXIMITY-CHECK] Cluster with {len(citations)} citations spread over {max_distance} chars - APPLYING P5_FIX validation")
             
             # P5 FIX ENHANCED: Comprehensive false clustering detection
             # Only run this for non-proximate citations
@@ -2466,7 +2573,7 @@ class UnifiedClusteringMaster:
             # Federal vs State = NEVER parallel
             if (has_supreme or has_circuit or has_district) and has_state:
                 logger.error(
-                    f"🚫 P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
+                    f"[REJECTED] P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
                     f"Mixed federal and state reporters (cannot be parallel citations). "
                     f"Splitting cluster..."
                 )
@@ -2477,19 +2584,19 @@ class UnifiedClusteringMaster:
             # Supreme Court vs Circuit/District = NEVER parallel (different courts)
             if has_supreme and (has_circuit or has_district):
                 logger.error(
-                    f"🚫 P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
+                    f"[REJECTED] P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
                     f"Mixed Supreme Court and Circuit/District reporters (different courts, cannot be parallel). "
                     f"Splitting cluster..."
                 )
                 # USER FIX 2024-10-21: Split by COURT TYPE, not by individual reporters
                 # This keeps Supreme Court parallel citations (U.S., S. Ct., L. Ed.) together
-                logger.error(f"🔍 [P5-DEBUG] About to call _split_cluster_by_court_type with {len(citations)} citations")
+                logger.error(f"[P5-DEBUG] About to call _split_cluster_by_court_type with {len(citations)} citations")
                 try:
                     split_clusters = self._split_cluster_by_court_type(cluster, citations)
-                    logger.error(f"🔍 [P5-DEBUG] _split_cluster_by_court_type returned {len(split_clusters)} clusters")
+                    logger.error(f"[P5-DEBUG] _split_cluster_by_court_type returned {len(split_clusters)} clusters")
                     validated_clusters.extend(split_clusters)
                 except Exception as e:
-                    logger.error(f"❌ [P5-ERROR] _split_cluster_by_court_type failed: {e}")
+                    logger.error(f"[P5-ERROR] _split_cluster_by_court_type failed: {e}")
                     logger.exception(e)
                     validated_clusters.append(cluster)  # Keep original if split fails
                 continue
@@ -2504,7 +2611,7 @@ class UnifiedClusteringMaster:
                         year_range = max(year_ints) - min(year_ints)
                         if year_range > 2:  # Allow 2 years difference for delayed publication
                             logger.error(
-                                f"🚫 P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
+                                f"[REJECTED] P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
                                 f"Large year difference: {min(year_ints)} to {max(year_ints)} ({year_range} years). "
                                 f"Splitting cluster..."
                             )
@@ -2519,7 +2626,7 @@ class UnifiedClusteringMaster:
             for reporter, volumes in reporter_volumes.items():
                 if len(volumes) > 1:
                     logger.error(
-                        f"🚫 P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
+                        f"[REJECTED] P5_FIX: FALSE CLUSTERING DETECTED in cluster '{cluster.get('case_name', 'N/A')}' - "
                         f"same reporter '{reporter}' but different volumes: {sorted(volumes)}. "
                         f"Splitting cluster..."
                     )
@@ -2565,7 +2672,7 @@ class UnifiedClusteringMaster:
                     unique_case_names = set(case_names) if case_names else set()
                     if len(unique_case_names) == 1 and len(citations) <= 5:  # Parallel citations typically 2-4 cites
                         logger.info(
-                            f"✅ CLUSTER_VALIDATION: Keeping parallel citations together despite span={span}. "
+                            f"[SUCCESS] CLUSTER_VALIDATION: Keeping parallel citations together despite span={span}. "
                             f"All {len(citations)} citations reference: {list(unique_case_names)[0]}"
                         )
                         validated_clusters.append(cluster)
@@ -2573,7 +2680,7 @@ class UnifiedClusteringMaster:
                     
                     # Not parallel citations - proceed with split
                     logger.warning(
-                        f"⚠️ CLUSTER_VALIDATION: Suspicious cluster with span={span} chars "
+                        f"[WARNING] CLUSTER_VALIDATION: Suspicious cluster with span={span} chars "
                         f"(threshold={max_allowed_span}). This may indicate incorrect clustering. "
                         f"Cluster has {len(citations)} citations spanning {span} characters."
                     )
@@ -2750,7 +2857,7 @@ class UnifiedClusteringMaster:
         circuit_citations = []
         other_citations = []
         
-        logger.error(f"🔍 [COURT-TYPE-DEBUG] Starting classification of {len(citations)} citations")
+        logger.error(f"[COURT-TYPE-DEBUG] Starting classification of {len(citations)} citations")
         
         for citation in citations:
             if hasattr(citation, 'citation'):
@@ -2766,7 +2873,7 @@ class UnifiedClusteringMaster:
                 # Normalize reporter for comparison - REMOVE spaces (don't add dots, they're already there!)
                 reporter_normalized = reporter.replace(' ', '')
                 
-                logger.error(f"🔍 [COURT-TYPE-DEBUG] {cit_text}: reporter='{reporter}', normalized='{reporter_normalized}'")
+                logger.error(f"[COURT-TYPE-DEBUG] {cit_text}: reporter='{reporter}', normalized='{reporter_normalized}'")
                 
                 if reporter_normalized in supreme_court_reporters or any(sc in reporter for sc in ['U.S.', 'S.Ct', 'L.Ed']):
                     supreme_citations.append(citation)
@@ -2779,12 +2886,12 @@ class UnifiedClusteringMaster:
                     logger.error(f"   → Classified as OTHER")
             else:
                 other_citations.append(citation)
-                logger.error(f"🔍 [COURT-TYPE-DEBUG] {cit_text}: FAILED TO PARSE → OTHER")
+                logger.error(f"[COURT-TYPE-DEBUG] {cit_text}: FAILED TO PARSE → OTHER")
         
         # Create clusters by court type
         new_clusters = []
         
-        logger.error(f"🔍 [COURT-TYPE-DEBUG] Classification complete: Supreme={len(supreme_citations)}, Circuit={len(circuit_citations)}, Other={len(other_citations)}")
+        logger.error(f"[COURT-TYPE-DEBUG] Classification complete: Supreme={len(supreme_citations)}, Circuit={len(circuit_citations)}, Other={len(other_citations)}")
         
         if supreme_citations:
             supreme_cluster = {
@@ -2871,10 +2978,10 @@ class UnifiedClusteringMaster:
             for cit in citations:
                 is_verified = getattr(cit, 'verified', False)
                 has_canonical = getattr(cit, 'canonical_name', None) is not None
-                logger.info(f"🔍 CLUSTER_FORMAT: Checking citation {getattr(cit, 'citation', str(cit))[:50]} - verified={is_verified}, has_canonical={has_canonical}")
+                logger.info(f"[CLUSTER_FORMAT] Checking citation {getattr(cit, 'citation', str(cit))[:50]} - verified={is_verified}, has_canonical={has_canonical}")
                 if is_verified and has_canonical:
                     best_verified = cit
-                    logger.info(f"✅ CLUSTER_FORMAT: Found best_verified citation: {best_verified.citation} with canonical_name={best_verified.canonical_name}")
+                    logger.info(f"[SUCCESS] CLUSTER_FORMAT: Found best_verified citation: {best_verified.citation} with canonical_name={best_verified.canonical_name}")
                     break
             
             # Propagate canonical data to unverified parallel citations
@@ -2893,16 +3000,16 @@ class UnifiedClusteringMaster:
                                 cit.canonical_date = getattr(best_verified, 'canonical_date', None)
                                 cit.canonical_url = getattr(best_verified, 'canonical_url', None)
                                 # Don't change verified status - keep it False
-                                logger.info(f"✅ CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {getattr(cit, 'citation', str(cit))[:50]} (same case)")
+                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {getattr(cit, 'citation', str(cit))[:50]} (same case)")
                             elif isinstance(cit, dict):
                                 cit['true_by_parallel'] = True
                                 cit['canonical_name'] = getattr(best_verified, 'canonical_name', None)
                                 cit['canonical_date'] = getattr(best_verified, 'canonical_date', None)
                                 cit['canonical_url'] = getattr(best_verified, 'canonical_url', None)
-                                logger.info(f"✅ CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {cit.get('citation', str(cit))[:50]} (same case)")
+                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {cit.get('citation', str(cit))[:50]} (same case)")
                         else:
-                            logger.warning(f"⚠️ CLUSTER_FORMAT: Skipping canonical data propagation - citations are from different cases: {getattr(cit, 'citation', str(cit))[:50]} vs {best_verified.citation}")
-                        logger.info(f"✅ Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
+                            logger.warning(f"[WARNING] CLUSTER_FORMAT: Skipping canonical data propagation - citations are from different cases: {getattr(cit, 'citation', str(cit))[:50]} vs {best_verified.citation}")
+                        logger.info(f"[SUCCESS] Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
             
             # CRITICAL FIX: Extract cluster-level canonical data from verified citations
             cluster_canonical_name = None
@@ -2914,9 +3021,9 @@ class UnifiedClusteringMaster:
                 cluster_canonical_name = getattr(best_verified, 'canonical_name', None)
                 cluster_canonical_date = getattr(best_verified, 'canonical_date', None)
                 cluster_verification_source = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
-                logger.info(f"📋 CLUSTER_FORMAT: Setting cluster canonical data - name={cluster_canonical_name}, date={cluster_canonical_date}, source={cluster_verification_source}")
+                logger.info(f"[SUMMARY] CLUSTER_FORMAT: Setting cluster canonical data - name={cluster_canonical_name}, date={cluster_canonical_date}, source={cluster_verification_source}")
             else:
-                logger.warning(f"⚠️ CLUSTER_FORMAT: No best_verified found for cluster {cluster_id} with {len(citations)} citations")
+                logger.warning(f"[WARNING] CLUSTER_FORMAT: No best_verified found for cluster {cluster_id} with {len(citations)} citations")
             
             # USER FIX: Serialize citation objects to dicts so Vue.js can access extracted_case_name
             # This matches the fix in unified_citation_clustering.py for async pathway
@@ -2931,18 +3038,25 @@ class UnifiedClusteringMaster:
                     serialized_citations.append(cit)
                 else:
                     # Convert object to dict
+                    # Debug: Check what source fields are available
+                    verification_source = getattr(cit, 'verification_source', None)
+                    source = getattr(cit, 'source', None)
+                    logger.error(f"[DEBUG] [SERIALIZE-DEBUG] Citation: {getattr(cit, 'citation', 'Unknown')}, verification_source: {verification_source}, source: {source}")
+                    
                     cit_dict = {
                         'citation': getattr(cit, 'citation', ''),
                         'extracted_case_name': getattr(cit, 'extracted_case_name', None),
                         'extracted_date': getattr(cit, 'extracted_date', None),
+                        'start_index': getattr(cit, 'start_index', None),
+                        'end_index': getattr(cit, 'end_index', None),
+                        'method': getattr(cit, 'method', 'unified_processor'),
+                        'confidence': getattr(cit, 'confidence', 0.9),
+                        'metadata': getattr(cit, 'metadata', {}),
+                        'verified': getattr(cit, 'verified', False),
                         'canonical_name': getattr(cit, 'canonical_name', None),
                         'canonical_date': getattr(cit, 'canonical_date', None),
                         'canonical_url': getattr(cit, 'canonical_url', None),
-                        'verified': getattr(cit, 'verified', False),
-                        'true_by_parallel': getattr(cit, 'true_by_parallel', False),
-                        'confidence': getattr(cit, 'confidence', None),
-                        'method': getattr(cit, 'method', None),
-                        'source': getattr(cit, 'source', None),
+                        'source': verification_source if verification_source else source,  # Prioritize verification_source but use source if not available
                         'error': getattr(cit, 'error', None),
                         # Backend-driven mismatch flags
                         'name_mismatch': getattr(cit, 'name_mismatch', False),
@@ -3094,9 +3208,9 @@ class UnifiedClusteringMaster:
                 max_distance = sorted_positions[-1] - sorted_positions[0]
                 # FIX #47: If citations are within 200 chars, they're likely parallel
                 is_close_proximity = max_distance <= 200
-                logger.error(f"🔍 [PROXIMITY-CHECK] {len(citations)} citations, distance={max_distance} chars, is_close={is_close_proximity}")
+                logger.error(f"[PROXIMITY-CHECK] {len(citations)} citations, distance={max_distance} chars, is_close={is_close_proximity}")
             elif len(citations) > 1:
-                logger.error(f"⚠️ [PROXIMITY-CHECK] {len(citations)} citations but only {len(positions)} positions - CANNOT determine proximity!")
+                logger.error(f"[WARNING] [PROXIMITY-CHECK] {len(citations)} citations but only {len(positions)} positions - CANNOT determine proximity!")
             
             # FIX #48: Group citations by EXTRACTED case name + year (from document)
             extracted_groups = {}
@@ -3137,7 +3251,7 @@ class UnifiedClusteringMaster:
             
             # FIX #48: If all citations have the same extracted data, keep the cluster
             if len(extracted_groups) <= 1:
-                logger.debug(f"✅ [FIX #48] Cluster validation: {len(extracted_groups)} extracted group(s) - keeping intact")
+                logger.debug(f"[SUCCESS] [FIX #48] Cluster validation: {len(extracted_groups)} extracted group(s) - keeping intact")
                 validated_clusters.append(cluster)
                 continue
             
@@ -3145,7 +3259,7 @@ class UnifiedClusteringMaster:
             # Proximity is the PRIMARY signal for parallel citations.
             # Extracted data is SECONDARY (can have extraction errors).
             if is_close_proximity:
-                logger.info(f"✅ [FIX #49] PROXIMITY OVERRIDE - Keeping cluster intact despite {len(extracted_groups)} different extracted names")
+                logger.info(f"[SUCCESS] [FIX #49] PROXIMITY OVERRIDE - Keeping cluster intact despite {len(extracted_groups)} different extracted names")
                 logger.info(f"   Reason: Citations within 200 chars are likely parallel (extraction may have failed)")
                 logger.info(f"   Extracted groups: {list(extracted_groups.keys())}")
                 validated_clusters.append(cluster)
@@ -3170,15 +3284,15 @@ class UnifiedClusteringMaster:
                 
                 if first_word_match and not year_mismatch:
                     # Likely the same case with slight name variations - DON'T split
-                    logger.info(f"✅ [FIX #48] Keeping cluster intact - close proximity + similar EXTRACTED names")
+                    logger.info(f"[SUCCESS] [FIX #48] Keeping cluster intact - close proximity + similar EXTRACTED names")
                     logger.info(f"   Extracted groups: {group_keys}")
                     validated_clusters.append(cluster)
                     continue
                 elif year_mismatch:
-                    logger.warning(f"⚠️  [FIX #48] EXTRACTED year mismatch detected ({years}) - will split despite proximity")
+                    logger.warning(f"[WARNING]  [FIX #48] EXTRACTED year mismatch detected ({years}) - will split despite proximity")
             
             # SPLIT THE CLUSTER - citations have different EXTRACTED data!
-            logger.warning(f"🔴 FIX #48: Splitting cluster - {len(extracted_groups)} different EXTRACTED cases detected (proximity={is_close_proximity})")
+            logger.warning(f"[ERROR] FIX #48: Splitting cluster - {len(extracted_groups)} different EXTRACTED cases detected (proximity={is_close_proximity})")
             
             # DEBUG: Check if Hamaatsa citations are being split
             for group_key, group_citations in extracted_groups.items():
@@ -3229,61 +3343,26 @@ class UnifiedClusteringMaster:
                 }
                 validated_clusters.append(new_cluster)
         
-        logger.info(f"🔍 FIX #48: EXTRACTED data validation: {len(clusters)} input clusters → {len(validated_clusters)} output clusters")
+        logger.info(f"[FIX #48] EXTRACTED data validation: {len(clusters)} input clusters → {len(validated_clusters)} output clusters")
         return validated_clusters
     
     def _enrich_dates_from_canonical(self, clusters: List[Dict[str, Any]]) -> None:
         """
-        Enrich extracted_date from canonical_date when available.
+        DEPRECATED: This function violates the rule that extracted_date should NEVER
+        be overwritten by verification API results.
         
-        When citations are verified with CourtListener, we get canonical_date in format "1978-05-15".
-        But many citations don't have extracted_date (from text context).
-        This copies the year from canonical_date to extracted_date when needed.
+        REMOVED: Enriching extracted_date from canonical_date causes cross-contamination.
+        The extracted_date must only come from the user's document text, never from
+        verification APIs. This prevents clustering logic from breaking because
+        "2018" ≠ "2018-12-06" causes parallel citations to be split into separate clusters.
         
-        Impact: Reduces missing dates from ~80% to ~13% for verified citations.
+        This function is kept for backward compatibility but does nothing.
         """
-        enriched_count = 0
-        
-        for cluster in clusters:
-            for citation in cluster.get('citations', []):
-                # Skip if we already have extracted_date
-                extracted_date = None
-                if hasattr(citation, 'extracted_date'):
-                    extracted_date = citation.extracted_date
-                elif isinstance(citation, dict):
-                    extracted_date = citation.get('extracted_date')
-                
-                if extracted_date and extracted_date not in ('N/A', None, ''):
-                    continue  # Already has date
-                
-                # Try to get canonical_date
-                canonical_date = None
-                if hasattr(citation, 'canonical_date'):
-                    canonical_date = citation.canonical_date
-                elif isinstance(citation, dict):
-                    canonical_date = citation.get('canonical_date')
-                
-                if not canonical_date or canonical_date in ('N/A', None, ''):
-                    continue  # No canonical date available
-                
-                # Extract year from ISO format "1978-05-15" or similar
-                try:
-                    year = str(canonical_date).split('-')[0]
-                    # Validate year is reasonable
-                    if year.isdigit() and 1700 <= int(year) <= 2030:
-                        # Set the extracted_date
-                        if hasattr(citation, 'extracted_date'):
-                            citation.extracted_date = year
-                        elif isinstance(citation, dict):
-                            citation['extracted_date'] = year
-                        
-                        enriched_count += 1
-                        logger.debug(f"[DATE-FROM-CANONICAL] {citation.citation if hasattr(citation, 'citation') else citation.get('citation')} → {year}")
-                except Exception as e:
-                    logger.warning(f"[DATE-FROM-CANONICAL] Failed to parse date '{canonical_date}': {e}")
-        
-        if enriched_count > 0:
-            logger.info(f"✅ [DATE-ENRICHMENT] Added dates to {enriched_count} citations from canonical data")
+        # CRITICAL FIX: Do NOT copy canonical_date to extracted_date
+        # This violates the rule that extracted_date must only come from user's document
+        # See memory:8688660 and memory:7901330
+        logger.debug("[DATE-ENRICHMENT] Skipped - extracted_date should never be overwritten by canonical_date")
+        return
     
     def _extract_document_primary_case_name(self, text: str) -> Optional[str]:
         """
