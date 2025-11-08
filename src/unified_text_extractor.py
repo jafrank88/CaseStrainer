@@ -192,15 +192,15 @@ class UnifiedTextExtractor:
             # Cache successful extractions
             if text and len(text.strip()) > 50:
                 self._cache_content(cache_key, text)
-                logger.info(f"✅ Extracted {len(text):,} chars from {ext} in {elapsed:.1f}s using {method}")
+                logger.info(f"[SUCCESS] Extracted {len(text):,} chars from {ext} in {elapsed:.1f}s using {method}")
                 return text, method
             else:
-                logger.warning(f"⚠️ Insufficient text extracted from {ext}: {len(text) if text else 0} chars")
+                logger.warning(f"[WARNING] Insufficient text extracted from {ext}: {len(text) if text else 0} chars")
                 return "", f"{ext}:insufficient_text"
                 
         except Exception as e:
             elapsed = time.time() - start_time
-            logger.error(f"❌ Failed to extract {ext} after {elapsed:.1f}s: {e}")
+            logger.error(f"[ERROR] Failed to extract {ext} after {elapsed:.1f}s: {e}")
             return "", f"{ext}:error"
     
     def _extract_pdf_enhanced(self, file_path: str) -> Tuple[str, str]:
@@ -214,7 +214,8 @@ class UnifiedTextExtractor:
                 doc = fitz.open(file_path)
                 text_parts = []
                 
-                for page_num in range(min(5, len(doc))):  # Test first 5 pages
+                # CRITICAL FIX: Extract ALL pages, not just first 5
+                for page_num in range(len(doc)):
                     page = doc[page_num]
                     
                     # Get page dimensions
@@ -251,7 +252,8 @@ class UnifiedTextExtractor:
                     reader = PyPDF2.PdfReader(file)
                     text_parts = []
                     
-                    for page in reader.pages[:5]:  # Test first 5 pages
+                    # CRITICAL FIX: Extract ALL pages, not just first 5
+                    for page in reader.pages:
                         text = page.extract_text()
                         if text.strip():
                             text_parts.append(text)
@@ -282,7 +284,7 @@ class UnifiedTextExtractor:
                     logger.warning(f"RobustPDFExtractor failed: {e}")
                 methods_tried.append("Robust(failed)")
         
-        logger.error(f"❌ All PDF extraction methods failed: {', '.join(methods_tried)}")
+        logger.error(f"[ERROR] All PDF extraction methods failed: {', '.join(methods_tried)}")
         return "", "pdf:all_methods_failed"
     
     def _extract_pdf(self, file_path: str) -> Tuple[str, str]:
@@ -362,12 +364,12 @@ class UnifiedTextExtractor:
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 text = f.read()
             if text and len(text.strip()) > 100:
-                logger.warning("⚠️ Using low-quality plain text extraction for .doc file")
+                logger.warning("[WARNING] Using low-quality plain text extraction for .doc file")
                 return text, "doc:plaintext_fallback"
         except:
             pass
         
-        logger.error("❌ No method available to extract .doc file. Install antiword or textract.")
+        logger.error("[ERROR] No method available to extract .doc file. Install antiword or textract.")
         return "", "doc:no_extractor"
     
     def _extract_html(self, file_path: str) -> Tuple[str, str]:

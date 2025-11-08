@@ -448,6 +448,18 @@ class UnifiedClusteringMaster:
                     for citation in group:
                         processed_ids.add(id(citation))
 
+        # USER FIX 2024-11-07: Group all citations between case name and year into a single cluster
+        # This implements the rule: all citations that follow the case name and precede the year are clustered
+        remaining = [citation for citation in citations if id(citation) not in processed_ids]
+        if remaining:
+            nyw_groups = self._group_by_name_year_window(remaining, text)
+            for group in nyw_groups:
+                if len(group) >= 2:
+                    logger.info(f"[NAME-YEAR-WINDOW] Found {len(group)} citations in same window (name..year)")
+                    parallel_groups.append(group)
+                    for citation in group:
+                        processed_ids.add(id(citation))
+
         # USER FIX 2024-10-21: Add canonical-based clustering as fallback
         # If proximity grouping failed (e.g., missing/incorrect positions in async file processing),
         # group citations that have the same verified canonical name and date
@@ -510,7 +522,7 @@ class UnifiedClusteringMaster:
                     logger.error(f"[PROXIMITY-DEBUG] SEMICOLON BOUNDARY - citations separated")
             
             # CRITICAL FIX: Check if citations are from the same case before grouping by proximity
-            are_same_case = self._are_citations_same_case(previous_citation, current_citation)
+            are_same_case = self._are_citations_parallel_pair(previous_citation, current_citation, text)
             
             if distance <= self.proximity_threshold and not has_semicolon_boundary:
                 if are_same_case:
@@ -535,137 +547,154 @@ class UnifiedClusteringMaster:
         
         return groups
     
+    def _find_preceding_case_name(self, text: str, index: int) -> Optional[Tuple[int, int, str]]:
+        """Find the nearest preceding case-name pattern before index.
+        Returns (start, end, name_text) or None."""
+        if not text or index is None or index <= 0:
+            return None
+        window_start = max(0, index - 1500)
+        segment = text[window_start:index]
+        # Patterns: "X v. Y", "In re ...", "Ex parte ..."
+        patterns = [
+            r"([A-Z][A-Za-z0-9&\.'\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.'\s-]+?)",
+            r"(In\s+re\s+[A-Z][A-Za-z0-9&\.'\s-]+)",
+            r"(Ex\s+parte\s+[A-Z][A-Za-z0-9&\.'\s-]+)"
+        ]
+        best = None
+        for pat in patterns:
+            try:
+                for m in re.finditer(pat, segment, re.IGNORECASE | re.DOTALL):
+                    s = window_start + m.start()
+                    e = window_start + m.end()
+                    # prefer the closest (largest start)
+                    if not best or s > best[0]:
+                        if m.lastindex and m.lastindex >= 2 and ' v' in m.group(0).lower():
+                            nm = f"{m.group(1).strip()} v. {m.group(2).strip()}"
+                        else:
+                            nm = m.group(1).strip()
+                        nm = re.sub(r"\s+", " ", nm).strip()
+                        best = (s, e, nm)
+            except Exception:
+                continue
+        return best
+    
+    def _find_following_year_boundary(self, text: str, index: int) -> Optional[Tuple[int, int, str]]:
+        """Find the first year after index, prefer (YYYY) and return (year_start, boundary_end, year_text).
+        boundary_end is the index after ')' if parenthetical found, else year end index."""
+        if not text or index is None:
+            return None
+        window_end = min(len(text), index + 600)
+        segment = text[index:window_end]
+        # Prefer year in parentheses
+        m = re.search(r"\(\s*((?:19|20)\d{2})\s*\)", segment)
+        if m:
+            y = m.group(1)
+            y_start = index + m.start(1)
+            b_end = index + m.end(0)
+            return (y_start, b_end, y)
+        # Fallback: bare year
+        m2 = re.search(r"(?:19|20)\d{2}", segment)
+        if m2:
+            y = m2.group(0)
+            y_start = index + m2.start(0)
+            y_end = index + m2.end(0)
+            return (y_start, y_end, y)
+        return None
+    
+    def _group_by_name_year_window(self, citations: List[Any], text: str) -> List[List[Any]]:
+        """Group citations that share the same (preceding case-name .. following year) window.
+        All citations that follow the case name and precede the year belong to one cluster."""
+        if not citations or not text:
+            return [[c] for c in citations]
+        # Build window keys
+        def get_pos(cit, key):
+            if isinstance(cit, dict):
+                return cit.get(key)
+            return getattr(cit, key, None)
+        groups: Dict[Tuple[int, int], List[Any]] = {}
+        singles: List[Any] = []
+        for cit in citations:
+            start = get_pos(cit, 'start_index')
+            end = get_pos(cit, 'end_index') or start
+            if start is None:
+                singles.append(cit)
+                continue
+            name_span = self._find_preceding_case_name(text, start)
+            if not name_span:
+                singles.append(cit)
+                continue
+            year_span = self._find_following_year_boundary(text, end or start)
+            if not year_span:
+                singles.append(cit)
+                continue
+            name_start, _, _ = name_span
+            _, boundary_end, year_text = year_span
+            # Keyed by exact boundary indices to keep windows distinct even for same name/year repeated
+            key = (name_start, boundary_end)
+            groups.setdefault(key, []).append(cit)
+        result: List[List[Any]] = []
+        for _, arr in groups.items():
+            if len(arr) >= 2:
+                result.append(arr)
+            else:
+                singles.extend(arr)
+        for cit in singles:
+            result.append([cit])
+        logger.info(f"[NAME-YEAR-WINDOW] Grouped into {len(result)} group(s)")
+        return result
+    
     def _group_by_canonical_data(self, citations: List[Any]) -> List[List[Any]]:
-        """
-        Group citations by verified canonical name and date.
-        
-        This is a fallback clustering method for when proximity-based clustering fails
-        (e.g., in async file processing where start_index/end_index may not be accurate).
-        
-        Groups citations that have:
-        - Same canonical_name (verified from API)
-        - Same canonical_date (verified from API)
-        - Both must be verified
-        
-        Returns:
-            List of citation groups
-        """
+        """Group citations by verified canonical identifiers (URL preferred) as a fallback.
+        Returns a list of groups; groups with a single member are returned as singletons."""
         if not citations:
             return []
-        
-        # Group by (canonical_name, canonical_date) tuple
-        canonical_groups = {}
-        ungrouped = []
-        
-        for citation in citations:
-            # Get canonical data
-            canonical_name = getattr(citation, 'canonical_name', None)
-            canonical_date = getattr(citation, 'canonical_date', None)
-            verified = getattr(citation, 'verified', False)
-            
-            # Only group if verified and has canonical data
-            if verified and canonical_name and canonical_date:
-                # Normalize date to year for grouping
-                # Extract year from various date formats: "2011", "2011-01-10", etc.
-                import re
-                year_match = re.search(r'(\d{4})', str(canonical_date))
-                canonical_year = year_match.group(1) if year_match else canonical_date
-                
-                # Group by (canonical_name, year)
-                # Parallel citations MUST have same date - if they don't, it's a date extraction bug
-                key = (canonical_name, canonical_year)
-                if key not in canonical_groups:
-                    canonical_groups[key] = []
-                canonical_groups[key].append(citation)
-                
-                logger.debug(f"[CANONICAL-GROUPING] Adding citation to group {key}: {getattr(citation, 'citation', 'Unknown')}")
+
+        canonical_groups: Dict[tuple, List[Any]] = {}
+        singletons: List[Any] = []
+
+        for cit in citations:
+            if isinstance(cit, dict):
+                verified = cit.get('verified', False)
+                c_name = cit.get('canonical_name')
+                c_date = cit.get('canonical_date')
+                c_url  = cit.get('canonical_url')
             else:
-                ungrouped.append(citation)
-                logger.debug(f"[CANONICAL-GROUPING] Citation not groupable: {getattr(citation, 'citation', 'Unknown')} "
-                           f"(verified={verified}, has_canonical_name={bool(canonical_name)}, has_canonical_date={bool(canonical_date)})")
-        
-        # Convert to list format
-        groups = []
+                verified = getattr(cit, 'verified', False)
+                c_name = getattr(cit, 'canonical_name', None)
+                c_date = getattr(cit, 'canonical_date', None)
+                c_url  = getattr(cit, 'canonical_url', None)
+
+            # Only group verified citations with stable canonical identifiers
+            if not verified or (not c_url and (not c_name or not c_date)):
+                singletons.append(cit)
+                continue
+
+            if c_url:
+                key = ('url', str(c_url).strip())
+            else:
+                import re
+                m = re.search(r'(\d{4})', str(c_date))
+                year = m.group(1) if m else str(c_date)
+                norm_name = self._normalize_case_name_for_clustering(str(c_name)) if c_name else ''
+                key = ('name_year', norm_name, year)
+
+            canonical_groups.setdefault(key, []).append(cit)
+
+        groups: List[List[Any]] = []
+        multi_count = 0
         for key, group in canonical_groups.items():
             if len(group) >= 2:
-                logger.info(f"[CANONICAL-GROUPING] [SUCCESS] Found {len(group)} parallel citations for {key[0]} ({key[1]})")
-                citations_str = ", ".join([getattr(c, 'citation', 'Unknown') for c in group])
-                logger.info(f"[CANONICAL-GROUPING] Citations: {citations_str}")
+                multi_count += 1
+                logger.info(f"[CANONICAL-GROUPING] [SUCCESS] Found {len(group)} parallel citations for {key}")
                 groups.append(group)
             else:
-                # Single verified citation - keep as singleton
-                ungrouped.extend(group)
-        
-        # Add ungrouped citations as singletons
-        for citation in ungrouped:
-            groups.append([citation])
-        
-        logger.info(f"[CANONICAL-GROUPING] Result: {len(groups)} total groups ({len(canonical_groups)} multi-citation, {len(ungrouped)} singleton)")
-        
+                singletons.extend(group)
+
+        for cit in singletons:
+            groups.append([cit])
+
+        logger.info(f"[CANONICAL-GROUPING] Result: {len(groups)} total groups ({multi_count} multi-citation, {len(singletons)} singleton)")
         return groups
-    
-    def _are_citations_same_case(self, citation1: Any, citation2: Any) -> bool:
-        """
-        Check if two citations likely refer to the same case.
-        This prevents cross-contamination of canonical data between different cases.
-        """
-        # Helper functions to get citation properties
-        def get_case_name(cit):
-            if isinstance(cit, dict):
-                return cit.get('extracted_case_name', cit.get('case_name', ''))
-            return getattr(cit, 'extracted_case_name', getattr(cit, 'case_name', ''))
-            
-        def get_date(cit):
-            if isinstance(cit, dict):
-                return cit.get('extracted_date', cit.get('year', ''))
-            return getattr(cit, 'extracted_date', getattr(cit, 'year', ''))
-        
-        name1 = get_case_name(citation1)
-        name2 = get_case_name(citation2)
-        
-        # CRITICAL: MUST have case names to safely group citations
-        # If we can't compare names, DO NOT group them (too risky!)
-        if not name1 or not name2:
-            logger.warning(f"[SAME-CASE-CHECK] Missing case names - {name1} vs {name2} - REJECTING grouping")
-            return False
-        
-        # Normalize case names for comparison
-        name1_norm = self._normalize_case_name_for_clustering(name1)
-        name2_norm = self._normalize_case_name_for_clustering(name2)
-        
-        # Check case name similarity
-        if name1_norm != name2_norm:
-            # CRITICAL: For clustering, we need EXTREMELY strict matching
-            # Two citations from different cases should NEVER be grouped together
-            similarity = self._calculate_case_name_similarity(name1_norm, name2_norm)
-            logger.error(f"[SAME-CASE-CHECK] Comparing: '{name1_norm}' vs '{name2_norm}' (similarity={similarity:.2f})")
-            if similarity < 0.98:  # USER FIX: Increased from 0.95 to 0.98 for ultra-strict matching (>98% overlap)
-                logger.warning(f"[SAME-CASE-CHECK] REJECTING grouping - similarity {similarity:.2f} < 0.98")
-                return False
-            else:
-                logger.error(f"[SAME-CASE-CHECK] ACCEPTING grouping - similarity {similarity:.2f} >= 0.98")
-        
-        # Check date compatibility
-        date1 = get_date(citation1)
-        date2 = get_date(citation2)
-        
-        logger.error(f"[SAME-CASE-CHECK] Dates: '{date1}' vs '{date2}'")
-        
-        if date1 and date2:
-            try:
-                year1 = int(str(date1)[:4])  # Extract year
-                year2 = int(str(date2)[:4])
-                year_diff = abs(year1 - year2)
-                logger.error(f"[SAME-CASE-CHECK] Years: {year1} vs {year2} (diff={year_diff})")
-                if year_diff > 1:  # Allow 1 year difference
-                    logger.warning(f"[SAME-CASE-CHECK] REJECTING grouping - year difference {year_diff} > 1")
-                    return False
-            except (ValueError, TypeError) as e:
-                logger.error(f"[SAME-CASE-CHECK] Date parsing failed: {e}")
-                return False
-        
-        logger.error(f"[SAME-CASE-CHECK] [SUCCESS] FINAL APPROVAL - citations are from same case")
-        return True
     
     def _normalize_case_name_for_clustering(self, name: str) -> str:
         """Normalize case name for clustering comparison."""
@@ -687,6 +716,19 @@ class UnifiedClusteringMaster:
         for suffix in suffixes_to_remove:
             if normalized.endswith(suffix):
                 normalized = normalized[:-len(suffix)].strip()
+        
+        # Remove caption-role/docket tokens that pollute party names
+        # Examples: "et al", "petitioners", "respondent", "appellant", "appellee", "plaintiff", "defendant", "no", "aka"
+        try:
+            import re
+            tokens = [
+                'et al', 'petitioners', 'respondent', 'appellant', 'appellee',
+                'plaintiff', 'defendant', 'no', 'aka'
+            ]
+            for t in tokens:
+                normalized = re.sub(r"\b" + re.escape(t) + r"\b", " ", normalized)
+        except Exception:
+            pass
         
         # Remove extra whitespace
         normalized = ' '.join(normalized.split())
@@ -756,35 +798,25 @@ class UnifiedClusteringMaster:
         # 2. Same year
         # 3. Different reporters (U.S. vs S.Ct vs L.Ed, etc.)
         #
-        # This should be the PRIMARY method, not a fallback!
+        # CRITICAL FIX: Use ONLY extracted names/years for clustering, NEVER canonical!
+        # Canonical data comes from APIs and may not match what's in the user's document.
+        # Clustering must be based on what the user actually wrote, not what APIs return.
         case_names = []
         case_years = []
         for citation in citations:
-            # FIXED: Prioritize canonical names for verified citations to enable proper clustering
-            verified = getattr(citation, 'verified', False)
-            canonical_name = getattr(citation, 'canonical_name', None)
+            # CRITICAL: Use ONLY extracted_case_name for clustering
+            # Never use canonical_name - it comes from APIs and may not match the document
+            case_name = (
+                getattr(citation, 'extracted_case_name', None)  # PRIMARY: Use extracted from document
+                or getattr(citation, 'cluster_case_name', None)  # Fallback to cluster-level extracted
+            )
             
-            if verified and canonical_name and canonical_name != 'N/A':
-                case_name = canonical_name  # Use canonical name for verified citations
-            else:
-                case_name = (
-                    getattr(citation, 'extracted_case_name', None)  # Fallback to extracted
-                    or getattr(citation, 'canonical_name', None)    # Or canonical if unverified
-                    or getattr(citation, 'cluster_case_name', None)
-                )
-            
-            # Similar logic for dates - prefer canonical if verified
-            verified = getattr(citation, 'verified', False)
-            canonical_date = getattr(citation, 'canonical_date', None)
-            
-            if verified and canonical_date and canonical_date != 'N/A':
-                case_year = canonical_date  # Use canonical date for verified citations
-            else:
-                case_year = (
-                    getattr(citation, 'extracted_date', None)
-                    or getattr(citation, 'canonical_date', None)
-                    or getattr(citation, 'cluster_year', None)
-                )
+            # CRITICAL: Use ONLY extracted_date for clustering
+            # Never use canonical_date - it comes from APIs and may not match the document
+            case_year = (
+                getattr(citation, 'extracted_date', None)  # PRIMARY: Use extracted from document
+                or getattr(citation, 'cluster_year', None)  # Fallback to cluster-level extracted
+            )
             if case_name and case_name != 'N/A':
                 case_names.append(case_name)
             else:
@@ -1192,44 +1224,32 @@ class UnifiedClusteringMaster:
         
     def _get_case_name(self, citation: Any) -> Optional[str]:
         """
-        FIXED: Get case name for clustering - PRIORITIZE VERIFIED CANONICAL NAMES!
+        CRITICAL FIX: Get case name for clustering - USE ONLY EXTRACTED, NEVER CANONICAL!
         
-        CRITICAL FIX: For clustering, we need to use canonical names when available and verified,
-        because extracted names can vary (e.g., "Washington State Case" vs "Pacific Reporter Case")
-        even for the same legal case. This prevents parallel citations from being clustered.
+        Clustering MUST use extracted names from the user's document, NOT canonical names from APIs.
+        Using canonical names causes citations that verify to different cases to cluster together.
+        The extracted name is what the user actually wrote in their document.
         
         Priority order:
-        1. canonical_name (if verified and available)
-        2. extracted_case_name (fallback for unverified citations)
-        3. case_name (final fallback)
+        1. extracted_case_name (from user's document - PRIMARY)
+        2. cluster_case_name (cluster-level extracted name - fallback)
+        3. Never use canonical_name for clustering!
         """
         if isinstance(citation, dict):
-            verified = citation.get('verified', False)
-            canonical_name = citation.get('canonical_name')
-            
-            # PRIORITY 1: Use canonical name for verified citations
-            if verified and canonical_name and canonical_name != 'N/A':
-                return canonical_name
-                
-            # PRIORITY 2: Fall back to extracted name for unverified citations
-            return (
-                citation.get('extracted_case_name')
-                or citation.get('case_name')
-            )
+            # CRITICAL: Use ONLY extracted_case_name, never canonical_name
+            extracted = citation.get('extracted_case_name')
+            if extracted and extracted != 'N/A':
+                return extracted
+            # Fallback to cluster_case_name (which should also be extracted)
+            return citation.get('cluster_case_name')
         
         # Object citation format
-        verified = getattr(citation, 'verified', False)
-        canonical_name = getattr(citation, 'canonical_name', None)
-        
-        # PRIORITY 1: Use canonical name for verified citations
-        if verified and canonical_name and canonical_name != 'N/A':
-            return canonical_name
-            
-        # PRIORITY 2: Fall back to extracted name for unverified citations
-        return (
-            getattr(citation, 'extracted_case_name', None)
-            or getattr(citation, 'case_name', None)
-        )
+        # CRITICAL: Use ONLY extracted_case_name, never canonical_name
+        extracted = getattr(citation, 'extracted_case_name', None)
+        if extracted and extracted != 'N/A':
+            return extracted
+        # Fallback to cluster_case_name (which should also be extracted)
+        return getattr(citation, 'cluster_case_name', None)
 
     def _extract_reporter_type(self, citation_text: str) -> str:
         """Extract a simplified reporter type token from citation text with enhanced Washington state support."""
@@ -2013,14 +2033,28 @@ class UnifiedClusteringMaster:
             # Same citation can appear multiple times in document, leading to duplicates in cluster
             deduplicated_citations = self._deduplicate_cluster_citations(citations)
             
+            # CRITICAL FIX: Ensure cluster_members is a list of citation strings, not objects or JSON strings
+            cluster_members_list = []
+            for cit in deduplicated_citations:
+                if isinstance(cit, dict):
+                    cit_text = cit.get('citation', str(cit))
+                elif hasattr(cit, 'citation'):
+                    cit_text = cit.citation
+                else:
+                    cit_text = str(cit)
+                cluster_members_list.append(cit_text)
+            
             cluster = {
                 'cluster_id': f"cluster_{i+1}",
                 'cluster_key': cluster_key,
                 'citations': deduplicated_citations,
                 'size': len(deduplicated_citations),
                 # FIX #17: Store ONLY extracted data, NEVER canonical
-                'case_name': extracted_name,  # Pure extracted from document
-                'case_year': extracted_date,  # Pure extracted from document
+                'cluster_case_name': extracted_name,  # Pure extracted from document (renamed from case_name for consistency)
+                'cluster_year': extracted_date,  # Pure extracted from document (renamed from case_year for consistency)
+                'canonical_name': None,  # Never use canonical for clustering
+                'canonical_date': None,  # Never use canonical for clustering
+                'cluster_members': cluster_members_list,  # List of citation strings, not objects
                 'confidence': self._calculate_cluster_confidence(citations),
                 'metadata': {
                     'cluster_type': 'proximity_based',  # Clustering by proximity in document (NOT by metadata!)
@@ -2028,7 +2062,9 @@ class UnifiedClusteringMaster:
                     'cluster_key': cluster_key,
                     'cluster_members_preserved': True,  # Indicates we preserved parallel groups from Step 1
                     'data_source': 'extracted_only'  # Flag indicating pure extracted data
-                }
+                },
+                'verification_status': 'not_verified',  # Default - will be updated if any citation is verified
+                'verification_source': None  # Default - will be updated if any citation is verified
             }
             final_clusters.append(cluster)
         
@@ -2959,6 +2995,22 @@ class UnifiedClusteringMaster:
         for cluster in clusters:
             cluster_id = cluster.get('cluster_id', 'unknown')
             citations = cluster.get('citations', [])
+            # FINAL SAFEGUARD: Deduplicate citations within a cluster by citation text
+            if citations:
+                seen_texts = set()
+                unique_citations = []
+                for c in citations:
+                    if hasattr(c, 'citation'):
+                        txt = getattr(c, 'citation', '')
+                    elif isinstance(c, dict):
+                        txt = c.get('citation', '') or c.get('text', '')
+                    else:
+                        txt = str(c)
+                    key = (txt or '').strip()
+                    if key and key not in seen_texts:
+                        seen_texts.add(key)
+                        unique_citations.append(c)
+                citations = unique_citations
             
             best_name = cluster.get('case_name', 'N/A')
             if best_name in (None, '', 'N/A', 'Unknown', 'Unknown Case'):
@@ -2991,7 +3043,7 @@ class UnifiedClusteringMaster:
                     is_verified = getattr(cit, 'verified', False)
                     if not is_verified:
                         # CRITICAL FIX: Only propagate canonical data if citations are from the same case
-                        if self._are_citations_same_case(cit, best_verified):
+                        if self._are_citations_parallel_pair(cit, best_verified, original_text):
                             # Mark as true_by_parallel but keep verified=False
                             # Each citation is independently verified
                             if hasattr(cit, '__dict__'):
@@ -3121,6 +3173,17 @@ class UnifiedClusteringMaster:
         
         # Remove punctuation
         normalized = re.sub(r'[^\w\s]', ' ', normalized)
+        
+        # Remove caption-role/docket tokens that are not part of party names
+        try:
+            tokens = [
+                'et', 'al', 'et al', 'petitioners', 'respondent', 'appellant', 'appellee',
+                'plaintiff', 'defendant', 'no', 'aka'
+            ]
+            for t in tokens:
+                normalized = re.sub(r"\b" + re.escape(t) + r"\b", " ", normalized)
+        except Exception:
+            pass
         
         # Normalize whitespace
         normalized = re.sub(r'\s+', ' ', normalized).strip()
