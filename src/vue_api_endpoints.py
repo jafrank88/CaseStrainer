@@ -142,11 +142,88 @@ def analyze_text():
         # Check if we should use simplified processor
         use_simplified, rollout_percentage = should_use_simplified_processor()
         
+        # CRITICAL FIX: Handle file uploads (FormData) vs JSON requests
+        if request.files:
+            # File upload via FormData
+            file = request.files.get('file')
+            input_type = request.form.get('type', 'file')
+            enable_verification = request.form.get('enable_verification', 'true').lower() == 'true'
+            
+            if not file:
+                return jsonify({
+                    'error': 'No file provided',
+                    'message': 'Please provide a file to analyze'
+                }), 400
+            
+            logger.info(f"Processing file upload: {file.filename}")
+            
+            # Use UnifiedInputProcessor to handle file extraction and processing
+            from src.unified_input_processor import UnifiedInputProcessor
+            processor = UnifiedInputProcessor()
+            
+            request_id = f"api_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{hash(file.filename) % 10000:04d}"
+            
+            if use_simplified:
+                # For simplified processor, extract text first then process
+                result = processor._extract_from_file(file, request_id)
+                if not result.get('success'):
+                    return jsonify(result), 400
+                
+                text = result.get('text', '')
+                if not text or len(text.strip()) < 10:
+                    return jsonify({
+                        'error': 'File extraction failed',
+                        'message': 'Could not extract readable text from file'
+                    }), 400
+                
+                logger.info(f"[{request_id}] Using simplified processor for file upload")
+                result = process_with_simplified_processor(text, request_id, enable_verification)
+                
+                if result.get('status') == 'processing':
+                    return jsonify(result), 202
+                else:
+                    return jsonify(result), 200
+            else:
+                # Use legacy processor for file uploads
+                logger.info(f"[{request_id}] Using legacy processor for file upload")
+                result = processor.process_any_input(
+                    file, 'file', request_id, 'api_endpoint'
+                )
+                return jsonify(result), 200
+        
+        # Handle JSON requests (text, URL, etc.)
         data = request.get_json() or {}
+        input_type = data.get('type', 'text')
         text = data.get('text', '')
+        url = data.get('url', '')
         enable_verification = data.get('enable_verification', True)
         
-        if not text:
+        # Handle URL requests
+        if input_type == 'url' and url:
+            logger.info(f"Processing URL request: {url}")
+            try:
+                # Extract text from URL using CitationService
+                extracted_text = citation_service.extract_text_from_input({
+                    'type': 'url',
+                    'url': url
+                })
+                
+                if not extracted_text or len(extracted_text.strip()) < 10:
+                    logger.warning(f"URL returned insufficient content: {len(extracted_text) if extracted_text else 0} chars")
+                    return jsonify({
+                        'error': 'URL returned empty or insufficient content for analysis',
+                        'message': 'Please provide a URL with readable content'
+                    }), 400
+                
+                text = extracted_text
+                logger.info(f"Successfully extracted {len(text)} characters from URL")
+            except Exception as e:
+                logger.error(f"Failed to extract text from URL: {e}", exc_info=True)
+                return jsonify({
+                    'error': 'Failed to fetch URL content',
+                    'message': str(e)
+                }), 400
+        elif not text:
             return jsonify({
                 'error': 'No text provided',
                 'message': 'Please provide text to analyze'
@@ -491,14 +568,14 @@ def _get_redis_task_results(task_id):
                                 try:
                                     # Try to unpickle the result
                                     result = pickle.loads(result_data)
-                                    logger.info(f"✅ Successfully retrieved task result from Redis stream: {result_stream_key}")
+                                    logger.info(f"[SUCCESS] Successfully retrieved task result from Redis stream: {result_stream_key}")
                                     return result
                                 except Exception as pickle_error:
                                     logger.debug(f"Failed to unpickle stream result: {pickle_error}")
                                     # Try JSON as fallback
                                     try:
                                         result = json.loads(result_data.decode('utf-8'))
-                                        logger.info(f"✅ Successfully retrieved task result from Redis stream (JSON): {result_stream_key}")
+                                        logger.info(f"[SUCCESS] Successfully retrieved task result from Redis stream (JSON): {result_stream_key}")
                                         return result
                                     except Exception as json_error:
                                         logger.debug(f"Failed to parse stream result as JSON: {json_error}")
@@ -512,7 +589,7 @@ def _get_redis_task_results(task_id):
             result_data = redis_conn.get(result_key)
             if result_data:
                 result = pickle.loads(result_data)
-                logger.info(f"✅ FIX #21: Found pickled task result in Redis: {result_key}")
+                logger.info(f"[FIX #21] Found pickled task result in Redis: {result_key}")
                 return result
         except Exception as pickle_error:
             logger.debug(f"No pickled result found: {pickle_error}")
@@ -643,7 +720,7 @@ def get_processing_progress():
                 
                 if progress_data_str:
                     progress_data = json.loads(progress_data_str)
-                    logger.info(f"✅ Found real progress data for {request_id}: {progress_data}")
+                    logger.info(f"[SUCCESS] Found real progress data for {request_id}: {progress_data}")
                     
                     return jsonify({
                         'status': progress_data.get('status', 'processing'),
@@ -662,7 +739,7 @@ def get_processing_progress():
                         'real_progress': True  # Flag to indicate this is real progress data
                     })
                 else:
-                    logger.info(f"⚠️ No progress data found in Redis for {request_id}")
+                    logger.warning(f"No progress data found in Redis for {request_id}")
                     
             except Exception as e:
                 logger.warning(f"Failed to get Redis progress data for {request_id}: {e}")
