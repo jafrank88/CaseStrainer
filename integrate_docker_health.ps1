@@ -1,4 +1,30 @@
 # Docker Health Integration Script
+# ⚠️ DEPRECATED: This script is outdated and references archived files.
+# The DockerHealthCheck task it creates references non-existent scripts.
+# Use cslaunch.ps1's built-in monitoring instead: .\cslaunch.ps1 -Monitor
+#
+# This script should NOT be used and will be removed in a future version.
+
+Write-Host ""
+Write-Host "====================================================================" -ForegroundColor Red
+Write-Host "WARNING: This script is DEPRECATED" -ForegroundColor Red
+Write-Host "====================================================================" -ForegroundColor Red
+Write-Host ""
+Write-Host "This script creates a broken scheduled task that references" -ForegroundColor Yellow
+Write-Host "non-existent files (docker_health_check.ps1, test_docker_health.ps1)" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Use the built-in monitoring instead:" -ForegroundColor Green
+Write-Host "  .\cslaunch.ps1 -Monitor" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "If you have the old DockerHealthCheck task, remove it:" -ForegroundColor Green
+Write-Host "  schtasks /Delete /TN 'DockerHealthCheck' /F" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "====================================================================" -ForegroundColor Red
+Write-Host ""
+
+exit 1
+
+# Docker Health Integration Script
 # This script integrates Docker health monitoring into cslaunch
 
 param(
