@@ -121,7 +121,7 @@ class SCOTUSPDFCitationExtractor:
     def download_pdf(self, url: str) -> Optional[bytes]:
         """Download a PDF from a URL."""
         try:
-            response = requests.get(url, timeout=DEFAULT_REQUEST_TIMEOUT)
+            response = requests.get(url, timeout=DEFAULT_REQUEST_TIMEOUT, allow_redirects=True)
             response.raise_for_status()
             return response.content
         except Exception as e:
