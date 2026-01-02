@@ -69,7 +69,7 @@ class UnifiedClusteringMaster:
         self.debug_mode = self.config.get('debug_mode', False)
         self.min_cluster_size = self.config.get('min_cluster_size', 1)
         self.case_name_similarity_threshold = self.config.get('case_name_similarity_threshold', 0.95)  # FIX #58E: Raised from 0.6 to prevent different cases from clustering
-        self.proximity_threshold = self.config.get('proximity_threshold', 50)  # characters - USER FIX: Reduced from 200 to 50 for stricter proximity
+        self.proximity_threshold = self.config.get('proximity_threshold', 150)  # CRITICAL FIX: Increased from 50 to 150 for dense legal documents (Nov 2025)
         self.enable_verification = self.config.get('enable_verification', True)
         
         self._setup_patterns()
@@ -191,6 +191,60 @@ class UnifiedClusteringMaster:
 
         return score
 
+    def _select_best_extracted_name(self, group: List[Any]) -> Optional[str]:
+        """
+        Select the best EXTRACTED case name for cluster-level naming.
+        
+        CRITICAL: This function prioritizes extracted_case_name (from the document)
+        over canonical_name (from APIs) because:
+        1. Extracted names represent what's actually written in the document
+        2. Canonical names from APIs may be wrong or N/A
+        3. Cluster naming should reflect document content, not API data
+        
+        This is specifically for cluster.extracted_case_name field.
+        For individual citation verification, use canonical_name.
+        """
+        candidates: List[Tuple[float, str]] = []
+
+        for citation in group:
+            if isinstance(citation, dict):
+                # PRIORITY ORDER: extracted > cluster > canonical
+                # Canonical is last because it's from APIs and may not match document
+                possible_names = [
+                    citation.get('extracted_case_name'),   # Priority 1: From document
+                    citation.get('cluster_case_name'),     # Priority 2: Cluster aggregate
+                    citation.get('canonical_name'),        # Priority 3: From API (may be wrong)
+                ]
+            else:
+                possible_names = [
+                    getattr(citation, 'extracted_case_name', None),
+                    getattr(citation, 'cluster_case_name', None),
+                    getattr(citation, 'canonical_name', None),
+                ]
+
+            for name in possible_names:
+                if not name or not isinstance(name, str):
+                    continue
+                # Skip truncated names
+                if self._is_truncated_name(name):
+                    logger.info(f"[CLUSTERING-SKIP-TRUNCATED] Skipping truncated name: '{name}'")
+                    continue
+                # Clean the case name
+                cleaned = self._clean_case_name_from_extraction(name.strip())
+                if cleaned and cleaned not in ('N/A', 'Unknown', 'Unknown Case'):
+                    candidates.append((self._score_case_name(cleaned), cleaned))
+                    break  # Use first valid name from priority list
+
+        if not candidates:
+            logger.warning(f"[CLUSTER-NAME] No valid extracted names found in group of {len(group)} citations")
+            return None
+
+        # Sort by score and return best
+        candidates.sort(key=lambda item: item[0], reverse=True)
+        best_name = candidates[0][1]
+        logger.info(f"[CLUSTER-NAME] Selected best extracted name: '{best_name}' from {len(candidates)} candidates")
+        return best_name
+
     def _select_best_case_year(self, group: List[Any]) -> Optional[str]:
         """Return the most consistent year across the group."""
         year_sources = ['canonical_date', 'extracted_date', 'cluster_year']
@@ -270,35 +324,50 @@ class UnifiedClusteringMaster:
         # CRITICAL: Use ERROR level to ensure this appears in logs
         logger.error(f"[CLUSTER-ENTRY] Starting clustering: {len(citations)} citations, verification={enable_verification}")
         logger.info(f"[MASTER_CLUSTER] Starting clustering for {len(citations)} citations (verification: {enable_verification})")
-        print(f"CLUSTER ENTRY POINT HIT - {len(citations)} citations", flush=True)
+        # print(f"CLUSTER ENTRY POINT HIT - {len(citations)} citations", flush=True)  # DISABLED
         
         # CRITICAL FIX: Apply verification paradox fix before clustering
-        # If citations have canonical data but verified=False, set verified=True
-        verification_paradox_fixes = 0
+        # CRITICAL FIX: If verified=False, clear canonical data (opposite of old "paradox fix")
+        # Unverified citations CANNOT have canonical data unless true_by_parallel=True
+        canonical_data_cleared = 0
         for citation in citations:
             if isinstance(citation, dict):
+                is_verified = citation.get('verified', False)
+                has_true_by_parallel = citation.get('true_by_parallel', False)
                 has_canonical_data = (
-                    citation.get('canonical_name') and 
-                    citation.get('canonical_date') and 
+                    citation.get('canonical_name') or 
+                    citation.get('canonical_date') or 
                     citation.get('canonical_url')
                 )
-                if has_canonical_data and not citation.get('verified', False):
-                    citation['verified'] = True
-                    verification_paradox_fixes += 1
-                    logger.info(f"[CLUSTER-PARADOX-FIX] {citation.get('citation')}: Setting verified=True based on canonical data presence")
+                # CRITICAL: Clear canonical data if unverified AND not true_by_parallel AND not year_mismatch_rejected
+                # year_mismatch_rejected citations PRESERVE canonical data for cluster splitting by year
+                is_year_mismatch = citation.get('source') == 'year_mismatch_rejected'
+                if not is_verified and not has_true_by_parallel and not is_year_mismatch and has_canonical_data:
+                    citation['canonical_name'] = None
+                    citation['canonical_date'] = None
+                    citation['canonical_url'] = None
+                    canonical_data_cleared += 1
+                    logger.warning(f"[CLUSTER-CLEANUP] {citation.get('citation')}: Cleared canonical data (verified=False, true_by_parallel=False)")
             elif hasattr(citation, '__dict__'):
+                is_verified = getattr(citation, 'verified', False)
+                has_true_by_parallel = getattr(citation, 'true_by_parallel', False)
                 has_canonical_data = (
-                    getattr(citation, 'canonical_name', None) and 
-                    getattr(citation, 'canonical_date', None) and 
+                    getattr(citation, 'canonical_name', None) or 
+                    getattr(citation, 'canonical_date', None) or 
                     getattr(citation, 'canonical_url', None)
                 )
-                if has_canonical_data and not getattr(citation, 'verified', False):
-                    citation.verified = True
-                    verification_paradox_fixes += 1
-                    logger.info(f"[CLUSTER-PARADOX-FIX] {citation.citation}: Setting verified=True based on canonical data presence")
+                # CRITICAL: Clear canonical data if unverified AND not true_by_parallel AND not year_mismatch_rejected
+                # year_mismatch_rejected citations PRESERVE canonical data for cluster splitting by year
+                is_year_mismatch = getattr(citation, 'source', None) == 'year_mismatch_rejected'
+                if not is_verified and not has_true_by_parallel and not is_year_mismatch and has_canonical_data:
+                    citation.canonical_name = None
+                    citation.canonical_date = None
+                    citation.canonical_url = None
+                    canonical_data_cleared += 1
+                    logger.warning(f"[CLUSTER-CLEANUP] {citation.citation}: Cleared canonical data (verified=False, true_by_parallel=False)")
         
-        if verification_paradox_fixes > 0:
-            logger.info(f"[CLUSTER-PARADOX-FIX] Applied verification paradox fix to {verification_paradox_fixes} citations")
+        if canonical_data_cleared > 0:
+            logger.info(f"[CLUSTER-CLEANUP] Cleared canonical data from {canonical_data_cleared} unverified citations")
         
         if not citations:
             logger.warning("MASTER_CLUSTER: No citations provided")
@@ -448,30 +517,42 @@ class UnifiedClusteringMaster:
                     for citation in group:
                         processed_ids.add(id(citation))
 
-        # USER FIX 2024-11-07: Group all citations between case name and year into a single cluster
-        # This implements the rule: all citations that follow the case name and precede the year are clustered
-        remaining = [citation for citation in citations if id(citation) not in processed_ids]
-        if remaining:
-            nyw_groups = self._group_by_name_year_window(remaining, text)
-            for group in nyw_groups:
-                if len(group) >= 2:
-                    logger.info(f"[NAME-YEAR-WINDOW] Found {len(group)} citations in same window (name..year)")
-                    parallel_groups.append(group)
-                    for citation in group:
-                        processed_ids.add(id(citation))
+        # DISABLED 2025-11-09: Name-year-window grouping TOO AGGRESSIVE
+        # Problem: Groups ALL citations between case name and year, even if they're different cases
+        # Example: "Kammerer... 618 P.2d 1330... 879 F. Supp. 2d 1214... (1980)"
+        #   - Both get grouped as Kammerer
+        #   - But F. Supp. 2d didn't exist until 1998, can't be from 1980!
+        # Solution: DISABLED this grouping method - too many false positives
+        
+        # remaining = [citation for citation in citations if id(citation) not in processed_ids]
+        # if remaining:
+        #     nyw_groups = self._group_by_name_year_window(remaining, text)
+        #     for group in nyw_groups:
+        #         if len(group) >= 2:
+        #             logger.info(f"[NAME-YEAR-WINDOW] Found {len(group)} citations in same window (name..year)")
+        #             parallel_groups.append(group)
+        #             for citation in group:
+        #                 processed_ids.add(id(citation))
+        
+        logger.info("[NAME-YEAR-WINDOW] DISABLED - was causing false groupings of unrelated citations")
 
-        # USER FIX 2024-10-21: Add canonical-based clustering as fallback
-        # If proximity grouping failed (e.g., missing/incorrect positions in async file processing),
-        # group citations that have the same verified canonical name and date
-        remaining = [citation for citation in citations if id(citation) not in processed_ids]
-        if remaining:
-            canonical_groups = self._group_by_canonical_data(remaining)
-            for group in canonical_groups:
-                if len(group) >= 2:
-                    logger.info(f"CANONICAL-GROUPING: Found {len(group)} parallel citations by canonical data")
-                    parallel_groups.append(group)
-                    for citation in group:
-                        processed_ids.add(id(citation))
+        # DISABLED 2025-11-09 (Round 3): Canonical-based clustering CAUSES MORE HARM THAN GOOD
+        # Problem: Groups citations by canonical data from verification
+        # But verification can be WRONG or assign wrong canonical names
+        # This causes "Erickson" to contaminate "Env't Def Fund" citations
+        # Solution: DISABLE canonical-based grouping entirely
+        
+        # remaining = [citation for citation in citations if id(citation) not in processed_ids]
+        # if remaining:
+        #     canonical_groups = self._group_by_canonical_data(remaining)
+        #     for group in canonical_groups:
+        #         if len(group) >= 2:
+        #             logger.info(f"CANONICAL-GROUPING: Found {len(group)} parallel citations by canonical data")
+        #             parallel_groups.append(group)
+        #             for citation in group:
+        #                 processed_ids.add(id(citation))
+        
+        logger.info("[CANONICAL-GROUPING] DISABLED - was causing wrong canonical names to propagate (e.g., Erickson → Env't Def Fund)")
 
         for citation in citations:
             if id(citation) not in processed_ids:
@@ -513,6 +594,7 @@ class UnifiedClusteringMaster:
             # Semicolons separate different cases, even if close together
             # Example: "...562 U.S. 42 (2011); Hamaatsa, Inc. v. Pueblo of San Felipe..."
             has_semicolon_boundary = False
+            has_case_history_signal = False
             if text and previous_end < len(text) and current_start < len(text):
                 text_between = text[previous_end:current_start]
                 logger.error(f"[PROXIMITY-DEBUG] Text between: '{text_between}'")
@@ -520,20 +602,107 @@ class UnifiedClusteringMaster:
                 if ';' in text_between:
                     has_semicolon_boundary = True
                     logger.error(f"[PROXIMITY-DEBUG] SEMICOLON BOUNDARY - citations separated")
+                
+                # CRITICAL FIX 2024-12-21: Check for case history signals
+                # aff'd, rev'd, affirmed, reversed, etc. indicate different court proceedings
+                # Example: "63 Conn. App. 695, aff'd, 47 Conn. Supp. 113"
+                case_history_patterns = [
+                    r"\baff'?d\b", r"\baffirmed\b", r"\brev'?d\b", r"\breversed\b",
+                    r"\bvacated\b", r"\bremanded\b", r"\bmodified\b", r"\boverruled\b",
+                    r"\bcert\.\s*denied\b", r"\bcert\.\s*granted\b",
+                    r"\bappeal\s+from\b", r"\bon\s+appeal\b"
+                ]
+                text_between_lower = text_between.lower()
+                for pattern in case_history_patterns:
+                    if re.search(pattern, text_between_lower):
+                        has_case_history_signal = True
+                        logger.error(f"[PROXIMITY-DEBUG] CASE HISTORY SIGNAL - citations from different proceedings")
             
             # CRITICAL FIX: Check if citations are from the same case before grouping by proximity
             are_same_case = self._are_citations_parallel_pair(previous_citation, current_citation, text)
             
+            # CRITICAL FIX 2025-11-09 (Round 3): Even if proximity is close, check extracted names
+            # Prevents grouping citations that happen to be close but are different cases
+            # BUG FIX: Don't skip validation if one name is N/A - be MORE strict!
+            names_compatible = True
             if distance <= self.proximity_threshold and not has_semicolon_boundary:
+                # Get extracted names
+                if isinstance(previous_citation, dict):
+                    prev_name = previous_citation.get('extracted_case_name')
+                else:
+                    prev_name = getattr(previous_citation, 'extracted_case_name', None)
+                    
+                if isinstance(current_citation, dict):
+                    curr_name = current_citation.get('extracted_case_name')
+                else:
+                    curr_name = getattr(current_citation, 'extracted_case_name', None)
+                
+                # STRICTER VALIDATION: Check if we CAN validate
+                prev_valid = prev_name and prev_name != 'N/A'
+                curr_valid = curr_name and curr_name != 'N/A'
+                
+                if prev_valid and curr_valid:
+                    # Both have names - check similarity
+                    from difflib import SequenceMatcher
+                    similarity = SequenceMatcher(None, prev_name.lower(), curr_name.lower()).ratio()
+                    
+                    if similarity < 0.6:  # Less than 60% similar
+                        names_compatible = False
+                        logger.error(f"[PROXIMITY-DEBUG] ❌ REJECTING proximity group - names too different:")
+                        logger.error(f"  Prev: '{prev_name}'")
+                        logger.error(f"  Curr: '{curr_name}'")
+                        logger.error(f"  Similarity: {similarity:.2%} < 60%")
+                elif prev_valid and not curr_valid:
+                    # Previous has name, current doesn't
+                    # USER FIX: Allow grouping if VERY close (< 100 chars) - likely same citation string
+                    if distance < 100:
+                        names_compatible = True
+                        logger.error(f"[PROXIMITY-DEBUG] ✅ ALLOWING proximity group despite N/A (very close: {distance} chars):")
+                        logger.error(f"  Prev: '{prev_name}' (valid)")
+                        logger.error(f"  Curr: N/A (will inherit name from prev)")
+                    else:
+                        names_compatible = False
+                        logger.error(f"[PROXIMITY-DEBUG] ❌ REJECTING proximity group - current has no name:")
+                        logger.error(f"  Prev: '{prev_name}' (valid)")
+                        logger.error(f"  Curr: N/A (invalid)")
+                        logger.error(f"  REASON: Don't group N/A with valid names when far apart")
+                elif not prev_valid and curr_valid:
+                    # Current has name, previous doesn't
+                    # USER FIX: Allow grouping if VERY close (< 100 chars) - likely same citation string
+                    if distance < 100:
+                        names_compatible = True
+                        logger.error(f"[PROXIMITY-DEBUG] ✅ ALLOWING proximity group despite N/A (very close: {distance} chars):")
+                        logger.error(f"  Prev: N/A (will inherit name from curr)")
+                        logger.error(f"  Curr: '{curr_name}' (valid)")
+                    else:
+                        names_compatible = False
+                        logger.error(f"[PROXIMITY-DEBUG] ❌ REJECTING proximity group - previous has no name:")
+                        logger.error(f"  Prev: N/A (invalid)")
+                        logger.error(f"  Curr: '{curr_name}' (valid)")
+                        logger.error(f"  REASON: Don't group N/A with valid names when far apart")
+                # else: both N/A - allow grouping (they're both unknown)
+            
+            if distance <= self.proximity_threshold and not has_semicolon_boundary and not has_case_history_signal and names_compatible:
                 if are_same_case:
-                    logger.error(f"[PROXIMITY-DEBUG] [SUCCESS] GROUPING citations (distance={distance} <= {self.proximity_threshold}) - same case")
+                    logger.error(f"[PROXIMITY-DEBUG] ✅ GROUPING citations (distance={distance} <= {self.proximity_threshold}) - same case")
                     current_group.append(current_citation)
                 else:
-                    logger.error(f"[PROXIMITY-DEBUG] NOT GROUPING - different cases despite proximity (distance={distance})")
-                    groups.append(current_group)
-                    current_group = [current_citation]
+                    # FIX DEC 2025: Even if are_same_case returns False, check if reporters are compatible parallel pairs
+                    # This fixes cases like Ohio St. + N.E.2d where the parallel detection fails due to name validation
+                    prev_text = getattr(previous_citation, 'citation', '')
+                    curr_text = getattr(current_citation, 'citation', '')
+                    reporters_compatible = self._match_parallel_patterns(prev_text, curr_text) if prev_text and curr_text else False
+                    
+                    if reporters_compatible and distance < 100:  # Very close + compatible reporters = likely parallel
+                        logger.error(f"[PROXIMITY-DEBUG] ✅ GROUPING via reporter fallback (distance={distance}, compatible reporters)")
+                        current_group.append(current_citation)
+                    else:
+                        logger.error(f"[PROXIMITY-DEBUG] NOT GROUPING - different cases despite proximity (distance={distance})")
+                        groups.append(current_group)
+                        current_group = [current_citation]
             else:
-                logger.error(f"[PROXIMITY-DEBUG] NEW GROUP (distance={distance} > {self.proximity_threshold} OR semicolon={has_semicolon_boundary})")
+                reason = "distance too large" if distance > self.proximity_threshold else ("semicolon boundary" if has_semicolon_boundary else ("case history signal" if has_case_history_signal else "names incompatible"))
+                logger.error(f"[PROXIMITY-DEBUG] NEW GROUP ({reason})")
                 groups.append(current_group)
                 current_group = [current_citation]
         
@@ -645,7 +814,11 @@ class UnifiedClusteringMaster:
     
     def _group_by_canonical_data(self, citations: List[Any]) -> List[List[Any]]:
         """Group citations by verified canonical identifiers (URL preferred) as a fallback.
-        Returns a list of groups; groups with a single member are returned as singletons."""
+        Returns a list of groups; groups with a single member are returned as singletons.
+        
+        CRITICAL FIX (Nov 2025): Now validates that extracted names are similar before grouping.
+        This prevents completely different cases from being clustered just because they share a year.
+        """
         if not citations:
             return []
 
@@ -658,11 +831,13 @@ class UnifiedClusteringMaster:
                 c_name = cit.get('canonical_name')
                 c_date = cit.get('canonical_date')
                 c_url  = cit.get('canonical_url')
+                extracted_name = cit.get('extracted_case_name')
             else:
                 verified = getattr(cit, 'verified', False)
                 c_name = getattr(cit, 'canonical_name', None)
                 c_date = getattr(cit, 'canonical_date', None)
                 c_url  = getattr(cit, 'canonical_url', None)
+                extracted_name = getattr(cit, 'extracted_case_name', None)
 
             # Only group verified citations with stable canonical identifiers
             if not verified or (not c_url and (not c_name or not c_date)):
@@ -680,21 +855,67 @@ class UnifiedClusteringMaster:
 
             canonical_groups.setdefault(key, []).append(cit)
 
-        groups: List[List[Any]] = []
+        # CRITICAL FIX: Validate groups before accepting them
+        # Split groups where extracted names are too different
+        validated_groups: List[List[Any]] = []
         multi_count = 0
+        
         for key, group in canonical_groups.items():
             if len(group) >= 2:
+                # Extract all extracted_case_names from this group
+                extracted_names = []
+                for cit in group:
+                    if isinstance(cit, dict):
+                        ext_name = cit.get('extracted_case_name')
+                    else:
+                        ext_name = getattr(cit, 'extracted_case_name', None)
+                    
+                    if ext_name and ext_name != 'N/A':
+                        extracted_names.append(ext_name)
+                
+                # CRITICAL VALIDATION: Check if extracted names are similar
+                # If we have multiple extracted names, they should match
+                if len(extracted_names) >= 2:
+                    unique_names = list(set(extracted_names))
+                    
+                    if len(unique_names) > 1:
+                        # Check similarity between extracted names
+                        from difflib import SequenceMatcher
+                        
+                        all_similar = True
+                        base_name = unique_names[0].lower()
+                        
+                        for other_name in unique_names[1:]:
+                            similarity = SequenceMatcher(None, base_name, other_name.lower()).ratio()
+                            
+                            if similarity < 0.6:  # Less than 60% similar
+                                all_similar = False
+                                logger.warning(f"[CANONICAL-GROUPING] ❌ REJECTING group - extracted names too different:")
+                                logger.warning(f"  Base: '{unique_names[0]}'")
+                                logger.warning(f"  Other: '{other_name}'")
+                                logger.warning(f"  Similarity: {similarity:.2%} < 60%")
+                                logger.warning(f"  Key: {key}")
+                                break
+                        
+                        if not all_similar:
+                            # Don't group these citations - return them as singletons
+                            logger.warning(f"[CANONICAL-GROUPING] Splitting group of {len(group)} citations due to name mismatch")
+                            for cit in group:
+                                validated_groups.append([cit])
+                            continue
+                
+                # Group passed validation
                 multi_count += 1
-                logger.info(f"[CANONICAL-GROUPING] [SUCCESS] Found {len(group)} parallel citations for {key}")
-                groups.append(group)
+                logger.info(f"[CANONICAL-GROUPING] ✅ Validated {len(group)} parallel citations for {key}")
+                validated_groups.append(group)
             else:
                 singletons.extend(group)
 
         for cit in singletons:
-            groups.append([cit])
+            validated_groups.append([cit])
 
-        logger.info(f"[CANONICAL-GROUPING] Result: {len(groups)} total groups ({multi_count} multi-citation, {len(singletons)} singleton)")
-        return groups
+        logger.info(f"[CANONICAL-GROUPING] Result: {len(validated_groups)} total groups ({multi_count} multi-citation, {len(singletons)} singleton)")
+        return validated_groups
     
     def _normalize_case_name_for_clustering(self, name: str) -> str:
         """Normalize case name for clustering comparison."""
@@ -704,13 +925,42 @@ class UnifiedClusteringMaster:
         # Convert to lowercase and remove common variations
         normalized = name.lower().strip()
         
-        # Remove common legal suffixes
+        # FIX: Expand common abbreviations BEFORE other normalization
+        # This allows "Rice v. Dow Chem. Co." to match "Rice v. Dow Chemical Co."
+        abbreviation_map = {
+            r'\bco\.\b': 'company',
+            r'\bcorp\.\b': 'corporation',
+            r'\binc\.\b': 'incorporated',
+            r'\bltd\.\b': 'limited',
+            r'\battys?\.\b': 'attorney',
+            r'\bchem\.\b': 'chemical',
+            r'\bmfg\.\b': 'manufacturing',
+            r'\bgen\.\b': 'general',
+            r'\bnat\'?l\.\b': 'national',
+            r'\bint\'?l\.\b': 'international',
+            r'\bassocs?\.\b': 'association',
+            r'\bassn\.\b': 'association',
+            r'\bdept\.\b': 'department',
+            r'\bsec\.\b': 'secretary',
+            r'\badm\'?r\.\b': 'administrator',
+            r'\bcomm\'?r\.\b': 'commissioner',
+            r'\bgov\.\b': 'governor',
+            r'\bcons\.\b': 'consolidated',
+            r'\bw\.\b': 'west',
+            r'\be\.\b': 'east',
+            r'\bn\.\b': 'north',
+            r'\bs\.\b': 'south',
+        }
+        
+        import re
+        for abbrev_pattern, expansion in abbreviation_map.items():
+            normalized = re.sub(abbrev_pattern, expansion, normalized)
+        
+        # Remove common legal suffixes (after expansion, so we catch both forms)
         suffixes_to_remove = [
-            ', inc.', ', inc', 'inc.', 'inc',
-            ', corp.', ', corp', 'corp.', 'corp',
-            ', llc', 'llc',
-            ', ltd.', ', ltd', 'ltd.', 'ltd',
-            ', co.', ', co', 'co.', 'co'
+            ', incorporated', ', corporation', ', company', ', limited',
+            ', inc.', ', inc', ', corp.', ', corp', ', co.', ', co',
+            ', llc', ', ltd.', ', ltd'
         ]
         
         for suffix in suffixes_to_remove:
@@ -719,16 +969,12 @@ class UnifiedClusteringMaster:
         
         # Remove caption-role/docket tokens that pollute party names
         # Examples: "et al", "petitioners", "respondent", "appellant", "appellee", "plaintiff", "defendant", "no", "aka"
-        try:
-            import re
-            tokens = [
-                'et al', 'petitioners', 'respondent', 'appellant', 'appellee',
-                'plaintiff', 'defendant', 'no', 'aka'
-            ]
-            for t in tokens:
-                normalized = re.sub(r"\b" + re.escape(t) + r"\b", " ", normalized)
-        except Exception:
-            pass
+        tokens = [
+            'et al', 'petitioners', 'respondent', 'appellant', 'appellee',
+            'plaintiff', 'defendant', 'no', 'aka'
+        ]
+        for t in tokens:
+            normalized = re.sub(r"\b" + re.escape(t) + r"\b", " ", normalized)
         
         # Remove extra whitespace
         normalized = ' '.join(normalized.split())
@@ -751,6 +997,38 @@ class UnifiedClusteringMaster:
         union = words1.union(words2)
         
         return len(intersection) / len(union) if union else 0.0
+    
+    # State-specific reporters that cannot be parallel with each other
+    STATE_REPORTERS = {
+        'ohio': ['Ohio St.', 'Ohio App.', 'Ohio Misc.', 'N.E.', 'N.E.2d', 'N.E.3d'],
+        'nebraska': ['Neb.', 'Neb. App.', 'N.W.', 'N.W.2d'],
+        'washington': ['Wash.', 'Wn.', 'Wn.2d', 'Wn. App.', 'Wn. App. 2d', 'P.', 'P.2d', 'P.3d'],
+        'connecticut': ['Conn.', 'Conn. App.', 'Conn. Supp.', 'A.', 'A.2d', 'A.3d'],
+        'california': ['Cal.', 'Cal.2d', 'Cal.3d', 'Cal.4th', 'Cal.5th', 'Cal. App.', 'Cal. Rptr.'],
+        'new_york': ['N.Y.', 'N.Y.2d', 'N.Y.3d', 'A.D.', 'A.D.2d', 'A.D.3d', 'N.Y.S.', 'N.Y.S.2d', 'N.Y.S.3d'],
+        'federal': ['U.S.', 'S. Ct.', 'L. Ed.', 'L. Ed. 2d', 'F.', 'F.2d', 'F.3d', 'F.4th', 'F. Supp.', 'F. Supp. 2d', 'F. Supp. 3d'],
+    }
+    
+    def _get_citation_jurisdiction(self, citation_text: str) -> str:
+        """Determine which state/jurisdiction a citation belongs to."""
+        if not citation_text:
+            return 'unknown'
+        cit_upper = citation_text.upper()
+        for state, reporters in self.STATE_REPORTERS.items():
+            for reporter in reporters:
+                if reporter.upper() in cit_upper:
+                    return state
+        return 'unknown'
+    
+    def _citations_compatible_jurisdiction(self, cit1: str, cit2: str) -> bool:
+        """Check if two citations could be parallel (same jurisdiction)."""
+        state1 = self._get_citation_jurisdiction(cit1)
+        state2 = self._get_citation_jurisdiction(cit2)
+        # Unknown states can be parallel with anything
+        if state1 == 'unknown' or state2 == 'unknown':
+            return True
+        # Same state = compatible
+        return state1 == state2
     
     def _are_parallel_citations(self, citations: List[Any], text: str) -> bool:
         """Check if citations are parallel (refer to the same case)."""
@@ -940,8 +1218,8 @@ class UnifiedClusteringMaster:
                 logger.debug("PARALLEL_CHECK skipped: identical citations")
             return False
         
-        # PHASE 5 DEBUG: Log at the VERY START to see ALL comparisons (even eyecite ones)
-        print(f"[PHASE5-START] Comparing: {citation1_text[:40]} <-> {citation2_text[:40]}", flush=True)
+        # PHASE 5 DEBUG: DISABLED - was causing 5000+ print statements for 102 citations
+        # print(f"[PHASE5-START] Comparing: {citation1_text[:40]} <-> {citation2_text[:40]}", flush=True)
 
         # Check for known parallel citations from metadata first
         def get_parallel_citations(citation_meta):
@@ -952,19 +1230,34 @@ class UnifiedClusteringMaster:
         parallel1 = get_parallel_citations(citation1_meta)
         parallel2 = get_parallel_citations(citation2_meta)
         
-        case_name1 = self._get_case_name(citation1)
-        case_name2 = self._get_case_name(citation2)
-        print(f"[PHASE5] Names: '{case_name1}' vs '{case_name2}'", flush=True)
+        # USER FIX: Always use EXTRACTED names for clustering, never canonical
+        def get_clustering_name_for_validation(cit: Any) -> Optional[str]:
+            """Get name for clustering - always use extracted_case_name"""
+            extracted_name = None
+            
+            if isinstance(cit, dict):
+                extracted_name = cit.get('extracted_case_name')
+            else:
+                extracted_name = getattr(cit, 'extracted_case_name', None)
+            
+            if extracted_name and extracted_name != 'N/A':
+                return extracted_name
+            return None
+        
+        case_name1 = get_clustering_name_for_validation(citation1)
+        case_name2 = get_clustering_name_for_validation(citation2)
+        # print(f"[PHASE5] Names: '{case_name1}' vs '{case_name2}'", flush=True)  # DISABLED - too many calls
         
         # If BOTH have names, they MUST match
         if case_name1 and case_name2 and case_name1 != 'N/A' and case_name2 != 'N/A':
             name_similarity = self._calculate_name_similarity(case_name1, case_name2)
-            logger.error(f"[FIX #58D DEBUG] Eyecite parallel validation: similarity={name_similarity:.2f}, threshold={self.case_name_similarity_threshold:.2f}, name1='{case_name1[:40]}', name2='{case_name2[:40]}'")
+            # DISABLED - too many log calls in O(n²) loop (5000+ for 102 citations)
+            # logger.error(f"[FIX #58D DEBUG] Eyecite parallel validation: similarity={name_similarity:.2f}")
             if name_similarity < self.case_name_similarity_threshold:
-                logger.error(f"[FIX #58D] REJECTED eyecite parallel - name mismatch ({name_similarity:.2f}): '{case_name1[:30]}' vs '{case_name2[:30]}'")
+                # logger.error(f"[FIX #58D] REJECTED eyecite parallel - name mismatch")
                 return False
-            else:
-                logger.error(f"[SUCCESS] [FIX #58D] ACCEPTED eyecite parallel - name match ({name_similarity:.2f} >= {self.case_name_similarity_threshold:.2f})")
+            # else:
+            #     logger.error(f"[SUCCESS] [FIX #58D] ACCEPTED eyecite parallel - name match")
             
             # Get extracted years (never canonical!)
             def get_year(cit: Any) -> Optional[str]:
@@ -974,7 +1267,7 @@ class UnifiedClusteringMaster:
             
             year1 = get_year(citation1)
             year2 = get_year(citation2)
-            print(f"  [PHASE5] Years: '{year1}' vs '{year2}'", flush=True)
+            # print(f"  [PHASE5] Years: '{year1}' vs '{year2}'", flush=True)  # DISABLED - too many calls
             
             # FIX #6: ALLOW clustering if at least one citation has a year
             # P.3d citations don't have years in text, they get them from cluster partners
@@ -982,19 +1275,19 @@ class UnifiedClusteringMaster:
             has_year2 = year2 and year2 != 'N/A'
             
             if not has_year1 and not has_year2:
-                print(f"  [PHASE5-EYECITE] REJECTED - both missing year!", flush=True)
-                logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - both missing year: '{year1}' vs '{year2}'")
+                # print(f"  [PHASE5-EYECITE] REJECTED - both missing year!", flush=True)  # DISABLED
+                # logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - both missing year: '{year1}' vs '{year2}'")
                 return False
             
             # If both have years, they MUST match exactly
             if has_year1 and has_year2 and year1 != year2:
-                print(f"  [PHASE5-EYECITE] REJECTED - year mismatch!", flush=True)
-                logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - year mismatch: {year1} vs {year2}")
+                # print(f"  [PHASE5-EYECITE] REJECTED - year mismatch!", flush=True)  # DISABLED
+                # logger.error(f"[REJECTED] [FIX #6] REJECTED eyecite parallel - year mismatch: {year1} vs {year2}")
                 return False
             
             # If at least one has a year, accept clustering (date will be propagated later)
-            if has_year1 or has_year2:
-                print(f"  [SUCCESS] [PHASE5-EYECITE] ACCEPTED - at least one has year and names match!", flush=True)
+            # if has_year1 or has_year2:
+            #     print(f"  [SUCCESS] [PHASE5-EYECITE] ACCEPTED - at least one has year and names match!", flush=True)  # DISABLED
             
             # Validation passed - accept the parallel relationship
             if self.debug_mode:
@@ -1004,10 +1297,10 @@ class UnifiedClusteringMaster:
         reporter1 = self._extract_reporter_type(citation1_text)
         reporter2 = self._extract_reporter_type(citation2_text)
 
-        # PHASE 5 DEBUG: Log ALL parallel checks to diagnose clustering issues
-        logger.error(f"[PHASE5-DEBUG] PARALLEL_CHECK: {citation1_text} <-> {citation2_text}")
-        logger.error(f"   Reporters: {reporter1} vs {reporter2}")
-        print(f"[PHASE5] CHECK: {citation1_text} <-> {citation2_text}, reporters: {reporter1} vs {reporter2}", flush=True)
+        # PHASE 5 DEBUG: DISABLED - too many calls in O(n²) loop (5000+ for 102 citations)
+        # logger.error(f"[PHASE5-DEBUG] PARALLEL_CHECK: {citation1_text} <-> {citation2_text}")
+        # logger.error(f"   Reporters: {reporter1} vs {reporter2}")
+        # print(f"[PHASE5] CHECK: {citation1_text} <-> {citation2_text}, reporters: {reporter1} vs {reporter2}", flush=True)
 
         if self.debug_mode:
             logger.debug(
@@ -1106,10 +1399,10 @@ class UnifiedClusteringMaster:
         # REJECT IMMEDIATELY if citations are too far apart
         # This prevents false clustering of unrelated citations
         if distance > proximity_threshold:
-            # PHASE 5 DEBUG: Log proximity rejections
-            logger.error(f"[PHASE5-DEBUG] REJECTED by proximity: distance={distance} > threshold={proximity_threshold}")
-            logger.error(f"   Positions: {start1} vs {start2}")
-            print(f"[PHASE5] REJECTED proximity: {citation1_text[:30]} <-> {citation2_text[:30]}, distance={distance} > {proximity_threshold}", flush=True)
+            # PHASE 5 DEBUG: DISABLED - too many calls in O(n²) loop
+            # logger.error(f"[PHASE5-DEBUG] REJECTED by proximity: distance={distance} > threshold={proximity_threshold}")
+            # logger.error(f"   Positions: {start1} vs {start2}")
+            # print(f"[PHASE5] REJECTED proximity: {citation1_text[:30]} <-> {citation2_text[:30]}, distance={distance} > {proximity_threshold}", flush=True)
             
             if self.debug_mode:
                 logger.debug(
@@ -1123,29 +1416,46 @@ class UnifiedClusteringMaster:
         
         # Now that we know citations are close together, check parallel patterns
         if not self._match_parallel_patterns(citation1_text, citation2_text):
-            # PHASE 5 DEBUG: Log pattern matching failures
-            logger.error(f"[WARNING]  [PHASE5-DEBUG] Pattern matching failed, trying name fallback...")
+            # PHASE 5 DEBUG: DISABLED - too many calls in O(n²) loop
+            # logger.error(f"[WARNING]  [PHASE5-DEBUG] Pattern matching failed, trying name fallback...")
             
             if self.debug_mode:
                 logger.debug("PARALLEL_CHECK reporter pair not recognized as parallel")
             
             # FIX #58F: If patterns don't match, try case name similarity as a fallback
             # BUT ONLY if they're already within proximity (which we checked above)
-            case_name1 = self._get_case_name(citation1)
-            case_name2 = self._get_case_name(citation2)
             
-            logger.error(f"   Names: '{case_name1}' vs '{case_name2}'")
+            # USER FIX: Always use EXTRACTED names for clustering, never canonical
+            # Clustering should reflect what's in the user's document, not API data
+            def get_clustering_name(cit: Any) -> Optional[str]:
+                """Get name for clustering decision - always use extracted_case_name"""
+                extracted_name = None
+                
+                if isinstance(cit, dict):
+                    extracted_name = cit.get('extracted_case_name')
+                else:
+                    extracted_name = getattr(cit, 'extracted_case_name', None)
+                
+                # Always use extracted name for clustering
+                if extracted_name and extracted_name != 'N/A':
+                    return extracted_name
+                return None
+            
+            case_name1 = get_clustering_name(citation1)
+            case_name2 = get_clustering_name(citation2)
+            
+            # logger.error(f"   Names: '{case_name1}' vs '{case_name2}'")  # DISABLED - O(n²)
             
             if case_name1 and case_name2 and case_name1 != 'N/A' and case_name2 != 'N/A':
                 similarity = self._calculate_name_similarity(case_name1, case_name2)
-                logger.error(f"[DEBUG] [FIX #58F] Fallback name similarity check: {similarity:.2f} vs threshold {self.case_name_similarity_threshold:.2f} | '{case_name1[:30]}' vs '{case_name2[:30]}'")
+                # logger.error(f"[DEBUG] [FIX #58F] Fallback name similarity check: {similarity:.2f} vs threshold {self.case_name_similarity_threshold:.2f} | '{case_name1[:30]}' vs '{case_name2[:30]}'")  # DISABLED
                 if similarity >= self.case_name_similarity_threshold:  # FIX #58F: Use configured threshold, not hardcoded 0.8!
-                    logger.error(f"[SUCCESS] [FIX #58F] ACCEPTED via fallback - name similarity {similarity:.2f} >= {self.case_name_similarity_threshold:.2f}")
+                    # logger.error(f"[SUCCESS] [FIX #58F] ACCEPTED via fallback - name similarity {similarity:.2f} >= {self.case_name_similarity_threshold:.2f}")  # DISABLED
                     return True
-                else:
-                    logger.error(f"[REJECTED] [FIX #58F] REJECTED via fallback - name similarity {similarity:.2f} < {self.case_name_similarity_threshold:.2f}")
-            else:
-                logger.error(f"[PHASE5-DEBUG] REJECTED - missing case names for fallback")
+                # else:
+                    # logger.error(f"[REJECTED] [FIX #58F] REJECTED via fallback - name similarity {similarity:.2f} < {self.case_name_similarity_threshold:.2f}")  # DISABLED
+            # else:
+                # logger.error(f"[PHASE5-DEBUG] REJECTED - missing case names for fallback")  # DISABLED
             
             return False
 
@@ -1203,12 +1513,12 @@ class UnifiedClusteringMaster:
 
         # If we get here, the citations are parallel AND have matching names
         # At least one has a year (dates will be propagated later)
-        # PHASE 5 DEBUG: Log successful clustering
-        logger.error(f"[SUCCESS] [PHASE5-DEBUG] ACCEPTED as parallel citations!")
-        logger.error(f"   Names match: '{case_name1[:40]}' ≈ '{case_name2[:40]}'")
-        logger.error(f"   Years: year1={year1}, year2={year2} (at least one valid)")
-        logger.error(f"   Distance: {distance}")
-        print(f"[SUCCESS] [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, years=({year1}, {year2})", flush=True)
+        # PHASE 5 DEBUG: DISABLED - too many calls in O(n²) loop
+        # logger.error(f"[SUCCESS] [PHASE5-DEBUG] ACCEPTED as parallel citations!")
+        # logger.error(f"   Names match: '{case_name1[:40]}' ≈ '{case_name2[:40]}'")
+        # logger.error(f"   Years: year1={year1}, year2={year2} (at least one valid)")
+        # logger.error(f"   Distance: {distance}")
+        # print(f"[SUCCESS] [PHASE5] ACCEPTED: {citation1_text[:30]} ↔ {citation2_text[:30]}, names={case_name1[:30]}, years=({year1}, {year2})", flush=True)
         
         if self.debug_mode:
             logger.debug(
@@ -1319,10 +1629,193 @@ class UnifiedClusteringMaster:
             if not any(w in normalized for w in ('of ', 'if ', 'for ', 'from ')):
                 return 'f'
                 
+        # =================================================================
+        # COMPLETE STATE REPORTER EXTRACTION (All 50 States)
+        # =================================================================
+        
+        # ATLANTIC STATES (CT, DE, DC, ME, MD, NH, NJ, PA, RI, VT)
+        if 'conn. supp' in normalized or 'conn supp' in normalized:
+            return 'conn_supp'
+        if 'conn. app' in normalized or 'conn app' in normalized:
+            return 'conn_app'
+        if ' conn.' in normalized or ' conn ' in normalized or 'conn. ' in normalized:
+            return 'conn'
+        if ' del.' in normalized or ' del ' in normalized:
+            return 'del'
+        if ' d.c.' in normalized or ' d.c ' in normalized:
+            return 'dc'
+        if ' me ' in normalized or ' me.' in normalized:
+            return 'me'
+        if ' md.' in normalized or ' md ' in normalized:
+            return 'md'
+        if ' n.h.' in normalized or ' nh ' in normalized:
+            return 'nh'
+        if ' n.j.' in normalized or ' nj ' in normalized:
+            return 'nj'
+        if ' pa.' in normalized or ' pa ' in normalized:
+            if 'app' not in normalized:
+                return 'pa'
+        if ' r.i.' in normalized or ' ri ' in normalized:
+            return 'ri'
+        if ' vt.' in normalized or ' vt ' in normalized:
+            return 'vt'
+        
+        # NORTH EASTERN STATES (IL, IN, MA, NY, OH)
+        if 'ohio st.' in normalized or 'ohio st ' in normalized:
+            if '3d' in normalized:
+                return 'ohio_st3d'
+            return 'ohio_st'
+        if ' ill.' in normalized or ' ill ' in normalized:
+            if 'app' in normalized:
+                return 'ill'  # Ill. App. still uses 'ill'
+            return 'ill'
+        if ' ind.' in normalized or ' ind ' in normalized:
+            return 'ind'
+        if ' mass.' in normalized or ' mass ' in normalized:
+            return 'mass'
+        if ' n.y.' in normalized or ' ny ' in normalized:
+            if 'app' not in normalized and 'misc' not in normalized:
+                return 'ny'
+        
+        # NORTH WESTERN STATES (IA, MI, MN, NE, ND, SD, WI)
+        if ' neb.' in normalized or ' neb ' in normalized:
+            return 'neb'
+        if ' iowa ' in normalized or ' iowa.' in normalized:
+            return 'iowa'
+        if ' mich.' in normalized or ' mich ' in normalized:
+            return 'mich'
+        if ' minn.' in normalized or ' minn ' in normalized:
+            return 'minn'
+        if ' n.d.' in normalized or ' nd ' in normalized:
+            return 'nd'
+        if ' s.d.' in normalized or ' sd ' in normalized:
+            return 'sd'
+        if ' wis.' in normalized or ' wis ' in normalized:
+            return 'wis'
+        
+        # PACIFIC STATES (AK, AZ, CA, CO, HI, ID, KS, MT, NV, NM, OK, OR, UT, WY)
+        if ' alaska ' in normalized or ' alaska.' in normalized:
+            return 'alaska'
+        if ' ariz.' in normalized or ' ariz ' in normalized:
+            return 'ariz'
+        if 'cal. app' in normalized or 'cal.app' in normalized or 'cal app' in normalized:
+            return 'cal_app'
+        if 'cal. rptr' in normalized or 'cal.rptr' in normalized:
+            if '3d' in normalized:
+                return 'cal_rptr3d'
+            return 'cal_rptr'
+        if ' cal.' in normalized or ' cal ' in normalized:
+            if '4th' in normalized:
+                return 'cal4th'
+            return 'cal'
+        if ' colo.' in normalized or ' colo ' in normalized:
+            return 'colo'
+        if ' haw.' in normalized or ' haw ' in normalized:
+            return 'haw'
+        if ' idaho ' in normalized or ' idaho.' in normalized:
+            return 'idaho'
+        if ' kan.' in normalized or ' kan ' in normalized:
+            return 'kan'
+        if ' mont.' in normalized or ' mont ' in normalized:
+            return 'mont'
+        if ' nev.' in normalized or ' nev ' in normalized:
+            return 'nev'
+        if ' n.m.' in normalized or ' nm ' in normalized:
+            return 'nm'
+        if ' okla.' in normalized or ' okla ' in normalized:
+            return 'okla'
+        if ' or.' in normalized or ' or ' in normalized:
+            if 'app' not in normalized:
+                return 'or'
+        if ' utah ' in normalized or ' utah.' in normalized:
+            return 'utah'
+        if ' wyo.' in normalized or ' wyo ' in normalized:
+            return 'wyo'
+        
+        # SOUTH EASTERN STATES (GA, NC, SC, VA, WV)
+        if ' ga.' in normalized or ' ga ' in normalized:
+            return 'ga'
+        if ' n.c.' in normalized or ' nc ' in normalized:
+            return 'nc'
+        if ' s.c.' in normalized or ' sc ' in normalized:
+            return 'sc'
+        if ' va.' in normalized or ' va ' in normalized:
+            if 'w.' not in normalized and 'west' not in normalized:
+                return 'va'
+        if ' w.va.' in normalized or ' w. va.' in normalized or ' wva ' in normalized:
+            return 'wva'
+        
+        # SOUTH WESTERN STATES (AR, KY, MO, TN, TX)
+        if ' ark.' in normalized or ' ark ' in normalized:
+            return 'ark'
+        if ' ky.' in normalized or ' ky ' in normalized:
+            return 'ky'
+        if ' mo.' in normalized or ' mo ' in normalized:
+            return 'mo'
+        if ' tenn.' in normalized or ' tenn ' in normalized:
+            return 'tenn'
+        if ' tex.' in normalized or ' tex ' in normalized:
+            return 'tex'
+        
+        # SOUTHERN STATES (AL, FL, LA, MS)
+        if ' ala.' in normalized or ' ala ' in normalized:
+            return 'ala'
+        if ' fla.' in normalized or ' fla ' in normalized:
+            return 'fla'
+        if ' la.' in normalized or ' la ' in normalized:
+            return 'la'
+        if ' miss.' in normalized or ' miss ' in normalized:
+            return 'miss'
+        
+        # =================================================================
+        # REGIONAL REPORTERS
+        # =================================================================
+        
+        # N.E.2d, N.E.3d (North Eastern Reporter)
+        if 'n.e.2d' in normalized or 'ne2d' in normalized or 'n.e. 2d' in normalized:
+            return 'ne2d'
+        if 'n.e.3d' in normalized or 'ne3d' in normalized or 'n.e. 3d' in normalized:
+            return 'ne3d'
+        
+        # N.W.2d (North Western Reporter)
+        if 'n.w.2d' in normalized or 'nw2d' in normalized or 'n.w. 2d' in normalized:
+            return 'nw2d'
+        if 'n.w.' in normalized or ' nw ' in normalized:
+            return 'nw'
+        
+        # S.E.2d (South Eastern Reporter)
+        if 's.e.2d' in normalized or 'se2d' in normalized or 's.e. 2d' in normalized:
+            return 'se2d'
+        if 's.e.' in normalized or ' se ' in normalized:
+            return 'se'
+        
+        # S.W.2d, S.W.3d (South Western Reporter)
+        if 's.w.3d' in normalized or 'sw3d' in normalized or 's.w. 3d' in normalized:
+            return 'sw3d'
+        if 's.w.2d' in normalized or 'sw2d' in normalized or 's.w. 2d' in normalized:
+            return 'sw2d'
+        
+        # So.2d, So.3d (Southern Reporter)
+        if 'so.3d' in normalized or 'so3d' in normalized or 'so. 3d' in normalized:
+            return 'so3d'
+        if 'so.2d' in normalized or 'so2d' in normalized or 'so. 2d' in normalized:
+            return 'so2d'
+        
+        # A.2d, A.3d (Atlantic Reporter)
+        if 'a.2d' in normalized or 'a2d' in normalized or 'a. 2d' in normalized:
+            return 'a2d'
+        if 'a.3d' in normalized or 'a3d' in normalized or 'a. 3d' in normalized:
+            return 'a3d'
+        
+        # L. Ed., L. Ed. 2d (Lawyer's Edition)
+        if 'l. ed. 2d' in normalized or 'l.ed.2d' in normalized or 'l ed 2d' in normalized:
+            return 'led2d'
+        if 'l. ed.' in normalized or 'l.ed.' in normalized or 'l ed ' in normalized:
+            return 'led'
+        
         # Westlaw
         if ' wl ' in normalized or ' w.l.' in normalized or 'wl.' in normalized:
-            if ' ' not in normalized.replace(' ', ''):  # Simple WL citation
-                return 'wl'
+            return 'wl'
                 
         return 'unknown'
 
@@ -1334,6 +1827,10 @@ class UnifiedClusteringMaster:
             
         reporter1 = self._extract_reporter_type(citation1)
         reporter2 = self._extract_reporter_type(citation2)
+        
+        # DEBUG: Log reporter extraction for non-Washington pairs
+        if 'ohio' in citation1.lower() or 'n.e.' in citation1.lower() or 'ohio' in citation2.lower() or 'n.e.' in citation2.lower():
+            logger.error(f"[REPORTER-DEBUG] '{citation1}' -> '{reporter1}' | '{citation2}' -> '{reporter2}'")
         
         if reporter1 == reporter2 or 'unknown' in (reporter1, reporter2):
             return False
@@ -1368,16 +1865,90 @@ class UnifiedClusteringMaster:
             frozenset({'f', 'us'}),
             frozenset({'f', 'sct'}),
             
-            # State-specific parallel citations
-            frozenset({'cal4th', 'cal_rptr3d'}),
-            frozenset({'cal4th', 'calrptr3d'}),
-            frozenset({'cal_app4th', 'cal_rptr3d'}),
-            frozenset({'cal_app4th', 'calrptr3d'}),
+            # =================================================================
+            # COMPLETE STATE-REGIONAL REPORTER MAPPINGS (Bluebook Reference)
+            # https://libguides.uakron.edu/c.php?g=627783&p=4379905
+            # =================================================================
             
-            # Other common parallel citations
+            # ATLANTIC REPORTER (A., A.2d, A.3d): CT, DE, DC, ME, MD, NH, NJ, PA, RI, VT
+            frozenset({'conn', 'a2d'}), frozenset({'conn', 'a3d'}),
+            frozenset({'conn_app', 'a2d'}), frozenset({'conn_app', 'a3d'}),
+            frozenset({'conn_supp', 'a2d'}), frozenset({'conn_supp', 'a3d'}),
+            frozenset({'del', 'a2d'}), frozenset({'del', 'a3d'}),
+            frozenset({'dc', 'a2d'}), frozenset({'dc', 'a3d'}),
+            frozenset({'me', 'a2d'}), frozenset({'me', 'a3d'}),
+            frozenset({'md', 'a2d'}), frozenset({'md', 'a3d'}),
+            frozenset({'nh', 'a2d'}), frozenset({'nh', 'a3d'}),
+            frozenset({'nj', 'a2d'}), frozenset({'nj', 'a3d'}),
+            frozenset({'pa', 'a2d'}), frozenset({'pa', 'a3d'}),
+            frozenset({'ri', 'a2d'}), frozenset({'ri', 'a3d'}),
+            frozenset({'vt', 'a2d'}), frozenset({'vt', 'a3d'}),
+            
+            # NORTH EASTERN REPORTER (N.E., N.E.2d, N.E.3d): IL, IN, MA, NY, OH
+            frozenset({'ill', 'ne2d'}), frozenset({'ill', 'ne3d'}),
+            frozenset({'ind', 'ne2d'}), frozenset({'ind', 'ne3d'}),
+            frozenset({'mass', 'ne2d'}), frozenset({'mass', 'ne3d'}),
+            frozenset({'ny', 'ne2d'}), frozenset({'ny', 'ne3d'}),
+            frozenset({'ohio_st', 'ne2d'}), frozenset({'ohio_st', 'ne3d'}),
+            frozenset({'ohio_st3d', 'ne2d'}), frozenset({'ohio_st3d', 'ne3d'}),
+            
+            # NORTH WESTERN REPORTER (N.W., N.W.2d): IA, MI, MN, NE, ND, SD, WI
+            frozenset({'iowa', 'nw2d'}), frozenset({'iowa', 'nw'}),
+            frozenset({'mich', 'nw2d'}), frozenset({'mich', 'nw'}),
+            frozenset({'minn', 'nw2d'}), frozenset({'minn', 'nw'}),
+            frozenset({'neb', 'nw2d'}), frozenset({'neb', 'nw'}),
+            frozenset({'nd', 'nw2d'}), frozenset({'nd', 'nw'}),
+            frozenset({'sd', 'nw2d'}), frozenset({'sd', 'nw'}),
+            frozenset({'wis', 'nw2d'}), frozenset({'wis', 'nw'}),
+            
+            # PACIFIC REPORTER (P., P.2d, P.3d): AK, AZ, CA, CO, HI, ID, KS, MT, NV, NM, OK, OR, UT, WA, WY
+            frozenset({'alaska', 'p2d'}), frozenset({'alaska', 'p3d'}),
+            frozenset({'ariz', 'p2d'}), frozenset({'ariz', 'p3d'}),
+            frozenset({'cal', 'p2d'}), frozenset({'cal', 'p3d'}),
+            frozenset({'cal4th', 'p3d'}), frozenset({'cal_app', 'p3d'}),
+            frozenset({'cal_rptr', 'p3d'}), frozenset({'cal_rptr3d', 'p3d'}),
+            frozenset({'colo', 'p2d'}), frozenset({'colo', 'p3d'}),
+            frozenset({'haw', 'p2d'}), frozenset({'haw', 'p3d'}),
+            frozenset({'idaho', 'p2d'}), frozenset({'idaho', 'p3d'}),
+            frozenset({'kan', 'p2d'}), frozenset({'kan', 'p3d'}),
+            frozenset({'mont', 'p2d'}), frozenset({'mont', 'p3d'}),
+            frozenset({'nev', 'p2d'}), frozenset({'nev', 'p3d'}),
+            frozenset({'nm', 'p2d'}), frozenset({'nm', 'p3d'}),
+            frozenset({'okla', 'p2d'}), frozenset({'okla', 'p3d'}),
+            frozenset({'or', 'p2d'}), frozenset({'or', 'p3d'}),
+            frozenset({'utah', 'p2d'}), frozenset({'utah', 'p3d'}),
+            frozenset({'wyo', 'p2d'}), frozenset({'wyo', 'p3d'}),
+            
+            # SOUTH EASTERN REPORTER (S.E., S.E.2d): GA, NC, SC, VA, WV
+            frozenset({'ga', 'se2d'}), frozenset({'ga', 'se'}),
+            frozenset({'nc', 'se2d'}), frozenset({'nc', 'se'}),
+            frozenset({'sc', 'se2d'}), frozenset({'sc', 'se'}),
+            frozenset({'va', 'se2d'}), frozenset({'va', 'se'}),
+            frozenset({'wva', 'se2d'}), frozenset({'wva', 'se'}),
+            
+            # SOUTH WESTERN REPORTER (S.W., S.W.2d, S.W.3d): AR, KY, MO, TN, TX
+            frozenset({'ark', 'sw2d'}), frozenset({'ark', 'sw3d'}),
+            frozenset({'ky', 'sw2d'}), frozenset({'ky', 'sw3d'}),
+            frozenset({'mo', 'sw2d'}), frozenset({'mo', 'sw3d'}),
+            frozenset({'tenn', 'sw2d'}), frozenset({'tenn', 'sw3d'}),
+            frozenset({'tex', 'sw2d'}), frozenset({'tex', 'sw3d'}),
+            
+            # SOUTHERN REPORTER (So., So.2d, So.3d): AL, FL, LA, MS
+            frozenset({'ala', 'so2d'}), frozenset({'ala', 'so3d'}),
+            frozenset({'fla', 'so2d'}), frozenset({'fla', 'so3d'}),
+            frozenset({'la', 'so2d'}), frozenset({'la', 'so3d'}),
+            frozenset({'miss', 'so2d'}), frozenset({'miss', 'so3d'}),
+            
+            # FEDERAL - U.S. Supreme Court parallel citations
+            frozenset({'us', 'led'}), frozenset({'us', 'led2d'}),
+            frozenset({'sct', 'led'}), frozenset({'sct', 'led2d'}),
+            
+            # Regional reporter cross-series
             frozenset({'a3d', 'a2d'}),
+            frozenset({'ne3d', 'ne2d'}),
             frozenset({'nw2d', 'nw'}),
             frozenset({'se2d', 'se'}),
+            frozenset({'sw3d', 'sw2d'}),
             frozenset({'so3d', 'so2d'}),
             frozenset({'p3d', 'p2d'}),
         }
@@ -1642,6 +2213,20 @@ class UnifiedClusteringMaster:
                         # Set the re-extracted name (result is a dict)
                         if result and result.get('case_name') and result.get('case_name') != 'N/A':
                             new_name = result.get('case_name')
+                            
+                            # CRITICAL: Filter out header patterns before overwriting
+                            # Check if new_name contains header patterns (ET AL + role word, or role word + NO)
+                            new_name_upper = new_name.upper()
+                            has_et_al = 'ET AL' in new_name_upper or 'ETAL' in new_name_upper.replace(' ', '')
+                            has_role_word = any(role in new_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                            has_no = 'NO.' in new_name_upper or ' NO ' in new_name_upper or new_name_upper.endswith(' NO')
+                            
+                            # Skip if it's clearly a header (ET AL + role word, or role word + NO)
+                            if (has_et_al and has_role_word) or (has_role_word and has_no):
+                                logger.warning(f"[CLUSTERING-REEXTRACTED] REJECTED header pattern: '{new_name}' - keeping original '{extracted_name}'")
+                                # Keep the original extracted_name instead of overwriting with header
+                                continue
+                            
                             logger.info(f"[CLUSTERING-REEXTRACTED] '{extracted_name}' -> '{new_name}' for {citation_text}")
                             if isinstance(citation, dict):
                                 citation['extracted_case_name'] = new_name
@@ -1759,7 +2344,8 @@ class UnifiedClusteringMaster:
                 # USER FIX 2024-10-21: Remove signal words from ALL cleaned names before selection
                 # This prevents "See Martin v. Lessee" from beating "Martin v. Lessee" in longest-wins logic
                 if cleaned_names:
-                    import re
+                    # Note: 're' is already imported at module level - do NOT re-import here
+                    # as it causes UnboundLocalError in other branches of this function
                     final_cleaned = []
                     signal_patterns = [
                         r'^(?:see also|see|compare|cf|e\.g\.|i\.e\.|accord|but see|but cf|contra)\s+',
@@ -1773,14 +2359,86 @@ class UnifiedClusteringMaster:
                             final_cleaned.append(cleaned)
                     cleaned_names = final_cleaned if final_cleaned else cleaned_names
                 
-                # Now pick best from CLEANED names
+                # CRITICAL: Filter out header patterns from best_extracted_name before using it
+                # Check if best_extracted_name contains header patterns (ET AL + role word, or role word + NO)
                 if cleaned_names:
-                    best_extracted_name = max(cleaned_names, key=lambda n: (len(n), n))
-                    logger.error(f"🔧 [STANDARDIZE-CLUSTER] Group has {len(cleaned_names)} cleaned names → using best: '{best_extracted_name}'")
-                    if len(set(cleaned_names)) > 1:
-                        logger.error(f"   Variations: {list(set(cleaned_names))}")
+                    # Filter out any names that are clearly headers
+                    non_header_names = []
+                    for name in cleaned_names:
+                        name_upper = name.upper()
+                        has_et_al = 'ET AL' in name_upper or 'ETAL' in name_upper.replace(' ', '').replace('.', '').replace(',', '')
+                        has_role_word = any(role in name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                        has_no = 'NO.' in name_upper or ' NO ' in name_upper or name_upper.endswith(' NO')
+                        
+                        # CRITICAL: Check for the exact Erickson header pattern
+                        erickson_pattern = re.search(r'ERICKSON\s+ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', name_upper)
+                        generic_header_pattern = re.search(r'ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', name_upper)
+                        
+                        # Skip if it's clearly a header (ET AL + role word, or role word + NO, or matches header patterns)
+                        if (has_et_al and has_role_word) or (has_role_word and has_no) or erickson_pattern or generic_header_pattern:
+                            logger.error(f"[STANDARDIZE-CLUSTER] REJECTED header pattern from cluster names: '{name}'")
+                            continue
+                        non_header_names.append(name)
+                    
+                    if non_header_names:
+                        # CRITICAL: Filter out document primary case name contamination
+                        # The primary case name can appear in headers/footers throughout the document
+                        document_primary_case_name = getattr(self, 'document_primary_case_name', None)
+                        # CRITICAL FIX: Sanity check - valid case names are short (<50 chars)
+                        # If document_primary_case_name is too long, it was extracted incorrectly
+                        # and should not be used for contamination filtering
+                        # 50 chars is reasonable for "Party A v. Party B" format
+                        if document_primary_case_name and len(document_primary_case_name) > 50:
+                            logger.warning(f"[STANDARDIZE-CLUSTER] Skipping contamination filter - document_primary_case_name too long ({len(document_primary_case_name)} chars)")
+                            document_primary_case_name = None
+                        if document_primary_case_name:
+                            def normalize_for_comparison(name):
+                                normalized = name.lower()
+                                # Remove "et al" and role words (Petitioners, Respondents, etc.) - these are document header artifacts
+                                normalized = re.sub(r'\bet\s+al\.?\b', '', normalized)
+                                normalized = re.sub(r'\b(?:petitioners?|appellants?|plaintiffs?|appellees?|respondents?|defendants?)\b', '', normalized)
+                                normalized = re.sub(r'\bno\.?\s*\d+', '', normalized)  # Remove docket numbers
+                                # Normalize common variations
+                                normalized = re.sub(r'\bllc\b', 'llc', normalized)
+                                normalized = re.sub(r'\bll\.?c\.?\b', 'llc', normalized)
+                                normalized = re.sub(r'\binc\.?\b', 'inc', normalized)
+                                normalized = re.sub(r'\bcorp\.?\b', 'corp', normalized)
+                                normalized = re.sub(r'\bco\.?\b', 'co', normalized)
+                                normalized = re.sub(r'[,\.\s]+', ' ', normalized)
+                                normalized = normalized.strip()
+                                return normalized
+                            
+                            primary_normalized = normalize_for_comparison(document_primary_case_name)
+                            filtered_names = []
+                            for name in non_header_names:
+                                name_normalized = normalize_for_comparison(name)
+                                # Reject if it matches the document's primary case name (bidirectional check)
+                                if (name_normalized == primary_normalized or 
+                                    primary_normalized in name_normalized or 
+                                    name_normalized in primary_normalized):
+                                    logger.error(f"[STANDARDIZE-CLUSTER] REJECTED primary case contamination: '{name}' (matches document primary '{document_primary_case_name}')")
+                                    continue
+                                filtered_names.append(name)
+                            
+                            if filtered_names:
+                                non_header_names = filtered_names
+                            else:
+                                logger.error(f"[WARNING] [STANDARDIZE-CLUSTER] All names were primary case contamination and were rejected!")
+                                non_header_names = []  # Clear the list so we don't select a contaminated name
+                        
+                        if non_header_names:
+                            best_extracted_name = max(non_header_names, key=lambda n: (len(n), n))
+                            logger.error(f"🔧 [STANDARDIZE-CLUSTER] Group has {len(non_header_names)} non-header names → using best: '{best_extracted_name}'")
+                            if len(set(non_header_names)) > 1:
+                                logger.error(f"   Variations: {list(set(non_header_names))}")
+                        else:
+                            best_extracted_name = None
+                    else:
+                        logger.error(f"[WARNING] [STANDARDIZE-CLUSTER] All names were headers and were rejected!")
+                        best_extracted_name = None
                 else:
                     logger.error(f"[WARNING] [STANDARDIZE-CLUSTER] All names were contaminated and couldn't be cleaned!")
+                    best_extracted_name = None
             
             # Pick best extracted year (most common)
             best_extracted_year = None
@@ -1795,35 +2453,74 @@ class UnifiedClusteringMaster:
             
             # PROPAGATE best extracted name and year to ALL citations in cluster
             # This ensures validation won't split the cluster due to extraction variations
-            # USER FIX: DON'T overwrite extracted_case_name - preserve original document extraction
-            # Only fill in if missing
-            for citation in group:
-                existing_name = citation.get('extracted_case_name') if isinstance(citation, dict) else getattr(citation, 'extracted_case_name', None)
-                if not existing_name or existing_name == 'N/A':
-                    if best_extracted_name:
+            # USER FIX: All citations in a cluster refer to the same case, so they should all have the same extracted_case_name
+            # Overwrite all extracted_case_name values with the best one to ensure consistency
+            if best_extracted_name:
+                # CRITICAL: Final check - reject header patterns before propagating
+                best_name_upper = best_extracted_name.upper()
+                has_et_al = 'ET AL' in best_name_upper or 'ETAL' in best_name_upper.replace(' ', '').replace('.', '').replace(',', '')
+                has_role_word = any(role in best_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                has_no = 'NO.' in best_name_upper or ' NO ' in best_name_upper or best_name_upper.endswith(' NO')
+                
+                # CRITICAL: Check for the exact Erickson header pattern
+                erickson_pattern_best = re.search(r'ERICKSON\s+ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', best_name_upper)
+                header_pattern_match = re.search(r'ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', best_name_upper)
+                
+                if (has_et_al and has_role_word) or (has_role_word and has_no) or erickson_pattern_best or header_pattern_match:
+                    logger.error(f"[CLUSTERING-PROPAGATE] REJECTED header pattern: '{best_extracted_name}' - cannot propagate")
+                    best_extracted_name = None  # Don't propagate a header
+                else:
+                    # Propagate best name to ALL citations in cluster
+                    for citation in group:
+                        existing_name = citation.get('extracted_case_name') if isinstance(citation, dict) else getattr(citation, 'extracted_case_name', None)
+                        
                         if isinstance(citation, dict):
                             citation['extracted_case_name'] = best_extracted_name
-                            logger.error(f"   📝 Filled missing name with best: '{best_extracted_name}'")
                         else:
                             citation.extracted_case_name = best_extracted_name
-                            logger.error(f"   📝 Filled missing name with best: '{best_extracted_name}'")
-                else:
-                    logger.error(f"   [SUCCESS] Keeping existing extracted_case_name: '{existing_name}' (not overwriting with '{best_extracted_name}')")
-                
-                if best_extracted_year:
-                    # USER FIX 2024-10-16: DON'T overwrite extracted_date if it already exists!
-                    # The extracted date came from the actual document and should be trusted.
-                    # Only fill in if missing.
-                    existing_date = citation.get('extracted_date') if isinstance(citation, dict) else getattr(citation, 'extracted_date', None)
-                    if not existing_date or existing_date == 'N/A':
-                        if isinstance(citation, dict):
-                            citation['extracted_date'] = best_extracted_year
-                            logger.error(f"   📅 Filled missing date with best: '{best_extracted_year}'")
+                        
+                        if existing_name and existing_name != best_extracted_name and existing_name != 'N/A':
+                            logger.debug(f"   📝 Overwrote '{existing_name}' with best: '{best_extracted_name}'")
                         else:
-                            citation.extracted_date = best_extracted_year
-                            logger.error(f"   📅 Filled missing date with best: '{best_extracted_year}'")
+                            logger.debug(f"   📝 Set extracted_case_name to best: '{best_extracted_name}'")
+            else:
+                # No best name available - check each citation for headers and clear them
+                for citation in group:
+                    existing_name = citation.get('extracted_case_name') if isinstance(citation, dict) else getattr(citation, 'extracted_case_name', None)
+                    
+                    if existing_name and existing_name != 'N/A':
+                        existing_name_upper = existing_name.upper()
+                        has_et_al_existing = 'ET AL' in existing_name_upper or 'ETAL' in existing_name_upper.replace(' ', '').replace('.', '').replace(',', '')
+                        has_role_word_existing = any(role in existing_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                        has_no_existing = 'NO.' in existing_name_upper or ' NO ' in existing_name_upper or existing_name_upper.endswith(' NO')
+                        
+                        # CRITICAL: Check for the exact Erickson header pattern
+                        erickson_pattern_existing = re.search(r'ERICKSON\s+ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', existing_name_upper)
+                        header_pattern_existing = re.search(r'ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', existing_name_upper)
+                        
+                        if (has_et_al_existing and has_role_word_existing) or (has_role_word_existing and has_no_existing) or erickson_pattern_existing or header_pattern_existing:
+                            logger.error(f"[CLUSTERING-PROPAGATE] REJECTED header pattern: '{existing_name}' - clearing it")
+                            # Clear the header
+                            if isinstance(citation, dict):
+                                citation['extracted_case_name'] = 'N/A'
+                            else:
+                                citation.extracted_case_name = 'N/A'
+            
+            # PROPAGATE best extracted year to ALL citations in cluster (same logic as name)
+            # All citations in a cluster refer to the same case, so they should all have the same extracted_date
+            if best_extracted_year:
+                for citation in group:
+                    existing_date = citation.get('extracted_date') if isinstance(citation, dict) else getattr(citation, 'extracted_date', None)
+                    
+                    if isinstance(citation, dict):
+                        citation['extracted_date'] = best_extracted_year
                     else:
-                        logger.error(f"   [SUCCESS] Keeping existing extracted_date: '{existing_date}' (not overwriting with '{best_extracted_year}')")
+                        citation.extracted_date = best_extracted_year
+                    
+                    if existing_date and existing_date != best_extracted_year and existing_date != 'N/A':
+                        logger.debug(f"   📅 Overwrote '{existing_date}' with best: '{best_extracted_year}'")
+                    else:
+                        logger.debug(f"   📅 Set extracted_date to best: '{best_extracted_year}'")
 
             for citation in group:
                 enhanced_citation = self._create_enhanced_citation(citation, case_name, case_year, group)
@@ -1950,15 +2647,35 @@ class UnifiedClusteringMaster:
             if citation_id in processed:
                 continue
             
-            # Get the cluster members for this citation
-            if hasattr(citation, 'cluster_members'):
-                member_texts = getattr(citation, 'cluster_members', [])
-            elif isinstance(citation, dict):
-                member_texts = citation.get('cluster_members', [])
-            else:
-                member_texts = []
+            # FIX 2024-11-08: CRITICAL CLUSTERING FIX
+            # Use parallel_citations array (populated by verification) in addition to cluster_members
+            # This fixes the bug where parallel citations are detected but not clustered
+            member_texts = []
             
-            # Find all citations that share the same cluster_members
+            # Try parallel_citations first (populated by verification/eyecite)
+            if hasattr(citation, 'parallel_citations'):
+                parallel_cits = getattr(citation, 'parallel_citations', [])
+                if parallel_cits:
+                    # Add self citation to the list
+                    self_citation = getattr(citation, 'citation', str(citation)) if hasattr(citation, 'citation') else str(citation)
+                    member_texts = [self_citation] + list(parallel_cits)
+            elif isinstance(citation, dict):
+                parallel_cits = citation.get('parallel_citations', [])
+                if parallel_cits:
+                    # Add self citation to the list
+                    self_citation = citation.get('citation', str(citation))
+                    member_texts = [self_citation] + list(parallel_cits)
+            
+            # Fallback to cluster_members if parallel_citations not available
+            if not member_texts:
+                if hasattr(citation, 'cluster_members'):
+                    member_texts = getattr(citation, 'cluster_members', [])
+                elif isinstance(citation, dict):
+                    member_texts = citation.get('cluster_members', [])
+                else:
+                    member_texts = []
+            
+            # Find all citations that share the same parallel_citations or cluster_members
             if len(member_texts) > 1:
                 # This is a parallel group - find all citations with the same members
                 group = []
@@ -1967,14 +2684,29 @@ class UnifiedClusteringMaster:
                     if other_id in processed:
                         continue
                     
-                    if hasattr(other_citation, 'cluster_members'):
-                        other_members = set(getattr(other_citation, 'cluster_members', []))
-                    elif isinstance(other_citation, dict):
-                        other_members = set(other_citation.get('cluster_members', []))
-                    else:
-                        other_members = set()
+                    # FIX 2024-11-08: Check both parallel_citations and cluster_members
+                    other_members = set()
                     
-                    # If this citation shares the same cluster_members, it's in the same group
+                    # Try parallel_citations first
+                    if hasattr(other_citation, 'parallel_citations'):
+                        parallel_cits = getattr(other_citation, 'parallel_citations', [])
+                        if parallel_cits:
+                            other_self_citation = getattr(other_citation, 'citation', str(other_citation)) if hasattr(other_citation, 'citation') else str(other_citation)
+                            other_members = set([other_self_citation] + list(parallel_cits))
+                    elif isinstance(other_citation, dict):
+                        parallel_cits = other_citation.get('parallel_citations', [])
+                        if parallel_cits:
+                            other_self_citation = other_citation.get('citation', str(other_citation))
+                            other_members = set([other_self_citation] + list(parallel_cits))
+                    
+                    # Fallback to cluster_members
+                    if not other_members:
+                        if hasattr(other_citation, 'cluster_members'):
+                            other_members = set(getattr(other_citation, 'cluster_members', []))
+                        elif isinstance(other_citation, dict):
+                            other_members = set(other_citation.get('cluster_members', []))
+                    
+                    # If this citation shares the same parallel_citations/cluster_members, it's in the same group
                     if other_members and set(member_texts) == other_members:
                         group.append(other_citation)
                         processed.add(other_id)
@@ -1994,26 +2726,39 @@ class UnifiedClusteringMaster:
             if not citations:
                 continue
             
-            # CRITICAL: Get ONLY extracted metadata from first citation in the group
-            # Do NOT use cluster_case_name or cluster_year as they may be contaminated
-            # with canonical data from verification!
-            first_citation = citations[0]
+            # CRITICAL FIX (NOV 10): Fallback through ALL citations in cluster to find valid extracted name
+            # Don't just use first citation - it might have 'N/A' while others have valid names
+            extracted_name = None
+            extracted_date = None
             
-            # Get ONLY extracted_case_name (from document)
-            if hasattr(first_citation, 'extracted_case_name'):
-                extracted_name = first_citation.extracted_case_name
-            elif hasattr(first_citation, 'get'):
-                extracted_name = first_citation.get('extracted_case_name', None)
-            else:
-                extracted_name = None
-            
-            # Get ONLY extracted_date (from document)
-            if hasattr(first_citation, 'extracted_date'):
-                extracted_date = first_citation.extracted_date
-            elif hasattr(first_citation, 'get'):
-                extracted_date = first_citation.get('extracted_date', None)
-            else:
-                extracted_date = None
+            for citation in citations:
+                # Try to get extracted_case_name
+                if hasattr(citation, 'extracted_case_name'):
+                    name = citation.extracted_case_name
+                elif hasattr(citation, 'get'):
+                    name = citation.get('extracted_case_name', None)
+                else:
+                    name = None
+                
+                # Use first valid name found
+                if not extracted_name and name and name not in ('N/A', None, '', 'Unknown'):
+                    extracted_name = name
+                
+                # Try to get extracted_date
+                if hasattr(citation, 'extracted_date'):
+                    date = citation.extracted_date
+                elif hasattr(citation, 'get'):
+                    date = citation.get('extracted_date', None)
+                else:
+                    date = None
+                
+                # Use first valid date found
+                if not extracted_date and date and date not in ('N/A', None, '', 'Unknown'):
+                    extracted_date = date
+                
+                # Stop if we have both
+                if extracted_name and extracted_date:
+                    break
             
             # Create cluster key using ONLY extracted data
             if extracted_name and extracted_name != 'N/A':
@@ -2044,31 +2789,182 @@ class UnifiedClusteringMaster:
                     cit_text = str(cit)
                 cluster_members_list.append(cit_text)
             
+            # USER FIX: Populate canonical data from verified citations for DISPLAY purposes
+            # (not used for clustering logic, but needed by frontend)
+            best_canonical_name = None
+            best_canonical_date = None
+            best_canonical_url = None
+            any_verified = False
+            for cit in deduplicated_citations:
+                cit_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                if cit_verified:
+                    any_verified = True
+                    cit_canonical = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
+                    if cit_canonical and not best_canonical_name:
+                        best_canonical_name = cit_canonical
+                        best_canonical_date = cit.get('canonical_date') if isinstance(cit, dict) else getattr(cit, 'canonical_date', None)
+                        best_canonical_url = cit.get('canonical_url') if isinstance(cit, dict) else getattr(cit, 'canonical_url', None)
+                        break
+            
+            # USER FIX 2024-12-24: Propagate the best extracted_date to all citations in the cluster
+            # This ensures consistency between cluster-level extracted_date and citation-level extracted_date
+            # (e.g., "2000" from boundary detection instead of "2001" from initial extraction)
+            if extracted_date and extracted_date not in ('N/A', None, '', 'Unknown'):
+                for cit in deduplicated_citations:
+                    if isinstance(cit, dict):
+                        old_date = cit.get('extracted_date')
+                        cit['extracted_date'] = extracted_date
+                        if old_date and old_date != extracted_date and old_date != 'N/A':
+                            logger.debug(f"[CLUSTER-DATE-FIX] Updated citation extracted_date: {old_date} -> {extracted_date}")
+                    elif hasattr(cit, 'extracted_date'):
+                        old_date = cit.extracted_date
+                        cit.extracted_date = extracted_date
+                        if old_date and old_date != extracted_date and old_date != 'N/A':
+                            logger.debug(f"[CLUSTER-DATE-FIX] Updated citation extracted_date: {old_date} -> {extracted_date}")
+            
             cluster = {
                 'cluster_id': f"cluster_{i+1}",
                 'cluster_key': cluster_key,
                 'citations': deduplicated_citations,
                 'size': len(deduplicated_citations),
-                # FIX #17: Store ONLY extracted data, NEVER canonical
-                'cluster_case_name': extracted_name,  # Pure extracted from document (renamed from case_name for consistency)
-                'cluster_year': extracted_date,  # Pure extracted from document (renamed from case_year for consistency)
-                'canonical_name': None,  # Never use canonical for clustering
-                'canonical_date': None,  # Never use canonical for clustering
+                # FIX #17: Store ONLY extracted data for CLUSTERING decisions
+                # But still populate canonical data for DISPLAY purposes (USER FIX)
+                'cluster_case_name': extracted_name,  # Pure extracted from document
+                'cluster_year': extracted_date,  # Pure extracted from document
+                'canonical_name': best_canonical_name,  # USER FIX: For display, not clustering
+                'canonical_date': best_canonical_date,  # USER FIX: For display, not clustering
+                'canonical_url': best_canonical_url,  # USER FIX: For display
+                'extracted_case_name': extracted_name,  # USER FIX: Explicit extracted name field
                 'cluster_members': cluster_members_list,  # List of citation strings, not objects
-                'confidence': self._calculate_cluster_confidence(citations),
+                'confidence': self._calculate_cluster_confidence(deduplicated_citations),
+                'verified': any_verified,  # USER FIX: Track if any citation is verified
+                # Frontend display fields
+                'verifying_display_name': best_canonical_name or extracted_name,
+                'submitted_display_name': extracted_name,
                 'metadata': {
                     'cluster_type': 'proximity_based',  # Clustering by proximity in document (NOT by metadata!)
                     'created_by': 'unified_master',
                     'cluster_key': cluster_key,
                     'cluster_members_preserved': True,  # Indicates we preserved parallel groups from Step 1
-                    'data_source': 'extracted_only'  # Flag indicating pure extracted data
+                    'data_source': 'extracted_only'  # Flag indicating clustering used extracted data only
                 },
-                'verification_status': 'not_verified',  # Default - will be updated if any citation is verified
-                'verification_source': None  # Default - will be updated if any citation is verified
+                'verification_status': 'verified' if any_verified else 'not_verified',
+                'verification_source': None
             }
             final_clusters.append(cluster)
         
-        return final_clusters
+        # USER FIX: Split clusters where citations have different canonical dates
+        # This fixes cases like Meri-Weather where Superior Court (2000) and Appellate Court (2001)
+        # are incorrectly merged based on proximity but are actually different cases
+        split_clusters = self._split_clusters_by_canonical_date(final_clusters)
+        
+        return split_clusters
+    
+    def _split_clusters_by_canonical_date(self, clusters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Split clusters where citations have significantly different canonical dates.
+        
+        USER FIX: This handles cases like Meri-Weather where:
+        - Superior Court case (2000-03-27) with citations 47 Conn. Supp. 113, 778 A.2d 1006
+        - Appellate Court case (2001-06-12) with citations 63 Conn. App. 695, 778 A.2d 1038
+        
+        These were merged based on proximity (same case name) but are different proceedings
+        with different canonical dates. We split them based on canonical_date differences.
+        """
+        result_clusters = []
+        
+        for cluster in clusters:
+            citations = cluster.get('citations', [])
+            
+            # Group citations by canonical year
+            year_groups = {}
+            for cit in citations:
+                canonical_date = cit.get('canonical_date') if isinstance(cit, dict) else getattr(cit, 'canonical_date', None)
+                if canonical_date:
+                    year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
+                    if year_match:
+                        year = year_match.group(0)
+                        if year not in year_groups:
+                            year_groups[year] = []
+                        year_groups[year].append(cit)
+                    else:
+                        # No year found, put in 'unknown' group
+                        if 'unknown' not in year_groups:
+                            year_groups['unknown'] = []
+                        year_groups['unknown'].append(cit)
+                else:
+                    # No canonical date, put in 'unknown' group
+                    if 'unknown' not in year_groups:
+                        year_groups['unknown'] = []
+                    year_groups['unknown'].append(cit)
+            
+            # If all citations are in the same year group (or unknown), keep cluster as-is
+            known_years = [y for y in year_groups.keys() if y != 'unknown']
+            if len(known_years) <= 1:
+                result_clusters.append(cluster)
+                continue
+            
+            # USER REQUEST: Split appellate history into separate clusters
+            # e.g., "75 Wash. 581 (1913), aff'd, 243 U.S. 219 (1917)" should be TWO clusters:
+            # - Cluster 1: Washington Supreme Court (1913) with 75 Wash. 581, 135 P. 645
+            # - Cluster 2: U.S. Supreme Court (1917) with 243 U.S. 219, 37 S. Ct. 260, 61 L. Ed. 685
+            # Each court's opinion is verified independently with its own canonical date
+            years_int = sorted([int(y) for y in known_years])
+            max_diff = years_int[-1] - years_int[0] if len(years_int) > 1 else 0
+            
+            if max_diff == 0:
+                # All citations have same canonical year - keep cluster as-is
+                result_clusters.append(cluster)
+                continue
+            
+            # Split the cluster by canonical year
+            logger.warning(f"⚠️ SPLITTING cluster '{cluster.get('cluster_case_name', 'Unknown')}' - citations have different canonical years: {known_years}")
+            
+            for year, year_cits in year_groups.items():
+                if not year_cits:
+                    continue
+                
+                # Create a new cluster for this year group
+                new_cluster = cluster.copy()
+                new_cluster['citations'] = year_cits
+                new_cluster['size'] = len(year_cits)
+                new_cluster['cluster_id'] = f"{cluster.get('cluster_id', 'cluster')}_year_{year}"
+                
+                # Update cluster_members
+                cluster_members_list = []
+                for cit in year_cits:
+                    if isinstance(cit, dict):
+                        cit_text = cit.get('citation', str(cit))
+                    elif hasattr(cit, 'citation'):
+                        cit_text = cit.citation
+                    else:
+                        cit_text = str(cit)
+                    cluster_members_list.append(cit_text)
+                new_cluster['cluster_members'] = cluster_members_list
+                
+                # Update canonical data from this year group
+                for cit in year_cits:
+                    cit_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                    if cit_verified:
+                        cit_canonical = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
+                        if cit_canonical:
+                            new_cluster['canonical_name'] = cit_canonical
+                            new_cluster['canonical_date'] = cit.get('canonical_date') if isinstance(cit, dict) else getattr(cit, 'canonical_date', None)
+                            new_cluster['canonical_url'] = cit.get('canonical_url') if isinstance(cit, dict) else getattr(cit, 'canonical_url', None)
+                            new_cluster['verifying_display_name'] = cit_canonical
+                            break
+                
+                # Update cluster key with year
+                new_cluster['cluster_key'] = f"{cluster.get('cluster_key', 'unknown')}_{year}"
+                new_cluster['metadata'] = {
+                    **cluster.get('metadata', {}),
+                    'split_by_canonical_date': True,
+                    'original_cluster_id': cluster.get('cluster_id')
+                }
+                
+                logger.info(f"  Created split cluster: {new_cluster['cluster_id']} with {len(year_cits)} citations for year {year}")
+                result_clusters.append(new_cluster)
+        
+        return result_clusters
     
     def _parse_citation_components(self, citation_text: str) -> Optional[Dict[str, str]]:
         """Parse citation into volume, reporter, and page components.
@@ -2388,6 +3284,34 @@ class UnifiedClusteringMaster:
                 citation_text = cit_info['citation']
 
                 if result.verified:
+                    # USER FIX: Validate year match before setting verified=True
+                    # Get extracted date from citation object
+                    if hasattr(citation_obj, '__dict__'):
+                        extracted_date = getattr(citation_obj, 'extracted_date', None)
+                    else:
+                        extracted_date = citation_obj.get('extracted_date') if isinstance(citation_obj, dict) else None
+                    
+                    canonical_date = result.canonical_date
+                    year_match = True  # Default to True if no dates to compare
+                    if extracted_date and canonical_date:
+                        import re
+                        ext_year = re.search(r'(19|20)\d{2}', str(extracted_date))
+                        can_year = re.search(r'(19|20)\d{2}', str(canonical_date))
+                        if ext_year and can_year:
+                            year_match = (ext_year.group(0) == can_year.group(0))
+                    
+                    if not year_match:
+                        # Year mismatch - reject verification
+                        logger.warning(f"❌ [APPLY-VERIFICATION] Citation: {citation_text} - REJECTED due to year mismatch")
+                        logger.warning(f"   Extracted year: {extracted_date} vs Canonical year: {canonical_date}")
+                        if hasattr(citation_obj, '__dict__'):
+                            citation_obj.verified = False
+                            citation_obj.verification_error = f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                        elif isinstance(citation_obj, dict):
+                            citation_obj['verified'] = False
+                            citation_obj['verification_error'] = f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                        continue  # Skip to next citation
+                    
                     # VERIFIED: Apply canonical data
                     logger.error(f"🔧 [APPLY-VERIFICATION] Citation: {citation_text} - VERIFIED")
                     logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
@@ -2415,26 +3339,45 @@ class UnifiedClusteringMaster:
                     logger.error(f"   📝 result.canonical_name = {result.canonical_name}")
                     logger.error(f"   📝 result.canonical_date = {result.canonical_date}")
 
+                    # CRITICAL: possible_match=True but verified=False means we found a potential match
+                    # but couldn't verify it. Per user rule: unverified citations CANNOT have canonical data.
+                    # Store the potential match info in metadata but don't set canonical fields.
                     if hasattr(citation_obj, '__dict__'):
                         citation_obj.verified = False
                         citation_obj.possible_match = True
-                        citation_obj.canonical_name = result.canonical_name
-                        citation_obj.canonical_date = result.canonical_date
-                        citation_obj.canonical_url = result.canonical_url
+                        # CRITICAL: Don't set canonical_name/canonical_date for unverified citations
+                        # Store potential match in metadata instead
+                        citation_obj.canonical_name = None
+                        citation_obj.canonical_date = None
+                        citation_obj.canonical_url = None
                         citation_obj.verification_source = result.source
                         citation_obj.verification_error = result.error
-                        logger.error(f"   🔶 AFTER (object): verified=False, possible_match=True, canonical_name = {citation_obj.canonical_name}")
+                        # Store potential match in metadata for reference
+                        if not hasattr(citation_obj, 'metadata') or citation_obj.metadata is None:
+                            citation_obj.metadata = {}
+                        citation_obj.metadata['possible_match_name'] = result.canonical_name
+                        citation_obj.metadata['possible_match_date'] = result.canonical_date
+                        citation_obj.metadata['possible_match_url'] = result.canonical_url
+                        logger.error(f"   🔶 AFTER (object): verified=False, possible_match=True, canonical_name=None (stored in metadata)")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = False
                         citation_obj['possible_match'] = True
-                        citation_obj['canonical_name'] = result.canonical_name
-                        citation_obj['canonical_date'] = result.canonical_date
-                        citation_obj['canonical_url'] = result.canonical_url
+                        # CRITICAL: Don't set canonical_name/canonical_date for unverified citations
+                        citation_obj['canonical_name'] = None
+                        citation_obj['canonical_date'] = None
+                        citation_obj['canonical_url'] = None
                         citation_obj['verification_source'] = result.source
                         citation_obj['verification_error'] = result.error
-                        logger.error(f"   🔶 AFTER (dict): verified=False, possible_match=True, canonical_name = {citation_obj['canonical_name']}")
+                        # Store potential match in metadata for reference
+                        if 'metadata' not in citation_obj or citation_obj['metadata'] is None:
+                            citation_obj['metadata'] = {}
+                        citation_obj['metadata']['possible_match_name'] = result.canonical_name
+                        citation_obj['metadata']['possible_match_date'] = result.canonical_date
+                        citation_obj['metadata']['possible_match_url'] = result.canonical_url
+                        logger.error(f"   🔶 AFTER (dict): verified=False, possible_match=True, canonical_name=None (stored in metadata)")
                 else:
                     # UNVERIFIED: Mark as unverified, store error
+                    # CRITICAL: Unverified citations CANNOT have canonical data
                     logger.error(f"[APPLY-VERIFICATION] Citation: {citation_text} - UNVERIFIED")
                     logger.error(f"   [WARNING] Error: {result.error}")
 
@@ -2442,15 +3385,20 @@ class UnifiedClusteringMaster:
                         citation_obj.verified = False
                         citation_obj.possible_match = False
                         citation_obj.verification_error = result.error
+                        # CRITICAL: Clear canonical data for unverified citations
                         citation_obj.canonical_name = None
                         citation_obj.canonical_date = None
-                        logger.error(f"   AFTER (object): verified=False, possible_match=False, will need true_by_parallel")
+                        citation_obj.canonical_url = None
+                        logger.error(f"   AFTER (object): verified=False, possible_match=False, canonical_name=None, canonical_date=None")
                     elif isinstance(citation_obj, dict):
                         citation_obj['verified'] = False
+                        citation_obj['possible_match'] = False
                         citation_obj['verification_error'] = result.error
+                        # CRITICAL: Clear canonical data for unverified citations
                         citation_obj['canonical_name'] = None
                         citation_obj['canonical_date'] = None
-                        logger.error(f"   AFTER (dict): verified=False, will need true_by_parallel")
+                        citation_obj['canonical_url'] = None
+                        logger.error(f"   AFTER (dict): verified=False, canonical_name=None, canonical_date=None")
         
         except ImportError:
             logger.warning("MASTER_CLUSTER: Verification master not available, skipping verification")
@@ -3012,11 +3960,16 @@ class UnifiedClusteringMaster:
                         unique_citations.append(c)
                 citations = unique_citations
             
+            # CRITICAL FIX: Use _select_best_EXTRACTED_name() for cluster-level extracted name
+            # This prioritizes extracted_case_name from document over canonical_name from APIs
             best_name = cluster.get('case_name', 'N/A')
             if best_name in (None, '', 'N/A', 'Unknown', 'Unknown Case'):
-                inferred_name = self._select_best_case_name(citations)
+                inferred_name = self._select_best_extracted_name(citations)  # Changed from _select_best_case_name
                 if inferred_name:
                     best_name = inferred_name
+                    logger.info(f"[CLUSTER-FORMAT] Inferred cluster name from extracted data: '{best_name}'")
+                else:
+                    logger.warning(f"[CLUSTER-FORMAT] Could not infer cluster name for cluster {cluster.get('cluster_id')} with {len(citations)} citations")
             
             best_year = cluster.get('case_year', 'N/A')
             if best_year in (None, '', 'N/A', 'Unknown'):
@@ -3037,56 +3990,125 @@ class UnifiedClusteringMaster:
                     break
             
             # Propagate canonical data to unverified parallel citations
-            # IMPORTANT: Keep verified=False, only set true_by_parallel=True
+            # IMPORTANT: Only propagate if citations are verified parallel pairs (true_by_parallel=True)
+            # CRITICAL: Unverified citations without true_by_parallel CANNOT have canonical data
             if best_verified and len(citations) > 1:
                 for cit in citations:
                     is_verified = getattr(cit, 'verified', False)
                     if not is_verified:
-                        # CRITICAL FIX: Only propagate canonical data if citations are from the same case
-                        if self._are_citations_parallel_pair(cit, best_verified, original_text):
-                            # Mark as true_by_parallel but keep verified=False
-                            # Each citation is independently verified
+                        # CRITICAL FIX: Only propagate canonical data if extracted names match
+                        # This prevents wrong canonical data from being propagated to different cases
+                        extracted_name_cit = getattr(cit, 'extracted_case_name', None) or (cit.get('extracted_case_name') if isinstance(cit, dict) else None)
+                        extracted_name_verified = getattr(best_verified, 'extracted_case_name', None) or (best_verified.get('extracted_case_name') if isinstance(best_verified, dict) else None)
+                        
+                        # Check if extracted names match (prevent wrong canonical data propagation)
+                        # FIX DEC 2025: Allow propagation if either name is "N/A" AND citations have compatible reporters
+                        # This handles cases where extraction failed but citations are clearly parallel (e.g., Wn.2d + P.3d)
+                        names_match = False
+                        
+                        # Get citation texts to check reporter compatibility
+                        cit_text = getattr(cit, 'citation', '') or (cit.get('citation', '') if isinstance(cit, dict) else '')
+                        verified_text = getattr(best_verified, 'citation', '') or (best_verified.get('citation', '') if isinstance(best_verified, dict) else '')
+                        
+                        # Check if reporters are compatible parallel pairs
+                        reporters_compatible = self._match_parallel_patterns(cit_text, verified_text) if cit_text and verified_text else False
+                        
+                        if extracted_name_cit and extracted_name_verified and extracted_name_cit != "N/A" and extracted_name_verified != "N/A":
+                            # Both names exist - check if they match
+                            import re
+                            def normalize_for_comparison(name):
+                                if not name:
+                                    return ""
+                                # Remove punctuation, lowercase, normalize whitespace
+                                normalized = re.sub(r'[^\w\s]', '', name.lower())
+                                normalized = re.sub(r'\s+', ' ', normalized).strip()
+                                return normalized
+                            
+                            norm_cit = normalize_for_comparison(extracted_name_cit)
+                            norm_verified = normalize_for_comparison(extracted_name_verified)
+                            # Match if exact match or one is substring of the other (handles abbreviations)
+                            names_match = norm_cit == norm_verified or norm_cit in norm_verified or norm_verified in norm_cit
+                        elif reporters_compatible:
+                            # FIX DEC 2025: If either name is N/A but reporters are compatible parallel pairs,
+                            # allow propagation (e.g., 160 Wn.2d 32 + 156 P.3d 185 for Ford Motor Co.)
+                            names_match = True
+                            logger.info(f"[PARALLEL-FIX] Allowing propagation despite N/A name - reporters compatible: {cit_text} <-> {verified_text}")
+                        
+                        if names_match:
+                            # Mark as true_by_parallel - this allows canonical data propagation
+                            # true_by_parallel means the citation is verified by association with a verified parallel citation
                             if hasattr(cit, '__dict__'):
                                 cit.true_by_parallel = True
+                                # Only set canonical data if we have a verified parallel citation
                                 cit.canonical_name = getattr(best_verified, 'canonical_name', None)
                                 cit.canonical_date = getattr(best_verified, 'canonical_date', None)
                                 cit.canonical_url = getattr(best_verified, 'canonical_url', None)
-                                # Don't change verified status - keep it False
-                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {getattr(cit, 'citation', str(cit))[:50]} (same case)")
+                                # Don't change verified status - keep it False, but true_by_parallel=True allows canonical data
+                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {getattr(cit, 'citation', str(cit))[:50]} (true_by_parallel=True, names match)")
                             elif isinstance(cit, dict):
                                 cit['true_by_parallel'] = True
+                                # Only set canonical data if we have a verified parallel citation
                                 cit['canonical_name'] = getattr(best_verified, 'canonical_name', None)
                                 cit['canonical_date'] = getattr(best_verified, 'canonical_date', None)
                                 cit['canonical_url'] = getattr(best_verified, 'canonical_url', None)
-                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {cit.get('citation', str(cit))[:50]} (same case)")
+                                logger.info(f"[SUCCESS] CLUSTER_FORMAT: Propagated canonical data from {best_verified.citation} to {cit.get('citation', str(cit))[:50]} (true_by_parallel=True, names match)")
                         else:
-                            logger.warning(f"[WARNING] CLUSTER_FORMAT: Skipping canonical data propagation - citations are from different cases: {getattr(cit, 'citation', str(cit))[:50]} vs {best_verified.citation}")
-                        logger.info(f"[SUCCESS] Propagated canonical data (true_by_parallel) to parallel: {getattr(cit, 'citation', str(cit))}")
+                            # Citations are NOT parallel pairs OR names don't match - clear any canonical data
+                            if hasattr(cit, '__dict__'):
+                                cit.canonical_name = None
+                                cit.canonical_date = None
+                                cit.canonical_url = None
+                                cit.true_by_parallel = False
+                            elif isinstance(cit, dict):
+                                cit['canonical_name'] = None
+                                cit['canonical_date'] = None
+                                cit['canonical_url'] = None
+                                cit['true_by_parallel'] = False
+                            logger.warning(f"[WARNING] CLUSTER_FORMAT: Cleared canonical data (extracted names don't match): '{extracted_name_cit}' vs '{extracted_name_verified}' for citations {getattr(cit, 'citation', str(cit))[:50]} vs {best_verified.citation}")
             
-            # CRITICAL FIX: Extract cluster-level canonical data from verified citations
+            # CRITICAL FIX: Extract cluster-level canonical data ONLY from verified citations
             cluster_canonical_name = None
             cluster_canonical_date = None
             cluster_verification_source = None
             
             # Find first verified citation with canonical data
+            # CRITICAL: Only set cluster-level canonical data if we have a verified citation
             if best_verified:
-                cluster_canonical_name = getattr(best_verified, 'canonical_name', None)
-                cluster_canonical_date = getattr(best_verified, 'canonical_date', None)
-                cluster_verification_source = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
-                logger.info(f"[SUMMARY] CLUSTER_FORMAT: Setting cluster canonical data - name={cluster_canonical_name}, date={cluster_canonical_date}, source={cluster_verification_source}")
+                is_best_verified = getattr(best_verified, 'verified', False)
+                if is_best_verified:
+                    cluster_canonical_name = getattr(best_verified, 'canonical_name', None)
+                    cluster_canonical_date = getattr(best_verified, 'canonical_date', None)
+                    cluster_verification_source = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
+                    logger.info(f"[SUMMARY] CLUSTER_FORMAT: Setting cluster canonical data - name={cluster_canonical_name}, date={cluster_canonical_date}, source={cluster_verification_source}")
+                else:
+                    logger.warning(f"[WARNING] CLUSTER_FORMAT: best_verified citation is not actually verified, clearing cluster canonical data")
+                    cluster_canonical_name = None
+                    cluster_canonical_date = None
             else:
-                logger.warning(f"[WARNING] CLUSTER_FORMAT: No best_verified found for cluster {cluster_id} with {len(citations)} citations")
+                logger.warning(f"[WARNING] CLUSTER_FORMAT: No best_verified found for cluster {cluster_id} with {len(citations)} citations - no cluster canonical data")
             
             # USER FIX: Serialize citation objects to dicts so Vue.js can access extracted_case_name
             # This matches the fix in unified_citation_clustering.py for async pathway
             serialized_citations = []
             for cit in citations:
                 if isinstance(cit, dict):
+                    # CRITICAL FIX: Only include canonical data if citation is verified OR true_by_parallel=True
+                    is_verified = cit.get('verified', False)
+                    has_true_by_parallel = cit.get('true_by_parallel', False)
+                    can_have_canonical = is_verified or has_true_by_parallel
+                    
+                    # Clear canonical data if unverified and not true_by_parallel
+                    if not can_have_canonical:
+                        cit['canonical_name'] = None
+                        cit['canonical_date'] = None
+                        cit['canonical_url'] = None
+                    
                     # Ensure mismatch flags exist in dict citations as well
                     cit.setdefault('name_mismatch', False)
                     cit.setdefault('date_mismatch', False)
                     cit.setdefault('mismatch_confidence', 0.0)
                     cit.setdefault('possible_match', False)
+                    cit.setdefault('true_by_parallel', False)
                     serialized_citations.append(cit)
                 else:
                     # Convert object to dict
@@ -3094,6 +4116,11 @@ class UnifiedClusteringMaster:
                     verification_source = getattr(cit, 'verification_source', None)
                     source = getattr(cit, 'source', None)
                     logger.error(f"[DEBUG] [SERIALIZE-DEBUG] Citation: {getattr(cit, 'citation', 'Unknown')}, verification_source: {verification_source}, source: {source}")
+                    
+                    # CRITICAL FIX: Only include canonical data if citation is verified OR true_by_parallel=True
+                    is_verified = getattr(cit, 'verified', False)
+                    has_true_by_parallel = getattr(cit, 'true_by_parallel', False)
+                    can_have_canonical = is_verified or has_true_by_parallel
                     
                     cit_dict = {
                         'citation': getattr(cit, 'citation', ''),
@@ -3104,12 +4131,13 @@ class UnifiedClusteringMaster:
                         'method': getattr(cit, 'method', 'unified_processor'),
                         'confidence': getattr(cit, 'confidence', 0.9),
                         'metadata': getattr(cit, 'metadata', {}),
-                        'verified': getattr(cit, 'verified', False),
-                        'canonical_name': getattr(cit, 'canonical_name', None),
-                        'canonical_date': getattr(cit, 'canonical_date', None),
-                        'canonical_url': getattr(cit, 'canonical_url', None),
+                        'verified': is_verified,
+                        'canonical_name': getattr(cit, 'canonical_name', None) if can_have_canonical else None,
+                        'canonical_date': getattr(cit, 'canonical_date', None) if can_have_canonical else None,
+                        'canonical_url': getattr(cit, 'canonical_url', None) if can_have_canonical else None,
                         'source': verification_source if verification_source else source,  # Prioritize verification_source but use source if not available
                         'error': getattr(cit, 'error', None),
+                        'true_by_parallel': has_true_by_parallel,
                         # Backend-driven mismatch flags
                         'name_mismatch': getattr(cit, 'name_mismatch', False),
                         'date_mismatch': getattr(cit, 'date_mismatch', False),
@@ -3127,6 +4155,10 @@ class UnifiedClusteringMaster:
                 'confidence': cluster.get('confidence', 0.0),
                 'verification_status': 'verified' if best_verified else 'not_verified',
                 'verification_source': cluster_verification_source,
+                # CRITICAL FIX: Add cluster-level extracted fields (from document)
+                'extracted_case_name': best_name or 'N/A',  # Extracted from document
+                'extracted_date': best_year or 'N/A',       # Extracted from document
+                # Canonical fields (from API verification)
                 'canonical_name': cluster_canonical_name,
                 'canonical_date': cluster_canonical_date,
                 'metadata': cluster.get('metadata', {}),
@@ -3159,36 +4191,13 @@ class UnifiedClusteringMaster:
         return formatted_clusters
     
     def _normalize_case_name(self, case_name: str) -> str:
-        """Normalize case name for clustering."""
+        """Normalize case name for clustering (uses comprehensive normalization)."""
         if not case_name:
             return 'unknown'
         
-        # Convert to lowercase and remove extra whitespace
-        normalized = case_name.lower().strip()
-        
-        # Remove common variations
-        normalized = re.sub(r'\s+v\.\s+', ' v ', normalized)
-        normalized = re.sub(r'\s+vs\.\s+', ' v ', normalized)
-        normalized = re.sub(r'\s+vs\s+', ' v ', normalized)
-        
-        # Remove punctuation
-        normalized = re.sub(r'[^\w\s]', ' ', normalized)
-        
-        # Remove caption-role/docket tokens that are not part of party names
-        try:
-            tokens = [
-                'et', 'al', 'et al', 'petitioners', 'respondent', 'appellant', 'appellee',
-                'plaintiff', 'defendant', 'no', 'aka'
-            ]
-            for t in tokens:
-                normalized = re.sub(r"\b" + re.escape(t) + r"\b", " ", normalized)
-        except Exception:
-            pass
-        
-        # Normalize whitespace
-        normalized = re.sub(r'\s+', ' ', normalized).strip()
-        
-        return normalized
+        # FIX: Use the comprehensive normalization that includes abbreviation expansion
+        # This ensures "Rice v. Dow Chem. Co." matches "Rice v. Dow Chemical Co."
+        return self._normalize_case_name_for_clustering(case_name) or 'unknown'
     
     def _calculate_name_similarity(self, name1: str, name2: str) -> float:
         """Calculate similarity between two case names."""
@@ -3453,7 +4462,8 @@ class UnifiedClusteringMaster:
         
         # Strategy 1: Look for case name pattern before "No." (case number)
         # Enhanced to handle multi-plaintiff cases like "GOPHER MEDIA LLC, ...; AJAY THAKORE, ... v. DEFENDANT"
-        case_number_match = re.search(r'No\.\s+\d{2,4}-\d{3,5}', header, re.IGNORECASE)
+        # FIX: Updated pattern to handle case numbers like "103135-1" (6 digits before dash, 1 after)
+        case_number_match = re.search(r'No\.\s+\d{4,7}-\d{1,3}', header, re.IGNORECASE)
         if case_number_match:
             # Look backwards from case number for case name
             before_case_num = header[:case_number_match.start()]
@@ -3491,11 +4501,154 @@ class UnifiedClusteringMaster:
                         return case_name
             
             # Original single-plaintiff logic as fallback
-            v_pattern = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{5,80})\s+v\.\s+([A-Z][A-Za-z\s\.,&\-\']{5,80})', before_case_num, re.IGNORECASE)
-            if v_pattern:
-                case_name = f"{v_pattern.group(1).strip()} v. {v_pattern.group(2).strip()}"
-                logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 1): '{case_name}'")
-                return case_name
+            # FIX: Look for case name pattern more specifically - find "v." and work backwards
+            # This avoids matching from the beginning of the text (like "E SUPREME COURT")
+            v_match = re.search(r'\s+v\.\s+', before_case_num, re.IGNORECASE)
+            if v_match:
+                # Extract text before "v." - look for the last 200 chars to get the plaintiff name
+                before_v = before_case_num[max(0, v_match.start()-200):v_match.start()].strip()
+                # Find the actual party name (skip court names, etc.)
+                # NEW APPROACH: Look backwards from "Petitioners" to find the actual name
+                # Find "Petitioners" or similar role word at the end (since before_v ends before "v.")
+                role_match = re.search(r'(?:Petitioners?|Appellants?|Plaintiffs?)\s*,?\s*$', before_v, re.IGNORECASE)
+                if role_match:
+                    # Get text before the role word
+                    before_role = before_v[:role_match.start()].strip()
+                    # Now find the name - look for "ET AL" pattern first, then extract name before it
+                    # This avoids matching from the beginning of the text
+                    et_al_match = re.search(r'\s+ET\s+AL\.?\s*,?\s*$', before_role, re.IGNORECASE)
+                    if et_al_match:
+                        # Extract text before "ET AL"
+                        before_et_al = before_role[:et_al_match.start()].strip()
+                        # Now find the name - look for the last proper name (skip court words)
+                        # Pattern: Look for a name that doesn't start with court words
+                        plaintiff_match = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{5,50})\s*$', before_et_al)
+                        if plaintiff_match:
+                            plaintiff_text = plaintiff_match.group(1).strip()
+                            # Filter out if it starts with common court words
+                            court_words = ['THE SUPREME', 'THE COURT', 'IN THE', 'STATE OF', 'SUPREME COURT', 'WASHINGTON', 'F THE STATE', 'OF THE STATE']
+                            if any(plaintiff_text.upper().startswith(word) or word in plaintiff_text.upper() for word in court_words):
+                                # Split and find the actual name
+                                parts = re.split(r'\b(?:OF|THE|STATE|COURT|SUPREME|IN)\b', before_et_al, flags=re.IGNORECASE)
+                                if parts:
+                                    # Filter out empty parts and find the last meaningful part
+                                    non_empty_parts = [p.strip() for p in parts if p.strip() and len(p.strip()) > 3]
+                                    if non_empty_parts:
+                                        # Take the last part (should be the name)
+                                        last_part = non_empty_parts[-1]
+                                        # Extract just the name part - look for pattern like "KERRY L. ERICKSON"
+                                        # Pattern: At least 2 capitalized words (person name pattern)
+                                        name_match = re.search(r'([A-Z][A-Za-z]+(?:\s+[A-Z]\.?\s*)?[A-Z][A-Za-z]+)', last_part)
+                                        if name_match:
+                                            name_text = name_match.group(1).strip()
+                                        # Fallback: if no pattern match, take the last part if it has multiple words
+                                        elif len(last_part.split()) >= 2:
+                                            # Remove "WASHINGTON" if it's the first word
+                                            words = last_part.split()
+                                            if words[0].upper() == 'WASHINGTON' and len(words) > 2:
+                                                name_text = ' '.join(words[1:])
+                                            else:
+                                                name_text = last_part
+                                        else:
+                                            name_text = None
+                                        
+                                        # Create a simple match-like object if we found a name
+                                        if name_text:
+                                            class SimpleMatch:
+                                                def __init__(self, text):
+                                                    self._text = text
+                                                def group(self, n=1):
+                                                    return self._text if n == 1 else None
+                                            plaintiff_match = SimpleMatch(name_text)
+                                else:
+                                    plaintiff_match = None
+                    else:
+                        plaintiff_match = None
+                    if not plaintiff_match:
+                        # Fallback: just take the last reasonable name, but filter out court phrases
+                        plaintiff_match = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{5,50})\s*$', before_role)
+                        if plaintiff_match:
+                            plaintiff_text = plaintiff_match.group(1).strip()
+                            # Filter out if it starts with common court words or contains them
+                            court_words = ['THE SUPREME', 'THE COURT', 'IN THE', 'STATE OF', 'SUPREME COURT', 'WASHINGTON', 'F THE STATE', 'OF THE STATE']
+                            if any(plaintiff_text.upper().startswith(word) or word in plaintiff_text.upper() for word in court_words):
+                                # Try to find the actual name - look for a pattern like "KERRY L. ERICKSON"
+                                # Split by common words and take the last part
+                                parts = re.split(r'\b(?:OF|THE|STATE|COURT|SUPREME|IN|OF)\b', before_role, flags=re.IGNORECASE)
+                                if parts:
+                                    # Find the last part that looks like a name (has letters, not just court words)
+                                    for part in reversed(parts):
+                                        part = part.strip()
+                                        if part and len(part) > 5:
+                                            # Check if it looks like a name (has letters, not all caps court words)
+                                            name_match = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{5,50})', part)
+                                            if name_match:
+                                                name_text = name_match.group(1).strip()
+                                                # Make sure it's not a court word
+                                                if not any(name_text.upper().startswith(word) for word in court_words):
+                                                    plaintiff_match = name_match
+                                                    break
+                                    else:
+                                        # If no good part found, try to extract just the name part
+                                        # Look for pattern like "KERRY L. ERICKSON" or "ERICKSON"
+                                        name_match = re.search(r'([A-Z][A-Z][A-Za-z\s\.,&\-\']{3,30})\s+(?:ET\s+AL\.?)?\s*$', before_role, re.IGNORECASE)
+                                        if name_match:
+                                            plaintiff_match = name_match
+                                        else:
+                                            plaintiff_match = None
+                                else:
+                                    plaintiff_match = None
+                else:
+                    # No role word found, try original approach
+                    plaintiff_match = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{3,50})\s+ET\s+AL\.?\s*,?\s*(?:Petitioners?|Appellants?|Plaintiffs?)\s*$', before_v, re.IGNORECASE)
+                    if not plaintiff_match:
+                        plaintiff_match = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{3,50})\s+(?:Petitioners?|Appellants?|Plaintiffs?)\s*$', before_v, re.IGNORECASE)
+                
+                # Extract defendant after "v."
+                after_v = before_case_num[v_match.end():].strip()
+                defendant_match = re.search(r'^([A-Z][A-Za-z\s\.,&\-\']{3,60})(?:\s*,?\s*(?:Respondents?|Appellees?|Defendants?))?', after_v, re.IGNORECASE)
+                
+                if plaintiff_match and defendant_match:
+                    plaintiff_name = plaintiff_match.group(1).strip()
+                    defendant_name = defendant_match.group(1).strip()
+                    case_name = f"{plaintiff_name} v. {defendant_name}"
+                else:
+                    # Fallback to original pattern if new logic fails
+                    v_pattern = re.search(r'([A-Z][A-Za-z\s\.,&\-\']{5,80})\s+v\.\s+([A-Z][A-Za-z\s\.,&\-\']{5,80})', before_case_num, re.IGNORECASE)
+                    if v_pattern:
+                        case_name = f"{v_pattern.group(1).strip()} v. {v_pattern.group(2).strip()}"
+                    else:
+                        case_name = None
+            else:
+                case_name = None
+            
+            if case_name:
+                # CRITICAL: Even if it has header patterns, extract and clean it for comparison
+                # We need to detect "Erickson v. Pharmacia, LLC" even if it appears as "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO"
+                case_name_upper = case_name.upper()
+                has_et_al = 'ET AL' in case_name_upper or 'ETAL' in case_name_upper.replace(' ', '')
+                has_role_word = any(role in case_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                has_no = 'NO.' in case_name_upper or ' NO ' in case_name_upper or case_name_upper.endswith(' NO')
+                
+                # If it has header patterns, clean them and extract the core case name
+                if (has_et_al and has_role_word) or (has_role_word and has_no):
+                    # Clean the header to get the core case name for comparison
+                    # Remove "ET AL" and role words, normalize
+                    cleaned = case_name
+                    cleaned = re.sub(r'\bet\s+al\.?\b', '', cleaned, flags=re.IGNORECASE)
+                    cleaned = re.sub(r'\b(?:petitioners?|appellants?|plaintiffs?|appellees?|respondents?|defendants?)\b', '', cleaned, flags=re.IGNORECASE)
+                    cleaned = re.sub(r'\bno\.?\s*\d+', '', cleaned, flags=re.IGNORECASE)
+                    cleaned = re.sub(r'[,\.\s]+', ' ', cleaned)
+                    cleaned = cleaned.strip()
+                    
+                    if cleaned and len(cleaned) > 10 and ' v. ' in cleaned:
+                        logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 1, cleaned from header): '{cleaned}'")
+                        return cleaned
+                    else:
+                        logger.debug(f"[CONTAMINATION-FILTER] Skipping header pattern (Strategy 1): '{case_name}' (cleaned too short: '{cleaned}')")
+                else:
+                    logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 1): '{case_name}'")
+                    return case_name
         
         # Strategy 2: Look for case name in first few lines (typical brief format)
         lines = header.split('\n')
@@ -3519,8 +4672,30 @@ class UnifiedClusteringMaster:
         match = re.search(pattern, header)
         if match:
             case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
-            logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 3): '{case_name}'")
-            return case_name
+            # CRITICAL: Even if it has header patterns, extract and clean it for comparison
+            case_name_upper = case_name.upper()
+            has_et_al = 'ET AL' in case_name_upper or 'ETAL' in case_name_upper.replace(' ', '')
+            has_role_word = any(role in case_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+            has_no = 'NO.' in case_name_upper or ' NO ' in case_name_upper or case_name_upper.endswith(' NO')
+            
+            # If it has header patterns, clean them and extract the core case name
+            if (has_et_al and has_role_word) or (has_role_word and has_no):
+                # Clean the header to get the core case name for comparison
+                cleaned = case_name
+                cleaned = re.sub(r'\bet\s+al\.?\b', '', cleaned, flags=re.IGNORECASE)
+                cleaned = re.sub(r'\b(?:petitioners?|appellants?|plaintiffs?|appellees?|respondents?|defendants?)\b', '', cleaned, flags=re.IGNORECASE)
+                cleaned = re.sub(r'\bno\.?\s*\d+', '', cleaned, flags=re.IGNORECASE)
+                cleaned = re.sub(r'[,\.\s]+', ' ', cleaned)
+                cleaned = cleaned.strip()
+                
+                if cleaned and len(cleaned) > 10 and ' v. ' in cleaned:
+                    logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 3, cleaned from header): '{cleaned}'")
+                    return cleaned
+                else:
+                    logger.debug(f"[CONTAMINATION-FILTER] Skipping header pattern (Strategy 3): '{case_name}' (cleaned too short: '{cleaned}')")
+            else:
+                logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 3): '{case_name}'")
+                return case_name
         
         logger.warning("[CONTAMINATION-FILTER] Could not extract document primary case name")
         return None

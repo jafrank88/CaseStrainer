@@ -22,53 +22,32 @@ def select_best_cluster_from_result(result, extracted_case_name, debug=False):
     
     if len(clusters) == 1:
         if debug:
-            return clusters[0]
+            logger.debug(f"Only one cluster found, returning it")
+        return clusters[0]
     
     if not extracted_case_name:
         if debug:
-            return clusters[0]
+            logger.debug(f"No extracted_case_name provided, returning first cluster")
+        return clusters[0]
     
     best_cluster = None
     best_similarity = 0.0
     
-    if True:
-
-    
-        pass  # Empty block
-
-    
-    
-        pass  # Empty block
-
-    
-    
-        pass  # Debug logging can be added here if needed
-
-    
+    if debug:
+        logger.debug(f"Comparing {len(clusters)} clusters against extracted name: {extracted_case_name}")
     
     for i, cluster in enumerate(clusters):
         case_name = cluster.get('case_name', '')
         
         if not case_name:
             if debug:
+                logger.debug(f"Skipping result {i} with no case_name")
             continue
         
         similarity = calculate_case_name_similarity(extracted_case_name, case_name)
         
-        if True:
-
-        
-            pass  # Empty block
-
-        
-        
-            pass  # Empty block
-
-        
-        
-            pass  # Debug logging can be added here if needed
-
-        
+        if debug:
+            logger.debug(f"Cluster {i}: '{case_name}' - Similarity: {similarity:.2f}")
         
         if similarity > best_similarity:
             best_similarity = similarity
@@ -78,10 +57,12 @@ def select_best_cluster_from_result(result, extracted_case_name, debug=False):
     
     if best_cluster and best_similarity >= similarity_threshold:
         if debug:
-            return best_cluster
+            logger.debug(f"Selected best cluster with similarity {best_similarity:.2f} (threshold: {similarity_threshold})")
+        return best_cluster
     else:
         if debug:
-            return clusters[0]
+            logger.debug(f"No cluster met threshold ({similarity_threshold}), returning first cluster")
+        return clusters[0]
 
 def verify_citations_with_courtlistener_batch(courtlistener_api_key, citations, text):
     """DEPRECATED: Batch verification is no longer used.
@@ -172,17 +153,7 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                 
                 found_results = [r for r in api_results if r.get('status') != 404 and r.get('clusters')]
                 
-                if True:
-
-                
-                    pass  # Empty block
-
-                
-                
-                    pass  # Empty block
-
-                
-                
+                if found_results:
                     needs_similarity_matching = False
                     total_clusters = 0
                     
@@ -226,14 +197,19 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                             })
                             return result
                         else:
-                
+                            logger.debug(f"[CL lookup] {citation} Missing required fields in cluster")
+                    else:
+                        logger.debug(f"[CL lookup] {citation} No cluster found")
                 
             except (KeyError, IndexError) as e:
-                
+                logger.error(f"[CL lookup] {citation} Parse error: {e}")
         elif response.status_code == 404:
+            logger.debug(f"[CL lookup] {citation} Not found (404)")
         else:
+            logger.error(f"[CL lookup] {citation} HTTP {response.status_code}")
             
     except Exception as e:
+        logger.error(f"[CL lookup] {citation} Exception: {e}")
         
     try:
         search_url = "https://www.courtlistener.com/api/rest/v4/search/"
@@ -266,11 +242,14 @@ def _verify_with_courtlistener_basic(courtlistener_api_key, citation, extracted_
                         })
                         return result
                     else:
+                        logger.debug(f"[CL search] {citation} Missing case_name or date_filed")
                 else:
+                    logger.debug(f"[CL search] {citation} No results found")
                         
             except json.JSONDecodeError as e:
                 logger.error(f"[CL search] {citation} JSON decode error: {e}")
         else:
+            logger.error(f"[CL search] {citation} HTTP {response.status_code}")
             
     except Exception as e:
         logger.error(f"[CL search] {citation} exception: {e}")

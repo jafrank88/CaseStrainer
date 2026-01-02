@@ -94,7 +94,7 @@ def clean_extracted_case_name(case_name: str) -> str:
         word_count = sum(1 for word in legal_words if word.lower() in name.lower())
         
         if word_count >= 2:  # Too many legal procedural words
-            logger.warning(f"🚫 CONTAMINATION: Rejected case name '{name}' - contains {word_count} legal procedural words")
+            logger.warning(f"[CONTAMINATION] Rejected case name '{name}' - contains {word_count} legal procedural words")
             return "N/A"
         
         # Check for sentence-like structures that indicate contamination
@@ -102,12 +102,12 @@ def clean_extracted_case_name(case_name: str) -> str:
         sentence_indicators = [' and by the ', ' are that ', ' who do not ', ' we decline to ', ' as it is beyond ']
         
         if any(indicator in name for indicator in sentence_indicators):
-            logger.warning(f"🚫 CONTAMINATION: Rejected case name '{name}' - contains sentence structure")
+            logger.warning(f"[CONTAMINATION] Rejected case name '{name}' - contains sentence structure")
             return "N/A"
         
         # Check if too long (likely contaminated with legal text)
         if len(name) > 150:  # Reasonable case name length limit
-            logger.warning(f"🚫 CONTAMINATION: Rejected case name '{name}' - too long ({len(name)} chars)")
+            logger.warning(f"[CONTAMINATION] Rejected case name '{name}' - too long ({len(name)} chars)")
             return "N/A"
 
     return name

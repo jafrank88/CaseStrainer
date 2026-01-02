@@ -1,0 +1,922 @@
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON
+) 
+STEVEN HORVATH, ) 
+) 
+Petitioner, ) No. 103339-7 
+) 
+v. ) 
+) En Banc
+DBIA SERVICES DBA ) 
+METROPOLITAN IMPROVEMENT ) 
+DISTRICT ) Filed: December 18, 2025
+) 
+Respondent. ) 
+) 
+GONZÁLEZ,J.—The people of our state adopted the public disclosure act by 
+initiative half a century ago. Initiative 276, LAWS OF 1973, ch. 1 (approved 
+November 7, 1972). That initiative embodied a principle expressed in the official 
+voters pamphlet: 
+The People Have the Right to Know . . . 
+Our whole concept of democracy is based on an informed and 
+involved citizenry. Trust and confidence in governmental institutions is
+at an all time low. High on the list of causes of this citizen distrust are 
+secrecy in government and the influence of private money on 
+governmental decision making. Initiative 276 brings all of this out into 
+the open for citizens and voters to judge for themselves.
+FILE 
+IN CLERK’S OFFICE
+SUPREME COURT, STATE OF WASHINGTON 
+DECEMBER 18, 2025
+THIS OPINION WAS FILED
+FOR RECORD AT 8 A.M. ON 
+DECEMBER 18, 2025
+SARAH R. PENDLETON 
+SUPREME COURT CLERK 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+2 
+State of Washington Official Voters Pamphlet, General Election 10 (Nov. 7, 1972), 
+https://www.sos.wa.gov/library/research-collections/classics-washingtonhistory/1972-voters-pamphlet. The act imposed stringent transparency 
+requirements on elections, campaign financing, lobbying, and public records. 
+LAWS OF 1973, ch. 1, § 1. 
+In the years since, the legislature has reorganized and amended the original 
+public disclosure act and separated the records provisions into its own chapter of 
+the code now called the Public Records Act. LAWS OF 2005, ch. 274. The guiding
+principle that disclosure is the rule and secrecy the exception remains. See LAWS
+OF 1973, ch. 1, §§ 26, 31; Fisher Broad.–Seattle TV LLC v. City of Seattle, 180 
+Wn.2d 515, 521, 326 P.3d 688 (2014) (quoting Sargent v. Seattle Police Dep’t, 179 
+Wn.2d 376, 385, 314 P.3d 1093 (2013)). 
+To prevent public records from becoming unavailable through private 
+contracting, we have construed the Public Records Act to apply to private entities 
+that are the functional equivalent of government agencies. We have regularly used 
+the multifactor Telford test to decide whether the Public Records Act applies to a 
+particular private entity. Fortgang v. Woodland Park Zoo, 187 Wn.2d 509, 512-
+13, 387 P.3d 690 (2017) (citing Telford v. Thurston County Bd. of Comm’rs, 95 
+Wn. App. 149, 162-63, 974 P.2d 886 (1999)). 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+3 
+In this case, a requester sought records relating to a business and parking 
+improvement district that were held by the private nonprofit corporation DBIA 
+Services, which managed and largely provided district programs and services for 
+the city of Seattle. At summary judgment, the superior court concluded the 
+corporation was not the functional equivalent of a government agency and thus not 
+subject to the Public Records Act. The Court of Appeals affirmed that decision. 
+We conclude that DBIA Services is the functional equivalent of a 
+government agency and thus subject to the Public Records Act. Accordingly, we 
+reverse and remand to the trial court for any further proceedings necessary 
+consistent with this opinion. 
+BACKGROUND
+The Metropolitan Improvement District, the Downtown Seattle Association, 
+and DBIA Services
+Our legislature has authorized municipalities to create parking and business 
+improvement areas and to support those districts through assessments imposed on 
+those properties. Ch. 35.87A RCW; see also David J. Kennedy, Note, Restraining 
+the Power of Business Improvement Districts: The Case of the Grand Central 
+Partnership, 15 YALE L. & POL’Y REV. 283 (1996) (discussing the history of and 
+controversies around publicly created municipal improvement areas). 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+4 
+Improvement areas are created by the local legislative authority. RCW 
+35.87A.030. Their creation can be initiated by the legislative body itself or by a 
+petition from the owners of 60% of the assessed value in an area. Id. Property 
+owners in these improvement areas pay special assessments to fund various types 
+of improvements that must benefit their properties. RCW 35.87A.010.
+1
+ 
+Municipalities collect the funds and may either carry out the projects themselves or 
+contract with a local chamber of commerce or “similar business association” to do 
+so. RCW 35.87A.110. 
+The private nonprofit Downtown Seattle Association was formed in 1958 by
+a group of prominent King County residents to “promote the development, 
+beautification and improvement of the City of Seattle.” Clerk’s Papers (CP) at 
+103-04, 112. The association, among others, petitioned the Seattle City Council to
+create the Metropolitan Improvement District in 1999. The city complied via an 
+ordinance that lays out the organization, oversight, and purpose of the district. CP 
+at 105; Seattle Ordinance 124175 (May 6, 2013), amended by Ordinance 124235
+(July 31, 2013). 
+1
+ Under our constitution, property must be specially benefited to be subject to a special 
+assessment. WASH. CONST. art. VII, § 9; City of Seattle v. Rogers Clothing for Men, Inc., 114 
+Wn.2d 213, 223, 787 P.2d 39 (1990). That benefit can derive from services. Rogers, 114 Wn.2d 
+at 225-26. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+5 
+The Metropolitan Improvement District currently covers nearly 300 square 
+blocks of downtown Seattle. To fund the district, the council collects assessments 
+from more than 800 district property owners. Seattle Ordinance 124175, at 4; CP 
+at 163, 179. These assessments pay for police patrols, other public safety efforts, 
+cleaning, marketing, economic development, transportation, and other projects
+“intended to extend, enhance and fill gaps in existing municipal services.” CP at 
+179, 163. 
+A ratepayer advisory board (Board) oversees district operations. Seattle 
+Ordinance 124175, at 11; CP at 106, 134. The Board is made up of 35 property 
+owners recommended by the Board and appointed by the city finance director. 
+Among other things, the Board advises the city council on who to hire as the 
+district’s program manager. 
+The Board has repeatedly and successfully recommended the city hire DBIA 
+Services as the program manager. DBIA is a private nonprofit corporation and a 
+subsidiary of the Downtown Seattle Association. On behalf of the district, DBIA 
+manages, among other things, cleaning and maintenance, community service and 
+hospitality, welfare checks, public safety, public space operations, economic 
+development and planning, transportation and parking services, communications 
+and marketing, and management and operations. DBIA provides some of those 
+services through its own employees and some through contractors. DBIA directly 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+6 
+hires “downtown ambassadors,” who do everything from assisting transit riders to 
+removing trash to performing welfare checks. CP at 107. DBIA also hires private 
+security and, under a separate contract, works with the parks department to provide 
+programming at Westlake Park and Occidental Square.
+DBIA also contracts with the Seattle Police Department to fund “emphasis
+patrols” in the Metropolitan Improvement District in areas it identifies as 
+“neighborhood hot spots.” CP at 107, 249, 430, 489. DBIA reimburses the police 
+department for those patrols, which are under the control of the police department. 
+More than 92 percent of DBIA’s budget comes from assessments imposed 
+on local property owners under the ordinance, collected by the city, held by the
+city in a city financial account, and paid to DBIA monthly upon invoicing. 
+DBIA’s 2022-2023 budget was $16,627,731. DBIA also receives voluntary 
+contributions from ratepayers, grants, private donations, fees for services, King 
+County funds for “downtown recovery efforts,” and sponsorship funds. CP at 108-
+09, 344. 
+DBIA files its taxes as “DBIA Services dba Metropolitan Improvement 
+District” and invoices the city of Seattle referring to itself as “DBIA Services dba 
+Metropolitan Improvement District.” CP at 581, 613, 730. DBIA has also 
+regularly identified itself as the “MID BIA” (an acronym for the Metropolitan 
+Improvement District Business Improvement Area) CP at 376, 382, 389. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+7 
+Many of the public facing documents in the record do not make a distinction 
+between the Metropolitan Improvement District and DBIA. For example, the 
+business plan the Board prepared in support of renewal of the ordinance for 10 
+years refers to work done by the district’s staff without making any distinction as 
+to whether the district did that work directly or through DBIA.
+While DBIA acknowledges that it has identified itself as “doing business as” 
+the district, it contends that this was “for identification purposes with the City: the 
+name ‘DBIA Services’ would have been unfamiliar but the name ‘Metropolitan 
+Improvement District’ would have been easily associated with the newly-formed 
+[district].” CP at 727. Similarly, it contended its use of “Metropolitan 
+Improvement District” on letterhead and in internal documents was a practical way 
+of identifying which entity DBIA Services is representing at the time. CP at 727-
+28. 
+Steve Horvath’s Public Records Act Request
+Horvath lives within, and is assessed to support, the Metropolitan 
+Improvement District. In 2021, he requested records relating to assessments, 
+budgets, taxes, job descriptions, meeting minutes, and compensation paid by the 
+district, among other things. 
+Horvath initially sought those records from Seattle’s Office of Economic 
+Development, which works with stakeholders to create parking and business 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7
+8
+improvement areas across the city. After several months, he was told the office did 
+not have the records he was seeking and was directed to seek the information from 
+Elisabeth James, chief operating officer of the Downtown Seattle Association. The 
+Association shares staff with DBIA. While making clear she believed that the 
+Downtown Seattle Association was not a public agency subject to the Public 
+Records Act, James did provide many of the records Horvath requested. She did 
+not, however, provide the staff compensation information Horvath was seeking.2
+Procedural History 
+Horvath filed a Public Records Act complaint against “DBIA Services dba 
+Metropolitan Improvement District.” CP at 1. After discovery, the parties filed 
+cross motions for summary judgment. DBIA also moved for declaratory judgment 
+that it was not a governmental entity for purposes of the Public Records Act. 
+Horvath argued that the Metropolitan Improvement District was the 
+functional equivalent of a government agency and that it and DBIA were legally 
+2 Specifically, Horvath was not given “Current (2021) annual compensation information (wages 
+and benefits) for all staff identified on https://downtownseattle.org/about/our-team/all-staff/ that 
+perform services for and whose pay and benefits are either wholly or partially funded by 
+Metropolitan Improvement District Business Improvement Area] revenue (regardless of its 
+source).” CP at 110; 349-51. After discussing the matter with district leadership, Ken 
+Lederman, then general counsel to Metropolitan Improvement District, expressed the concern 
+that providing that information would impact the ability to recruit and retain employees. This 
+appears to be the only outstanding record at issue in this suit, though amicus American Civil 
+Liberties Union of Washington (ACLU) suggests that under the Court of Appeals opinion, public 
+records concerning decisions regarding police activity funded by improvement districts would be 
+shielded from public disclosure. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+9 
+and factually a single integrated entity. Horvath also stressed that in internal 
+documents, defendants referred to the district and DBIA Services interchangeably. 
+He noted that his request to the district for district records was responded to by 
+employees and officers of the association and DBIA. While he acknowledged 
+DBIA was created by private stakeholders, he argued that by doing business as the 
+district, DBIA became bound by the Public Records Act.
+DBIA argued that it was not the functional equivalent of a governmental
+entity and that DBIA and the Metropolitan Improvement District were separate 
+entities. See CP at 77, 534. 
+The superior court rejected Horvath’s argument that DBIA and the district 
+were a single entity for purposes of the Public Records Act. The court found 
+persuasive that the legislature had authorized municipalities to contract with 
+private organizations to manage improvement area projects and that in its view, an 
+improvement district “cannot ‘do business’ because it is a geographic area, not an 
+actor.” CP at 743. It applied the Telford factors only to DBIA, granted DBIA’s 
+motions, and denied Horvath’s in a lengthy written summary judgment order. 
+Horvath appealed. The Court of Appeals rejected the parties’ agreement that 
+the trial court’s summary judgment order should be reviewed de novo. Horvath v. 
+DBIA Servs., 31 Wn. App. 2d 549, 558, 551 P.3d 1053 (2024). Applying the abuse 
+of discretion standard, the Court of Appeals affirmed. Id. at 574. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+10 
+The parties sought review of only the standard of review, which we granted. 
+The American Civil Liberties Union of Washington Foundation (ACLU) submitted 
+an amicus brief in support of Horvath on the merits. 
+ANALYSIS
+The Public Records Act “is a ‘strongly worded mandate for broad disclosure 
+of public records.’” Resident Action Council v. Seattle Hous. Auth., 177 Wn.2d 
+417, 431, 327 P.3d 600 (2013) (quoting Hearst Corp. v. Hoppe, 90 Wn.2d 123, 
+127, 580 P.2d 246 (1978)). We interpret the act liberally with this purpose in 
+mind. Worthington v. WestNET, 182 Wn.2d 500, 507, 341 P.3d 995 (2015)
+(quoting RCW 42.56.030). “The Act reflects the belief that the sound governance 
+of a free society demands that the public have full access to information 
+concerning the workings of the government.” Amren v. City of Kalama, 131 
+Wn.2d 25, 31, 929 P.2d 389 (1997). 
+The parties agree, as do we, that appellate courts review a trial court’s 
+summary judgment ruling on liability de novo. Hearst Commc’ns, Inc. v. Seattle 
+Times Co., 154 Wn.2d 493, 501, 115 P.3d 262 (2005) (citing Trimble v. Wash. 
+State Univ., 140 Wn.2d 88, 92, 993 P.2d 259 (2000)); Spokane Rsch. & Def. Fund 
+v. City of Spokane, 155 Wn.2d 89, 106, 117 P.3d 1117 (2005).3
+ Summary
+3 The Court of Appeals erred in applying abuse of discretion review to the trial court’s summary 
+judgment ruling on liability. We have previously recognized that there are occasions where a 
+trial court’s summary judgment ruling on remedy or damages might warrant greater deference 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+11 
+judgment is appropriate only when, based on sworn affidavits from competent 
+witnesses presenting admissible facts and appropriate authenticated 
+documentation, there is no genuine issue of material fact and the moving party is 
+entitled to a judgment as a matter of law. CR 56(c); Brannon v. Herman, 56 
+Wn.2d 826, 828, 355 P.2d 792 (1960); 14A DOUGLAS ENDE, WASHINGTON
+PRACTICE: CIVIL PROCEDURE §§ 25:1-7, at 10-16 (3d ed. Supp. 2025). The material 
+facts in this case are undisputed.
+The parties have focused their briefing and argument on the merits. We 
+exercise our discretion to address those merits and hold that DBIA is the functional 
+equivalent of a government agency and thus subject to the Public Records Act. 
+A “public record” is “(1) a writing (2) related to the conduct of government 
+or the performance of government functions that is (3) prepared, owned, used, or 
+retained by a state or local agency.” Nissen v. Pierce County, 183 Wn.2d 863, 
+879-80, 357 P.3d 45 (2015) (citing Confederated Tribes of the Chehalis Rsrv. v.
+Johnson, 135 Wn.2d 734, 746, 958 P.2d 260 (1998)); RCW 42.56.010(3). For the 
+purposes of the act, the legislature has defined “agency” broadly: 
+“Agency” includes all state agencies and all local agencies. “State agency” 
+includes every state office, department, division, bureau, board, commission, 
+or other state agency. “Local agency” includes every county, city, town, 
+municipal corporation, quasi-municipal corporation, or special purpose 
+than afforded by de novo review. See Borton & Sons, Inc. v. Burbank Props., LLC, 196 Wn.2d 
+199, 206, 471 P.3d 871 (2020); Niemann v. Vaughn Cmty. Church, 154 Wn.2d 365, 113 P.3d 
+463 (2005). But at this stage, only liability is at issue. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+12 
+district, or any office, department, division, bureau, board, commission, or 
+agency thereof, or other local public agency. “Agency” does not include a 
+comprehensive cancer center participating in a collaborative arrangement as 
+defined in RCW 28B.10.930 that is operated in conformance with 
+RCW 28B.10.930. 
+RCW 42.56.010(1). In Telford, the Court of Appeals recognized that the definition 
+of “agency” was ambiguous as applied to the Washington State Association of 
+Counties and the Washington Association of County Officials, both of which had 
+some features of local agencies and some features of private ones. 95 Wn. App. at 
+152, 158. Based on case law in other state and federal courts, the Telford court 
+adopted the test we now use to “prevent[] governments from evading public 
+oversight through creative contracting.” Fortgang, 187 Wn.2d at 513. 
+Under the multifactor Telford test, the court considers “(1) whether the 
+entity performs a government function, (2) the extent to which the government 
+funds the entity’s activities, (3) the extent of government involvement in the 
+entity’s activities, and (4) whether the entity was created by the government.” Id.
+at 518 (citing Clarke v. Tri-Cities Animal Care & Control Shelter, 144 Wn. App. 
+185, 192, 181 P.3d 881 (2008)). 
+No one factor is dispositive, and we have never held the factors to be 
+exclusive. “Courts applying the test consider whether ‘the criteria on 
+balance . . . suggest that the entity in question is the functional equivalent of a 
+state or local agency.’” Id. (alteration in original) (quoting Clarke, 144 Wn. App at 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7
+13
+192). The Telford factors are applied, “[b]earing in mind that the purpose of 
+the Telford test is to determine whether, with respect to the particular defendant 
+entity at hand, immunity from [Public Records Act] requirements would frustrate 
+the goal of government transparency.” Id. at 524. 
+A. GOVERNMENTAL FUNCTION. First, we consider whether the entity 
+performs core governmental functions. Id. Core governmental functions include 
+(but are not limited to) police power functions. Id. at 524-25. Generally, the 
+police power concerns the “peace, security, health, morals, and general welfare of a 
+community.” State v. Mountain Timber Co., 75 Wash. 581, 586, 135 P. 645 
+(1913), aff’d, 243 U.S. 219, 37 S. Ct. 260, 61 L. Ed. 685 (1917). 
+In Telford, the court held that consulting with state and county officials, 
+appointing persons to state and county boards, and participating in various state 
+boards and commissions were governmental functions. 95 Wn. App. 163-64. In 
+Cedar Grove, the court held that the government necessarily conceded that the 
+work of a third-party contractor that provided professional communications 
+services to a city was performing a governmental function when it argued the 
+employee was “act[ing] as the functional equivalent of a city employee.” Cedar 
+Grove Composting, Inc. v. City of Marysville, 188 Wn. App. 695, 719, 354 P.3d 
+249 (2015). In Clarke, the court held that an animal shelter was performing a 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+14 
+governmental function in carrying out animal control services. 144 Wn. App. at
+194. 
+In Spokane Research, the court concluded that providing community 
+services that benefited low- and moderate-income residents was not a government 
+function. Spokane Rsch. & Def. Fund v. W. Cent. Cmty. Dev. Ass’n, 133 Wn. App. 
+602, 609, 137 P.3d 120 (2006). Other courts have held that “[w]hen such 
+programs are conducted by an organization as a contractor rather than as 
+governmental entity, however, the organization is not performing a governmental 
+function.” Meri-Weather, Inc. v. Freedom of Info. Comm’n, 47 Conn. Supp. 113, 
+119, 778 A.2d 1038 (Conn. Super. Ct. 2000), aff’d, 63 Conn. App. 695, 778 A.2d 
+1006 (2001). Simply put, “serving public interests is not the exclusive domain of 
+the government.” Spokane Rsch., 133 Wn. App. at 609. 
+DBIA provides sanitation, public safety, hospitality, marketing, business 
+development, transit, and management services. Seattle Ordinance 124175, § 5. It 
+also engages and funds the police department to perform emphasis patrols.4 Thus, 
+unlike the organization in Spokane Research, DBIA does more than just “provide 
+community services.” 133 Wn. App. at 609. 
+4 We recognize that the Seattle Police Department retains control over the officers. However, as 
+amicus ACLU points out, emphasis patrols are usually “implemented at the behest of public 
+officials,” and the Public Records Act ordinarily provides access to records of “the governmental 
+and political process behind the public official’s decision.” Amicus Br. of ACLU Found. at 14-
+15. The identification of “neighborhood hot spots,” though not dispositive, resembles a
+governmental function.
+15 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+We conclude that at least some of the services DBIA provides, such as 
+public safety and sanitation, support the peace, security, health, and general 
+welfare of the city and thus are core governmental functions. See Mountain
+Timber Co., 75 Wash. at 586. This factor weighs in favor of concluding that DBIA
+is the functional equivalent of a government agency.
+B. GOVERNMENT FUNDING. The more public funding an agency receives, the
+more likely this factor is met. Fortgang, 187 Wn.2d at 529. The “foremost 
+consideration” is “the percentage of funds attributable to public sources,” although 
+“the type of funding matters,” as well. Id. About 93 percent of DBIA’s funding 
+traces to assessments imposed on district property owners by ordinance. The
+amount of the assessments is determined by the city council, and, by law, all funds 
+raised from the assessments are dedicated to the district. Seattle Ordinance
+124175, § 14; RCW 35.87A.120; WASH. CONST. art. VII, § 9. This funding
+scheme is not the type of “ordinary fee-for-services model [that] typically weighs 
+against functional equivalency.” Fortgang, 187 Wn.2d at 529. This factor weighs 
+heavily in favor of concluding that DBIA is the functional equivalent of a
+government agency.
+C. GOVERNMENT INVOLVEMENT. Our analysis of the “government control”
+factor “distinguishes between day-to-day control (supporting functional 
+equivalency) and mere regulation (supporting private entity status).” Id. at 530.
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+16 
+DBIA submitted unrebutted evidence that the city is not involved in day-to-day 
+operations. This factor weighs against concluding that DBIA is the functional 
+equivalent of a government agency. 
+D. GOVERNMENT CREATION. Our analysis of the final Telford factor focuses
+less on “whether the government was involved in the entity’s creation” but, rather, 
+“whether a government actually incorporated the entity at issue.” Id. at 531 
+(emphasis added). As discussed above, the Downtown Business Association 
+petitioned the city to create the Metropolitan Improvement District, which then 
+contracted with DBIA. However, the government ultimately did not create DBIA. 
+It was created by the Downtown Business Association, a private nonprofit. This 
+factor weighs against concluding that DBIA is the functional equivalent of a 
+government agency. 
+The Telford factors are fairly balanced. But we apply these factors 
+“[b]earing in mind that the purpose of the Telford test is to determine whether, with 
+respect to the particular defendant entity at hand, immunity from [Public Records 
+Act] requirements would frustrate the goal of government transparency.” Id. at 
+524. For an individual like Horvath, who lives in the Metropolitan Improvement
+District and pays assessments that fund DBIA’s operations and the salaries of its 
+employees, DBIA’s immunity from the Public Records Act would clearly frustrate 
+the goal of government transparency. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+17 
+In addition to those factors, Horvath argues that we should treat DBIA and 
+the Metropolitan Improvement District as a single entity because DBIA often holds 
+itself out to be the district. See CP at 375, 394, 422, 424. In this case, this factor 
+weighs in favor of concluding DBIA’s records are public records, especially given
+the government’s control and creation of the district itself. 
+Given the undisputed facts of this case and the goal of government 
+transparency, we conclude that DBIA is the functional equivalent of a government 
+agency. Horvath’s request for attorney fees on appeal is granted with the amount 
+to be determined by the trial court after remand. 
+CONCLUSION
+We hold that DBIA is the functional equivalent of a government agency and 
+thus subject to the Public Records Act. Accordingly, we reverse the Court of 
+Appeals and remand to the trial court for further proceedings consistent with this 
+opinion. 
+Horvath v. DBIA Servs. dba Metro. Improvement Dist., No. 103339-7 
+18
+WE CONCUR:
+_____________________________ ____________________________
+_____________________________ ____________________________
+_____________________________ ____________________________
+_____________________________ ____________________________
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+1 
+No. 103339-7 
+MADSEN, J. (concurring in part and dissenting in part)—I agree with the 
+majority’s holding that the standard of review on summary judgment is de novo. That is 
+the only issue on which we granted review, and I would limit our scrutiny accordingly. 
+Nevertheless, the parties in this case briefed and argued a different issue: whether DBIA 
+Services, a private nonprofit, qualifies as the functional equivalent to a public agency and 
+is therefore subject to the Public Records Act (PRA), chapter 42.56 RCW. 
+Functional equivalency is determined by applying a four-factor test established in 
+Telford v. Thurston County Board of Commissioners, 95 Wn. App. 149, 162-63, 974 P.2d 
+886 (1999). Applying these factors to DBIA, the trial court concluded that the nonprofit 
+was not functionally equivalent to a public agency. I would affirm the trial court. 
+Because the majority comes to a different conclusion, I respectfully dissent. 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+2 
+BACKGROUND 
+This case implicates three local and state entities. The primary actor is DBIA 
+Services, which operates as the program manager for the Metropolitan Improvement 
+District (MID). Both are local to the city of Seattle. The MID was created pursuant to 
+state legislation—parking and business improvement areas (PBIAs), chapter 35.87A 
+RCW. Understanding how these entities originated and the purposes underlying them is 
+helpful in determining whether DBIA is the functional equivalent of a government 
+agency or merely a private government contractor. 
+Lawmakers authorized cities and towns to create PBIAs in 1971. LAWS OF 1971, 
+1st Sp. Sess., ch. 45. The legislative purpose of PBIAs is to drive economic development 
+and neighborhood revitalization, and to facilitate cooperation of merchants, businesses, 
+and residential property owners, which in turn assists with trade, economic viability, and 
+livability. RCW 35.87A.010. PBIAs are geographic areas that are established for certain 
+purposes, including acquiring, constructing, or maintaining parking facilities; decorating 
+public places; sponsoring or promoting public events; furnishing music; providing 
+professional management, planning, and promotion; providing maintenance and security 
+for common, public areas; or providing transportation services. RCW 35.87A.010(1). 
+PBIAs are funded by special assessments on all businesses and residential 
+buildings in the improvement area and must benefit the properties within that area 
+specifically, rather than the community at large. City of Seattle v. Rogers Clothing for 
+Men, Inc., 114 Wn.2d 213, 227-28, 787 P.2d 39 (1990). To establish a PBIA, citizens 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+3 
+must draft and submit a petition to the legislative body. RCW 35.87A.030. The petition 
+must contain a description of the boundaries of the proposed area, proposed “uses and 
+projects to which the proposed special assessment revenues shall be put and the total 
+estimated cost thereof,” and estimated rate of levy of the assessments broken down by 
+business and residential payers. Id. There is then a hearing on the petition. RCW 
+35.87A.060. If the legislative authority decides to establish the proposed area, it shall do 
+so by ordinance. RCW 35.87A.100. That ordinance must contain a description of the 
+boundaries of the area, statement of the businesses and residential projects subject to the 
+special assessments, rate of assessments, and importantly the “uses to which the special 
+assessment revenues shall be put.” Id. 
+The legislative authority has “sole discretion” on how to use the revenues “within 
+the scope of the purposes.” RCW 35.87A.110. That authority may contract with a 
+chamber of commerce or other business association operating within the legislative 
+authority’s boundaries to “administer the operation of a [PBIA], including any funds.” 
+Id. The purposes and functions of PBIAs may be accomplished in part by “any other 
+method otherwise provided by law, including provisions for local improvements.” RCW 
+35.87A.220. 
+The city of Seattle created a local PBIA, the MID, in 1999 and renewed it most 
+recently in 2023. In Seattle’s 2013 ordinance renewing the MID, it provided a list of 
+specific programs for which funds must be spent: clean services, safety outreach and 
+hospitality, marketing and communication, business development and market research, 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+4 
+and transit bike and parking services. The city of Seattle sets the amount and collects the 
+assessments, with a program manager handling daily operations. The ratepayer advisory 
+board, consisting of private citizens within the MID assessment area, selects the program 
+manager. That manager determines the specific services to be provided through a work 
+plan and budget submitted to the advisory board, and ratepayers vote on approval at an 
+annual meeting. The work plan and budget, if approved, go to the city of Seattle and the 
+city authorizes payment for services. The plan is limited to the specific services 
+authorized by statute and ordinance. 
+Finally, DBIA is the contracted program manager for the MID. It is a private 
+nonprofit corporation, affiliated with the Downtown Seattle Association (also a private 
+nonprofit, created in 1958). None of the association’s governing board or DBIA 
+leadership are Seattle employees or officials. DBIA’s contract calls for it to submit 
+invoices to Seattle for its services for reimbursement. 
+Steve Horvath, a resident in the MID, requested numerous public records for the 
+district from Seattle’s Office of Economic Development. Horvath eventually requested 
+records from the association. The association and DBIA provided many of the requested 
+records but did not release staff compensation information. 
+Horvath then sued “DBIA Services DBA [(doing business as)] Metropolitan 
+Improvement District” for violating the PRA. Clerk’s Papers (CP) at 1-10. Horvath 
+argued that DBIA and the MID were essentially the same entity and should be treated as 
+such for PRA purposes, which DBIA disputed. At trial, Horvath and DBIA both sought 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+5 
+summary judgment. Considering DBIA as a single entity under the Telford factors, the 
+trial court issued a comprehensive ruling in favor of DBIA. The court concluded DBIA 
+was not the functional equivalent of a government agency and therefore not subject to the 
+PRA. The Court of Appeals affirmed, holding that the standard for summary judgment 
+review was abuse of discretion rather than de novo and that the court properly applied 
+Telford under the abuse of discretion standard. Horvath v. DBIA Servs., 31 Wn. App. 2d 
+549, 562-73, 551 P.3d 1053 (2024). 
+Horvath sought review in this court, which we granted. At oral argument, Horvath 
+agreed that the petition raised only the issue of the proper standard of review but asked 
+this court to address the merits of the ruling below as an issue of statewide importance. 
+Wash. Sup. Ct. oral arg., Horvath v. DBIA Servs., No. 103339-7 (May 27, 2025), at 1 
+min., 55 sec., video recording by TVW, Washington State’s Public Affairs Network, 
+https://tvw.org/video/washington-state-supreme-court-2025051176/. 
+DISCUSSION 
+The PRA mandates government transparency by requiring among other things the 
+disclosure of public records held by public agencies. See LAWS OF 1973, ch. 1; RCW 
+42.56.010. While disclosure may be the rule and secrecy the exception, the PRA’s 
+disclosure mandate applies only to public agencies. See majority at 2. On the other 
+hand, governments may contract with private entities to perform various functions. E.g.,
+Fortgang v. Woodland Park Zoo, 187 Wn.2d 509, 387 P.3d 690 (2017) (noting state 
+legislation authorizing certain cities to contract with nonprofits for management and 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+6 
+operation of zoos and aquariums). To ensure that government cannot evade public 
+oversight through creative contracting, Washington courts consider whether a private 
+entity is the functional equivalent of a government agency. Telford, 95 Wn. App. at 162-
+63. This four-factor inquiry assists courts in deciding the central question of whether a
+private entity has “step[ped] into the shoes of the local government” and is therefore 
+bound by public disclosure laws. Clarke v. Tri-Cities Animal Care & Control Shelter, 
+144 Wn. App. 185, 194, 181 P.3d 881 (2008). 
+The Telford factors include (1) whether the entity performs a governmental 
+function, (2) the level of government funding, (3) the extent of government involvement 
+or regulation, and (4) whether the entity was created by government. 95 Wn. App. at 162
+(citing Bd. of Trs. v. Freedom of Info. Comm’n, 181 Conn. 544, 436 A.2d 266, 270-71 
+(1980)). 
+As the majority notes, Telford is a balancing test and this court has not held the 
+factors to be exclusive. Majority at 15. Indeed, Telford recognized that an additional 
+consideration—whether an entity has the authority to make and implement decisions—
+could be relevant and examined under the governmental function factor. 95 Wn. App. at 
+163 (citing Marks v. McKenzie High School Fact-Finding Team, 319 Or. 451, 423, 878 
+P.2d 417 (1994)); Domestic Violence Servs. of Greater New Haven, Inc. v. Freedom of
+Info. Comm’n, 47 Conn. App. 466, 474, 704 A.2d 827 (1998) (applying the same factor). 
+As a preliminary matter, Horvath has argued consistently that DBIA and the MID 
+are a single entity to which Telford should be applied. The trial court reasoned, however, 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+7 
+the MID is a geographic area and not an “actor” subject to the PRA. CP at 743, 745. The 
+majority does not discuss the nature of the MID but endorses some distinction between 
+the entities because it applies Telford only to DBIA—until the final factor, where the 
+majority considers them together. See infra at 19. I would apply Telford consistently and 
+only to DBIA. 
+1. Governmental Function
+The first Telford factor looks for “core” governmental functions or those that 
+cannot be delegated to the private sector. Fortgang, 187 Wn.2d at 524 (citing Clarke, 
+144 Wn. App. at 194; Telford, 95 Wn. App. at 165). The Court of Appeals has noted that 
+a local government may delegate performance of a public function to a private entity, but 
+it cannot avoid through delegation the responsibility to perform that function within PRA 
+obligations. Cedar Grove Composting, Inc. v. City of Marysville, 188 Wn. App. 695, 
+718, 354 P.3d 249 (2015) (citing Clarke, 144 Wn. App. at 194). This factor is concerned 
+with the “nature of the disputed entity’s activities when determining whether it is 
+performing an inherently ‘governmental function.’” Fortgang, 187 Wn.2d at 525-26. 
+A core or inherently governmental function includes the exercise of police powers. 
+Majority at 13 (citing Fortgang, 187 Wn.2d at 524). A city may contract with a private 
+entity to perform functions held to be police powers, such as solid waste handling. 
+Ventenbergs v. City of Seattle, 163 Wn.2d 92, 101-02, 178 P.3d 960 (2008). But an 
+entity does not perform a governmental function merely because it contracts with the 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+8 
+government pursuant to enabling legislation. Fortgang, 187 Wn.2d at 525. Therefore, a 
+reviewing court must examine the legislation authorizing improvement districts. 
+As previously stated, the purpose of PBIAs is to promote “economic development 
+and neighborhood revitalization.” RCW 35.87A.010. To that end, the legislature 
+allowed municipalities to establish improvement areas that may acquire, construct, or 
+maintain parking facilities; decorate public places; sponsor or promote public events; 
+furnish music; provide professional management and promotion; provide maintenance 
+and security for common public areas; or provide transportation services. RCW 
+35.87A.010(1). 
+By its plain language, RCW 35.87A.010 does not delegate to improvement 
+districts either police or governmental administrative powers. See Fortgang, 187 Wn.2d 
+at 525-26. It does not authorize any listed purpose or activity that is inherently public or 
+that cannot be delegated to the private sector or obligate any district to perform that 
+function. See id. 
+Unfortunately, neither Horvath nor the majority meaningfully discusses the 
+enabling legislation, so I must presume the majority relies on subsection (1)(f)’s 
+authorization to provide security for common public areas as implicating the police 
+power. Again, however, nothing authorizes the districts themselves to undertake security 
+or any other activity authorized by the statute. 
+Turning first to security, clearly lawmakers did not intend security, which is 
+mentioned in the statute, to be equivalent to the core governmental function of law 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+9 
+enforcement. Subsection (1)(f) was added to RCW 35.87A.010 in 1985. See LAWS OF
+1985, ch. 128, § 1. Public testimony in favor of the provision explained that it would 
+“allow businesses to finance private security to supplement city law enforcement in areas 
+requiring additional security.” H. BILL REP. ON SUBSTITUTE H.B. 1129, at 2 (emphasis 
+added). 
+Private security guards are not equivalent to governmental law enforcement. 
+Where private security guards are invested by law with “plenary police powers such that 
+they are de facto police officers,” they may qualify as state actors. Romanski v. Detroit 
+Ent., LLC, 428 F.3d 629, 637 (6th Cir. 2005) (emphasis omitted).1
+ However, 
+Washington law does not invest security guards with plenary power. A “private security 
+guard” is defined as an individual licensed under chapter 18.170 RCW and employed or 
+referred to as a security officer or guard, armed escort or bodyguard, armored vehicle 
+guard, burglar alarm response runner, or crowd control officer. RCW 18.170.010(19). A 
+“sworn peace officer” is someone “who is an employee of the federal government, the 
+state, a political subdivision, agency, or department branch of a municipality, or other 
+unit of local government, and has law enforcement powers.” RCW 18.170.010(21) 
+(emphasis added).2
+ Thus, only sworn peace officers may exercise law enforcement 
+1 Romanski, 428 F.3d at 637, concerned the public function test to determine whether a private 
+party charged with deprivation of a constitutional right could be described as a state actor and 
+therefore liable under 42 U.S.C. § 1983. There, casino security guards authorized under a 
+Michigan statute to make arrests without warrants were found to be state actors because they 
+were carrying out a public function. Id. at 638. 
+2
+ Although private security was not specifically regulated until 1991, Washington law recognized 
+law enforcement agencies and peace officers as only those employed by local, state, or federal 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+10 
+powers. Id. The legislature did not intend to authorize improvement districts to exercise 
+police powers through law enforcement in RCW 35.87A.010(1)(f). 
+Nor does Seattle Ordinance 124175, the local legislation reestablishing Seattle’s 
+improvement area, authorize DBIA to exercise police power. Cities, like the State, may 
+exercise police power and may delegate the performance of that power to private entities. 
+WASH. CONST. art. XI, § 11; Clarke, 144 Wn. App. at 193. The ordinance lists “law 
+enforcement” as one of the programs for which funds must be used. Seattle Ordinance 
+124175, § 5. Taken alone, this mandate appears to support Horvath’s claim that DBIA is 
+engaged in a governmental function. But we do not read statutory language in isolation. 
+We interpret ordinances like statutes according to the rules of statutory 
+construction. Ford Motor Co. v. City of Seattle, 160 Wn.2d 32, 41, 156 P.3d 185 (2007). 
+In determining the plain meaning of an ordinance, we consider the language at issue and 
+the context of the ordinance. Id.; State v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 11, 43 
+P.3d 4 (2002). Seattle Ordinance 124175 requires funds to be used for law enforcement,
+but it also clarifies that the listed activity is “supplemental” to “law enforcement provided 
+by the City and [is] not intended to displace any services regularly provided by municipal 
+government.” Seattle Ordinance 124175, § 5 (emphasis added). The ordinance itself 
+distinguishes between law enforcement funded by revenues from the district and regular 
+governmental law enforcement provided by the city of Seattle. 
+governments when RCW 35.87A.010 was amended in 1985. E.g., former ch. 10.93 RCW
+(1985); LAWS OF 1985, ch. 89, § 2. 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+11 
+Setting this aside and assuming delegation of law enforcement authority, the 
+ordinance does not explain how the district’s program manager will exercise that power. 
+Law enforcement is traditionally exercised by state and local government, regulated by 
+state and local law. E.g., SEATTLE MUNICIPAL CODE (SMC) 3.28.150-.220 (allowing the 
+chief of police to issue special commissions to government employees or former police 
+officers to assist the police department in enforcing laws). See generally SMC ch. 3.28 
+(police department regulations); RCW 10.93.070 (concerning the general authority of 
+peace officers). The ordinance contains no cross-reference to any relevant authority. It 
+does not elaborate on the type of law enforcement that is permitted. Nor does the 
+ordinance require contracting for law enforcement services with the Seattle Police 
+Department (SPD) or any other law enforcement agency. 
+Read in proper context, Seattle Ordinance 124175’s reference to “law 
+enforcement” does not show a legislative intent to delegate police power to DBIA. The 
+enabling legislation makes this clear—the addition of “security” to RCW 35.87A.010(1) 
+was intended to allow district revenues to fund private security. That DBIA contracts 
+with SPD to provide this type of security does not transform it into a governmental
+function even when SPD performs law enforcement duties during security patrols. 
+Our PRA case law clarifies how a private entity can perform that type of 
+governmental function. In Clarke, the Tri-Cities Animal Care & Control Shelter 
+employed animal control officers whose duties included taking oaths to enforce the area’s 
+animal control regulations. 144 Wn. App. at 193. The shelter and its officers were 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+12 
+authorized to seize and destroy pets, and the officers were required to comply with “the 
+same constitutional and statutory restrictions concerning the execution of police powers 
+imposed on law enforcement.” RCW 16.52.015(2). Because the local government 
+granted the shelter the ability to execute police powers under state statute, the Court of 
+Appeals held that the shelter performed a governmental function. Clarke, 144 Wn. App. 
+at 193. 
+Unlike Clarke, no state or local authority permits DBIA to execute law 
+enforcement duties. DBIA contracts with private security guards for on-site guarding, 
+crowd management, and check-ins. They cannot enforce laws or ordinances. DBIA 
+ambassadors are allowed to talk with unhoused persons about city ordinances preventing 
+lying in door- and entryways, but the ambassadors cannot remove anyone or issue 
+citations. Id. They cannot enforce laws or ordinances. DBIA also contracts with SPD to 
+fund supplemental emphasis patrols. But when SPD enforces laws and ordinances on 
+these patrols, it does so under the city’s auspices. SPD officers remain city employees 
+and the city (through the police chief) retains complete “direction, management and 
+control” of the SPD officers. CP at 250, §§ 1.2, 1.4 (“Assignment of personnel to 
+accomplice the supplemental police services requested . . . shall be at the sole discretion 
+of the CITY’s Police Chief or her designee.”). Neither Horvath nor the majority provides 
+any authority holding that funding supplemental police patrols constitutes a governmental
+function. Indeed, given that our case law imposes premises liability on business owners, 
+businesses that choose to provide security for their customers would be government 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+13 
+agencies under the majority’s analysis. E.g., Nivens v. 7-11 Hoagy’s Corner, 133 Wn.2d 
+192, 202-03, 943 P.2d 286 (1997) (holding that a special relationship exists between a 
+business and an invitee and that business owners have a duty to keep their premises 
+reasonably free from physically dangerous conditions where business invitees may be 
+harmed by third persons). I would hold that DBIA does not engage in law enforcement 
+activities as a police power nor is it exercising a delegated governmental power, thus it 
+does not perform a governmental function. 
+Horvath and the majority also point to DBIA’s sanitation services as an exercise of 
+police power but do not discuss the enabling legislation or the nature of the service as 
+Fortgang directs.3
+ The provision references neighborhood revitalization, liveability, and 
+decoration of public places. RCW 35.87A.010. The statute is silent, however, on 
+sanitation. Section 5 of Seattle Ordinance 124175 states that revenues must be spent on 
+“Clean Services” but does not define what those services entail. Exhibit B, the 
+improvement district work plan, describes the cleaning services as neighborhood and 
+alley cleanings, animal/human waste removal, graffiti removal, hypodermic needle 
+disposal, sidewalk and gutter trash removal, sidewalk and storm drain leaf pickup, 
+3
+ Horvath cites two cases in support: a Connecticut case recognizing sanitation as a traditional 
+public service and a Washington case concerning whether a city may tax revenue received by a 
+public utility district for the sale of domestic water within city limits. Pet’r’s Suppl. Br. at 19-20 
+(citing Domestic Violence Servs., 47 Conn. App. at 474; City of Wenatchee v. Chelan County 
+Pub. Util. Dist. No. 1, 181 Wn. App. 326, 352-53, 325 P.3d 419 (2014) (Fearing, J., concurring)). 
+The Connecticut case merely reaffirms that sanitation is a police power but does not elaborate on 
+the nature of the activity. The Washington case is not relevant here, considering the entity 
+providing the water was undisputedly public (a public utility district) while DBIA is 
+undisputedly private. The case is also inapposite because the function at issue was a tax on the 
+sale of domestic water. At issue here is the nature of DBIA’s sanitation services. 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+14 
+sidewalk pressure washing, and trash can emptying. Similar to DBIA’s provision of 
+supplemental police patrols, Horvath and the majority do not identify any precedent 
+holding additional sanitation services are an inherently governmental function. Again, if 
+a business owner hires people to pick up trash or drug paraphernalia in front of their 
+premises, they would be a government agency under the majority’s analysis. E.g., 
+Nivens, 133 Wn.2d at 202-03. I would hold that DBIA’s cleaning services are not 
+equivalent to sanitation as a police power, and therefore this service is not a 
+governmental function. 
+Nevertheless, even assuming that DBIA exercises police power via sanitation and
+law enforcement, the inquiry does not end here. Telford recognized that the 
+governmental function analysis includes, where relevant, whether an entity has the power 
+to make and implement decisions. 95 Wn. App. at 163; Shavlik v. Dawson Place, 11 Wn. 
+App. 2d 250, 263, 452 P.3d 1241 (2019); Domestic Violence Servs., 47 Conn. App. at 
+475. 
+Shavlik explored this factor and is instructive. In that case, a domestic violence 
+nonprofit employed child interview specialists to conduct forensic interviews with child 
+victims pursuant to a county contract. Shavlik, 11 Wn. App. 2d at 262. The interviews 
+were used in criminal investigations and prosecutions, and specialists worked with 
+prosecutors to develop cases. Id. The Court of Appeals held that this was not a 
+governmental function because the nonprofit had “no control over investigatory and 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+15 
+charging decisions” and the police could conduct investigations without the nonprofit’s 
+assistance. Id. at 262-63. 
+Here, as in Shavlik, the city already provides sanitation and law enforcement to the 
+improvement area without DBIA’s assistance. DBIA provides, through contracting with 
+partners, only supplemental street cleaning and funds additional SPD patrols. Seattle 
+Ordinance 124175, Ex. B “(The MID intends to partner with the Millionair Club to 
+deliver cleaning services in Belltown.”). DBIA ambassadors clean up trash on streets, 
+clear garbage or debris from sidewalks, and remove graffiti; DBIA does not repair streets 
+or issue fines or citations relating to graffiti or have any control over the city’s sanitation 
+services. Moreover, also like Shavlik, DBIA has no authority to control SPD officers. 
+DBIA cannot issue or enforce regulations. Its ambassadors and staff may conduct 
+welfare checks and provide information on available services but cannot provide medical 
+services or arrest individuals violating city ordinances. In short, DBIA has no power to 
+govern, regulate, or make decisions affecting government. See Shavlik, 11 Wn. App. 2d 
+at 263. Thus, the first Telford factor weighs against holding DBIA to be a public entity. 
+The majority holds otherwise. Majority at 13, 15. It lists police powers such as 
+public safety and sanitation and concludes that, because DBIA provides at least some
+those services, it provides core governmental functions. Id. at 15. But the majority does 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+16 
+not pair this broad conclusion with any discussion of the actual “nature” of DBIA’s 
+activities as an exercise of police power.4
+ Fortgang, 187 Wn.2d at 525-26. 
+Nor does the majority explain how a private entity like DBIA can exercise police 
+power—an authority that only government possesses. Manufactured Hous. Cmtys. of 
+Wash. v. State, 142 Wn.2d 347, 354, 13 P.3d 183 (2000) (plurality opinion) (“Police 
+power is inherent in the state by virtue of its granted sovereignty.” (emphasis added)), 
+overruled in part on other grounds by Chong Yim, 194 Wn.2d 651, 451 P.3d 675 (2019); 
+Ventenbergs, 163 Wn.2d at 100 (Local governments have the “power to enact and 
+enforce police and sanitary regulations.” (citing WASH. CONST. art. XI, § 11)). 
+Under the majority’s holding, all that is required for an entity to perform a 
+governmental function is to provide a service supporting public health and safety (the 
+police power), without an analysis of whether there is authority delegating that power or 
+the nature of the service that is authorized or performed. See majority at 13-15. This rule 
+will create unintended and problematic consequences for private entities engaging with 
+government. 
+For example, large events such as concerts held at Seattle stadiums, the Capitol 
+Hill Block Party, Seafair, and the Seattle Pride Parade must have public safety 
+management plans requiring SPD presence as well as emergency medical and fire 
+services. See Public Safety and Event Management, CITY OF SEATTLE, 
+4
+ The majority reviews PRA cases that identified governmental functions, but the relevance of 
+those cases is vague considering the majority does not connect them to the issue presented here. 
+Majority at 14 (citing Telford, 95 Wn. App. 163-64, Cedar Grove, 188 Wn. App. at 719, and 
+Clarke, 144 Wn. App. at 194). 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+17 
+https://www.seattle.gov/special-events/public-safety/public-safety-and-eventmanagement#largeevents1000ormoreattendees. The Seafair Foundation or Seattle Pride, 
+both 501(c)(3) nonprofit foundations, have worked with SPD for additional security 
+services and road closures for events. Seafair Weekend Festival Neighborhood Passes, 
+SEAFAIR, https://www.seafair.org/neighborhood/ [https://perma.cc/58VE-3A7A]; Seattle 
+Pride Statement on Police Involvement at the Seattle Pride Parade, SEATTLE PRIDE, 
+https://seattlepride.org/news/seattle-pride-statement-on-police-involvement-at-the-seattlepride-parade [https://perma.cc/U85Y-79SY]. Under the majority’s holding, Seafair’s and 
+Seattle Pride’s contracts with SPD for additional security services constitute an inherently 
+governmental function. This result makes little sense considering Telford’s purpose is to 
+identify entities effectively stepping into the shoes of government and “not . . . erod[ing] 
+the privacy of any entity contract[ing] with government to further the public interest.” 
+Fortgang, 187 Wn.2d at 526. The governmental function factor was not intended to be 
+limitless, turning any private entity that engages with a city’s police power by contracting 
+for supplemental services into a governmental agency. 
+2. Government Funding
+The more public funding an agency receives, the more likely this factor is 
+satisfied. Id. at 529. DBIA is almost entirely funded by district revenues. The majority 
+concludes that DBIA’s 93 percent public funding weighs “heavily” in favor of finding 
+DBIA is functionally equivalent to a government agency. Majority at 15-16. I disagree. 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+18 
+Generally, Washington and out-of-state cases focus on the percentage of funding 
+attributable to public sources. Fortgang, 187 Wn.2d at 528-29. Foreign cases have also 
+looked beyond percentage and considered the nature of the funding scheme. Id. at 528. 
+Fortgang noted that a funding scheme weighs in favor of functional equivalency when it 
+is a fixed allocation, such as designated levy funds, but a fee-for-service model weighs 
+against functional equivalence “even where an entity receives all or most of its funding 
+from public sources.” Id. 
+This court has also stated that our PRA cases “suggest” that the percentage of 
+public funding is the “foremost consideration when applying [this] factor.” Id. at 529 
+(emphasis added) (citing Cedar Grove, 188 Wn. App. at 720; Clarke, 144 Wn. App. at 
+194-95; Telford, 95 Wn. App. at 164). But none of the cited cases examined the
+percentage of public funding. Out-of-state cases have recognized that “a substantial 
+amount of government funding is also not sufficient to render that entity a public 
+agency.” Dow v. Caribou Chamber of Com. & Indus., 2005 ME 113, ¶ 15, 884 A.2d 
+667, 671; Frederick v. City of Falls City, 289 Neb. 864, 878, 857 N.W.2d 569 (2015); 
+State ex rel. Oriana House, Inc. v. Montgomery, 110 Ohio St. 3d 456, 463, 2006-Ohio4854, ¶ 29, 854 N.E.2d 193 (citing Irwin Mem. Blood Bank of S.F. Med. Soc’y v. Am. 
+Nat’l Red Cross, 640 F.2d 1051, 1056-57 (9th Cir. 1981) (receipt of money from 
+government contracts did not make the Red Cross an agency subject to the Freedom of 
+Information Act, absent substantial federal control or supervision of its operations)). The 
+Maine Supreme Court reasoned that even substantial government funding is insufficient 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+19 
+under this factor because, if so, “any private organization that received grant money” 
+could be deemed a public agency. Dow, 2005 ME 113, ¶ 15, 884 A.2d at 671. 
+Further, as DBIA argues, the funding method here is unique. Resp’t DBIA Servs.’ 
+Suppl. Br. at 27-29 (quoting McMillan v. Tacoma, 26 Wash. 358, 361-62, 67 P. 68 (1901) 
+(recognizing the “‘entirely distinct’” theories of general taxation and special 
+assessments)). The nature of the MID revenues must be spent on purposes identified in 
+the ordinance (or initiation petition) and can be used only to benefit the assessment area. 
+Id. at 28-29 (citing RCW 35.87A.120; Rogers Clothing for Men, 114 Wn.2d at 227-28 
+(assessments benefit property within the improvement area)). This funding method is 
+distinct from general tax or levy dollars at issue in previous Telford cases. 
+Here, the nature of DBIA’s funding reflects a fee-for-service model. The city of 
+Seattle pays out assessment funds as DBIA submits invoices. Seattle cannot legally 
+spend the special assessment funds for any other purpose except those identified in the 
+initiation petition or ordinance. Horvath, 31 Wn. App. 2d at 571 n.18. This model 
+weighs against the second Telford factor. Fortgang, 187 Wn.2d at 529 (“[T]he type of 
+funding matters and, specifically, . . . an ordinary fee-for-service model typically weighs 
+against functional equivalency”). The nature of the funding is unique when compared 
+with prior Telford cases. And finally, I share the concern identified by the Maine 
+Supreme Court that any entity that receives public funds, such as a grant or contracting 
+with a government, could be deemed a public agency. For these reasons, I would hold 
+that this factor weighs against functional equivalence. 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+20 
+3. Government Control/Involvement
+I agree with the majority that the city of Seattle is not involved in the daily 
+operations of DBIA, and this factor weighs against concluding DBIA is functionally 
+equivalent to a government agency. Majority at 16. 
+4. Entity’s Origin/Government Creation
+The majority is correct that the government did not create DBIA. Id. at 16-17. 
+DBIA is a private, nonprofit corporation administering the MID. This factor weighs 
+against functional equivalency for DBIA. The majority agrees. Id. I would leave it at 
+that. 
+The majority does not. Instead, the majority turns to the purpose of the Telford 
+test—whether immunity from the PRA would frustrate government transparency—to 
+accept Horvath’s claim that we should treat DBIA and improvement district as a single 
+entity. Id. Consequently, the majority turns the purpose of the test into a new factor and 
+then weighs this factor in favor of concluding DBIA’s records are public given the 
+government’s control and creation of the MID, and because DBIA has held itself out as
+the MID. Id. 
+It is puzzling why the majority chooses this factor to examine DBIA and the MID 
+together when it examined DBIA alone for every preceding factor. See majority at 13-16. 
+Even if DBIA at times described itself as doing business as the MID or as the MID in 
+communications, that does not transform it into a government entity. E.g., Graham v. 
+State Bar Ass’n, 86 Wn.2d 624, 626, 548 P.2d 310 (1976) (acknowledging that reference 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+21 
+to an entity as an agency for one purpose does not control for all purposes). Like the 
+majority did for the first three Telford factors, I would continue analyzing DBIA as a 
+single entity. 
+5. Balancing of Factors
+Unlike the majority, I would conclude that on balance the Telford factors weigh 
+against PRA coverage. For the first factor, DBIA does not provide a core governmental
+function. Neither state legislation nor local ordinance delegates any police power to 
+DBIA. At most, DBIA supplements what are generally recognized as governmental
+functions by contracting with SPD for additional patrols5
+ and sanitation services through 
+contracts with private entities—both of which the city itself provides. Most importantly, 
+DBIA has no authority to control SPD officers or city-provided sanitation. 
+The remaining factors weigh against functional equivalency. DBIA receives 
+substantial public funding, but the nature of the scheme is a fee-for-service model. The 
+city of Seattle has some involvement with DBIA but exercises no meaningful control 
+over DBIA’s daily operations.6
+ Though the improvement district was enacted through 
+5
+ Many private entities contract for extra police services, including sporting events, parades, and 
+rallies to name a few, illustrating again the far reach of the majority’s analysis.
+6 Under the majority’s approach, entities contracting with municipalities like Seattle will likely 
+be required to disclose information that the city is able to provide. In this case, the Office of 
+Economic Development provided almost all the requested records except DBIA staff 
+compensation. Now, private entities will likely be discouraged from contracting with Seattle 
+(and other municipalities with PBIAs) if their internal personnel records revealing salaries, 
+vacation, sick leave pay, and training records are available to the public. See DeLong v. 
+Parmelee, 157 Wn. App. 119, 161-62, 236 P.3d 936 (2010). 
+Horvath v. DBIA Services DBA Metropolitan Improvement District 
+(Madsen, J., concurring in part and dissenting in part)
+22 
+ordinance, it was first initiated via citizen initiative and the government was not involved 
+in DBIA’s creation. 
+As in Fortgang, the relationship between the city of Seattle and DBIA does not 
+implicate Telford’s central concern: identifying private entities that have effectively 
+assumed the role of the government. 187 Wn.2d at 526. Rather, DBIA is a private entity 
+contracting with the government to provide services in support of economic development 
+and neighborhood revitalization. RCW 35.87A.010(1). I would therefore affirm the trial 
+court’s ruling that DBIA is not an “agency” subject to the PRA. 
+With these considerations in mind, I respectfully dissent. 

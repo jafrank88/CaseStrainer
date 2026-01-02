@@ -1,18 +1,26 @@
 """
-Unified Extraction Architecture
-==============================
+========================================================
+DEPRECATED - DO NOT MODIFY THIS FILE
+========================================================
 
-This module provides a standardized, single-source-of-truth architecture for case name 
-and year extraction from user documents. All processing paths must use this architecture
-to ensure consistency and accuracy.
+THIS FILE IS NOT ACTIVELY USED IN PRODUCTION!
 
-Key Principles:
-1. Single extraction function for all paths
-2. Position information always preserved
-3. Consistent, accurate regex patterns
-4. Proper context window extraction
-5. No duplicate or conflicting extraction logic
+ACTIVE EXTRACTION CODE IS IN:
+    src/unified_case_extraction_master.py
+
+This file exists for backward compatibility only.
+Any improvements should be made to unified_case_extraction_master.py instead.
+
+See line 192-195 in this file for the deprecation notice and migration path.
 """
+
+import warnings
+warnings.warn(
+    "WARNING: unified_extraction_architecture.py is DEPRECATED. "
+    "Active code is in src.unified_case_extraction_master",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import re
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
@@ -187,7 +195,7 @@ class UnifiedExtractionArchitecture:
         debug: bool = False
     ) -> ExtractionResult:
         """
-        ⚠️ DEPRECATED: Use UnifiedCaseExtractionMaster instead!
+        [WARNING] DEPRECATED: Use UnifiedCaseExtractionMaster instead!
         
         This extractor has been superseded by UnifiedCaseExtractionMaster
         which includes Fix #43 (text normalization position bug).
@@ -211,7 +219,7 @@ class UnifiedExtractionArchitecture:
             ExtractionResult with standardized case name and year
         """
         if debug:
-            logger.warning(f"🔍 UNIFIED_EXTRACT: Starting extraction for citation '{citation}' at position {start_index}-{end_index}")
+            logger.warning(f"[DEBUG] UNIFIED_EXTRACT: Starting extraction for citation '{citation}' at position {start_index}-{end_index}")
         
         # Normalize text early to handle Unicode character issues
         from src.utils.text_normalizer import normalize_text
@@ -234,7 +242,7 @@ class UnifiedExtractionArchitecture:
                 cleaned_case_name = self._clean_case_name_advanced(result.case_name, debug)
                 result.case_name = cleaned_case_name
                 if debug:
-                    logger.warning(f"✅ UNIFIED_EXTRACT: Context extraction successful: '{result.case_name}'")
+                    logger.warning(f"[SUCCESS] UNIFIED_EXTRACT: Context extraction successful: '{result.case_name}'")
         
         # If context extraction failed or wasn't possible, try pattern-based extraction
         if not result or not result.case_name or result.case_name == 'N/A':
@@ -266,7 +274,7 @@ class UnifiedExtractionArchitecture:
         )
         
         if debug:
-            logger.warning(f"✅ UNIFIED_EXTRACT: Final result for '{citation}': '{result.case_name}' (confidence: {result.confidence:.2f})")
+            logger.warning(f"[SUCCESS] UNIFIED_EXTRACT: Final result for '{citation}': '{result.case_name}' (confidence: {result.confidence:.2f})")
         
         return result
     
@@ -455,7 +463,7 @@ class UnifiedExtractionArchitecture:
                 case_name = f"{plaintiff_text} v. {defendant_text}"
                 
                 if debug:
-                    logger.warning(f"✅ CONTEXT_EXTRACTION: '{case_name}'")
+                    logger.warning(f"[SUCCESS] CONTEXT_EXTRACTION: '{case_name}'")
                     logger.warning(f"   Plaintiff: '{plaintiff_text}'")
                     logger.warning(f"   Defendant: '{defendant_text}'")
                 
@@ -480,13 +488,13 @@ class UnifiedExtractionArchitecture:
         ]
         
         if debug:
-            logger.warning(f"🔍 ADJUSTED_CONTEXT_EXTRACTION: Testing context: '{context}'")
+            logger.warning(f"[DEBUG] ADJUSTED_CONTEXT_EXTRACTION: Testing context: '{context}'")
         
         for i, pattern in enumerate(case_patterns):
             matches = list(re.finditer(pattern, context, re.IGNORECASE))
             
             if debug:
-                logger.warning(f"🔍 PATTERN_{i+1}: Found {len(matches)} matches")
+                logger.warning(f"[DEBUG] PATTERN_{i+1}: Found {len(matches)} matches")
             
             if matches:
                 # Find the closest match to the citation
@@ -498,7 +506,7 @@ class UnifiedExtractionArchitecture:
                     distance = abs(match_end_in_context - citation_start_in_context)
                     
                     if debug:
-                        logger.warning(f"🔍 MATCH: '{match.group(0)}' at distance {distance}")
+                        logger.warning(f"[DEBUG] MATCH: '{match.group(0)}' at distance {distance}")
                     
                     if distance < min_distance:
                         min_distance = distance
@@ -522,7 +530,7 @@ class UnifiedExtractionArchitecture:
                     case_name = re.sub(r'\s+', ' ', case_name)  # Normalize whitespace
                     
                     if debug:
-                        logger.warning(f"✅ EXTRACTED_CASE_NAME: '{case_name}' using adjusted context")
+                        logger.warning(f"[SUCCESS] EXTRACTED_CASE_NAME: '{case_name}' using adjusted context")
                     
                     # Simple validation
                     if len(case_name) > 5 and 'v.' in case_name:
@@ -540,7 +548,7 @@ class UnifiedExtractionArchitecture:
                         )
         
         if debug:
-            logger.warning(f"❌ NO_MATCH: No case name found in adjusted context")
+            logger.warning(f"[ERROR] NO_MATCH: No case name found in adjusted context")
         return None
     
     def _detect_string_citation(self, text: str, citation: str, start_index: int, end_index: int, debug: bool) -> Optional[ExtractionResult]:
@@ -601,7 +609,7 @@ class UnifiedExtractionArchitecture:
                 case_name = f"{plaintiff} v. {defendant}"
                 
                 if debug:
-                    logger.warning(f"✅ STRING_CITATION: Found string citation pattern: '{case_name}'")
+                    logger.warning(f"[SUCCESS] STRING_CITATION: Found string citation pattern: '{case_name}'")
                 
                 # CRITICAL: Do NOT set canonical_name during extraction
                 return ExtractionResult(
@@ -619,7 +627,7 @@ class UnifiedExtractionArchitecture:
             
         except Exception as e:
             if debug:
-                logger.warning(f"❌ STRING_CITATION_ERROR: {e}")
+                logger.warning(f"[ERROR] STRING_CITATION_ERROR: {e}")
             return None
 
     def _clean_case_name_advanced(self, case_name: str, debug: bool = False) -> str:
@@ -646,7 +654,7 @@ class UnifiedExtractionArchitecture:
                 if pattern == r'\s+Co\.?$' and ' Co.' in case_name:
                     continue
                 if debug:
-                    logger.warning(f"❌ TRUNCATION_DETECTED: Rejecting '{case_name}' (matches {pattern})")
+                    logger.warning(f"[ERROR] TRUNCATION_DETECTED: Rejecting '{case_name}' (matches {pattern})")
                 return 'N/A'
         
         # Also reject if either party name is suspiciously short (< 3 chars, excluding "In re")
@@ -660,7 +668,7 @@ class UnifiedExtractionArchitecture:
                 defendant_clean = re.sub(r'[\s\.]', '', defendant)
                 if len(plaintiff_clean) < 3 or len(defendant_clean) < 3:
                     if debug:
-                        logger.warning(f"❌ SHORT_NAME_DETECTED: Rejecting '{case_name}' (party too short)")
+                        logger.warning(f"[ERROR] SHORT_NAME_DETECTED: Rejecting '{case_name}' (party too short)")
                     return 'N/A'
             
         import re
@@ -687,7 +695,7 @@ class UnifiedExtractionArchitecture:
             for key, full_name in known_corporations.items():
                 if key in lower_name:
                     if debug:
-                        logger.info(f"✅ Using known corporate name mapping: {key} -> {full_name}")
+                        logger.info(f"[SUCCESS] Using known corporate name mapping: {key} -> {full_name}")
                     return full_name
             
             # Look backward in the context for the full corporate name
@@ -696,7 +704,7 @@ class UnifiedExtractionArchitecture:
             context_before = context[max(0, position - lookback):position]
             
             if debug:
-                logger.debug(f"🔍 Looking for corporate name in: {context_before[-100:]}...")
+                logger.debug(f"[DEBUG] Looking for corporate name in: {context_before[-100:]}...")
             
             # Pattern to find corporate names before the citation
             corp_patterns = [
@@ -729,18 +737,18 @@ class UnifiedExtractionArchitecture:
                             corp_name = corp_name.replace(' Inc', ', Inc')
                         
                         if debug:
-                            logger.info(f"✅ Reconstructed corporate name: {corp_name} {truncated_name}")
+                            logger.info(f"[SUCCESS] Reconstructed corporate name: {corp_name} {truncated_name}")
                         return f"{corp_name} {truncated_name}"
             
             if debug:
-                logger.warning(f"❌ Failed to reconstruct corporate name for: {truncated_name}")
+                logger.warning(f"[ERROR] Failed to reconstruct corporate name for: {truncated_name}")
             return truncated_name  # Return original if reconstruction fails
         
         # Check for truncated corporate names at start
         corporate_prefixes = r'^(Inc\.?|Corp\.?|LLC|Ltd\.?|Co\.?|L\.P\.?|L\.L\.P\.?)\s+v\.'
         if re.match(corporate_prefixes, case_name, re.IGNORECASE):
             if debug:
-                logger.warning(f"🔍 Reconstructing truncated corporate name for: {case_name}")
+                logger.warning(f"[DEBUG] Reconstructing truncated corporate name for: {case_name}")
             
             # First try to get the full name from context
             reconstructed = reconstruct_corporate_name(case_name, context, citation_text, context_position, debug)
@@ -748,10 +756,10 @@ class UnifiedExtractionArchitecture:
             if reconstructed != case_name:  # If we successfully reconstructed
                 case_name = reconstructed
                 if debug:
-                    logger.info(f"✅ Successfully reconstructed: {case_name}")
+                    logger.info(f"[SUCCESS] Successfully reconstructed: {case_name}")
             else:
                 if debug:
-                    logger.warning(f"❌ Failed to reconstruct corporate name for: {case_name}")
+                    logger.warning(f"[ERROR] Failed to reconstruct corporate name for: {case_name}")
                 return 'N/A'  # Reject if we can't reconstruct
         
         # Clean up common issues
@@ -786,7 +794,7 @@ class UnifiedExtractionArchitecture:
         case_name = case_name.strip()
         
         if debug and case_name != original:
-            logger.warning(f"🧹 CASE_NAME_CLEANED: '{original}' → '{case_name}'")
+            logger.warning(f"[INFO] CASE_NAME_CLEANED: '{original}' → '{case_name}'")
         
         return case_name
 
@@ -821,7 +829,7 @@ class UnifiedExtractionArchitecture:
                 distance_to_citation = start_index - quoting_pos
                 
                 if debug:
-                    logger.warning(f"🔍 QUOTING_DETECTED: Found 'quoting {quoted_case_name}' at distance {distance_to_citation}")
+                    logger.warning(f"[DEBUG] QUOTING_DETECTED: Found 'quoting {quoted_case_name}' at distance {distance_to_citation}")
                 
                 # CRITICAL FIX: Only apply quoted case name to citations that come AFTER the "quoting" keyword
                 # Citations that come BEFORE "quoting" belong to the citing case, not the quoted case
@@ -833,7 +841,7 @@ class UnifiedExtractionArchitecture:
                     if citation in text_after_quoting:
                         if debug:
                             logger.warning(f"🧠 CONTEXT_FLOW: Returning nested quoting case '{quoted_case_name}'")
-                            logger.warning(f"✅ NESTED_CITATION_SUCCESS: Citation '{citation}' found after 'quoting', using quoted case name '{quoted_case_name}'")
+                            logger.warning(f"[SUCCESS] NESTED_CITATION_SUCCESS: Citation '{citation}' found after 'quoting', using quoted case name '{quoted_case_name}'")
                         
                         return ExtractionResult(
                             case_name=quoted_case_name,
@@ -844,10 +852,10 @@ class UnifiedExtractionArchitecture:
                         )
                     else:
                         if debug:
-                            logger.warning(f"🔍 QUOTING_SKIP: Citation '{citation}' appears before 'quoting', not part of quoted case")
+                            logger.warning(f"[DEBUG] QUOTING_SKIP: Citation '{citation}' appears before 'quoting', not part of quoted case")
                 else:
                     if debug:
-                        logger.warning(f"🔍 QUOTING_SKIP: Distance {distance_to_citation} outside valid range for quoting pattern")
+                        logger.warning(f"[DEBUG] QUOTING_SKIP: Distance {distance_to_citation} outside valid range for quoting pattern")
             
             # USER FIX: Handle "vacated and remanded" pattern
             # When Supreme Court citations follow appellate decisions with "vacated and remanded",
@@ -867,13 +875,13 @@ class UnifiedExtractionArchitecture:
             search_back = text[max(0, start_index - 300):start_index]
             
             if debug:
-                logger.warning(f"🔍 VACATUR_DEBUG: Checking for vacatur patterns before citation '{citation}'")
-                logger.warning(f"🔍 VACATUR_DEBUG: Search window ({len(search_back)} chars): '{search_back[-200:]}'")
+                logger.warning(f"[DEBUG] VACATUR_DEBUG: Checking for vacatur patterns before citation '{citation}'")
+                logger.warning(f"[DEBUG] VACATUR_DEBUG: Search window ({len(search_back)} chars): '{search_back[-200:]}'")
             
             for vacatur_pattern in vacatur_patterns:
                 vacatur_match = re.search(vacatur_pattern, search_back, re.IGNORECASE)
                 if debug:
-                    logger.warning(f"🔍 VACATUR_DEBUG: Pattern '{vacatur_pattern}' -> {'FOUND' if vacatur_match else 'NOT FOUND'}")
+                    logger.warning(f"[DEBUG] VACATUR_DEBUG: Pattern '{vacatur_pattern}' -> {'FOUND' if vacatur_match else 'NOT FOUND'}")
                 
                 if vacatur_match:
                     # Found vacatur language - now find the case name BEFORE it
@@ -887,11 +895,11 @@ class UnifiedExtractionArchitecture:
                     case_matches = list(re.finditer(case_name_pattern, text_before_vacatur))
                     
                     if debug:
-                        logger.warning(f"🔍 VACATUR_DEBUG: Found {len(case_matches)} case name matches before vacatur")
+                        logger.warning(f"[DEBUG] VACATUR_DEBUG: Found {len(case_matches)} case name matches before vacatur")
                         if case_matches:
                             for i, match in enumerate(case_matches):
-                                logger.warning(f"🔍 VACATUR_DEBUG: Match {i+1}: '{match.group(0)}'")
-                        logger.warning(f"🔍 VACATUR_DEBUG: Text before vacatur ({len(text_before_vacatur)} chars): '{text_before_vacatur[-200:]}'")
+                                logger.warning(f"[DEBUG] VACATUR_DEBUG: Match {i+1}: '{match.group(0)}'")
+                        logger.warning(f"[DEBUG] VACATUR_DEBUG: Text before vacatur ({len(text_before_vacatur)} chars): '{text_before_vacatur[-200:]}'")
                     
                     if case_matches:
                         # Take the LAST match (closest to vacatur phrase)
@@ -906,8 +914,8 @@ class UnifiedExtractionArchitecture:
                         case_name = f"{plaintiff} v. {defendant}"
                         
                         if debug:
-                            logger.warning(f"✅ VACATUR_DETECTED: Found '{vacatur_pattern}' before citation")
-                            logger.warning(f"✅ VACATUR_CASE: Extracted '{case_name}' from text before vacatur")
+                            logger.warning(f"[SUCCESS] VACATUR_DETECTED: Found '{vacatur_pattern}' before citation")
+                            logger.warning(f"[SUCCESS] VACATUR_CASE: Extracted '{case_name}' from text before vacatur")
                         
                         if self._is_valid_case_name(case_name):
                             year = self._extract_year_from_context(text[max(0, start_index - 300):start_index + 50], citation)
@@ -920,7 +928,7 @@ class UnifiedExtractionArchitecture:
                             )
                     
                     if debug:
-                        logger.warning(f"🔍 VACATUR_SKIP: Found '{vacatur_pattern}' but couldn't extract case name before it")
+                        logger.warning(f"[DEBUG] VACATUR_SKIP: Found '{vacatur_pattern}' but couldn't extract case name before it")
                     break  # Only check first matching vacatur pattern
             
             # NEW: Try intelligent case name extraction first
@@ -946,7 +954,7 @@ class UnifiedExtractionArchitecture:
                     Path('fallback_extended_context_full.txt').write_text(extended_context_slice, encoding='utf-8')
                     logger.warning("🧠 CONTEXT_FLOW: Wrote fallback context snapshots to 'fallback_extended_context.txt' and 'fallback_extended_context_full.txt'")
                 except Exception as e:
-                    logger.warning(f"⚠️ CONTEXT_FLOW: Failed to write fallback context snapshot: {e}")
+                    logger.warning(f"[WARNING] CONTEXT_FLOW: Failed to write fallback context snapshot: {e}")
             
             for i, pattern in enumerate(self.context_patterns):
                 if debug:
@@ -1010,7 +1018,7 @@ class UnifiedExtractionArchitecture:
                                             min_distance = distance
                                             best_match = match
                                             if debug:
-                                                logger.warning(f"🔍 UNIFIED_EXTRACT: New best match: '{match_text}' at distance {distance} (quality: {case_name_quality})")
+                                                logger.warning(f"[DEBUG] UNIFIED_EXTRACT: New best match: '{match_text}' at distance {distance} (quality: {case_name_quality})")
                             elif debug:
                                 logger.warning(f"ðŸ” UNIFIED_EXTRACT: Match rejected due to contamination: '{match_text}'")
                     
@@ -1021,21 +1029,21 @@ class UnifiedExtractionArchitecture:
                         if len(groups) == 1:
                             # Single group pattern (like "In re Estate of Williams")
                             case_name = groups[0].strip()
-                            logger.warning(f"🔍 DEBUG_SINGLE_GROUP: Raw case name: '{case_name}'")
+                            logger.warning(f"[DEBUG] DEBUG_SINGLE_GROUP: Raw case name: '{case_name}'")
                         elif len(groups) >= 2:
                             # Two group pattern (like "Plaintiff v. Defendant")
                             raw_plaintiff = groups[0]
                             raw_defendant = groups[1]
-                            logger.warning(f"🔍 DEBUG_TRUNCATION: Raw plaintiff: '{raw_plaintiff}', Raw defendant: '{raw_defendant}'")
+                            logger.warning(f"[DEBUG] DEBUG_TRUNCATION: Raw plaintiff: '{raw_plaintiff}', Raw defendant: '{raw_defendant}'")
                             
                             from src.utils.text_normalizer import clean_extracted_case_name
                             plaintiff = clean_extracted_case_name(raw_plaintiff)
                             defendant = clean_extracted_case_name(raw_defendant)
-                            logger.warning(f"🔍 DEBUG_TRUNCATION: Cleaned plaintiff: '{plaintiff}', Cleaned defendant: '{defendant}'")
+                            logger.warning(f"[DEBUG] DEBUG_TRUNCATION: Cleaned plaintiff: '{plaintiff}', Cleaned defendant: '{defendant}'")
                             
                             case_name = f"{plaintiff} v. {defendant}"
                         else:
-                            logger.warning(f"❌ UNIFIED_EXTRACT: Unexpected group count: {len(groups)}")
+                            logger.warning(f"[ERROR] UNIFIED_EXTRACT: Unexpected group count: {len(groups)}")
                             continue
                         
                         if debug:
@@ -1226,7 +1234,7 @@ class UnifiedExtractionArchitecture:
                         if len(groups) == 1:
                             # Single group pattern (like "In re Estate of Williams")
                             case_name = groups[0].strip()
-                            logger.warning(f"🔍 DEBUG_FALLBACK_SINGLE_GROUP: Raw case name: '{case_name}'")
+                            logger.warning(f"[DEBUG] DEBUG_FALLBACK_SINGLE_GROUP: Raw case name: '{case_name}'")
                             
                             if self._is_valid_case_name(case_name):
                                 year = self._extract_year_from_text(search_text, citation)
@@ -1250,7 +1258,7 @@ class UnifiedExtractionArchitecture:
                             raw_plaintiff = groups[0]
                             raw_defendant = groups[1]
                         else:
-                            logger.warning(f"❌ FALLBACK_EXTRACT: Unexpected group count: {len(groups)}")
+                            logger.warning(f"[ERROR] FALLBACK_EXTRACT: Unexpected group count: {len(groups)}")
                             continue
                         logger.warning(f"ðŸ” DEBUG_TRUNCATION_FALLBACK: Raw plaintiff: '{raw_plaintiff}', Raw defendant: '{raw_defendant}'")
                         
@@ -1348,7 +1356,11 @@ class UnifiedExtractionArchitecture:
             r'^But\s+See\s+', r'^Cf\.?\s+', r'^Id\.?\s+', r'^Supra\s+', r'^Infra\s+',
             r'^E\.?g\.?\s+', r'^I\.?e\.?\s+', r'^See also\s+', r'^See generally\s+',
             r'^As the court held in\s+', r'^As stated in\s+', r'^As explained in\s+',
-            r'^According to\s+', r'^Pursuant to\s+', r'^Under the\s+', r'^In the case of\s+'
+            r'^According to\s+', r'^Pursuant to\s+', r'^Under the\s+', r'^In the case of\s+',
+            r'^The Supreme Court in\s+', r'^The court in\s+', r'^In\s+', r'^As discussed in\s+',
+            r'^As noted in\s+', r'^As found in\s+', r'^As determined in\s+', r'^As ruled in\s+',
+            r'^Following\s+', r'^Based on\s+', r'^In accordance with\s+', r'^Consistent with\s+',
+            r'^Per\s+', r'^By reference to\s+', r'^With reference to\s+', r'^In relation to\s+'
         ]
         
         for pattern in signal_words:
@@ -1716,6 +1728,29 @@ class UnifiedExtractionArchitecture:
         # If we found a good case name, return it
         if cleaned_best_case and cleaned_best_case != 'N/A' and best_confidence > 0.6:  # Minimum confidence threshold
             year = self._extract_year_from_context(context, citation)
+            # Apply accuracy improvements before returning
+            from .utils.strict_context_isolator import _expand_abbreviations, _add_missing_words, _fix_formatting_issues
+            
+            # === ACCURACY IMPROVEMENTS ===
+            
+            # IMPROVEMENT 1: Expand common abbreviations
+            original_case_name = cleaned_best_case
+            cleaned_best_case = _expand_abbreviations(cleaned_best_case)
+            if cleaned_best_case != original_case_name:
+                logger.info(f"[ACCURACY] Abbreviation expansion: '{original_case_name}' → '{cleaned_best_case}'")
+            
+            # IMPROVEMENT 2: Add missing common words
+            original_case_name = cleaned_best_case
+            cleaned_best_case = _add_missing_words(cleaned_best_case, context)
+            if cleaned_best_case != original_case_name:
+                logger.info(f"[ACCURACY] Missing words added: '{original_case_name}' → '{cleaned_best_case}'")
+            
+            # IMPROVEMENT 3: Fix formatting issues
+            original_case_name = cleaned_best_case
+            cleaned_best_case = _fix_formatting_issues(cleaned_best_case)
+            if cleaned_best_case != original_case_name:
+                logger.info(f"[ACCURACY] Formatting fixed: '{original_case_name}' → '{cleaned_best_case}'")
+            
             if debug:
                 logger.warning(f"🧠 INTELLIGENT_EXTRACT: Returning best candidate '{cleaned_best_case}' (confidence={best_confidence:.2f})")
             # CRITICAL: Do NOT set canonical_name during extraction
@@ -1739,6 +1774,29 @@ class UnifiedExtractionArchitecture:
             if debug:
                 logger.warning(f"🧠 FALLBACK_CITATION: Second-pass cleaned fallback='{cleaned_fallback}'")
             if cleaned_fallback:
+                # Apply accuracy improvements to fallback as well
+                from .utils.strict_context_isolator import _expand_abbreviations, _add_missing_words, _fix_formatting_issues
+                
+                # === ACCURACY IMPROVEMENTS ===
+                
+                # IMPROVEMENT 1: Expand common abbreviations
+                original_case_name = cleaned_fallback
+                cleaned_fallback = _expand_abbreviations(cleaned_fallback)
+                if cleaned_fallback != original_case_name:
+                    logger.info(f"[ACCURACY] Abbreviation expansion (fallback): '{original_case_name}' → '{cleaned_fallback}'")
+                
+                # IMPROVEMENT 2: Add missing common words
+                original_case_name = cleaned_fallback
+                cleaned_fallback = _add_missing_words(cleaned_fallback, context)
+                if cleaned_fallback != original_case_name:
+                    logger.info(f"[ACCURACY] Missing words added (fallback): '{original_case_name}' → '{cleaned_fallback}'")
+                
+                # IMPROVEMENT 3: Fix formatting issues
+                original_case_name = cleaned_fallback
+                cleaned_fallback = _fix_formatting_issues(cleaned_fallback)
+                if cleaned_fallback != original_case_name:
+                    logger.info(f"[ACCURACY] Formatting fixed (fallback): '{original_case_name}' → '{cleaned_fallback}'")
+                
                 if debug:
                     logger.warning(f"🧠 FALLBACK: Using direct pattern recovery '{cleaned_fallback}' (best case invalid)")
                 # CRITICAL: Do NOT set canonical_name during extraction
@@ -2756,7 +2814,7 @@ class UnifiedExtractionArchitecture:
             return result
             
         if debug:
-            logger.warning(f"⚠️  CASE_NAME_MISSING: No case name found for citation '{citation}'")
+            logger.warning(f"[WARNING] CASE_NAME_MISSING: No case name found for citation '{citation}'")
         
         # Try to recover case name from citation pattern if context is available
         if context:
@@ -2770,7 +2828,7 @@ class UnifiedExtractionArchitecture:
                     debug_info={"recovery_method": "from_context"}
                 )
                 if debug:
-                    logger.warning(f"✅ CASE_NAME_RECOVERED: Recovered case name '{result.case_name}' from context")
+                    logger.warning(f"[SUCCESS] CASE_NAME_RECOVERED: Recovered case name '{result.case_name}' from context")
                 return result
         
         # If we still don't have a case name, try to extract from the citation itself
@@ -2786,7 +2844,7 @@ class UnifiedExtractionArchitecture:
                     debug_info={"fallback": "simple_citation_extraction"}
                 )
                 if debug:
-                    logger.warning(f"⚠️  CASE_NAME_EXTRACTED: Extracted basic case name '{result.case_name}' from citation")
+                    logger.warning(f"[WARNING] CASE_NAME_EXTRACTED: Extracted basic case name '{result.case_name}' from citation")
             else:
                 # As a last resort, use a generic name based on the citation
                 fallback_name = f"Citation: {citation[:50]}..." if len(citation) > 50 else f"Citation: {citation}"
@@ -2798,7 +2856,7 @@ class UnifiedExtractionArchitecture:
                     debug_info={"fallback": "generic_citation"}
                 )
                 if debug:
-                    logger.warning(f"⚠️  CASE_NAME_FALLBACK: Using fallback case name for citation '{citation}'")
+                    logger.warning(f"[WARNING] CASE_NAME_FALLBACK: Using fallback case name for citation '{citation}'")
         
         return result
     

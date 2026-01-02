@@ -1,24 +1,125 @@
-# cslaunch.ps1 - Quick restart wrapper for production environment
+﻿# cslaunch.ps1 - Quick restart wrapper for production environment
 # This is optimized for fast Python code updates without rebuilding Docker images
 
+[CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
 param(
+    [Parameter()]
     [switch]$Build,
-    [switch]$Force,
+    
+    [Parameter()]
     [switch]$NoCache,
-    [switch]$Monitor,     # Continuous monitoring mode with auto-restart (foreground)
-    [switch]$NoMonitor,    # Disable automatic background monitoring (monitoring enabled by default)
+    
+    [Parameter()]
+    [switch]$Force,
+    
+    [Parameter()]
+    [switch]$NoMonitor,    # Disable automatic background monitoring (monitoring is enabled by default)
+    
+    [Parameter()]
+    [switch]$Monitor,      # Enable monitoring mode (default behavior)
+    
+    [Parameter()]
     [switch]$ConfigureAutostart,  # Configure Docker autostart on boot
-    [int]$MonitorInterval = 30,  # Health check interval in seconds (default: 30)
-    [switch]$EnableDockerDaemonMonitor = $true,  # Enable Docker daemon monitoring (default: true)
-    [int]$DockerDaemonTimeout = 15,  # Docker daemon freeze timeout in seconds (default: 15)
-    [int]$MaxDockerRestartsPerHour = 3,  # Maximum Docker daemon restarts per hour (default: 3)
-    [bool]$EnableNotifications = $false  # Notifications disabled - using external WHM monitoring
+    
+    [Parameter()]
+    [switch]$NoAutostart,  # Disable automatic autostart configuration (autostart enabled by default)
+    
+    [Parameter()]
+    [switch]$ConfigurePeriodicHealthCheck,  # Configure Windows Task Scheduler backup health check (every 2 hours)
+    
+    [Parameter()]
+    [switch]$RemovePeriodicHealthCheck,  # Remove the periodic health check task
+    
+    [Parameter()]
+    [int]$MonitorInterval = 60,  # Default: 60 seconds # TODO: Pass to monitoring modules
+    
+    [Parameter()]
+    [int]$DockerDaemonTimeout = 15,  # Docker daemon freeze timeout in seconds (default: 15) # TODO: Implement timeout logic
+    
+    [Parameter()]
+    [int]$MaxDockerRestartsPerHour = 5,  # Maximum Docker daemon restarts per hour (default: 5) # TODO: Implement rate limiting
+    
+    [Parameter()]
+    [int]$ExtendedDowntimeMinutes = 15  # After this many minutes of downtime, bypass rate limit # TODO: Implement bypass logic
 )
+
+# Internal configuration
+$EnableNotifications = $false  # Notifications disabled - using external WHM monitoring
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan  
-Write-Host "========================================`n" -ForegroundColor Cyan
 
+Write-Host "`n========================================" -ForegroundColor Cyan
+
+# Start auto-monitoring if no flags provided
+if (-not $Build -and -not $Monitor -and -not $ConfigureAutostart -and -not $NoAutostart -and -not $ConfigurePeriodicHealthCheck -and -not $RemovePeriodicHealthCheck -and -not $DeepCleanRestart -and -not $MemoryOptimizeRestart -and -not $NoCache -and -not $Force) {
+    Write-Host "[AUTO] Starting unattended monitoring setup..." -ForegroundColor Cyan
+    
+    # Import and run unattended monitoring setup
+    $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
+    if (Test-Path $modulePath) {
+        Import-Module $modulePath -Force
+        SetUnattendedMonitoring
+        Write-Host "[SUCCESS] Monitoring is now configured and will survive reboots!" -ForegroundColor Green
+    } else {
+        # Fallback to old auto-monitor
+        Write-Host "[WARN] Unattended monitoring module not found, using legacy monitoring..." -ForegroundColor Yellow
+        & (Join-Path $PSScriptRoot "auto_monitor.ps1") -ScriptRoot $PSScriptRoot
+    }
+}
+
+# Helper function to test admin privileges
+function Test-AdminPrivileges {
+    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
+
+# Function to implement exponential backoff for restart attempts
+function Get-BackoffDelay {
+    param(
+        [int]$AttemptNumber,
+        [int]$BaseDelay = 30,
+        [int]$MaxDelay = 300
+    )
+    
+    $delay = [math]::Min($BaseDelay * [math]::Pow(2, $AttemptNumber - 1), $MaxDelay)
+    return $delay
+}
+
+# Enhanced function to capture Docker events
+function Start-DockerEventMonitoring {
+    $eventLogPath = Join-Path $PSScriptRoot "logs\docker_events.log"
+    
+    $eventScriptBlock = {
+        param($LogPath)
+        
+        function Write-DockerEventLog {
+            param([string]$Message)
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            $logEntry = "[$timestamp] $Message"
+            Add-Content -Path $LogPath -Value $logEntry
+        }
+        
+        try {
+            Write-DockerEventLog "=== DOCKER EVENT MONITORING STARTED ==="
+            docker events 2>&1 | ForEach-Object {
+                if ($_ -and $_.Trim()) {
+                    Write-DockerEventLog $_
+                }
+            }
+        } catch {
+            Write-DockerEventLog "ERROR: Docker event monitoring failed: $($_.Exception.Message)"
+        }
+    }
+    
+    $eventJob = Start-Job -Name "Docker-Event-Monitor" -ScriptBlock $eventScriptBlock -ArgumentList $eventLogPath
+    
+    Write-Host "[EVENTS] Docker event monitoring started (job ID: $($eventJob.Id))" -ForegroundColor Cyan
+    Write-Host "  - Event log: $eventLogPath" -ForegroundColor Gray
+    
+    return $eventJob
+}
 # Setup crash logging
 $crashLogPath = Join-Path $PSScriptRoot "logs\crash_log.txt"
 $dockerDaemonLogPath = Join-Path $PSScriptRoot "logs\docker_daemon_monitor.log"
@@ -31,45 +132,14 @@ if (-not (Test-Path $logsDir)) {
 # Notification tracking (prevent spam)
 $script:LastNotificationTime = @{}  # Track last notification time per issue type
 
-# Handle autostart configuration request
-if ($ConfigureAutostart) {
-    Write-Host "`n========================================" -ForegroundColor Cyan
-    Write-Host "Docker Autostart Configuration" -ForegroundColor Cyan
-    Write-Host "========================================`n" -ForegroundColor Cyan
-    
-    if (Install-DockerAutostart) {
-        Write-Host "`n[SUCCESS] Docker autostart configured!" -ForegroundColor Green
-        Write-Host "Containers will automatically start on system boot." -ForegroundColor Gray
-        Write-Host "`nTo test: Restart your computer and check logs\autostart.log" -ForegroundColor Yellow
-        exit 0
-    } else {
-        Write-Host "`n[ERROR] Failed to configure autostart" -ForegroundColor Red
-        Write-Host "Please run this script as Administrator to enable autostart." -ForegroundColor Yellow
-        exit 1
-    }
-}
-
-# Check and configure Docker autostart on boot (non-blocking, only if not configured)
-try {
-    if (-not (Test-DockerAutostartConfigured)) {
-        # Try to install silently (will fail if not admin, which is OK)
-        $autostartInstalled = Install-DockerAutostart -Silent
-        if ($autostartInstalled) {
-            Write-Host "[INFO] Docker autostart configured - containers will start on boot" -ForegroundColor Green
-        }
-    }
-} catch {
-    # Silently ignore - autostart is optional
-}
-
 # Remove broken DockerHealthCheck task from archived scripts (if it exists)
 try {
-    $removed = Remove-BrokenDockerHealthTask
+    $removed = Remove-BrokenDockerHealthTask -ErrorAction Stop
     if ($removed) {
         Write-Host "[CLEANUP] Removed broken DockerHealthCheck task" -ForegroundColor Yellow
     }
 } catch {
-    # Silently ignore - cleanup is optional
+    Write-Verbose "Optional cleanup of DockerHealthCheck task failed: $_"
 }
 
 function Write-CrashLog {
@@ -96,19 +166,26 @@ function Send-StartupNotification {
     return
 }
 
-# Admin notifications disabled - using external WHM monitoring instead
+# Admin notification function with external monitoring fallback
 function Send-AdminNotification {
+    [CmdletBinding()]
     param(
         [string]$Subject,
         [string]$Message,
         [string]$Severity = "ERROR",
         [string]$IssueType = "general"
     )
-    # Notifications disabled - external WHM handles monitoring
-    return
+    
+    # Skip if notifications are explicitly disabled
+    if (-not $EnableNotifications) {
+        Write-Verbose "Notifications are disabled. Skipping notification."
+        return
+    }
     
     # Check cooldown period
     $now = Get-Date
+    $NotificationCooldownMinutes = 60  # Default cooldown of 60 minutes
+    
     if ($script:LastNotificationTime.ContainsKey($IssueType)) {
         $lastNotification = $script:LastNotificationTime[$IssueType]
         $minutesSinceLastNotification = ($now - $lastNotification).TotalMinutes
@@ -137,8 +214,8 @@ Docker Daemon Logs: $dockerDaemonLogPath
     
     $notificationsSent = 0
     
-    # Send email notification
-    if ($NotificationEmail) {
+    # Send email notification if enabled
+    if ($NotificationEmail -and $EnableNotifications) {
         try {
             $smtpServer = if ($env:SMTP_SERVER) { $env:SMTP_SERVER } else { "localhost" }
             $smtpPort = if ($env:SMTP_PORT) { [int]$env:SMTP_PORT } else { 25 }
@@ -160,10 +237,44 @@ Docker Daemon Logs: $dockerDaemonLogPath
             }
             
             # Add authentication if provided
-            if ($env:SMTP_USERNAME -and $env:SMTP_PASSWORD) {
-                $securePassword = ConvertTo-SecureString $env:SMTP_PASSWORD -AsPlainText -Force
-                $credential = New-Object System.Management.Automation.PSCredential($env:SMTP_USERNAME, $securePassword)
-                $emailParams['Credential'] = $credential
+            if ($env:SMTP_USERNAME) {
+                # Secure SMTP credential handling with encrypted password
+                try {
+                    # Require encrypted password - no plaintext fallback
+                    if (-not $env:SMTP_PASSWORD_ENCRYPTED) {
+                        Write-Error "SMTP_PASSWORD_ENCRYPTED environment variable is not set. Please configure encrypted SMTP credentials."
+                        Write-Host @"
+SETUP INSTRUCTIONS:
+1. Run the following command in an elevated (admin) PowerShell window:
+
+   `$securePass = Read-Host "Enter your SMTP password" -AsSecureString
+   `$encrypted = ConvertFrom-SecureString -SecureString `$securePass
+   [System.Environment]::SetEnvironmentVariable('SMTP_PASSWORD_ENCRYPTED', `$encrypted, 'Machine')
+   [System.Environment]::SetEnvironmentVariable('SMTP_USERNAME', 'your_smtp_username', 'Machine')
+
+2. Restart your application for the changes to take effect.
+
+Note: The password is encrypted using the current user's credentials and can only be decrypted by the same user on the same machine.
+"@
+                        return
+                    }
+
+                    try {
+                        $securePassword = ConvertTo-SecureString -String $env:SMTP_PASSWORD_ENCRYPTED -ErrorAction Stop
+                        Write-Debug "Successfully decrypted SMTP password from SMTP_PASSWORD_ENCRYPTED"
+                    } catch {
+                        Write-Error "Failed to decrypt SMTP_PASSWORD_ENCRYPTED: $($_.Exception.Message)"
+                        Write-Host "Please regenerate your encrypted password using the instructions above."
+                        return
+                    }
+                    
+                    $credential = New-Object System.Management.Automation.PSCredential($env:SMTP_USERNAME, $securePassword)
+                    $emailParams['Credential'] = $credential
+                    Write-Debug "SMTP credentials configured successfully"
+                } catch {
+                    Write-DockerDaemonLog "Failed to create SMTP credentials: $($_.Exception.Message)" "ERROR"
+                    return
+                }
             }
             
             Send-MailMessage @emailParams -ErrorAction Stop
@@ -316,18 +427,34 @@ Docker Daemon Logs: $dockerDaemonLogPath
 }
 
 function Get-ContainerStatus {
-    param([string]$ContainerName)
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$ContainerName
+    )
     
-    $status = docker inspect $ContainerName --format='{{.State.Status}}' 2>$null
-    $exitCode = docker inspect $ContainerName --format='{{.State.ExitCode}}' 2>$null
-    $restartCount = docker inspect $ContainerName --format='{{.RestartCount}}' 2>$null
-    $health = docker inspect $ContainerName --format='{{.State.Health.Status}}' 2>$null
-    
-    return @{
-        Status = $status
-        ExitCode = $exitCode
-        RestartCount = $restartCount
-        Health = $health
+    try {
+        $inspect = docker inspect $ContainerName 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            throw "Container '$ContainerName' not found or Docker daemon not running"
+        }
+        
+        $containerInfo = $inspect | ConvertFrom-Json -ErrorAction Stop
+        
+        return @{
+            Status = $containerInfo.State.Status
+            ExitCode = $containerInfo.State.ExitCode
+            RestartCount = $containerInfo.RestartCount
+            Health = $containerInfo.State.Health.Status
+        }
+    } catch {
+        Write-Verbose "Failed to inspect container $ContainerName : $_"
+        return @{
+            Status = "unknown"
+            ExitCode = -1
+            RestartCount = 0
+            Health = "unknown"
+        }
     }
 }
 
@@ -535,7 +662,7 @@ $($logs | Out-String)
     }
 }
 
-function Test-DockerAutostartConfigured {
+function Test-IsDockerAutostartEnabled {
     <#
     .SYNOPSIS
         Checks if Docker autostart is configured for system boot.
@@ -545,37 +672,144 @@ function Test-DockerAutostartConfigured {
     return ($Task -ne $null)
 }
 
-function Remove-BrokenDockerHealthTask {
-    <#
-    .SYNOPSIS
-        Removes the broken DockerHealthCheck scheduled task from old scripts.
-        This task was created by archived scripts and references non-existent files.
-    #>
+function Get-ContainerCrashInfo {
+    [CmdletBinding()]
     param(
-        [switch]$Silent
+        [Parameter(Mandatory=$true)]
+        [string]$ContainerName
     )
     
+    Write-CrashLog "Analyzing crash for container: $ContainerName" "WARN"
+    
     try {
-        $BrokenTaskName = "DockerHealthCheck"
-        $Task = Get-ScheduledTask -TaskName $BrokenTaskName -ErrorAction SilentlyContinue
+        # Get container info
+        $info = Get-ContainerStatus -ContainerName $ContainerName
         
-        if ($Task) {
-            Unregister-ScheduledTask -TaskName $BrokenTaskName -Confirm:$false -ErrorAction Stop
-            
+        # Get container logs (last 50 lines)
+        $logs = docker logs --tail 50 $ContainerName 2>&1 | Out-String
+        
+        # Check for common error patterns
+        $foundErrors = @()
+        
+        # Check for out of memory errors
+        if ($logs -match "out of memory" -or $logs -match "OOM") {
+            $foundErrors += "Container ran out of memory"
+        }
+        
+        # Check for port conflicts
+        if ($logs -match "address already in use" -or $logs -match "port is already allocated") {
+            $foundErrors += "Port conflict detected"
+        }
+        
+        # Check for missing dependencies
+        if ($logs -match "connection refused" -or $logs -match "no such host") {
+            $foundErrors += "Dependency service unavailable"
+        }
+        
+        # Create crash report
+        $crashReport = @"
+=== CONTAINER CRASH REPORT ===
+Time: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+Container: $ContainerName
+Status: $($info.Status)
+Exit Code: $($info.ExitCode)
+Restart Count: $($info.RestartCount)
+Health: $($info.Health)
+
+ERRORS DETECTED:
+$($foundErrors -join "`n")
+
+LAST 50 LINES OF LOGS:
+$logs
+
+=== END OF REPORT ===
+"@
+        
+        # Save crash report to log file
+        Add-Content -Path $crashLogPath -Value $crashReport
+        
+        return @{
+            Status = $info.Status
+            ExitCode = $info.ExitCode
+            RestartCount = $info.RestartCount
+            Health = $info.Health
+            Errors = $foundErrors
+            LastLogs = $logs
+        }
+    } catch {
+        Write-Error "Failed to get crash info for container $ContainerName : $_"
+        return @{
+            Status = "error"
+            ExitCode = -1
+            RestartCount = 0
+            Health = "unknown"
+            Errors = @("Failed to analyze crash: $_")
+            LastLogs = ""
+        }
+    }
+}
+
+function Remove-BrokenDockerHealthTask {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    param()
+    
+    <#
+    .SYNOPSIS
+        Removes any broken Docker health check tasks from previous versions.
+        
+        .DESCRIPTION
+            This function removes scheduled tasks related to Docker health checks that may have been created
+            by previous versions of the script. It supports -WhatIf and -Confirm parameters.
+        #>
+        
+        $taskName = "DockerHealthCheck"
+        $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+        
+        if ($task) {
+            if ($PSCmdlet.ShouldProcess("Task '$taskName'", "Remove scheduled task")) {
+                try {
+                    Write-Verbose "Removing scheduled task: $taskName"
+                    Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction Stop
+                    Write-Verbose "Successfully removed scheduled task: $taskName"
+                    return $true
+                } catch {
+                    Write-Error "Failed to remove broken Docker health check task: $_"
+                    return $false
+                }
+            } else {
+                # WhatIf scenario
+                return $true
+            }
+        }
+        
+        Write-Verbose "No broken Docker health check task found to remove"
+        return $false
+    }
+
+    function Install-DockerAutostart {
+        <#
+        .SYNOPSIS
+            Installs Docker autostart configuration for system boot.
+        #>
+        param(
+            [switch]$Silent
+        )
+        
+        if (-not $Silent) {
+            Write-Host "`n[CONFIG] Configuring Docker autostart on boot..." -ForegroundColor Yellow
+        }
+        
+        # Check if already configured
+        if (Test-IsDockerAutostartEnabled) {
             if (-not $Silent) {
-                Write-Host "[CLEANUP] Removed broken '$BrokenTaskName' task (references archived scripts)" -ForegroundColor Yellow
+                Write-Host "  [OK] Docker autostart already configured" -ForegroundColor Green
             }
             return $true
         }
-    } catch {
-        if (-not $Silent) {
-            Write-Host "[WARN] Could not remove broken task: $($_.Exception.Message)" -ForegroundColor Yellow
-        }
+        
+        # Rest of the function implementation...
         return $false
     }
-    
-    return $false
-}
 
 function Install-DockerAutostart {
     <#
@@ -684,7 +918,7 @@ Pop-Location
 Write-Log "=== Auto-Start Complete ==="
 "@
         
-        $autostartScript | Out-File -FilePath $autostartScript -Encoding UTF8 -Force
+        $startupScriptContent | Out-File -FilePath $autostartScript -Encoding UTF8 -Force
     }
     
     # Create Docker Desktop startup shortcut
@@ -726,11 +960,6 @@ Write-Log "=== Auto-Start Complete ==="
         $Trigger = New-ScheduledTaskTrigger -AtStartup
         $Trigger.Delay = "PT2M"  # Wait 2 minutes after boot
         
-        # Create the principal
-        $Principal = New-ScheduledTaskPrincipal -UserId "$env:USERDOMAIN\$env:USERNAME" `
-            -LogonType Interactive `
-            -RunLevel Highest
-        
         # Create settings
         $Settings = New-ScheduledTaskSettingsSet `
             -AllowStartIfOnBatteries `
@@ -739,13 +968,63 @@ Write-Log "=== Auto-Start Complete ==="
             -RestartCount 3 `
             -RestartInterval (New-TimeSpan -Minutes 5)
         
-        # Register the task
-        Register-ScheduledTask -TaskName $TaskName `
-            -Action $Action `
-            -Trigger $Trigger `
-            -Principal $Principal `
-            -Settings $Settings `
-            -Description $TaskDescription | Out-Null
+        # Register the task as current user with password (allows starting Docker Desktop)
+        # This requires the user to enter their password
+        Write-Host "  [*] Registering task to run as current user..." -ForegroundColor Gray
+        Write-Host "      You may be prompted for your Windows password." -ForegroundColor Yellow
+        
+        # Use schtasks to register with /RU current user - this prompts for password
+        $taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <BootTrigger>
+      <Enabled>true</Enabled>
+      <Delay>PT2M</Delay>
+    </BootTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$env:USERDOMAIN\$env:USERNAME</UserId>
+      <LogonType>Password</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>false</WakeToRun>
+    <ExecutionTimeLimit>PT1H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <RestartOnFailure>
+      <Interval>PT5M</Interval>
+      <Count>3</Count>
+    </RestartOnFailure>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>PowerShell.exe</Command>
+      <Arguments>-NoProfile -ExecutionPolicy Bypass -File "$autostartScript"</Arguments>
+      <WorkingDirectory>$PSScriptRoot</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+        
+        $taskXmlPath = Join-Path $PSScriptRoot "scripts\task-config.xml"
+        $taskXml | Out-File -FilePath $taskXmlPath -Encoding Unicode -Force
+        
+        # Register using schtasks which will prompt for password
+        $result = schtasks /Create /TN $TaskName /XML $taskXmlPath /RU "$env:USERDOMAIN\$env:USERNAME" /F 2>&1
+        Remove-Item $taskXmlPath -Force -ErrorAction SilentlyContinue
         
         if (-not $Silent) {
             Write-Host "  [OK] Docker autostart configured successfully" -ForegroundColor Green
@@ -755,6 +1034,192 @@ Write-Log "=== Auto-Start Complete ==="
     } catch {
         if (-not $Silent) {
             Write-Host "  [ERROR] Failed to configure autostart: $($_.Exception.Message)" -ForegroundColor Red
+        }
+        return $false
+    }
+}
+
+function Configure-PeriodicHealthCheck {
+    <#
+    .SYNOPSIS
+    Creates a Windows Task Scheduler job that runs every 30 minutes to check Docker health
+    and restart if needed. This is a backup safety net in case the main monitoring stops.
+    Enhanced to run more frequently (every 30 min instead of 2 hours) to catch extended outages.
+    #>
+    param(
+        [switch]$Remove,
+        [switch]$Silent
+    )
+    
+    $TaskName = "CaseStrainer-Docker-HealthCheck"
+    $TaskDescription = "Periodic Docker health check - backup for main monitoring (runs every 30 minutes)"
+    
+    if ($Remove) {
+        $existingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+        if ($existingTask) {
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+            if (-not $Silent) {
+                Write-Host "  [OK] Removed periodic health check task" -ForegroundColor Green
+            }
+        } else {
+            if (-not $Silent) {
+                Write-Host "  [INFO] Periodic health check task not found" -ForegroundColor Gray
+            }
+        }
+        return $true
+    }
+    
+    try {
+        # Create a simple health check script inline
+        $healthCheckScript = @'
+# CaseStrainer Periodic Health Check
+# This runs every 2 hours as a backup to the main monitoring
+
+$ErrorActionPreference = "Continue"
+$logFile = Join-Path $PSScriptRoot "logs\periodic_health_check.log"
+$timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+
+function Write-Log {
+    param([string]$Message, [string]$Level = "INFO")
+    $entry = "[$timestamp] [$Level] $Message"
+    Add-Content -Path $logFile -Value $entry -ErrorAction SilentlyContinue
+}
+
+Write-Log "=== PERIODIC HEALTH CHECK STARTED ===" "INFO"
+
+# Check if Docker is responding
+try {
+    $dockerInfo = docker info 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Log "Docker info failed - Docker may be frozen" "ERROR"
+        
+        # Try to restart Docker Desktop
+        Write-Log "Attempting Docker Desktop restart..." "WARN"
+        Get-Process "Docker Desktop" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 5
+        Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe" -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 60
+        
+        # Start containers
+        Write-Log "Starting containers..." "INFO"
+        Set-Location $PSScriptRoot
+        docker-compose -f docker-compose.prod.yml up -d 2>&1
+        Write-Log "Containers started" "SUCCESS"
+    } else {
+        # Check if containers are running
+        $containers = docker ps --format "{{.Names}}" 2>&1
+        $expectedContainers = @("casestrainer-backend-prod", "casestrainer-nginx-prod", "casestrainer-redis-prod")
+        $allRunning = $true
+        
+        foreach ($expected in $expectedContainers) {
+            if ($containers -notcontains $expected) {
+                Write-Log "Container $expected not running" "WARN"
+                $allRunning = $false
+            }
+        }
+        
+        if (-not $allRunning) {
+            Write-Log "Some containers not running - starting..." "WARN"
+            Set-Location $PSScriptRoot
+            docker-compose -f docker-compose.prod.yml up -d 2>&1
+            Write-Log "Containers started" "SUCCESS"
+        } else {
+            Write-Log "All containers healthy" "SUCCESS"
+        }
+    }
+} catch {
+    Write-Log "Health check error: $($_.Exception.Message)" "ERROR"
+}
+
+Write-Log "=== PERIODIC HEALTH CHECK COMPLETED ===" "INFO"
+'@
+        
+        $healthCheckScriptPath = Join-Path $PSScriptRoot "scripts\periodic_health_check.ps1"
+        $healthCheckScript | Out-File -FilePath $healthCheckScriptPath -Encoding UTF8 -Force
+        
+        # Remove existing task
+        $existingTask = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+        if ($existingTask) {
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        
+        # Create task XML for repeating every 30 minutes (enhanced safety net)
+        $taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <CalendarTrigger>
+      <Repetition>
+        <Interval>PT30M</Interval>
+        <StopAtDurationEnd>false</StopAtDurationEnd>
+      </Repetition>
+      <StartBoundary>2025-01-01T00:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay>
+        <DaysInterval>1</DaysInterval>
+      </ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$env:USERDOMAIN\$env:USERNAME</UserId>
+      <LogonType>Password</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <RunOnlyIfNetworkAvailable>false</RunOnlyIfNetworkAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <Hidden>false</Hidden>
+    <RunOnlyIfIdle>false</RunOnlyIfIdle>
+    <WakeToRun>true</WakeToRun>
+    <ExecutionTimeLimit>PT30M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>PowerShell.exe</Command>
+      <Arguments>-NoProfile -ExecutionPolicy Bypass -File "$healthCheckScriptPath"</Arguments>
+      <WorkingDirectory>$PSScriptRoot</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+        
+        $taskXmlPath = Join-Path $PSScriptRoot "scripts\health-check-task.xml"
+        $taskXml | Out-File -FilePath $taskXmlPath -Encoding Unicode -Force
+        
+        # Register the task
+        if (-not $Silent) {
+            Write-Host "  [*] Registering periodic health check task..." -ForegroundColor Gray
+            Write-Host "      You may be prompted for your Windows password." -ForegroundColor Yellow
+        }
+        
+        $result = schtasks /Create /TN $TaskName /XML $taskXmlPath /RU "$env:USERDOMAIN\$env:USERNAME" /F 2>&1
+        Remove-Item $taskXmlPath -Force -ErrorAction SilentlyContinue
+        
+        if ($LASTEXITCODE -eq 0) {
+            if (-not $Silent) {
+                Write-Host "  [OK] Periodic health check task created successfully" -ForegroundColor Green
+                Write-Host "       Docker health will be checked every 2 hours as a backup" -ForegroundColor Gray
+                Write-Host "       Script: $healthCheckScriptPath" -ForegroundColor Gray
+            }
+            return $true
+        } else {
+            if (-not $Silent) {
+                Write-Host "  [ERROR] Failed to create task: $result" -ForegroundColor Red
+            }
+            return $false
+        }
+    } catch {
+        if (-not $Silent) {
+            Write-Host "  [ERROR] Failed to configure periodic health check: $($_.Exception.Message)" -ForegroundColor Red
         }
         return $false
     }
@@ -885,7 +1350,167 @@ function Get-DockerProcessStats {
     return $stats
 }
 
+function Test-AdminPrivileges {
+    try {
+        $currentPrincipal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+        return $currentPrincipal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    } catch {
+        Write-Verbose "Failed to check admin privileges: $_"
+        return $false
+    }
+}
+
+function Restart-DockerEnhanced {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    param(
+        [string]$Reason = "Auto-restart triggered",
+        [int]$MaxRetries = 3,
+        [int]$RetryDelay = 30
+    )
+
+    Write-Host "[DOCKER] Starting enhanced Docker restart..." -ForegroundColor Cyan
+    Write-DockerDaemonLog "=== ENHANCED DOCKER RESTART INITIATED ===" "WARN"
+    Write-DockerDaemonLog "Reason: $Reason" "WARN"
+
+    $attempt = 1
+    $success = $false
+    $isAdmin = Test-AdminPrivileges
+
+    while ($attempt -le $MaxRetries -and -not $success) {
+        Write-Host "[DOCKER] Attempt $attempt of $MaxRetries..." -ForegroundColor Cyan
+        Write-DockerDaemonLog "Restart attempt $attempt of $MaxRetries" "INFO"
+        
+        try {
+            # Stop Docker processes more aggressively
+            Write-Host "[DOCKER] Stopping Docker processes..." -ForegroundColor Yellow
+            Get-Process | Where-Object { 
+                $_.ProcessName -like "*docker*" -or 
+                $_.ProcessName -like "*com.docker*" -or
+                $_.ProcessName -like "*vpnkit*" -or
+                $_.ProcessName -like "*wsl*" -or
+                $_.ProcessName -like "*wslservice*"
+            } | Stop-Process -Force -ErrorAction SilentlyContinue
+
+            # Stop Docker service if running as admin
+            if ($isAdmin) {
+                $service = Get-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
+                if ($service) {
+                    Stop-Service -Name "com.docker.service" -Force -ErrorAction Stop
+                    Start-Sleep -Seconds 5
+                }
+                
+                # Also stop WSL if it's running
+                $wslService = Get-Service -Name "LxssManager" -ErrorAction SilentlyContinue
+                if ($wslService -and $wslService.Status -eq 'Running') {
+                    Stop-Service -Name "LxssManager" -Force -ErrorAction SilentlyContinue
+                    Start-Sleep -Seconds 2
+                }
+            }
+
+            # Clear Docker's internal state
+            $dockerDataPath = Join-Path $env:ProgramData "Docker"
+            if (Test-Path "$dockerDataPath\com.docker.backend.pid") {
+                Remove-Item "$dockerDataPath\com.docker.backend.pid" -Force -ErrorAction SilentlyContinue
+            }
+
+            # Start Docker service if running as admin
+            if ($isAdmin) {
+                # Start WSL first if it was stopped
+                $wslService = Get-Service -Name "LxssManager" -ErrorAction SilentlyContinue
+                if ($wslService -and $wslService.Status -ne 'Running') {
+                    Start-Service -Name "LxssManager" -ErrorAction SilentlyContinue
+                    Start-Sleep -Seconds 5
+                }
+                
+                Start-Service -Name "com.docker.service" -ErrorAction Stop
+                Start-Sleep -Seconds 10
+            }
+
+            # Start Docker Desktop
+            $dockerDesktopPath = "${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe"
+            if (-not (Test-Path $dockerDesktopPath)) {
+                $dockerDesktopPath = "${env:ProgramFiles(x86)}\Docker\Docker\Docker Desktop.exe"
+            }
+
+            if (Test-Path $dockerDesktopPath) {
+                # Kill any existing Docker Desktop processes first
+                Get-Process | Where-Object { $_.Path -like "*Docker Desktop.exe" } | Stop-Process -Force -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+                
+                # Start Docker Desktop with a fresh instance
+                $process = Start-Process -FilePath $dockerDesktopPath -PassThru -ErrorAction Stop
+                Write-DockerDaemonLog "Started Docker Desktop (PID: $($process.Id))" "INFO"
+            } else {
+                throw "Docker Desktop executable not found at $dockerDesktopPath"
+            }
+
+            # Wait for Docker to be ready with increased timeout
+            $maxWait = 300  # 5 minutes
+            $startTime = Get-Date
+            $dockerReady = $false
+
+            while (((Get-Date) - $startTime).TotalSeconds -lt $maxWait) {
+                $health = Test-DockerDaemonHealth -TimeoutSeconds 10
+                if ($health.DockerInfo -and $health.DockerPs) {
+                    $dockerReady = $true
+                    break
+                }
+                Start-Sleep -Seconds 5
+                Write-Host "." -NoNewline
+            }
+
+            if ($dockerReady) {
+                $recoveryTime = [math]::Round(((Get-Date) - $startTime).TotalSeconds)
+                Write-Host "`n[DOCKER] Docker restarted successfully in ${recoveryTime}s!" -ForegroundColor Green
+                Write-DockerDaemonLog "Docker restart successful after ${recoveryTime}s" "SUCCESS"
+                $success = $true
+                return $true
+            } else {
+                throw "Docker did not become ready within $maxWait seconds"
+            }
+        }
+        catch {
+            $errorMsg = $_.Exception.Message
+            Write-Host "[DOCKER] Attempt $attempt failed: $errorMsg" -ForegroundColor Red
+            Write-DockerDaemonLog "Restart attempt $attempt failed: $errorMsg" "ERROR"
+            Write-DockerDaemonLog $_.ScriptStackTrace "DEBUG"
+            
+            $attempt++
+            if ($attempt -le $MaxRetries) {
+                $retryTime = Get-Date
+                Write-Host "[DOCKER] Retrying in $RetryDelay seconds..." -ForegroundColor Yellow
+                Write-DockerDaemonLog "Will retry Docker restart at $($retryTime.AddSeconds($RetryDelay))" "WARN"
+                Start-Sleep -Seconds $RetryDelay
+            }
+        }
+    }
+
+    if (-not $success) {
+        $errorMsg = "Failed to restart Docker after $MaxRetries attempts"
+        Write-Host "[DOCKER] $errorMsg" -ForegroundColor Red
+        Write-DockerDaemonLog $errorMsg "ERROR"
+        
+        # Try one last emergency restart method
+        try {
+            Write-Host "[DOCKER] Attempting emergency restart method..." -ForegroundColor Yellow
+            if ($isAdmin) {
+                Start-Process "shutdown.exe" -ArgumentList "/r", "/t", "30", "/c", "Emergency Docker recovery restart" -Verb RunAs
+            } else {
+                Write-Host "[DOCKER] Admin privileges required for emergency restart" -ForegroundColor Red
+            }
+            return $false
+        }
+        catch {
+            Write-Host "[DOCKER] Emergency restart failed: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
+    }
+}
+
 function Restart-DockerDaemon {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    param()
+    
     param([string]$Reason = "Freeze detected")
     
     Write-DockerDaemonLog "=== DOCKER DAEMON RESTART INITIATED ===" "WARN"
@@ -910,12 +1535,17 @@ function Restart-DockerDaemon {
             Start-Sleep -Seconds 3
         }
         
-        # Step 2: Stop Docker service
+        # Step 2: Stop Docker service (requires admin privileges)
         Write-DockerDaemonLog "Stopping Docker service..." "INFO"
         $service = Get-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
         if ($service) {
-            Stop-Service -Name "com.docker.service" -Force -ErrorAction SilentlyContinue
-            Start-Sleep -Seconds 2
+            try {
+                Stop-Service -Name "com.docker.service" -Force -ErrorAction Stop
+                Start-Sleep -Seconds 2
+            } catch {
+                Write-DockerDaemonLog "Failed to stop Docker service (may require admin privileges): $($_.Exception.Message)" "WARN"
+                Write-DockerDaemonLog "Attempting to restart Docker Desktop without service restart..." "INFO"
+            }
         }
         
         # Step 3: Kill any remaining Docker processes
@@ -926,14 +1556,25 @@ function Restart-DockerDaemon {
         } | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 2
         
-        # Step 4: Start Docker service
+        # Step 4: Start Docker service (requires admin privileges)
         Write-DockerDaemonLog "Starting Docker service..." "INFO"
-        Start-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
-        Start-Sleep -Seconds 3
+        try {
+            Start-Service -Name "com.docker.service" -ErrorAction Stop
+            Start-Sleep -Seconds 3
+        } catch {
+            Write-DockerDaemonLog "Failed to start Docker service (may require admin privileges): $($_.Exception.Message)" "WARN"
+            Write-DockerDaemonLog "Docker Desktop may start the service automatically..." "INFO"
+            Start-Sleep -Seconds 3
+        }
         
         # Step 5: Start Docker Desktop
-        Write-DockerDaemonLog "Starting Docker Desktop..." "INFO"
-        $dockerDesktopPath = "${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe"
+        if (-not $PSCmdlet.ShouldProcess("Docker Desktop service", "Restart")) {
+            Write-Host "[INFO] Docker restart was cancelled by user" -ForegroundColor Yellow
+            return $false
+        }
+
+        Write-Host "[INFO] Stopping Docker Desktop..." -ForegroundColor Cyan
+        & "$env:ProgramFiles\Docker\Docker\Docker Desktop.exe" -shutdown
         if (-not (Test-Path $dockerDesktopPath)) {
             $dockerDesktopPath = "${env:ProgramFiles(x86)}\Docker\Docker\Docker Desktop.exe"
         }
@@ -994,15 +1635,37 @@ function Restart-DockerDaemon {
 }
 
 function Start-ContainerMonitoring {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    param()
+    
+    <#
+    .SYNOPSIS
+        Starts continuous monitoring of Docker containers and Docker daemon health.
+    
+    .DESCRIPTION
+        This function monitors the status of Docker containers and optionally the Docker daemon.
+        It can automatically restart containers that have crashed and handle Docker daemon freezes.
+        Supports -WhatIf and -Confirm parameters for safety.
+    #>
+    
+    if (-not $PSCmdlet.ShouldProcess("Start container monitoring", "Begin monitoring Docker containers and daemon health?", "Start monitoring")) {
+        Write-Host "Container monitoring was not started (user cancelled)." -ForegroundColor Yellow
+        return
+    }
+    
     Write-Host "`n========================================" -ForegroundColor Cyan
     Write-Host "MONITORING MODE - Press Ctrl+C to stop" -ForegroundColor Cyan
     Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    # Show monitoring configuration
     Write-Host "Container Check Interval: $MonitorInterval seconds" -ForegroundColor Gray
     Write-Host "Crash log: $crashLogPath" -ForegroundColor Gray
+    
     if ($EnableDockerDaemonMonitor) {
         Write-Host "Docker Daemon Monitor: ENABLED" -ForegroundColor Green
         Write-Host "  - Freeze timeout: ${DockerDaemonTimeout}s" -ForegroundColor Gray
         Write-Host "  - Max restarts/hour: $MaxDockerRestartsPerHour" -ForegroundColor Gray
+        Write-Host "  - Nuclear option: Force restart after ${ExtendedDowntimeMinutes} min downtime" -ForegroundColor Gray
         Write-Host "  - Daemon log: $dockerDaemonLogPath" -ForegroundColor Gray
     } else {
         Write-Host "Docker Daemon Monitor: DISABLED" -ForegroundColor Yellow
@@ -1025,6 +1688,7 @@ function Start-ContainerMonitoring {
     $dockerDaemonFailures = 0
     $lastDockerCheck = $null
     $dockerRestartHistory = @()  # Track restart times for rate limiting
+    $dockerFirstFailureTime = $null  # Track when Docker first became unhealthy (for nuclear option)
     
     # Initialize status tracking
     foreach ($container in $containers) {
@@ -1038,6 +1702,7 @@ function Start-ContainerMonitoring {
         Write-DockerDaemonLog "Check interval: ${MonitorInterval}s" "INFO"
         Write-DockerDaemonLog "Freeze timeout: ${DockerDaemonTimeout}s" "INFO"
         Write-DockerDaemonLog "Max restarts per hour: $MaxDockerRestartsPerHour" "INFO"
+        Write-DockerDaemonLog "Extended downtime threshold: ${ExtendedDowntimeMinutes} minutes (nuclear option)" "INFO"
         Write-Host "[INFO] Docker daemon monitoring enabled" -ForegroundColor Cyan
     } else {
         Write-Host "[INFO] Docker daemon monitoring disabled" -ForegroundColor Gray
@@ -1066,6 +1731,7 @@ function Start-ContainerMonitoring {
                         Write-DockerDaemonLog "Docker daemon recovered after $dockerDaemonFailures consecutive failures" "SUCCESS"
                         Write-CrashLog "[$timestamp] Docker daemon recovered after $dockerDaemonFailures failures" "SUCCESS"
                         $dockerDaemonFailures = 0
+                        $dockerFirstFailureTime = $null  # Reset nuclear option timer
                     }
                     
                     # Log periodic health status (every 10 checks)
@@ -1084,29 +1750,50 @@ function Start-ContainerMonitoring {
                     
                     # If multiple consecutive failures, attempt restart
                     if ($dockerDaemonFailures -ge 2) {
+                        # Track first failure time for nuclear option
+                        if ($null -eq $dockerFirstFailureTime) {
+                            $dockerFirstFailureTime = Get-Date
+                            Write-DockerDaemonLog "First consecutive failure detected at $($dockerFirstFailureTime.ToString('yyyy-MM-dd HH:mm:ss'))" "WARN"
+                        }
+                        
                         # Check restart rate limit
                         $now = Get-Date
                         $recentRestarts = $dockerRestartHistory | Where-Object { ($now - $_).TotalHours -lt 1 }
                         
-                        if ($recentRestarts.Count -lt $MaxDockerRestartsPerHour) {
-                            Write-DockerDaemonLog "Attempting Docker daemon restart (${dockerDaemonFailures} consecutive failures)" "WARN"
-                            Write-Host "[$timestamp] ⚠️  Docker daemon appears frozen - attempting restart..." -ForegroundColor Yellow
+                        # NUCLEAR OPTION: If Docker has been down for extended time, bypass rate limit
+                        $downtimeMinutes = if ($dockerFirstFailureTime) { ($now - $dockerFirstFailureTime).TotalMinutes } else { 0 }
+                        $bypassRateLimit = $downtimeMinutes -ge $ExtendedDowntimeMinutes
+                        
+                        if ($bypassRateLimit) {
+                            Write-DockerDaemonLog "NUCLEAR OPTION: Docker down for $([math]::Round($downtimeMinutes, 1)) minutes - bypassing rate limit" "WARN"
+                            Write-Host "[$timestamp] as?i,?  NUCLEAR OPTION: Docker down for $([math]::Round($downtimeMinutes, 1)) min - forcing restart" -ForegroundColor Magenta
+                        }
+                        
+                        if ($recentRestarts.Count -lt $MaxDockerRestartsPerHour -or $bypassRateLimit) {
+                            $restartReason = if ($bypassRateLimit) {
+                                "NUCLEAR: Extended downtime ($([math]::Round($downtimeMinutes, 1)) min) - bypassing rate limit"
+                            } else {
+                                "Health check failed ($dockerDaemonFailures consecutive failures)"
+                            }
+                            Write-DockerDaemonLog "Attempting Docker daemon restart ($restartReason)" "WARN"
+                            Write-Host "[$timestamp] as?i,?  Docker daemon appears frozen - attempting restart..." -ForegroundColor Yellow
                             
-                            $restartSuccess = Restart-DockerDaemon -Reason "Health check failed ($dockerDaemonFailures consecutive failures)"
+                            $restartSuccess = Restart-DockerDaemon -Reason $restartReason
                             
                             if ($restartSuccess) {
                                 $dockerRestartHistory += Get-Date
                                 $dockerDaemonFailures = 0
+                                $dockerFirstFailureTime = $null  # Reset nuclear option timer
                                 
                                 # Clean up old restart history (keep last 24 hours)
                                 $dockerRestartHistory = $dockerRestartHistory | Where-Object { ($now - $_).TotalHours -lt 24 }
                                 
-                                Write-Host "[$timestamp] ✅ Docker daemon restarted successfully" -ForegroundColor Green
+                                Write-Host "[$timestamp] ao. Docker daemon restarted successfully" -ForegroundColor Green
                                 
                                 # Wait a bit for Docker to stabilize before continuing
                                 Start-Sleep -Seconds 10
                             } else {
-                                Write-Host "[$timestamp] ❌ Docker daemon restart failed - manual intervention may be required" -ForegroundColor Red
+                                Write-Host "[$timestamp] a?O Docker daemon restart failed - manual intervention may be required" -ForegroundColor Red
                                 Write-Host "  Check logs: $dockerDaemonLogPath" -ForegroundColor Yellow
                                 
                                 # Send critical notification
@@ -1119,6 +1806,7 @@ Details:
 - Health checks failed: $dockerDaemonFailures times
 - Restart attempted but failed
 - Docker daemon is unresponsive
+- Downtime: $([math]::Round($downtimeMinutes, 1)) minutes
 
 Action Required:
 1. Check Docker Desktop status
@@ -1135,40 +1823,43 @@ Recent restart history: $($dockerRestartHistory.Count) restarts in last 24 hours
                                     -IssueType "docker_daemon_unrecoverable"
                             }
                         } else {
-                            Write-DockerDaemonLog "Restart rate limit reached ($($recentRestarts.Count) restarts in last hour) - skipping restart" "WARN"
-                            Write-Host "[$timestamp] ⚠️  Docker daemon frozen but restart rate limit reached" -ForegroundColor Red
+                            Write-DockerDaemonLog "Restart rate limit reached ($($recentRestarts.Count) restarts in last hour) - waiting for nuclear option at $ExtendedDowntimeMinutes min" "WARN"
+                            Write-Host "[$timestamp] as?i,?  Docker daemon frozen but restart rate limit reached" -ForegroundColor Red
                             Write-Host "  Recent restarts: $($recentRestarts.Count) in last hour" -ForegroundColor Yellow
+                            Write-Host "  Downtime: $([math]::Round($downtimeMinutes, 1)) min (nuclear option at $ExtendedDowntimeMinutes min)" -ForegroundColor Yellow
                             
-                            # Send warning notification about rate limit
-                            $notificationMessage = @"
+                            # Only send notification once per rate limit hit (not every check)
+                            $shouldNotify = $dockerDaemonFailures -eq 2  # First time hitting rate limit
+                            if ($shouldNotify) {
+                                $notificationMessage = @"
 Docker daemon restart rate limit reached.
 
 The Docker daemon has been restarted $($recentRestarts.Count) times in the last hour.
-Automatic restart has been disabled to prevent restart loops.
+Rate limit is temporarily pausing restarts.
+
+NUCLEAR OPTION: Automatic restart will be forced after $ExtendedDowntimeMinutes minutes of continuous downtime.
 
 Current Status:
 - Docker daemon health checks failing
 - Restart attempts: $($recentRestarts.Count) in last hour
 - Rate limit: $MaxDockerRestartsPerHour per hour
-- Manual intervention recommended
+- Current downtime: $([math]::Round($downtimeMinutes, 1)) minutes
+- Nuclear option will trigger at: $ExtendedDowntimeMinutes minutes
 
-Action Required:
-1. Investigate root cause of Docker daemon freezes
-2. Check system resources (CPU, memory, disk)
-3. Review Docker process CPU usage
-4. Consider reducing container resource limits
-5. Check for conflicting software (antivirus, VPN)
+The system will automatically attempt recovery after extended downtime.
+Manual intervention may still be helpful if available.
 
 Logs: $dockerDaemonLogPath
 "@
-                            Send-AdminNotification `
-                                -Subject "WARNING: Docker Daemon Restart Rate Limit Reached" `
-                                -Message $notificationMessage `
-                                -Severity "WARN" `
-                                -IssueType "docker_daemon_rate_limit"
+                                Send-AdminNotification `
+                                    -Subject "WARNING: Docker Daemon Restart Rate Limit Reached (Nuclear option in $([math]::Round($ExtendedDowntimeMinutes - $downtimeMinutes, 0)) min)" `
+                                    -Message $notificationMessage `
+                                    -Severity "WARN" `
+                                    -IssueType "docker_daemon_rate_limit"
+                            }
                         }
                     } else {
-                        Write-Host "[$timestamp] ⚠️  Docker daemon health check failed ($dockerDaemonFailures/2)" -ForegroundColor Yellow
+                        Write-Host "[$timestamp] as?i,?  Docker daemon health check failed ($dockerDaemonFailures/2)" -ForegroundColor Yellow
                     }
                 }
             }
@@ -1306,6 +1997,385 @@ if ($Monitor) {
     exit 0
 }
 
+# Function to start watchdog that monitors the monitoring job (checks every 5 minutes)
+function Start-MonitoringWatchdog {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    param()
+    
+    <#
+    .SYNOPSIS
+        Starts a watchdog that monitors the main monitoring job.
+    
+    .DESCRIPTION
+        This function starts a background job that periodically checks if the main monitoring job
+        is still running. If the monitoring job has stopped unexpectedly, the watchdog will
+        attempt to restart it. The watchdog runs with elevated privileges if available.
+        
+        Supports -WhatIf and -Confirm parameters for safety.
+    #>
+    
+    $watchdogJobName = "CaseStrainer-Monitor-Watchdog"
+    
+    # Check if watchdog already exists
+    $existingWatchdog = Get-Job -Name $watchdogJobName -ErrorAction SilentlyContinue
+    if ($existingWatchdog) {
+        Write-Host "[INFO] Monitoring watchdog already running (job ID: $($existingWatchdog.Id))" -ForegroundColor Cyan
+        return $true
+    }
+    
+    # Check if running as administrator (required for Docker restart capability)
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole(
+        [Security.Principal.WindowsBuiltInRole]::Administrator
+    )
+    
+    if (-not $PSCmdlet.ShouldProcess("Start monitoring watchdog", 
+                                    "Start a background watchdog to monitor the monitoring job?",
+                                    "Start monitoring watchdog")) {
+        Write-Host "Monitoring watchdog was not started (user cancelled)." -ForegroundColor Yellow
+        return $false
+    }
+    
+    Write-Host "[INFO] Starting monitoring watchdog (checks every 5 minutes)..." -ForegroundColor Cyan
+    
+    if (-not $isAdmin) {
+        Write-Host "[WARN] Monitoring watchdog starting WITHOUT Administrator privileges" -ForegroundColor Yellow
+        Write-Host "  [!!]  Docker restart functionality will be LIMITED" -ForegroundColor Yellow
+        Write-Host "  [!!]  The watchdog can monitor and log, but cannot restart Docker service" -ForegroundColor Yellow
+        Write-Host "  [!!]  To enable full auto-recovery, run cslaunch as Administrator" -ForegroundColor Cyan
+        Write-Host "       Right-click PowerShell -> Run as Administrator, then run: .\cslaunch" -ForegroundColor Gray
+        Write-Host ""
+    } else {
+        Write-Host "[OK] Running as Administrator - full auto-recovery enabled" -ForegroundColor Green
+    }
+    
+    $watchdogScriptBlock = {
+        param(
+            $ScriptRoot,
+            $MonitorInterval,
+            $DockerDaemonTimeout,
+            $MaxDockerRestartsPerHour,
+            $ExtendedDowntimeMinutes
+        )
+        
+        $ErrorActionPreference = "Continue"
+        $watchdogLogPath = Join-Path $ScriptRoot "logs\monitoring_watchdog.log"
+        $monitorJobName = "CaseStrainer-Monitor"
+        
+        function Write-WatchdogLog {
+            param([string]$Message, [string]$Level = "INFO")
+            $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+            $logEntry = "[$timestamp] [$Level] $Message"
+            Add-Content -Path $watchdogLogPath -Value $logEntry -ErrorAction SilentlyContinue
+        }
+        
+        Write-WatchdogLog "=== MONITORING WATCHDOG STARTED ===" "SUCCESS"
+        Write-WatchdogLog "Check interval: 5 minutes" "INFO"
+        Write-WatchdogLog "Monitored job: $monitorJobName" "INFO"
+        
+        # Main watchdog loop - checks every 5 minutes
+        while ($true) {
+            try {
+                $monitorJob = Get-Job -Name $monitorJobName -ErrorAction SilentlyContinue
+                
+                if (-not $monitorJob) {
+                    Write-WatchdogLog "Monitoring job not found - recreating..." "WARN"
+                    
+                    # Recreate monitoring job by invoking cslaunch.ps1 in a separate process
+                    # This will call Start-BackgroundMonitoring which recreates the monitoring job
+                    try {
+                        $cslaunchPath = Join-Path $ScriptRoot "cslaunch.ps1"
+                        if (Test-Path $cslaunchPath) {
+                            $scriptArgs = @(
+                                "-NoProfile",
+                                "-ExecutionPolicy", "Bypass",
+                                "-File", "`"$cslaunchPath`"",
+                                "-NoMonitor:`$false"
+                            )
+                            Start-Process powershell.exe -ArgumentList $scriptArgs -WindowStyle Hidden -ErrorAction SilentlyContinue
+                            Write-WatchdogLog "Monitoring job recreation initiated via cslaunch.ps1" "INFO"
+                        } else {
+                            Write-WatchdogLog "cslaunch.ps1 not found at $cslaunchPath" "ERROR"
+                        }
+                    } catch {
+                        Write-WatchdogLog "Failed to recreate monitoring job: $($_.Exception.Message)" "ERROR"
+                    }
+                } elseif ($monitorJob.State -eq 'Failed' -or $monitorJob.State -eq 'Stopped') {
+                    Write-WatchdogLog "Monitoring job is $($monitorJob.State) - removing and recreating..." "WARN"
+                    
+                    # Remove failed job
+                    Remove-Job -Job $monitorJob -Force -ErrorAction SilentlyContinue
+                    
+                    # Recreate it (same as above)
+                    try {
+                        $cslaunchPath = Join-Path $ScriptRoot "cslaunch.ps1"
+                        if (Test-Path $cslaunchPath) {
+                            $scriptArgs = @(
+                                "-NoProfile",
+                                "-ExecutionPolicy", "Bypass",
+                                "-File", "`"$cslaunchPath`"",
+                                "-NoMonitor:`$false"
+                            )
+                            Start-Process powershell.exe -ArgumentList $scriptArgs -WindowStyle Hidden -ErrorAction SilentlyContinue
+                            Write-WatchdogLog "Monitoring job recreation initiated via cslaunch.ps1" "INFO"
+                        } else {
+                            Write-WatchdogLog "cslaunch.ps1 not found at $cslaunchPath" "ERROR"
+                        }
+                    } catch {
+                        Write-WatchdogLog "Failed to recreate monitoring job: $($_.Exception.Message)" "ERROR"
+                    }
+                } else {
+                    # Job is running - log status periodically (every 10 checks = 50 minutes)
+                    $checkCount = (Get-Date).Minute % 10
+                    if ($checkCount -eq 0) {
+                        Write-WatchdogLog "Monitoring job healthy (State: $($monitorJob.State), ID: $($monitorJob.Id))" "INFO"
+                    }
+                }
+            } catch {
+                Write-WatchdogLog "Error in watchdog loop: $($_.Exception.Message)" "ERROR"
+            }
+            
+            # Check every 5 minutes
+            Start-Sleep -Seconds 300
+        }
+    }
+    
+    # Start the watchdog job
+    $watchdogJob = Start-Job -Name $watchdogJobName -ScriptBlock $watchdogScriptBlock `
+        -ArgumentList $PSScriptRoot, $MonitorInterval, $DockerDaemonTimeout, $MaxDockerRestartsPerHour, $ExtendedDowntimeMinutes
+    
+    Write-Host "[OK] Monitoring watchdog started (job ID: $($watchdogJob.Id))" -ForegroundColor Green
+    Write-Host "  - Checks every 5 minutes for monitoring job health" -ForegroundColor Cyan
+    Write-Host "  - Auto-restarts monitoring job if it crashes" -ForegroundColor Cyan
+    if (-not $isAdmin) {
+        Write-Host "  - [WARNING] Limited: Cannot restart Docker (requires admin)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  - [OK] Full auto-recovery enabled (admin privileges)" -ForegroundColor Green
+    }
+    Write-Host "  - Watchdog log: logs\monitoring_watchdog.log" -ForegroundColor Gray
+}
+
+# Enhanced Monitoring Functions for 24-48 Hour Crash Prevention
+function Start-EnhancedMonitoringSuite {
+    <#
+    .SYNOPSIS
+    Start the comprehensive enhanced monitoring suite to prevent recurring Docker crashes
+    #>
+    
+    Write-Host "[ENHANCED] Starting comprehensive monitoring suite..." -ForegroundColor Cyan
+    
+    $scriptsDir = Join-Path $PSScriptRoot "scripts"
+    $monitoringJobs = @()
+    
+    # 1. Enhanced Docker Monitor
+    if ($EnableEnhancedMonitoring) {
+        Write-Host "[ENHANCED] Starting enhanced Docker monitor..." -ForegroundColor Green
+        $enhancedMonitorScript = Join-Path $scriptsDir "enhanced_docker_monitor.ps1"
+        
+        if (Test-Path $enhancedMonitorScript) {
+            try {
+                $scriptArgs = @(
+                    "-CheckInterval", $EnhancedCheckInterval,
+                    "-DockerTimeout", $DockerDaemonTimeout,
+                    "-MemoryThreshold", $MemoryThreshold,
+                    "-CpuThreshold", $CpuThreshold
+                )
+                
+                if ($EnableAutoRecovery) { $scriptArgs += "-EnableAutoRecovery" }
+                if ($EnableResourceMonitoring) { $scriptArgs += "-EnableResourceMonitoring" }
+                
+                $job = Start-Job -Name "Enhanced-Docker-Monitor" -ScriptBlock {
+                    param($ScriptPath, $ScriptArgs)
+                    & $ScriptPath @ScriptArgs
+                } -ArgumentList $enhancedMonitorScript, $scriptArgs
+                
+                $monitoringJobs += $job
+                Write-Host "[ENHANCED] Enhanced Docker monitor started (Job ID: $($job.Id))" -ForegroundColor Green
+            } catch {
+                Write-Host "[ENHANCED] Failed to start enhanced Docker monitor: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[ENHANCED] Enhanced Docker monitor script not found" -ForegroundColor Yellow
+        }
+    }
+    
+    # 2. Self-Health Monitor
+    if ($EnableSelfHealthMonitoring) {
+        Write-Host "[ENHANCED] Starting self-health monitor..." -ForegroundColor Green
+        $selfHealthScript = Join-Path $scriptsDir "monitor_self_health.ps1"
+        
+        if (Test-Path $selfHealthScript) {
+            try {
+                $scriptArgs = @(
+                    "-MonitorScript", "enhanced_docker_monitor.ps1"
+                )
+                
+                $job = Start-Job -Name "Self-Health-Monitor" -ScriptBlock {
+                    param($ScriptPath, $ScriptArgs)
+                    & $ScriptPath @ScriptArgs
+                } -ArgumentList $selfHealthScript, $scriptArgs
+                
+                $monitoringJobs += $job
+                Write-Host "[ENHANCED] Self-health monitor started (Job ID: $($job.Id))" -ForegroundColor Green
+            } catch {
+                Write-Host "[ENHANCED] Failed to start self-health monitor: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[ENHANCED] Self-health monitor script not found" -ForegroundColor Yellow
+        }
+    }
+    
+    # 3. System Recovery Logger
+    if ($EnableSystemRecoveryLogging) {
+        Write-Host "[ENHANCED] Starting system recovery logger..." -ForegroundColor Green
+        $recoveryLoggerScript = Join-Path $scriptsDir "system_recovery_logger.ps1"
+        
+        if (Test-Path $recoveryLoggerScript) {
+            try {
+                $job = Start-Job -Name "System-Recovery-Logger" -ScriptBlock {
+                    param($ScriptPath)
+                    & $ScriptPath
+                } -ArgumentList $recoveryLoggerScript
+                
+                $monitoringJobs += $job
+                Write-Host "[ENHANCED] System recovery logger started (Job ID: $($job.Id))" -ForegroundColor Green
+            } catch {
+                Write-Host "[ENHANCED] Failed to start system recovery logger: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[ENHANCED] System recovery logger script not found" -ForegroundColor Yellow
+        }
+    }
+    
+    # 4. Escalation Manager
+    if ($EnableEscalationManager) {
+        Write-Host "[ENHANCED] Starting escalation manager..." -ForegroundColor Green
+        $escalationScript = Join-Path $scriptsDir "escalation_manager.ps1"
+        
+        if (Test-Path $escalationScript) {
+            try {
+                $job = Start-Job -Name "Escalation-Manager" -ScriptBlock {
+                    param($ScriptPath)
+                    & $ScriptPath
+                } -ArgumentList $escalationScript
+                
+                $monitoringJobs += $job
+                Write-Host "[ENHANCED] Escalation manager started (Job ID: $($job.Id))" -ForegroundColor Green
+            } catch {
+                Write-Host "[ENHANCED] Failed to start escalation manager: $($_.Exception.Message)" -ForegroundColor Red
+            }
+        } else {
+            Write-Host "[ENHANCED] Escalation manager script not found" -ForegroundColor Yellow
+        }
+    }
+    
+    # Summary
+    Write-Host "[ENHANCED] Enhanced monitoring suite started with $($monitoringJobs.Count) components" -ForegroundColor Cyan
+    Write-Host "[ENHANCED] Active monitoring jobs:" -ForegroundColor Gray
+    foreach ($job in $monitoringJobs) {
+        Write-Host "[ENHANCED]   - $($job.Name) (ID: $($job.Id))" -ForegroundColor Gray
+    }
+    
+    Write-Host "[ENHANCED] Enhanced logs location: logs\enhanced_*.log" -ForegroundColor Cyan
+    Write-Host "[ENHANCED] Use 'Get-Job' to monitor job status" -ForegroundColor Gray
+    
+    return $monitoringJobs
+}
+
+function Restart-DockerEnhanced {
+    <#
+    .SYNOPSIS
+    Enhanced Docker restart with deep cleanup and memory optimization
+    #>
+    
+    param([string]$Reason = "Manual enhanced restart")
+    
+    Write-Host "[ENHANCED] Starting enhanced Docker restart..." -ForegroundColor Yellow
+    Write-Host "[ENHANCED] Reason: $Reason" -ForegroundColor Gray
+    
+    $enhancedRestartScript = Join-Path $PSScriptRoot "scripts\enhanced_docker_restart.ps1"
+    
+    if (Test-Path $enhancedRestartScript) {
+        try {
+            $restartArgs = @()
+            if ($Force) { $restartArgs += "-Force" }
+            if ($DeepCleanRestart) { $restartArgs += "-DeepClean" }
+            if ($MemoryOptimizeRestart) { $restartArgs += "-MemoryOptimize" }
+            
+            Write-Host "[ENHANCED] Executing enhanced restart with args: $($restartArgs -join ' ')" -ForegroundColor Gray
+            
+            $process = Start-Process powershell.exe -ArgumentList "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", "`"$enhancedRestartScript`"" + $restartArgs -Wait -PassThru
+            
+            if ($process.ExitCode -eq 0) {
+                Write-Host "[ENHANCED] Enhanced Docker restart completed successfully" -ForegroundColor Green
+                return $true
+            } else {
+                Write-Host "[ENHANCED] Enhanced Docker restart failed (exit code: $($process.ExitCode))" -ForegroundColor Red
+                return $false
+            }
+        } catch {
+            Write-Host "[ENHANCED] Enhanced restart failed: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
+    } else {
+        Write-Host "[ENHANCED] Enhanced restart script not found at $enhancedRestartScript" -ForegroundColor Yellow
+        return $false
+    }
+}
+
+function Show-EnhancedMonitoringStatus {
+    <#
+    .SYNOPSIS
+    Show status of all enhanced monitoring components
+    #>
+    
+    Write-Host "`n[ENHANCED] Enhanced Monitoring Status" -ForegroundColor Cyan
+    Write-Host "[ENHANCED] ===========================" -ForegroundColor Cyan
+    
+    # Check monitoring jobs
+    $enhancedJobs = Get-Job | Where-Object { $_.Name -match "Enhanced|Self-Health|System-Recovery|Escalation" }
+    
+    if ($enhancedJobs.Count -gt 0) {
+        Write-Host "[ENHANCED] Active monitoring jobs: $($enhancedJobs.Count)" -ForegroundColor Green
+        foreach ($job in $enhancedJobs) {
+            $status = switch ($job.State) {
+                "Running" { "RUNNING" }
+                "Failed" { "FAILED" }
+                "Stopped" { "STOPPED" }
+                default { "$($job.State.ToUpper())" }
+            }
+            Write-Host "[ENHANCED]   $($job.Name): $status (ID: $($job.Id))" -ForegroundColor Gray
+        }
+    } else {
+        Write-Host "[ENHANCED] No enhanced monitoring jobs running" -ForegroundColor Yellow
+    }
+    
+    # Check log files
+    $logsDir = Join-Path $PSScriptRoot "logs"
+    $enhancedLogs = @(
+        "enhanced_monitor.log",
+        "self_health_monitor.log", 
+        "system_recovery.log",
+        "escalation.log"
+    )
+    
+    Write-Host "[ENHANCED]`nLog file status:" -ForegroundColor Gray
+    foreach ($logFile in $enhancedLogs) {
+        $logPath = Join-Path $logsDir $logFile
+        if (Test-Path $logPath) {
+            $file = Get-Item $logPath
+            $timeSince = (Get-Date) - $file.LastWriteTime
+            $status = if ($timeSince.TotalMinutes -lt 30) { "ACTIVE" } 
+                     elseif ($timeSince.TotalMinutes -lt 120) { "RECENT" } 
+                     else { "STALE" }
+            Write-Host ("[ENHANCED]   {0}: {1} (Last: {2}m ago)" -f $logFile, $status, [math]::Round($timeSince.TotalMinutes)) -ForegroundColor Gray
+        } else {
+            Write-Host ("[ENHANCED]   {0}: NOT FOUND" -f $logFile) -ForegroundColor Red
+        }
+    }
+    
+    Write-Host ""
+}
+
 # Function to start background monitoring (lightweight - Docker daemon only)
 function Start-BackgroundMonitoring {
     if ($NoMonitor) {
@@ -1322,145 +2392,478 @@ function Start-BackgroundMonitoring {
     $existingJob = Get-Job -Name "CaseStrainer-Monitor" -ErrorAction SilentlyContinue
     if ($existingJob) {
         Write-Host "[INFO] Background monitoring already running (job ID: $($existingJob.Id))" -ForegroundColor Cyan
+        # Still start watchdog to ensure it stays running
+        Start-MonitoringWatchdog
         return
     }
     
     Write-Host "[INFO] Starting background Docker daemon monitoring..." -ForegroundColor Cyan
     
+       # Start Docker event monitoring
+    Write-Host "[INFO] Starting Docker event monitoring..." -ForegroundColor Cyan
+    $eventJob = Start-DockerEventMonitoring
+ # Check if running as administrator (for Docker restart capability)
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    
+    if (-not $isAdmin) {
+        Write-Host "[WARN] Background monitoring starting WITHOUT Administrator privileges" -ForegroundColor Yellow
+        Write-Host "  as?i,?  Docker auto-restart will be LIMITED (can detect issues but cannot restart Docker service)" -ForegroundColor Yellow
+        Write-Host "  ?Y'! To enable full auto-recovery, run cslaunch as Administrator" -ForegroundColor Cyan
+        Write-Host "     Right-click PowerShell -> Run as Administrator, then run: .\cslaunch" -ForegroundColor Gray
+        Write-Host ""
+    } else {
+        Write-Host "[OK] Running as Administrator - Docker auto-restart enabled" -ForegroundColor Green
+    }
+    
     # Create a lightweight background monitoring script block
+    # UPDATED: Now includes enhanced Docker restart with better error handling and logging
     $monitorScriptBlock = {
         param(
             $ScriptRoot,
             $MonitorInterval,
             $DockerDaemonTimeout,
-            $MaxDockerRestartsPerHour
+            $MaxDockerRestartsPerHour,
+            $ExtendedDowntimeMinutes
         )
-        
-        $ErrorActionPreference = "Continue"
-        $dockerDaemonLogPath = Join-Path $ScriptRoot "logs\docker_daemon_monitor.log"
-        
+
+        # Import common functions
+        . (Join-Path $ScriptRoot "cslaunch.ps1" -ErrorAction Stop)
+
         function Write-DaemonLog {
-            param([string]$Message, [string]$Level = "INFO")
+            param(
+                [string]$Message,
+                [string]$Level = "INFO"
+            )
             $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-            $logEntry = "[$timestamp] [$Level] $Message"
-            Add-Content -Path $dockerDaemonLogPath -Value $logEntry -ErrorAction SilentlyContinue
-        }
-        
-        function Test-DockerHealth {
-            param([int]$TimeoutSeconds = 15)
+            $logMessage = "[$timestamp] [$Level] $Message"
+            $logFile = Join-Path $ScriptRoot "logs\docker_daemon_monitor.log"
             try {
-                $job = Start-Job -ScriptBlock { docker info 2>&1 }
-                if (Wait-Job $job -Timeout $TimeoutSeconds) {
-                    $output = Receive-Job $job
-                    Remove-Job $job -Force
-                    return ($LASTEXITCODE -eq 0)
-                } else {
-                    Stop-Job $job -ErrorAction SilentlyContinue
-                    Remove-Job $job -Force -ErrorAction SilentlyContinue
-                    return $false
+                # Ensure logs directory exists
+                $logDir = Split-Path -Parent $logFile
+                if (-not (Test-Path $logDir)) {
+                    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
                 }
+                Add-Content -Path $logFile -Value $logMessage -ErrorAction Stop
             } catch {
-                return $false
+                Write-Error "Failed to write to log file: $_"
+            }
+            
+            if ($Level -eq "ERROR" -or $Level -eq "WARN") {
+                Write-Error $logMessage
+            } else {
+                Write-Verbose $logMessage
             }
         }
-        
-        Write-DaemonLog "=== BACKGROUND DOCKER DAEMON MONITOR STARTED ===" "SUCCESS"
+
+        function Send-HealthNotification {
+            param(
+                [string]$Subject,
+                [string]$Message,
+                [string]$Severity = "INFO"
+            )
+            try {
+                $fullMessage = "$Message`n`nTimestamp: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')`n"
+                $fullMessage += "Host: $env:COMPUTERNAME`n"
+                $fullMessage += "User: $env:USERNAME`n"
+                
+                # Try to send notification using the main script's function if available
+                if (Get-Command -Name Send-AdminNotification -ErrorAction SilentlyContinue) {
+                    Send-AdminNotification -Subject $Subject -Message $fullMessage -Severity $Severity
+                } else {
+                    # Fallback to just logging if notification function isn't available
+                    Write-DaemonLog "[NOTIFICATION] $Severity - $Subject`n$fullMessage" $Severity
+                }
+            } catch {
+                Write-DaemonLog "Failed to send notification: $($_.Exception.Message)" "ERROR"
+            }
+        }
+
+        # Initialize monitoring variables
+        $lastDockerCheck = $null
+        $dockerDaemonFailures = 0
+        $lastRestartTime = $null
+        $restartCount = 0
+        $extendedDowntimeStart = $null
+        $isAdmin = Test-AdminPrivileges
+        $dockerRestartHistory = [System.Collections.Generic.List[DateTime]]::new()
+
+        Write-DaemonLog "=== ENHANCED DOCKER MONITOR STARTED ===" "INFO"
         Write-DaemonLog "Check interval: ${MonitorInterval}s" "INFO"
         Write-DaemonLog "Freeze timeout: ${DockerDaemonTimeout}s" "INFO"
-        
-        $dockerDaemonFailures = 0
-        $lastDockerCheck = $null
-        $dockerRestartHistory = @()
-        
+        Write-DaemonLog "Max restarts/hour: $MaxDockerRestartsPerHour" "INFO"
+        Write-DaemonLog "Extended downtime threshold: ${ExtendedDowntimeMinutes} minutes" "INFO"
+        Write-DaemonLog "Running as admin: $isAdmin" "INFO"
+
+        # Main monitoring loop
         while ($true) {
             try {
+                $currentTime = Get-Date
                 $shouldCheck = ($null -eq $lastDockerCheck -or 
-                               ((Get-Date) - $lastDockerCheck).TotalSeconds -ge ($MonitorInterval * 2))
+                             (($currentTime - $lastDockerCheck).TotalSeconds -ge $MonitorInterval))
                 
                 if ($shouldCheck) {
-                    $isHealthy = Test-DockerHealth -TimeoutSeconds $DockerDaemonTimeout
-                    $lastDockerCheck = Get-Date
+                    $health = Test-DockerDaemonHealth -TimeoutSeconds $DockerDaemonTimeout
+                    $lastDockerCheck = $currentTime
                     
-                    if (-not $isHealthy) {
-                        $dockerDaemonFailures++
-                        Write-DaemonLog "Docker daemon health check FAILED (attempt $dockerDaemonFailures)" "ERROR"
-                        
-                            if ($dockerDaemonFailures -ge 2) {
-                                $now = Get-Date
-                                $recentRestarts = $dockerRestartHistory | Where-Object { ($now - $_).TotalHours -lt 1 }
-                                
-                                if ($recentRestarts.Count -lt $MaxDockerRestartsPerHour) {
-                                    Write-DaemonLog "Docker daemon appears frozen - manual restart recommended" "WARN"
-                                    Write-DaemonLog "Run: .\cslaunch.ps1 -Monitor for full monitoring with auto-restart" "INFO"
-                                    
-                                    # Send notification (background monitoring can't auto-restart)
-                                    $notificationMessage = @"
-Docker daemon health check failed ${dockerDaemonFailures} consecutive times.
-
-Background monitoring detected Docker daemon issues but cannot auto-restart
-(requires admin privileges and foreground monitoring mode).
-
-Current Status:
-- Health checks failed: $dockerDaemonFailures times
-- Background monitoring active (limited capabilities)
-- Manual intervention recommended
-
-Action Required:
-1. Run full monitoring: .\cslaunch.ps1 -Monitor
-2. Or manually restart Docker Desktop
-3. Check logs: $dockerDaemonLogPath
-
-Note: Background monitoring provides alerts only. Use -Monitor flag for auto-restart.
-"@
-                                    
-                                    # Use a simple notification function for background monitoring
-                                    try {
-                                        if ($env:CASESTRAINER_ADMIN_EMAIL) {
-                                            $emailBody = "[CaseStrainer Background Monitor]`n`n$notificationMessage"
-                                            Send-MailMessage `
-                                                -To $env:CASESTRAINER_ADMIN_EMAIL `
-                                                -Subject "[CaseStrainer] Docker Daemon Health Check Failed" `
-                                                -Body $emailBody `
-                                                -From "CaseStrainer Monitor <noreply@casestrainer.local>" `
-                                                -SmtpServer (if ($env:SMTP_SERVER) { $env:SMTP_SERVER } else { "localhost" }) `
-                                                -Port (if ($env:SMTP_PORT) { [int]$env:SMTP_PORT } else { 25 }) `
-                                                -ErrorAction SilentlyContinue
-                                        }
-                                    } catch {
-                                        # Silently fail in background monitoring
-                                    }
-                                    
-                                    $dockerRestartHistory += Get-Date
-                                    $dockerDaemonFailures = 0
-                                } else {
-                                    Write-DaemonLog "Restart rate limit reached - skipping alert" "WARN"
-                                }
-                            }
-                    } else {
+                    if ($health.DockerInfo -and $health.DockerPs) {
                         if ($dockerDaemonFailures -gt 0) {
-                            Write-DaemonLog "Docker daemon recovered after $dockerDaemonFailures failures" "SUCCESS"
+                            $recoveryMsg = "Docker daemon recovered after $dockerDaemonFailures failures"
+                            Write-DaemonLog $recoveryMsg "SUCCESS"
+                            
+                            # Send recovery notification if we had previous failures
+                            if ($dockerDaemonFailures -ge 3) {
+                                $notificationMsg = @"
+Docker daemon has recovered after $dockerDaemonFailures failures.
+
+Recovery details:
+- Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+- Docker Info: $($health.DockerInfo)
+- Docker PS: $($health.DockerPs)
+- Docker Service: $($health.DockerService)
+
+System is now back to normal operation.
+"@
+                                Send-HealthNotification -Subject "Docker Daemon Recovered" -Message $notificationMsg -Severity "INFO"
+                            }
+                            
                             $dockerDaemonFailures = 0
+                            $extendedDowntimeStart = $null
+                            $dockerRestartHistory.Clear()
+                        }
+                    } else {
+                        # Docker is not healthy
+                        $dockerDaemonFailures++
+                        $healthStatus = "DockerInfo: $($health.DockerInfo), DockerPs: $($health.DockerPs), DockerService: $($health.DockerService)"
+                        Write-DaemonLog "Docker daemon health check FAILED (attempt $dockerDaemonFailures)" "ERROR"
+                        Write-DaemonLog "  $healthStatus" "ERROR"
+                        
+                        # Track restart history for rate limiting
+                        $now = Get-Date
+                        $dockerRestartHistory.Add($now)
+                        
+                        # Remove restarts older than 1 hour
+                        $oneHourAgo = $now.AddHours(-1)
+                        $recentRestarts = $dockerRestartHistory | Where-Object { $_ -gt $oneHourAgo }
+                        $dockerRestartHistory = [System.Collections.Generic.List[DateTime]]$recentRestarts
+                        $restartCount = $dockerRestartHistory.Count
+                        
+                        # Extended downtime handling
+                        if ($null -eq $extendedDowntimeStart) {
+                            $extendedDowntimeStart = $now
+                        }
+                        $downtimeMinutes = [math]::Round(([DateTime]::Now - $extendedDowntimeStart).TotalMinutes, 1)
+                        $extendedDowntime = $downtimeMinutes -ge $ExtendedDowntimeMinutes
+
+                        # Check if we've exceeded the rate limit
+                        if ($restartCount -gt $MaxDockerRestartsPerHour -and -not $extendedDowntime) {
+                            $nextRestartTime = $dockerRestartHistory[0].AddHours(1)
+                            $timeUntilNextRestart = $nextRestartTime - (Get-Date)
+                            $minutesLeft = [math]::Ceiling($timeUntilNextRestart.TotalMinutes)
+                            
+                            $rateLimitMsg = "Restart rate limit reached. $restartCount restarts in the last hour. Next restart possible in $minutesLeft minutes"
+                            Write-DaemonLog $rateLimitMsg "WARN"
+                            
+                            # Only send notification on first rate limit hit to avoid spam
+                            if ($restartCount -eq ($MaxDockerRestartsPerHour + 1)) {
+                                $notificationMsg = @"
+Docker daemon restart rate limit reached.
+
+Current status:
+- Health check failures: $dockerDaemonFailures
+- Restart attempts in last hour: $restartCount
+- Next restart allowed: $($nextRestartTime.ToString('yyyy-MM-dd HH:mm:ss'))
+- Current health: $healthStatus
+- Downtime: $downtimeMinutes minutes
+
+System will attempt to restart again in $minutesLeft minutes or when extended downtime threshold is reached.
+"@
+                                Send-HealthNotification -Subject "Docker Restart Rate Limit Reached" -Message $notificationMsg -Severity "WARNING"
+                            }
+                            
+                            # Skip this check cycle
+                            continue
+                        }
+
+                        # Attempt to restart Docker
+                        $restartReason = if ($extendedDowntime) {
+                            "Extended downtime detected (${downtimeMinutes} minutes). Bypassing rate limit."
+                        } else {
+                            "Health check failed (attempt $dockerDaemonFailures of $MaxDockerRestartsPerHour per hour)"
+                        }
+
+                        Write-DaemonLog "Attempting to restart Docker: $restartReason" "WARN"
+                        $restartResult = Restart-DockerEnhanced -Reason $restartReason -MaxRetries 3 -RetryDelay 30
+
+                        if ($restartResult) {
+                            $recoveryMsg = "Docker restart successful after $dockerDaemonFailures failures"
+                            Write-DaemonLog $recoveryMsg "SUCCESS"
+                            
+                            # Update restart history
+                            $dockerRestartHistory.Add((Get-Date))
+                            
+                            # Send success notification if we had multiple failures
+                            if ($dockerDaemonFailures -ge 3) {
+                                $notificationMsg = @"
+Docker daemon has been successfully restarted after $dockerDaemonFailures failures.
+
+Recovery details:
+- Time: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+- Total downtime: $downtimeMinutes minutes
+- Restart reason: $restartReason
+- Admin privileges: $isAdmin
+
+System is now back to normal operation.
+"@
+                                Send-HealthNotification -Subject "Docker Restart Successful" -Message $notificationMsg -Severity "INFO"
+                            }
+                            
+                            $dockerDaemonFailures = 0
+                            $extendedDowntimeStart = $null
+                            
+                            # Wait longer after a successful restart to allow services to stabilize
+                            $stabilizationDelay = [math]::Min($MonitorInterval * 2, 300)  # Max 5 minutes
+                            Write-DaemonLog "Waiting ${stabilizationDelay}s for Docker to stabilize after restart" "INFO"
+                            Start-Sleep -Seconds $stabilizationDelay
+                            continue
+                        } else {
+                            $errorMsg = "Docker restart failed (attempt $restartCount of $MaxDockerRestartsPerHour per hour)"
+                            Write-DaemonLog $errorMsg "ERROR"
+                            
+                            # Send failure notification for first and every 3rd subsequent failure
+                            if (($dockerDaemonFailures -eq 1) -or ($dockerDaemonFailures % 3 -eq 0)) {
+                                $notificationMsg = @"
+Failed to restart Docker daemon.
+
+Failure details:
+- Attempt: $dockerDaemonFailures
+- Restart reason: $restartReason
+- Health status: $healthStatus
+- Running as admin: $isAdmin
+- Next retry in: $MonitorInterval seconds
+
+Please investigate the Docker service and logs for more details.
+"@
+                                Send-HealthNotification -Subject "Docker Restart Failed" -Message $notificationMsg -Severity "ERROR"
+                            }
                         }
                     }
                 }
             } catch {
-                Write-DaemonLog "Error in monitoring loop: $($_.Exception.Message)" "ERROR"
+                $errorMsg = "Error in monitoring loop: $($_.Exception.Message)"
+                Write-DaemonLog $errorMsg "ERROR"
+                Write-DaemonLog $_.ScriptStackTrace "DEBUG"
+                
+                # Only send notification for unhandled errors to avoid spam
+                if ($dockerDaemonFailures % 5 -eq 0) {  # Every 5th error
+                    $notificationMsg = @"
+Unhandled error in Docker monitoring loop.
+
+Error: $($_.Exception.Message)
+Line: $($_.InvocationInfo.ScriptLineNumber)
+Script: $($_.InvocationInfo.ScriptName)
+
+Stack trace:
+$($_.ScriptStackTrace)
+"@
+                    Send-HealthNotification -Subject "Docker Monitoring Error" -Message $notificationMsg -Severity "ERROR"
+                }
+            }
+
+            # Wait before next check, with exponential backoff for repeated failures
+            $backoffFactor = [math]::Min([math]::Pow(1.5, [math]::Min($dockerDaemonFailures, 5)), 10)  # Cap at 10x
+            $actualDelay = [math]::Min($MonitorInterval * $backoffFactor, 900)  # Max 15 minutes
+            
+            if ($dockerDaemonFailures -gt 0) {
+                Write-DaemonLog "Waiting ${actualDelay}s before next check (backoff factor: ${backoffFactor}x)" "INFO"
             }
             
-            Start-Sleep -Seconds $MonitorInterval
-        }
-    }
+            Start-Sleep -Seconds $actualDelay
+        } # End while $true
+    } # End of monitor script block
     
     # Start the monitoring job
     $job = Start-Job -Name "CaseStrainer-Monitor" -ScriptBlock $monitorScriptBlock `
-        -ArgumentList $PSScriptRoot, $MonitorInterval, $DockerDaemonTimeout, $MaxDockerRestartsPerHour
+        -ArgumentList $PSScriptRoot, $MonitorInterval, $DockerDaemonTimeout, $MaxDockerRestartsPerHour, $ExtendedDowntimeMinutes
     
-    Write-Host "[OK] Background monitoring started (job ID: $($job.Id))" -ForegroundColor Green
-    Write-Host "  View logs: Get-Content logs\docker_daemon_monitor.log -Tail 50 -Wait" -ForegroundColor Gray
-    Write-Host "  Stop monitoring: Stop-Job -Name CaseStrainer-Monitor; Remove-Job -Name CaseStrainer-Monitor" -ForegroundColor Gray
+    # Only try to access job ID if the job was created successfully
+    if ($job) {
+        Write-Host "[OK] Background monitoring started (job ID: $($job.Id))" -ForegroundColor Green
+    } else {
+        Write-Host "[WARNING] Background monitoring job may not have started correctly" -ForegroundColor Yellow
+    }
+    Write-Host "  - Auto-restart: ENABLED (including nuclear option after ${ExtendedDowntimeMinutes} min)" -ForegroundColor Cyan
+    Write-Host "  - View logs: Get-Content logs\docker_daemon_monitor.log -Tail 50 -Wait" -ForegroundColor Gray
+    Write-Host "  - Stop monitoring: Stop-Job -Name CaseStrainer-Monitor; Remove-Job -Name CaseStrainer-Monitor" -ForegroundColor Gray
+    Write-Host "  - External WHM monitoring also active" -ForegroundColor Cyan
     
-    # Notifications disabled - using external WHM monitoring
-    Write-Host "  Monitoring: Docker daemon monitoring enabled (external WHM handles alerts)" -ForegroundColor Cyan
+    # Start watchdog to ensure monitoring job stays running (enabled by default)
+    Start-MonitoringWatchdog
+}
+
+# ====================================================================
+# AUTOSTART CONFIGURATION (Must be AFTER function definitions)
+# ====================================================================
+
+# Handle autostart configuration request
+if ($ConfigureAutostart) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Docker Autostart Configuration" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    if (Install-DockerAutostart) {
+        Write-Host "`n[SUCCESS] Docker autostart configured!" -ForegroundColor Green
+        Write-Host "Containers will automatically start on system boot." -ForegroundColor Gray
+        Write-Host "`nTo test: Restart your computer and check logs\autostart.log" -ForegroundColor Yellow
+        exit 0
+    } else {
+        Write-Host "`n[ERROR] Failed to configure autostart" -ForegroundColor Red
+        Write-Host "Please run this script as Administrator to enable autostart." -ForegroundColor Yellow
+        exit 1
+    }
+}
+
+# Handle periodic health check configuration
+if ($ConfigurePeriodicHealthCheck) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Periodic Health Check Configuration" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    Write-Host "This creates a Windows Task Scheduler job that runs every 30 minutes" -ForegroundColor White
+    Write-Host "to check Docker health and restart containers if needed." -ForegroundColor White
+    Write-Host "This is a backup safety net in case the main monitoring stops or crashes." -ForegroundColor Gray
+    Write-Host "(Enhanced: runs every 30 min instead of 2 hours to catch extended outages)" -ForegroundColor Gray
+    Write-Host ""
+    
+    if (Configure-PeriodicHealthCheck) {
+        Write-Host "`n[SUCCESS] Periodic health check configured!" -ForegroundColor Green
+        Write-Host "Docker will be checked every 30 minutes as a safety net." -ForegroundColor Gray
+        Write-Host "`nTo view logs: Get-Content logs\periodic_health_check.log" -ForegroundColor Yellow
+        Write-Host "To remove: .\cslaunch.ps1 -RemovePeriodicHealthCheck" -ForegroundColor Yellow
+        exit 0
+    } else {
+        Write-Host "`n[ERROR] Failed to configure periodic health check" -ForegroundColor Red
+        Write-Host "Please run this script as Administrator." -ForegroundColor Yellow
+        exit 1
+    }
+}
+
+# Handle periodic health check removal
+if ($RemovePeriodicHealthCheck) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Removing Periodic Health Check" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    Configure-PeriodicHealthCheck -Remove
+    exit 0
+}
+
+# Check and configure Docker autostart on boot (enabled by default)
+if (-not $NoAutostart) {
+    try {
+        if (-not (Test-DockerAutostartConfigured)) {
+            Write-Host "[AUTOSTART] Docker autostart not configured - attempting setup..." -ForegroundColor Yellow
+            
+            # Check if running as administrator
+            $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+            
+            if ($isAdmin) {
+                # We have admin rights - configure autostart
+                $autostartInstalled = Install-DockerAutostart
+                if ($autostartInstalled) {
+                    Write-Host "[SUCCESS] Docker autostart configured - containers will auto-start on boot" -ForegroundColor Green
+                    Write-Host "          Run with -NoAutostart to disable this feature" -ForegroundColor Gray
+                } else {
+                    Write-Host "[WARN] Autostart configuration failed" -ForegroundColor Yellow
+                }
+            } else {
+                # Not admin - inform user how to enable
+                Write-Host "[INFO] Docker autostart not configured (requires Administrator privileges)" -ForegroundColor Yellow
+                Write-Host "       To enable autostart, run as Administrator once:" -ForegroundColor Gray
+                Write-Host "       .\cslaunch.ps1 -ConfigureAutostart" -ForegroundColor Cyan
+                Write-Host "       Or run with -NoAutostart to suppress this message" -ForegroundColor Gray
+            }
+        } else {
+            # Already configured - show status on first run or Monitor mode
+            if ($Monitor -or $ConfigureAutostart) {
+                Write-Host "[OK] Docker autostart is configured - containers will auto-start on boot" -ForegroundColor Green
+            }
+        }
+    } catch {
+        # Silently ignore errors - autostart is optional
+    }
+} else {
+    Write-Host "[INFO] Docker autostart disabled (NoAutostart flag)" -ForegroundColor Gray
+}
+
+# ====================================================================
+# MAIN CONTAINER STARTUP LOGIC
+# ====================================================================
+
+# STARTUP: Check Docker daemon health and restart if frozen
+Write-Host "[DOCKER] Checking Docker daemon..." -ForegroundColor Yellow
+
+$dockerResponsive = $false
+$dockerCheckAttempts = 0
+$maxDockerAttempts = 2  # Try twice (second attempt after restart)
+
+while (-not $dockerResponsive -and $dockerCheckAttempts -lt $maxDockerAttempts) {
+    $dockerCheckAttempts++
+    
+    # Use .NET Process with timeout - more reliable than Start-Job
+    try {
+        $psi = New-Object System.Diagnostics.ProcessStartInfo
+        $psi.FileName = "docker"
+        $psi.Arguments = "info"
+        $psi.RedirectStandardOutput = $true
+        $psi.RedirectStandardError = $true
+        $psi.UseShellExecute = $false
+        $psi.CreateNoWindow = $true
+        
+        $process = New-Object System.Diagnostics.Process
+        $process.StartInfo = $psi
+        $process.Start() | Out-Null
+        
+        # Wait up to 10 seconds
+        $completed = $process.WaitForExit(10000)
+        
+        if ($completed -and $process.ExitCode -eq 0) {
+            $dockerResponsive = $true
+            Write-Host "[OK] Docker daemon is responsive" -ForegroundColor Green
+        } else {
+            if (-not $completed) {
+                $process.Kill()
+                Write-Host "[WARN] Docker daemon not responding (attempt $dockerCheckAttempts/$maxDockerAttempts)" -ForegroundColor Yellow
+            } else {
+                Write-Host "[WARN] Docker daemon returned error (attempt $dockerCheckAttempts/$maxDockerAttempts)" -ForegroundColor Yellow
+            }
+        }
+    } catch {
+        Write-Host "[WARN] Docker check failed: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+    
+    # If not responsive and we have attempts left, try to restart Docker
+    if (-not $dockerResponsive -and $dockerCheckAttempts -lt $maxDockerAttempts) {
+        Write-Host "[DOCKER] Attempting to restart Docker daemon..." -ForegroundColor Yellow
+        
+        try {
+            # Use the existing Restart-DockerDaemon function
+            $restartSuccess = Restart-DockerDaemon -Reason "Frozen at startup"
+            
+            if ($restartSuccess) {
+                Write-Host "[OK] Docker daemon restarted successfully" -ForegroundColor Green
+            } else {
+                Write-Host "[WARN] Docker restart may have failed - will retry check" -ForegroundColor Yellow
+            }
+        } catch {
+            Write-Host "[ERROR] Failed to restart Docker: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+}
+
+if (-not $dockerResponsive) {
+    Write-Host "[ERROR] Docker daemon is not responding after $maxDockerAttempts attempts" -ForegroundColor Red
+    Write-Host "        Please manually start Docker Desktop and try again." -ForegroundColor Yellow
+    exit 1
 }
 
 # Check if containers are already running
@@ -1556,9 +2959,11 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                 Get-ChildItem -Path "src" -Recurse -Directory -Filter "__pycache__" -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Path $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
                 Get-ChildItem -Path "src" -Recurse -Filter "*.pyc" -ErrorAction SilentlyContinue | ForEach-Object { Remove-Item -Path $_.FullName -Force -ErrorAction SilentlyContinue }
                 
-                # Quick rebuild with cache for backend+workers
+                # ALWAYS rebuild without cache to ensure Python code changes are picked up
+                # (Docker layer caching can miss file changes on Windows)
                 $sw2 = [System.Diagnostics.Stopwatch]::StartNew()
-                docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
+                docker-compose -f docker-compose.prod.yml build --no-cache backend rqworker1 rqworker2 rqworker3
+                docker-compose -f docker-compose.prod.yml up -d backend rqworker1 rqworker2 rqworker3
                 $sw2.Stop()
                 if ($LASTEXITCODE -eq 0) {
                     Write-Host "  [OK] Backend + workers restarted in $([math]::Round($sw2.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
@@ -1623,7 +3028,7 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
             exit 1
         }
     } else {
-        Write-Host '[QUICK RESTART] Restarting containers (10-15 seconds)...' -ForegroundColor Yellow
+        Write-Host "[QUICK RESTART] Restarting containers (10-15 seconds)..." -ForegroundColor Yellow
         Write-Host ""
         
         # CRITICAL: Clear Python bytecode cache before restart to ensure code changes are picked up
@@ -1650,78 +3055,14 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
         }
         Write-Host ""
         
-        # SMART DETECTION: Check if source files are newer than Docker images
-        Write-Host '[DETECT] Checking if Python source files changed...' -ForegroundColor Yellow
-        $needsNoCacheRebuild = $false
-        
-        try {
-            # Get newest Python file in src/
-            $srcFiles = Get-ChildItem -Path "src" -Recurse -Filter "*.py" -File -ErrorAction SilentlyContinue
-            if ($srcFiles) {
-                $newestSrcFile = ($srcFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1)
-                $newestSrcTime = $newestSrcFile.LastWriteTime
-                
-                # Get Docker image creation time for backend
-                # USER FIX: Check actual Docker Compose image name (casestrainer_backend or casestrainer-backend)
-                $imageCreated = $null
-                $imageName = $null
-                
-                # Try common Docker Compose image naming patterns
-                $possibleImageNames = @(
-                    "casestrainer_backend",
-                    "casestrainer-backend", 
-                    "casestrainer_backend:latest",
-                    "casestrainer-backend:latest"
-                )
-                
-                foreach ($name in $possibleImageNames) {
-                    $testCreated = docker inspect $name --format='{{.Created}}' 2>$null
-                    if ($testCreated) {
-                        $imageCreated = $testCreated
-                        $imageName = $name
-                        break
-                    }
-                }
-                
-                if ($imageCreated) {
-                    $imageTime = [DateTime]::Parse($imageCreated)
-                    
-                    if ($newestSrcTime -gt $imageTime) {
-                        $timeDiff = ($newestSrcTime - $imageTime).TotalMinutes
-                        Write-Host "  [!] Source files changed $([math]::Round($timeDiff, 1)) minutes after last build" -ForegroundColor Yellow
-                        Write-Host "  [*] Newest: $($newestSrcFile.Name) (modified: $($newestSrcTime.ToString('HH:mm:ss')))" -ForegroundColor Gray
-                        Write-Host "  [*] Image: $imageName built at $($imageTime.ToString('HH:mm:ss'))" -ForegroundColor Gray
-                        Write-Host "  [WARN] FORCING --no-cache rebuild to ensure fresh code" -ForegroundColor Red
-                        $needsNoCacheRebuild = $true
-                    } else {
-                        Write-Host "  [OK] Source files unchanged since last build ($imageName) - using cached layers" -ForegroundColor Green
-                    }
-                } else {
-                    Write-Host "  [WARN] Could not find backend image - forcing --no-cache rebuild for safety" -ForegroundColor Yellow
-                    Write-Host "  [*] Tried: $($possibleImageNames -join ', ')" -ForegroundColor Gray
-                    $needsNoCacheRebuild = $true
-                }
-            }
-        } catch {
-            Write-Host "  [WARN] Detection failed: $($_.Exception.Message)" -ForegroundColor Yellow
-            Write-Host "  [WARN] Forcing --no-cache rebuild for safety" -ForegroundColor Yellow
-            $needsNoCacheRebuild = $true
-        }
-        Write-Host ""
-        
-        # REBUILD backend AND workers with smart caching
-        if ($needsNoCacheRebuild) {
-            Write-Host '[FULL REBUILD] Building backend + workers with --no-cache (6-7 minutes)...' -ForegroundColor Red
-            $sw = [System.Diagnostics.Stopwatch]::StartNew()
-            docker-compose -f docker-compose.prod.yml build --no-cache backend rqworker1 rqworker2 rqworker3
-            docker-compose -f docker-compose.prod.yml up -d backend rqworker1 rqworker2 rqworker3
-            $sw.Stop()
-        } else {
-            Write-Host '[QUICK REBUILD] Rebuilding backend + workers with cache (10-15 seconds)...' -ForegroundColor Yellow
-            $sw = [System.Diagnostics.Stopwatch]::StartNew()
-            docker-compose -f docker-compose.prod.yml up -d --build backend rqworker1 rqworker2 rqworker3
-            $sw.Stop()
-        }
+        # ALWAYS rebuild without cache to ensure Python code changes are picked up
+        # (Docker layer caching can miss file changes on Windows, causing stale code issues)
+        Write-Host '[REBUILD] Building backend + workers with --no-cache (ensures fresh code)...' -ForegroundColor Yellow
+        Write-Host '  [INFO] Using --no-cache to guarantee Python changes are picked up' -ForegroundColor Gray
+        $sw = [System.Diagnostics.Stopwatch]::StartNew()
+        docker-compose -f docker-compose.prod.yml build --no-cache backend rqworker1 rqworker2 rqworker3
+        docker-compose -f docker-compose.prod.yml up -d backend rqworker1 rqworker2 rqworker3
+        $sw.Stop()
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n[OK] Backend + workers rebuilt and deployed in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
@@ -1892,6 +3233,12 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
             # Send startup notification
             Send-StartupNotification -StartupType "quick_restart"
             
+            # Start enhanced monitoring suite (if enabled), then background monitoring
+            if ($EnableEnhancedMonitoring -or $EnableSelfHealthMonitoring -or $EnableSystemRecoveryLogging -or $EnableEscalationManager) {
+                Write-Host "[ENHANCED] Starting enhanced monitoring suite..." -ForegroundColor Cyan
+                Start-EnhancedMonitoringSuite
+            }
+            
             # Start background monitoring after successful restart
             Start-BackgroundMonitoring
             
@@ -1939,9 +3286,44 @@ if ($deployExitCode -eq 0) {
     # Send startup notification
     Send-StartupNotification -StartupType "full_deploy"
     
+    # Start enhanced monitoring suite (if enabled), then background monitoring
+    if ($EnableEnhancedMonitoring -or $EnableSelfHealthMonitoring -or $EnableSystemRecoveryLogging -or $EnableEscalationManager) {
+        Write-Host "[ENHANCED] Starting enhanced monitoring suite after full deployment..." -ForegroundColor Cyan
+        Start-EnhancedMonitoringSuite
+    }
+    
+    # Start legacy background monitoring
     Start-BackgroundMonitoring
+    
+    # Setup unattended monitoring (works without user login)
+    Write-Host "[SETUP] Configuring unattended monitoring..." -ForegroundColor Yellow
+    
+    # Import the unattended monitoring module
+    $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
+    if (Test-Path $modulePath) {
+        Import-Module $modulePath -Force
+        SetUnattendedMonitoring
+    } else {
+        # Fallback to old method if module not available
+        Write-Host "[WARN] Unattended monitoring module not found, using legacy method..." -ForegroundColor Yellow
+        $task = Get-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" -ErrorAction SilentlyContinue
+        if (-not $task) {
+            Write-Host "[SETUP] Configuring persistent monitoring..." -ForegroundColor Yellow
+            & (Join-Path $PSScriptRoot "install_persistent_monitoring.ps1")
+        } elseif ($task.State -ne "Running") {
+            Write-Host "[MONITOR] Starting persistent monitoring..." -ForegroundColor Cyan
+            Start-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" | Out-Null
+            Write-Host "[OK] Persistent monitoring started" -ForegroundColor Green
+        } else {
+            Write-Host "[OK] Persistent monitoring is active" -ForegroundColor Green
+        }
+    }
+    Write-Host "  - Logs: logs\docker_daemon_monitor.log" -ForegroundColor Gray
 } else {
     Write-Host "[DEBUG] Deployment failed (exit code: $deployExitCode), skipping startup notification" -ForegroundColor Yellow
 }
 
 exit $deployExitCode
+
+
+

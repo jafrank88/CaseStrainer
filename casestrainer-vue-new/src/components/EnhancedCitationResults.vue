@@ -232,8 +232,8 @@
             </div>
             
             <div class="cell name-cell">
-              <div class="extracted-name">{{ citation.extracted_case_name }}</div>
-              <div v-if="citation.canonical_name && citation.canonical_name !== citation.extracted_case_name" 
+              <div class="extracted-name">{{ citation.extracted_case_name && citation.extracted_case_name !== 'N/A' ? citation.extracted_case_name : (citation.canonical_name || citation.case_name || 'N/A') }}</div>
+              <div v-if="citation.canonical_name && citation.canonical_name !== citation.extracted_case_name && citation.extracted_case_name !== 'N/A'" 
                    class="canonical-name">
                 <i class="bi bi-arrow-up"></i>
                 {{ citation.canonical_name }}

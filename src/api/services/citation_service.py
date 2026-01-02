@@ -19,10 +19,15 @@ logger = logging.getLogger(__name__)
 class CitationService:
     """Service for processing citations with Redis-distributed processing."""
     
-    # Unified processing thresholds - standardized across all processors
-    SYNC_THRESHOLD = 5 * 1024  # 5KB - reasonable for sync processing
-    ULTRA_FAST_THRESHOLD = 500  # 500 bytes - ultra fast processing
-    CLUSTERING_THRESHOLD = 300  # 300 bytes - skip clustering for very short text
+    # Smart processing thresholds - based on content complexity, not just size
+    TEXT_SIZE_THRESHOLD = 10 * 1024  # 10KB text size threshold
+    CITATION_COUNT_THRESHOLD = 20  # Number of citations threshold
+    COMPLEXITY_THRESHOLD = 50  # Complex document threshold
+    
+    # Processing strategies
+    STRATEGY_IMMEDIATE = "immediate"  # Small docs, few citations
+    STRATEGY_BACKGROUND = "background"  # Large docs, many citations  
+    STRATEGY_STREAMING = "streaming"  # Medium size documents
     
     def __init__(self):
         self.processor = DockerOptimizedProcessor()
@@ -33,33 +38,75 @@ class CitationService:
     
     def determine_processing_mode(self, text: str, force_mode: Optional[str] = None) -> str:
         """
-        Unified function to determine processing mode based on text content size.
+        Smart routing function based on content complexity, not just text size.
         
         Args:
             text: The actual text content to be processed
             force_mode: Optional user override - 'sync', 'async', or None for automatic
             
         Returns:
-            'sync' or 'async' based on content size or user preference
+            'sync' or 'async' based on content complexity or user preference
         """
-        # USER OVERRIDE: Allow explicit sync/async selection
-        if force_mode:
-            force_mode_lower = force_mode.lower()
-            if force_mode_lower in ['sync', 'async']:
-                logger.info(f"🎯 USER OVERRIDE: force_mode='{force_mode_lower}' (ignoring text size)")
-                return force_mode_lower
-            else:
-                logger.warning(f"⚠️  Invalid force_mode='{force_mode}', falling back to automatic")
-        
-        # AUTOMATIC: Decide based on text size
+        # SMART ROUTING: Analyze content complexity first
         text_size = len(text)
         
-        if text_size < self.SYNC_THRESHOLD:
-            logger.info(f"Text size {text_size} bytes < {self.SYNC_THRESHOLD} bytes - using SYNC processing")
-            return 'sync'
-        else:
-            logger.info(f"Text size {text_size} bytes >= {self.SYNC_THRESHOLD} bytes - using ASYNC processing")
+        # Quick citation count estimation
+        citation_patterns = [
+            r'\b\d+\s+U\.S\.\s+\d+\b',
+            r'\b\d+\s+F\.\d*d?\b', 
+            r'\b\d+\s+P\.\d*d?\b',
+            r'\b\d+\s+S\.Ct\.\s+\d+\b',
+            r'\b\d+\s+Wn\.2d\s+\d+\b'
+        ]
+        
+        estimated_citations = 0
+        import re
+        for pattern in citation_patterns:
+            matches = re.findall(pattern, text, re.IGNORECASE)
+            estimated_citations += len(matches)
+        
+        # SAFETY CHECK: Even with force_mode='sync', auto-fallback to async for very large documents
+        # This prevents timeouts on large documents (e.g., > 100 citations or > 200KB)
+        SYNC_SAFETY_MAX_CITATIONS = 100  # Maximum citations for sync mode
+        SYNC_SAFETY_MAX_SIZE = 200 * 1024  # Maximum text size for sync mode (200KB)
+        
+        if force_mode and force_mode.lower() == 'sync':
+            if estimated_citations > SYNC_SAFETY_MAX_CITATIONS or text_size > SYNC_SAFETY_MAX_SIZE:
+                logger.warning(
+                    f"SAFETY OVERRIDE: force_mode='sync' requested but document is too large "
+                    f"({estimated_citations} citations, {text_size} bytes). "
+                    f"Auto-falling back to async mode to prevent timeout."
+                )
+                return 'async'
+            else:
+                logger.info(f"USER OVERRIDE: force_mode='sync' accepted ({estimated_citations} citations, {text_size} bytes)")
+                return 'sync'
+        elif force_mode and force_mode.lower() == 'async':
+            logger.info(f"USER OVERRIDE: force_mode='async' accepted")
             return 'async'
+        elif force_mode:
+            logger.warning(f"Invalid force_mode='{force_mode}', falling back to automatic routing")
+        
+        # AUTOMATIC ROUTING: Analyze content complexity
+        # Complexity-based routing decision
+        if estimated_citations <= 5 and text_size < 5000:
+            strategy = 'sync'
+            reason = f"low complexity ({estimated_citations} citations, {text_size} bytes)"
+        elif estimated_citations >= self.COMPLEXITY_THRESHOLD or text_size > 50000:
+            strategy = 'async'  
+            reason = f"high complexity ({estimated_citations} citations, {text_size} bytes)"
+        else:
+            # Medium complexity - base on citation density
+            citation_density = estimated_citations / (text_size / 1000)  # citations per KB
+            if citation_density > 2.0:  # More than 2 citations per KB
+                strategy = 'async'
+                reason = f"high citation density ({citation_density:.1f} per KB)"
+            else:
+                strategy = 'sync'
+                reason = f"moderate complexity ({estimated_citations} citations, {text_size} bytes)"
+        
+        logger.info(f"🧠 SMART ROUTING: {strategy.upper()} processing - {reason}")
+        return strategy
     
     def extract_text_from_input(self, input_data: Dict) -> Optional[str]:
         """
@@ -88,9 +135,14 @@ class CitationService:
                 return None
             
             try:
-                from src.unified_text_extractor import UnifiedTextExtractor
-                extractor = UnifiedTextExtractor()
-                text = extractor.extract_text_from_file(file_path)
+                from src.robust_pdf_extractor import RobustPDFExtractor
+                extractor = RobustPDFExtractor()
+                result = extractor.extract_text(file_path)
+                # extract_text returns a tuple (text, method)
+                if isinstance(result, tuple):
+                    text = result[0]
+                else:
+                    text = result
                 if text and len(text.strip()) > 0:
                     logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
                     return text
@@ -108,11 +160,28 @@ class CitationService:
         Fetch URL content with timeout and size limits.
         
         Args:
-            url: URL to fetch
+            url: URL to fetch (supports http://, https://, and file://)
             
         Returns:
             Content string or None if fetch fails
         """
+        # CRITICAL FIX: Handle file:// URLs by converting to file path
+        if url.startswith('file://'):
+            file_path = url.replace('file:///', '').replace('file://', '')
+            # On Windows, file:///D:/path becomes D:/path, file://D:/path also becomes D:/path
+            if not os.path.exists(file_path):
+                # Try with leading slash removed for Windows paths
+                file_path = file_path.lstrip('/')
+            if os.path.exists(file_path):
+                logger.info(f"Processing file:// URL as local file: {file_path}")
+                return self.extract_text_from_input({
+                    'type': 'file',
+                    'file_path': file_path
+                })
+            else:
+                logger.error(f"File not found: {file_path}")
+                return None
+        
         try:
             import requests
             from requests.adapters import HTTPAdapter
@@ -142,22 +211,178 @@ class CitationService:
             
             # Check content length header first
             content_length = response.headers.get('content-length')
-            if content_length and int(content_length) > 100 * 1024:  # 100KB limit
+            if content_length and int(content_length) > 1024 * 1024:  # 1MB limit
                 logger.info(f"URL content too large: {content_length} bytes")
                 return None
             
-            # Download content with size limit
-            content = ""
-            downloaded = 0
-            max_size = 100 * 1024  # 100KB max
+            # Check content type first to determine processing method
+            content_type = response.headers.get('content-type', '').lower()
             
-            for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
-                if chunk:
-                    content += chunk
-                    downloaded += len(chunk.encode('utf-8'))
-                    if downloaded > max_size:
-                        logger.info(f"URL content exceeded size limit: {downloaded} bytes")
-                        return None
+            # Handle PDF content
+            if 'pdf' in content_type or url.lower().endswith('.pdf'):
+                logger.info(f"Processing PDF content from URL: {len(response.content)} bytes")
+                try:
+                    import tempfile
+                    # os is already imported at module level
+                    
+                    # Save PDF content to temporary file
+                    with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+                        temp_pdf.write(response.content)
+                        temp_pdf_path = temp_pdf.name
+                    
+                    try:
+                        from src.robust_pdf_extractor import extract_text_from_pdf_smart
+                        result = extract_text_from_pdf_smart(temp_pdf_path)
+                        
+                        if result and len(result.strip()) > 0:
+                            logger.info(f"Successfully extracted {len(result)} characters from URL PDF")
+                            return result
+                        else:
+                            logger.warning("PDF extraction returned empty content")
+                            return None
+                            
+                    finally:
+                        # Clean up temp file
+                        try:
+                            os.unlink(temp_pdf_path)
+                        except OSError:
+                            pass
+                            
+                except Exception as pdf_error:
+                    logger.error(f"Failed to extract PDF from URL: {pdf_error}")
+                    return None
+            
+            # Handle HTML content
+            elif 'html' in content_type:
+                # Download content with size limit
+                content = ""
+                downloaded = 0
+                max_size = 1024 * 1024  # 1MB max
+                
+                for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
+                    if chunk:
+                        content += chunk
+                        downloaded += len(chunk.encode('utf-8'))
+                        if downloaded > max_size:
+                            logger.info(f"URL content exceeded size limit: {downloaded} bytes")
+                            return None
+            else:
+                # For other content types, try to download as text
+                content = ""
+                downloaded = 0
+                max_size = 1024 * 1024  # 1MB max
+                
+                for chunk in response.iter_content(chunk_size=1024, decode_unicode=False):
+                    if chunk:
+                        # Handle binary chunks by decoding them
+                        if isinstance(chunk, bytes):
+                            try:
+                                chunk = chunk.decode('utf-8', errors='ignore')
+                            except UnicodeDecodeError:
+                                logger.warning(f"Could not decode binary chunk as UTF-8, skipping")
+                                continue
+                        content += chunk
+                        downloaded += len(chunk.encode('utf-8'))
+                        if downloaded > max_size:
+                            logger.info(f"URL content exceeded size limit: {downloaded} bytes")
+                            return None
+                
+                # Extract clean text from HTML content
+                try:
+                    from bs4 import BeautifulSoup
+                    import re
+                    
+                    logger.info(f"Processing HTML content of {len(content)} bytes")
+                    soup = BeautifulSoup(content, 'html.parser')
+                    
+                    # Only remove obvious non-content elements (be less aggressive)
+                    removed_elements = 0
+                    for element in soup.find_all(['script', 'style', 'nav', 'header', 'footer', 'aside']):
+                        element.decompose()
+                        removed_elements += 1
+                    
+                    # Remove specific navigation elements by ID/class patterns
+                    nav_patterns = ['navigation', 'menu', 'breadcrumb', 'pagination', 'social', 'share']
+                    for pattern in nav_patterns:
+                        for element in soup.find_all(attrs={'class': lambda x: x and pattern in str(x).lower()}):
+                            element.decompose()
+                            removed_elements += 1
+                        for element in soup.find_all(attrs={'id': lambda x: x and pattern in str(x).lower()}):
+                            element.decompose()
+                            removed_elements += 1
+                    
+                    logger.info(f"Removed {removed_elements} non-content elements")
+                    
+                    # Try to find main content area
+                    main_content = None
+                    content_selectors = [
+                        'main', 'article', '[role="main"]', '.content', '.main-content',
+                        '.document', '.opinion', '.text', '#content', '#main',
+                        # Justia-specific selectors
+                        '.opinion-text', '.case-content', '.document-content',
+                        '#opinion', '#document', '.case-text', 'section[data-testid="opinion"]'
+                    ]
+                    
+                    for selector in content_selectors:
+                        main_content = soup.select_one(selector)
+                        if main_content:
+                            logger.info(f"Found main content using selector: {selector}")
+                            break
+                    
+                    # Extract text from main content or find largest meaningful div
+                    if main_content:
+                        clean_text = main_content.get_text()
+                    else:
+                        # Find the largest div with substantial text that contains legal content
+                        all_divs = soup.find_all('div')
+                        best_div = None
+                        best_score = 0
+                        
+                        for div in all_divs:
+                            text = div.get_text().strip()
+                            # Clean up whitespace before checking
+                            text = ' '.join(text.split())
+                            
+                            # Score based on length and legal content
+                            score = len(text)
+                            
+                            # Bonus for legal citations
+                            if re.search(r'U\.S\.\s*\d+', text):
+                                score += 10000
+                            if re.search(r'\d+\s*F\.\d+', text):
+                                score += 5000
+                            if re.search(r'S\. Ct\.\s*\d+', text):
+                                score += 5000
+                            
+                            # Must have meaningful content
+                            if score > best_score and len(text) > 1000:
+                                best_score = score
+                                best_div = div
+                        
+                        if best_div:
+                            clean_text = best_div.get_text()
+                            logger.info(f"Using best div with {len(clean_text)} characters (score: {best_score})")
+                        else:
+                            # Fallback to full page text
+                            clean_text = soup.get_text()
+                            logger.info("Using full page text (no suitable div found)")
+                    
+                    # Clean up whitespace but preserve content structure
+                    clean_text = re.sub(r'\n\s*\n\s*\n', '\n\n', clean_text)
+                    clean_text = ' '.join(clean_text.split())
+                    
+                    # If still too large, truncate to reasonable size (keep first part)
+                    if len(clean_text) > 50000:  # 50KB max after cleaning
+                        clean_text = clean_text[:50000] + "... [truncated]"
+                        logger.info(f"Text truncated to 50KB after cleaning")
+                    
+                    logger.info(f"Extracted {len(clean_text)} characters of clean text from {len(content)} bytes of HTML")
+                    return clean_text
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to extract clean text from HTML: {e}", exc_info=True)
+                    # Fall back to raw content
+                    return content
             
             return content
             
@@ -167,28 +392,39 @@ class CitationService:
     
     def should_process_immediately(self, input_data: Dict, force_mode: Optional[str] = None) -> bool:
         """
-        DEPRECATED: Use extract_text_from_input() + determine_processing_mode() instead.
+        UPDATED: Now uses smart routing based on content complexity analysis.
         
-        This method is kept for backward compatibility but should be replaced
-        with the new unified approach.
+        This method now delegates to the smart determine_processing_mode() function
+        for intelligent routing decisions.
         
         Args:
             input_data: Input_data dictionary
             force_mode: Optional user override - 'sync', 'async', or None for automatic
+            
+        Returns:
+            True for sync (immediate) processing, False for async (background) processing
         """
-        # ASYNC WORKERS FIXED: Re-enable automatic routing
-        # Workers are now functioning correctly after cleaning up stale registrations
-        logger.info("[CitationService] Using automatic sync/async routing based on content size")
+        logger.info("[CitationService] Using SMART ROUTING based on content complexity analysis")
         
         # Extract text first, then determine processing mode
+        logger.info(f"[CitationService] Extracting text for complexity analysis...")
         text = self.extract_text_from_input(input_data)
         if text is None:
             # If text extraction fails, default to async for better error handling
+            logger.warning(f"[CitationService] Text extraction failed, defaulting to async processing")
             return False
         
+        logger.info(f"[CitationService] Text extraction successful: {len(text)} characters")
+        logger.info(f"[CitationService] Text preview: '{text[:200].replace(chr(10), ' ')}'")
+        
         # Use unified routing decision with optional force_mode
+        logger.error(f"[CitationService] 🔍 DEBUG: Calling determine_processing_mode with force_mode='{force_mode}'")
         processing_mode = self.determine_processing_mode(text, force_mode=force_mode)
-        return processing_mode == 'sync'
+        logger.error(f"[CitationService] 🔍 DEBUG: determine_processing_mode returned: '{processing_mode}'")
+        logger.info(f"[CitationService] Processing mode determined: {processing_mode}")
+        result = processing_mode == 'sync'
+        logger.error(f"[CitationService] 🔍 DEBUG: should_process_immediately returning: {result}")
+        return result
     
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
         """Process input immediately using the unified citation processor."""
@@ -655,7 +891,15 @@ class CitationService:
                 progress_tracker.complete_step(0, "Initialization complete")
                 
                 progress_tracker.start_step(1, "Extracting citations")
-                enhanced_result = asyncio.run(processor.process_text(text))
+                logger.info(f"[CitationService] About to call processor.process_text()...")
+                try:
+                    enhanced_result = asyncio.run(processor.process_text(text))
+                    logger.info(f"[CitationService] processor.process_text() completed successfully")
+                except Exception as process_error:
+                    logger.error(f"[CitationService] processor.process_text() failed: {process_error}")
+                    import traceback
+                    logger.error(f"[CitationService] Error details: {traceback.format_exc()}")
+                    raise
                 progress_tracker.complete_step(1, "Extraction complete")
                 
                 progress_tracker.start_step(2, "Analyzing citations")

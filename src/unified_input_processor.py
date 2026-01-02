@@ -7,6 +7,7 @@ import os
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import sys
+import asyncio
 import time
 import logging
 import tempfile
@@ -46,7 +47,8 @@ class UnifiedInputProcessor:
         }
     
     def process_any_input(self, input_data: Any, input_type: str, request_id: str, 
-                         source_name: Optional[str] = None, force_mode: Optional[str] = None) -> Dict[str, Any]:
+                         source_name: Optional[str] = None, force_mode: Optional[str] = None,
+                         enable_verification: bool = True) -> Dict[str, Any]:
         """
         Universal input processor - converts any input to text, then processes citations.
         
@@ -56,20 +58,22 @@ class UnifiedInputProcessor:
             request_id: Unique request identifier
             source_name: Optional source name for metadata
             force_mode: Optional user override for sync/async processing ('sync', 'async', or None)
+            enable_verification: Whether to enable citation verification (default: True)
             
         Returns:
             Dictionary with citation processing results
         """
-        logger.error(f"[Unified Processor {request_id}] 🚀 process_any_input CALLED!")
+        print(f"[DEBUG] process_any_input CALLED with input_type={input_type}, request_id={request_id}")
+        logger.error(f"[Unified Processor {request_id}] [DEBUG] process_any_input CALLED!")
         logger.error(f"[Unified Processor {request_id}] Processing {input_type} input")
         logger.error(f"[Unified Processor {request_id}] Input data type: {type(input_data)}")
         logger.error(f"[Unified Processor {request_id}] Input data length: {len(input_data) if isinstance(input_data, str) else 'N/A'}")
         logger.error(f"[Unified Processor {request_id}] Source name: {source_name}, Force mode: {force_mode}")
         
         try:
-            logger.error(f"[Unified Processor {request_id}] 📥 Calling _extract_text_from_input...")
+            logger.error(f"[Unified Processor {request_id}] [INFO] Calling _extract_text_from_input...")
             text_result = self._extract_text_from_input(input_data, input_type, request_id)
-            logger.error(f"[Unified Processor {request_id}] ✅ _extract_text_from_input returned: success={text_result.get('success')}")
+            logger.error(f"[Unified Processor {request_id}] [SUCCESS] _extract_text_from_input returned: success={text_result.get('success')}")
             
             if not text_result['success']:
                 return text_result
@@ -77,11 +81,15 @@ class UnifiedInputProcessor:
             text = text_result['text']
             metadata = text_result.get('metadata', {})
             
+            logger.error(f"[Unified Processor {request_id}] [INFO] enable_verification={enable_verification} passed through")
+            logger.error(f"[Unified Processor {request_id}] [DEBUG] About to call _process_citations_unified with verification flag")
+            
             return self._process_citations_unified(
                 text=text,
                 request_id=request_id,
                 source_name=source_name or input_type,
                 force_mode=force_mode,  # Pass force_mode through
+                enable_verification=enable_verification,  # Pass verification flag through
                 input_metadata=metadata
             )
             
@@ -162,7 +170,143 @@ class UnifiedInputProcessor:
                     'metadata': {'input_type': 'url', 'url': url, 'error': 'validation_failed'}
                 }
             
-            logger.info(f"[Unified Processor {request_id}] URL validation passed, fetching content...")
+            logger.info(f"[Unified Processor {request_id}] URL validation passed, determining content type...")
+
+            # Determine content-type via HEAD (fallback to suffix check)
+            content_type = ''
+            is_pdf = False
+            try:
+                import requests
+                head = requests.head(url, headers={'User-Agent': 'Mozilla/5.0'}, allow_redirects=True, timeout=15)
+                content_type = (head.headers.get('Content-Type') or '').lower()
+                is_pdf = 'application/pdf' in content_type
+                logger.info(f"[Unified Processor {request_id}] HEAD Content-Type='{content_type}' → is_pdf={is_pdf}")
+            except Exception as e:
+                # Fallback to suffix if HEAD fails
+                is_pdf = url.lower().endswith('.pdf')
+                logger.warning(f"[Unified Processor {request_id}] HEAD failed ({e}); fallback is_pdf={is_pdf}")
+
+            # Prefer content-type over suffix; only treat as PDF if HEAD agrees
+            # If suffix is .pdf but HEAD says text/html, handle as HTML path
+
+            # Special handling for PDFs: download bytes and extract via RobustPDFExtractor
+            if is_pdf:
+                logger.info(f"[Unified Processor {request_id}] Detected PDF URL - downloading for PDF extraction")
+                try:
+                    headers = {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0 Safari/537.36',
+                        'Accept': 'application/pdf,application/octet-stream;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                        'Referer': 'https://www.courts.wa.gov/'
+                    }
+                    # HEAD check for content-type and length
+                    try:
+                        import requests
+                        head = requests.head(url, headers=headers, allow_redirects=True, timeout=20)
+                        ct = head.headers.get('Content-Type', '')
+                        cl = head.headers.get('Content-Length', '')
+                        logger.info(f"[Unified Processor {request_id}] PDF HEAD: Content-Type={ct}, Content-Length={cl}")
+                    except Exception:
+                        pass
+                    tmp_path = None
+                    try:
+                        try:
+                            import requests
+                            # First attempt: non-streamed (some servers object to ranged/streamed)
+                            # CRITICAL FIX: Follow redirects to handle HTTP→HTTPS redirects
+                            resp = requests.get(url, headers=headers, timeout=60, stream=False, allow_redirects=True)
+                            if resp.status_code != 200:
+                                logger.warning(f"[Unified Processor {request_id}] PDF download failed: status={resp.status_code}")
+                                raise Exception(f"HTTP {resp.status_code}")
+                            data = resp.content
+                            # If unexpectedly small, retry with stream=True
+                            if not data or len(data) < 1024:
+                                logger.warning(f"[Unified Processor {request_id}] PDF content small ({len(data) if data else 0} bytes) - retrying with stream")
+                                resp = requests.get(url, headers=headers, timeout=60, stream=True, allow_redirects=True)
+                                if resp.status_code != 200:
+                                    raise Exception(f"HTTP {resp.status_code}")
+                                chunks = []
+                                for chunk in resp.iter_content(chunk_size=16384):
+                                    if chunk:
+                                        chunks.append(chunk)
+                                data = b''.join(chunks)
+                            with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
+                                tmp_pdf.write(data)
+                                tmp_path = tmp_pdf.name
+                        except ImportError:
+                            # Fallback to urllib if requests is unavailable
+                            from urllib.request import Request, urlopen
+                            req = Request(url, headers=headers)
+                            with urlopen(req, timeout=60) as r, tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as tmp_pdf:
+                                while True:
+                                    chunk = r.read(16384)
+                                    if not chunk:
+                                        break
+                                    tmp_pdf.write(chunk)
+                                tmp_path = tmp_pdf.name
+
+                        from src.robust_pdf_extractor import RobustPDFExtractor
+                        extractor = RobustPDFExtractor()
+                        result = extractor.extract_text(tmp_path)
+                        text = result[0] if isinstance(result, tuple) else result
+                        # Fallback to alternate smart extractor if primary returns too little
+                        if not text or len(text.strip()) < 50:
+                            try:
+                                alt_text = extract_text_from_pdf_smart(tmp_path)
+                                if alt_text and len(alt_text.strip()) > len(text or ''):
+                                    text = alt_text
+                            except Exception:
+                                pass
+                        # Optional third attempt: try OCR if available and content still too short
+                        # Leave OCR as an optional internal path only if supported by RobustPDFExtractor in deployment
+                        if not text or len(text.strip()) < 50:
+                            return {
+                                'success': False,
+                                'error': 'URL returned empty or insufficient content for analysis',
+                                'text': '',
+                                'metadata': {
+                                    'input_type': 'url',
+                                    'url': url,
+                                    'content_length': 0,
+                                    'error': 'insufficient_content_pdf'
+                                }
+                            }
+                        logger.info(f"[Unified Processor {request_id}] Extracted {len(text)} characters from PDF URL")
+
+                        # If a local comparison file exists, log comparative length for diagnostics
+                        try:
+                            local_test_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'D2 60382-9-II Published Opinion.pdf')
+                            if os.path.exists(local_test_path):
+                                try:
+                                    local_alt = extract_text_from_pdf_smart(local_test_path)
+                                    logger.info(f"[Unified Processor {request_id}] Local test PDF extracted: {len(local_alt or '')} chars (for comparison)")
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+
+                        return {
+                            'success': True,
+                            'text': text,
+                            'metadata': {
+                                'input_type': 'url',
+                                'url': url,
+                                'url_domain': urlparse(url).netloc,
+                                'content_length': len(text),
+                                'source': 'url_fetch_pdf'
+                            }
+                        }
+                    finally:
+                        if tmp_path:
+                            try:
+                                os.unlink(tmp_path)
+                            except Exception:
+                                pass
+                except Exception as pdf_err:
+                    logger.error(f"[Unified Processor {request_id}] PDF fetch/extract failed: {pdf_err}")
+                    # Fall through to generic fetch as a fallback
+
+            # Generic fetch path (for HTML/text URLs)
             content = fetch_url_content(url)
             logger.info(f"[Unified Processor {request_id}] Content fetched, length: {len(content) if content else 0}")
             
@@ -247,24 +391,24 @@ class UnifiedInputProcessor:
                 temp_file_path = temp_file.name
             
             try:
-                # USER OPTIMIZATION: Use unified extractor for all formats
+                # Use UnifiedTextExtractor for consistent text extraction across all inputs
                 from src.unified_text_extractor import extract_text_from_file_unified
-                text, method = extract_text_from_file_unified(temp_file_path, verbose=False)
+                text, method = extract_text_from_file_unified(temp_file_path, verbose=True)
                 
-                if self.verbose:
-                    logger.info(f"Extracted {len(text):,} chars using {method}")
+                logger.info(f"[Unified Processor {request_id}] Extracted {len(text):,} chars using {method}")
                 
                 if not text or len(text.strip()) < 10:
                     return {
                         'success': False,
-                        'error': 'File contains no extractable text or text is too short',
+                        'error': 'Extracted text is empty or too short',
                         'text': '',
                         'metadata': {
                             'input_type': 'file',
                             'filename': filename,
                             'file_extension': file_ext,
+                            'extraction_method': method,
                             'text_length': len(text),
-                            'error': 'no_extractable_text'
+                            'error': 'empty_extraction'
                         }
                     }
                 
@@ -275,6 +419,7 @@ class UnifiedInputProcessor:
                         'input_type': 'file',
                         'filename': filename,
                         'file_extension': file_ext,
+                        'extraction_method': method,
                         'text_length': len(text),
                         'source': 'file_upload'
                     }
@@ -301,59 +446,61 @@ class UnifiedInputProcessor:
             }
     
     def _process_citations_unified(self, text: str, request_id: str, source_name: str, 
-                                 input_metadata: Dict[str, Any], force_mode: Optional[str] = None) -> Dict[str, Any]:
+                                 input_metadata: Dict[str, Any], force_mode: Optional[str] = None,
+                                 enable_verification: bool = True) -> Dict[str, Any]:
         """
         Process citations using the unified pipeline (same for all input types).
         
         Args:
             force_mode: Optional user override for sync/async processing
+            enable_verification: Whether to enable citation verification
         """
-        logger.error(f"[Unified Processor {request_id}] 🎬 _process_citations_unified CALLED!")
+        print(f"[DEBUG] _process_citations_unified CALLED with {len(text)} chars, request_id={request_id}")
+        logger.error(f"[Unified Processor {request_id}] [DEBUG] _process_citations_unified CALLED!")
         logger.error(f"[Unified Processor {request_id}] Processing citations from {source_name}")
         logger.error(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
         logger.error(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
         logger.error(f"[Unified Processor {request_id}] Input metadata: {input_metadata}")
         if force_mode:
-            logger.error(f"[Unified Processor {request_id}] 🎯 force_mode='{force_mode}' passed through")
+            logger.error(f"[Unified Processor {request_id}] [INFO] force_mode='{force_mode}' passed through")
+        
+        logger.error(f"[Unified Processor {request_id}] [INFO] enable_verification={enable_verification} passed through")
         
         try:
             input_data = {'type': 'text', 'text': text}
-            logger.info(f"[Unified Processor {request_id}] Checking if should process immediately...")
+            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: Checking if should process immediately...")
+            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: force_mode parameter = '{force_mode}'")
+            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: Text length = {len(text)} chars")
             
             # Pass force_mode to honor user override
             should_process_immediately = self.citation_service.should_process_immediately(
                 input_data, 
                 force_mode=force_mode
             )
-            logger.info(f"[Unified Processor {request_id}] Should process immediately: {should_process_immediately}")
+            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: should_process_immediately = {should_process_immediately}")
+            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: force_mode was '{force_mode}', result is {should_process_immediately}")
             
             if should_process_immediately:
-                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately using FULL PIPELINE with verification")
+                logger.warning(f"[Unified Processor {request_id}] *** SYNC PATH: Processing immediately using UNIFIED PIPELINE")
                 try:
-                    # USE FULL PIPELINE with clustering and verification for consistent quality
-                    from src.citation_extraction_endpoint import extract_citations_with_clustering
-                    
                     # Create progress callback that updates the progress manager
                     def progress_callback(progress: int, step: str, message: str):
-                        """Update progress via the progress manager."""
                         try:
-                            self.progress_manager.update_progress(
-                                request_id, 
-                                progress, 
-                                step, 
-                                message
-                            )
+                            self.progress_manager.update_progress(request_id, progress, step, message)
                             logger.debug(f"[Progress {request_id}] {progress}% - {step}: {message}")
                         except Exception as e:
                             logger.warning(f"[Progress {request_id}] Failed to update: {e}")
-                    
-                    # Initialize progress tracking with proper ProgressTracker
-                    tracker = ProgressTracker(request_id, total_steps=100)
-                    self.progress_manager.active_tasks[request_id] = tracker
-                    
+
+                    # Initialize progress tracking - use existing tracker if available
+                    if request_id not in self.progress_manager.active_tasks:
+                        tracker = ProgressTracker(request_id, total_steps=100)
+                        self.progress_manager.active_tasks[request_id] = tracker
+                    else:
+                        tracker = self.progress_manager.active_tasks[request_id]
+
                     # Update progress
-                    progress_callback(10, "Extract", "Using full pipeline with verification and clustering")
-                    
+                    progress_callback(10, "Extract", "Using unified processing pipeline with verification")
+
                     # Start centralized ETA heartbeat towards ~85% using cheap citation estimate
                     try:
                         qn = estimate_citations_cheap(input_data.get('text', '') or '')
@@ -368,121 +515,51 @@ class UnifiedInputProcessor:
                         )
                     except Exception:
                         pass
-                    
-                    # Extract, cluster, and verify citations using full pipeline
+
+                    logger.error(f"[Unified Processor {request_id}] 🔧 DEBUG: About to call process_citations_unified with enable_verification={enable_verification}")
+                    # Run unified pipeline (includes extraction, verification, and parallel propagation)
+                    from src.unified_processing_pipeline import process_citations_unified
                     text = input_data.get('text', '')
-                    enable_verification = input_data.get('enable_verification', True)
-                    logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification={enable_verification}")
-                    result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=progress_callback)
-                    
-                    # Check if any citations show CourtListener rate limit messages
-                    courtlistener_rate_limited = False
-                    if result.get('citations'):
-                        for cit in result['citations']:
-                            error_msg = cit.get('error', '') or cit.get('verification_error', '')
-                            if 'heavy usage' in str(error_msg).lower() or 'try again' in str(error_msg).lower():
-                                courtlistener_rate_limited = True
-                                break
-                    
-                    # Add user notice if CourtListener is rate-limited
-                    if courtlistener_rate_limited:
-                        if 'metadata' not in result:
-                            result['metadata'] = {}
-                        result['metadata']['verification_notice'] = (
-                            "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
-                            "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
-                            "CourtListener, please try again in a few minutes."
-                        )
-                    
-                    # Convert clean pipeline results to the expected format
-                    from src.models import CitationResult
-                    citations = []
-                    if result.get('status') == 'success' or result.get('citations'):
-                        for cit_dict in result.get('citations', []):
-                            citations.append(CitationResult(
-                                citation=cit_dict['citation'],
-                                extracted_case_name=cit_dict.get('extracted_case_name'),
-                                extracted_date=cit_dict.get('extracted_date'),
-                                method=cit_dict.get('method', 'clean_pipeline_v1'),
-                                confidence=cit_dict.get('confidence', 0.9),
-                                verified=cit_dict.get('verified', False),
-                                canonical_name=cit_dict.get('canonical_name'),
-                                canonical_date=cit_dict.get('canonical_date'),
-                                canonical_url=cit_dict.get('canonical_url')
-                            ))
-                    
-                    clusters = result.get('clusters', [])
-                    
-                    result = {
-                        'citations': citations,
-                        'clusters': clusters
-                    }
-                    
-                    progress_callback(100, "Complete", f"Full pipeline: {len(citations)} citations, {len(clusters)} clusters")
-                    # Cleanup completed task after a brief delay
+                    logger.error(f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL process_citations_unified with enable_verification={enable_verification}")
+                    pipeline_result = asyncio.run(process_citations_unified(text, processing_mode="enhanced_sync", enable_parallel_verification=enable_verification, enable_verification=enable_verification))
+
+                    # Prepare response
+                    citations_list = pipeline_result.get('citations', [])
+                    clusters = pipeline_result.get('clusters', [])
+
+                    progress_callback(100, "Complete", f"Unified pipeline: {len(citations_list)} citations, {len(clusters)} clusters")
+                    # Cleanup completed task after a brief delay (but keep Redis data for polling)
                     try:
                         def _cleanup_done():
                             try:
                                 time.sleep(3.0)
-                                self.progress_manager.cleanup_task(request_id)
+                                self.progress_manager.cleanup_task(request_id, keep_redis_data=True)
                             except Exception:
                                 pass
                         threading.Thread(target=_cleanup_done, daemon=True).start()
                     except Exception:
                         pass
-                    
-                    logger.info(f"[Unified Processor {request_id}] Immediate processing result: {result}")
-                    
-                    # Convert CitationResult objects to dictionaries for API response
-                    citations = result.get('citations', [])
-                    converted_citations = []
-                    for citation in citations:
-                        if hasattr(citation, 'to_dict'):
-                            # Use the fixed to_dict method that doesn't include case_name
-                            citation_dict = citation.to_dict()
-                            
-                            cluster_case_name = citation_dict.get('cluster_case_name')
-                            extracted_case_name = citation_dict.get('extracted_case_name')
-                            canonical_name = citation_dict.get('canonical_name')
-                            logger.debug(f"SYNC_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
-                            
-                            converted_citations.append(citation_dict)
-                        else:
-                            # Already a dictionary - maintain data separation
-                            citation_dict = citation.copy()
-                            
-                            # REMOVED: case_name field eliminated to prevent contamination
-                            # Frontend will use extracted_case_name and canonical_name directly
-                            
-                            cluster_case_name = citation_dict.get('cluster_case_name')
-                            extracted_case_name = citation_dict.get('extracted_case_name')
-                            canonical_name = citation_dict.get('canonical_name')
-                            logger.debug(f"SYNC_DICT_DATA_SEPARATION: cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
-                                
-                            converted_citations.append(citation_dict)
-                    
-                    # Build metadata including any verification notices
+
+                    # Build metadata
                     response_metadata = {
                         **input_metadata,
                         'processing_mode': 'immediate',
                         'source': source_name,
-                        'processing_strategy': 'unified_v2_full_pipeline'
+                        'processing_strategy': 'unified_processing_pipeline'
                     }
-                    
-                    # Include verification notice if CourtListener was rate-limited
-                    if result.get('metadata', {}).get('verification_notice'):
-                        response_metadata['verification_notice'] = result['metadata']['verification_notice']
-                    
+                    # Pass through any notices from pipeline metadata
+                    if pipeline_result.get('metadata', {}).get('verification_notice'):
+                        response_metadata['verification_notice'] = pipeline_result['metadata']['verification_notice']
+
                     return {
                         'success': True,
-                        'citations': converted_citations,
-                        'clusters': result.get('clusters', []),
+                        'citations': citations_list,
+                        'clusters': clusters,
                         'request_id': request_id,
-                        # DON'T return task_id for immediate/sync results - only for async jobs
                         'metadata': response_metadata
                     }
                 except Exception as e:
-                    logger.error(f"[Unified Processor {request_id}] Error in immediate processing: {str(e)}", exc_info=True)
+                    logger.error(f"[Unified Processor {request_id}] Error in immediate processing via unified pipeline: {str(e)}", exc_info=True)
                     should_process_immediately = False
             
             if not should_process_immediately:
@@ -536,7 +613,7 @@ class UnifiedInputProcessor:
                         'src.rq_worker.process_citation_task_direct',  # Use RQ worker that reports VM progress
                         args=(request_id, 'text', {'text': text}),
                         job_id=request_id,  # Use request_id as the job ID
-                        job_timeout=600,  # 10 minutes timeout
+                        job_timeout=300,  # 5 minutes timeout
                         result_ttl=86400,
                         failure_ttl=86400
                     )
@@ -675,7 +752,8 @@ class UnifiedInputProcessor:
                             from src.citation_extraction_endpoint import extract_citations_with_clustering
                             
                             # Extract enable_verification flag from input_data
-                            enable_verification = input_data.get('enable_verification', True)
+                            raw_enable = input_data.get('enable_verification', True)
+                            enable_verification = (str(raw_enable).strip().lower() in ('1', 'true', 'yes')) if isinstance(raw_enable, str) else bool(raw_enable)
                             result = extract_citations_with_clustering(text, enable_verification=enable_verification, progress_callback=progress_callback)
                             
                             # Check if any citations show CourtListener rate limit messages
@@ -707,7 +785,6 @@ class UnifiedInputProcessor:
                             # CRITICAL: Mark progress as complete to stop frontend polling
                             if request_id in self.progress_manager.active_tasks:
                                 tracker = self.progress_manager.active_tasks[request_id]
-                                tracker.is_complete = True
                                 tracker.status = 'completed'
                                 logger.info(f"[Sync Fallback] Marked progress tracker as complete for {request_id}")
                             
@@ -724,8 +801,8 @@ class UnifiedInputProcessor:
                                     verified=cit_dict.get('verified', False),
                                     canonical_name=cit_dict.get('canonical_name'),
                                     canonical_date=cit_dict.get('canonical_date'),
-                                    canonical_url=cit_dict.get('canonical_url')
-                                    # NOTE: verification_source not supported by CitationResult model
+                                    canonical_url=cit_dict.get('canonical_url'),
+                                    metadata=cit_dict.get('metadata', {})  # Include verification metadata
                                 ))
                             
                             result = {

@@ -112,7 +112,10 @@ class ProgressTracker:
     def update(self, step: int, status: str, message: str, 
                partial_results: Optional[List] = None, error: Optional[str] = None):
         """Update progress and optionally add partial results"""
-        self.current_step = step
+        # FIX DEC 2025: Prevent progress regression - only allow forward progress
+        # This prevents confusing UX where progress bar goes backwards
+        if step >= self.current_step:
+            self.current_step = step
         self.status = status
         self.message = message
         
@@ -188,9 +191,14 @@ class SSEProgressManager:
         else:
             logger.info("Redis not installed, using in-memory progress tracking")
     
-    def start_task(self, total_steps: int) -> str:
-        """Start a new task and return task ID"""
-        task_id = str(uuid.uuid4())
+    def start_task(self, total_steps: int, task_id_override: str = None) -> str:
+        """Start a new task and return task ID
+        
+        Args:
+            total_steps: Number of steps in the task
+            task_id_override: Optional custom task ID to use instead of generating UUID
+        """
+        task_id = task_id_override if task_id_override else str(uuid.uuid4())
         tracker = ProgressTracker(task_id, total_steps)
         self.active_tasks[task_id] = tracker
         
@@ -231,12 +239,17 @@ class SSEProgressManager:
             }
         return {'error': 'Task not found'}
     
-    def cleanup_task(self, task_id: str):
-        """Clean up completed task"""
+    def cleanup_task(self, task_id: str, keep_redis_data: bool = False):
+        """Clean up completed task
+        
+        Args:
+            keep_redis_data: If True, keep Redis data for polling after completion
+        """
         if task_id in self.active_tasks:
             del self.active_tasks[task_id]
             
-        if self.redis_client:
+        # Only delete Redis data if not keeping it for polling
+        if self.redis_client and not keep_redis_data:
             self.redis_client.delete(f"progress:{task_id}")
     
     def _store_progress_in_redis(self, task_id: str, tracker: ProgressTracker):
@@ -413,7 +426,35 @@ class ChunkedCitationProcessor:
             logger.info(f"Redis available: {hasattr(self.progress_manager, 'redis_client') and self.progress_manager.redis_client is not None}")
             
             logger.info("Creating background task for document processing...")
-            asyncio.create_task(self._process_document_async(task_id, document_text, document_type, tracker))
+            
+            # Submit to RQ queue instead of local asyncio task
+            try:
+                from rq import Queue
+                from rq.job import Job
+                
+                # Get RQ queue
+                queue = Queue('casestrainer', connection=self.progress_manager.redis_client)
+                
+                # Enqueue the async task
+                job = queue.enqueue(
+                    'src.rq_worker.process_citation_task_async',
+                    task_id=task_id,
+                    document_text=document_text,
+                    document_type=document_type,
+                    timeout=3600,  # 1 hour timeout
+                    ttl=86400,     # Job expires after 24 hours
+                    result_ttl=86400,  # Result kept for 24 hours
+                    failure_ttl=3600   # Failure info kept for 1 hour
+                )
+                
+                logger.info(f"Task submitted to RQ queue: job_id={job.id}, task_id={task_id}")
+                
+            except Exception as rq_error:
+                logger.error(f"Failed to submit task to RQ: {rq_error}")
+                # Fallback to local asyncio task if RQ fails
+                logger.info("Falling back to local asyncio task...")
+                asyncio.create_task(self._process_document_async(task_id, document_text, document_type, tracker))
+            
             logger.info("Background task created successfully")
             
             self.progress_manager.update_progress(
@@ -474,6 +515,35 @@ class ChunkedCitationProcessor:
             
             # Extract citations using clean pipeline
             citation_results = pipeline.extract_citations(chunk)
+            
+            # NEW: Apply verification and parallel verification to chunk results
+            logger.info(f"[Chunk-{chunk_hash}] Applying verification and parallel verification to chunk results...")
+            try:
+                # Convert to list for verification
+                citations_list = list(citation_results)
+                
+                # Import verification functions
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+                processor = UnifiedCitationProcessorV2()
+                
+                # First verify citations to get canonical data
+                verified_citations = processor._verify_citations_sync(citations_list, chunk)
+                citation_results = verified_citations
+                logger.info(f"[Chunk-{chunk_hash}] Verification complete, {len(citation_results)} citations verified")
+                
+                # Apply parallel verification to the verified citations
+                processor.propagate_canonical_to_cluster(citation_results)
+                logger.info(f"[Chunk-{chunk_hash}] Parallel verification complete")
+                
+                # Log if parallel verification was applied
+                parallel_count = sum(1 for c in citation_results if getattr(c, 'true_by_parallel', False))
+                if parallel_count > 0:
+                    logger.info(f"[Chunk-{chunk_hash}] ✅ Applied parallel verification to {parallel_count} citations")
+                
+            except Exception as parallel_error:
+                logger.warning(f"[Chunk-{chunk_hash}] Parallel verification failed (non-critical): {parallel_error}")
+                import traceback
+                logger.warning(f"[Chunk-{chunk_hash}] Parallel verification error details: {traceback.format_exc()}")
             
             process_time = time.time() - start_time
             logger.info(f"[Chunk-{chunk_hash}] extract_citations() completed in {process_time:.2f}s, got {len(citation_results)} citations")
@@ -547,6 +617,7 @@ class ChunkedCitationProcessor:
     
     async def _process_document_async(self, task_id: str, document_text: str, document_type: str, tracker: 'ProgressTracker'):
         """Background task to process document asynchronously"""
+        print(f"🔥🔥🔥 _process_document_async CALLED with {len(document_text)} chars, task_id={task_id}")
         logger.info("\n" + "="*80)
         logger.info(f"Starting _process_document_async for task {task_id}")
         logger.info(f"Document type: {document_type}")
@@ -779,6 +850,14 @@ def fetch_url_content(url: str) -> str:
         
         if url.lower().endswith('.pdf'):
             headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
+        elif url.lower().endswith(('.docx', '.doc')):
+            headers['Accept'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/octet-stream'
+        elif url.lower().endswith('.rtf'):
+            headers['Accept'] = 'application/rtf,text/rtf,application/octet-stream'
+        elif url.lower().endswith(('.md', '.markdown')):
+            headers['Accept'] = 'text/markdown,text/plain,application/octet-stream'
+        elif url.lower().endswith(('.txt', '.html', '.htm', '.xml', '.xhtml')):
+            headers['Accept'] = 'text/html,text/xml,text/plain,application/xhtml+xml,application/xml'
         
         
         # Handle 202 (Accepted) and 429 (Rate Limit) responses with retry
@@ -901,6 +980,92 @@ def fetch_url_content(url: str) -> str:
                 logger.error(f"PDF extraction from URL failed: {str(e)}")
                 raise Exception(f"The PDF document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format.")
         
+        elif ('word' in content_type or 'openxmlformats' in content_type or 
+              url.lower().endswith('.docx') or url.lower().endswith('.doc')):
+            # Handle Word documents (DOCX and DOC)
+            import tempfile
+            import os
+            
+            try:
+                # Determine file extension from URL or content type
+                if url.lower().endswith('.docx') or 'openxmlformats' in content_type:
+                    file_ext = 'docx'
+                elif url.lower().endswith('.doc') or 'msword' in content_type:
+                    file_ext = 'doc'
+                else:
+                    # Default to docx for modern Word documents
+                    file_ext = 'docx'
+                
+                # Save document content to temp file
+                with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_ext}') as temp_doc:
+                    temp_doc.write(response.content)
+                    temp_doc_path = temp_doc.name
+                
+                try:
+                    logger.info(f"Extracting {file_ext.upper()} from URL using unified_text_extractor")
+                    from src.unified_text_extractor import UnifiedTextExtractor
+                    extractor = UnifiedTextExtractor(verbose=True)
+                    result, method = extractor.extract_text_from_file(temp_doc_path)
+                    
+                    if result and len(result.strip()) > 0:
+                        logger.info(f"Successfully extracted {len(result)} characters from URL {file_ext.upper()} using {method}")
+                        # Preprocess text to clean artifacts
+                        result = preprocess_extracted_text(result)
+                        logger.info(f"After preprocessing: {len(result)} characters")
+                        return result
+                    else:
+                        logger.error(f"{file_ext.upper()} extraction returned empty content")
+                        raise Exception(f"The {file_ext.upper()} document appears to be empty or unreadable")
+                        
+                finally:
+                    # Clean up temp file
+                    try:
+                        os.unlink(temp_doc_path)
+                    except OSError:
+                        pass
+                        
+            except Exception as e:
+                logger.error(f"{file_ext.upper()} extraction from URL failed: {str(e)}")
+                raise Exception(f"The Word document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format.")
+        
+        elif ('rtf' in content_type or url.lower().endswith('.rtf')):
+            # Handle Rich Text Format (RTF) files
+            import tempfile
+            import os
+            
+            try:
+                # Save RTF content to temp file
+                with tempfile.NamedTemporaryFile(delete=False, suffix='.rtf') as temp_rtf:
+                    temp_rtf.write(response.content)
+                    temp_rtf_path = temp_rtf.name
+                
+                try:
+                    logger.info(f"Extracting RTF from URL using unified_text_extractor")
+                    from src.unified_text_extractor import UnifiedTextExtractor
+                    extractor = UnifiedTextExtractor(verbose=True)
+                    result, method = extractor.extract_text_from_file(temp_rtf_path)
+                    
+                    if result and len(result.strip()) > 0:
+                        logger.info(f"Successfully extracted {len(result)} characters from URL RTF using {method}")
+                        # Preprocess text to clean artifacts
+                        result = preprocess_extracted_text(result)
+                        logger.info(f"After preprocessing: {len(result)} characters")
+                        return result
+                    else:
+                        logger.error("RTF extraction returned empty content")
+                        raise Exception("The RTF document appears to be empty or unreadable")
+                        
+                finally:
+                    # Clean up temp file
+                    try:
+                        os.unlink(temp_rtf_path)
+                    except OSError:
+                        pass
+                        
+            except Exception as e:
+                logger.error(f"RTF extraction from URL failed: {str(e)}")
+                raise Exception(f"The RTF document could not be processed: {str(e)}. It may be corrupted or in an unsupported format.")
+        
         elif 'json' in content_type or 'application/json' in content_type:
             # Handle JSON responses (e.g., from CourtListener API)
             logger.info(f"Processing JSON response from API")
@@ -938,8 +1103,11 @@ def fetch_url_content(url: str) -> str:
                 logger.error(f"Failed to parse JSON response: {e}")
                 return response.text
         
-        elif 'html' in content_type:
-            logger.info(f"Processing HTML content")
+        elif ('html' in content_type or 'xml' in content_type or 
+              url.lower().endswith('.html') or url.lower().endswith('.htm') or 
+              url.lower().endswith('.xml') or url.lower().endswith('.xhtml')):
+            # Handle HTML and XML content
+            logger.info(f"Processing {'HTML' if 'html' in content_type else 'XML'} content")
             try:
                 from bs4 import BeautifulSoup
                 soup = BeautifulSoup(response.text, 'html.parser')
@@ -948,16 +1116,38 @@ def fetch_url_content(url: str) -> str:
                     script.decompose()
                 # Get text
                 text = soup.get_text(separator=' ', strip=True)
-                logger.info(f"✅ Extracted text from HTML: {len(text)} characters")
+                logger.info(f"✅ Extracted text from {'HTML' if 'html' in content_type else 'XML'}: {len(text)} characters")
                 return text
             except Exception as e:
-                logger.warning(f"Failed to parse HTML with BeautifulSoup: {e}")
-                logger.info(f"Returning raw HTML content, length: {len(response.text)}")
+                logger.warning(f"Failed to parse {'HTML' if 'html' in content_type else 'XML'} with BeautifulSoup: {e}")
+                logger.info(f"Returning raw content, length: {len(response.text)}")
                 return response.text
         
-        elif 'text/plain' in content_type:
-            logger.info(f"Returning plain text content, length: {len(response.text)}")
-            return response.text
+        elif ('text/plain' in content_type or 'text/markdown' in content_type or
+              url.lower().endswith('.txt') or url.lower().endswith('.md') or 
+              url.lower().endswith('.markdown')):
+            # Handle plain text and markdown files
+            logger.info(f"Processing {'plain text' if 'text/plain' in content_type else 'markdown'} content")
+            text = response.text
+            
+            # Basic markdown cleanup for .md files
+            if url.lower().endswith('.md') or 'markdown' in content_type:
+                # Remove common markdown syntax that might interfere with citation extraction
+                import re
+                # Remove markdown links [text](url) -> text
+                text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+                # Remove markdown headers (# ## ###)
+                text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+                # Remove bold/italic markers
+                text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
+                text = re.sub(r'\*([^*]+)\*', r'\1', text)
+                text = re.sub(r'__([^_]+)__', r'\1', text)
+                text = re.sub(r'_([^_]+)_', r'\1', text)
+                logger.info(f"✅ Cleaned markdown content: {len(text)} characters")
+            else:
+                logger.info(f"✅ Plain text content: {len(text)} characters")
+            
+            return text
         
         else:
             try:
@@ -1653,7 +1843,27 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                         else:
                             logger.error(f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified")
                     else:
-                        logger.error(f"[Task {task_id}] ⚠️  No verified citations in this cluster - cannot mark as true_by_parallel")
+                        # CRITICAL FIX: Clear orphaned true_by_parallel flags when NO verified citation exists
+                        logger.error(f"[Task {task_id}] ⚠️  No verified citations in this cluster - clearing orphaned true_by_parallel flags")
+                        orphan_cleared = 0
+                        for idx, cit in enumerate(citations_in_cluster):
+                            cit_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', 'unknown')
+                            has_true_by_parallel = cit.get('true_by_parallel', False) if isinstance(cit, dict) else getattr(cit, 'true_by_parallel', False)
+                            if has_true_by_parallel:
+                                if isinstance(cit, dict):
+                                    cit['true_by_parallel'] = False
+                                    cit['canonical_name'] = None
+                                    cit['canonical_date'] = None
+                                    cit['canonical_url'] = None
+                                else:
+                                    cit.true_by_parallel = False
+                                    cit.canonical_name = None
+                                    cit.canonical_date = None
+                                    cit.canonical_url = None
+                                orphan_cleared += 1
+                                logger.error(f"[Task {task_id}] 🧹 Cleared orphaned true_by_parallel from: {cit_text}")
+                        if orphan_cleared > 0:
+                            logger.error(f"[Task {task_id}] 📊 Cleared {orphan_cleared} orphaned true_by_parallel citations")
                 
                 logger.error(f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data")
 
@@ -1708,6 +1918,55 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 logger.info(f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations")
                 if citations_added > 0:
                     logger.info(f"[Task {task_id}] Added {citations_added} citations from clusters to top-level array")
+                
+                # STEP 4: FINAL CLUSTER-LEVEL CHECK - Clear orphaned true_by_parallel at cluster level
+                # This catches cases where proximity groups didn't cover all citations
+                final_orphan_cleared = 0
+                orphaned_citations = set()  # Track which citations to clear from top-level
+                
+                for cluster in cluster_dicts:
+                    if not isinstance(cluster, dict):
+                        continue
+                    cluster_cits = cluster.get('citations', [])
+                    if not cluster_cits:
+                        continue
+                    
+                    # Check if ANY citation in this cluster is verified=True
+                    has_verified_in_cluster = False
+                    for cit in cluster_cits:
+                        if isinstance(cit, dict) and cit.get('verified') == True:
+                            has_verified_in_cluster = True
+                            break
+                    
+                    if not has_verified_in_cluster:
+                        # NO verified citation in cluster - clear ALL true_by_parallel flags
+                        for cit in cluster_cits:
+                            if isinstance(cit, dict) and cit.get('true_by_parallel', False):
+                                cit['true_by_parallel'] = False
+                                cit['canonical_name'] = None
+                                cit['canonical_date'] = None
+                                cit['canonical_url'] = None
+                                orphaned_citations.add(cit.get('citation', ''))
+                                final_orphan_cleared += 1
+                                logger.error(f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Cleared true_by_parallel from {cit.get('citation')} (no verified in cluster)")
+                
+                # CRITICAL: Also clear from TOP-LEVEL citation_dicts
+                # The cluster citations may be separate dicts from citation_dicts
+                if orphaned_citations:
+                    top_level_cleared = 0
+                    for cit in citation_dicts:
+                        if isinstance(cit, dict) and cit.get('citation', '') in orphaned_citations:
+                            if cit.get('true_by_parallel', False):
+                                cit['true_by_parallel'] = False
+                                cit['canonical_name'] = None
+                                cit['canonical_date'] = None
+                                cit['canonical_url'] = None
+                                top_level_cleared += 1
+                    if top_level_cleared > 0:
+                        logger.error(f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Also cleared {top_level_cleared} from top-level citations")
+                
+                if final_orphan_cleared > 0:
+                    logger.error(f"[Task {task_id}] 📊 CLUSTER-ORPHAN: Cleared {final_orphan_cleared} orphaned true_by_parallel flags at cluster level")
                 
                 # CITATION-BASED PROGRESS: Update progress after verification sync
                 sync_progress_to_redis('verifying', 95, f'Verification completed - {len(citation_dicts)} citations processed')
@@ -1888,22 +2147,29 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     }
             
         elif input_type == 'url':
-            # NOTE: This should no longer be reached since URLs are now converted to text at the API level
-            # But keeping as fallback for any legacy code paths
+            # FIX DEC 2025: Check if content was pre-fetched at API level
             url = input_data.get('url', '')
-            logger.warning(f"[Task {task_id}] Unexpected URL input type - URLs should be converted to text at API level. URL: {url}")
+            pre_fetched_content = input_data.get('content', '')
             
-            if not url:
-                error_msg = "No URL provided for processing"
+            logger.info(f"[Task {task_id}] URL input type - URL: {url}, pre-fetched content: {len(pre_fetched_content) if pre_fetched_content else 0} chars")
+            
+            if not url and not pre_fetched_content:
+                error_msg = "No URL or content provided for processing"
                 logger.error(f"[Task {task_id}] {error_msg}")
                 raise ValueError(error_msg)
             
-            # Extract text from URL first
+            # Use pre-fetched content if available, otherwise fetch from URL
             try:
-                progress_tracker.start_step(0, 'Extracting content from URL...')
+                progress_tracker.start_step(0, 'Processing URL content...')
                 
-                logger.info(f"[Task {task_id}] Extracting content from URL...")
-                text = fetch_url_content(url)
+                if pre_fetched_content and len(pre_fetched_content.strip()) >= 10:
+                    # Use pre-fetched content (already extracted at API level)
+                    text = pre_fetched_content
+                    logger.info(f"[Task {task_id}] Using pre-fetched content: {len(text)} chars")
+                else:
+                    # Fallback: fetch content from URL
+                    logger.info(f"[Task {task_id}] No pre-fetched content, extracting from URL...")
+                    text = fetch_url_content(url)
                 
                 if not text or len(text.strip()) < 10:
                     error_msg = f"URL returned empty or insufficient content: {len(text) if text else 0} characters"

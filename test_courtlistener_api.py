@@ -20,10 +20,11 @@ def test_courtlistener_api():
         'Content-Type': 'application/json'
     }
     
-    # Test the problematic citations
+    # Test the problematic citations from user's report
     test_citations = [
-        "547 P.2d 1207",
-        "32 So. 3d 496"
+        "114 Wn. App. 245",
+        "57 P.3d 273", 
+        "129 Wn.2d 652"
     ]
     
     print("🔍 Testing CourtListener API directly:")
@@ -64,4 +65,12 @@ def test_courtlistener_api():
 
 if __name__ == "__main__":
     test_courtlistener_api()
+
+
+
+
+
+
+
+
 

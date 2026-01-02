@@ -62,12 +62,15 @@ def deduplicate_citations(citations: List[Dict[str, Any]], debug: bool = False) 
     
     # Step 3: Remove position overlaps (if position data available)
     step3_results = _remove_position_overlaps(step2_results, debug)
+
+    # Step 3.5: Collapse truncated reporter variants (e.g., "Cal. 3d 574" vs "11 Cal. 3d 574")
+    step35_results = _dedup_truncated_reporter_variants(step3_results, debug)
     
     if debug:
         logger.info(f"[Deduplication] After position overlaps: {len(step3_results)} citations")
     
     # Step 4: Remove similar case name + date combinations
-    final_results = _remove_similar_citations(step3_results, debug)
+    final_results = _remove_similar_citations(step35_results, debug)
     
     if debug:
         logger.info(f"[Deduplication] Final result: {len(final_results)} citations")
@@ -132,6 +135,91 @@ def _remove_position_overlaps(citations: List[Dict[str, Any]], debug: bool = Fal
             deduplicated_positioned.append(citation)
     
     return deduplicated_positioned + non_positioned_citations
+
+def _dedup_truncated_reporter_variants(citations: List[Dict[str, Any]], debug: bool = False) -> List[Dict[str, Any]]:
+    """Collapse duplicates where one variant lacks a leading volume number but shares reporter + page.
+
+    Examples:
+      - "Cal. 3d 574" vs "11 Cal. 3d 574" -> keep the one with volume (11 Cal. 3d 574)
+      - "Ill. App. 3d 691" vs "389 Ill. App. 3d 691" -> keep the volume variant
+
+    Strategy:
+      - Build a key reporter_series + page, ignoring any leading volume number
+      - Prefer variant that begins with a volume number; break ties by longer citation text
+    """
+    import re
+    if not citations:
+        return citations
+
+    buckets: Dict[str, Dict[str, Any]] = {}
+
+    def make_key(cit_text: str) -> str | None:
+        if not cit_text:
+            return None
+        s = ' '.join(str(cit_text).replace('\n', ' ').replace('\r', ' ').split()).strip()
+        s_low = s.lower()
+        # Extract trailing page number
+        m_page = re.search(r'(\d{1,6})\s*$', s_low)
+        if not m_page:
+            return None
+        page = m_page.group(1)
+        # Remove leading volume number if present
+        s_no_page = s_low[:m_page.start()].strip()
+        m_vol = re.match(r'^(\d+)\s+(.*)$', s_no_page)
+        reporter = m_vol.group(2) if m_vol else s_no_page
+        # Normalize whitespace and punctuation in reporter
+        reporter = re.sub(r'[^a-z0-9\s\.]', ' ', reporter)
+        reporter = re.sub(r'\s+', ' ', reporter).strip()
+        if not reporter:
+            return None
+        return f"{reporter}::{page}"
+
+    def has_leading_volume(cit_text: str) -> bool:
+        if not cit_text:
+            return False
+        s = str(cit_text).lstrip()
+        return bool(re.match(r'^\d+\b', s))
+
+    for cit in citations:
+        text = _get_citation_text(cit)
+        key = make_key(text)
+        if not key:
+            # Not a recognizable reporter+page; keep as-is in final pass
+            buckets.setdefault('__passthru__', {'items': []})['items'].append(cit)
+            continue
+        entry = buckets.get(key)
+        if not entry:
+            buckets[key] = {'best': cit}
+            continue
+        # Decide which to prefer
+        current_best = entry['best']
+        best_text = _get_citation_text(current_best)
+        # Prefer with leading volume
+        candidate_has_vol = has_leading_volume(text)
+        best_has_vol = has_leading_volume(best_text)
+        choose_candidate = False
+        if candidate_has_vol and not best_has_vol:
+            choose_candidate = True
+        elif candidate_has_vol == best_has_vol:
+            # Tie-breaker: longer text
+            choose_candidate = len(text) > len(best_text)
+        if choose_candidate:
+            entry['best'] = cit
+
+    # Rebuild list: take best from each bucket + passthru
+    result: List[Dict[str, Any]] = []
+    for key, entry in buckets.items():
+        if key == '__passthru__':
+            result.extend(entry['items'])
+        else:
+            result.append(entry['best'])
+
+    if debug:
+        removed = len(citations) - len(result)
+        if removed > 0:
+            logger.info(f"[Deduplication] Truncated reporter variants removed: {removed}")
+
+    return result
 
 def _remove_similar_citations(citations: List[Dict[str, Any]], debug: bool = False) -> List[Dict[str, Any]]:
     """Remove citations with very similar case names and dates."""

@@ -52,7 +52,7 @@ class SourcePredictor:
                 predicted_sources.update(['justia', 'findlaw', 'leagle'])
         
         all_sources = ['justia', 'findlaw', 'courtlistener_web', 'leagle', 'casetext', 
-                      'vlex', 'google_scholar', 'bing', 'duckduckgo']
+                      'vlex', 'law_resource', 'google_scholar', 'bing', 'duckduckgo']
         
         result = [s for s in all_sources if s in predicted_sources]
         result.extend([s for s in all_sources if s not in predicted_sources])

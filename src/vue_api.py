@@ -239,6 +239,6 @@ def is_blueprint_available() -> bool:
 __all__ = ['api_blueprint', 'get_blueprint_info', 'is_blueprint_available']
 
 if api_blueprint is not None:
-    logger.info(f"✅ Vue API blueprint ready: {getattr(api_blueprint, 'name', 'unnamed')}")
+    logger.info(f"[SUCCESS] Vue API blueprint ready: {getattr(api_blueprint, 'name', 'unnamed')}")
 else:
-    logger.info("❌ Vue API blueprint not available") 
+    logger.warning("[ERROR] Vue API blueprint not available")

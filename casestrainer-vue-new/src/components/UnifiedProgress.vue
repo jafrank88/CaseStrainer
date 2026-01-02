@@ -12,9 +12,7 @@
             <i class="bi bi-check-circle-fill"></i>
           </div>
           <div v-else class="loading-icon">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Processing...</span>
-            </div>
+            <i class="bi bi-hourglass-split text-primary"></i>
           </div>
         </div>
         
@@ -78,9 +76,6 @@
         
         <!-- Loading indicator when progress is not yet valid -->
         <div v-else class="loading-indicator">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Initializing...</span>
-          </div>
           <p class="text-muted mt-2">Initializing progress tracking...</p>
         </div>
 
@@ -272,9 +267,8 @@ export default {
   height: 3rem;
 }
 
-.loading-icon .spinner-border {
-  width: 2.5rem;
-  height: 2.5rem;
+.loading-icon i {
+  font-size: 2.5rem;
 }
 
 .success-icon i {

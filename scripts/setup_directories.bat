@@ -24,21 +24,21 @@ if not exist "uploads" mkdir "uploads"
 REM Set permissions (Windows specific)
 icacls "D:\CaseStrainer" /grant "Users:(OI)(CI)F" /T /C >nul 2>&1
 
-REM Copy SSL certificates if they exist in the project
-if exist "ssl\WolfCertBundle.crt" (
+REM Copy SSL certificates if they exist in the new location
+if exist "C:\Users\jafrank\wolf-cert-bundle.crt" (
     if not exist "D:\CaseStrainer\ssl\WolfCertBundle.crt" (
-        copy "ssl\WolfCertBundle.crt" "D:\CaseStrainer\ssl\"
+        copy "C:\Users\jafrank\wolf-cert-bundle.crt" "D:\CaseStrainer\ssl\WolfCertBundle.crt"
         if %ERRORLEVEL% EQU 0 (
-            echo [%TIME%] Copied WolfCertBundle.crt to D:\CaseStrainer\ssl\
+            echo [%TIME%] Copied wolf-cert-bundle.crt to D:\CaseStrainer\ssl\WolfCertBundle.crt
         ) else (
-            echo [%TIME%] WARNING: Failed to copy WolfCertBundle.crt
+            echo [%TIME%] WARNING: Failed to copy wolf-cert-bundle.crt
         )
     )
 )
 
-if exist "ssl\wolf.law.uw.edu.key" (
+if exist "C:\Users\jafrank\wolf.law.uw.edu.key" (
     if not exist "D:\CaseStrainer\ssl\wolf.law.uw.edu.key" (
-        copy "ssl\wolf.law.uw.edu.key" "D:\CaseStrainer\ssl\"
+        copy "C:\Users\jafrank\wolf.law.uw.edu.key" "D:\CaseStrainer\ssl\"
         if %ERRORLEVEL% EQU 0 (
             echo [%TIME%] Copied wolf.law.uw.edu.key to D:\CaseStrainer\ssl\
         ) else (

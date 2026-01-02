@@ -274,6 +274,8 @@ class ComprehensiveWebExtractor:
             return self._extract_justia_info(html_content, url)
         elif 'findlaw.com' in domain:
             return self._extract_findlaw_info(html_content, url)
+        elif 'law.resource.org' in domain:
+            return self._extract_law_resource_info(html_content, url)
         else:
             return self._extract_generic_legal_info(html_content, url)
     
@@ -526,6 +528,39 @@ class ComprehensiveWebExtractor:
             'date': date,
             'url': url,
             'source': 'findlaw'
+        }
+    
+    def _extract_law_resource_info(self, html_content: str, url: str) -> Dict[str, Any]:
+        """Extract information from Law Resource.org pages."""
+        soup = BeautifulSoup(html_content, 'html.parser')
+        
+        title = ""
+        case_name = ""
+        court = ""
+        date = ""
+        
+        title_elem = soup.select_one('h1, title, .title')
+        if title_elem:
+            title = title_elem.get_text().strip()
+        
+        if title and 'v.' in title:
+            case_name = title
+        
+        court_elem = soup.select_one('.court, .jurisdiction, [class*="court"]')
+        if court_elem:
+            court = court_elem.get_text().strip()
+        
+        date_elem = soup.select_one('.date, [class*="date"], time')
+        if date_elem:
+            date = date_elem.get_text().strip()
+        
+        return {
+            'title': title,
+            'case_name': case_name,
+            'court': court,
+            'date': date,
+            'url': url,
+            'source': 'law_resource'
         }
     
     def _extract_generic_legal_info(self, html_content: str, url: str) -> Dict[str, Any]:

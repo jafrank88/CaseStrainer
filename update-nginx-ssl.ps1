@@ -13,8 +13,8 @@ if (-not (Test-Path $sslDir)) {
 }
 
 # Check if SSL certificate and key exist
-$certPath = "$sslDir\WolfCertBundle.crt"
-$keyPath = "$sslDir\wolf.law.uw.edu.key"
+$certPath = "C:\Users\jafrank\wolf-cert-bundle.crt"
+$keyPath = "C:\Users\jafrank\wolf.law.uw.edu.key"
 
 if (-not (Test-Path $certPath) -or -not (Test-Path $keyPath)) {
     Write-Host "Error: SSL certificate or key file is missing" -ForegroundColor Red

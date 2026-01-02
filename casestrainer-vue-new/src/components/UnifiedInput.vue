@@ -257,4 +257,5 @@ onMounted(() => {
   height: 1rem;
   border-width: 0.15em;
 }
+
 </style>

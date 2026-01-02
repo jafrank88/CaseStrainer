@@ -1,0 +1,1831 @@
+FILE THIS OPINION WAS FILED
+FOR RECORD AT 8 A.M. ON
+OCTOBER 30, 2025
+IN CLERK’S OFFICE
+SUPREME COURT, STATE OF WASHINGTON
+OCTOBER 30, 2025 SARAH R. PENDLETON
+SUPREME COURT CLERK
+IN THE SUPREME COURT OF THE STATE OF WASHINGTON
+KERRY L. ERICKSON ET AL., NO. 103135-1
+Petitioners, EN BANC
+v.
+PHARMACIA LLC, Filed: October 30, 2025
+Respondent.
+STEPHENS, C.J.— Three public school teachers got sick after working in an
+old school building containing polychlorinated biphenyls (PCBs) made by
+Monsanto. They sued Monsanto’s successor-in-interest, Pharmacia, and received a
+jury verdict for compensatory and punitive damages following an extensive trial
+with dozens of expert witnesses. The Court of Appeals reversed and remanded for
+a new trial, finding error in pretrial rulings regarding the applicable choice of law.
+Specifically, it found that the trial court erred by applying the Washington product
+liability act (WPLA), ch. 7.72 RCW, to assess Pharmacia’s liability while at the
+same time applying Missouri’s law on repose rather than the WPLA’s repose
+provision. It affirmed the application of Missouri law to punitive damages but held
+Erickson v. Pharmacia, No. 103135-1
+that the trial court erred in using a verdict form that did not limit damages to claims
+recognized under Missouri law. The court also found error in the trial court’s
+admission of certain expert testimony.
+We granted review and now partially reverse the Court of Appeals. We
+conclude that the Court of Appeals erred by failing to apply the choice of law
+principles established over 50 years ago in Johnson v. Spider Staging Corp., 87
+Wn.2d 577, 555 P.2d 997 (1976). Where the laws of interested states conflict—
+including between the WPLA and Missouri common law—we apply the law of the
+state with the most significant relationship to that issue. Applying those principles
+here, we hold that Missouri has the most significant relationship to the issues of
+repose and punitive damages and therefore Missouri law governs both. We also hold
+that the jury was not required to identify the specific theories of liability recognized
+by Missouri law that supported an award of punitive damages, and that the jury
+instructions and the special verdict form are sufficient to sustain the punitive
+damages award. Finally, we hold that the expert testimony of industrial hygienist
+Kevin Coghlan, which estimated the historic levels of PCBs present at the time the
+teachers worked at the school, was based on generally accepted methodology that
+satisfies the standards for admissibility under Frye v. United States, 54 App. D.C.
+46, 293 F. 1013 (1923), and ER 702.
+2
+Erickson v. Pharmacia, No. 103135-1
+FACTUAL BACKGROUND AND PROCEDURAL HISTORY
+Relevant facts are drawn from the trial record and the briefing. We begin with
+a general overview of PCBs and their use in school buildings and then describe how
+this product liability lawsuit originated and progressed through the trial court and
+the Court of Appeals, framing the issues now before us for review.
+History of PCBs, Monsanto, and Pharmacia LLC
+In 1929, the Swann Chemical Company invented a family of chemicals called
+polychlorinated biphenyls, commonly known as PCBs. Considered groundbreaking
+at the time, PCBs enhanced flexibility and durability in products like caulks and
+paints, and their resistance to burning and good insulating properties made them
+ideal for use as coolants and lubricants in transformers, capacitors, and other
+electrical equipment. PCBs quickly became an industry standard for electrical
+companies such as General Electric.
+In 1935, Monsanto Company, based in St. Louis, Missouri, purchased Swann
+Chemical Company and began making and selling PCBs. Monsanto manufactured
+PCBs at two production facilities, one in Alabama and the other in Illinois. Its
+primary corporate business operations, including sales, marketing, public relations,
+and advertising, were based at its headquarters in St. Louis. The company’s medical
+department, which was responsible for overseeing research into the potential hazards
+of PCBs, was also located in St. Louis.
+3
+Erickson v. Pharmacia, No. 103135-1
+Scientists, including those at Monsanto, gradually began to discover the
+harmful effects of PCBs. Toxicological testing conducted by Monsanto as early as
+the 1930s confirmed that exposure to PCBs, whether through vapors or skin contact,
+posed risks of systemic toxic effects. In 1966, Swedish scientists learned that PCBs
+remain in the environment and cause harm to fish and wildlife. In 1970, Monsanto
+began phasing out the sale of PCBs for use in certain applications. By 1972, the
+company restricted its PCB sales to use in electrical fluids, and by 1977, it ceased
+PCB production entirely. In 1979, the U.S. Environmental Protection Agency (EPA)
+officially banned the manufacture, processing, and sale of PCBs in the United States
+after identifying their severe toxic effects on humans and wildlife. See
+Polychlorinated Biphenyls (PCBs) Manufacturing, Processing, Distribution in
+Commerce, and Use Prohibitions, 40 CFR Part 761; Env’t Def. Fund, Inc. v. Env’t
+Prot. Agency, 205 U.S. App. D.C. 139, 636 F.2d 1267, 1270 (1980).
+Through a series of transactions in the late 1990s, Monsanto reorganized into
+three separation corporations, each responsible for a different industry. The entity
+now known as Monsanto Company manages the agricultural products business, and
+Solutia Inc. assumed its chemical products business. Pharmacia retained the
+pharmaceutical business and is the successor-in-interest to the original Monsanto
+Company.
+4
+Erickson v. Pharmacia, No. 103135-1
+Sky Valley Education Center
+The school buildings at issue in this case were built between 1967 and 1968,
+during a time when PCBs were commonly used in caulking and light ballasts. Over
+the following 50 years, the Monroe School District (MSD) used the buildings as a
+high school, junior high school, middle school, and since 2011, as the home of the
+K-12 Sky Valley Education Center (SVEC). During the 1990s and the early 2000s,
+the EPA and other public health organizations distributed information to school
+districts, warning about the presence of PCBs in light ballasts. By 2000, MSD was
+aware that many of the light fixtures in the Monroe middle school buildings
+contained PCBs, that PCBs posed a hazard to people in the buildings, and that special
+care was required to remove light ballasts to avoid risks from exposure. In 2007,
+MSD received a report that the school’s deterioration was worse than any other
+school within the district and that the buildings were in critical need of renovation.
+Despite this, when the middle school relocated to a new building in 2011, MSD
+moved SVEC into the old buildings.
+Teachers and students at SVEC began reporting a range of health concerns,
+including headaches, rashes, fatigue, blurred vision, and memory, sinus, and
+respiratory issues. The teachers reported that their symptoms seemed to improve
+when they spent time away from the school buildings yet returned upon reentering
+them. Starting in 2014, the school began a two-year project to clean and repair light
+5
+Erickson v. Pharmacia, No. 103135-1
+fixtures, replace light ballasts, remove carpet, and improve ventilation. There was
+no effort to measure PCBs at SVEC until 2016, after remediation efforts began and
+PCB-containing light ballasts were removed. Upon finding that PCB levels exceeded
+federal limits, the EPA, along with state and local agencies, worked with MSD on a
+PCB remediation and monitoring plan.
+Procedural History
+In May 2018, several SVEC teachers and students filed suit against all three
+of Monsanto’s successor corporations, MSD, Union High School District, and
+Snohomish Health District, alleging injuries from PCB exposure. The plaintiffs in
+this case include three former teachers, Kerry Erickson, Michelle Leahy, and Joyce
+Marquardt, who taught at SVEC in the old middle school buildings between 2011
+and 2016, and retired as a result of their declining health. The plaintiffs filed claims
+against Pharmacia under the WPLA for design defect, construction defect, failure to
+warn at the time of sale, and failure to warn postsale.1 They also sought punitive
+damages under Missouri law.
+By the time of trial in June 2021, Pharmacia was the sole remaining defendant
+in this case. Since the filing of this lawsuit, over 250 SVEC teachers, students, and
+1 The lawsuit also includes Leahy’s husband, who claims loss of consortium. The issues in this
+case do not depend on any distinction among the plaintiff-petitioners, and we refer to them
+collectively as Erickson or the plaintiffs.
+6
+Erickson v. Pharmacia, No. 103135-1
+family members have filed similar claims, resulting in 17 related lawsuits filed over
+13 months. This is the first SVEC case against Pharmacia to reach our court.
+The trial court ruled on 115 separate pretrial motions. As relevant here,
+Erickson moved to establish that under Washington’s choice of law principles,
+Missouri law governs the issues of repose and punitive damages. Pharmacia moved
+to dismiss the complaint, arguing that Washington law applied and that the WPLA’s
+statute of repose barred the plaintiffs’ claims. The trial court applied Washington’s
+choice of law rules and concluded that Missouri has a stronger interest in enforcing
+its repose and punitive damages laws, which are designed to deter tortious conduct,
+than Washington has in applying its laws to limit plaintiffs’ recovery. As a result,
+the court ruled in favor of Erickson and concluded that Missouri law governs the
+issues of repose and punitive damages.
+Pharmacia also moved under Frye and ER 702 to exclude testimony from
+industrial hygienist Kevin Coghlan, which Erickson proffered to show the teachers
+were likely exposed to injury-causing levels of PCBs during the time that they taught
+at SVEC. In 2019, Coghlan prepared a report estimating the historic levels of PCBs
+in the air at SVEC during the time the teachers worked there. His report used three
+methods of estimation: one based on an EPA-published study measuring the rate at
+which various building materials absorb PCBs from the air, and two based on a
+7
+Erickson v. Pharmacia, No. 103135-1
+separate EPA-published study about pre- and postremediation levels of PCBs in
+similar public schools in New York City.
+Without holding an evidentiary hearing, the trial court initially granted
+Pharmacia’s motion in part and excluded Coghlan’s testimony aimed at estimating
+the air concentration of PCBs at SVEC. Later, the trial court granted Erickson’s
+motion for reconsideration and admitted all the challenged evidence, still without
+holding an evidentiary hearing. The court explained that its initial ruling was based
+on a misunderstanding of Coghlan’s methodology.
+Trial began in June 2021 and lasted approximately seven weeks. Following
+two days of deliberations, the jury found for Erickson on all four WPLA claims. The
+jury awarded compensatory damages of $15 million to Erickson, $17 million to
+Marquardt, $18 million to Leahy, and $150,000 to Leahy’s spouse for loss of
+consortium due to Leahy’s injuries. Additionally, the jury awarded each teacher $45
+million in punitive damages. The verdict form did not require the jury to specify
+which theory of liability supported punitive damages, though the instructions
+required a finding of complete indifference to or conscious disregard for the safety
+of others, consistent with Missouri law. Pharmacia challenged the verdict and
+moved for judgment as a matter of law, or, alternatively, for a new trial and for
+remittitur of the damage awards. The trial court denied these motions.
+8
+Erickson v. Pharmacia, No. 103135-1
+The Court of Appeals reversed in a split, published decision. Erickson v.
+Pharmacia, LLC, 31 Wn. App. 2d 100, 110-11, 548 P.3d 226, review granted, 3
+Wn.3d 1018 (2024). The court separately analyzed choice of law for the issues of
+repose and punitive damages. For repose, the court disagreed with the trial court
+and held that Washington law applies. Rather than adhere to Washington’s usual
+choice of law methodology, which follows an issue-by-issue approach, the court
+held that statutes of repose are “claim-defining” and cannot be separated from the
+underlying law of liability. Id. at 110. The court further rejected Erickson’s
+constitutional challenge to the WPLA’s statute of repose and remanded for the trial
+court to consider the claims under that presumptive 12-year repose period.
+With respect to punitive damages, the Court of Appeals affirmed the trial
+court’s holding that Missouri law applies to authorize such damages. However,
+notwithstanding its determination that Washington law supplies the substantive
+product liability standards, the court limited the availability of punitive damages to
+claims recognized under Missouri product liability law, which it held does not
+include a postsale failure to warn claim. Because the verdict form did not require
+the jury to specify a liability theory for punitive damages, the court remanded with
+the instruction to include a special interrogatory to that effect.
+Concerning the admissibility of Coghlan’s expert testimony, the Court of
+Appeals held that two of Coghlan’s three methods for estimating the teachers’ PCB
+9
+Erickson v. Pharmacia, No. 103135-1
+exposure should have been excluded under Frye and declined to address them under
+ER 702. The court held that Coghlan’s third method—a direct comparison with the
+New York schools—did not implicate Frye and satisfied the requirements of ER
+702.
+Writing separately, Judge Dwyer joined the majority’s holding that the
+WPLA’s statute of repose is constitutional and reasoned that a contrary holding
+would likely invalidate the entire WPLA because the statute of repose is inseparable.
+Judge Dwyer dissented on the Frye issue, concluding that Pharmacia’s challenges to
+Coghlan’s scientific methodology concerned only the weight of the testimony rather
+than admissibility.
+Erickson sought review on several issues: whether the WPLA’s statute of
+repose applies, whether the statute of repose is constitutional, whether the punitive
+damages award is sustainable under Missouri law, and whether Coghlan’s expert
+testimony satisfies the Frye standard and ER 702. Pharmacia opposed review and
+raised a conditional issue in the event of review: whether Missouri law applies to the
+issue of punitive damages. We granted review of all issues raised by both parties
+and accepted amici briefs.2 We later asked the parties to supplement the record with
+2 We accepted amici briefs from (1) a group of six law professors (Symeon Symeonides et al.), (2)
+a single law professor (Kermit Roosevelt III), (3) a group of three law professors (Erin O’Hara
+O’Connor et al.), (4) a former Chief Justice of the Missouri Supreme Court and a law professor
+(Missouri law experts), (5) the Washington State Association for Justice Foundation, (6) former
+SVEC students and their families, (7) the Product Liability Advisory Council, and (8) the
+10
+Erickson v. Pharmacia, No. 103135-1
+relevant materials from a three-day Frye hearing conducted in a subsequent SVEC
+case, Rose v. Pharmacia, No. 18-2-58239-3 SEA (King County Super. Ct., Wash.
+Nov. 4, 2024) (hereinafter Rose Order), which addressed the admissibility of
+Coghlan’s testimony based on methods essentially identical to those at issue here.
+ANALYSIS
+We separate our analysis into two major sections. We begin with choice of
+law, both the method of analysis and its application to the issues of repose and
+punitive damages. We then turn to the admissibility of Kevin Coghlan’s expert
+testimony and whether his opinions should have been excluded under Frye or ER
+702.
+I. Choice of Law
+The primary dispute in this case centers on choice of law. The parties agree
+that the WPLA governs the substantive elements of liability: duty, breach, causation,
+and compensatory damages. However, they disagree on whether the WPLA also
+governs the availability of repose and punitive damages in claims brought under the
+WPLA. Erickson contends that under Washington’s choice of law principles,
+Missouri has the more significant interest in applying its laws on repose and punitive
+damages than Washington, and therefore Missouri law governs those discrete issues.
+Duwamish River Community Coalition, Puget Soundkeeper, the Waste Action Project and BJ
+Cummings.
+11
+Erickson v. Pharmacia, No. 103135-1
+Pharmacia argues that the WPLA cannot be applied piecemeal, and that once the
+plaintiffs chose the WPLA as the law governing liability, its provisions must also
+govern repose and punitive damages. We review choice of law questions de novo.
+Erwin v. Cotter Health Ctrs., Inc., 161 Wn.2d 676, 691, 167 P.3d 1112 (2007). To
+provide context to the parties’ arguments, we find it helpful to briefly review the
+history of Washington’s approach to choice of law.
+A. Washington applies the law of the state with the most significant relationship
+to each particular issue in a case
+Choice of law rules are generally part of the common law, and courts have the
+same freedom to adopt or change these rules as with other areas of the common law.
+RESTATEMENT (SECOND) OF CONFLICT OF LAWS § 5 cmts. a, c (Am. L. Inst. 1971).
+For many years, Washington had resolved choice of law questions using the lex loci
+delicti rule—applying “the law of the place of wrong.” Johnson, 87 Wn.2d at 580;
+see also Richardson v. Pac. Power & Light Co., 11 Wn.2d 288, 299, 118 P.2d 985
+(1941) (“It is the universal rule that the existence and nature of a cause of action for
+tort are governed by the law of the place where the alleged wrong was committed.”).
+Lex loci delicti, endorsed by Restatement of Conflicts of Laws (Am. L. Inst. 1934),
+resolves choice of law disputes based solely on a single determinative fact: the place
+of conduct or injury. R. Harvey Chappell Jr., Lex Loci Delicti and Babcock v.
+Jackson, 7 WM. & MARY L. REV. 249 (1966).
+12
+Erickson v. Pharmacia, No. 103135-1
+In the 1950s, legal scholars, dissatisfied with the rigidity and mechanical
+application of the first Restatement, led a “choice-of-law revolution,” advocating for
+a more flexible, issue-specific approach that better served the “policies and interests
+of the respective states.” Symeon C. Symeonides, The Choice-of-law Revolution
+Fifty Years After Currie: An End and a Beginning, 2015 U. ILL. L. REV. 1847, 1850,
+1917 (2015); Brainerd Currie, Comments on Babcock v. Jackson, a Recent
+Development in Conflict of Laws, 63 COLUM. L. REV. 1233, 1234 (1963). This
+nuanced approach, known as issue-by-issue analysis, formed the foundation for
+Restatement (Second) of Conflict of Laws, published in 1971. Symeon C.
+Symeonides, Issue-by-Issue Analysis and Dépeçage in Choice of Law: Cause and
+Effect, 45 U. TOL. L. REV. 751, 752-53 (2014) (hereinafter Issue-by-Issue).
+The Restatement (Second) requires courts to first follow a legislature’s
+statutory directive on choice of law. RESTATEMENT (SECOND) § 6(1). If no such
+directive exists, courts apply the “law of the state which, with respect to that issue,
+has the most significant relationship to the occurrence and the parties under the
+principles stated in § 6.” Id. at § 145(1). The § 6 principles are not exhaustive, and
+courts are instructed to weigh the factors differently depending on the issue. Id. § 6
+cmt. c. These principles may include
+(a) the needs of the interstate and international systems,
+(b) the relevant policies of the forum,
+(c) the relevant policies of other interested states and the relative
+interests of those states in the determination of the particular issue,
+13
+Erickson v. Pharmacia, No. 103135-1
+(d) the protection of justified expectations,
+(e) the basic policies underlying the particular field of law,
+(f) certainty, predictability and uniformity of result, and
+(g) ease in the determination and application of the law to be applied.
+Id. § 6(2). In applying these principles to determine which state has the most
+significant relationship to an issue in tort, the court considers the following contacts:
+(a) the place where the injury occurred,
+(b) the place where the conduct causing the injury occurred,
+(c) the domicile, residence, nationality, place of incorporation and place
+of business of the parties, and
+(d) the place where the relationship, if any, between the parties is
+centered.
+Id. § 145(2). “[C]ontacts are to be evaluated according to their relative importance
+with respect to the particular issue.” Id.
+Washington was an early adopter of Restatement (Second). See Baffin Land
+Corp. v. Monticello Motor Inn, Inc., 70 Wn.2d 893, 898, 425 P.2d 623 (1967)
+(finding the draft of Restatement (Second) to be more rational and “consistent with
+the standards of equity, fair play and justice” in a contract choice of law issue). In
+the 1976 tort case Johnson, we rejected the lex loci delicti rule in favor of applying
+Restatement (Second) to determine whether Washington or Kansas law provided the
+applicable law on damages in a wrongful death claim. 87 Wn.2d at 580. Johnson
+involved a Kansas resident who died in Kansas following a scaffolding collapse. Id.
+at 578. The scaffolding had been designed and manufactured in Washington by
+Washington-based corporations. Id. at 580-81. The decedent’s estate filed a
+14
+Erickson v. Pharmacia, No. 103135-1
+wrongful death claim in Washington against the manufacturers, alleging that the
+scaffolding was defectively designed and failed to withstand normal use. Id. at 578.
+At issue was which state’s damages law should apply—Kansas law imposed a
+$50,000 cap on damages in wrongful death actions, while Washington law contained
+no limitation. Id. at 578-79.
+To determine the appropriate choice of law, we began by assessing each
+state’s contacts and identifying which were “most significant” to the cause of action.
+Id. at 581. On the one hand, the defendants were Washington corporations that
+designed, tested, manufactured, and advertised the scaffold in Washington. Id. The
+product was shipped from Washington to Kansas, and Washington law established
+the scaffold’s safety standards. Id. On the other hand, the plaintiff and decedent
+were Kansas residents, the injury occurred in Kansas, and the scaffold was not
+purchased directly from the corporations in Washington but ordered through a
+Kansas distributor for use in the Kansas-based business. Id. Recognizing that each
+state had a “distinct relationship” with the parties and the injury, the court concluded
+that the contacts were evenly balanced. Id. at 582.
+We next examined the interests and policies of each state, including the
+purpose sought to be achieved by each state’s laws. Kansas’s wrongful death law,
+which limited recoverable damages, was primarily intended to protect Kansas
+residents from excessive liability—not Washington residents. Id. at 583. By
+15
+Erickson v. Pharmacia, No. 103135-1
+contrast, Washington’s wrongful death law, which had no limit on damages, was
+designed to “deter tortious conduct” and “encourage respondents to make safe
+products for its customers.” Id. We reasoned that the “‘sting of unlimited recovery
+. . . more effectively penalize[s] the culpable defendant and deter[s] it and others
+similarly situated from such future conduct.’” Id. (alterations in original) (italics and
+internal quotation marks omitted) (quoting Hurtado v. Superior Ct., 11 Cal. 3d 574,
+583-84, 522 P.2d 666, 114 Cal. Rptr. 106 (1974). We observed that because all of
+the defendants were Washington corporations, Washington’s interest was “clearly
+advanced by the application of its own law,” whereas Kansas had “no interest” in
+limiting damages for Washington corporations being sued in their own home state.
+Id at 583-84. As a result, we held that Washington’s damages law applied. Id. at
+584.
+Our analysis in Johnson provides a clear example of a court examining a
+discrete issue—damages for a wrongful death claim—and applying the law of the
+state with the most significant relationship to that issue. We did not conduct a
+generalized choice of law analysis to determine whether Washington or Kansas law
+should govern every issue in the case. Instead, we focused solely on the issue where
+the state’s laws conflicted, analyzed the relevant state interests to that issue, and
+applied the law with the most significant relationship. See RESTATEMENT (SECOND)
+§145 cmt. d (“Each issue is to receive separate consideration if it is one which would
+16
+Erickson v. Pharmacia, No. 103135-1
+be resolved differently under the local law rule of two or more of the potentially
+interested states.”).
+Issue-by-issue analysis applies the same way to statutes as it does to common
+law causes of action. See, e.g., Rice v. Dow Chem. Co., 124 Wn.2d 205, 212, 875
+P.2d 1213 (1994) (applying a choice of law analysis to Washington’s statute of
+repose); Zenaida-Garcia v. Recovery Sys. Technology, Inc., 128 Wn. App. 256, 266,
+115 P.3d 1017 (2005) (same); Martin v. Humbert Constr., Inc., 114 Wn. App. 823,
+829, 61 P.3d 1196 (2003) (same); see also Simon v. Philip Morris Inc., 124 F. Supp.
+2d 46, 53-54 (E.D.N.Y. 2000) (“Choice of law rules apply equally to claims brought
+under common law and statutory law.”). Two Washington choice of law cases—
+one addressing the WPLA’s statute of repose and the other involving punitive
+damages—illustrate how the Johnson framework applies to distinct issues within the
+context of the WPLA. Depending on the results of the analysis, a single state’s laws
+may govern all the issues or different states’ laws may apply to different issues. Both
+outcomes are permissible under Washington law.
+A good illustration of Washington’s issue-by-issue approach as applied to the
+WPLA’s repose is Rice, 124 Wn.2d 205. There, a forest service employee had been
+continuously exposed to herbicides while living and working in Oregon. Id. at 207.
+Nearly two decades after moving to Washington, the employee developed leukemia
+and learned of a possible link to his past chemical exposure. Id. Less than three
+17
+Erickson v. Pharmacia, No. 103135-1
+years after his diagnosis, he sued the chemical manufacturer in Washington, alleging
+product liability claims for failure to warn and failure to provide adequate
+instructions. Id. The manufacturer moved to dismiss the claims under Oregon’s
+eight-year statute of repose and two-year statute of limitations. Id. The trial court
+granted the motion, concluding that Oregon had the most significant relationship to
+the cause of action and, under Oregon law, the claims were either time-barred or
+extinguished. Id. at 208.
+On appeal, we observed that although Washington and Oregon have different
+limitation periods, these variations “are not subject to conflict of laws methodology.”
+Id. at 210. Instead, we explained that under Washington’s borrowing statute, RCW
+4.18.020, “limitation periods are ‘to be governed by the limitations law of a state
+whose law governs other substantive issues inherent in the claim.’” Id. at 211
+(quoting UNIF. CONFLICT OF L.-LIMITATIONS ACT § 2 cmt., 12 U.L.A. 63 (Supp.
+1994)). The statute has a narrow application, however. We clarified that unlike
+statutes of limitations, statutes of repose are not subject to the borrowing statute and
+may raise a conflict of substantive law. Id. at 212.
+We then turned to determining whether Washington or Oregon law on repose
+should apply. We began by evaluating whether a conflict existed, noting that the
+parties had not specified whether the claims were brought under the WPLA or under
+Washington common law. Despite this uncertainty, we concluded that a conflict
+18
+Erickson v. Pharmacia, No. 103135-1
+existed. Id. If the WPLA applied, its statute of repose would bar claims after the
+product’s useful safe life expired, presumptively at 12 years. Id. If the WPLA did
+not apply, Washington law imposed no period for repose. Id. In contrast, Oregon’s
+statute of repose imposed an absolute bar on liability after 8 years. Id. We concluded
+that whether governed by the WPLA or Washington common law, Washington and
+Oregon law conflicted on the issue of repose. Id. at 213.
+After identifying the conflict, we next examined each state’s contacts and
+corresponding state interests as they related to repose. The plaintiff was domiciled
+in Washington, their injury was discovered there, and Washington had a “real
+interest” in ensuring that its residents were compensated for injuries. Id. at 216.
+However, we noted that residency alone is not a sufficient basis to apply forum law.
+Id. By contrast, we found that Oregon had a strong interest in providing repose for
+manufacturers doing business in Oregon and whose products were used there. Id.
+Oregon also had an interest in regulating “allegedly dangerous or mislabeled
+products” shipped to and used within its borders—an interest that we highlighted is
+not extinguished simply because the exposed individual “later moves to another
+state.”3 Id. Weighing these interests, we held that Oregon had the most significant
+3 The parties did not argue that either Washington or Oregon was the place of the defendant’s
+main headquarters, state of incorporation, place where the product was designed or tested, place
+where appropriate warnings for the label were determined, or place where the product was labeled.
+Rice, 124 Wn.2d at 214. Neither did the parties contend that the law of Michigan, where Dow’s
+headquarters are located, should apply.
+19
+Erickson v. Pharmacia, No. 103135-1
+relationship to repose and, therefore, Oregon’s statute of repose applied to bar the
+plaintiff’s claims. Id. We also applied Oregon’s statute of limitations, stating in a
+single sentence, “[T]he application of Oregon law to the substantive claim requires
+the application of the Oregon limitation period as well.” Id. at 217.
+Pharmacia interprets Rice to suggest that statutes of repose are inseparable
+from the substantive law underlying the claim. However, Rice did not establish that
+the state’s law governing liability automatically dictates the application of that
+state’s statute of repose. Notably, the parties in Rice did not dispute which state’s
+law governed the substantive basis for liability, and we did not evaluate each state’s
+competing interests in applying its liability law. Instead, we focused on each state’s
+interests and policies specifically as they pertained to repose. It is this method of
+analysis, not the particular outcome, that is most significant. See also, e.g., Gantes
+v. Kason Corp., 145 N.J. 478, 679 A.2d 106, 109 (1996) (finding that
+characterization of Georgia’s statute of repose as substantive did not preclude issue-
+by-issue analysis and concluding the law of the place of the tortious conduct
+governed repose). When addressing conflicts of law involving the WPLA’s statute
+of repose, we treat repose as a distinct issue and apply a separate choice of law
+analysis.
+By its nature, issue-by-issue analysis may result in two states’ laws applying
+to govern different issues in the same cause of action. Scholars sometimes refer to
+20
+Erickson v. Pharmacia, No. 103135-1
+this result as “dépeçage,” French for dismemberment. Issue-by-Issue, supra, at
+755, n.26. However, we note that “dépeçage” has also been used to broadly refer
+to the analytical method of issue-by-issue analysis. See BLACK’S LAW DICTIONARY
+551 (12th ed. 2024) (defining “dépeçage” as “[a] court’s application of different
+state laws to different issues in a legal dispute; choice of law on an issue-by-issue
+basis”); Issue-by-Issue, supra, at 757 (identifying that courts have referred to
+“dépeçage as a ‘mystical doctrine,’ a plain ‘doctrine,’ a ‘legal theory,’ an
+‘approach,’ a ‘principle,’ a ‘rule,’ a ‘technique,’ or a ‘process’” (footnotes omitted)
+(quoting Marakova v. United States, 201 F.3d 110, 114 (2d Cir. 2000); Burlington
+N. & Santa Fe Ry. Co. v. ABC-NACO, 389 Ill. App. 3d 691, 906 N.E.2d 83, 93
+(2009); Act I, LLC v. Davis, 2002 WY 183, 60 P.3d 145, 149; Buchanan v. John
+Doe, 246 Va. 67, 431 S.E.2d 289, 291 (1993); Savage Arms, Inc. v. W. Auto Supply
+Co., 18 P.3d 49, 53 (Alaska 2001); Trivelloni-Lorenzi v. Pan Am. World Airways,
+Inc., 821 F.2d 1147, 1174 (5th Cir. 1987) (Gee, J., concurring in part and
+dissenting in part); Townsend v. Sears, Roebuck & Co., 227 Ill. 2d 147, 879 N.E.2d
+893, 901, 316 Ill. Dec. 505 (2007))). The Court of Appeals approach in this case
+appears to use the term in this broader sense, as the court began by asking
+“whether dépeçage is appropriate here,” or, in other words, “whether it is
+appropriate to treat the statute of repose separately from the portions of WPLA
+imposing liability.” Erickson, 31 Wn. App. 2d at 118. Our analysis will benefit
+21
+Erickson v. Pharmacia, No. 103135-1
+from understanding and employing the more precise definition of “dépeçage”—not
+as synonymous with “issue-by-issue analysis” but rather as reflecting “the potential
+and occasional result of issue-by-issue analysis.” Issue-by-Issue, supra, at 757.
+To be clear, Washington courts should always engage in issue-by-issue analysis
+when resolving a dispute about choice of law, and dépeçage is a potential result of
+that analysis.
+A common concern regarding dépeçage is whether applying different states’
+laws to separate issues within a single cause of action interferes with the purpose of
+a state law or policy decision. Id. at 759 (Dépeçage must be avoided when two rules
+of the same state are “so closely interrelated . . . that applying the one rule without
+the other would drastically upset the equilibrium established by the two rules and
+would distort and defeat the policies of that state.”); Johnson v. Cont’l Airlines
+Corp., 964 F.2d 1059, 1064 (10th Cir. 1992) (holding dépeçage is inappropriate
+“when used to fragment issues related to a common purpose or to legitimatize a
+smorgasbord approach which inures only to the benefit of the party picking and
+choosing”). However, if applying a particular state’s laws would not meaningfully
+advance that state’s policies, courts have broad discretion to prevent such outcomes
+by properly weighing each state’s interests and applying the law whose interests and
+policies are best served. Issue-by-Issue, supra, at 759-60.
+22
+Erickson v. Pharmacia, No. 103135-1
+Prior to this case, only three Washington opinions have used the term
+dépeçage, all from the Court of Appeals.4 See FutureSelect Portfolio Mgmt., Inc. v.
+Tremont Grp. Holdings, Inc., 175 Wn. App. 840, 856 n.15, 309 P.3d 555 (2013)
+(“Under the principle of dépeçage, different issues in a single case arising out of a
+common nucleus of facts may be decided according to the substantive law of
+different states.”); Pope Res., LP v. Certain Underwriters at Lloyd’s of London, 19
+Wn. App. 2d 113, 123 n.21, 494 P.3d 1076 (2021) (quoting FutureSelect, 175 Wn.2d
+at 857 n.15); Hai v. STL Int’l, Inc., No. 43877-1-II, slip op. at 4 n.1 (Wash. Ct. App.
+Apr. 15, 2014) (unpublished) (clarifying that “the principle of dépeçage allows for
+the application of different substantive state law only to different legal claims, not
+different defendants on the same claim”),
+https://www.courts.wa.gov/opinions/pdf/D2%2043877-1-
+II%20%20Unpublished%20Opinion.pdf. Notably, while the term dépeçage was not
+expressly mentioned, at least one published Washington choice of law case, Singh
+4 Federal courts applying Washington’s choice of law rules have used the term more frequently,
+referring to it both in the broader sense described above as well as a specific result. Compare
+Experience Hendrix, LLC v. HendrixLicensing.com, LTD, 766 F. Supp. 2d 1122, 1136 (W.D.
+Wash. 2011) (“Although some states do not follow the rule of dépeçage, Washington does.”);
+Karpenski v. Am. Gen. Life Cos., 999 F. Supp. 2d 1235, 1239 (W.D. Wash. 2014) (“Washington
+follows the rule of d[é]pe[ç]age.”), with Nazar v. Harbor Freight Tools USA Inc., No. 2:18-CV-
+00348-SMJ, 2019 WL 2066127, at *1 (E.D. Wash. Mar. 8, 2019) (court order) (recognizing that
+under the principle of dépeçage, the “court may apply the laws of one state to a plaintiff's request
+for compensatory damages and apply the laws of another for punitive damages”); Milgard Mfg.,
+Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912, at *3 (W.D. Wash. Aug. 1,
+2011) (court order) (“Washington follows the rule of dépeçage, which may require the Court to
+apply the law of one forum to one issue, while applying the law of a different forum to another
+issue in the same case.”).
+23
+Erickson v. Pharmacia, No. 103135-1
+v. Edwards Lifesciences Corp., 151 Wn. App. 137, 210 P.3d 337 (2009), applied
+Washington law to liability while applying another state’s law to govern punitive
+damages.
+In Singh, a Washington resident was injured in a Washington hospital as a
+result of a defective heart monitor used during surgery. Id. at 140. The patient filed
+product liability claims under the WPLA against the California-based manufacturer,
+alleging design defect, construction defect, failure to warn, and postsale failure to
+warn, and also brought common law claims for violation of the Consumer Protection
+Act, intentional infliction of emotional distress, and fraudulent misrepresentation.
+Second Am. Compl. for Damages & Pleading Foreign Law at 4-5, Singh v. Edwards
+Lifesciences Corp., No. 05-2-12213-5 (King County Super. Ct., May 24, 2007). The
+patient sought punitive damages for all claims under California law. Id.
+To determine whether Washington or California law governed the availability
+of punitive damages, the court examined each state’s contacts, policies, and interests
+specific to that issue. While the injury occurred in Washington, the court
+emphasized that the conduct causing the injury occurred in California. Singh, 151
+Wn. App. at 146-47. Specifically, the manufacturer was headquartered in California,
+the defect in the monitor’s software was discovered there, and the decision not to
+recall or warn consumers was also made in California. Id. The court found that
+when a company headquartered in California engages in tortious conduct within the
+24
+Erickson v. Pharmacia, No. 103135-1
+state that leads to the plaintiff’s damages, “California ha[s] the greater interest in
+deterring such fraudulent activities.” Id. at 140. In contrast, the court found that
+“[e]ven though Washington has a strong policy against punitive damages, it has no
+interest in protecting companies that commit fraud.” Id. Considering these interests,
+the court concluded that while the WPLA applied to govern liability and
+compensatory damages, California had a more significant relationship to the issue
+of punitive damages. As a result, California law governed only that specific issue.
+Id. at 148; see also Barr v. Interbay Citizens Bank, 96 Wn.2d 692, 635 P.2d 441
+(1981) (applying a choice-of-law analysis specific to the issue of punitive damages).
+Pharmacia argues that Singh is distinguishable because its claims included not
+only WPLA claims but also common law claims, and the opinion did not address
+whether dépeçage was appropriate. It contends that Restatement (Second) § 171
+mandates that the “‘law selected by application of the rule of § 145,’ which governs
+choice of law for liability, ‘determines the measure of damages,’ including ‘the right
+to exemplary damages.’” Suppl. Br. of Resp’t/Cross-Pet’r Pharmacia LLC (Suppl.
+Br. of Resp’t) at 21 (quoting RESTATEMENT (SECOND) § 171 cmt. d.). This argument
+is based on a flawed premise. It assumes § 145 determines only the law of liability.
+In fact, § 145 provides a general framework “applicable to all torts and to all issues
+in tort.” RESTATEMENT (SECOND) § 145 cmt. a. The reporter’s note to § 171 clarifies,
+25
+Erickson v. Pharmacia, No. 103135-1
+“The law governing the right to exemplary damages need not necessarily be the same
+as the law governing the measure of compensatory damages.”
+In addition, although not expressly stated, the Singh court did consider
+whether dépeçage was appropriate in its analysis. That inquiry is embedded within
+issue-by-issue analysis as part of the most significant relationship test. The court
+evaluated whether applying each state’s law would further the underlying purpose
+and policies of those laws. Washington law favors full compensation for injured
+plaintiffs but rejects punitive damages as an improper “windfall.” Dailey v. N. Coast
+Life Ins. Co., 129 Wn.2d 572, 574, 919 P.2d 589 (1996); see Spokane Truck & Dray
+Co. v. Hoefer, 2 Wash. 45, 53, 25 P. 1072 (1891) (disapproving of punitive damages
+on the ground that compensatory damages make the plaintiffs “entirely whole” and
+“[s]urely the public can have no interest in exacting the pound of flesh”). In contrast,
+California law permits punitive damages to “deter[] its corporations from engaging
+in such fraudulent conduct.” Singh, 151 Wn. App. at 148.
+Applying Washington law to determine liability and compensatory damages
+while applying California law to punitive damages respects the policy interests of
+both states. As the Singh court observed, Washington has “no interest in protecting
+companies that commit fraud.” Id. at 140; see also Kammerer v. W. Guar. Corp.,
+96 Wn.2d 416, 422, 635 P.2d 708 (1981). By considering the policy and purpose
+behind each state’s laws, the court applied the most significant relationship test in a
+26
+Erickson v. Pharmacia, No. 103135-1
+manner that advances, and does not distort, each state’s interests with respect to the
+particular issue.
+Washington’s cases on choice of law reflect a commitment to providing a
+“nuanced, individualized, and . . . rational, resolution” to conflicts of law problems.
+Issue-by-Issue, supra, at 754. We affirm the choice of law principles established
+over five decades ago in Johnson. Absent a statutory directive, when the laws of
+interested states conflict—whether concerning punitive damages or repose, or
+whether the law is defined by common law or by statute—courts must conduct a
+separate choice of law analysis for each issue. The potential result of such analysis
+is that in some instances, one state’s law may govern liability while another state’s
+law may govern a different issue within the same cause of action. This issue-by-
+issue approach has guided Washington’s choice of law analysis for the last 50 years.
+With this background in mind, we turn to resolving the choice of law disputes
+in this case. We first address Pharmacia’s argument that the legislature intended for
+the WPLA to require that Washington law governs the issues of repose and punitive
+damages for every claim brought under the WPLA.
+B. The WPLA does not override Washington choice of law rules and require
+the application of Washington law to every issue arising in a claim under the
+WPLA
+When engaging in a choice of law analysis, courts must first determine if there
+is an actual conflict of law. Erwin, 161 Wn.2d at 692. An actual conflict exists
+27
+Erickson v. Pharmacia, No. 103135-1
+where the result of an issue is different under the laws of two or more interested
+states. Woodward v. Taylor, 184 Wn.2d 911, 918, 366 P.3d 432 (2016). If there is
+no conflict, the local law of the forum applies. Id. We have previously recognized
+that both statutes of repose and punitive damages are issues that may create a conflict
+of substantive law. See Rice, 124 Wn.2d at 212 (repose); Kammerer, 96 Wn.2d at
+421 (punitive damages).
+Here, an actual conflict exists between Washington and Missouri law
+regarding the availability of repose and punitive damages in product liability claims.
+The WPLA includes a statute of repose, codified at RCW 7.72.060, that limits the
+liability of product sellers by establishing a presumptive 12-year useful safe life for
+products. It states,
+(1) Useful safe life. . . . [A] product seller shall not be subject to liability
+to a claimant for harm under this chapter if the product seller proves by
+a preponderance of the evidence that the harm was caused after the
+product’s “useful safe life” had expired.
+“Useful safe life” begins at the time of delivery of the product
+and extends for the time during which the product would normally be
+likely to perform or be stored in a safe manner. . . .
+. . . .
+(2) Presumption regarding useful safe life. If the harm was
+caused more than twelve years after the time of delivery, a presumption
+arises that the harm was caused after the useful safe life had expired.
+This presumption may only be rebutted by a preponderance of the
+evidence.
+RCW 7.72.060. In contrast, Missouri law does not contain a statute of repose for
+product liability claims. See Lay v. P&G Health Care, Inc., 37 S.W.3d 310, 321-22
+28
+Erickson v. Pharmacia, No. 103135-1
+(Mo. Ct. App. 2000) (rejecting application of statute of repose in a case involving
+improvements to real property with respect to activities associated with selling a
+defective product).
+Washington and Missouri law also conflict concerning the availability of
+punitive damages. Under Washington law, punitive damages are not recoverable
+unless expressly authorized by statute, and the WPLA provides no such
+authorization. Kammerer, 96 Wn.2d at 421. In contrast, Missouri law allows
+punitive damages in tort cases whenever the plaintiff proves that the defendant
+showed “‘complete indifference to or conscious disregard for the safety of others.’”
+Poage v. Crane Co., 523 S.W.3d 496, 515 (Mo. Ct. App. 2017) (discussing standards
+for allowing punitive damages in a products liability case (quoting Jone v. Coleman
+Corp., 183 S.W.3d 600, 610 (Mo. Ct. App. 2005)); MISSOURI APPROVED JURY
+INSTRUCTIONS: CIVIL 10.02 (8th ed. 2022). Because the result would be different
+depending on whether Washington or Missouri law applied, there is a conflict
+requiring a choice of law analysis.
+Once a conflict of law is identified, Restatement (Second) requires courts to
+follow a statutory directive on choice of law, if one exists. RESTATEMENT (SECOND)
+§ 6. Such directives need not be explicitly stated. Id. § 6 cmt. b. Instead, courts are
+tasked with giving a statute “the range of application intended by the legislature
+when these intentions can be ascertained and can constitutionally be given effect.”
+29
+Erickson v. Pharmacia, No. 103135-1
+Id. “If the legislature intended that the statute should be applied to the out-of-state
+facts involved, the court should so apply it” without conducting further choice of
+law analysis. Id. However, the “normal presumption” is that a “statute leaves the
+state’s ordinary choice-of-law principles untouched.” Caleb Nelson, State and
+Federal Models of the Interaction between Statutes and Unwritten Law, 80 U. CHI.
+L. REV. 657, 667, 668 (2013); see RESTATEMENT (SECOND) § 6 cmt. c (“Legislatures
+usually legislate . . . only with the local situation in mind.”). In the absence of a
+legislative directive, Restatement (Second) instructs courts to apply the law of the
+state with the most significant relationship to the specific conflicting issue.
+RESTATEMENT (SECOND) § 145.
+Here, we find no evidence in the WPLA that the legislature intended to
+provide courts with a directive on choice of law for either repose or punitive
+damages. The WPLA’s statute of repose states, “[A] product seller shall not be
+subject to liability to a claimant for harm under this chapter if the product seller
+proves by a preponderance of the evidence the harm was caused after the product's
+‘useful safe life’ had expired.” RCW 7.72.060(1). The act defines “product seller”
+as “any person or entity that is engaged in the business of selling products.” RCW
+7.72.010(1). Pharmacia argues that the phrase “‘a product seller shall not be subject
+to liability to a claimant for harm under this chapter’” means that the statute of
+repose applies to every product seller and to every claim brought under the WPLA.
+30
+Erickson v. Pharmacia, No. 103135-1
+Appellant Pharmacia LLC’s Reply Br. at 12, 19 (Wash. Ct. App. No. 83287-5-I
+(2022)) (quoting RCW 7.72.060(1)(a)). The Court of Appeals agreed, concluding
+that the legislature intended to make “the statute of repose mandatory to the existence
+of a WPLA claim.” Erickson, 31 Wn. App. 2d at 123. We disagree.
+The WPLA was enacted five years after this court adopted Restatement
+(Second) in Johnson, and that case reflects Washington common law on choice of
+law. Common law is not to be lightly discarded—it is as much “a part of the law as
+any other branch of the state’s law.” RESTATEMENT (SECOND) § 5 cmt. a. A statute
+will not be read “[t]o abrogate the common law” without “‘clear evidence of the
+legislature’s intent.’” Dearinger v. Eli Lilly & Co., 199 Wn.2d 569, 575, 510 P.3d
+326 (2022) (quoting Potter v. Wash. State Patrol, 165 Wn.2d 67, 77, 196 P.3d 691
+(2008)); ANTONIN SCALIA & BRYAN A. GARNER, READING LAW: THE
+INTERPRETATION OF LEGAL TEXTS 318 (2012) (“Statutes will not be interpreted as
+changing the common law unless they effect the change with clarity.”). Such
+evidence is absent here.
+While the WPLA provides the substantive provisions to determine product
+liability under Washington law, it does not purport to modify Washington’s choice
+of law rules. The WPLA applies broadly to all product sellers, and nothing in its
+text, legislative history, or subsequent interpretations suggests that the legislature
+intended the WPLA to entirely displace the common law. See SENATE SELECT
+31
+Erickson v. Pharmacia, No. 103135-1
+COMMITTEE ON TORT & PRODUCT LIABILITY REFORM FINAL REPORT (Jan. 1981)
+(hereinafter FINAL REPORT). Instead, the WPLA expressly preserves the common
+law, including Johnson, by stating that the “applicable law . . . is modified only to
+the extent set forth in this chapter.” RCW 7.72.020(1). We presume legislation to
+be consistent with prior judicial decisions. In re Marriage of Williams, 115 Wn.2d
+202, 208, 796 P.2d 421 (1990).
+The dissent makes the same assumption as the Court of Appeals and
+Pharmacia that the WPLA’s inclusion of a statute of repose reflects a choice of law
+determination. Dissent at 7 (concluding that “the WPLA’s statute of repose inheres
+in all WPLA claims” (emphasis added)). This argument would have us misconstrue
+the WPLA’s statute of repose as an explicit legislative directive on choice of law,
+when in fact express choice of law provisions are different and rare. See
+RESTATEMENT (SECOND) § 6 cmt. a (“Statutes that are expressly directed to choice
+of law, that is to say, statutes which provide for the application of the local law of
+one state, rather than the local law of another state, are comparatively few in
+number.”).
+To be clear, while the WPLA contains an explicit statute of repose, it does not
+contain the type of language that would provide conclusive evidence of a legislative
+directive on when to apply one state’s law over another. We do not find the “wealth
+of evidence” that the dissent insists exists that points to a legislative intent to provide
+32
+Erickson v. Pharmacia, No. 103135-1
+a directive on choice of law. Dissent at 5. Indeed, there is nothing in the language
+of the WPLA that directs us to ignore Washington’s long-standing issue-by-issue
+approach to choice of law and instead apply the WPLA repose provision regardless
+of our choice of law rules.
+The legislature has shown that it knows how to modify choice of law rules
+when it wishes to do so. Just two years after the legislature enacted the WPLA, the
+legislature enacted the Uniform Conflict of Laws–Limitations Act, known as the
+“borrowing” statute, which expressly removes statutes of limitations from Johnson’s
+most significant relationship test. See LAWS OF 1983, ch. 152 (codified at RCW
+4.18.020). The act mandates that the law governing the substantive claim also
+determines the applicable statute of limitations, eliminating the need for a separate
+choice of law analysis. The legislature has enacted no such provision with respect
+to statutes of repose, which are well understood as distinct from statutes of
+limitation. Rice, 124 Wn.2d at 211-12 (concluding that “statutes of repose are to be
+treated not as statutes of limitation, but as part of the body of a state's substantive
+law in making choice-of-law determinations”).
+The WPLA likewise does not require the application of Washington law to
+limit punitive damages in every claim brought under the WPLA. It states that
+manufacturers may be subject to liability for “harm . . . proximately caused by”
+violations of the statute. RCW 7.72.030(1)-(2). The legislature defined “harm” as
+33
+Erickson v. Pharmacia, No. 103135-1
+“any damages recognized by the courts of this state.” RCW 7.72.010(6) (emphasis
+added). Pharmacia argues that because Washington does not “recognize” punitive
+damages, the WPLA precludes the application of punitive damages under another
+state’s law. Suppl. Br. of Resp’t at 17. However, there is a critical distinction
+between damages being “available” under Washington law and damages being
+“recognized” by the courts of Washington. “Recognize” is defined as “to
+acknowledge” or “admit the . . . validity of.” WEBSTER’S THIRD NEW
+INTERNATIONAL DICTIONARY 1896 (2002). Under choice of law principles,
+Washington courts have acknowledged and awarded damages under the laws of
+other states, even when such damages would not be available under Washington law.
+See Kammerer, 96 Wn.2d 416 (awarding punitive damages under California law);
+Singh, 151 Wn. App. 137 (same); 6 WASHINGTON PRACTICE: WASHINGTON PATTERN
+JURY INSTRUCTIONS: CIVIL 110.00 (6th ed. 2012) (“Washington courts will apply the
+punitive damages law of other jurisdictions in product liability cases, if warranted
+under choice of law principles. In such a situation, the jury instructions on punitive
+damages should conform to the laws of the other state.”).
+The scope of harm recognized under the WPLA was intended to be expansive.
+Although most of the WPLA’s definitional provisions are based on the Model
+Uniform Product Liability Act (UPLA), 44 Fed. Reg. 62,714 (Oct. 31, 1979), the
+Senate special committee tasked with drafting the WPLA explained that it
+34
+Erickson v. Pharmacia, No. 103135-1
+intentionally chose not to adopt the UPLA’s more restrictive definition of “harm,”
+which limited remedies to statutorily designated categories.5 FINAL REPORT, supra,
+at 32. Instead, the committee adopted a “broad definition,” “allowing for the
+continued development of the concept through case law.” Id.
+The committee also chose not to adopt the UPLA’s provision on punitive
+damages,6 a decision that Pharmacia argues clearly demonstrates the legislature’s
+intent to prohibit punitive damages for any claims brought under the WPLA.
+However, this deviation from the UPLA simply reflects Washington’s policy
+decision to not allow punitive damages as a matter of its own substantive law. There
+is no indication that the legislature intended to prohibit punitive damages when
+authorized under the law of another state. The WPLA provides for “damages
+recognized by the courts of this state,” and Washington courts have repeatedly
+recognized and awarded punitive damages under another state’s law when consistent
+with Washington’s choice of law principles. RCW 7.72.010(6).
+5 As defined in the UPLA, “Harm . . . includes physical harm to persons and property. This Act
+provides that harm may manifest itself as damage to property, disability, including personal
+physical injuries and illness, death, and mental anguish or emotional harm attendant to such
+disability or death. It also includes mental anguish or emotional harm in circumstances in which
+the claimant is actually placed in personal danger, and the mental anguish or emotional harm is
+accompanied by substantial objective symptomatology.” 44 Fed. Reg. § 102(F) at 62,719 (italics
+omitted).
+6 The UPLA provides, “Punitive damages may be awarded to the claimant if the claimant proves
+by clear and convincing evidence that the harm suffered was the result of the product seller’s
+reckless disregard for the safety of product users, consumers, or others who might be harmed by
+the product.” Id. § 120(A) at 62,748.
+35
+Erickson v. Pharmacia, No. 103135-1
+For the reasons stated above, we conclude the WPLA contains no statutory
+directive requiring the exclusive application of Washington law to repose and
+punitive damages. We now apply Johnson’s most significant relationship test to the
+facts of this case.
+C. Under the most significant relationship test, Missouri has a stronger interest
+than Washington in having its law applied to determine the availability of
+repose and punitive damages
+Courts have somewhat artificially described the most significant relationship
+test as a two-step inquiry—first, evaluating relevant contacts and then, if evenly
+balanced, assessing each state’s policies and interests. However, the analysis
+ultimately requires consideration of all the factors. Courts must evaluate each state’s
+contacts in light of the principles set out in Restatement (Second) § 6 and also must
+examine each state’s interests and policies as related to the particular issue. This
+requires analyzing the “‘purpose sought to be achieved’” by each state’s relevant
+laws. Johnson, 87 Wn.2d at 582 (italics omitted) (quoting RESTATEMENT (SECOND)
+§ 175 cmt. d). For personal injury actions, courts presume that the law of the state
+where the injury occurred applies unless another state has a more significant
+relationship. RESTATEMENT (SECOND) § 146.
+We recognize that both Washington and Missouri have a distinct relationship
+to the parties and the cause of action in this case. The plaintiffs are Washington
+residents who filed product liability claims in Washington for injuries sustained in
+36
+Erickson v. Pharmacia, No. 103135-1
+Washington. Pharmacia had contacts with Washington—it maintained offices in
+Washington, sold the product in Washington, and the product was installed in a
+Washington public school. On the other hand, the allegedly tortious conduct—the
+defective design, manufacturing, and failure to warn—primarily occurred at
+Pharmacia’s headquarters in Missouri, where decisions regarding marketing,
+medical testing, labeling, and health and safety standards were made. Further,
+Erickson had no direct interaction with Pharmacia, as the injuries arose from a
+defective product that had been purchased and installed by a third party long before
+Erickson’s exposure at the school.
+With these relevant contacts in mind, we now consider each state’s interests
+concerning the two disputed issues: repose and punitive damages.
+1. Missouri has a stronger interest in applying its law on repose
+We begin by evaluating the policies and interests behind each state’s laws on
+repose. The WPLA was enacted in response to a perceived “product liability crisis”
+in the early 1970s, when rising product liability insurance premiums prompted calls
+for federal and state legislative reform. FINAL REPORT, supra, at 13. At the federal
+level, the U.S. Department of Commerce formed a task force to research the issue,
+leading to publication of the UPLA in 1979, intended for voluntary adoption by the
+states. See 44 Fed. Reg. 62,714. At the same time, Washington policymakers
+37
+Erickson v. Pharmacia, No. 103135-1
+pursued state specific product liability reforms. After multiple failed attempts to
+pass legislation, the senate created a special committee to conduct a thorough review
+of the need for product liability reform in Washington. FINAL REPORT, supra, at 2-
+3. Over an 18-month period, the committee reviewed the federal task force report,
+analyzed other states’ legislative efforts, consulted experts and stakeholders, held
+public hearings, and surveyed insurance companies operating within Washington.
+Id. at 16-19. The committee focused on identifying the root causes of the sharp rise
+in insurance prices and, specifically, whether it resulted from insurance underwriting
+practices or the existing state of tort law. 1 SENATE JOURNAL, 47th Leg., Reg. Sess.,
+at 619 (Wash. 1981).
+In January 1981, the committee published a final report containing its
+findings, explanations for how the research informed its recommendations, and a
+draft product liability bill, S.B. 3158, heavily modeled after the UPLA. The
+committee acknowledged “the national character of product manufacturing and
+marketing” and stated that the bill was intended to contribute to a “measure of
+uniformity” in product liability law. FINAL REPORT, supra, at 15, 16. The WPLA’s
+preamble reflects the legislature’s intent to balance two key interests: (1) preserving
+“the right of the consumer to recover for injuries sustained as a result of an unsafe
+product,” and (2) protecting “retail businesses located primarily in the state of
+Washington . . . from the substantially increasing product liability insurance costs
+38
+Erickson v. Pharmacia, No. 103135-1
+and unwarranted exposure to product liability litigation.” LAWS OF 1981, ch. 27, §
+1. The pursuit of these two primary interests is reflected in the WPLA’s statute of
+repose, which aims “to bring some certainty” for product sellers and manufacturers
+by limiting the period in which they may be held liable for harm caused by a
+defective product. FINAL REPORT, supra, at 19. At the same time, the legislature
+sought to balance this business interest with the consumer interest in “preserving”
+the right to receive compensation for harm caused by defective products. Id. Rather
+than imposing a fixed cutoff date for immunity, which would have provided absolute
+certainty for product insurers, the legislature adopted a more consumer-friendly
+repose provision that incorporated the UPLA’s flexible concept of a “useful safe
+life.” Id. at 42. A product’s “useful safe life” begins at delivery and “extends for
+the time during which the product would normally be likely to perform or be stored
+in a safe manner.” RCW 7.72.060(1).
+To further mitigate the burden of a repose provision on consumers, the
+legislature diverged from the UPLA in two notable ways. First, it extended the
+presumptive useful safe life from 10 years to 12 years, and second, it lowered the
+burden of proof for consumers challenging the presumption after 12 years from clear
+and convincing evidence to a preponderance of the evidence. Compare RCW
+39
+Erickson v. Pharmacia, No. 103135-1
+7.72.060(2), with UPLA § 110.7 These modifications reflect the WPLA’s broader
+goal to “create a fairer and more equitable distribution of liability among parties at
+fault.” LAWS OF 1981, ch. 27, § 1.
+Erickson argues that Washington has no compelling interest in applying its
+statute of repose to shield an out-of-state corporation from liability, particularly
+when doing so may prevent Washington citizens from receiving full compensation.
+This argument goes too far, however. Washington certainly has a legitimate interest
+in enforcing its laws consistent with the policy objectives underlying the WPLA.
+The WPLA’s statute of repose promotes nationwide uniformity in product liability
+standards and helps to curb rising product liability insurance costs—objectives
+potentially furthered by applying the WPLA’s statute of repose in every
+circumstance. In addition, the statute’s expansive definition of “product seller” and
+“manufacturer” reflect Washington’s interest in protecting all those doing business
+within the state from extended liability. See RCW 7.72.010(1), (2).
+7 Sec. 110. Length of Time Product Sellers are Subject to Liability
+(A) Useful Safe Life.
+(1) Except as provided in Subsection (A)(2), a product seller shall not be subject to liability
+to a claimant for harm under this Act if the product seller proves by a preponderance of the
+evidence that the harm was caused after the product’s “useful safe life” had expired. . . .
+. . . .
+(B) Statute of Repose.
+(1) Generally. In claims that involve harm caused more than ten (10) years after time of
+delivery, a presumption arises that the harm was caused after the useful safe life had expired. This
+presumption may only be rebutted by clear and convincing evidence.
+Id. at 62,732.
+40
+Erickson v. Pharmacia, No. 103135-1
+But that is not all that we must consider. The question is not merely whether
+Washington has an interest in applying its statute of repose but rather whether that
+interest outweighs Missouri’s interest in applying its own laws. The twin purposes
+of the WPLA are to preserve the right of consumers to recover for injuries and to
+protect retail businesses primarily located within Washington. LAWS OF 1981, ch.
+27, § 1. Applying the WPLA statute of repose to potentially limit a Washington
+citizen’s ability to recover against an out-of-state corporation does not serve either
+of those purposes.8
+This case is similar to Zenaida-Garcia, where the Court of Appeals concluded
+that Oregon’s interest in limiting the liability of an out-of-state corporation through
+the application of its statute of repose was outweighed by Washington’s competing
+8 Pharmacia contends that applying Missouri law to the issue of repose or punitive damages for an
+out-of-state corporation—while hypothetically applying Washington law to an in-state corporation
+for the same tortious conduct—would result in violation of the dormant commerce clause.
+However, Pharmacia does not raise a constitutional challenge. Instead, it appears to argue that the
+principles of constitutional avoidance compel such a result. Pharmacia cites no authority
+supporting the claim that a court’s application of another state’s law under a choice of law analysis
+violates the dormant commerce clause or that a state unconstitutionally discriminates against an
+out-of-state resident by applying the law of the resident’s home state. “[N]aked castings into the
+constitutional sea are not sufficient to command judicial consideration and discussion.” State v.
+Johnson, 119 Wn.2d 167, 171, 829 P.2d 1082 (1992) (internal quotation marks omitted) (quoting
+In re Rosier, 105 Wn.2d 606, 616, 717 P.3d 1353 (1986)). The U.S. Supreme Court has explained
+that to avoid “infringing on the policy choices of other States,” a sovereign state’s limit on
+remedies “must be supported by the State’s interest in protecting its own consumers and its own
+economy.” BMW of N. Am., Inc. v. Gore, 517 U.S. 559, 572, 116 S. Ct. 1589, 134 L. Ed. 2d 809
+(1996). Far from interfering with interstate commerce or federalism, issue-by-issue analysis
+ensures that choice of law decisions “further harmonious relations between states” and “facilitate
+commercial intercourse between them.” RESTATEMENT (SECOND) § 6 cmt. d; see Seizer v. Sessions,
+132 Wn.2d 642, 652, 940 P.2d 261 (1997).
+41
+Erickson v. Pharmacia, No. 103135-1
+interest in deterring the manufacture and sale of unsafe products within its borders.
+128 Wn. App. at 266. The case involved an Oregon worker who died in an industrial
+accident involving a machine that was designed, manufactured, and originally sold
+in Washington. Id. at 258. The machine had been operating in Oregon for 8.5 years
+before the accident. Id. at 259. If Oregon’s 8-year statute of repose applied, instead
+of Washington’s presumptive 12-year statute of repose, it would extinguish the
+Oregon resident’s claim.
+To determine which state’s law should apply, the court examined the history
+and purpose behind each law. It noted that the WPLA’s statute of repose was 2 years
+longer than the UPLA’s 10-year repose period, furthering “a policy of deterrence of
+tortious conduct, and encourag[ing] manufacturers to make safe products for
+consumers.” Id. at 264-65. In contrast, Oregon’s shorter 8-year repose period aimed
+to protect Oregon businesses and manufacturers from prolonged litigation risks. The
+court concluded that Washington’s interest in deterring the design, manufacture, and
+sale of unsafe products within its borders outweighed Oregon’s interest in applying
+its shorter statute of repose to protect a Washington corporation. Id. at 266.
+Accordingly, the court concluded the WPLA’s statute of repose applied. Id.
+The circumstances here are similar to those in Zenaida-Garcia. We must
+weigh one state’s interest in limiting the liability of an out-of-state corporation
+against another state’s interest in deterring the design and sale of unsafe products
+42
+Erickson v. Pharmacia, No. 103135-1
+within its borders. Significantly, Missouri has not adopted any statute of repose, a
+decision presumed to be intentional. As one court observed, “by not enacting a
+statute of repose, Missouri has expressed a policy in favor of fully compensating
+injured victims and a policy against providing asylum to manufacturers of defective
+products.” Jaurequi v. John Deere Co., 986 F.2d 170, 175 (7th Cir. 1993). Missouri
+recognizes that “‘[t]he primary consideration underlying a statute of repose is
+fairness to a defendant, [reflecting] the belief that there comes a time when the
+defendant ought to be secure in his reasonable expectation that the slate has been
+wiped clean of ancient obligations.’” Grosshart v. Kan. City Power & Light Co.,
+623 S.W.3d 160, 168-69 (Mo. Ct. App. 2021) (emphasis added) (internal quotation
+marks omitted) (quoting Ambers-Phillips v. SSM DePaul Health Ctr., 459 S.W.3d
+901, 908 n.7 (Mo. 2015)).
+Pharmacia could not have reasonably expected the WPLA’s statute of repose
+to immunize it from liability for tortious conduct committed in Missouri. Pharmacia
+marketed and sold PCBs in every state; the place of injury in Washington was merely
+fortuitous. Moreover, Pharmacia certainly could not have relied on the protections
+of the WPLA because it ceased production of PCBs four years before the WPLA
+was even enacted. In contrast, Pharmacia could reasonably have anticipated liability
+to the full extent of Missouri law, as Missouri is home to its headquarters, medical
+department, marketing, sales, and public relations departments. All relevant
+43
+Erickson v. Pharmacia, No. 103135-1
+decisions concerning PCB design, the discovery of the dangers of PCBs, and the
+decision not to warn consumers were made in Missouri.
+By comparison, Washington can be said to have minimal interest in applying
+its statute of repose to protect an out-of-state corporation. This position is consistent
+with other jurisdictions, which have similarly concluded that a state has little interest
+in allowing out-of-state corporations to take advantage of another state’s statute of
+repose. See, e.g., Mitchell v. Lone Star Ammunition, Inc., 913 F.2d 242, 250 (5th
+Cir. 1990) (finding that there is no “compelling reason” to apply the statute of repose
+from the place of injury in order to bar claims against out-of-state manufacturers);
+Mahne v. Ford Motor Co., 900 F.2d 83, 88 (6th. Cir. 1990) (finding “no reason” to
+extend the benefits of one state’s statute of repose to an out-of-state defendant), cert.
+denied, 498 U.S. 941 (1990); Marchesani v. Pellerin-Milnor Corp., 269 F.3d 481,
+489 (5th Cir. 2001) (applying the repose period of the manufacturer’s home state,
+Louisiana, to claims brought under Tennessee’s products-liability statute).
+Pharmacia argues that dépeçage—applying Missouri law to repose and the
+WPLA to liability—is inappropriate in this context. It contends that the WPLA’s
+“integrated” statute of repose defines the scope of liability and reflects a broader
+legislative policy decision essential to the enactment of the act. Resp’t’s Answer to
+44
+Erickson v. Pharmacia, No. 103135-1
+Amici9 at 18 (“‘[A] statute of repose does not present an issue distinct from the
+underlying claim; it is part of the definition of the claim in much the same way as an
+element of a tort.’” (quoting Br. of Amicus Curiae Professor Kermit Roosevelt III in
+Supp. of Resp’t at 16)); see also Br. of Erin O’Hara O’Connor et al.10 at 8 (“[S]tate
+polices are reflected in each state’s bundle of relevant laws.”). However, we do not
+evaluate statutory conflicts of law differently from those based on common law. As
+we clearly held in Johnson, choice of law is issue specific. When the laws of
+interested states conflict, we apply the law of the state with the most significant
+relationship to each individual issue, regardless of whether those issues are found
+within a statute or under the common law.
+This is not to say that applying another state’s law that conflicts with the
+WPLA will always be appropriate. But such concerns are properly addressed by
+applying our long-standing “most significant relationship” analysis, not by
+collapsing the inquiry into a single choice of law determination under the statute.
+Here, applying Missouri’s law, we conclude that the absence of a statute of repose
+does not undermine Washington’s interests under the WPLA, which include
+preserving consumers’ rights to recover for injuries and protecting retail businesses
+9 Resp’t’s Answer to Brs. of Amici Curiae L. Professors, Former SVEC Students & Their Fams.
+& Mo. L. Experts.
+10 Br. of Erin O’Hara O’Connor, Craig S. Lerner, and Michael E. Solimine as Amici Curiae in
+Supp. of Def.-Resp’t.
+45
+Erickson v. Pharmacia, No. 103135-1
+located primarily within the state. At the same time, Missouri’s interest in deterring
+tortious conduct within its borders is furthered by applying its own law here.
+Pharmacia has not shown that dépeçage is inappropriate in this case with respect to
+the issues of liability and repose.
+Taking all of these considerations together, we conclude that Missouri has the
+most significant relationship on the issue of repose, as its interest in deterring the
+manufacture and sale of unsafe products within its borders outweighs Washington’s
+interest in protecting the tortious conduct of an out-of-state corporation through its
+statute of repose. See Zenaida-Garcia, 128 Wn. App. at 266. Accordingly, we
+reverse the Court of Appeals and hold that Missouri law governs this issue. Because
+we conclude that the WPLA’s statute of repose does not apply, we need not address
+Erickson’s challenge to the constitutionality of the WPLA repose provision.
+We next consider which state’s law applies to the issue of punitive damages.
+2. Missouri has a stronger interest in applying its law on punitive damages
+The same analytical framework used in determining the applicable law on
+repose also applies to the issue of punitive damages. Under Missouri law, the
+primary purpose of punitive damages is “to punish a defendant for an aggravated act
+of misconduct and to deter similar conduct in the future.” Rinker v. Ford Motor Co.,
+567 S.W.2d 655, 668 (Mo. Ct. App. 1978); see Poage, 523 S.W.3d at 520 (finding
+46
+Erickson v. Pharmacia, No. 103135-1
+punitive damages appropriate even when the defendant no longer sells the defective
+product because punitive damages are meant to deter future misconduct and deter
+others who are similarly situated); Bradshaw v. Deming, 837 S.W.2d 592, 594 (Mo.
+Ct. App. 1992) (declaring that punitive damages are not intended to compensate a
+plaintiff; rather, they are meant to punish and deter). Restatement (Second) instructs
+that where, as here, the “primary purpose of the tort rule involved is to deter or
+punish misconduct,” rather than “to compensate the victim for [their] injuries,” that
+state where the tortious conduct took place may “be the state of dominant interest
+and thus that of most significant relationship.” Id. §§ 145 cmt. c, 171 reporter’s note
+to cmt. d (one state may have “the dominant interest with respect to the issue of
+compensatory damages and another state ha[ve] the dominant interest with respect
+to the issue of [punitive] damages”).
+We first awarded punitive damages under the laws of a different state in
+Kammerer. There, California residents filed claims against a Washington
+corporation for fraud and breach of contract in connection with a violation of a patent
+licensing agreement negotiated in California. 96 Wn.2d at 418. California law
+permitted punitive damages whereas Washington law did not. Id. at 421. In
+determining which state’s law to apply, we reasoned that California’s interest “in
+deterring fraudulent activities by corporations having a substantial business presence
+within its borders” outweighed Washington’s interest in protecting corporations that
+47
+Erickson v. Pharmacia, No. 103135-1
+commit fraud. Id. at 422 (quoting Kammerer v. W. Gear Corp., 27 Wn. App. 512,
+520-21, 618 P.2d 1330 (1980)). We held that “a Washington court can award
+punitive damages under the law of California.” Id. at 423.
+That same day, we also issued our decision in Barr, where we held that
+Washington law applied to prohibit punitive damages in a dispute between a Florida
+bank and a Washington resident over the bank’s wrongful repossession of a car in
+Washington. 96 Wn.2d 692. Although the decision to repossess the car occurred in
+Florida, it was the method used to repossess the car that served as the basis for the
+claim. We concluded that “[t]he interest in Florida in providing an example for
+deterrence would not be furthered when the actual conduct and the acts which
+warrant punitive damages were restricted to Nevada and Washington.” Id. at 699.
+The court’s emphasis on the place of conduct for determining which state
+governs the issue of punitive damages is similarly reflected in Bryant v. Wyeth, 879
+F. Supp. 2d 1214 (W.D. Wash. 2012), which we find persuasive. There, the plaintiff
+alleged that she developed breast cancer after ingesting hormone replacement
+therapy drugs manufactured by the defendant. Id. at 1218. The plaintiff was a
+resident of Washington, where the drugs were prescribed and she ingested them, and
+where she subsequently developed breast cancer. Id. at 1218-19. Although the drug
+manufacturer was incorporated in Delaware, its headquarters, sales team, and
+women’s health research facility were located in Pennsylvania. Id. at 1219. The
+48
+Erickson v. Pharmacia, No. 103135-1
+plaintiff filed claims for negligence and breach of express warranty under the
+WPLA, along with a fraud claim seeking punitive damages under Pennsylvania law.
+Id. The defendant moved for summary judgment on the issue of punitive damages,
+arguing that Washington law applied. Id.
+Applying the most significant relationship test, the court held that
+Pennsylvania law governed the issue of punitive damages on the plaintiff’s fraud
+claim.11 Id. at 1225. The court explained that although the plaintiff suffered her
+personal injury in Washington, the bulk of the allegedly fraudulent conduct occurred
+at the defendant’s headquarters in Pennsylvania where the company created its
+product labels and marketing strategies. Id. at 1223. The court emphasized that in
+Pennsylvania, the “‘purpose of punitive damages is to punish a tortfeasor for
+outrageous conduct and to deter him or others like him from similar conduct.’” Id.
+at 1225 (quoting Hutchison ex rel. Hutchison v. Luddy, 582 Pa. 114, 121-22, 870
+A.2d 766 (2005)). The court highlighted that this “defendant-focused rationale
+solidifies the place where the conduct occurred as the most significant contact.” Id.
+Application of Missouri punitive damages law in this case is also consistent
+with Johnson, where we recognized that a state’s interest in limiting damages to
+prevent financial burdens and exaggerated claims is “primarily local.” 87 Wn.2d at
+11 The plaintiff offered no authority to support extending this holding to her WPLA claims and the
+court therefore declined to do so. Bryant, 879 F. Supp. 2d at 1220 n.5.
+49
+Erickson v. Pharmacia, No. 103135-1
+582-83. In contrast, a state’s interest in allowing unlimited damages reflects a focus
+on penalizing the culpable defendant and “‘deter[ring] it and others similarly situated
+from such future conduct.’” Id. at 583 (italics and internal quotation marks omitted)
+(quoting Hurtado, 11 Cal. 3d at 583-84).
+Here, as in Singh, Kammerer, Barr, Bryant, and Johnson, the place where the
+tortious conduct occurred is the most significant factor in determining which state’s
+law governs the availability of punitive damages. Erickson filed claims against
+Pharmacia for design defect, construction defect, failure to warn at the time of sale,
+and failure to warn postsale. The allegedly tortious behavior that proved these
+claims did not occur in Washington, the place of injury, but in Missouri, the home
+of Pharmacia’s headquarters. Pharmacia could not reasonably expect that it would
+be protected from a claim for punitive damages by virtue of doing business in
+Washington. A company that consciously disregards the safety of people of every
+state can “have few, if any, justified expectations” that one state’s laws limiting
+damages may protect it. RESTATEMENT (SECOND) § 145 cmt. b.
+Applying Missouri law with respect to the availability of punitive damages,
+even when Washington law governs the substantive elements of liability,
+appropriately advances the distinct policy goals of both states. Pharmacia’s tortious
+conduct occurred in Missouri, the place of its corporate headquarters, medical
+department, and sales and marketing divisions. Missouri’s interest in allowing
+50
+Erickson v. Pharmacia, No. 103135-1
+punitive damages—“to punish a defendant for an aggravated act of misconduct and
+to deter similar conduct in the future”—is therefore advanced by application of its
+law. Rinker, 567 S.W.2d at 668. At the same time, Washington’s policy of ensuring
+full compensation for injury is also fully satisfied. It is an overstatement to say that
+Washington law categorically “precludes” punitive damages. Suppl. Br. of Resp’t
+at 16. It recognizes such damages when the governing law provides for them, and it
+should make no difference whether that governing law is expressed in statute or in
+another state’s common law that applies to an action brought in Washington.
+Tailoring the application of each state’s law to the issue in which it has the greater
+interest produces a more rational and individualized outcome than applying a single
+law to the entire cause of action. This issue-by-issue approach is the true
+achievement of Restatement (Second). See Issue-by-Issue, supra, at 754.
+We hold that Missouri has the most significant relationship with respect to
+punitive damages. It has a stronger interest in punishing companies for their
+conscious disregard of safety and deterring others from such actions than
+Washington does in limiting damages imposed on an out-of-state corporation. See
+Johnson, 87 Wn.2d at 583-84 (The state of the place of injury has “no interest
+applying its [damages] limitation to nonresident defendants.”). Accordingly, we
+affirm the Court of Appeals and hold that Missouri law governs punitive damages.
+51
+Erickson v. Pharmacia, No. 103135-1
+3. The special verdict form was sufficient to uphold the jury’s award of punitive
+damages under Missouri law
+While the Court of Appeals correctly recognized that Missouri law governs
+punitive damages in this case, it incorrectly limited punitive damages to claims
+recognized under Missouri’s substantive product liability theories, despite the
+parties’ agreement that the WPLA governs the liability standards in this case.
+Erickson, 31 Wn. App. 2d at 138. The court reasoned that because Missouri does
+not clearly recognize a cause of action for postsale failure to warn, and because the
+jury did not distinguish which particular theory of liability supported punitive
+damages, the jury’s award of punitive damages was unsupported. Id. It therefore
+vacated the award and remanded for a jury to consider whether claims recognized
+under Missouri law independently support an award of punitive damages. Id.
+Erickson argues that the Court of Appeals erred by not predicting how
+Missouri courts would decide the issue of a postsale failure to warn. Had the Court
+of Appeals done so, Erickson contends it would have found that Missouri courts
+would likely recognize a postsale failure to warn claim. Pharmacia responds that
+deciding this issue of first impression would “impermissibly impose liability for
+‘conduct that may have been lawful where it occurred.’” Resp’t’s Answer to Amici
+at 37-38 (quoting State Farm Mut. Auto. Ins. Co. v. Campbell, 538 U.S. 408, 421,
+123 S. Ct. 1513, 155 L. Ed. 2d 585 (2003)). Pharmacia warns that by permitting
+punitive damages for claims not recognized in Missouri, the court is creating “a
+52
+Erickson v. Pharmacia, No. 103135-1
+previously unknown Frankenstein’s monster that reflects the policies of neither
+Washington nor Missouri and yields a windfall recovery.” Suppl. Br of Resp’t at
+37-38.
+We believe the focus of the parties’ argument skips over an initial
+consideration that is dispositive. Given that the substantive product liability law of
+Washington governs the liability standards here, there is no need to determine
+whether Missouri would recognize a negligence-based claim for postsale failure to
+warn under its substantive product liability standards. The jury was properly
+instructed on the WPLA elements of liability, including the elements of a claim for
+postsale failure to warn, and the jury found Pharmacia liable. The critical question
+for awarding punitive damages under Missouri law is not whether Pharmacia’s
+conduct would result in liability under Missouri product liability law but, rather,
+whether its conduct reflected “‘complete indifference to or a conscious disregard for
+the safety of others’” as related to the WPLA claim. Call v. Heard, 925 S.W.2d 840,
+849 (Mo. 1996) (quoting Stojkovic v. Weller, 802 S.W.2d 152, 155 (Mo. 1991)); see
+also MISSOURI APPROVED JURY INSTRUCTION 10.02. The jury was instructed on this
+standard and found it was met when it awarded punitive damages.
+The jury instructions on damages provide the guide. The relevant instructions
+stated:
+A. If you find in favor of a plaintiff under Instruction Number 20
+[postsale failure to warn], and if you believe the conduct of the
+53
+Erickson v. Pharmacia, No. 103135-1
+defendant as submitted in Instruction Number 20 showed
+complete indifference to or conscious disregard for the safety
+of others, or
+B. If you find in favor of a plaintiff under Instruction Number 16
+[defective design], and if you believe:
+(1) First, at the time defendant sold the PCBs, defendant knew
+of the defective condition and danger submitted in Instruction
+Number 16, and
+(2) Second, the defendant thereby showed complete
+indifference to or conscious disregard for the safety of others,
+or
+C. If you find in favor of the plaintiff under Instruction Number
+18 [failure to warn at the time of distribution] and if you
+believe:
+(1) First, at the time defendant sold the PCBs, defendant knew
+of the danger submitted in Instruction Number 18, and
+(2) Second, defendant thereby showed complete indifference
+to or conscious disregard for the safety of others,
+then in addition to any damages to which you may find plaintiff entitled
+. . . you may award plaintiff an additional amount as punitive damages
+in such sum as you believe will serve to punish defendant and to deter
+defendant and others from like conduct.
+Clerk’s Papers (CP) at 16549 (jury instruction 30). The verdict form interrogatory
+on punitive damages asked simply, “Should punitive damages be awarded against
+defendant in the case of plaintiff [name]?” CP at 16555. Nothing in the way this
+case was instructed would necessitate the jury parsing the damages among the
+various product liability theories. Indeed, that would seem unusual absent a situation
+where not all theories applied to all parties. Cf. Blanks v. Fluor Corp., 450 S.W.3d
+308, 364 (Mo. Ct. App. 2014) (reversing a punitive damages award against one
+54
+Erickson v. Pharmacia, No. 103135-1
+partner because the jury instructions required consideration of undifferentiated
+conduct, making it unclear whether the jury would have imposed liability based
+solely on that partner’s conduct).
+Pharmacia’s suggestion that it could be made to pay punitive damages for
+conduct that does not give rise to liability in Missouri overlooks that the jury
+properly found liability under the WPLA. That finding is the premise for any
+damages. Importantly, this appeal does not include any challenges to the sufficiency
+of the evidence or to the jury instructions for misstating Missouri substantive law.
+Nor did Pharmacia argue that Missouri law should govern the substantive law of
+liability.12 We acknowledge that there are likely differences not only between each
+state’s substantive law for postsale failure to warn but also for the other causes of
+action, such as defective design. We further recognize that these differences might
+have impacted the outcome of this case. However, in determining which state’s law
+should apply, we conduct choice of law analysis with respect to each particular issue.
+Like Washington, Missouri recognizes that different issues may be decided
+according to the laws of different states. See Wilson v. Image Flooring, LLC, 400
+12 Pharmacia argues that Missouri law allows for punitive damages only when certain procedural
+requirements are met, including a bifurcated trial, an offset of damages, or a 50 percent deposit
+into the state treasury. Suppl. Br. of Resp’t at 39-41 (citing MO. REV. STAT. §§ 510.263(1), (4),
+537.675(3)). But in mandating these requirements in 2020, Missouri’s “legislature expressly stated
+that ‘[t]he provisions of this act shall apply to causes of action filed on or after August 28, 2020.’”
+Largent v. Pelikan, 628 S.W.3d 162, 165 (Mo. Ct. App. 2021) (alteration in original) (quoting MO.
+REV. STAT. § 510.262). As this case was filed in 2018, the statutory requirements, whether
+substantive or procedural, do not apply here.
+55
+Erickson v. Pharmacia, No. 103135-1
+S.W.3d 386, 395 (Mo. Ct. App. 2013) (Missouri applies the most significant
+relationship test to a “conflict-of-law issue arising in a tort case”); see, e.g., Goede
+v. Aerojet Gen. Corp., 143 S.W.3d 14, 25 (Mo. Ct. App. 2004) (applying California
+law to a manufacturer on liability, but applying Missouri law on damages because
+“Missouri had the predominant interest in the issue of damages for a wrongful death
+occurring within its boundaries”), abrogated on other grounds by Sanders v. Ahmed,
+364 S.W.3d 195, 207 (Mo. 2012). The parties had the opportunity to argue that
+Missouri substantive law should apply but did not do so.
+The jury made proper findings under both Washington and Missouri law in
+accordance with the given instructions. We reverse the Court of Appeals and hold
+that the special verdict form was sufficient to sustain the jury’s award of punitive
+damages.
+We next turn to Pharmacia’s challenge to the verdict based on the trial court’s
+admission of expert opinion testimony.
+II. Admissibility of Expert Testimony
+To be admissible in Washington courts, scientific expert testimony must
+satisfy both Frye, 293 F. 1013, and ER 702. Lakey v. Puget Sound Energy, Inc., 176
+Wn.2d 909, 918, 296 P.3d 860 (2013). Frye requires that the underlying scientific
+theory and methodology supporting an expert’s testimony be “generally accepted in
+56
+Erickson v. Pharmacia, No. 103135-1
+the relevant scientific community and capable of producing reliable results.” Id.
+However, “Frye does not require every deduction drawn from generally accepted
+theories to be generally accepted.” Anderson v. Akzo Nobel Coatings, Inc., 172
+Wn.2d 593, 611, 260 P.3d 857 (2011). Nor is unanimous acceptance and usage in
+the relevant scientific community required. Id. at 603. Instead, Frye focuses on
+whether the underlying theory or method has general scientific consensus. Lakey,
+176 Wn.2d at 920.
+ER 702 requires the trial court to determine that the testimony will assist the
+trier of fact. Id. at 918. Unreliable testimony, including testimony from an expert
+who fails to adhere to an otherwise reliable methodology, is generally regarded as
+unhelpful and therefore inadmissible. Id. at 918-19. We review ER 702 rulings for
+abuse of discretion, and Frye rulings de novo. L.M. v. Hamilton, 193 Wn.2d 113,
+118, 436 P.3d 803 (2019). Under Frye, “[t]he reviewing court will undertake a
+searching review which may extend beyond the record” and involve consideration
+of scientific literature, secondary legal authority, and materials that were not
+available until after a Frye hearing. State v. Copeland, 130 Wn.2d 244, 255-56, 922
+P.2d 1304 (1996) (citing State v. Cauthron, 120 Wn.2d 879, 887-88, 846 P.2d 502
+(1993)).
+At issue are the expert opinions of industrial hygienist Kevin Coghlan, whose
+testimony Erickson relied on to show that the teachers were likely exposed to injury-
+57
+Erickson v. Pharmacia, No. 103135-1
+causing levels of PCBs during the time they taught at SVEC. Pharmacia urges us to
+affirm the Court of Appeals and hold that Coghlan’s opinions—based on two
+different methods of back-calculation—should have been excluded under Frye, ER
+702, or both. There is no dispute that Coghlan’s third method, which estimates
+exposure by directly comparing to New York schools, does not implicate Frye and
+satisfies ER 702.
+A. The practice of exposure reconstruction is generally accepted in the field
+of industrial hygiene
+One of the primary functions of an industrial hygienist is estimating worker
+exposure to chemical and physical agents. Industrial hygienists often collaborate
+with other disciplines, including toxicologists and epidemiologists, to make these
+risk assessments. While these other professionals are experts in assessing the health
+effects of exposure, “[d]etermination of the actual exposure is the stock-in-trade of
+industrial hygienists.” Suppl. Rec. (SR) at 6667 (emphasis omitted). When real-
+time measurements of exposure cannot be conducted, industrial hygienists attempt
+to estimate past exposure levels using what is known as “exposure reconstruction.”
+Id. at 6774. Exposure reconstruction may involve multiple quantitative and
+qualitative estimation methods to arrive at a range of possible exposures for each
+worker. The specific methods used depend on the available data and the intended
+use of the final estimation.
+58
+Erickson v. Pharmacia, No. 103135-1
+The parties do not appear to dispute that the overall practice of exposure
+reconstruction is generally accepted in the field of industrial hygiene. See Suppl. Br.
+of Pet’rs, App. 22 (attaching findings of fact and conclusions of law regarding
+Coghlan opinions in Rose Order). Our Frye analysis focuses on the two specific
+methods Coghlan used as part of his exposure reconstruction: (1) back-calculation
+from carpet samples and (2) back-calculation based on the EPA study of New York
+schools.
+B. Coghlan’s PCB estimates using carpet samples from SVEC and partition
+coefficients from the Guo study satisfies Frye and ER 702
+Coghlan’s back-calculation of PCBs using carpet samples relies on a concept
+known as “source-sink dynamics.” Source-sink dynamics is used to understand how
+particles (e.g., PCBs) migrate from an original source (e.g., light ballasts) to
+materials that absorb them, known as sinks (e.g., carpet). Some objects can act as
+both a sink and a secondary source, re-emitting particles after they have been
+absorbed.
+The parties do not dispute that the theory of source-sink dynamics is generally
+accepted in the relevant scientific communities. See Erickson, 31 Wn. App. 2d at
+152. Specifically, they do not dispute that light ballasts are a source emitting PCBs,
+that carpet acts as a sink absorbing PCBs, and that air can function both as a sink
+and a secondary source of PCBs. Nor do the parties contest that mathematical
+models can be developed to describe the rate at which sources emit PCBs and sinks
+59
+Erickson v. Pharmacia, No. 103135-1
+absorb them under specific conditions. Rather, Pharmacia contends that Coghlan’s
+method of reversing these models to use PCB concentrations in carpet (a sink) to
+estimate past concentrations of PCBs in the air (a source) is not generally accepted.
+Coghlan’s method relies heavily on the work of an EPA study published in
+2012 known as the Guo study. This study examined how common building
+materials, including two types of carpet, absorb PCBs from the air in a controlled
+laboratory environment. The experiment used two connected chambers. In the first
+chamber, PCB-containing caulk acted as a stable source of PCBs, emitting the
+chemicals into clean air pumped in from one side. Fans then directed this air to flow
+into the second chamber, where the air acted as a secondary source of PCBs to be
+absorbed by small buttons of each building material. Throughout the test, scientists
+monitored PCB concentrations in the outlet air and periodically removed the buttons
+of building material to test their PCB concentrations. The study calculated the
+partition coefficient for each material, representing the ratio between the PCB
+concentration in the material and the PCB concentration in the surrounding air at the
+end of the experiment. In a section describing the study’s limits, the study noted the
+wide variety of building materials used in the real world and cautioned that “care
+should be taken when applying the test results to seemingly similar materials in real-
+world situations.” SR at 4736-37.
+60
+Erickson v. Pharmacia, No. 103135-1
+Coghlan acquired several samples of carpet from SVEC, which had been
+collected in December 2015 by Dr. Cynthia Yost, a former science teacher at the
+school. Dr. Yost collected the samples just before the school’s carpet was replaced
+and prior to the start of PCB remediation. She stored them in plastic sandwich bags
+inside brown paper bags in her basement from 2016 until January 2019, when she
+provided them to Coghlan.
+Coghlan used the SVEC carpet samples along with data from the Guo study
+to estimate past PCB concentrations in the air at SVEC. Coghlan first measured the
+PCB concentrations in each sample, excluding one that showed clear evidence of
+direct contamination by PCB-containing oil leaked from a light ballast. He divided
+his measured PCB concentrations by the PCB concentrations measured in the carpets
+in the Guo study, then multiplied by the known concentration of PCBs in the air
+from the Guo study. The result is the PCB concentration that likely had to be in the
+air at SVEC for the carpet samples to have absorbed the measured concentrations by
+the time the samples were collected, assuming the SVEC carpet was similar in
+absorbency to one of the carpets in the Guo study. Coghlan repeated this calculation
+with each SVEC carpet sample measurement and each carpet sample from the Guo
+study to produce a range of estimated PCB concentrations in the air at SVEC.
+Stated differently, Coghlan applied the findings of the Guo study in reverse.
+The Guo study used a known concentration of PCBs in air as a source and a known
+61
+Erickson v. Pharmacia, No. 103135-1
+concentration of PCBs in building materials as a sink to calculate the partition
+coefficient. Coghlan used a known concentration of PCBs in a sink and a known
+partition coefficient to calculate the concentration of PCBs in a source—specifically,
+the air at SVEC.
+During cross-examination, Coghlan admitted that to his knowledge, no one
+had ever used a carpet sample to back-calculate the historic concentration of PCBs
+in the air, nor had anyone published a peer-reviewed study involving that specific
+method. This admission appears to be the primary factor for the Court of Appeals
+conclusion that his method was novel and not generally accepted. See Erickson, 31
+Wn. App. 2d at 152-53. On appeal, however, we have the benefit of reviewing the
+Frye hearing conducted in Rose, where the trial court found that using the PCB
+concentration in material samples to estimate prior PCB concentration in the air is
+generally accepted.
+In Rose, the court heard from Dr. Lars Gunnarsen, a professor whose research
+focuses on the risk of PCBs in indoor environments. He testified that “[p]artition
+coefficients are well established, and we use them all the time.” SR at 4232, 6614.
+Asked how he would estimate PCBs in the air from a sample of clothing, he replied,
+“I would look—look at my paper and find a reasonable partitioning coefficient, and
+then I would quantify the PCB content of the clothing and calculate back to the air.”
+Id. at 4232. Dr. Brent Altemose, a certified industrial hygienist, similarly testified
+62
+Erickson v. Pharmacia, No. 103135-1
+that “many industrial hygienists” use partition coefficients to estimate historic
+exposure without even knowing the term “partition coefficient,” and that if he were
+to try and calculate the air concentration of PCBs from a sink sample, he “would
+look in the literature to see if there was a partitioning coefficient that had been
+determined” for the same material. Id. at 4255, 7419. Likewise, Dr. John Price,
+another certified industrial hygienist, testified that he had “done a lot of work in the
+past of taking samplings and doing estimates” to determine “preexisting exposures
+without controls.” Id. at 4246, 6653.
+The supplemental record also contains multiple peer-reviewed studies
+involving back-calculation of chemical concentrations in air using measurements of
+different objects. For example, after 9/11, researchers used the “film-air partition
+coefficient” to estimate PCB levels in the air using measurements of window film.
+Id. at 6567. Other researchers used “previously published wood-air partition
+coefficients” to estimate air concentrations of different chemical compounds using
+measurements of tree cores. Id. at 6578. Lastly, one study calculated partition
+coefficients using carpet as a sink but studied chemical compounds other than PCBs.
+Id. at 7612.
+Pharmacia does not meaningfully dispute this testimony and the scientific
+literature, instead focusing narrowly on the lack of evidence that anyone before
+Coghlan specifically used carpet samples as the sink and PCBs as the chemical
+63
+Erickson v. Pharmacia, No. 103135-1
+compound, or that anyone has relied on the Guo study, for exposure reconstruction.
+Pharmacia cites the testimony of Dr. Nadia Moore, the sole industrial hygienist it
+called at the Frye hearing, who testified that Coghlan’s method was not generally
+accepted. When asked why, Dr. Moore, who has been an industrial hygienist only
+since 2020, stated that she “did a search” and “couldn’t find anywhere that anyone
+had used carpet in peer-reviewed literature to back calculate PCBs.” Id. at 4326.
+Pharmacia’s other witness, Dr. Kurt Herman, contradicted Dr. Moore when he
+admitted that the use of partition coefficients to estimate the concentration of a
+chemical compound in the air is “generally accepted.” Id. at 4371.
+Pharmacia analogizes this case to Lake Chelan Shores Homeowners Ass'n v.
+St. Paul Fire & Marine Insurance Co., 176 Wn. App. 168, 313 P.3d 408 (2013),
+which also involved back-calculation. There, the plaintiff’s expert measured a
+home’s current wood rot and applied a formula to estimate when, in the past, the rot
+had reached a condition that would cause the home to collapse. Id. at 174. The court
+acknowledged that while using exponential curves to model the progression of wood
+rot was generally accepted, applying such models to back-calculate wood rot was
+not. Id. at 179. The court rejected the expert’s claim that this approach was generally
+accepted, emphasizing that the expert failed to provide supporting evidence for the
+use of any formula—let alone the specific formula he used—to backdate the onset
+of a collapse condition. Id. Although the expert’s methodology in Lake Chelan may
+64
+Erickson v. Pharmacia, No. 103135-1
+bear a general resemblance to the partition coefficients at issue here, it lacked an
+equivalent to the Guo study or to the established practice of using partition
+coefficients in exposure reconstruction.
+The weight of expert testimony and peer-reviewed literature in the relevant
+scientific communities—industrial hygiene, environmental engineering, and
+research involving PCBs—demonstrates that using partition coefficients to estimate
+historic concentrations of chemical compounds in the air from concentrations in
+tangible objects is generally accepted. Frye requires no more than this. See
+Anderson, 172 Wn.2d at 611 (rejecting the argument that a plaintiff had to prove
+acceptance of the “specific causal connection” between the “specific toxic organic
+solvents” and the “specific polymicrogyria birth defect”). Frye does not require
+acceptance of “each discrete and ever more specific part of an expert opinion.” Id.
+Instead, it simply requires that the underlying theory and the methodology be
+generally accepted. Because Coghlan’s testimony is based on the well-established
+use of partition coefficients, it satisfies the Frye standard.
+For similar reasons, Coghlan’s testimony also meets the requirements of ER
+702. Since his method has been demonstrated to be reliable, the remaining questions
+under ER 702 are whether his opinion would be helpful to the jury and whether he
+reliably applied his methods to the specific data at issue. Coghlan’s opinion is
+65
+Erickson v. Pharmacia, No. 103135-1
+helpful to the jury because it estimates the historic PCB exposure at SVEC, which is
+necessary to prove causation of Erickson’s injury.
+Pharmacia raises several arguments about why Coghlan’s method is not
+reliable or reliably applied, but these arguments properly go to the weight of his
+testimony, not its admissibility. Pharmacia points to the Guo study’s cautionary
+statement that “care should be taken when applying the test results to seemingly
+similar materials in real-world situations.” SR at 4736-37. However, Coghlan
+acknowledges the assumptions underlying his methods, including that all PCBs in
+the carpet samples were absorbed from the air, despite the presence of other potential
+sources at SVEC. To address this, he excluded from his calculations one carpet
+sample that had clear evidence of direct exposure to ballast oil and noted that the
+high PCB concentrations of two other samples may reflect tracking of PCBs on to
+the carpet (e.g., from people’s shoes) rather than only absorption from the air.
+Pharmacia also argues that the reliability of the carpet samples is
+compromised because they were collected by Dr. Yost, stored in her basement for
+two years, and later transferred to Coghlan for testing, raising concerns about the
+possibility of cross contamination. However, Coghlan acknowledged this possibility
+and accounted for it by testing the storage containers for any signs of cross
+contamination. He also noted that Dr. Yost stored each sample in a separate plastic
+bag, double bagged inside paper bags, which enhanced their integrity.
+66
+Erickson v. Pharmacia, No. 103135-1
+Pharmacia further challenges Coghlan’s assumption that the PCB
+concentration in the Guo study’s carpet samples had reached equilibrium with the
+concentration in the air, even though the experiment ran for only 240 hours. But
+Coghlan acknowledges that had the carpet samples been allowed to reach
+equilibrium, the partition coefficients, and thus his estimated air concentrations,
+likely would have been higher. In fact, the Guo study conducted a separate
+experiment where samples were exposed for 507 hours, resulting in PCB
+concentrations in one of the two carpet samples that were roughly double those
+observed at 240 hours.
+Lastly, Coghlan’s method assumes that the carpet at SVEC has similar
+absorbent qualities to one of the carpet samples used in the Guo study. Testimony
+from other industrial hygienists confirms that this is a necessary assumption in any
+exposure reconstruction. As Dr. Gunnarsen, the professor who testified in Rose,
+explained, his first step in any exposure reconstruction would be to consult relevant
+literature for a “reasonable partition coefficient” of a comparable material. Id. at
+4232. Coghlan reasonably assumed that the carpet at SVEC was at least as absorbent
+as the least absorbent carpet sample in the Guo study and no more absorbent than
+the most absorbent carpet sample. Moreover, he presented his estimates as a range
+of possible air concentrations in SVEC, rather than testifying to a level of scientific
+certainty beyond what his method allowed.
+67
+Erickson v. Pharmacia, No. 103135-1
+We conclude that the identified criticisms of Coghlan’s testimony go to its
+weight and not its admissibility, and that the trial court did not err in finding that
+Coghlan reliably applied his method, satisfying ER 702.
+C. Coghlan’s estimation using protection factors from the Thomas study
+satisfies Frye and ER 702
+For this back-calculation method, Coghlan relied on another EPA study,
+known as the Thomas study, that measured the air concentrations of PCBs in six
+New York City schools both before and after remediation efforts to reduce PCB
+exposure. All of the schools were built between 1950 and 1978, a period when the
+use of PCB-containing caulk and light ballasts was common. Coghlan calculated
+the percentage by which remediation reduced PCB air concentrations—known as
+the protection factor—by dividing the postremediation concentration for each school
+by its preremediation concentration. He then divided the postremediation air
+concentrations measured at SVEC by this protection factor to estimate the
+preremediation air concentrations at SVEC.
+All of the industrial hygienists who testified at the Frye hearing in Rose,
+including Pharmacia’s witness, acknowledged that the use of protection factors
+derived from remediation efforts is a generally accepted method of both exposure
+reconstruction and predicting the effectiveness of future remediation. Dr. Price
+testified that he was not “aware of any industrial hygienists who have disagreement
+68
+Erickson v. Pharmacia, No. 103135-1
+on the concept of adjusting postremediation levels to estimate preremediation levels
+of an airborne contaminant using another site.” Id. at 4252. Dr. Altemose testified
+that he uses protection factors “a couple of times a month” to predict the effect of
+remediation techniques and that he uses them “to reconstruct exposure” after a
+“remedial effort has been made.” Id. at 4256. Further, Pharmacia’s witness Dr.
+Moore testified that using postremediation levels to estimate preremediation levels
+“can be done, but in order to use one site as another site, you need to characterize
+that those sites are equivalent.” Id. at 4334. The American Industrial Hygiene
+Association also endorses the use of protection factors in exposure reconstruction,
+and the Occupational Health and Safety Administration uses them to predict the
+effectiveness of remediation techniques. See id. at 6805; 8765.
+While Pharmacia elicited some testimony critical of this method and
+Coghlan’s use of protection factors, none came from an industrial hygienist. Unlike
+the method using carpet samples, which draws on broader principles like source-
+sink dynamics shared with other disciplines like environmental engineering, the use
+of protection factors fits squarely in the field of industrial hygiene, so testimony from
+experts in other fields is not relevant. For example, Dr. Herman declined to answer
+whether the use of protection factors is generally accepted in the field of industrial
+hygiene because he is “not an industrial hygienist so [he] can’t speak to that.” Id. at
+4372.
+69
+Erickson v. Pharmacia, No. 103135-1
+Pharmacia argues that Coghlan did not demonstrate general acceptance of the
+use of protection factors from schools (or specifically from the Thomas study) to
+estimate preremediation air concentrations of PCBs. These arguments frame the
+analysis of general acceptance too narrowly and echo Pharmacia’s criticisms of the
+back-calculation method based on carpet samples, overlooking that Frye does not
+require acceptance of “each discrete and ever more specific part of an expert
+opinion.” Anderson, 172 Wn.2d at 611. We conclude that Coghlan’s use of
+protection factors to estimate preremediation concentrations of PCBs is generally
+accepted within the relevant field of industrial hygiene.
+This method of back-calculation based on the Thomas study also satisfies ER
+702, as the trial court here and in Rose concluded. As with the method based on
+carpet samples, it is helpful to the jury because it estimates PCBs air concentrations
+for which no direct measurement exists. Pharmacia’s arguments all go to the weight
+of Coghlan’s testimony, not its admissibility.
+Pharmacia primarily argues that Coghlan did not sufficiently show that the
+New York schools were similar to SVEC. But Pharmacia appears to require a level
+of identicalness that industrial hygienists would not require in order to consider the
+method reliably applied. Its witness John Woodyard—whose experience “‘loosely’”
+fits in the field of “‘environmental engineering’” and whom the Rose court found
+too biased to be credible, Rose Order at 15—testified that one would first need to
+70
+Erickson v. Pharmacia, No. 103135-1
+make sure variables such as the size of the classrooms and ventilation systems are
+“identical between schools” in order to use this method. SR at 4356. Dr. Herman,
+an environmental engineer and geologist, also testified in Rose that one would need
+to confirm that the sequence of remediation techniques used at both schools were
+similar, but when asked to explain what effect that would have on the air
+concentrations after the full remediation process was complete, he could not point
+to any specific effect.
+In this case, Coghlan testified that the factors relevant to exposure
+reconstruction—the PCB sources used in the schools and the remediation techniques
+used to remove those sources—were similar. Additionally, as he did with the
+method based on carpet samples, Coghlan ran his calculations using the two schools
+in the Thomas study with the highest and lowest protection factors to produce a range
+of possible preremediation air concentrations at SVEC. His testimony supports a
+fair inference that SVEC shares a general similarity with other public schools built
+during the era of widespread PCB use, and that the remediation efforts at SVEC were
+at least as effective as the least effective remediation in the New York schools but
+no more effective than the most effective remediation. For these reasons, we
+conclude that the trial court reasonably concluded that Coghlan demonstrated
+sufficient similarity between the schools to show that he reliably applied this method
+of estimation using protection factors. We reverse the Court of Appeals and hold
+71
+Erickson v. Pharmacia, No. 103135-1
+that the trial court did not err in admitting Coghlan’s testimony based on both back-
+calculation methods.
+CONCLUSION
+This case presents important questions involving both Washington’s choice
+of law analysis and the framework for evaluating the admissibility of expert
+testimony. We conclude that the trial court properly applied Washington’s choice
+of law principles and properly admitted expert testimony.
+When a party raises an actual conflict of substantive law, Washington courts
+apply the law of the state with the most significant relationship to that particular
+issue. Under this test, Missouri law applies to govern the issues of repose and
+punitive damages. With respect to punitive damages under Missouri law, it is not
+necessary to consider whether Missouri would recognize a claim for postsale failure
+to warn. This is because the jury’s finding of liability under Washington substantive
+product law is sufficient to sustain a punitive damages award where the jury finds
+that Missouri’s heightened standard of wrongful conduct is met.
+Under Washington standards governing the admissibility of expert testimony,
+the trial court properly applied both Frye and ER 702 and held that Coghlan’s
+testimony was admissible.
+72
+Erickson v. Pharmacia, No. 103135-1
+Accordingly, we reverse the Court of Appeals in part and hold that a new trial
+is not warranted. We reinstate the jury’s verdict and remand to the trial court for any
+further proceedings consistent with this opinion.
+______________________________
+WE CONCUR:
+___________________________ ____________________________
+____________________________ ____________________________
+____________________________ ____________________________
+____________________________ ____________________________
+73
+Erickson v. Pharmacia LLC
+No. 103135-1
+GORDON McCLOUD, J. (dissenting)—Washington’s substantive law—the
+Washington product liability act (WPLA), ch. 7.72 RCW—applies to the products
+liability claims in this case. The parties agree on this point. Pet. for Rev. at 8-9;
+Answer to Pet. for Rev. at 14. The majority does too. Majority at 51.
+The WPLA contains an explicit statute of repose. RCW 7.72.060. As the
+Court of Appeals explained, statutes of repose are part of the substantive law: they
+define whether a claim ever arises in the first place. Erickson v. Pharmacia, LLC,
+31 Wn. App. 2d 100, 119, 548 P.3d 226 (2024) (citing Rice v. Dow Chem. Co., 124
+Wn.2d 205, 212, 875 P.2d 1213 (1994)); accord Goad v. Celotex Corp., 831 F.2d
+508, 511 (4th Cir. 1987) (“Statutes of repose make the filing of suit within a
+specified time a substantive part of plaintiff’s cause of action.” (citing Bolick v.
+Am. Barmag Corp., 306 N.C. 364, 293 S.E. 2d 415 (1982))). Thus, “[f]or a WPLA
+claim to exist, the plaintiff must satisfy the statute’s integrated statute of repose.”
+Erickson, 31 Wn. App. 2d at 125.
+The WPLA’s statute of repose bars claims after the expiration of the
+product’s useful safe life, presumptively set at 12 years. RCW 7.72.060. That’s
+1
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+what the plain language of the statute says.1 Under applicable rules of statutory
+interpretation, that’s what the Washington Legislature intended. Dep’t of Ecology
+v. Campbell & Gwinn, LLC, 146 Wn.2d 1, 9-10, 43 P.3d 4 (2002) (courts must
+give effect to a statute’s plain meaning as an expression of legislative intent if the
+statute’s meaning is plain on its face).
+I therefore disagree with the majority’s decision to say that the WPLA
+provides the substantive law on liability in this case but then discard the WPLA’s
+explicit, claim-defining statute of repose and choose Missouri’s lack of a statute of
+repose instead.
+As the Court of Appeals correctly explained, the statute’s plain language
+shows that the legislature intended the statute of repose to apply to the full chapter
+1 (1) Useful safe life. (a) . . . [A] product seller shall not be subject to
+liability to a claimant for harm under this chapter if the product seller
+proves by a preponderance of the evidence that the harm was caused after
+the product’s “useful safe life” had expired.
+“Useful safe life” begins at the time of delivery of the product and
+extends for the time during which the product would normally be likely to
+perform or be stored in a safe manner. . . .
+. . . .
+(2) Presumption regarding useful safe life. If the harm was caused more
+than twelve years after the time of delivery, a presumption arises that the
+harm was caused after the useful safe life had expired. This presumption
+may only be rebutted by a preponderance of the evidence.
+RCW 7.72.060.
+2
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+in which it appears as an integral part of a WPLA claim. Erickson, 31 Wn. App. 2d
+at 121-22 & n.10. As with all statutes of repose, the WPLA’s statute of repose
+reflects careful legislative balancing of competing policy concerns. Id. at 121-22
+(citing Bennett v. United States, 2 Wn.3d 430, 454, 539 P.3d 361 (2023)). When
+crafting the WPLA, the legislature was concerned with two important policies:
+“‘protecting Washington industries from excessive litigation, and preserving the
+right of consumers to seek redress for injuries caused by unsafe products.’” Id. at
+122 (quoting Zenaida-Garcia v. Recovery Sys. Tech., Inc., 128 Wn. App. 256, 264,
+115 P.3d 1017 (2005)). The legislature balanced these interests in the statute of
+repose, which cuts off liability after a product’s “useful safe life,” thereby
+protecting manufacturers and sellers from indefinite exposure. By creating a
+rebuttable presumption that a product’s useful safe life expires after 12 years, the
+WPLA reflects a deliberate balance between allowing injured parties a fair
+opportunity to bring claims and ensuring predictability and finality for product
+sellers. Id. If the harm was caused after the useful safe life expired, then the
+plaintiff has no WPLA claim. Thus, the statute of repose is “integrated” into the
+WPLA “such that it is fundamental to the existence of a claim.” Id. at 123.
+The majority, however, bases its decision on the assumption that the
+WPLA’s statute of repose is not fundamental to the existence of a WPLA claim
+3
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+and does not represent a legislative directive about choice of law at all. The
+majority therefore discards the WPLA’s explicit statute of repose in favor of
+Missouri law, which contains no statute of repose at all for product liability claims.
+Majority at 28.
+The majority first acknowledges that the laws of Washington and Missouri
+conflict on this point. Id. at 27. I agree. Under Restatement (Second) of Conflict of
+Laws (Am. L. Inst. 1971), once a conflict is identified, the court must follow any
+explicit or implicit statutory directive on choice of law. Id. at 13.2 I agree with this,
+also. But the majority then asserts that the WPLA’s language provides “no
+evidence” that the legislature “intended to provide courts with a directive on choice
+of law” for repose. Id. at 29. Thus, it concludes that following Johnson v. Spider
+Staging’s3 issue-by-issue approach to choice of law and then applying Missouri’s
+law on repose does not conflict with the WPLA’s statutory language. Id. at 31.
+I respectfully disagree with those latter points (that there’s no evidence the
+legislature intended the WPLA statute of repose to prevail on choice of law and
+2 I also note that under Restatement (Second), “‘[p]rovided it is constitutional to do
+so, the court will apply a local statute in the manner intended by the legislature even
+when the local law of another state would be applicable under usual choice-of-law
+principles.’” Erickson, 31 Wn. App. 2d at 122 n.10 (alteration in original) (quoting
+RESTATEMENT (SECOND) § 6 cmt. b).
+3 87 Wn.2d 577, 580, 555 P.2d 997 (1976).
+4
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+hence that choosing Missouri law does not conflict with the WPLA’s clear statute
+of repose language). As to the first point, there is a wealth of evidence that the
+legislature “intended to provide courts with a directive on choice of law” for repose
+for WPLA claims. Id. at 29. The Court of Appeals correctly explained that the
+language of the WPLA statute of repose shows legislative intent to make “the
+statute of repose mandatory to the existence of a WPLA claim.” Erickson, 31 Wn.
+App. 2d at 123. That makes the WPLA’s statute of repose a legislative directive—
+courts must apply the WPLA statute of repose to determine whether a WPLA
+claim exists. As to the second point, given that clear statutory language, the
+majority errs in concluding that applying Missouri’s law on repose does not
+conflict with the WPLA’s statutory language. Majority at 31. Actually, the
+WPLA’s statutory language shows that Missouri’s total lack of a statute of repose
+for product liability claims conflicts directly with the WPLA.
+The majority defends its conclusion on these points by relying extensively
+on a Court of Appeals opinion, Zenaida-Garcia. Majority at 40-41 (citing Zenaida-
+Garcia, 128 Wn. App. at 266). But that case is not controlling, and, as the Court of
+Appeals here pointed out, it is not clear that the WPLA provided the substantive
+law on liability in that case at all. Erickson, 31 Wn. App. 2d at 121 n.9.
+5
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+The majority also relies on this court’s decision in Rice for that analysis and
+conclusion. Majority at 17 (citing Rice, 124 Wn.2d at 207). But that reliance is
+unjustified for the same reason: in Rice, it was also unclear whether the WPLA
+applied, and the parties had not briefed it; this court ultimately determined that
+Oregon law on liability applied and that the claim was barred by the Oregon statute
+of repose. Erickson, 31 Wn. App. 2d at 121 n.9 (citing Rice, 124 Wn.2d at 217).
+Thus, the courts in Zenaida-Garcia and Rice “were not asked to consider the
+specific question we are faced with here: whether the court should apply a separate
+choice-of-law analysis to the statute of repose in WPLA from the choice of law
+governing the substantive product liability claim.” Id. at 119. I agree with the
+Court of Appeals; I am not convinced that in a case like this one where “there is no
+dispute as to which substantive product liability law applies, any other state’s
+statute of repose could supplant the claim-defining statute of repose in WPLA.” Id.
+at 121.
+To be sure, the majority’s application of the “most significant relationship
+test” certainly finds support in our early decision in Johnson. 87 Wn.2d at 583-84
+(applying the “most significant relationship” test to determine whether to apply
+Washington or Kansas law on damages in a wrongful death action). But I disagree
+that the majority should have reached that test at all as to the issue of repose—
+6
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+because the plain language of the WPLA makes clear that the WPLA’s statute of
+repose inheres in all WPLA claims, so we must apply the WPLA statute of repose,
+not some other state’s law on repose (or lack thereof). The majority’s contrary
+decision conflicts with our basic rule of statutory construction, that is, to determine
+the intent of the legislature first and foremost from the language that it used.
+Campbell & Gwinn, 146 Wn.2d at 9-10.
+By straying from the WPLA’s plain language and clear legislative intent, the
+majority is left with the task of balancing competing policy preferences.
+But courts are not supposed to start their analysis with policy preferences
+when there’s a state statute right on point. And there’s no denying that the WPLA’s
+explicit, detailed, and somewhat unique statute of repose is the statute right on
+point. It uses broad language to refer to the beneficiaries of the statute of repose: “a
+product seller shall not be subject to liability to a claimant for harm under this
+chapter.” RCW 7.72.060 (emphasis added). This broad language suggests that the
+statute of repose “applies to every product seller and to every claim brought under
+the WPLA.” Majority at 30 (emphasis added) (citing Appellant Pharmacia LLC’s
+Reply Br. at 12, 19, Erickson v. Pharmacia LLC (Wash. Ct. App No. 83287-5-I
+(2022))); accord Erickson, 31 Wn. App. 2d at 123. The fact that the WPLA statute
+7
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+of repose appears right in the WPLA (as opposed to appearing in some other more
+general section) provides only further support for that point in this case.
+I do not dispute the majority’s explanation that “[s]cholars” have coined a
+fancy word to promote the process sometimes, but not always, of taking one
+element from one state’s definition of a claim, taking another element from another
+state’s definition of a claim, and calling it statutory interpretation. Majority at 20.
+But we’re not dealing with a law review article here. We’re dealing with
+difficult legislative judgments, by legislators with perhaps differing policy
+priorities, expressed in statutes written by perhaps imperfect human beings. And
+we’re trying to apply those legislative decisions to a terrible mass tort for which a
+variety of actors likely bear blame. I don’t think that the language that the
+Washington Legislature chose to put into the WPLA on repose can support the
+majority’s decision, despite the fancy word that might support such picking and
+choosing elements from different states’ laws in other situations.
+And to be fair to the scholars who coined that term, they did not mean to
+apply it in every situation. The majority acknowledges this. It appropriately
+recognizes that “dépeçage is inappropriate ‘when used to fragment issues related to
+a common purpose or to legitimize a smorgasbord approach which inures only to
+8
+Erickson v. Pharmacia LLC, No. 103135-1
+(Gordon McCloud, J., dissenting)
+the benefit of the party picking and choosing.’” Majority at 21-22 (quoting
+Johnson v. Cont’l Airlines Corp., 964 F.2d 1059, 1064 (10th Cir. 1992)).
+But the majority did not actually apply this limitation. I would. I would
+affirm the Court of Appeals decision that the WPLA itself defines the claim and
+defines the statute of repose. I would also affirm the Court of Appeals decision that
+that statute of repose survives constitutional scrutiny (for the reasons that the Court
+of Appeals states). And I would remand to the trial court for further proceedings,
+just as the Court of Appeals did.
+I therefore respectfully dissent.
+___________________________
+_______________________
+__________________________
+9
