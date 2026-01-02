@@ -40,7 +40,7 @@ class VerificationCache:
     
     def _get_key(self, citation: str, source: str) -> str:
         """Generate cache key for citation-source pair."""
-        return f"{source}:{hashlib.md5(citation.lower().strip().encode('utf-8')).hexdigest()}"
+        return f"{source}:{hashlib.md5(citation.lower().strip().encode('utf-8'), usedforsecurity=False).hexdigest()}"
     
     def get(self, citation: str, source: str) -> Optional[VerificationResult]:
         """Get cached result if valid."""

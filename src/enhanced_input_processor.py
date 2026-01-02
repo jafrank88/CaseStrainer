@@ -68,7 +68,7 @@ class EnhancedInputProcessor:
     
     def _get_cache_key(self, content: str, source_type: str) -> str:
         """Generate cache key for content."""
-        content_hash = hashlib.md5(content.encode('utf-8')).hexdigest()
+        content_hash = hashlib.md5(content.encode('utf-8'), usedforsecurity=False).hexdigest()
         return f"{source_type}_{content_hash}"
     
     def _get_from_cache(self, cache_key: str) -> Optional[str]:

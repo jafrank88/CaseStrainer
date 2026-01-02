@@ -82,10 +82,10 @@ class UnifiedTextExtractor:
             # Use file path, size, and modification time for cache key
             stat = os.stat(file_path)
             cache_data = f"{file_path}_{stat.st_size}_{stat.st_mtime}"
-            return hashlib.md5(cache_data.encode('utf-8')).hexdigest()
+            return hashlib.md5(cache_data.encode('utf-8'), usedforsecurity=False).hexdigest()
         except Exception:
             # Fallback to path hash only
-            return hashlib.md5(file_path.encode('utf-8')).hexdigest()
+            return hashlib.md5(file_path.encode('utf-8'), usedforsecurity=False).hexdigest()
     
     def _get_from_cache(self, cache_key: str) -> Optional[str]:
         """Get text from cache if available and not expired."""
