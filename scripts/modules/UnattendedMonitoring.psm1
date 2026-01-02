@@ -20,14 +20,14 @@ function SetUnattendedMonitoring {
     
     # Create logon task
     try {
-        $logonAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"D:\dev\casestrainer\persistent_monitor.ps1`""
+        $logonAction = New-ScheduledTaskAction -Execute "powershell.exe" -Argument "-NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"D:\dev\casestrainer\persistent_monitor.ps1`"" -ErrorAction Stop
         $logonTrigger = New-ScheduledTaskTrigger -AtLogOn
         $logonSettings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -StartWhenAvailable
         
-        Register-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" -Action $logonAction -Trigger $logonTrigger -Settings $logonSettings -RunLevel Highest -Force | Out-Null
+        Register-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" -Action $logonAction -Trigger $logonTrigger -Settings $logonSettings -RunLevel Highest -Force -ErrorAction Stop | Out-Null
         
         # Start the logon task
-        Start-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" | Out-Null
+        Start-ScheduledTask -TaskName "CaseStrainer-PersistentMonitor" -ErrorAction Stop | Out-Null
         Write-Host "[SUCCESS] Logon task created and started" -ForegroundColor Green
     } catch {
         Write-Host "[WARN] Failed to create scheduled task: $($_.Exception.Message)" -ForegroundColor Yellow
