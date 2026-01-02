@@ -890,7 +890,7 @@ def fetch_url_content(url: str) -> str:
                         timeout=DEFAULT_REQUEST_TIMEOUT,
                         allow_redirects=True,
                         stream=True,
-                        verify=False  # Disable SSL verification as fallback
+                        verify=False  # nosec - Disable SSL verification as fallback after SSL fails
                     )
                     logger.info(f"Successfully fetched {url} without SSL verification")
                 except Exception as e:
