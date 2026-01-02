@@ -48,7 +48,7 @@ function Test-EnsureDockerRunning {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n=== Docker Pre‑Flight Check ===" -ForegroundColor Cyan
+    Write-Host "`n=== Docker Pre-Flight Check ===" -ForegroundColor Cyan
     
     # Ensure Docker CLI is available
     if (-not (Test-CommandExists 'docker')) {
@@ -57,26 +57,47 @@ function Test-EnsureDockerRunning {
         return $false
     }
     
-    $maxAttempts = 30
+    $maxAttempts = 5
     for ($attempt = 1; $attempt -le $maxAttempts; $attempt++) {
         try {
-            docker info >$null 2>&1
-            if ($LASTEXITCODE -eq 0) {
+            # Use .NET Process with timeout to prevent hanging on frozen Docker
+            $psi = New-Object System.Diagnostics.ProcessStartInfo
+            $psi.FileName = "docker"
+            $psi.Arguments = "info"
+            $psi.RedirectStandardOutput = $true
+            $psi.RedirectStandardError = $true
+            $psi.UseShellExecute = $false
+            $psi.CreateNoWindow = $true
+            
+            $process = New-Object System.Diagnostics.Process
+            $process.StartInfo = $psi
+            $process.Start() | Out-Null
+            
+            # Wait up to 10 seconds per attempt
+            $completed = $process.WaitForExit(10000)
+            
+            if ($completed -and $process.ExitCode -eq 0) {
                 Write-Host "[OK] Docker daemon is running and accessible (attempt $attempt)" -ForegroundColor Green
                 return $true
+            } elseif (-not $completed) {
+                $process.Kill()
+                Write-Host "[WARN] Docker daemon timed out (attempt $attempt/$maxAttempts)" -ForegroundColor Yellow
+            } else {
+                Write-Host "[WARN] Docker daemon not ready (attempt $attempt/$maxAttempts)" -ForegroundColor Yellow
             }
         } catch {
-            # ignore errors, will retry
+            Write-Host "[WARN] Docker check failed (attempt $attempt/$maxAttempts): $($_.Exception.Message)" -ForegroundColor Yellow
         }
-        Start-Sleep -Seconds 2
+        
+        if ($attempt -lt $maxAttempts) {
+            Start-Sleep -Seconds 3
+        }
     }
     
     Write-Host "[ERROR] Docker daemon is not reachable after $maxAttempts attempts." -ForegroundColor Red
     Write-Host "Please ensure Docker Desktop is running and the Docker service is started." -ForegroundColor Yellow
     Write-Host "You may need to start Docker Desktop manually or restart your computer." -ForegroundColor Yellow
     return $false
-    # Service restart logic removed - Docker must be started manually
-
 }
 
 # Helper function to check if a command exists
@@ -264,11 +285,11 @@ function Clear-ApplicationCache {
     Write-Host "`n[CACHE CLEAR] Clearing Redis and file caches..." -ForegroundColor Yellow
     
     try {
-        # Clear Redis cache
-        Write-Host "  🗑️  Clearing Redis caches (databases 0, 1, 2, 3)..." -ForegroundColor Cyan
-        $redisOutput = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHDB 2>&1
+        # Clear ALL Redis databases (FLUSHALL clears everything, not just current DB)
+        Write-Host "  🗑️  Clearing ALL Redis databases (including verification cache)..." -ForegroundColor Cyan
+        $redisOutput = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHALL 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✅ Redis caches cleared" -ForegroundColor Green
+            Write-Host "  ✅ Redis caches cleared (all databases)" -ForegroundColor Green
         } else {
             Write-Host "  ⚠️  Redis caches already empty or not accessible" -ForegroundColor Yellow
         }
@@ -403,11 +424,10 @@ function Start-Production {
         # Cleanup stuck jobs after services are ready
         Clear-StuckJobs
         
-        # Clear caches if requested or after build
-        if ($ClearCache) {
-            Clear-ApplicationCache -SkipConfirmation
-            Restart-RQWorkers
-        }
+        # ALWAYS clear caches and restart workers on every launch
+        Write-Host "`n[AUTO-MAINTENANCE] Performing automatic cache clear and worker restart..." -ForegroundColor Cyan
+        Clear-ApplicationCache -SkipConfirmation
+        Restart-RQWorkers
         
         Write-Host "`n✅ Production environment restarted!" -ForegroundColor Green
         Write-Host "- Application: http://localhost" -ForegroundColor Cyan
@@ -461,11 +481,10 @@ function Start-Production {
     # Cleanup stuck jobs after services are ready
     Clear-StuckJobs
     
-    # Clear caches if requested or after build
-    if ($ClearCache) {
-        Clear-ApplicationCache -SkipConfirmation
-        Restart-RQWorkers
-    }
+    # ALWAYS clear caches and restart workers on every launch
+    Write-Host "`n[AUTO-MAINTENANCE] Performing automatic cache clear and worker restart..." -ForegroundColor Cyan
+    Clear-ApplicationCache -SkipConfirmation
+    Restart-RQWorkers
     
     Write-Host "`n✅ Production environment started!" -ForegroundColor Green
     Write-Host "- Application: http://localhost" -ForegroundColor Cyan

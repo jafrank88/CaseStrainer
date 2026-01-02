@@ -58,6 +58,42 @@ def is_valid_case_name(case_name: Optional[str], min_length: int = 5) -> bool:
         logger.debug(f"Rejected: No 'v.'/'vs.' and not a special case: '{case_name}'")
         return False
     
+    # CRITICAL FIX: Reject if contains legal analysis phrases (not case names)
+    # These are contamination from surrounding legal text
+    legal_analysis_phrases = [
+        'rulings de novo', 'ruling de novo', 'rulings', 'hearing', 'standard', 'test', 'review',
+        'claim', 'statute', 'rule', 'evidence', 'court held', 'court found', 'court ruled',
+        'we review', 'we hold', 'we conclude', 'we determine', 'we find', 'we affirm',
+        'under', 'pursuant to', 'according to', 'in accordance with',
+        'de novo', 'de novo review', 'de novo standard',
+        'frye', 'daubert', 'kumho',  # Legal test names
+        'wpla', 'wcpa', 'rcw', 'frcp', 'frcivp',  # Legal codes
+        # FIX DEC 2025 v10: Removed 'er ' - too many false positives (e.g., "Fisher")
+        'choice of law', 'conflict of laws',
+        'appellate review', 'trial court', 'appellate court',
+        'wpla claim', 'washington legislature intended',  # Specific patterns from results
+    ]
+    
+    case_lower = case_name.lower()
+    for phrase in legal_analysis_phrases:
+        if phrase in case_lower:
+            logger.debug(f"Rejected: Contains legal analysis phrase '{phrase}': '{case_name}'")
+            return False
+    
+    # Reject if starts with legal analysis phrases (common contamination)
+    legal_start_phrases = [
+        r'^(?:frye|daubert|kumho)\s+(?:rulings?|hearings?|standards?|tests?)',
+        r'^(?:wpla|wcpa|rcw|er|frcp|frcivp)\s+(?:claim|rule|statute|evidence)',
+        r'^we\s+(?:review|hold|conclude|determine|find|affirm|reverse|remand)',
+        r'^(?:the\s+)?(?:court|trial\s+court|appellate\s+court)\s+(?:held|found|ruled|determined)',
+        r'^(?:under|pursuant\s+to|according\s+to|in\s+accordance\s+with)',
+    ]
+    
+    for pattern in legal_start_phrases:
+        if re.search(pattern, case_lower):
+            logger.debug(f"Rejected: Starts with legal analysis phrase: '{case_name}'")
+            return False
+    
     # Reject common text fragments that aren't case names
     bad_patterns = [
         r'^dangerous\b',

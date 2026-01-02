@@ -84,12 +84,14 @@ def analyze_text():
     Expected JSON payload:
     {
         "text": "text to analyze",
-        "type": "text"
+        "type": "text",
+        "enable_verification": true  # Optional: Control citation verification
     }
     
     Or form data with:
     - text: text to analyze
     - type: "text"
+    - enable_verification: "true"/"false" (optional)
     
     Returns:
         JSON response with citation analysis results
@@ -125,7 +127,8 @@ def analyze_text():
                 'text': text_content,
                 'url': url_content,
                 'type': request.form.get('type', 'text'),
-                'force_mode': request.form.get('force_mode')  # FIX #53: Extract force_mode from form data
+                'force_mode': request.form.get('force_mode'),  # FIX #53: Extract force_mode from form data
+                'enable_verification': request.form.get('enable_verification')  # Add enable_verification parameter
             }
         
         # Check for file upload first
@@ -230,6 +233,17 @@ def analyze_text():
             if force_mode:
                 logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
             
+            # Extract enable_verification parameter
+            enable_verification = data.get('enable_verification')
+            if enable_verification is not None:
+                # Convert string to boolean if needed
+                if isinstance(enable_verification, str):
+                    enable_verification = enable_verification.lower() in ('true', '1', 'yes', 'on')
+                logger.info(f"[Request {request_id}] 🎯 User requested enable_verification={enable_verification}")
+            else:
+                enable_verification = True  # Default to True for backward compatibility
+                logger.info(f"[Request {request_id}] 🎯 Using default enable_verification={enable_verification}")
+            
             should_process_immediately = citation_service.should_process_immediately(
                 input_data_for_check, 
                 force_mode=force_mode
@@ -252,7 +266,8 @@ def analyze_text():
                     input_data=input_data,
                     input_type=input_type,
                     request_id=request_id,
-                    force_mode=force_mode  # Pass force_mode through
+                    force_mode=force_mode,  # Pass force_mode through
+                    enable_verification=enable_verification  # Pass enable_verification through
                 )
                 
                 progress_tracker.update_step(1, 90, 'Citation extraction nearly complete...')
@@ -311,7 +326,8 @@ def analyze_text():
                     input_data=input_data,
                     input_type=input_type,
                     request_id=request_id,
-                    force_mode=force_mode  # Pass force_mode through
+                    force_mode=force_mode,  # Pass force_mode through
+                    enable_verification=enable_verification  # Pass enable_verification through
                 )
                 
                 # Check if we got a sync fallback result or actual async task

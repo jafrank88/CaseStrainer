@@ -19,7 +19,7 @@ class ClusterDTO:
 
 
 def normalize_cluster_dict(d: Dict[str, Any]) -> Dict[str, Any]:
-    """Normalize a cluster-like dict to a stable DTO shape."""
+    """Normalize a cluster-like dict to a stable DTO shape while preserving important fields."""
     if not isinstance(d, dict):
         try:
             d = d.to_dict() if hasattr(d, 'to_dict') else dict(d)
@@ -31,7 +31,8 @@ def normalize_cluster_dict(d: Dict[str, Any]) -> Dict[str, Any]:
     citations_raw = d.get('citations') or []
     citations = [normalize_citation_dict(c) for c in citations_raw]
 
-    return {
+    # Start with the basic DTO fields
+    result = {
         'cluster_id': d.get('cluster_id'),
         'citations': citations,
         'canonical_name': d.get('canonical_name') or d.get('canonical_case_name'),
@@ -42,3 +43,19 @@ def normalize_cluster_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         'mismatch_indices': list(d.get('mismatch_indices') or []),
         'metadata': dict(d.get('metadata') or {}),
     }
+    
+    # CRITICAL FIX: Preserve important cluster fields that were being stripped
+    # These fields are needed for proper cluster display and validation
+    important_fields = [
+        'cluster_case_name', 'cluster_year', 'cluster_size', 'confidence',
+        'verification_status', 'verification_source', 'cluster_members',
+        'name_similarity', 'names_equivalent', 'name_mismatch', 'date_mismatch',
+        'submitted_display_name', 'submitted_display_date', 
+        'verifying_display_name', 'verifying_display_date'
+    ]
+    
+    for field in important_fields:
+        if field in d:
+            result[field] = d[field]
+    
+    return result

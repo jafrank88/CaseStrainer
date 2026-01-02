@@ -87,13 +87,11 @@ api.interceptors.response.use(
 // Request interceptor for API requests
 api.interceptors.request.use(
   (config) => {
-    // Add API key to headers - REQUIRED environment variable
+    // Add API key to headers if provided (optional)
     const apiKey = import.meta.env.VITE_COURTLISTENER_API_KEY;
-    if (!apiKey) {
-      console.error('❌ VITE_COURTLISTENER_API_KEY environment variable is required but not set');
-      throw new Error('CourtListener API key not configured. Please set VITE_COURTLISTENER_API_KEY environment variable.');
+    if (apiKey) {
+      config.headers['X-API-Key'] = apiKey;
     }
-    config.headers['X-API-Key'] = apiKey;
     
     // Only set Content-Type for non-FormData requests
     if (!(config.data instanceof FormData)) {

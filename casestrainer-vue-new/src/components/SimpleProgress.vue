@@ -12,9 +12,7 @@
               <i class="bi bi-exclamation-triangle-fill"></i>
             </div>
             <div v-else class="loading-spinner">
-              <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-              </div>
+              <i class="bi bi-hourglass-split text-primary"></i>
             </div>
           </div>
           
@@ -157,10 +155,51 @@ const animateProgress = (targetPercent) => {
   }, 50)
 }
 
-// Watch for progress updates
+// Track when analysis actually starts
+let timerStartTime = null
+
+// Watch for progress updates - use deep watch to detect nested changes
 watch(
   () => globalProgress.progressState,
   (newState) => {
+    // CRITICAL FIX: Only start timer when analysis actually begins (isActive becomes true)
+    if (newState.isActive && !timerStartTime) {
+      timerStartTime = Date.now()
+      elapsedTime.value = 0
+      pollCount.value = 0 // Reset poll count for new analysis
+      
+      // Start elapsed time counter when analysis begins
+      if (elapsedTimer) {
+        clearInterval(elapsedTimer)
+      }
+      elapsedTimer = setInterval(() => {
+        if (timerStartTime) {
+          elapsedTime.value = Date.now() - timerStartTime
+        }
+      }, 100)
+    }
+    
+    // CRITICAL FIX: Only reset timer if startTime actually changed AND it's a different analysis
+    // Don't reset if startTime is just being updated with the same value
+    // Convert startTime to milliseconds if it's in seconds (backend sends seconds)
+    const stateStartTime = newState.startTime ? (newState.startTime < 10000000000 ? newState.startTime * 1000 : newState.startTime) : null
+    const localStartTimeMs = timerStartTime
+    if (newState.isActive && timerStartTime && stateStartTime && Math.abs(stateStartTime - localStartTimeMs) > 5000) {
+      // New analysis started - reset timer (only if startTime differs by more than 5 seconds)
+      timerStartTime = Date.now()
+      elapsedTime.value = 0
+      pollCount.value = 0
+    }
+    
+    // Stop timer when analysis completes or errors
+    if (!newState.isActive && timerStartTime) {
+      if (elapsedTimer) {
+        clearInterval(elapsedTimer)
+        elapsedTimer = null
+      }
+      timerStartTime = null
+    }
+    
     // Update current percent
     const newPercent = Math.min(100, Math.max(0, 
       newState.totalProgress || 
@@ -168,10 +207,17 @@ watch(
       0
     ))
     
+    // CRITICAL FIX: Use pollCount from progressState if available, otherwise increment local counter
+    // This ensures the counter increments even if the watcher doesn't fire due to unchanged values
+    if (newState.pollCount !== undefined && newState.pollCount !== null) {
+      pollCount.value = newState.pollCount
+    } else {
+      pollCount.value++
+    }
+    
     if (newPercent !== currentPercent.value) {
       currentPercent.value = newPercent
       animateProgress(newPercent)
-      pollCount.value++
     }
     
     // Update message
@@ -192,6 +238,7 @@ watch(
           clearInterval(elapsedTimer)
           elapsedTimer = null
         }
+        timerStartTime = null
       }, 2000)
     } else if (newPercent >= 100 && !isComplete.value) {
       // Progress reached 100% but no results yet - keep showing "Processing..."
@@ -208,22 +255,20 @@ watch(
         clearInterval(elapsedTimer)
         elapsedTimer = null
       }
+      timerStartTime = null
     }
+    
+    // Detect processing mode
+    const metadata = newState.metadata || {}
+    processingMode.value = metadata.processing_mode || ''
   },
   { deep: true, immediate: true }
 )
 
-// Start elapsed time counter
+// Initialize component (don't start timer here)
 onMounted(() => {
-  const startTime = Date.now()
-  
-  elapsedTimer = setInterval(() => {
-    elapsedTime.value = Date.now() - startTime
-  }, 100)
-  
-  // Detect processing mode
-  const metadata = globalProgress.progressState.metadata || {}
-  processingMode.value = metadata.processing_mode || ''
+  // Don't start timer on mount - wait for isActive to become true
+  // Timer will start when analyze button is clicked and progress becomes active
 })
 
 onUnmounted(() => {
@@ -287,9 +332,8 @@ onUnmounted(() => {
   background: #f8f9fa;
 }
 
-.loading-spinner .spinner-border {
-  width: 2rem;
-  height: 2rem;
+.loading-spinner i {
+  font-size: 2rem;
 }
 
 .success-icon {

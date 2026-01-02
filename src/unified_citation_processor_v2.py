@@ -2,7 +2,7 @@
 """
 Unified Citation Processor v2 - Consolidated Citation Extraction and Processing
 
-⚠️  DEPRECATION NOTICE ⚠️
+[WARNING] DEPRECATION NOTICE [WARNING]
 ================================================================================
 This module is being phased out in favor of clean_extraction_pipeline.py
 
@@ -53,7 +53,7 @@ from src.unified_case_extraction_master import (
     extract_case_name_and_date_unified_master
 )
 
-from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
+from src.unified_clustering_master_optimized import cluster_citations_optimized as cluster_citations_unified
 import warnings
 
 from src.config import get_config_value
@@ -470,18 +470,26 @@ class UnifiedCitationProcessorV2:
 
                 names_match_bool = self._case_names_match(canonical_norm, extracted_norm)
                 if not names_match_bool:
-                    logger.warning(f"⚠️ CourtListener canonical name differs from extracted: '{canonical_name}' vs extracted '{extracted_name}' for {citation.citation} (sim={similarity:.2f})")
+                    logger.warning(f"[WARNING] CourtListener canonical name differs from extracted: '{canonical_name}' vs extracted '{extracted_name}' for {citation.citation} (sim={similarity:.2f})")
                     # Low-similarity guard: downgrade to possible_match instead of verified
-                    if similarity < 0.45 and hasattr(citation, '__dict__'):
-                        citation.canonical_name = canonical_name
-                        citation.canonical_date = verify_result.get("canonical_date")
-                        citation.url = verify_result.get("url")
+                    # NOTE: Threshold lowered from 0.45 to 0.35 to reduce false positives on minor variations
+                    # CRITICAL: Unverified citations (possible_match=True but verified=False) CANNOT have canonical data
+                    if similarity < 0.35 and hasattr(citation, '__dict__'):
                         citation.verified = False
                         citation.possible_match = True
+                        # CRITICAL: Don't set canonical_name/canonical_date for unverified citations
+                        citation.canonical_name = None
+                        citation.canonical_date = None
+                        citation.canonical_url = None
+                        citation.url = verify_result.get("url")  # URL is OK to keep
                         citation.source = source
                         citation.metadata = citation.metadata or {}
                         citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
                         citation.metadata["canonical_name_validation"] = "possible_match_low_similarity"
+                        # Store potential match in metadata for reference
+                        citation.metadata['possible_match_name'] = canonical_name
+                        citation.metadata['possible_match_date'] = verify_result.get("canonical_date")
+                        citation.metadata['possible_match_url'] = verify_result.get("url")
                         # Also tag mismatches coherently
                         citation.name_mismatch = True
                         # Confidence proportional to dissimilarity
@@ -501,11 +509,13 @@ class UnifiedCitationProcessorV2:
                     citation.metadata["canonical_name_validation"] = "courtlistener_canonical_preferred"
                     return True
 
+            # CRITICAL: Only set canonical data if verification succeeded
             # Names match or no extracted name available - use CourtListener data as normal (only if not None)
             if canonical_name:
                 citation.canonical_name = canonical_name
                 
             canonical_date = verify_result.get("canonical_date")
+            # CRITICAL: Only set canonical_date from verification results
             if canonical_date:
                 citation.canonical_date = canonical_date
             url = verify_result.get("url")
@@ -516,14 +526,16 @@ class UnifiedCitationProcessorV2:
             citation.metadata = citation.metadata or {}
             citation.metadata[f"{source.lower()}_source"] = verify_result.get("source")
             
-            # NEW: If extraction failed ('N/A' or missing), backfill extracted_case_name from canonical
-            # This avoids confusing 'N/A' in the UI when we have authoritative canonical data.
+            # CRITICAL FIX: NEVER set or overwrite extracted_case_name from canonical data.
+            # The extracted name must come only from the user's document. Preserve whatever exists.
             try:
-                if (not extracted_name) or (isinstance(extracted_name, str) and extracted_name.strip().upper() == 'N/A'):
-                    if canonical_name:
-                        citation.extracted_case_name = canonical_name
+                existing_extracted_name = getattr(citation, 'extracted_case_name', None)
+                # Preserve as-is; do not backfill from canonical under any circumstance
+                citation.extracted_case_name = existing_extracted_name
+                if canonical_name and existing_extracted_name and existing_extracted_name != canonical_name:
+                    logger.debug(f"[VERIFICATION] Preserving extracted_case_name '{existing_extracted_name}' (canonical is '{canonical_name}')")
             except Exception:
-                # Be conservative: do not break verification on fallback
+                # Be conservative: do not interrupt verification if accessing attributes fails
                 pass
 
             # NEW: Backend-driven mismatch tagging (name/date)
@@ -553,8 +565,19 @@ class UnifiedCitationProcessorV2:
                 logger.warning(f"[MISMATCH-TAGGING] Failed to tag mismatch for {getattr(citation, 'citation', 'unknown')}: {e}")
             return True
         else:
-            # FIXED: Ensure unverified citations have consistent status
+            # CRITICAL: Unverified citations CANNOT have canonical data
+            # EXCEPTION: year_mismatch_rejected citations PRESERVE canonical data for cluster splitting
             citation.verified = False
+            
+            # Check if this is a year_mismatch_rejected citation - preserve canonical data for clustering
+            current_source = getattr(citation, 'source', None)
+            if current_source != 'year_mismatch_rejected':
+                # Clear canonical data for unverified citations (except year_mismatch_rejected)
+                citation.canonical_name = None
+                citation.canonical_date = None
+                citation.canonical_url = None
+            # else: preserve canonical data for cluster splitting
+            
             if not hasattr(citation, 'source') or not citation.source or citation.source == f"{source}_extracted_preferred":
                 citation.source = None  # Clear source for unverified citations
             return False
@@ -569,14 +592,29 @@ class UnifiedCitationProcessorV2:
         
         # Remove common variations that don't affect meaning
         normalized = re.sub(r'\s+', ' ', normalized)  # Normalize whitespace
-        normalized = re.sub(r'[^\w\s]', '', normalized)  # Remove punctuation
         
-        # Handle common abbreviations
-        normalized = re.sub(r'\bvs?\b', 'v', normalized)  # vs -> v
-        normalized = re.sub(r'\bco\b', 'company', normalized)  # co -> company
-        normalized = re.sub(r'\bcorp\b', 'corporation', normalized)  # corp -> corporation
-        normalized = re.sub(r'\binc\b', 'incorporated', normalized)  # inc -> incorporated
-        normalized = re.sub(r'\bllc\b', 'limited liability company', normalized)  # llc -> limited liability company
+        # Handle common abbreviations BEFORE removing punctuation
+        # This ensures abbreviations are expanded properly
+        abbrev_map = {
+            r'\bauto\.?\b': 'automobile',
+            r'\bins\.?\b': 'insurance',
+            r'\bco\.?\b': 'company',
+            r'\bcorp\.?\b': 'corporation',
+            r'\binc\.?\b': 'incorporated',
+            r'\bllc\.?\b': 'limited liability company',
+            r'\bvs?\.?\b': 'v',
+            r'\bmut\.?\b': 'mutual',
+            r'\bassn\.?\b': 'association',
+            r'\bass\'?n\.?\b': 'association',
+            r'\bdept\.?\b': 'department',
+            r'\bdep\'?t\.?\b': 'department',
+        }
+        for pattern, replacement in abbrev_map.items():
+            normalized = re.sub(pattern, replacement, normalized)
+        
+        # Remove punctuation after abbreviation expansion
+        normalized = re.sub(r'[^\w\s]', ' ', normalized)
+        normalized = re.sub(r'\s+', ' ', normalized)  # Normalize whitespace again
         
         # Remove common words that don't affect case identity
         common_words = ['the', 'and', 'or', 'of', 'in', 'on', 'at', 'by', 'for', 'with', 'a', 'an']
@@ -586,21 +624,38 @@ class UnifiedCitationProcessorV2:
         return ' '.join(filtered_words)
     
     def _case_names_match(self, name1: str, name2: str) -> bool:
-        """Check if two case names match, allowing for reasonable variations."""
+        """Check if two case names match, allowing for reasonable variations.
+        
+        Handles:
+        - Abbreviations (e.g., "Auto. Ins. Co." vs "Automobile Insurance Company")
+        - Shared party names (e.g., both have "Campbell" as second party)
+        - Partial matches and word overlap
+        """
         if not name1 or not name2:
             return False
-            
+        
+        # Explicitly reject N/A values
+        if name1.strip().upper() == 'N/A' or name2.strip().upper() == 'N/A':
+            return False
+        
+        # Normalize both names
+        norm1 = self._normalize_case_name_for_comparison(name1)
+        norm2 = self._normalize_case_name_for_comparison(name2)
+        
         # Exact match after normalization
-        if name1 == name2:
+        if norm1 == norm2:
             return True
             
         # Check if one contains the other (handles partial matches)
-        if name1 in name2 or name2 in name1:
+        if norm1 in norm2 or norm2 in norm1:
             return True
-            
+        
         # Split into words and check overlap
-        words1 = set(name1.split())
-        words2 = set(name2.split())
+        words1 = set(norm1.split())
+        words2 = set(norm2.split())
+        
+        if not words1 or not words2:
+            return False
         
         # If significant overlap (>70% of smaller set), consider them matching
         smaller_set = min(words1, words2, key=len)
@@ -608,6 +663,50 @@ class UnifiedCitationProcessorV2:
         
         overlap = len(smaller_set & larger_set)
         if overlap / len(smaller_set) > 0.7:
+            return True
+        
+        # CRITICAL: Check if both names share the same party name (especially after "v")
+        # This handles cases like "Auto. Ins. Co. v. Campbell" vs "State Farm Mutual Automobile Insurance v. Campbell"
+        def extract_parties(name: str) -> tuple:
+            """Extract first and second party names from a case name."""
+            # Split on "v" to get parties
+            parts = re.split(r'\bv\b', name.lower(), maxsplit=1)
+            if len(parts) == 2:
+                first_party = parts[0].strip()
+                second_party = parts[1].strip()
+                # Extract key words from each party (remove common words)
+                first_words = set(w for w in first_party.split() if len(w) > 2 and w not in ['the', 'and', 'of', 'in'])
+                second_words = set(w for w in second_party.split() if len(w) > 2 and w not in ['the', 'and', 'of', 'in'])
+                return first_words, second_words
+            return set(), set()
+        
+        first1, second1 = extract_parties(norm1)
+        first2, second2 = extract_parties(norm2)
+        
+        # If both have the same second party name, and first parties share some words, consider it a match
+        if second1 and second2:
+            second_overlap = second1 & second2
+            if second_overlap:
+                # Both share at least one word in the second party (e.g., "campbell")
+                # Check if first parties have any overlap or if one is an abbreviation of the other
+                first_overlap = first1 & first2
+                if first_overlap:
+                    # Both parties have some overlap - strong match
+                    return True
+                # Check if one first party is a subset of the other (abbreviation case)
+                if first1.issubset(first2) or first2.issubset(first1):
+                    return True
+                # Check if there's significant word overlap in first party (at least 30%)
+                if first1 and first2:
+                    first_smaller = min(first1, first2, key=len)
+                    first_larger = max(first1, first2, key=len)
+                    first_overlap_count = len(first_smaller & first_larger)
+                    if first_smaller and first_overlap_count / len(first_smaller) >= 0.3:
+                        return True
+        
+        # Final check: if there's reasonable overall word overlap (at least 50% of smaller set)
+        # and at least 2 words overlap, consider it a match
+        if overlap >= 2 and overlap / len(smaller_set) >= 0.5:
             return True
             
         return False
@@ -928,15 +1027,15 @@ class UnifiedCitationProcessorV2:
         logger.warning('[DEPRECATED] _extract_with_regex is deprecated. Use _extract_citations_unified() instead.')
         logger.info('[DEBUG] ENTERED _extract_with_regex')
         
-        logger.info(f"🔍 [CITATION_BLOCKS] Attempting citation block extraction for text: '{text[:100]}...'")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Attempting citation block extraction for text: '{text[:100]}...'")
         citation_blocks = self._extract_citation_blocks(text)
         if citation_blocks:
-            logger.info(f"🔍 [CITATION_BLOCKS] Extracted {len(citation_blocks)} citation blocks")
+            logger.info(f"[DEBUG] [CITATION_BLOCKS] Extracted {len(citation_blocks)} citation blocks")
             for block in citation_blocks:
-                logger.info(f"🔍 [CITATION_BLOCKS] Block: '{block.citation}' with extracted_date='{block.extracted_date}'")
+                logger.info(f"[DEBUG] [CITATION_BLOCKS] Block: '{block.citation}' with extracted_date='{block.extracted_date}'")
             return citation_blocks
         else:
-            logger.info(f"🔍 [CITATION_BLOCKS] No citation blocks found, falling back to regex extraction")
+            logger.info(f"[DEBUG] [CITATION_BLOCKS] No citation blocks found, falling back to regex extraction")
         citations = []
         seen_citations = set()
         priority_patterns = [
@@ -993,6 +1092,7 @@ class UnifiedCitationProcessorV2:
                             source="regex",
                             is_parallel=is_parallel
                         )
+                        logger.info(f"[REGEX-DEBUG] Extracted {citation_str} at positions {start_pos}-{end_pos}")
                         self._extract_metadata(citation, text, match)
                         citations.append(citation)
         for pattern_name, pattern in self.citation_patterns.items():
@@ -1043,7 +1143,7 @@ class UnifiedCitationProcessorV2:
         if not text:
             return []
         
-        logger.info(f"🔍 [CITATION_BLOCKS] Starting citation block extraction for text: '{text[:200]}...'")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Starting citation block extraction for text: '{text[:200]}...'")
         citations = []
         
         citation_block_pattern = re.compile(
@@ -1056,9 +1156,9 @@ class UnifiedCitationProcessorV2:
         )
         
         matches = list(citation_block_pattern.finditer(text))
-        logger.info(f"🔍 [CITATION_BLOCKS] Pattern found {len(matches)} matches")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Pattern found {len(matches)} matches")
         for i, match in enumerate(matches):
-            logger.info(f"🔍 [CITATION_BLOCKS] Match {i+1}: '{match.group(0)}'")
+            logger.info(f"[DEBUG] [CITATION_BLOCKS] Match {i+1}: '{match.group(0)}'")
         
         for match in citation_block_pattern.finditer(text):
             case_name = match.group(1).strip().rstrip(',')  # Remove trailing comma
@@ -1068,14 +1168,14 @@ class UnifiedCitationProcessorV2:
             
             # FIX #35: Debug logging for 183 Wn.2d 649
             if "183" in citations_text and "649" in citations_text:
-                logger.warning(f"🔥 FIX #35: BLOCK MATCH for 183 Wn.2d 649!")
+                logger.warning(f"[DEBUG] FIX #35: BLOCK MATCH for 183 Wn.2d 649!")
                 logger.warning(f"   case_name (group 1): '{case_name}'")
                 logger.warning(f"   citations (group 2): '{citations_text}'")
                 logger.warning(f"   year (group 3): '{year}'")
                 logger.warning(f"   full match: '{match.group(0)}'")
                 logger.warning(f"   position: [{start}:{end}]")
             
-            logger.info(f"🔍 [CITATION_BLOCKS] Found citation block: '{case_name}' with citations '{citations_text}' year {year}")
+            logger.info(f"[DEBUG] [CITATION_BLOCKS] Found citation block: '{case_name}' with citations '{citations_text}' year {year}")
             
             individual_citations = self._extract_citations_from_block(citations_text)
             
@@ -1083,6 +1183,8 @@ class UnifiedCitationProcessorV2:
                 citation_start = text.find(citation_text, start)
                 citation_end = citation_start + len(citation_text) if citation_start != -1 else start
                 
+                # FIX: Create independent citations - don't pre-populate parallel_citations
+                # Let the parallel detection logic discover these relationships naturally
                 citation = CitationResult(
                     citation=citation_text,
                     start_index=citation_start,
@@ -1098,7 +1200,8 @@ class UnifiedCitationProcessorV2:
                     metadata={
                         'block_case_name': case_name,  # Store for reference but don't use as extracted_case_name
                         'block_year': year,
-                        'parallel_citations': individual_citations
+                        # FIX: Don't pre-populate parallel_citations here
+                        # 'parallel_citations': individual_citations
                     }
                 )
                 
@@ -1106,7 +1209,7 @@ class UnifiedCitationProcessorV2:
                 
                 citations.append(citation)
         
-        logger.info(f"🔍 [CITATION_BLOCKS] Citation block extraction completed, found {len(citations)} citations")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Citation block extraction completed, found {len(citations)} citations")
         return citations
     
     def _extract_citations_from_block(self, citations_text: str) -> List[str]:
@@ -1255,22 +1358,22 @@ class UnifiedCitationProcessorV2:
                 'type': getattr(citation_obj, 'type', None),
             })
             
-            # FIX: DO NOT use eyecite's plaintiff/defendant - they are often truncated
+            # IMPROVED: Store eyecite's plaintiff/defendant as FALLBACK (they can be truncated but better than N/A)
             # Eyecite produces names like "Noem v. Nat" instead of "Noem v. Nat'l TPS All."
-            # Let our unified_case_extraction_master handle extraction instead
-            # We'll still extract year from eyecite since that's usually accurate
+            # Our unified_case_extraction_master will try first, but if it fails, we can use eyecite's version
             if hasattr(citation_obj, 'metadata') and citation_obj.metadata:
                 plaintiff = getattr(citation_obj.metadata, 'plaintiff', None)
                 defendant = getattr(citation_obj.metadata, 'defendant', None)
                 
-                # Log what eyecite found but DON'T use it
+                # Store as fallback for later use
                 if plaintiff and defendant:
                     eyecite_name = f"{plaintiff} v. {defendant}"
-                    logger.info(f"[EYECITE-SKIP] Eyecite found '{eyecite_name}' for {citation.citation}, but will use better extraction instead")
+                    citation.metadata['eyecite_fallback_name'] = eyecite_name
+                    logger.info(f"[EYECITE-FALLBACK] Stored eyecite fallback '{eyecite_name}' for {citation.citation}")
                 elif plaintiff:
-                    logger.info(f"[EYECITE-SKIP] Eyecite found plaintiff '{plaintiff}' for {citation.citation}, but will use better extraction instead")
+                    logger.info(f"[EYECITE-FALLBACK] Eyecite found plaintiff '{plaintiff}' for {citation.citation} (no defendant)")
                 
-                # DON'T set citation.extracted_case_name here - let _extract_metadata do it
+                # DON'T set citation.extracted_case_name here - let _extract_metadata try first
                 
                 # FIX: Also skip eyecite's year extraction - it's often wrong for complex citations
                 # Eyecite was extracting 1976 for both citations in our test case
@@ -1333,7 +1436,7 @@ class UnifiedCitationProcessorV2:
     
     def _extract_metadata(self, citation: CitationResult, text: str, match):
         """Extract metadata with proper error handling and context isolation."""
-        logger.warning(f"🔥🔥🔥 [_extract_metadata ENTRY] Called for citation: {citation.citation}")
+        logger.warning(f"[DEBUG] [_extract_metadata ENTRY] Called for citation: {citation.citation}")
         try:
             if not hasattr(citation, 'metadata') or citation.metadata is None:
                 citation.metadata = {}
@@ -1370,17 +1473,53 @@ class UnifiedCitationProcessorV2:
                     
                     from src.utils.unified_case_name_extractor import extract_case_name_with_strict_isolation
                     
+                    # FIX DEC 2025 v8/v14: Find ACTUAL citation position in text
+                    # eyecite often reports positions 200-300 chars off from actual PDF text positions
+                    # v14: Find ALL occurrences and pick CLOSEST to eyecite position (handles repeated citations)
+                    actual_start = citation.start_index
+                    actual_end = citation.end_index
+                    try:
+                        # FIX v14: More flexible pattern - handle all whitespace variants
+                        cit_pattern = re.escape(citation.citation).replace(r'\ ', r'\s+')
+                        cit_pattern = cit_pattern.replace(r'\.', r'\.\s*')
+                        
+                        # v14: Find ALL occurrences and pick the closest one to eyecite position
+                        all_matches = list(re.finditer(cit_pattern, text))
+                        if all_matches:
+                            # Find match closest to eyecite's reported position
+                            best_match = min(all_matches, key=lambda m: abs(m.start() - citation.start_index))
+                            actual_start = best_match.start()
+                            actual_end = best_match.end()
+                            if actual_start != citation.start_index:
+                                logger.error(f"[FIX-v14] Position correction for {citation.citation}: eyecite={citation.start_index}, actual={actual_start}, diff={actual_start - citation.start_index}")
+                    except Exception as pos_err:
+                        logger.warning(f"[FIX-v14] Position lookup failed for {citation.citation}: {pos_err}")
+                    
+                    # CRITICAL FIX: Pass document primary case name for contamination filtering
+                    document_primary_case_name = getattr(self, 'document_primary_case_name', None)
                     strict_name = extract_case_name_with_strict_isolation(
                         text=text,
                         citation_text=citation.citation,
-                        citation_start=citation.start_index,
-                        citation_end=citation.end_index,
-                        all_citations=None
+                        citation_start=actual_start,
+                        citation_end=actual_end,
+                        all_citations=None,
+                        document_primary_case_name=document_primary_case_name
                     )
                     
                     if strict_name:
-                        final_name = strict_name
-                        logger.info(f"[EXTRACT-M1-UNIFIED-SUCCESS] {citation.citation} → '{strict_name}'")
+                        # CRITICAL: Final header check before accepting extracted name
+                        strict_name_upper = strict_name.upper()
+                        has_et_al = 'ET AL' in strict_name_upper or 'ETAL' in strict_name_upper.replace(' ', '').replace('.', '').replace(',', '')
+                        has_role_word = any(role in strict_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                        has_no = 'NO.' in strict_name_upper or ' NO ' in strict_name_upper or strict_name_upper.endswith(' NO')
+                        header_pattern_match = re.search(r'ET\s+AL\.?\s*,?\s*(?:PETITIONER|RESPONDENT|APPELLANT|APPELLEE|PLAINTIFF|DEFENDANT)', strict_name_upper)
+                        
+                        if (has_et_al and has_role_word) or (has_role_word and has_no) or header_pattern_match:
+                            logger.error(f"[EXTRACT-M1-UNIFIED-REJECT] REJECTED header pattern: '{strict_name}' for {citation.citation}")
+                            strict_name = None  # Reject header
+                        else:
+                            final_name = strict_name
+                            logger.info(f"[EXTRACT-M1-UNIFIED-SUCCESS] {citation.citation} → '{strict_name}'")
                     
                     # Set the final extracted name
                     if final_name:
@@ -1394,8 +1533,61 @@ class UnifiedCitationProcessorV2:
                             logger.error(f"   AFTER:  '{cleaned_name}'")
                             citation.extracted_case_name = cleaned_name
                         elif cleaned_name:
-                            citation.extracted_case_name = cleaned_name
-                            logger.info(f"[EXTRACT-SUCCESS] Final name: '{cleaned_name}' for {citation.citation}")
+                            # CRITICAL: Check for document primary case name contamination
+                            document_primary_case_name = getattr(self, 'document_primary_case_name', None)
+                            if document_primary_case_name and cleaned_name:
+                                # Use the same similarity-based contamination detection as unified_case_name_extractor
+                                # This ensures consistent behavior and handles abbreviations vs full names correctly
+                                from src.utils.unified_case_name_extractor import _is_document_case_contamination
+                                is_contaminated = _is_document_case_contamination(cleaned_name, document_primary_case_name, similarity_threshold=0.95)
+                                
+                                if is_contaminated:
+                                    logger.error(f"[EXTRACT-CONTAMINATION] ❌ REJECTING contaminated name '{cleaned_name}' for citation '{citation.citation}' (matches document primary '{document_primary_case_name}')")
+                                    citation.extracted_case_name = "N/A"
+                                else:
+                                    logger.debug(f"[EXTRACT-CONTAMINATION] ✓ Keeping name '{cleaned_name}' (does not match primary '{document_primary_case_name}')")
+                                    
+                                    # CRITICAL: Remove signal phrases like "See, e.g.," from the extracted name
+                                    # These are citation signals, not part of the case name
+                                    original_name = cleaned_name
+                                    signal_phrase_patterns = [
+                                        r'^See,?\s+e\.?g\.?\s*,?\s*',  # "See, e.g.," or "See e.g.," or "See, e.g"
+                                        r'^See\s+also\s+',  # "See also"
+                                        r'^See\s+generally\s+',  # "See generally"
+                                        r'^But\s+see\s+',  # "But see"
+                                        r'^Cf\.?\s+',  # "Cf."
+                                        r'^E\.?g\.?\s*,?\s*',  # "E.g.,"
+                                        r'^I\.?e\.?\s*,?\s*',  # "I.e.,"
+                                    ]
+                                    for pattern in signal_phrase_patterns:
+                                        cleaned_name = re.sub(pattern, '', cleaned_name, flags=re.IGNORECASE).strip()
+                                    
+                                    if cleaned_name != original_name:
+                                        logger.debug(f"[EXTRACT-SIGNAL] Removed signal phrase: '{original_name}' → '{cleaned_name}'")
+                                    
+                                    citation.extracted_case_name = cleaned_name
+                                    logger.info(f"[EXTRACT-SUCCESS] Final name: '{cleaned_name}' for {citation.citation}")
+                            else:
+                                # CRITICAL: Remove signal phrases like "See, e.g.," from the extracted name
+                                # These are citation signals, not part of the case name
+                                original_name = cleaned_name
+                                signal_phrase_patterns = [
+                                    r'^See,?\s+e\.?g\.?\s*,?\s*',  # "See, e.g.," or "See e.g.," or "See, e.g"
+                                    r'^See\s+also\s+',  # "See also"
+                                    r'^See\s+generally\s+',  # "See generally"
+                                    r'^But\s+see\s+',  # "But see"
+                                    r'^Cf\.?\s+',  # "Cf."
+                                    r'^E\.?g\.?\s*,?\s*',  # "E.g.,"
+                                    r'^I\.?e\.?\s*,?\s*',  # "I.e.,"
+                                ]
+                                for pattern in signal_phrase_patterns:
+                                    cleaned_name = re.sub(pattern, '', cleaned_name, flags=re.IGNORECASE).strip()
+                                
+                                if cleaned_name != original_name:
+                                    logger.debug(f"[EXTRACT-SIGNAL] Removed signal phrase: '{original_name}' → '{cleaned_name}'")
+                                
+                                citation.extracted_case_name = cleaned_name
+                                logger.info(f"[EXTRACT-SUCCESS] Final name: '{cleaned_name}' for {citation.citation}")
                         else:
                             citation.extracted_case_name = "N/A"
                             logger.warning(f"[EXTRACT-FAIL] Validation rejected name '{final_name}' for {citation.citation}")
@@ -1412,6 +1604,18 @@ class UnifiedCitationProcessorV2:
             if not hasattr(citation, 'extracted_case_name') or citation.extracted_case_name is None or citation.extracted_case_name == '':
                 citation.extracted_case_name = "N/A"
                 logger.warning(f"[EXTRACT-NULL] Citation {citation.citation} had null/empty name, set to N/A")
+            
+            # IMPROVED: Use eyecite fallback if extraction failed
+            if citation.extracted_case_name == "N/A" and hasattr(citation, 'metadata') and citation.metadata:
+                eyecite_fallback = citation.metadata.get('eyecite_fallback_name')
+                if eyecite_fallback:
+                    # CRITICAL FIX: Validate eyecite fallback name before using it
+                    from src.case_name_validator import is_valid_case_name
+                    if is_valid_case_name(eyecite_fallback):
+                        citation.extracted_case_name = eyecite_fallback
+                        logger.info(f"[EYECITE-FALLBACK-USED] Using eyecite fallback '{eyecite_fallback}' for {citation.citation}")
+                    else:
+                        logger.warning(f"[EYECITE-FALLBACK-REJECT] Eyecite fallback '{eyecite_fallback}' failed validation for {citation.citation}")
             if self.config.extract_dates:
                 try:
                     if not citation.extracted_date:
@@ -1423,12 +1627,12 @@ class UnifiedCitationProcessorV2:
                         if citation.extracted_date and citation.extracted_date != "2010-09-09":
                             pass  # Date is valid, keep it
                         else:
-                            logger.warning(f"🔍 [WARNING] Suspicious extracted_date: '{citation.extracted_date}' for citation: '{citation.citation}'")
+                            logger.warning(f"[WARNING] Suspicious extracted_date: '{citation.extracted_date}' for citation: '{citation.citation}'")
                             if citation.extracted_date and "-" in citation.extracted_date:
-                                logger.warning(f"🔍 [WARNING] Detected canonical date format '{citation.extracted_date}', attempting to extract year from user document")
+                                logger.warning(f"[WARNING] Detected canonical date format '{citation.extracted_date}', attempting to extract year from user document")
                                 year_from_context = self._extract_date_from_case_context(text, citation.extracted_case_name or "Unknown", citation.citation)
                                 if year_from_context and year_from_context != citation.extracted_date:
-                                    logger.warning(f"🔍 [FIX] Replacing canonical date '{citation.extracted_date}' with user document year '{year_from_context}'")
+                                    logger.warning(f"[FIX] Replacing canonical date '{citation.extracted_date}' with user document year '{year_from_context}'")
                                     citation.extracted_date = year_from_context
                 except Exception as e:
                     if not citation.extracted_date:
@@ -1677,19 +1881,20 @@ class UnifiedCitationProcessorV2:
                 # Get ALL citation positions for proper boundary detection
                 all_positions = find_all_citation_positions(text)
                 
-                # Get strictly isolated context (stops at previous citation)
-                strict_context = get_strict_context_for_citation(
-                    text, start, end, all_positions, max_lookback=200
+                # Get adaptive context (starts small and expands until case name found)
+                adaptive_context = get_adaptive_context_for_citation(
+                    text, start, end, all_positions, max_lookback=100
                 )
                 
-                # Extract case name from isolated context
-                case_name = extract_case_name_from_strict_context(strict_context, citation_text)
+                # Extract case name from adaptive context
+                case_name = extract_case_name_from_strict_context(adaptive_context, citation_text)
                 
                 if case_name and len(case_name) > 10:
                     logger.info(
-                        f"[STRICT-ISOLATION-SUCCESS] {citation_text} → '{case_name}' "
-                        f"(context: '{strict_context[-50:]}')"
+                        f"[ADAPTIVE-ISOLATION-SUCCESS] {citation_text} → '{case_name}' "
+                        f"(context: '{adaptive_context[-50:]}')"
                     )
+                    logger.info(f"[ACCURACY-CHECK] Final case name for {citation_text}: '{case_name}'")
                     return case_name
                 
         except Exception as e:
@@ -1831,6 +2036,56 @@ class UnifiedCitationProcessorV2:
                         return case_name
             except Exception as e:
                 logger.debug(f"Error processing case name extraction: {e}")
+        
+        # NEW FALLBACK: Line-based backward scan for nearest preceding case name
+        try:
+            scan_limit = 1500
+            prev_end_idx = None
+            if all_citations:
+                prev = [c for c in all_citations if getattr(c, 'end_index', None) is not None and c.end_index < start]
+                if prev:
+                    prev_end_idx = max(c.end_index for c in prev)
+            scan_start = max(0, start - scan_limit, (prev_end_idx + 1) if prev_end_idx is not None else 0)
+            scan_text = text[scan_start:start]
+            # Consider the last 30 non-empty lines nearest to the citation
+            lines = [ln.strip() for ln in scan_text.splitlines() if ln.strip()]
+            for line in reversed(lines[-30:]):
+                line_patterns = [
+                    r'([A-Z][A-Za-z0-9&\.\',\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)',
+                    r'(In\s+re\s+[A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)',
+                    r'(Ex\s+parte\s+[A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)'
+                ]
+                for lp in line_patterns:
+                    lmatches = list(re.finditer(lp, line, re.IGNORECASE))
+                    if lmatches:
+                        lm = lmatches[-1]
+                        name = None
+                        if lm.lastindex and lm.lastindex >= 2 and ' v' in line.lower():
+                            name = f"{lm.group(1).strip()} v. {lm.group(2).strip()}"
+                        else:
+                            name = lm.group(1).strip()
+                        name = re.sub(r'\s+', ' ', name).strip()
+                        if self._is_valid_case_name(name):
+                            return name
+            # As a last resort, search the whole scan window for the last case pattern
+            wide_patterns = [
+                r'([A-Z][A-Za-z0-9&\.\',\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)',
+                r'(In\s+re\s+[A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)',
+                r'(Ex\s+parte\s+[A-Z][A-Za-z0-9&\.\',\s-]+?)(?=[,;\(]|$)'
+            ]
+            for wp in wide_patterns:
+                allm = list(re.finditer(wp, scan_text, re.IGNORECASE | re.DOTALL))
+                if allm:
+                    m = allm[-1]
+                    if m.lastindex and m.lastindex >= 2 and ' v' in m.group(0).lower():
+                        nm = f"{m.group(1).strip()} v. {m.group(2).strip()}"
+                    else:
+                        nm = m.group(1).strip()
+                    nm = re.sub(r'\s+', ' ', nm).strip()
+                    if self._is_valid_case_name(nm):
+                        return nm
+        except Exception as _e:
+            logger.debug(f"[LINE-BACKWARD-FALLBACK] error: {_e}")
         
         try:
             # USER DEBUG: Enable debug for U.S. Reports, S.Ct., L.Ed. to diagnose vacatur pattern
@@ -2105,55 +2360,98 @@ class UnifiedCitationProcessorV2:
         return context
 
     def _extract_date_from_case_context(self, text: str, case_name: str, citation: str) -> Optional[str]:
-        """Extract year from the broader context around the case name and citations."""
+        """Extract year from the broader context around the case name and citations.
+        
+        USER FIX 2024-12-24: Find the CLOSEST year to the citation and stop at
+        citation boundaries like 'aff'd', ';', etc. to prevent picking up years
+        from subsequent citations in the same sentence.
+        
+        Example: "47 Conn. Supp. 113, 119, 778 A.2d 1038 (Conn. Super. Ct. 2000), aff'd, 63 Conn. App. 695, 778 A.2d 1006 (2001)"
+        Should return 2000 (belongs to this citation), not 2001 (belongs to the aff'd citation)
+        """
         import re
         
+        # First check if the citation itself contains a year
         year_match = re.search(r'\((\d{4})\)', citation)
         if year_match:
             return year_match.group(1)
         
-        case_pos = text.find(case_name)
-        if case_pos == -1:
-            return None
+        # Find the citation in the text
+        citation_pos = text.find(citation)
+        if citation_pos == -1:
+            # Try finding by case_name instead
+            case_pos = text.find(case_name)
+            if case_pos == -1:
+                return None
+            citation_pos = case_pos + len(case_name)
         
-        context_start = max(0, case_pos - 100)
-        context_end = min(len(text), case_pos + len(case_name) + 1000)  # Restored to 1000 for proper date extraction
-        context = text[context_start:context_end]
+        # Look for year AFTER the citation (most reliable)
+        context_after = text[citation_pos + len(citation):citation_pos + len(citation) + 100]
         
-        year_patterns = [
-            r'\((\d{4})\)',  # (2022) - highest priority, most reliable
-            r'(\d{4})',      # 2022 - medium priority
-            r'(\d{2})',      # 22 (for recent years) - lowest priority
+        # USER FIX: Truncate context at citation boundaries BEFORE searching for years
+        # This prevents picking up years from subsequent citations like "aff'd, ... (2001)"
+        boundary_patterns = [
+            r',\s*aff\'?d\b',      # ", aff'd" or ", affd"
+            r',\s*rev\'?d\b',      # ", rev'd" or ", revd"
+            r',\s*cert\.\s*denied', # ", cert. denied"
+            r',\s*overruled\b',   # ", overruled"
+            r',\s*superseded\b',  # ", superseded"
+            r';\s*see\s+also\b',  # "; see also"
+            r';\s*accord\b',      # "; accord"
+            r'\.\s+[A-Z]',        # Sentence boundary (". " followed by capital)
         ]
         
-        paren_matches = re.findall(r'\((\d{4})\)', context)
-        for match in paren_matches:
-            year = match
-            if 1900 <= int(year) <= 2030:
-                return year
+        earliest_boundary = len(context_after)
+        for boundary_pattern in boundary_patterns:
+            match = re.search(boundary_pattern, context_after, re.IGNORECASE)
+            if match and match.start() < earliest_boundary:
+                earliest_boundary = match.start()
+                logger.debug(f"[DATE-EXTRACT] Found boundary '{match.group()}' at position {match.start()}")
         
-        for pattern in year_patterns:
-            matches = re.findall(pattern, context)
-            for match in matches:
-                year = match
-                if len(year) == 4 and 1900 <= int(year) <= 2030:
-                    return year
-                elif len(year) == 2 and 20 <= int(year) <= 30:
-                    year_4digit = f"20{year}"
-                    return year_4digit
+        # Truncate context at the earliest boundary
+        if earliest_boundary < len(context_after):
+            # Include some space for the year parenthetical before the boundary
+            last_paren = context_after.rfind(')', 0, earliest_boundary + 10)
+            if last_paren > 0:
+                context_after = context_after[:last_paren + 1]
+            else:
+                context_after = context_after[:earliest_boundary]
         
-        if case_pos + len(case_name) < len(text):
-            remaining_text = text[case_pos + len(case_name):]
-            
-            for pattern in year_patterns:
-                matches = re.findall(pattern, remaining_text)
-                for match in matches:
-                    year = match
-                    if len(year) == 4 and 1900 <= int(year) <= 2030:
+        # Enhanced patterns to match years in various parenthetical formats
+        enhanced_year_patterns = [
+            r'\([^)]*?(\d{4})[^)]*?\)',  # Year anywhere in parentheses: (Conn. Super. Ct. 2000)
+            r'\((\d{4})\)',              # Simple year in parens: (2020)
+            r',\s*(\d{4})',              # Year after comma: , 2020
+            r'(\d{4})\s*\)',             # Year at end of parens: 2020)
+        ]
+        
+        # Find the CLOSEST year match
+        best_year = None
+        best_distance = float('inf')
+        
+        for pattern in enhanced_year_patterns:
+            for match in re.finditer(pattern, context_after):
+                year = match.group(1)
+                if 1900 <= int(year) <= 2030:
+                    distance = match.start()
+                    if distance < best_distance:
+                        best_year = year
+                        best_distance = distance
+        
+        if best_year:
+            return best_year
+        
+        # Fallback: look in context before the citation
+        case_pos = text.find(case_name)
+        if case_pos != -1:
+            context_before = text[max(0, case_pos - 100):case_pos]
+            # Look for the LAST year before the citation (closest to it)
+            for pattern in enhanced_year_patterns:
+                matches = list(re.finditer(pattern, context_before))
+                if matches:
+                    year = matches[-1].group(1)  # Take the last match (closest)
+                    if 1900 <= int(year) <= 2030:
                         return year
-                    elif len(year) == 2 and 20 <= int(year) <= 30:
-                        year_4digit = f"20{year}"
-                        return year_4digit
         
         return None
 
@@ -2434,16 +2732,8 @@ class UnifiedCitationProcessorV2:
         
         return intersection / union
     
-    def _extract_date_from_context(self, text: str, citation: CitationResult) -> Optional[str]:
-        """Extract a 4-digit year from the context after the citation, or in parentheses right after."""
-        if not citation.end_index:
-            return None
-        context_end = min(len(text), citation.end_index + 30)
-        context_text = text[citation.end_index:context_end]
-        match = re.search(r'\(?(19|20)\d{2}\)?', context_text)
-        if match:
-            return match.group(0).strip('()')
-        return None
+    # NOTE: _extract_date_from_context is defined earlier in this file (lines ~2458)
+    # The duplicate definition that was here has been removed to avoid shadowing.
 
     def _is_valid_case_name(self, case_name: str) -> bool:
         """
@@ -2978,7 +3268,7 @@ class UnifiedCitationProcessorV2:
         Uses CourtListener's batch API (50 citations per call) for massive speedup.
         Falls back to individual verification only for failed citations.
         """
-        logger.error(f"🔥 [BATCH-VERIFY] Starting BATCH verification for {len(citations)} citations")
+        logger.error(f"[BATCH-VERIFY] Starting BATCH verification for {len(citations)} citations")
         
         if not citations:
             return citations
@@ -2996,11 +3286,18 @@ class UnifiedCitationProcessorV2:
                 verification_status = getattr(citation, 'verification_status', None)
                 is_parallel = getattr(citation, 'is_parallel', False)
                 
-                if verification_status == 'verified' or is_parallel:
-                    logger.error(f"🚫 [FIX #62] SKIPPING '{citation.citation}': verification_status={verification_status}, is_parallel={is_parallel}")
+                # More thorough check: only skip if citation is actually verified with complete data
+                is_actually_verified = (
+                    (getattr(citation, 'verified', False) == True) and
+                    (getattr(citation, 'canonical_name', None) is not None) and
+                    (getattr(citation, 'canonical_date', None) is not None)
+                )
+                
+                if is_actually_verified:
+                    logger.error(f"🚫 [FIX #62] SKIPPING '{citation.citation}': already fully verified with canonical data")
                     continue
                 
-                logger.error(f"✅ [FIX #62] PROCESSING '{citation.citation}'")
+                logger.error(f"[SUCCESS] [FIX #62] PROCESSING '{citation.citation}': verification_status={verification_status}, verified={getattr(citation, 'verified', None)}")
                 
                 # Store original values before any verification
                 if not hasattr(citation, 'original_case_name'):
@@ -3010,65 +3307,153 @@ class UnifiedCitationProcessorV2:
                 
                 citations_to_verify.append(citation)
             
-            # BATCH VERIFICATION: Process in batches of 50
+            # BATCH VERIFICATION: Single call with full list so internal batching yields 1/3, 2/3, 3/3
             if citations_to_verify:
                 batch_size = 50
                 total = len(citations_to_verify)
-                logger.info(f"[BATCH-VERIFY] Processing {total} citations in batches of {batch_size}")
+                logger.info(f"[BATCH-VERIFY] Processing {total} citations in batches of {batch_size} (single master call)")
+                
+                # Get progress callback if available (passed from RQ worker)
+                progress_callback = getattr(self, '_progress_callback', None)
+                
+                # Set total in VerificationManager BEFORE starting verification
+                if progress_callback:
+                    try:
+                        progress_callback(0, "Verifying", f"Starting verification of {total} citations...")
+                        logger.info(f"[BATCH-VERIFY] Set initial total: {total} citations")
+                    except Exception as e:
+                        logger.warning(f"Failed to set initial total: {e}")
                 
                 verifier = UnifiedVerificationMaster()
                 
-                # Process citations in batches
-                for batch_start in range(0, total, batch_size):
-                    batch_end = min(batch_start + batch_size, total)
-                    batch = citations_to_verify[batch_start:batch_end]
-                    batch_num = (batch_start // batch_size) + 1
-                    total_batches = (total + batch_size - 1) // batch_size
+                # Extract data for entire set
+                citation_strings = [c.citation for c in citations_to_verify]
+                case_names = [c.extracted_case_name for c in citations_to_verify]
+                dates = [c.extracted_date for c in citations_to_verify]
+                
+                # Run master batch verification once in a separate event loop
+                try:
+                    from concurrent.futures import ThreadPoolExecutor
+                    import threading
                     
-                    logger.info(f"[BATCH {batch_num}/{total_batches}] Verifying citations {batch_start+1}-{batch_end} ({len(batch)} citations)")
+                    def run_all_in_new_loop():
+                        """Run full-list batch verification in a new event loop."""
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        try:
+                            def batch_progress_callback(processed_count, status, message):
+                                if progress_callback:
+                                    try:
+                                        # Use global counts directly from master
+                                        processed_global = processed_count or 0
+                                        global_message = f"Verifying citations... ({processed_global}/{total} citations)"
+                                        progress_callback(processed_global, status, global_message)
+                                    except Exception as e:
+                                        logger.warning(f"Progress callback failed: {e}")
+                            return loop.run_until_complete(
+                                verifier.verify_citations_batch(
+                                    citations=citation_strings,
+                                    extracted_case_names=case_names,
+                                    extracted_dates=dates,
+                                    progress_callback=batch_progress_callback if progress_callback else None
+                                )
+                            )
+                        finally:
+                            loop.close()
+                            asyncio.set_event_loop(None)
                     
-                    # Extract data for batch
-                    citation_strings = [c.citation for c in batch]
-                    case_names = [c.extracted_case_name for c in batch]
-                    dates = [c.extracted_date for c in batch]
+                    with ThreadPoolExecutor(max_workers=1) as executor:
+                        future = executor.submit(run_all_in_new_loop)
+                        # Allow up to 240s to cover 3 internal batches with buffer
+                        all_results = future.result(timeout=240.0)
+                except TimeoutError:
+                    logger.error(f"[BATCH-TIMEOUT] Master batch verification timed out after 240s")
+                    from src.unified_verification_master import VerificationResult
+                    all_results = [VerificationResult(citation=c.citation, verified=False, error="Master batch verification timeout") for c in citations_to_verify]
+                except Exception as e:
+                    logger.error(f"[BATCH-ERROR] Master batch verification failed: {e}")
+                    from src.unified_verification_master import VerificationResult
+                    all_results = [VerificationResult(citation=c.citation, verified=False, error=f"Master batch verification failed: {e}") for c in citations_to_verify]
+                
+                # Apply results to citation objects
+                verified_count = 0
+                import re as re_module
+                for citation, result in zip(citations_to_verify, all_results):
+                    # Preserve extracted fields
+                    original_extracted_name = getattr(citation, 'extracted_case_name', None)
+                    original_extracted_date = getattr(citation, 'extracted_date', None)
                     
-                    # Call batch verification
-                    try:
-                        batch_results = asyncio.run(verifier.verify_citations_batch(
-                            citations=citation_strings,
-                            extracted_case_names=case_names,
-                            extracted_dates=dates
-                        ))
+                    if result and getattr(result, 'verified', False):
+                        # USER FIX: Validate year match before accepting verification result
+                        # UPDATED: Allow ±1 year tolerance for legal citations
+                        extracted_date = original_extracted_date
+                        canonical_date = result.canonical_date
+                        year_match = True  # Default to True if no dates to compare
+                        year_diff = 0
+                        if extracted_date and canonical_date:
+                            ext_year = re_module.search(r'(19|20)\d{2}', str(extracted_date))
+                            can_year = re_module.search(r'(19|20)\d{2}', str(canonical_date))
+                            if ext_year and can_year:
+                                year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
+                                year_match = (year_diff <= 1)  # Allow ±1 year tolerance
+                                if year_diff == 1:
+                                    logger.info(f"[BATCH-YEAR-TOLERANCE] {citation.citation}: ±1 year accepted - extracted {ext_year.group(0)} vs canonical {can_year.group(0)}")
                         
-                        # Apply results to citation objects
-                        verified_count = 0
-                        for citation, result in zip(batch, batch_results):
-                            if result and result.verified:
-                                # Store verified data in canonical fields
-                                citation.verified = True
-                                citation.canonical_name = result.canonical_name
-                                citation.canonical_date = result.canonical_date
-                                citation.canonical_url = result.canonical_url
-                                citation.verification_status = "verified"
-                                citation.verification_source = result.source or 'batch_verify'
-                                verified_count += 1
-                                logger.info(f"[BATCH-VERIFIED] {citation.citation} -> {result.canonical_name}")
-                            else:
-                                citation.verified = False
-                                citation.verification_status = "not_found"
-                                error_msg = result.error if result else 'No result'
-                                logger.debug(f"[BATCH-NOT-VERIFIED] {citation.citation}: {error_msg}")
-                        
-                        logger.info(f"[BATCH {batch_num}/{total_batches}] Verified {verified_count}/{len(batch)} citations")
-                        
-                    except Exception as e:
-                        logger.error(f"[BATCH-ERROR] Batch {batch_num} failed: {e}")
-                        # Mark batch as unverified
-                        for citation in batch:
+                        if not year_match:
+                            # Year mismatch - reject verification BUT PRESERVE canonical data for clustering
                             citation.verified = False
-                            citation.verification_status = "error"
-            
-            logger.info(f"[BATCH-VERIFY] Completed all batches")
+                            citation.verification_status = "year_mismatch"
+                            citation.verification_error = f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                            citation.source = 'year_mismatch_rejected'
+                            # PRESERVE canonical data for cluster splitting
+                            citation.canonical_name = result.canonical_name
+                            citation.canonical_date = result.canonical_date
+                            citation.canonical_url = result.canonical_url
+                            if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                                citation.extracted_case_name = original_extracted_name
+                            if not citation.extracted_date or citation.extracted_date == "N/A":
+                                citation.extracted_date = original_extracted_date
+                            logger.warning(f"[BATCH-YEAR-MISMATCH] {citation.citation}: Rejected - extracted {extracted_date} vs canonical {canonical_date}")
+                            continue
+                        
+                        citation.verified = True
+                        citation.canonical_name = result.canonical_name
+                        citation.canonical_date = result.canonical_date
+                        citation.canonical_url = result.canonical_url
+                        citation.verification_status = "verified"
+                        citation.verification_source = result.source or 'batch_verify'
+                        citation.source = result.source or 'batch_verify'
+                        if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                            citation.extracted_case_name = original_extracted_name
+                        if not citation.extracted_date or citation.extracted_date == "N/A":
+                            citation.extracted_date = original_extracted_date
+                        verified_count += 1
+                        logger.info(f"[BATCH-VERIFIED] {citation.citation} -> {result.canonical_name} (source: {result.source})")
+                    else:
+                        citation.verified = False
+                        result_source = result.source if result and getattr(result, 'source', None) else 'not_found'
+                        citation.source = result_source
+                        
+                        # CRITICAL FIX: Preserve canonical data for year_mismatch_rejected
+                        # This allows clustering to split by canonical year even when unverified
+                        if result_source == 'year_mismatch_rejected' and result:
+                            citation.verification_status = "year_mismatch"
+                            citation.canonical_name = getattr(result, 'canonical_name', None)
+                            citation.canonical_date = getattr(result, 'canonical_date', None)
+                            citation.canonical_url = getattr(result, 'canonical_url', None)
+                            citation.verification_error = getattr(result, 'error', None)
+                            logger.warning(f"[BATCH-YEAR-MISMATCH] {citation.citation}: {result.error} - canonical data preserved for clustering")
+                        else:
+                            citation.verification_status = "not_found"
+                        
+                        if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                            citation.extracted_case_name = original_extracted_name
+                        if not citation.extracted_date or citation.extracted_date == "N/A":
+                            citation.extracted_date = original_extracted_date
+                        error_msg = getattr(result, 'error', 'No result') if result else 'No result'
+                        logger.debug(f"[BATCH-NOT-VERIFIED] {citation.citation}: {error_msg}")
+                
+                logger.info(f"[BATCH-VERIFY] Completed master batch verification: verified {verified_count}/{total}")
             
         except Exception as e:
             logger.error(f"[VERIFICATION] Error in unified master verification: {str(e)}")
@@ -3384,8 +3769,8 @@ class UnifiedCitationProcessorV2:
         if pos1 == -1 or pos2 == -1:
             return False
             
-        if abs(pos1 - pos2) > 200:
-            return False
+        # FIX: Check distance but don't fail immediately - use as a factor
+        within_proximity = abs(pos1 - pos2) <= 200
             
         name1 = citation1.extracted_case_name or ""
         name2 = citation2.extracted_case_name or ""
@@ -3449,7 +3834,10 @@ class UnifiedCitationProcessorV2:
             ('Wash. App.', 'P.2d'),
             ('Wash. App.', 'P.3d'),
             ('Wn.2d', 'P.2d'),  # Common abbreviation for Washington
+            ('Wn.2d', 'P.3d'),
             ('Wn. App.', 'P.2d'),
+            ('Wn. App.', 'P.3d'),
+            ('Wn. App. 2d', 'P.3d'),  # Washington Appeals 2d and Pacific 3d
             
             # Federal Reporters
             ('F.3d', 'F.Supp.'),
@@ -3465,10 +3853,36 @@ class UnifiedCitationProcessorV2:
             ('P.3d', 'P.3d')
         ]
         
+        reporters_match = False
         for pair in known_parallel_pairs:
             if (reporter1 in pair and reporter2 in pair) or (reporter2 in pair and reporter1 in pair):
-                return True
-                
+                reporters_match = True
+                break
+        
+        # DEBUG: Log reporter extraction for troubleshooting
+        logger.info(f"[PARALLEL_DEBUG] Comparing '{citation1.citation}' (reporter='{reporter1}') with '{citation2.citation}' (reporter='{reporter2}')")
+        logger.info(f"[PARALLEL_DEBUG]   Dates: '{date1}' vs '{date2}' | Names: '{name1}' vs '{name2}' | Within proximity: {within_proximity} | Reporters match: {reporters_match}")
+        
+        # FIX: Accept as parallel if:
+        # 1. Reporters match AND citations are nearby, OR
+        # 2. Reporters match AND have same date (strong signal even if far apart), OR
+        # 3. Reporters match AND have matching case names (even if far apart)
+        if reporters_match:
+            if within_proximity:
+                logger.info(f"[PARALLEL_DEBUG]   ✓ PARALLEL: Reporters match + within proximity")
+                return True  # Close together + matching reporters = parallel
+            if date1 and date2 and date1 == date2:
+                logger.info(f"[PARALLEL_DEBUG]   ✓ PARALLEL: Reporters match + same date")
+                return True  # Same date + matching reporters = parallel (even if far)
+            if name1 and name2:
+                # Check if case names match (already validated above)
+                words1 = set(re.sub(r'[^\w\s]', ' ', name1.lower()).split())
+                words2 = set(re.sub(r'[^\w\s]', ' ', name2.lower()).split())
+                if len(words1.intersection(words2)) >= 2:
+                    logger.info(f"[PARALLEL_DEBUG]   ✓ PARALLEL: Reporters match + case names match")
+                    return True  # Matching names + matching reporters = parallel (even if far)
+        
+        logger.info(f"[PARALLEL_DEBUG]   ✗ NOT parallel")
         return False
     
     def _extract_reporter(self, citation: str) -> str:
@@ -3504,6 +3918,23 @@ class UnifiedCitationProcessorV2:
             r'\b(\d+\s+S\.?\s*E\.?(?:\s*2d)?(?:\s*\d+)?)',  # S.E., S.E.2d
             r'\b(\d+\s+So\.?(?:\s*3d|2d)?(?:\s*\d+)?)',  # So., So.2d, So.3d
             r'\b(\d+\s+N\.?\s*W\.?\s*2d(?:\s*\d+)?)',  # N.W.2d
+            r'\b(\d+\s+A\.?(?:\s*3d|2d)?(?:\s*\d+)?)',  # A.2d, A.3d (Atlantic)
+            
+            # Connecticut State Reporters
+            r'\b(\d+\s+Conn\.?\s*(?:Supp\.?|App\.?)?(?:\s*\d+)?)',  # Conn., Conn. Supp., Conn. App.
+            
+            # Ohio State Reporters
+            r'\b(\d+\s+Ohio\s*St\.?(?:\s*3d|2d)?(?:\s*\d+)?)',  # Ohio St., Ohio St. 2d, Ohio St. 3d
+            r'\b(\d+\s+Ohio\s*App\.?(?:\s*3d|2d)?(?:\s*\d+)?)',  # Ohio App., Ohio App. 2d, Ohio App. 3d
+            
+            # Nebraska State Reporters
+            r'\b(\d+\s+Neb\.?(?:\s*App\.?)?(?:\s*\d+)?)',  # Neb., Neb. App.
+            
+            # Maine State Reporters
+            r'\b(\d+\s+Me\.?(?:\s*\d+)?)',  # Me.
+            
+            # Oregon State Reporters
+            r'\b(\d+\s+Or\.?(?:\s*App\.?)?(?:\s*\d+)?)',  # Or., Or. App.
             
             # General pattern as fallback
             r'\b(\d+\s+[A-Z][A-Za-z]*(?:\s*\d*[a-z]*)?\b\.?(?:\s*[A-Z][a-z]*\.?)*)'
@@ -3514,8 +3945,9 @@ class UnifiedCitationProcessorV2:
             if match:
                 # Extract just the reporter part (without volume and page)
                 reporter_part = re.sub(r'^\d+\s+', '', match.group(1).strip())
-                # Clean up any remaining digits that aren't part of the reporter
-                reporter = re.sub(r'\s*\d+$', '', reporter_part)
+                # FIX: Don't remove series indicators like "2d", "3d"  
+                # Only remove pure page numbers (3+ digits) at the end
+                reporter = re.sub(r'\s+\d{3,}$', '', reporter_part)
                 # Standardize common variations
                 reporter = re.sub(r'\.\s+', '.', reporter)  # Remove spaces after dots
                 reporter = re.sub(r'\s+', ' ', reporter)    # Normalize spaces
@@ -3696,6 +4128,7 @@ class UnifiedCitationProcessorV2:
         Returns:
             Dict containing 'citations' (list) and 'clusters' (list)
         """
+        print(f"[DEBUG] PROCESS_TEXT FUNCTION CALLED with {len(text)} chars")
         logger.info("[UNIFIED_PIPELINE] Starting unified citation processing pipeline")
         
         # P3 FIX: Detect document's primary case name for contamination filtering
@@ -3705,11 +4138,11 @@ class UnifiedCitationProcessorV2:
             clusterer = UnifiedClusteringMaster()
             document_primary_case_name = clusterer._extract_document_primary_case_name(text)
             if document_primary_case_name:
-                logger.warning(f"[CONTAMINATION-FILTER] Document primary case detected: '{document_primary_case_name[:80]}'")
+                logger.debug(f"[CONTAMINATION-FILTER] Document primary case detected: '{document_primary_case_name[:80]}'")
             else:
-                logger.warning("[CONTAMINATION-FILTER] No document primary case name detected")
+                logger.debug("[CONTAMINATION-FILTER] No document primary case name detected")
         except Exception as e:
-            logger.warning(f"[CONTAMINATION-FILTER] Failed to detect document primary case: {e}")
+            logger.debug(f"[CONTAMINATION-FILTER] Failed to detect document primary case: {e}")
         
         # Store for use in extraction calls
         self.document_primary_case_name = document_primary_case_name
@@ -3721,16 +4154,40 @@ class UnifiedCitationProcessorV2:
         # USE CLEAN EXTRACTION PIPELINE - guarantees zero case name bleeding
         try:
             from src.clean_extraction_pipeline import extract_citations_clean
-            citations = extract_citations_clean(text)
+            citations = extract_citations_clean(text, document_primary_case_name=self.document_primary_case_name)
             logger.info(f"[UNIFIED_PIPELINE] Clean pipeline extracted {len(citations)} citations with 100% accuracy")
         except Exception as e:
             logger.error(f"[UNIFIED_PIPELINE] Clean pipeline failed: {e}, falling back to old method")
             # Fallback to old method if clean pipeline fails
             citations = self._extract_with_regex_enhanced(text)
+        
+        # Apply parallel verification to clean pipeline results
+        # NOTE: Full verification is now done in Phase 4.75 BEFORE clustering to avoid double verification
+        # FIX DEC 2025: Removed duplicate verification here - was causing 2x processing time and worker crashes
+        logger.info("[UNIFIED_PIPELINE] Parallel verification will be applied in Phase 4.75...")
+        try:
+            # Apply parallel verification to the citations (verification happens later in Phase 4.75)
+            print(f"ABOUT TO CALL PARALLEL VERIFICATION with {len(citations)} citations")
+            self.propagate_canonical_to_cluster(citations)
+            print(f"PARALLEL VERIFICATION COMPLETED")
+            logger.info(f"[UNIFIED_PIPELINE] Parallel verification complete")
+            
+            # Log if parallel verification was applied
+            parallel_count = sum(1 for c in citations if getattr(c, 'true_by_parallel', False))
+            if parallel_count > 0:
+                logger.info(f"[UNIFIED_PIPELINE] [SUCCESS] Applied parallel verification to {parallel_count} citations")
+            
+        except Exception as parallel_error:
+            logger.warning(f"[UNIFIED_PIPELINE] Parallel verification failed (non-critical): {parallel_error}")
+            import traceback
+            logger.warning(f"[UNIFIED_PIPELINE] Parallel verification error details: {traceback.format_exc()}")
+        
         logger.info(f"[UNIFIED_PIPELINE] Phase 1 complete: {len(citations)} citations extracted")
         self._update_progress(30, "Enhancing", "Enhancing citation data with case names and dates")
         
         # ENHANCED: Multi-method extraction with truncation repair and aggressive fallbacks
+        # OPTIMIZATION: Cache extraction results by citation position to avoid duplicate work
+        extraction_cache = {}  # Key: (start_index, end_index), Value: extracted_name
         try:
             from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
             import re
@@ -3743,11 +4200,26 @@ class UnifiedCitationProcessorV2:
                     end_index = getattr(c, 'end_index', None)
                     citation_method = getattr(c, 'method', None)
                     
-                    # FIX: ALWAYS re-extract, even for eyecite citations
-                    # Eyecite often produces truncated names like "Noem v. Nat" instead of "Noem v. Nat'l TPS All."
-                    # Our unified_case_extraction_master has better abbreviation and preposition handling
+                    # OPTIMIZATION: Check cache first to avoid duplicate extraction
+                    cache_key = (start_index, end_index)
+                    if cache_key in extraction_cache:
+                        cached_name = extraction_cache[cache_key]
+                        if cached_name and cached_name != 'N/A':
+                            c.extracted_case_name = cached_name
+                            logger.debug(f"[EXTRACT-CACHE] Using cached name '{cached_name}' for {citation_text}")
+                            continue
+                    
+                    # CRITICAL FIX: Do NOT re-extract if clean_extraction_pipeline already provided a valid name
+                    # The clean pipeline has accurate context isolation and should not be overwritten
+                    if current_name and current_name != 'N/A' and citation_method == 'clean_pipeline_v1':
+                        logger.debug(f"[EXTRACT-SKIP-CLEAN] Clean pipeline already extracted '{current_name}' for {citation_text} - keeping it")
+                        # Cache the clean pipeline result
+                        extraction_cache[cache_key] = current_name
+                        continue  # Skip re-extraction
+                    
+                    # FIX: Re-extract for eyecite citations only (they often have truncated names)
                     if current_name and current_name != 'N/A' and citation_method == 'eyecite':
-                        logger.warning(f"[EXTRACT-OVERRIDE-EYECITE] Eyecite extracted '{current_name}' for {citation_text}, but will re-extract with better logic")
+                        logger.debug(f"[EXTRACT-OVERRIDE-EYECITE] Eyecite extracted '{current_name}' for {citation_text}, but will re-extract with better logic")
                         # Don't skip - continue to re-extract
                     
                     final_name = None
@@ -3767,8 +4239,8 @@ class UnifiedCitationProcessorV2:
                         )
                         master_name = (res or {}).get('case_name') or ''
                         
-                        # USER FIX: Log extraction result to diagnose cluster adoption issue
-                        logger.warning(f"🔍 [MASTER-EXTRACT] For '{citation_text}': master_name='{master_name}', method='{(res or {}).get('method')}'")
+                        # OPTIMIZATION: Changed to debug level to reduce logging overhead
+                        logger.debug(f"[MASTER-EXTRACT] For '{citation_text}': master_name='{master_name}', method='{(res or {}).get('method')}'")
                         
                         # Clean contamination from master extractor result
                         if master_name and master_name != 'N/A':
@@ -3781,13 +4253,13 @@ class UnifiedCitationProcessorV2:
                             
                             if len(master_name.strip()) > 3:
                                 final_name = master_name
-                                logger.warning(f"✅ [EXTRACT-M1] Master SUCCESS: '{master_name}' for {citation_text}")
+                                logger.debug(f"[EXTRACT-M1] Master SUCCESS: '{master_name}' for {citation_text}")
                             else:
-                                logger.warning(f"⚠️ [EXTRACT-M1] Master result too short: '{master_name}' for {citation_text}")
+                                logger.debug(f"[EXTRACT-M1] Master result too short: '{master_name}' for {citation_text}")
                         else:
-                            logger.warning(f"⚠️ [EXTRACT-M1] Master returned N/A or empty for {citation_text}")
+                            logger.debug(f"[EXTRACT-M1] Master returned N/A or empty for {citation_text}")
                     except Exception as e:
-                        logger.warning(f"❌ [EXTRACT-M1] Master failed: {e}")
+                        logger.debug(f"[EXTRACT-M1] Master failed: {e}")
                     
                     # Method 2: Context-based extraction (if master failed or returned short name)
                     if not final_name or len(final_name) < 10:
@@ -3882,10 +4354,14 @@ class UnifiedCitationProcessorV2:
                     # Set the final name (always prefer extracted over empty/null)
                     if final_name:
                         setattr(c, 'extracted_case_name', final_name)
-                        logger.info(f"[EXTRACT-SUCCESS] Set '{final_name}' for {citation_text}")
+                        # OPTIMIZATION: Cache the result for future use
+                        extraction_cache[cache_key] = final_name
+                        logger.debug(f"[EXTRACT-SUCCESS] Set '{final_name}' for {citation_text}")
                     elif not current_name or current_name == 'N/A':
                         setattr(c, 'extracted_case_name', 'N/A')
-                        logger.warning(f"[EXTRACT-FAIL] All methods failed for {citation_text}")
+                        # Cache the failure too to avoid re-trying
+                        extraction_cache[cache_key] = 'N/A'
+                        logger.debug(f"[EXTRACT-FAIL] All methods failed for {citation_text}")
                     
                 except Exception as e:
                     logger.error(f"[EXTRACT-ERROR] Exception for {getattr(c, 'citation', 'unknown')}: {e}")
@@ -3902,9 +4378,9 @@ class UnifiedCitationProcessorV2:
         self.ensure_bidirectional_parallels(citations)
         logger.info(f"[UNIFIED_PIPELINE] After bidirectional parallels: {len(citations)} citations")
         
-        logger.info("[UNIFIED_PIPELINE] Phase 4: Propagating canonical data to parallel citations")
-        self._update_progress(60, "Propagating Data", "Propagating canonical data to parallel citations")
-        self.propagate_canonical_to_cluster(citations)
+        logger.info("[UNIFIED_PIPELINE] Phase 4: Skipping duplicate canonical propagation (already done)")
+        self._update_progress(60, "Propagating Data", "Parallel verification already completed earlier")
+        # self.propagate_canonical_to_cluster(citations)  # Already done earlier in Phase 1
         logger.info(f"[UNIFIED_PIPELINE] After canonical propagation: {len(citations)} citations")
         
         logger.info("[UNIFIED_PIPELINE] Phase 4.5: Filtering false positive citations")
@@ -3913,10 +4389,15 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[UNIFIED_PIPELINE] After false positive filtering: {len(citations)} citations")
         
         # FIX #54: Diagnostic logging to find why verification doesn't run
-        logger.error(f"🔍 [FIX #54] PRE-VERIFICATION CHECK:")
+        logger.error(f" [FIX #54] PRE-VERIFICATION CHECK:")
         logger.error(f"   enable_verification: {self.config.enable_verification}")
         logger.error(f"   citations count: {len(citations) if citations else 0}")
         logger.error(f"   Will verification run: {self.config.enable_verification and citations}")
+        
+        logger.info(f"[UNIFIED_PIPELINE] Phase 4.75: Pre-clustering verification check")
+        logger.info(f"[UNIFIED_PIPELINE] enable_verification: {self.config.enable_verification}")
+        logger.info(f"[UNIFIED_PIPELINE] citations count: {len(citations) if citations else 0}")
+        logger.info(f"[UNIFIED_PIPELINE] Will verification run: {self.config.enable_verification and bool(citations)}")
         
         # CRITICAL FIX: Verify citations BEFORE clustering so clustering uses correct canonical names
         if self.config.enable_verification and citations:
@@ -3924,6 +4405,58 @@ class UnifiedCitationProcessorV2:
             self._update_progress(67, "Verifying", "Verifying citations with external sources")
             verified_citations = self._verify_citations_sync(citations, text)
             citations = verified_citations
+            
+            # Apply verification paradox fix: if citation has canonical data AND years match, it should be verified
+            # USER FIX: Added year validation - do NOT set verified=True if years don't match
+            import re
+            for citation in citations:
+                if hasattr(citation, '__dict__'):
+                    # Check if citation has canonical data but verified is False
+                    has_canonical_data = (
+                        getattr(citation, 'canonical_name', None) and 
+                        getattr(citation, 'canonical_date', None) and 
+                        getattr(citation, 'canonical_url', None)
+                    )
+                    if has_canonical_data and not getattr(citation, 'verified', False):
+                        # USER FIX: Check year match before setting verified
+                        extracted_date = getattr(citation, 'extracted_date', None)
+                        canonical_date = getattr(citation, 'canonical_date', None)
+                        year_match = True  # Default to True if no extracted date
+                        if extracted_date and canonical_date:
+                            ext_year = re.search(r'(19|20)\d{2}', str(extracted_date))
+                            can_year = re.search(r'(19|20)\d{2}', str(canonical_date))
+                            if ext_year and can_year:
+                                year_match = (ext_year.group(0) == can_year.group(0))
+                        
+                        if year_match:
+                            citation.verified = True
+                            logger.info(f"[VERIFICATION-PARADOX-FIX] {citation.citation}: Setting verified=True based on canonical data presence")
+                        else:
+                            logger.warning(f"[VERIFICATION-PARADOX-FIX] {citation.citation}: NOT setting verified - year mismatch (extracted={extracted_date}, canonical={canonical_date})")
+                elif isinstance(citation, dict):
+                    # Check if dict citation has canonical data but verified is False
+                    has_canonical_data = (
+                        citation.get('canonical_name') and 
+                        citation.get('canonical_date') and 
+                        citation.get('canonical_url')
+                    )
+                    if has_canonical_data and not citation.get('verified', False):
+                        # USER FIX: Check year match before setting verified
+                        extracted_date = citation.get('extracted_date')
+                        canonical_date = citation.get('canonical_date')
+                        year_match = True  # Default to True if no extracted date
+                        if extracted_date and canonical_date:
+                            ext_year = re.search(r'(19|20)\d{2}', str(extracted_date))
+                            can_year = re.search(r'(19|20)\d{2}', str(canonical_date))
+                            if ext_year and can_year:
+                                year_match = (ext_year.group(0) == can_year.group(0))
+                        
+                        if year_match:
+                            citation['verified'] = True
+                            logger.info(f"[VERIFICATION-PARADOX-FIX] {citation.get('citation')}: Setting verified=True based on canonical data presence")
+                        else:
+                            logger.warning(f"[VERIFICATION-PARADOX-FIX] {citation.get('citation')}: NOT setting verified - year mismatch (extracted={extracted_date}, canonical={canonical_date})")
+            
             logger.info(f"[UNIFIED_PIPELINE] After pre-clustering verification: {len(citations)} citations")
         else:
             logger.info("[UNIFIED_PIPELINE] Phase 4.75: Skipping pre-clustering verification (disabled)")
@@ -3931,14 +4464,15 @@ class UnifiedCitationProcessorV2:
         logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system")
         self._update_progress(70, "Clustering", "Creating citation clusters")
         from src.unified_clustering_master import cluster_citations_unified_master
-        # ENABLE batch verification to use efficient citation-lookup API
-        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=True)
-        logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering")
+        # CRITICAL: Pass the actual verification configuration from processor
+        clusters = cluster_citations_unified_master(citations, original_text=text, enable_verification=self.config.enable_verification)
+        logger.info(f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering (verification: {self.config.enable_verification})")
         
         # CRITICAL FIX: Update citation objects with cluster information immediately
         # This must happen BEFORE any serialization to ensure cluster data persists
         logger.info("[UNIFIED_PIPELINE] Phase 5.5: Updating citations with cluster information")
-        logger.error(f"🔍 [PHASE-5.5-DEBUG] Processing {len(clusters)} clusters")
+        # Performance optimization: Disable verbose debug logging
+        # logger.error(f"🔍 [PHASE-5.5-DEBUG] Processing {len(clusters)} clusters")
         citation_to_cluster = {}
         for cluster in clusters:
             cluster_id = cluster.get('cluster_id')
@@ -3963,7 +4497,7 @@ class UnifiedCitationProcessorV2:
                 # Check for canonical date discrepancies (indicates potential typo or wrong verification)
                 has_date_mismatch = len(set([d for _, d in canonical_dates])) > 1
                 if has_date_mismatch:
-                    logger.warning(f"⚠️ [DATE-MISMATCH] Cluster {cluster_id}: Parallel citations have DIFFERENT canonical dates!")
+                    logger.warning(f"[WARNING] [DATE-MISMATCH] Cluster {cluster_id}: Parallel citations have DIFFERENT canonical dates!")
                     for cit, date in canonical_dates:
                         logger.warning(f"   - {cit}: canonical_date={date}")
                     logger.warning(f"   → This may indicate a typo or verification to wrong case. User should review.")
@@ -3977,16 +4511,17 @@ class UnifiedCitationProcessorV2:
                     from collections import Counter
                     date_counts = Counter(extracted_dates)
                     cluster_extracted_date = date_counts.most_common(1)[0][0]
-                    logger.error(f"🔍 [PHASE-5.5-DEBUG] Cluster {cluster_id}: Extracted dates={extracted_dates}, using={cluster_extracted_date}")
+                    # Performance optimization: Disable verbose debug logging
+                    # logger.error(f"🔍 [PHASE-5.5-DEBUG] Cluster {cluster_id}: Extracted dates={extracted_dates}, using={cluster_extracted_date}")
             
-            # DEBUG: Log cluster canonical data
-            logger.error(f"🔍 [PHASE-5.5-DEBUG] Cluster {cluster_id}: {len(cluster_citations)} citations")
-            for cit_dict in cluster_citations[:2]:  # Log first 2
-                if isinstance(cit_dict, dict):
-                    cit_text = cit_dict.get('citation', 'Unknown')
-                    verified = cit_dict.get('verified', False)
-                    canonical_date = cit_dict.get('canonical_date', None)
-                    logger.error(f"🔍 [PHASE-5.5-DEBUG]   {cit_text}: verified={verified}, canonical_date={canonical_date}")
+            # DEBUG: Log cluster canonical data (disabled for performance)
+            # logger.error(f"🔍 [PHASE-5.5-DEBUG] Cluster {cluster_id}: {len(cluster_citations)} citations")
+            # for cit_dict in cluster_citations[:2]:  # Log first 2
+            #     if isinstance(cit_dict, dict):
+            #         cit_text = cit_dict.get('citation', 'Unknown')
+            #         verified = cit_dict.get('verified', False)
+            #         canonical_date = cit_dict.get('canonical_date', None)
+            #         logger.error(f"🔍 [PHASE-5.5-DEBUG]   {cit_text}: verified={verified}, canonical_date={canonical_date}")
             
             # Match by citation text, not object id (clusters contain dicts, not objects)
             for cit_dict in cluster_citations:
@@ -4006,11 +4541,20 @@ class UnifiedCitationProcessorV2:
                 # CRITICAL: Set cluster_members so frontend can display them
                 citation.cluster_members = [m for m in cluster_members if m != citation_text]
                 
-                # USER FIX 2024-10-21 v4: Apply cluster's extracted_date to ALL parallel citations
-                # This ensures all parallel citations have the SAME extracted date
+                # CRITICAL FIX: NEVER overwrite extracted_date with cluster-level data!
+                # Memory rule: extracted_date must NEVER be overwritten or contaminated.
+                # The extracted_date comes from the user's document and must remain unchanged.
+                # Only use cluster_extracted_date if the citation has NO extracted_date at all.
+                # Even then, we should preserve the original extracted_date if it exists.
                 if cluster_extracted_date and size > 1:
-                    citation.extracted_date = cluster_extracted_date
-                    logger.debug(f"[PHASE-5.5] Synchronized extracted_date={cluster_extracted_date} for {citation_text}")
+                    existing_extracted_date = getattr(citation, 'extracted_date', None)
+                    if not existing_extracted_date or existing_extracted_date == 'N/A':
+                        # Only fill in if truly missing - but this should rarely happen
+                        citation.extracted_date = cluster_extracted_date
+                        logger.debug(f"[PHASE-5.5] Filled missing extracted_date with cluster value: {cluster_extracted_date} for {citation_text}")
+                    else:
+                        # Preserve the original extracted_date - it's from the user's document
+                        logger.debug(f"[PHASE-5.5] Preserving existing extracted_date: {existing_extracted_date} (not overwriting with cluster {cluster_extracted_date})")
                 
                 # USER FIX 2024-10-21: PRESERVE VERIFICATION DATA from clustering
                 # The clustering function verifies citations and sets verified/canonical data,
@@ -4028,12 +4572,31 @@ class UnifiedCitationProcessorV2:
                         citation.canonical_date = cit_dict.get('canonical_date')
                     if cit_dict.get('canonical_url'):
                         citation.canonical_url = cit_dict.get('canonical_url')
-                    if cit_dict.get('source'):
+                    if cit_dict.get('verification_source'):
+                        citation.source = cit_dict.get('verification_source', "Unknown")
+                        logger.info(f"[CIT-UPDATE] Set source from verification_source: {citation.source}")
+                    elif cit_dict.get('source'):
                         citation.source = cit_dict.get('source', "Unknown")
+                        logger.info(f"[CIT-UPDATE] Set source from source: {citation.source}")
+                    else:
+                        # Debug: Check what fields are available
+                        logger.error(f"[CIT-UPDATE] CIT_DICT_FIELDS: {list(cit_dict.keys())}")
+                        citation.source = "Unknown"
+                        logger.error(f"[CIT-UPDATE] Set source to Unknown (no verification_source or source found)")
                 
                 updated_count += 1
         
         logger.info(f"[UNIFIED_PIPELINE] Updated {updated_count} citations with cluster information")
+        
+        # FIX DEC 2025: Apply parallel verification AFTER cluster assignment
+        # Now that cluster_id is set, we can properly propagate verified status to unverified cluster members
+        logger.info("[UNIFIED_PIPELINE] Phase 5.6: Applying cluster-based parallel verification")
+        try:
+            self.propagate_canonical_to_cluster(citations)
+            parallel_count = sum(1 for c in citations if getattr(c, 'true_by_parallel', False))
+            logger.info(f"[UNIFIED_PIPELINE] Phase 5.6: Marked {parallel_count} citations as verified by parallel")
+        except Exception as e:
+            logger.warning(f"[UNIFIED_PIPELINE] Phase 5.6: Parallel verification failed: {e}")
         
         # REMOVED: Duplicate verification step - already done before clustering at Phase 4.75
         logger.info("[UNIFIED_PIPELINE] Phase 6: Verification already completed before clustering")
@@ -4066,187 +4629,78 @@ class UnifiedCitationProcessorV2:
                     'true_by_parallel': true_by_parallel
                 }
         
-        # Format clusters for frontend
-        formatted_clusters = []
-        for cluster in clusters:
-            # CRITICAL FIX #8: Each citation must display ITS OWN canonical data
-            # DO NOT use cluster's aggregate canonical data - it may belong to a different citation!
-            # 
-            # EXAMPLE OF THE BUG:
-            #   Cluster: ["192 Wn.2d 453", "430 P.3d 655"]
-            #   - "192 Wn.2d 453" → API 404 (no canonical data)
-            #   - "430 P.3d 655" → verified to "Spokane County"
-            #   - Cluster's canonical_name = "Spokane County" (from "430 P.3d 655")
-            #   - When displaying "192 Wn.2d 453", we were using cluster's canonical_name
-            #   - WRONG! "192 Wn.2d 453" has NO canonical data!
-            #
-            # FIX: Get data ONLY from individual citations, not from cluster aggregates
-            extracted_name = None
-            extracted_date = None
-            canonical_name = None  # DO NOT use cluster.get('canonical_name')!
-            canonical_date = None  # DO NOT use cluster.get('canonical_date')!
-            canonical_url = None   # DO NOT use cluster.get('canonical_url')!
-            
-            # Get data from first citation
-            if cluster.get('citations'):
-                first_citation = cluster['citations'][0]
-                if isinstance(first_citation, dict):
-                    # CRITICAL FIX #10: Check if first citation has error before using its canonical data
-                    citation_has_error = first_citation.get('error') is not None and first_citation.get('error') != ''
-                    citation_is_verified = first_citation.get('verified', False) and not citation_has_error
-                    
-                    # Always get extracted data
-                    extracted_name = first_citation.get('extracted_case_name')
-                    extracted_date = first_citation.get('extracted_date')
-                    
-                    # ONLY get canonical data if verified and no error
-                    if citation_is_verified:
-                        canonical_name = first_citation.get('canonical_name')
-                        canonical_date = first_citation.get('canonical_date')
-                        canonical_url = first_citation.get('canonical_url') or first_citation.get('url')
-                elif hasattr(first_citation, 'extracted_case_name'):
-                    # Same logic for CitationResult objects
-                    citation_error = getattr(first_citation, 'error', None)
-                    citation_has_error = citation_error is not None and citation_error != ''
-                    citation_is_verified = getattr(first_citation, 'verified', False) and not citation_has_error
-                    
-                    # Always get extracted data
-                    extracted_name = getattr(first_citation, 'extracted_case_name', None)
-                    extracted_date = getattr(first_citation, 'extracted_date', None)
-                    
-                    # ONLY get canonical data if verified and no error
-                    if citation_is_verified:
-                        canonical_name = getattr(first_citation, 'canonical_name', None)
-                        canonical_date = getattr(first_citation, 'canonical_date', None)
-                        canonical_url = getattr(first_citation, 'canonical_url', None) or getattr(first_citation, 'url', None)
-            
-            # Fallback: If we still don't have data, check all citations (maintain data separation!)
-            if cluster.get('citations'):
-                for cit in cluster['citations']:
-                    if isinstance(cit, dict):
-                        # CRITICAL FIX #10: Only use canonical data if the citation was ACTUALLY verified
-                        # and did NOT return an error (e.g., 404). Citations with errors should have
-                        # NO canonical data, even if they're clustered with verified citations.
-                        citation_has_error = cit.get('error') is not None and cit.get('error') != ''
-                        citation_is_verified = cit.get('verified', False) and not citation_has_error
-                        
-                        # Always try to get extracted data from any citation
-                        if not extracted_name:
-                            extracted_name = cit.get('extracted_case_name')
-                        if not extracted_date:
-                            extracted_date = cit.get('extracted_date')
-                        
-                        # ONLY get canonical data from citations that were successfully verified (no errors)
-                        if citation_is_verified:
-                            if not canonical_name:
-                                canonical_name = cit.get('canonical_name')
-                            if not canonical_date:
-                                canonical_date = cit.get('canonical_date')
-                            if not canonical_url:
-                                canonical_url = cit.get('canonical_url') or cit.get('url')
-                    elif hasattr(cit, 'extracted_case_name'):
-                        # Same logic for CitationResult objects
-                        citation_error = getattr(cit, 'error', None)
-                        citation_has_error = citation_error is not None and citation_error != ''
-                        citation_is_verified = getattr(cit, 'verified', False) and not citation_has_error
-                        
-                        # Always try to get extracted data
-                        if not extracted_name:
-                            extracted_name = getattr(cit, 'extracted_case_name', None)
-                        if not extracted_date:
-                            extracted_date = getattr(cit, 'extracted_date', None)
-                        
-                        # ONLY get canonical data from verified citations with no errors
-                        if citation_is_verified:
-                            if not canonical_name:
-                                canonical_name = getattr(cit, 'canonical_name', None)
-                            if not canonical_date:
-                                canonical_date = getattr(cit, 'canonical_date', None)
-                            if not canonical_url:
-                                canonical_url = getattr(cit, 'canonical_url', None) or getattr(cit, 'url', None)
-                    
-                    # Stop if we have all the data we need
-                    if extracted_name and extracted_date:
-                        # For canonical data, only stop if we found a verified citation
-                        if canonical_name and canonical_date and canonical_url:
-                            break
-            
-            # Determine the display name and date: Use canonical if verified, otherwise extracted
-            case_name = canonical_name or extracted_name
-            cluster_date = canonical_date or extracted_date
-            
-            # Get all citations with their verification status
-            # USER FIX: Include extracted_case_name and other fields so Vue.js can display them
-            citations_with_status = []
-            for citation_text in cluster.get('cluster_members', []):
-                # Find the citation object to get extracted data
-                citation_obj = None
-                for c in citations:
-                    if getattr(c, 'citation', None) == citation_text:
-                        citation_obj = c
-                        break
+        # CRITICAL FIX: Preserve original cluster structure from clustering master
+        # The clustering master already returns properly formatted clusters with all required fields
+        # Don't reformat them - use them as-is to maintain consistency with API expectations
+        formatted_clusters = clusters
+        
+        # USER FIX: Final year validation cleanup - unverify any citations with year mismatch
+        # This catches ALL cases regardless of which verification path was used
+        import re as re_final
+        year_mismatch_count = 0
+        
+        # Check citations list (CitationResult objects)
+        for cit in citations:
+            if hasattr(cit, '__dict__'):
+                verified = getattr(cit, 'verified', None)
+                canonical_date = getattr(cit, 'canonical_date', None)
                 
-                citation_info = {
-                    'text': citation_text,
-                    'citation': citation_text,
-                    'verified': False,  # Boolean False, not string
-                    'verification_method': None,
-                    'verification_source': None,
-                    'verification_url': None,
-                    'true_by_parallel': False,  # Boolean False, not string
-                    # USER FIX: Add extracted data from citation object
-                    'extracted_case_name': getattr(citation_obj, 'extracted_case_name', None) if citation_obj else None,
-                    'extracted_date': getattr(citation_obj, 'extracted_date', None) if citation_obj else None,
-                    'canonical_name': getattr(citation_obj, 'canonical_name', None) if citation_obj else None,
-                    'canonical_date': getattr(citation_obj, 'canonical_date', None) if citation_obj else None,
-                    'canonical_url': getattr(citation_obj, 'canonical_url', None) if citation_obj else None,
-                }
+                # FIX: Clear date_mismatch flag if there's no canonical_date to compare
+                if not canonical_date and hasattr(cit, 'date_mismatch'):
+                    cit.date_mismatch = False
                 
-                # Get verification status from our mapping
-                # USER FIX: Ensure verified is always boolean, not string
-                if citation_text in citation_verification:
-                    verified_val = citation_verification[citation_text]['verified']
-                    # Convert string "True"/"False" to boolean
-                    if isinstance(verified_val, str):
-                        verified_val = verified_val.lower() in ('true', '1', 'yes')
-                    citation_info.update({
-                        'verified': bool(verified_val),  # Ensure boolean
-                        'verification_method': citation_verification[citation_text].get('verification_method'),
-                        'verification_source': citation_verification[citation_text].get('verification_source'),
-                        'verification_url': citation_verification[citation_text].get('verification_url'),
-                        'true_by_parallel': bool(citation_verification[citation_text].get('true_by_parallel', False))  # Ensure boolean
-                    })
-                
-                citations_with_status.append(citation_info)
+                if verified == True:  # Only check truly verified, not "true_by_parallel"
+                    extracted_date = getattr(cit, 'extracted_date', None)
+                    if extracted_date and canonical_date:
+                        ext_year = re_final.search(r'(19|20)\d{2}', str(extracted_date))
+                        can_year = re_final.search(r'(19|20)\d{2}', str(canonical_date))
+                        if ext_year and can_year:
+                            year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
+                            if year_diff > 1:
+                                # More than 1 year difference - unverify
+                                cit.verified = False
+                                cit.verification_error = f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                logger.warning(f"❌ [FINAL-YEAR-CHECK] {cit.citation}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})")
+                                year_mismatch_count += 1
+                            elif year_diff == 1:
+                                # 1 year difference - acceptable, just log warning
+                                logger.info(f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})")
+        
+        # Also check cluster citations (dicts)
+        for cluster in formatted_clusters:
+            cluster_citations = cluster.get('citations', [])
+            for cit in cluster_citations:
+                if isinstance(cit, dict):
+                    verified = cit.get('verified')
+                    canonical_date = cit.get('canonical_date')
+                    
+                    # FIX: Clear date_mismatch flag if there's no canonical_date to compare
+                    if not canonical_date:
+                        cit['date_mismatch'] = False
+                    
+                    if verified == True:  # Only check truly verified, not "true_by_parallel"
+                        extracted_date = cit.get('extracted_date')
+                        if extracted_date and canonical_date:
+                            ext_year = re_final.search(r'(19|20)\d{2}', str(extracted_date))
+                            can_year = re_final.search(r'(19|20)\d{2}', str(canonical_date))
+                            if ext_year and can_year:
+                                year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
+                                if year_diff > 1:
+                                    # More than 1 year difference - unverify
+                                    cit['verified'] = False
+                                    cit['verification_error'] = f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                    logger.warning(f"❌ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})")
+                                    year_mismatch_count += 1
+                                elif year_diff == 1:
+                                    # 1 year difference - acceptable, just log warning
+                                    logger.info(f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})")
             
-            # Format the cluster for the frontend
-            # USER FIX: Convert verified to boolean to avoid "False" string being truthy
-            def is_verified(val):
-                """Convert verified value to boolean, handling string 'False' or 'None'"""
-                if isinstance(val, bool):
-                    return val
-                if isinstance(val, str):
-                    return val.lower() in ('true', '1', 'yes')
-                return bool(val)
-            
-            formatted_cluster = {
-                'cluster_id': cluster.get('cluster_id'),
-                'case_name': case_name,  # Display name (canonical if verified, otherwise extracted)
-                'canonical_name': canonical_name,  # MUST be ONLY from API, never from document
-                'extracted_case_name': extracted_name,  # MUST be ONLY from document, never from API
-                'date': cluster_date,  # Display date (canonical if verified, otherwise extracted)
-                'canonical_date': canonical_date,  # MUST be ONLY from API
-                'extracted_date': extracted_date,  # MUST be ONLY from document
-                'canonical_url': canonical_url,  # Add canonical URL for frontend links
-                'citations': citations_with_status,  # Now includes verification status for each citation
-                'size': len(cluster.get('cluster_members', [])),
-                'verified': any(is_verified(c.get('verified', False)) for c in citations_with_status),  # USER FIX: Convert strings to bool
-                'source': 'clustering',
-                'validation_method': 'cluster_validation',
-                'citation_details': citations_with_status
-            }
-            
-            formatted_clusters.append(formatted_cluster)
+            # FIX: Recompute cluster has_date_mismatch after clearing invalid flags
+            # CRITICAL: Only count date_mismatch for VERIFIED citations
+            cluster['has_date_mismatch'] = any(c.get('date_mismatch', False) and c.get('verified', False) for c in cluster_citations if isinstance(c, dict))
+        
+        if year_mismatch_count > 0:
+            logger.info(f"[FINAL-YEAR-CHECK] Unverified {year_mismatch_count} citations due to year mismatch")
         
         result = {
             'citations': citations,
@@ -4540,11 +4994,14 @@ class UnifiedCitationProcessorV2:
         # Check the verified field
         if hasattr(citation, 'verified'):
             if isinstance(citation.verified, bool):
-                return citation.verified
-            elif citation.verified == "true_by_parallel":
-                return True
+                if citation.verified:
+                    return True
             elif citation.verified is True:
                 return True
+        
+        # Check true_by_parallel attribute (verified by parallel association)
+        if hasattr(citation, 'true_by_parallel') and citation.true_by_parallel:
+            return True
         
         # Check metadata for verification status
         if hasattr(citation, 'metadata') and citation.metadata:
@@ -4619,64 +5076,290 @@ class UnifiedCitationProcessorV2:
         For each group of parallel citations (including main and parallels), if any member is verified and has canonical_name and canonical_date,
         propagate those fields to all other members in the group that lack them. Set verified='true_by_parallel' for those not directly verified.
         """
+        print(f"PARALLEL VERIFICATION FUNCTION CALLED with {len(citations)} citations")
+        logger.info(f"[PARALLEL-DEBUG] Starting parallel verification for {len(citations)} citations")
         citation_lookup = {c.citation: c for c in citations}
         visited = set()
+        parallel_count = 0
+        
+        # NEW: Also group by canonical data (more reliable than positions)
+        # FIX DEC 2025: Parallel citations are the SAME case in DIFFERENT reporters
+        # So we should NOT group by reporter type - that breaks parallel verification
+        # Example: 110 Ohio St. 3d 456 and 854 N.E.2d 193 are the SAME case
+        canonical_groups = {}
+        for citation in citations:
+            if citation.canonical_name and citation.canonical_date:
+                # Group by canonical name and date ONLY - not by reporter type
+                # This ensures parallel citations (same case, different reporters) are grouped together
+                key = (citation.canonical_name, citation.canonical_date)
+                
+                if key not in canonical_groups:
+                    canonical_groups[key] = []
+                canonical_groups[key].append(citation)
+        
+        logger.info(f"[PARALLEL-DEBUG] Found {len(canonical_groups)} groups by canonical data")
+        
+        # Process canonical groups first (most reliable)
+        for canonical_key, group in canonical_groups.items():
+            if len(group) > 1:
+                logger.info(f"[PARALLEL-DEBUG] Processing canonical group with {len(group)} citations")
+                verified_member = None
+                for c in group:
+                    if c.verified and c.canonical_name and c.canonical_date:
+                        verified_member = c
+                        logger.info(f"[PARALLEL-DEBUG] Found verified member in canonical group: {c.citation}")
+                        break
+                
+                if verified_member:
+                    for c in group:
+                        logger.info(f"[PARALLEL-DEBUG] Processing citation: {c.citation}, verified: {c.verified}")
+                        
+                        # Copy canonical data if missing
+                        if not c.canonical_name or not c.canonical_date:
+                            logger.info(f"[PARALLEL-DEBUG] Copying canonical data to {c.citation}")
+                            c.canonical_name = verified_member.canonical_name
+                            c.canonical_date = verified_member.canonical_date
+                            c.url = verified_member.url
+                            c.source = verified_member.source
+                        
+                        # Apply true_by_parallel semantics ONLY to unverified group members
+                        if c is not verified_member and (not c.verified or c.verified == False):
+                            if not hasattr(c, 'metadata') or c.metadata is None:
+                                c.metadata = {}
+                            c.metadata['true_by_parallel'] = True
+                            c.true_by_parallel = True
+                            # Set parallel citations field for context
+                            group_citations = [g.citation for g in group if g.citation != c.citation]
+                            c.parallel_citations = group_citations
+                            # Keep verified=False, true_by_parallel=True indicates verification by association
+                            parallel_count += 1
+        
+        # FIX DEC 2025: Cluster-based parallel detection for unverified citations
+        # Only mark citations as "verified by parallel" if they are in the SAME CLUSTER
+        # as a verified citation and cannot be independently verified
+        
+        # Build cluster lookup: cluster_id -> list of citations in that cluster
+        cluster_groups = {}
+        for cit in citations:
+            cluster_id = getattr(cit, 'cluster_id', None)
+            if cluster_id:
+                if cluster_id not in cluster_groups:
+                    cluster_groups[cluster_id] = []
+                cluster_groups[cluster_id].append(cit)
+        
+        logger.info(f"[PARALLEL-CLUSTER] Found {len(cluster_groups)} clusters")
+        
+        # For each cluster, find verified citations and propagate to unverified members
+        for cluster_id, cluster_citations in cluster_groups.items():
+            if len(cluster_citations) < 2:
+                continue
+                
+            # Find verified member(s) in this cluster (must be directly verified, not via parallel)
+            verified_member = None
+            for cit in cluster_citations:
+                is_directly_verified = cit.verified == True and not getattr(cit, 'true_by_parallel', False)
+                if is_directly_verified and cit.canonical_name:
+                    verified_member = cit
+                    break
+            
+            if not verified_member:
+                continue
+                
+            logger.info(f"[PARALLEL-CLUSTER] Cluster {cluster_id} has verified member: {verified_member.citation}")
+            
+            # Propagate to unverified members in the same cluster
+            for cit in cluster_citations:
+                if cit is verified_member:
+                    continue
+                    
+                # Skip if already verified
+                if cit.verified and cit.verified != False:
+                    continue
+                
+                # This citation is in the same cluster but unverified - mark as verified by parallel
+                logger.info(f"[PARALLEL-CLUSTER] Marking {cit.citation} as verified by parallel (same cluster as {verified_member.citation})")
+                cit.canonical_name = verified_member.canonical_name
+                cit.canonical_date = verified_member.canonical_date
+                cit.canonical_url = getattr(verified_member, 'canonical_url', None)
+                cit.url = verified_member.url
+                cit.source = verified_member.source
+                if not hasattr(cit, 'metadata') or cit.metadata is None:
+                    cit.metadata = {}
+                cit.metadata['true_by_parallel'] = True
+                cit.true_by_parallel = True
+                cit.parallel_citations = [verified_member.citation]
+                # Keep verified=False, true_by_parallel=True indicates verification by association
+                parallel_count += 1
+        
+        # Original position-based method (for cases with parallel_citations already set)
         for citation in citations:
             if citation.citation in visited:
                 continue
             group = set([citation.citation])
             if citation.parallel_citations:
                 group.update(citation.parallel_citations)
+            
+            logger.info(f"[PARALLEL-DEBUG] Processing position-based group: {group}")
+            
             verified_member = None
             for cite_str in group:
                 c = citation_lookup.get(cite_str)
                 if c and c.verified and c.canonical_name and c.canonical_date:
                     verified_member = c
+                    logger.info(f"[PARALLEL-DEBUG] Found verified member: {cite_str}")
                     break
+            
             if verified_member:
+                logger.info(f"[PARALLEL-DEBUG] Propagating from verified member to {len(group)} citations")
                 for cite_str in group:
                     c = citation_lookup.get(cite_str)
-                    if c and (not c.canonical_name or not c.canonical_date):
-                        c.canonical_name = verified_member.canonical_name
-                        c.canonical_date = verified_member.canonical_date
-                        c.url = verified_member.url
-                        c.source = verified_member.source
-                        if not c.verified:
-                            c.verified = "true_by_parallel"
-                            if not hasattr(c, 'metadata'):
+                    if c:
+                        logger.info(f"[PARALLEL-DEBUG] Processing citation: {cite_str}, verified: {c.verified}")
+                        
+                        # Copy canonical data if missing
+                        if not c.canonical_name or not c.canonical_date:
+                            logger.info(f"[PARALLEL-DEBUG] Copying canonical data to {cite_str}")
+                            c.canonical_name = verified_member.canonical_name
+                            c.canonical_date = verified_member.canonical_date
+                            c.url = verified_member.url
+                            c.source = verified_member.source
+                        
+                        # Apply true_by_parallel semantics ONLY to unverified group members
+                        if c is not verified_member and (not c.verified or c.verified == False):
+                            if not hasattr(c, 'metadata') or c.metadata is None:
                                 c.metadata = {}
                             c.metadata['true_by_parallel'] = True
+                            c.true_by_parallel = True
+                            logger.info(f"[PARALLEL-DEBUG] Marked {cite_str} true_by_parallel (position group)")
+                            # Keep verified=False, true_by_parallel=True indicates verification by association
+                            parallel_count += 1
                     visited.add(cite_str)
-        for c in citations:
-            pass  # This loop was incomplete, adding pass to fix syntax
+            else:
+                logger.info(f"[PARALLEL-DEBUG] No verified member found for group: {group}")
+                visited.update(group)
+        
+        logger.info(f"[PARALLEL-DEBUG] Completed parallel verification. Marked {parallel_count} citations as verified_by_parallel")
+        
+        # CRITICAL FIX DEC 2025: Final consistency pass using parallel_citations field
+        # ONLY mark true_by_parallel if at least one citation in the group is VERIFIED (verified=True)
+        # Citations should only be marked true_by_parallel if at least one citation in the cluster is verified
+        logger.info(f"[PARALLEL-CONSISTENCY] Starting final consistency pass for {len(citations)} citations")
+        
+        # Build citation lookup by citation text
+        citation_lookup = {c.citation: c for c in citations}
+        
+        # Build parallel groups from parallel_citations field
+        visited = set()
+        parallel_groups = []
+        
+        for cit in citations:
+            if cit.citation in visited:
+                continue
+            
+            # Build group from this citation's parallel_citations
+            group = {cit.citation}
+            if cit.parallel_citations:
+                group.update(cit.parallel_citations)
+            
+            # Expand group by following parallel_citations of group members
+            expanded = True
+            while expanded:
+                expanded = False
+                for cite_text in list(group):
+                    if cite_text in citation_lookup:
+                        member = citation_lookup[cite_text]
+                        if member.parallel_citations:
+                            for p in member.parallel_citations:
+                                if p not in group:
+                                    group.add(p)
+                                    expanded = True
+            
+            if len(group) > 1:
+                parallel_groups.append(group)
+            visited.update(group)
+        
+        logger.info(f"[PARALLEL-CONSISTENCY] Found {len(parallel_groups)} parallel groups")
+        
+        consistency_fixed = 0
+        for group in parallel_groups:
+            group_citations = [citation_lookup[c] for c in group if c in citation_lookup]
+            if len(group_citations) < 2:
+                continue
+            
+            # Check if ANY citation in this group is VERIFIED (verified=True)
+            # CRITICAL: Only mark true_by_parallel if at least one citation is verified
+            has_verified = False
+            source_citation = None
+            for cit in group_citations:
+                if cit.verified == True:
+                    has_verified = True
+                    # Prefer a citation with canonical data as the source
+                    if cit.canonical_name and (source_citation is None or not getattr(source_citation, 'canonical_name', None)):
+                        source_citation = cit
+            
+            if has_verified and source_citation:
+                # Propagate true_by_parallel to ALL unverified citations in this group
+                for cit in group_citations:
+                    if cit.verified != True and not getattr(cit, 'true_by_parallel', False):
+                        cit.true_by_parallel = True
+                        # Also propagate canonical data if available
+                        if source_citation.canonical_name and not cit.canonical_name:
+                            cit.canonical_name = source_citation.canonical_name
+                        if getattr(source_citation, 'canonical_date', None) and not getattr(cit, 'canonical_date', None):
+                            cit.canonical_date = source_citation.canonical_date
+                        if getattr(source_citation, 'canonical_url', None) and not getattr(cit, 'canonical_url', None):
+                            cit.canonical_url = source_citation.canonical_url
+                        consistency_fixed += 1
+                        logger.info(f"[PARALLEL-CONSISTENCY] Fixed: {cit.citation} now true_by_parallel")
+        
+        logger.info(f"[PARALLEL-CONSISTENCY] Consistency pass complete. Fixed {consistency_fixed} citations")
 
     def ensure_bidirectional_parallels(self, citations: List['CitationResult']):
         """
         For each group of citations that are close together (by position and punctuation), ensure all group members have each other in their parallel_citations field.
         """
+        logger.info(f"[PARALLEL-DEBUG] Starting bidirectional parallel detection for {len(citations)} citations")
+        
+        # Debug citation positions
+        for i, c in enumerate(citations):
+            logger.info(f"[PARALLEL-DEBUG] Citation {i}: {c.citation}, start={c.start_index}, end={c.end_index}")
+        
         sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         n = len(sorted_citations)
         i = 0
+        groups_found = 0
+        
         while i < n:
             group = [sorted_citations[i]]
             j = i + 1
             while j < n:
                 curr = sorted_citations[j]
                 prev = group[-1]
+                logger.info(f"[PARALLEL-DEBUG] Checking proximity: {curr.citation} (start={curr.start_index}) vs {prev.citation} (end={prev.end_index})")
+                
                 if (curr.start_index and prev.end_index and curr.start_index - prev.end_index <= 100):
                     text_between = ''
                     if hasattr(prev, 'end_index') and hasattr(curr, 'start_index'):
                         text_between = getattr(prev, 'context', '')[-(prev.end_index - (prev.start_index or 0)):] + getattr(curr, 'context', '')[:curr.start_index - (curr.start_index or 0)]
+                    logger.info(f"[PARALLEL-DEBUG] Text between: '{text_between}', distance: {curr.start_index - prev.end_index}")
+                    
                     if ',' in text_between or (curr.start_index - prev.end_index <= 10):
+                        logger.info(f"[PARALLEL-DEBUG] Adding to group: {curr.citation}")
                         group.append(curr)
                         j += 1
                         continue
                 break
             if len(group) > 1:
+                groups_found += 1
                 cite_strs = [c.citation for c in group]
+                logger.info(f"[PARALLEL-DEBUG] Found parallel group {groups_found}: {cite_strs}")
                 for c in group:
                     c.parallel_citations = [s for s in cite_strs if s != c.citation]
+                    logger.info(f"[PARALLEL-DEBUG] Set {c.citation}.parallel_citations = {c.parallel_citations}")
             i = j
+        
+        logger.info(f"[PARALLEL-DEBUG] Found {groups_found} parallel groups")
+        
         if self.config.debug_mode:
             for c in citations:
                 pass  # This loop was incomplete, adding pass to fix syntax

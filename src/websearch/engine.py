@@ -83,6 +83,12 @@ class ComprehensiveWebSearchEngine:
                 'rate_limit': 2.0,
                 'enabled': True
             },
+            'law_resource': {
+                'base_url': 'https://law.resource.org',
+                'search_url': 'https://law.resource.org/search',
+                'rate_limit': 1.5,
+                'enabled': True
+            },
             'google_scholar': {
                 'base_url': 'https://scholar.google.com',
                 'search_url': 'https://scholar.google.com/scholar',
@@ -288,6 +294,7 @@ class ComprehensiveWebSearchEngine:
             'vlex': 0.7,
             'casemine': 0.8,  # Added Casemine
             'openjurist': 0.7,  # Added OpenJurist
+            'law_resource': 0.75,  # Added Law Resource.org
             'google_scholar': 0.6,
             'bing': 0.4,
             'duckduckgo': 0.4
@@ -319,7 +326,7 @@ class ComprehensiveWebSearchEngine:
         url = result.get('url', '')
         if url:
             domain = urlparse(url).netloc.lower()
-            if any(legal_domain in domain for legal_domain in ['justia.com', 'findlaw.com', 'courtlistener.com', 'casemine.com']):
+            if any(legal_domain in domain for legal_domain in ['justia.com', 'findlaw.com', 'courtlistener.com', 'casemine.com', 'law.resource.org']):
                 score += 0.1
         
         return min(1.0, score)
@@ -486,6 +493,55 @@ class ComprehensiveWebSearchEngine:
     async def search_casetext(self, citation: str, case_name: Optional[str] = None) -> Dict:
         """Search Casetext for legal documents."""
         return {'source': 'casetext', 'results': []}
+    
+    async def search_law_resource(self, citation: str, case_name: Optional[str] = None) -> Dict:
+        """Search Law Resource.org for legal documents using Google site search."""
+        try:
+            from urllib.parse import quote_plus
+            
+            # Build search query - use Google to search Law Resource.org site
+            if case_name:
+                query = f'"{citation}" {case_name} site:law.resource.org'
+            else:
+                query = f'"{citation}" site:law.resource.org'
+            
+            # Use Google search to find documents on Law Resource.org
+            results = self.search_with_engine(query, 'google_scholar', num_results=3)
+            
+            if results:
+                # Process results for legal documents from Law Resource.org
+                legal_results = []
+                for result in results:
+                    title = result.get('title', '').lower()
+                    snippet = result.get('snippet', '').lower()
+                    url = result.get('url', '')
+                    
+                    # Check if result is from Law Resource.org and looks like a legal opinion/document
+                    if 'law.resource.org' in url and any(keyword in title or keyword in snippet for keyword in [
+                        'v.', 'opinion', 'court', 'citation', 'reporter', 'f.3d', 'f.2d', 'u.s.', 's. ct.'
+                    ]):
+                        legal_results.append({
+                            'title': result.get('title', ''),
+                            'url': url,
+                            'snippet': result.get('snippet', ''),
+                            'date': result.get('date', ''),
+                            'source': 'law_resource'
+                        })
+                
+                if legal_results:
+                    logger.info(f"Found {len(legal_results)} legal documents on Law Resource.org for {citation}")
+                    return {
+                        'source': 'law_resource',
+                        'verified': True,
+                        'results': legal_results
+                    }
+            
+            logger.info(f"No legal documents found on Law Resource.org for {citation}")
+            return {'source': 'law_resource', 'verified': False, 'results': []}
+            
+        except Exception as e:
+            logger.error(f"Error searching Law Resource.org for {citation}: {e}")
+            return {'source': 'law_resource', 'verified': False, 'results': []}
     
     async def search_justia(self, citation: str, case_name: Optional[str] = None) -> Dict:
         """Search Justia for legal documents using citation-first approach."""
@@ -823,6 +879,8 @@ class ComprehensiveWebSearchEngine:
                         return await self.search_vlex(citation, case_name)
                     elif source == 'casetext':
                         return await self.search_casetext(citation, case_name)
+                    elif source == 'law_resource':
+                        return await self.search_law_resource(citation, case_name)
                     elif source == 'justia':
                         return await self.search_justia(citation, case_name)
                     elif source == 'courtlistener_web':
@@ -941,6 +999,8 @@ class ComprehensiveWebSearchEngine:
                         result = await self.search_leagle(citation, case_name)
                     elif source == 'casetext':
                         result = await self.search_casetext(citation, case_name)
+                    elif source == 'law_resource':
+                        result = await self.search_law_resource(citation, case_name)
                     elif source == 'vlex':
                         result = await self.search_vlex(citation, case_name)
                     elif source == 'casemine':

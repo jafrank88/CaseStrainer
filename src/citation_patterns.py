@@ -67,7 +67,7 @@ class CitationPatterns:
     WASH_2D = r'\b\d+\s+Wash\.2d\s+\d+\b'
     WN_3D = r'\b\d+\s+Wn\.\s*3d\s+\d+\b'
     
-    WN_APP = r'\b\d+\s+Wn\.\s*App\.?\s*2d\s+\d+\b'
+    WN_APP = r'\b\d+\s+Wn\.\s*App\.?\s*(?:2d\s+)?\d+\b'
     WASH_APP = r'\b\d+\s+Wash\.\s*App\.?\s*2d\s+\d+\b'
     
     # ============================================================================

@@ -46,13 +46,13 @@ class UniversalStateCourtVerifier:
         Returns:
             dict: Verification result with keys: verified, canonical_name, canonical_url, source, confidence
         """
-        logger.info(f"🔍 [UNIVERSAL-STATE] Verifying: {citation}")
+        logger.info(f"[DEBUG] [UNIVERSAL-STATE] Verifying: {citation}")
         
         # Identify state
         state_name, court_url = identify_state_from_citation(citation)
         
         if not state_name:
-            logger.warning(f"⚠️  [UNIVERSAL-STATE] Cannot identify state for: {citation}")
+            logger.warning(f"[WARNING] [UNIVERSAL-STATE] Cannot identify state for: {citation}")
             return {'verified': False, 'error': 'Cannot identify state'}
         
         logger.info(f"📍 [UNIVERSAL-STATE] Identified state: {state_name}")
@@ -77,7 +77,7 @@ class UniversalStateCourtVerifier:
         
         for source_name, verify_func in sources_to_try:
             try:
-                logger.info(f"🔍 [UNIVERSAL-STATE] Trying {source_name}...")
+                logger.info(f"[DEBUG] [UNIVERSAL-STATE] Trying {source_name}...")
                 result = verify_func(
                     citation=citation,
                     state_name=state_name,
@@ -87,14 +87,14 @@ class UniversalStateCourtVerifier:
                 )
                 
                 if result.get('verified') or result.get('possible_match'):
-                    logger.info(f"✅ [UNIVERSAL-STATE] {source_name} succeeded!")
+                    logger.info(f"[SUCCESS] [UNIVERSAL-STATE] {source_name} succeeded!")
                     return result
                 
             except Exception as e:
-                logger.warning(f"⚠️  [UNIVERSAL-STATE] {source_name} failed: {e}")
+                logger.warning(f"[WARNING] [UNIVERSAL-STATE] {source_name} failed: {e}")
                 continue
         
-        logger.warning(f"❌ [UNIVERSAL-STATE] All sources failed for: {citation}")
+        logger.warning(f"[ERROR] [UNIVERSAL-STATE] All sources failed for: {citation}")
         return {'verified': False, 'error': 'All verification sources failed'}
     
     def _verify_with_casetext(
@@ -363,4 +363,12 @@ class UniversalStateCourtVerifier:
             logger.debug(f"{state_name} database error: {e}")
         
         return {'verified': False}
+
+
+
+
+
+
+
+
 

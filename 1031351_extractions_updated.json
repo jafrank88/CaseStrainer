@@ -1,0 +1,982 @@
+[
+  {
+    "citation": "87 Wn.2d 577",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 1617,
+    "end_index": 1629
+  },
+  {
+    "citation": "555 P.2d 997",
+    "extracted_case_name": "Johnson v. Spider Staging Corp.",
+    "extracted_date": "1976",
+    "start_index": 1631,
+    "end_index": 1643
+  },
+  {
+    "citation": "54 App. D.C. 46",
+    "extracted_case_name": "Frye v. United States",
+    "extracted_date": "1923",
+    "start_index": 2596,
+    "end_index": 2611
+  },
+  {
+    "citation": "293 F. 1013",
+    "extracted_case_name": "Frye v. United States",
+    "extracted_date": "1923",
+    "start_index": 2613,
+    "end_index": 2624
+  },
+  {
+    "citation": "205 U.S. App. D.C. 139",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1980",
+    "start_index": 5144,
+    "end_index": 5166
+  },
+  {
+    "citation": "636 F.2d 1267",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1980",
+    "start_index": 5168,
+    "end_index": 5181
+  },
+  {
+    "citation": "548 P.3d 226",
+    "extracted_case_name": "Erickson v. Pharmacia, No.",
+    "extracted_date": "2024",
+    "start_index": 11845,
+    "end_index": 11857
+  },
+  {
+    "citation": "161 Wn.2d 676",
+    "extracted_case_name": "We review choice of law questions de novo. Erwin v. Cotter Health Ctrs ., Inc.",
+    "extracted_date": "2007",
+    "start_index": 16749,
+    "end_index": 16762
+  },
+  {
+    "citation": "167 P.3d 1112",
+    "extracted_case_name": "We review choice of law questions de novo. Erwin v. Cotter Health Ctrs ., Inc.",
+    "extracted_date": "2007",
+    "start_index": 16769,
+    "end_index": 16782
+  },
+  {
+    "citation": "11 Wn.2d 288",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 17503,
+    "end_index": 17515
+  },
+  {
+    "citation": "118 P.2d 985",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1941",
+    "start_index": 17522,
+    "end_index": 17534
+  },
+  {
+    "citation": "70 Wn.2d 893",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1967",
+    "start_index": 20679,
+    "end_index": 20691
+  },
+  {
+    "citation": "425 P.2d 623",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1967",
+    "start_index": 20698,
+    "end_index": 20710
+  },
+  {
+    "citation": "11 Cal. 3d 574",
+    "extracted_case_name": "Hurtado v. Superior C t.",
+    "extracted_date": "1974",
+    "start_index": 23464,
+    "end_index": 23478
+  },
+  {
+    "citation": "522 P.2d 666",
+    "extracted_case_name": "Hurtado v. Superior C t.",
+    "extracted_date": "1974",
+    "start_index": 23488,
+    "end_index": 23500
+  },
+  {
+    "citation": "114 Cal. Rptr. 106",
+    "extracted_case_name": "Hurtado v. Superior C t.",
+    "extracted_date": "1974",
+    "start_index": 23502,
+    "end_index": 23520
+  },
+  {
+    "citation": "875 P.2d 1213",
+    "extracted_case_name": "See, e.g. , Rice v. Dow Chem. Co .",
+    "extracted_date": "1994",
+    "start_index": 24853,
+    "end_index": 24866
+  },
+  {
+    "citation": "128 Wn. App. 256",
+    "extracted_case_name": "Zenaida -Garcia v. Recovery Sys . Technology, Inc.",
+    "extracted_date": "2005",
+    "start_index": 24998,
+    "end_index": 25014
+  },
+  {
+    "citation": "115 P.3d 1017",
+    "extracted_case_name": "Zenaida -Garcia v. Recovery Sys . Technology, Inc.",
+    "extracted_date": "2005",
+    "start_index": 25021,
+    "end_index": 25034
+  },
+  {
+    "citation": "114 Wn. App. 823",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2003",
+    "start_index": 25085,
+    "end_index": 25101
+  },
+  {
+    "citation": "61 P.3d 1196",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2003",
+    "start_index": 25108,
+    "end_index": 25120
+  },
+  {
+    "citation": "124 F. Supp. 2d 46",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 25175,
+    "end_index": 25193
+  },
+  {
+    "citation": "124 Wn.2d 205",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 25833,
+    "end_index": 25846
+  },
+  {
+    "citation": "145 N.J. 478",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 30604,
+    "end_index": 30616
+  },
+  {
+    "citation": "679 A.2d 106",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 30618,
+    "end_index": 30630
+  },
+  {
+    "citation": "201 F.3d 110",
+    "extracted_case_name": "Marakova v. United States",
+    "extracted_date": "2000",
+    "start_index": 31913,
+    "end_index": 31925
+  },
+  {
+    "citation": "389 Ill. App. 3d 691",
+    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
+    "extracted_date": "2009",
+    "start_index": 31995,
+    "end_index": 32015
+  },
+  {
+    "citation": "906 N.E.2d 83",
+    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
+    "extracted_date": "2009",
+    "start_index": 32017,
+    "end_index": 32030
+  },
+  {
+    "citation": "2002 WY 183",
+    "extracted_case_name": "Act I, LLC v. Davis",
+    "extracted_date": "1993",
+    "start_index": 32065,
+    "end_index": 32076
+  },
+  {
+    "citation": "60 P.3d 145",
+    "extracted_case_name": "Act I, LLC v. Davis",
+    "extracted_date": "1993",
+    "start_index": 32078,
+    "end_index": 32089
+  },
+  {
+    "citation": "246 Va. 67",
+    "extracted_case_name": "Buchanan v. John Doe",
+    "extracted_date": "1993",
+    "start_index": 32118,
+    "end_index": 32128
+  },
+  {
+    "citation": "431 S.E.2d 289",
+    "extracted_case_name": "Buchanan v. John Doe",
+    "extracted_date": "1993",
+    "start_index": 32130,
+    "end_index": 32144
+  },
+  {
+    "citation": "18 P.3d 49",
+    "extracted_case_name": "Savage Arms, Inc. v. W. Auto Supply Co.",
+    "extracted_date": "2001",
+    "start_index": 32199,
+    "end_index": 32209
+  },
+  {
+    "citation": "821 F.2d 1147",
+    "extracted_case_name": "Trivelloni -Lorenzi v. Pan Am. World Airways, Inc.",
+    "extracted_date": "1987",
+    "start_index": 32281,
+    "end_index": 32294
+  },
+  {
+    "citation": "227 Ill. 2d 147",
+    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "extracted_date": "2007",
+    "start_index": 32406,
+    "end_index": 32421
+  },
+  {
+    "citation": "879 N.E.2d 893",
+    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "extracted_date": "2007",
+    "start_index": 32423,
+    "end_index": 32437
+  },
+  {
+    "citation": "316 Ill. Dec. 505",
+    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "extracted_date": "2007",
+    "start_index": 32444,
+    "end_index": 32461
+  },
+  {
+    "citation": "964 F.2d 1059",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1992",
+    "start_index": 33809,
+    "end_index": 33822
+  },
+  {
+    "citation": "175 Wn. App. 840",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc.",
+    "extracted_date": "2013",
+    "start_index": 34574,
+    "end_index": 34590
+  },
+  {
+    "citation": "309 P.3d 555",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc.",
+    "extracted_date": "2013",
+    "start_index": 34603,
+    "end_index": 34615
+  },
+  {
+    "citation": "494 P.3d 1076",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2021",
+    "start_index": 34898,
+    "end_index": 34911
+  },
+  {
+    "citation": "766 F. Supp. 2d 1122",
+    "extracted_case_name": "Experience Hendrix, LLC v. HendrixLicensing.com, LTD",
+    "extracted_date": "2011",
+    "start_index": 35716,
+    "end_index": 35736
+  },
+  {
+    "citation": "999 F. Supp. 2d 1235",
+    "extracted_case_name": "Karpenski v. Am. Gen. Life Cos.",
+    "extracted_date": "2014",
+    "start_index": 35874,
+    "end_index": 35894
+  },
+  {
+    "citation": "2019 WL 2066127",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 36043,
+    "end_index": 36058
+  },
+  {
+    "citation": "2011 WL 3298912",
+    "extracted_case_name": "Milgard Mfg., Inc. v. Il l. Union Ins. Co ., No. C",
+    "extracted_date": null,
+    "start_index": 36368,
+    "end_index": 36383
+  },
+  {
+    "citation": "151 Wn. App. 137",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2009",
+    "start_index": 36700,
+    "end_index": 36716
+  },
+  {
+    "citation": "210 P.3d 337",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2009",
+    "start_index": 36718,
+    "end_index": 36730
+  },
+  {
+    "citation": "96 Wn.2d 692",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 38901,
+    "end_index": 38913
+  },
+  {
+    "citation": "635 P.2d 441",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1981",
+    "start_index": 38915,
+    "end_index": 38927
+  },
+  {
+    "citation": "129 Wn.2d 572",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co.",
+    "extracted_date": "1996",
+    "start_index": 40531,
+    "end_index": 40544
+  },
+  {
+    "citation": "919 P.2d 589",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co.",
+    "extracted_date": "1996",
+    "start_index": 40551,
+    "end_index": 40563
+  },
+  {
+    "citation": "2 Wash. 45",
+    "extracted_case_name": "Spokane Truck & Dray Co. v. Hoefer",
+    "extracted_date": "1891",
+    "start_index": 40613,
+    "end_index": 40623
+  },
+  {
+    "citation": "25 P. 1072",
+    "extracted_case_name": "Spokane Truck & Dray Co. v. Hoefer",
+    "extracted_date": "1891",
+    "start_index": 40629,
+    "end_index": 40639
+  },
+  {
+    "citation": "96 Wn.2d 416",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 41313,
+    "end_index": 41325
+  },
+  {
+    "citation": "635 P.2d 708",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1981",
+    "start_index": 41332,
+    "end_index": 41344
+  },
+  {
+    "citation": "184 Wn.2d 911",
+    "extracted_case_name": "Erickson v. Pharmacia, No.",
+    "extracted_date": "2016",
+    "start_index": 43213,
+    "end_index": 43226
+  },
+  {
+    "citation": "366 P.3d 432",
+    "extracted_case_name": "Woodward v. Taylor",
+    "extracted_date": "2016",
+    "start_index": 43233,
+    "end_index": 43245
+  },
+  {
+    "citation": "37 S.W.3d 310",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2000",
+    "start_index": 44775,
+    "end_index": 44788
+  },
+  {
+    "citation": "523 S.W.3d 496",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 45509,
+    "end_index": 45523
+  },
+  {
+    "citation": "183 S.W.3d 600",
+    "extracted_case_name": "Jone v. Coleman Corp.",
+    "extracted_date": null,
+    "start_index": 45663,
+    "end_index": 45677
+  },
+  {
+    "citation": "199 Wn.2d 569",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co.",
+    "extracted_date": "2022",
+    "start_index": 48779,
+    "end_index": 48792
+  },
+  {
+    "citation": "510 P.3d 326",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co.",
+    "extracted_date": "2022",
+    "start_index": 48799,
+    "end_index": 48811
+  },
+  {
+    "citation": "165 Wn.2d 67",
+    "extracted_case_name": "Potter v. Wash. State Patrol",
+    "extracted_date": "2008",
+    "start_index": 48858,
+    "end_index": 48870
+  },
+  {
+    "citation": "196 P.3d 691",
+    "extracted_case_name": "Potter v. Wash. State Patrol",
+    "extracted_date": "2008",
+    "start_index": 48876,
+    "end_index": 48888
+  },
+  {
+    "citation": "115 Wn.2d 202",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1990",
+    "start_index": 49961,
+    "end_index": 49974
+  },
+  {
+    "citation": "796 P.2d 421",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1990",
+    "start_index": 49981,
+    "end_index": 49993
+  },
+  {
+    "citation": "96 Wn.2d 416",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 53476,
+    "end_index": 53488
+  },
+  {
+    "citation": "151 Wn. App. 137",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 53547,
+    "end_index": 53563
+  },
+  {
+    "citation": "119 Wn.2d 167",
+    "extracted_case_name": "State v. Johnson",
+    "extracted_date": "1992",
+    "start_index": 66000,
+    "end_index": 66013
+  },
+  {
+    "citation": "829 P.2d 1082",
+    "extracted_case_name": "State v. Johnson",
+    "extracted_date": "1992",
+    "start_index": 66020,
+    "end_index": 66033
+  },
+  {
+    "citation": "105 Wn.2d 606",
+    "extracted_case_name": "In re Rosier",
+    "extracted_date": "1986",
+    "start_index": 66100,
+    "end_index": 66113
+  },
+  {
+    "citation": "717 P.3d 1353",
+    "extracted_case_name": "In re Rosier",
+    "extracted_date": "1986",
+    "start_index": 66120,
+    "end_index": 66133
+  },
+  {
+    "citation": "517 U.S. 559",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1996",
+    "start_index": 66412,
+    "end_index": 66424
+  },
+  {
+    "citation": "116 S. Ct. 1589",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1996",
+    "start_index": 66431,
+    "end_index": 66446
+  },
+  {
+    "citation": "134 L. Ed. 2d 809",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1996",
+    "start_index": 66448,
+    "end_index": 66465
+  },
+  {
+    "citation": "132 Wn.2d 642",
+    "extracted_case_name": "Seizer v. Sessions",
+    "extracted_date": "1997",
+    "start_index": 66757,
+    "end_index": 66770
+  },
+  {
+    "citation": "940 P.2d 261",
+    "extracted_case_name": "Seizer v. Sessions",
+    "extracted_date": "1997",
+    "start_index": 66777,
+    "end_index": 66789
+  },
+  {
+    "citation": "986 F.2d 170",
+    "extracted_case_name": "Jaurequi v. John Deere Co.",
+    "extracted_date": "1993",
+    "start_index": 68830,
+    "end_index": 68842
+  },
+  {
+    "citation": "623 S.W.3d 160",
+    "extracted_case_name": "Grosshart v. Kan . City Power & Light Co .",
+    "extracted_date": "2021",
+    "start_index": 69205,
+    "end_index": 69219
+  },
+  {
+    "citation": "459 S.W.3d 901",
+    "extracted_case_name": "Ambers -Phillips v. SSM DePaul Health C tr.",
+    "extracted_date": "2015",
+    "start_index": 69354,
+    "end_index": 69368
+  },
+  {
+    "citation": "913 F.2d 242",
+    "extracted_case_name": "See, e.g., Mitchell v. Lone Star Ammunition, Inc.",
+    "extracted_date": "1990",
+    "start_index": 70618,
+    "end_index": 70630
+  },
+  {
+    "citation": "900 F.2d 83",
+    "extracted_case_name": "Mahne v. Ford Motor Co .",
+    "extracted_date": "1990",
+    "start_index": 70842,
+    "end_index": 70853
+  },
+  {
+    "citation": "498 U.S. 941",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 71000,
+    "end_index": 71012
+  },
+  {
+    "citation": "269 F.3d 481",
+    "extracted_case_name": "Marchesani v. Pellerin -Milnor Corp.",
+    "extracted_date": "2001",
+    "start_index": 71061,
+    "end_index": 71073
+  },
+  {
+    "citation": "567 S.W.2d 655",
+    "extracted_case_name": "Rinker v. Ford Motor Co.",
+    "extracted_date": "1978",
+    "start_index": 74643,
+    "end_index": 74657
+  },
+  {
+    "citation": "837 S.W.2d 592",
+    "extracted_case_name": "Bradshaw v. Deming",
+    "extracted_date": "1992",
+    "start_index": 74984,
+    "end_index": 74998
+  },
+  {
+    "citation": "27 Wn. App. 512",
+    "extracted_case_name": "Kammere r v. W. Gear Corp.",
+    "extracted_date": "1980",
+    "start_index": 76467,
+    "end_index": 76482
+  },
+  {
+    "citation": "618 P.2d 1330",
+    "extracted_case_name": "Kammere r v. W. Gear Corp.",
+    "extracted_date": "1980",
+    "start_index": 76492,
+    "end_index": 76505
+  },
+  {
+    "citation": "96 Wn.2d 692",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 76867,
+    "end_index": 76879
+  },
+  {
+    "citation": "879 F. Supp. 2d 1214",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 77418,
+    "end_index": 77438
+  },
+  {
+    "citation": "582 Pa. 114",
+    "extracted_case_name": "Hutchison v. Luddy",
+    "extracted_date": "2005",
+    "start_index": 79006,
+    "end_index": 79017
+  },
+  {
+    "citation": "870 A.2d 766",
+    "extracted_case_name": "Hutchison v. Luddy",
+    "extracted_date": "2005",
+    "start_index": 79028,
+    "end_index": 79040
+  },
+  {
+    "citation": "538 U.S. 408",
+    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "extracted_date": "2003",
+    "start_index": 84303,
+    "end_index": 84315
+  },
+  {
+    "citation": "123 S. Ct. 1513",
+    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "extracted_date": "2003",
+    "start_index": 84322,
+    "end_index": 84337
+  },
+  {
+    "citation": "155 L. Ed. 2d 585",
+    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "extracted_date": "2003",
+    "start_index": 84339,
+    "end_index": 84356
+  },
+  {
+    "citation": "925 S.W.2d 840",
+    "extracted_case_name": "Call v. Heard",
+    "extracted_date": "1996",
+    "start_index": 85571,
+    "end_index": 85585
+  },
+  {
+    "citation": "802 S.W.2d 152",
+    "extracted_case_name": "Stojkovic v. Weller",
+    "extracted_date": "1991",
+    "start_index": 85632,
+    "end_index": 85646
+  },
+  {
+    "citation": "450 S.W.3d 308",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 87676,
+    "end_index": 87690
+  },
+  {
+    "citation": "628 S.W.3d 162",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2021",
+    "start_index": 89581,
+    "end_index": 89595
+  },
+  {
+    "citation": "56 S.W.3d 386",
+    "extracted_case_name": "Erickson v. Pharmacia",
+    "extracted_date": "2013",
+    "start_index": 89833,
+    "end_index": 89846
+  },
+  {
+    "citation": "143 S.W.3d 14",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 90027,
+    "end_index": 90040
+  },
+  {
+    "citation": "364 S.W.3d 195",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 90335,
+    "end_index": 90349
+  },
+  {
+    "citation": "293 F. 1013",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 90966,
+    "end_index": 90977
+  },
+  {
+    "citation": "176 Wn.2d 909",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2013",
+    "start_index": 91027,
+    "end_index": 91040
+  },
+  {
+    "citation": "296 P.3d 860",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2013",
+    "start_index": 91047,
+    "end_index": 91059
+  },
+  {
+    "citation": "172 Wn.2d 593",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2011",
+    "start_index": 91473,
+    "end_index": 91486
+  },
+  {
+    "citation": "260 P.3d 857",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2011",
+    "start_index": 91493,
+    "end_index": 91505
+  },
+  {
+    "citation": "193 Wn.2d 113",
+    "extracted_case_name": "L.M. v. Hamilton",
+    "extracted_date": "2019",
+    "start_index": 92134,
+    "end_index": 92147
+  },
+  {
+    "citation": "436 P.3d 803",
+    "extracted_case_name": "L.M. v. Hamilton",
+    "extracted_date": "2019",
+    "start_index": 92154,
+    "end_index": 92166
+  },
+  {
+    "citation": "130 Wn.2d 244",
+    "extracted_case_name": "State v. Copeland",
+    "extracted_date": "1996",
+    "start_index": 92445,
+    "end_index": 92458
+  },
+  {
+    "citation": "922 P.2d 1304",
+    "extracted_case_name": "State v. Copeland",
+    "extracted_date": "1996",
+    "start_index": 92469,
+    "end_index": 92482
+  },
+  {
+    "citation": "120 Wn.2d 879",
+    "extracted_case_name": "State v. Cauthron",
+    "extracted_date": "1993",
+    "start_index": 92517,
+    "end_index": 92530
+  },
+  {
+    "citation": "846 P.2d 502",
+    "extracted_case_name": "State v. Cauthron",
+    "extracted_date": "1993",
+    "start_index": 92540,
+    "end_index": 92552
+  },
+  {
+    "citation": "176 Wn. App. 168",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 102904,
+    "end_index": 102920
+  },
+  {
+    "citation": "313 P.3d 408",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 102922,
+    "end_index": 102934
+  },
+  {
+    "citation": "548 P.3d 226",
+    "extracted_case_name": "Erickson v. Pharmacia , LLC",
+    "extracted_date": "2024",
+    "start_index": 117057,
+    "end_index": 117069
+  },
+  {
+    "citation": "124 Wn.2d 205",
+    "extracted_case_name": "Rice v. Dow Chem. Co.",
+    "extracted_date": "1994",
+    "start_index": 117108,
+    "end_index": 117121
+  },
+  {
+    "citation": "875 P.2d 1213",
+    "extracted_case_name": "Rice v. Dow Chem. Co.",
+    "extracted_date": "1994",
+    "start_index": 117128,
+    "end_index": 117141
+  },
+  {
+    "citation": "831 F.2d 508",
+    "extracted_case_name": "Goad v. Celotex Corp.",
+    "extracted_date": "1987",
+    "start_index": 117182,
+    "end_index": 117194
+  },
+  {
+    "citation": "306 N.C. 364",
+    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
+    "extracted_date": "1982",
+    "start_index": 117374,
+    "end_index": 117386
+  },
+  {
+    "citation": "293 S.E. 2d 415",
+    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
+    "extracted_date": "1982",
+    "start_index": 117388,
+    "end_index": 117403
+  },
+  {
+    "citation": "146 Wn.2d 1",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2002",
+    "start_index": 117972,
+    "end_index": 117983
+  },
+  {
+    "citation": "43 P.3d 4",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2002",
+    "start_index": 117991,
+    "end_index": 118000
+  },
+  {
+    "citation": "539 P.3d 361",
+    "extracted_case_name": "Bennett v. United States",
+    "extracted_date": "2023",
+    "start_index": 119704,
+    "end_index": 119716
+  },
+  {
+    "citation": "128 Wn. App. 256",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2005",
+    "start_index": 120032,
+    "end_index": 120048
+  },
+  {
+    "citation": "115 P.3d 1017",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2005",
+    "start_index": 120055,
+    "end_index": 120068
+  },
+  {
+    "citation": "3 Wn.2d 577",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2025",
+    "start_index": 122532,
+    "end_index": 122543
+  },
+  {
+    "citation": "555 P.2d 997",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1976",
+    "start_index": 122550,
+    "end_index": 122562
+  },
+  {
+    "citation": "964 F.2d 1059",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1992",
+    "start_index": 128788,
+    "end_index": 128801
+  },
+  {
+    "citation": "3 Wn.3d 1018",
+    "extracted_case_name": "Erickson v. Pharmacia , LLC",
+    "extracted_date": "2024",
+    "start_index": 11875,
+    "end_index": 11887
+  },
+  {
+    "citation": "2 Wn.3d 430",
+    "extracted_case_name": "Bennett v. United States",
+    "extracted_date": "2023",
+    "start_index": 119686,
+    "end_index": 119697
+  },
+  {
+    "citation": "31 Wn. App. 2d 100",
+    "extracted_case_name": "Erickson v. Pharmacia, No.",
+    "extracted_date": "2024",
+    "start_index": 11816,
+    "end_index": 11834
+  },
+  {
+    "citation": "19 Wn. App. 2d 113",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2021",
+    "start_index": 34868,
+    "end_index": 34886
+  },
+  {
+    "citation": "31 Wn. App. 2d 100",
+    "extracted_case_name": "Erickson v. Pharmacia , LLC",
+    "extracted_date": "2024",
+    "start_index": 117032,
+    "end_index": 117050
+  },
+  {
+    "citation": "Cal. 3d 574",
+    "extracted_case_name": "Hurtado v. Superior C t.",
+    "extracted_date": "1974",
+    "start_index": 23467,
+    "end_index": 23478
+  },
+  {
+    "citation": "Ill. 2d 147",
+    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "extracted_date": "2007",
+    "start_index": 32410,
+    "end_index": 32421
+  },
+  {
+    "citation": "Ill. App. 3d 691",
+    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
+    "extracted_date": "2009",
+    "start_index": 31999,
+    "end_index": 32015
+  },
+  {
+    "citation": "N.J. 478",
+    "extracted_case_name": "N/A",
+    "extracted_date": "1996",
+    "start_index": 30608,
+    "end_index": 30616
+  },
+  {
+    "citation": "N.C. 364",
+    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
+    "extracted_date": "1982",
+    "start_index": 117378,
+    "end_index": 117386
+  },
+  {
+    "citation": "Va. 67",
+    "extracted_case_name": "Buchanan v. John Doe",
+    "extracted_date": "1993",
+    "start_index": 32122,
+    "end_index": 32128
+  }
+]

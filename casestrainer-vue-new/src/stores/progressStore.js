@@ -48,16 +48,20 @@ const progressState = reactive({
   
   // Real-time verification updates
   verificationStream: null,
-  verificationResults: null
+  verificationResults: null,
+  
+  // Poll counter for Updates display
+  pollCount: 0,
+  heuristicTimerId: null,
+  lastSseUpdateMs: 0,
+  sseThrottleMs: 1000
 });
 
 export function useUnifiedProgress() {
   // Computed properties
   const elapsedTime = computed(() => {
-    // Use real elapsed time from backend if available
-    if (progressState.elapsedTime !== undefined && progressState.elapsedTime !== null && progressState.elapsedTime >= 0) {
-      return Math.max(0, Math.floor(progressState.elapsedTime));
-    }
+    // CRITICAL FIX: Always calculate elapsed time locally to avoid backend timestamp issues
+    // Backend may send absolute timestamps instead of durations
     
     // Fallback to calculated elapsed time
     if (!progressState.startTime || typeof progressState.startTime !== 'number') {
@@ -138,6 +142,69 @@ export function useUnifiedProgress() {
     return `${minutes}m ${remainingSeconds}s`;
   };
 
+  // Heuristic timer helpers
+  // Calibrate using 160 seconds for 140 citations → ~1.143s per citation
+  const PER_CITATION_SECONDS = 160 / 140;
+  const updateEstimatedFromCitations = (count) => {
+    const total = Number(count);
+    if (!Number.isFinite(total) || total < 0) return;
+    const estimate = Math.max(5, Math.ceil(PER_CITATION_SECONDS * total));
+    // Only increase ETA as we learn about more citations; don't shrink
+    const prev = Number(progressState.estimatedTotalTime) || 0;
+    const nextEta = Math.max(prev, estimate);
+    if (nextEta !== prev) {
+      progressState.estimatedTotalTime = nextEta;
+      // Re-arm heuristic timer with new interval tied to ETA
+      if (progressState.isActive) {
+        stopHeuristicTimer();
+        startHeuristicTimer();
+      }
+    }
+  };
+
+  const startHeuristicTimer = () => {
+    // Clear any existing timer
+    if (progressState.heuristicTimerId) {
+      clearInterval(progressState.heuristicTimerId);
+      progressState.heuristicTimerId = null;
+    }
+    const getHeuristicStepMs = () => {
+      // Aim to reach ~98% at ETA using 2% increments → 49 steps to cap
+      const etaSec = Math.max(5, Number(progressState.estimatedTotalTime) || 0);
+      const stepsToCap = 49; // 98 / 2
+      const ms = Math.floor((etaSec * 1000) / stepsToCap);
+      // Keep within sensible bounds
+      // Never faster than 2% every 3s (>=3000ms); allow slower for larger ETAs
+      return Math.min(12000, Math.max(3000, ms));
+    };
+
+    // Step the progress deterministically: +2% each interval, interval tied to ETA
+    const stepMs = getHeuristicStepMs();
+    progressState.heuristicTimerId = setInterval(() => {
+      if (!progressState.isActive) return;
+      const cap = progressState.hasResults ? 100 : 98;
+      const next = Math.min(cap, (progressState.totalProgress || 0) + 2);
+      if (next > progressState.totalProgress) {
+        progressState.totalProgress = next;
+      }
+      // Friendly status while finalizing
+      if (!progressState.hasResults && progressState.totalProgress >= 98) {
+        progressState.currentStep = 'Finalizing results...';
+      }
+      // Stop on completion or error
+      if (progressState.totalProgress >= 100 || progressState.processingError) {
+        stopHeuristicTimer();
+      }
+    }, stepMs);
+  };
+
+  const stopHeuristicTimer = () => {
+    if (progressState.heuristicTimerId) {
+      clearInterval(progressState.heuristicTimerId);
+      progressState.heuristicTimerId = null;
+    }
+  };
+
   // Core progress management functions
   const startProgress = (uploadType, uploadData, estimatedTime = 30) => {
     console.log('Starting unified progress tracking:', { uploadType, estimatedTime });
@@ -160,6 +227,7 @@ export function useUnifiedProgress() {
       estimatedTotalTime: validEstimatedTime,
       elapsedTime: null, // Reset to null so computed property calculates it
       currentStep: 'Initializing...',
+      pollCount: 0,  // CRITICAL FIX: Reset poll count when starting new progress
       stepProgress: 0,
       totalProgress: 5, // Start with 5% to show immediate progress
       processingSteps: [],
@@ -173,6 +241,8 @@ export function useUnifiedProgress() {
       hasResults: false,
       resultData: null
     });
+    // Reset SSE throttle timestamp on new run
+    progressState.lastSseUpdateMs = 0;
     
     // Validate the state was set correctly
     if (!progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
@@ -190,6 +260,9 @@ export function useUnifiedProgress() {
       isActive: progressState.isActive,
       totalProgress: progressState.totalProgress
     });
+
+    // Start heuristic timer to animate progress while backend works
+    startHeuristicTimer();
   };
 
   const setTaskId = (taskId) => {
@@ -210,6 +283,13 @@ export function useUnifiedProgress() {
   const updateProgress = (update) => {
     console.log('Updating progress:', update);
     
+    // CRITICAL FIX: Increment poll count on every updateProgress call
+    // This ensures the Updates counter increments even if progress values don't change
+    if (!progressState.pollCount) {
+      progressState.pollCount = 0
+    }
+    progressState.pollCount++
+    
     if (update.step) {
       progressState.currentStep = update.step;
       
@@ -223,36 +303,63 @@ export function useUnifiedProgress() {
     }
     
     if (update.progress !== undefined && update.progress !== null) {
-      progressState.stepProgress = Math.max(0, Math.min(100, update.progress));
+      // CRITICAL FIX: Ensure step progress is monotonic - never allow it to decrease
+      const newStepProgress = Math.max(0, Math.min(100, update.progress));
+      if (newStepProgress > progressState.stepProgress) {
+        progressState.stepProgress = newStepProgress;
+      }
     }
     
     if (update.total_progress !== undefined && update.total_progress !== null) {
-      progressState.totalProgress = Math.max(0, Math.min(100, update.total_progress));
+      // CRITICAL FIX: Ensure progress is monotonic - never allow it to decrease
+      let newProgress = Math.max(0, Math.min(100, update.total_progress));
+      // NEW: Clamp to <100 until we actually have final results
+      const cap = progressState.hasResults ? 100 : 98;
+      newProgress = Math.min(newProgress, cap);
+      // Ignore non-terminal overall updates; heuristic owns mid-run movement
+      if (!progressState.hasResults && newProgress < 100) {
+        // no-op
+      } else if (newProgress > progressState.totalProgress) {
+        progressState.totalProgress = newProgress;
+      }
     } else if (update.overall_progress !== undefined && update.overall_progress !== null) {
-      progressState.totalProgress = Math.max(0, Math.min(100, update.overall_progress));
+      // CRITICAL FIX: Ensure progress is monotonic - never allow it to decrease
+      let newProgress = Math.max(0, Math.min(100, update.overall_progress));
+      // NEW: Clamp to <100 until we actually have final results
+      const cap = progressState.hasResults ? 100 : 98;
+      newProgress = Math.min(newProgress, cap);
+      if (!progressState.hasResults && newProgress < 100) {
+        // no-op mid-run
+      } else if (newProgress > progressState.totalProgress) {
+        progressState.totalProgress = newProgress;
+      }
     }
     
-    // Update elapsed time from backend if provided (check both snake_case and camelCase)
-    if (update.elapsedTime !== undefined && update.elapsedTime !== null) {
-      progressState.elapsedTime = Math.max(0, update.elapsedTime);
-    } else if (update.elapsed_time !== undefined && update.elapsed_time !== null) {
-      progressState.elapsedTime = Math.max(0, update.elapsed_time);
+    // If we're effectively done but waiting on final payload, show a friendlier status
+    if (!progressState.hasResults && progressState.totalProgress >= 98) {
+      const msg = (update.step || update.message || '').toString().toLowerCase();
+      const looksLikeVerifyDone = msg.includes('verification completed') || msg.includes('verifying citations') || msg.includes('processed');
+      if (looksLikeVerifyDone || !update.step) {
+        progressState.currentStep = 'Finalizing results...';
+      }
     }
+
+    // CRITICAL FIX: Ignore backend elapsedTime updates - we calculate duration locally
+    // Backend may send absolute timestamps instead of durations, causing clock time display
     
     if (update.citation_info) {
       progressState.citationInfo = update.citation_info;
+      const total = update.citation_info.total || update.citation_info.count || update.citation_info.citations_count;
+      if (Number.isFinite(total)) {
+        updateEstimatedFromCitations(total);
+      }
     }
     
     if (update.rate_limit_info) {
       progressState.rateLimitInfo = update.rate_limit_info;
     }
     
-    // Update start time from backend if provided (check both snake_case and camelCase)
-    if (update.startTime !== undefined && update.startTime !== null) {
-      progressState.startTime = update.startTime;
-    } else if (update.start_time !== undefined && update.start_time !== null) {
-      progressState.startTime = update.start_time;
-    }
+    // CRITICAL FIX: Ignore backend startTime updates - we use local startTime for consistent duration calculation
     
     // Update estimated total time (check both snake_case and camelCase)
     if (update.estimatedTotalTime && update.estimatedTotalTime > 0) {
@@ -274,6 +381,7 @@ export function useUnifiedProgress() {
     progressState.processingError = error;
     progressState.canRetry = true;
     progressState.isActive = false;
+    stopHeuristicTimer();
   };
   
   const clearError = () => {
@@ -298,6 +406,7 @@ export function useUnifiedProgress() {
     progressState.isActive = false;
     progressState.currentStep = 'Completed';
     progressState.totalProgress = 100;
+    stopHeuristicTimer();
     
     // Scope results by route if provided
     if (route) {
@@ -326,6 +435,8 @@ export function useUnifiedProgress() {
       progressState.verificationStream.close();
       progressState.verificationStream = null;
     }
+    // Stop heuristic timer as well
+    stopHeuristicTimer();
     
     Object.assign(progressState, {
       isActive: false,
@@ -342,10 +453,12 @@ export function useUnifiedProgress() {
       rateLimitInfo: null,
       processingError: null,
       canRetry: false,
+      pollCount: 0,  // CRITICAL FIX: Reset poll count on progress reset
       uploadType: null,
       uploadData: null,
       hasResults: false,
-      resultData: null
+      resultData: null,
+      lastSseUpdateMs: 0
     });
   };
 
@@ -445,25 +558,70 @@ export function useUnifiedProgress() {
     if (progressState.verificationStream) {
       progressState.verificationStream.close();
     }
-    
+
     try {
-      const eventSource = new EventSource(`/casestrainer/api/analyze/verification-stream/${requestId}`);
-      
+      const apiBase = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
+      const eventSource = new EventSource(`${apiBase}/analyze/progress-stream/${requestId}`);
+
       eventSource.onopen = () => {
         console.log('Verification stream connected');
         progressState.verificationStatus.status = 'queued';
       };
-      
+
       eventSource.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
           console.log('Verification stream event:', data);
-          
+
+          // Determine if this is a terminal event; if so, bypass throttle
+          const pdPeek = data.progress_data || null;
+          const peekPercent = (pdPeek && typeof pdPeek === 'object') ? (pdPeek.progress ?? pdPeek.overall_progress ?? pdPeek.total_progress ?? 0) : 0;
+          const t = data.type;
+          const isTerminal = t === 'verification_complete' || t === 'stream_end' || t === 'error' || t === 'fatal_error' || (peekPercent >= 100);
+          if (!isTerminal) {
+            const nowMs = Date.now();
+            const lastMs = progressState.lastSseUpdateMs || 0;
+            if (nowMs - lastMs < (progressState.sseThrottleMs || 1000)) {
+              return;
+            }
+            progressState.lastSseUpdateMs = nowMs;
+          } else {
+            progressState.lastSseUpdateMs = Date.now();
+          }
+
+          // Handle standard progress-stream payload: { request_id, progress_data: {...} }
+          const pd = data.progress_data || null;
+          if (pd && typeof pd === 'object') {
+            const percent = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? 0);
+            const message = pd.current_message || pd.message || 'Processing...';
+            // Update main progress; only set total_progress when terminal
+            updateProgress({
+              step: message,
+              progress: percent,
+              total_progress: isTerminal ? percent : undefined
+            });
+            // Update verification status snapshot
+            progressState.verificationStatus.status = percent >= 100 ? 'completed' : 'running';
+            progressState.verificationStatus.progress = percent || 0;
+            // Derive citation counts if provided
+            const processed = pd.citations_processed ?? pd.citationsProcessed ?? pd.verified_count ?? 0;
+            const total = pd.total_citations ?? pd.citations_count ?? pd.citation_count ?? 0;
+            if ((processed || total) && (Number.isFinite(processed) || Number.isFinite(total))) {
+              progressState.verificationStatus.citationsProcessed = processed || 0;
+              progressState.verificationStatus.citationsCount = total || 0;
+              progressState.citationInfo = { processed: processed || 0, total: total || 0 };
+              // Update estimated total time with heuristic: base + 1.2s per citation
+              if (Number.isFinite(total) && total >= 0) {
+                updateEstimatedFromCitations(total);
+              }
+            }
+          }
+
           switch (data.type) {
             case 'connection_established':
               progressState.verificationStatus.status = 'queued';
               break;
-              
+
             case 'verification_status':
               progressState.verificationStatus.status = data.status;
               progressState.verificationStatus.progress = data.progress || 0;

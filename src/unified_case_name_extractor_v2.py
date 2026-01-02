@@ -1,38 +1,30 @@
 """
-Unified Case Name Extractor V2 - The One True Extractor
-=======================================================
+========================================================
+DEPRECATED - DO NOT MODIFY THIS FILE
+========================================================
 
-This module consolidates ALL case name extraction logic from 47+ existing functions
-into ONE comprehensive, high-quality extraction function.
+THIS FILE IS NOT ACTIVELY USED IN PRODUCTION!
 
-ANALYSIS OF EXISTING FUNCTIONS:
-==============================
+ACTIVE EXTRACTION CODE IS IN:
+    src/unified_case_extraction_master.py
 
-1. PROBLEMS IDENTIFIED:
-   - 47+ different extraction functions doing similar work
-   - Inconsistent regex patterns causing case name truncation exact same codepunctuationass that to the 
-   
-   - Multiple extraction attempts overriding each other
-   - Performance issues from redundant processing
-   - Maintenance nightmare with scattered logic
+This file exists for backward compatibility only.
+Any improvements should be made to unified_case_extraction_master.py instead.
 
-2. BEST PATTERNS FOUND:
-   - Standard v. pattern: r'([A-Z][A-Za-z0-9&.\'\\s-]+(?:\\s+[A-Za-z0-9&.\'\\s-]+)*?)\\s+v\\.\\s+([A-Z][A-Za-z0-9&.\'\\s-]+(?:\\s+[A-Za-z0-9&.\'\\s-]+)*?)(?=\\s*,|\\s*\\(|$)'
-   - Context window: 800-1000 characters for comprehensive coverage
-   - Multi-strategy approach: volume-based, context-based, pattern-based
-   - Confidence scoring and validation
-
-3. IMPROVEMENTS IMPLEMENTED:
-   - Single extraction function with configurable strategies
-   - Consistent regex patterns across all extraction methods
-   - Intelligent context window sizing
-   - Comprehensive validation and cleaning
-   - Performance optimizations with caching
-   - Detailed debugging and logging
+See line 1472-1476 in this file for the migration path.
 """
+
+import warnings
+warnings.warn(
+    "WARNING: unified_case_name_extractor_v2.py is DEPRECATED. "
+    "Active code is in src.unified_case_extraction_master",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 import re
 from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from src.utils.strict_context_isolator import get_adaptive_context_for_citation
 
 import logging
 import time

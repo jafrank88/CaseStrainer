@@ -213,6 +213,7 @@ class CanonicalCaseNameService:
                     return result
                 else:
                     failed_services.append(f"{service_name}(no_result)")
+                    return None
             except Exception as e:
                 failed_services.append(f"{service_name}(error:{str(e)})")
                 logger.warning(f"Lookup failed for {service_name}: {e}")
@@ -308,6 +309,7 @@ class CanonicalCaseNameService:
             if self.caselaw_api_key:
                 headers = {"Authorization": f"Token {self.caselaw_api_key}"}
             else:
+                return None
                 headers = {}
             
             response = self.session.get(url, headers=headers, params=params, timeout=COURTLISTENER_TIMEOUT)
@@ -496,10 +498,13 @@ class CanonicalCaseNameService:
                         if len(all_results) >= max_results or found_valid_result:
                             break
                         if time.time() - start_time > global_timeout:
+                            break
                     if found_valid_result:
                         pass
                 except concurrent.futures.TimeoutError:
+                    pass
                 finally:
+                    pass
                     pass
             if found_valid_result:
                 candidate_name = found_valid_result.get('title')
@@ -567,10 +572,13 @@ class CanonicalCaseNameService:
                         if len(all_results) >= max_results or found_valid_result:
                             break
                         if time.time() - start_time > global_timeout:
+                            break
                     if found_valid_result:
                         pass
                 except concurrent.futures.TimeoutError:
+                    pass
                 finally:
+                    pass
                     pass
             if found_valid_result:
                 candidate_name = found_valid_result.get('title')
@@ -648,6 +656,7 @@ class CanonicalCaseNameService:
                     verified=best.get('legal_relevance_score', 0) >= 70
                 )
             else:
+                return None
         except Exception as e:
             logger.error(f"Web search lookup failed: {e}")
             import traceback
@@ -702,6 +711,7 @@ def get_canonical_case_name_with_date(citation: Optional[str], api_key: Optional
                 logger.warning(f"[TOP-HARDFILTER] Rejected result for '{citation_str}': '{result.case_name}' is not a valid case name (top-level hard filter)")
                 return None
             else:
+                return None
                 logger.info(f"[TOP-HARDFILTER] Accepted result for '{citation_str}': '{result.case_name}' is a valid case name (top-level hard filter)")
         
         if result:

@@ -12,6 +12,20 @@ import traceback
 from pathlib import Path
 from typing import Callable, Any, Union, Optional
 
+# Initialize persistent logging FIRST (before other imports)
+try:
+    from src.persistent_logger import init_persistent_logging, get_persistent_logger
+    persistent_logger = init_persistent_logging("casestrainer-backend", "/app/logs")
+    logger = persistent_logger.get_logger()
+    event_logger = persistent_logger.get_event_logger()
+    logger.info("Persistent logging initialized successfully")
+except Exception as e:
+    # Fallback to basic logging if persistent logger fails
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    event_logger = logger
+    logger.warning(f"Failed to initialize persistent logging: {e}")
+
 from flask import Flask, request, json, Response, send_file, send_from_directory, abort, redirect, url_for, make_response, jsonify
 import argparse
 from datetime import datetime

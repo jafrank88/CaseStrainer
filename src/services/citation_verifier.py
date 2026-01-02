@@ -355,6 +355,13 @@ class CitationVerifier(ICitationVerifier):
         """Apply verification result to citation."""
         citation.verified = result.get('verified', False)
         
+        # CRITICAL: Unverified citations CANNOT have canonical data
+        if not citation.verified:
+            citation.canonical_name = None
+            citation.canonical_date = None
+            citation.canonical_url = None
+            return
+        
         # CRITICAL FIX: Only set canonical fields from verified API sources
         # Never use extracted data as canonical data (memory rule)
         trusted_api_sources = ['courtlistener_api', 'courtlistener', 'api_verified']
@@ -375,6 +382,9 @@ class CitationVerifier(ICitationVerifier):
             import logging
             logger = logging.getLogger(__name__)
             logger.warning(f"🚫 REJECTED canonical_date from untrusted source '{result_source}': {result.get('canonical_date')}")
+        
+        if result.get('canonical_url') or result.get('url'):
+            citation.canonical_url = result.get('canonical_url') or result.get('url')
         
         if result.get('court'):
             citation.court = result['court']

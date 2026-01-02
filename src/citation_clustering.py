@@ -484,6 +484,7 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                         citation.extracted_case_name = best_name
                     else:
                         if citation.citation == '136 Wn. App. 104' and old_name != best_name:
+                            pass  # Special case handling
                 if hasattr(citation, 'extracted_date'):
                     citation.extracted_date = key[1]
                 if hasattr(citation, 'metadata'):

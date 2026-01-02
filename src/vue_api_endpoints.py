@@ -186,8 +186,9 @@ def analyze_text():
             else:
                 # Use legacy processor for file uploads
                 logger.info(f"[{request_id}] Using legacy processor for file upload")
+                force_mode = request.form.get('force_mode')  # Get force_mode from form data
                 result = processor.process_any_input(
-                    file, 'file', request_id, 'api_endpoint'
+                    file, 'file', request_id, 'api_endpoint', force_mode=force_mode
                 )
                 return jsonify(result), 200
         

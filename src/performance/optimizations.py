@@ -16,7 +16,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 
 from ..services.interfaces import ICitationExtractor, ICitationVerifier, ICitationClusterer
-from ..services.citation_extractor import CitationExtractor
+from src.citation_extractor import CitationExtractor  # Fixed import path
 from ..services.citation_verifier import CitationVerifier
 from ..services.citation_clusterer import CitationClusterer
 from ..models import CitationResult, ProcessingConfig
@@ -248,6 +248,7 @@ class OptimizedCitationVerifier(ICitationVerifier):
                 cached_citations.append(citation)
                 
                 if self.config.debug_mode:
+                    logger.debug(f"Using cached verification for {citation.citation}")
             else:
                 uncached_citations.append(citation)
         

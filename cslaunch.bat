@@ -13,7 +13,8 @@ if %ERRORLEVEL% NEQ 0 (
 )
 
 :: Run the cslaunch.ps1 script with the provided arguments
-powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0scripts\cslaunch.ps1" %*
+:: Note: Calls the root cslaunch.ps1 (quick restart wrapper with monitoring)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0cslaunch.ps1" %*
 
 :: Check if the script executed successfully
 if %ERRORLEVEL% NEQ 0 (

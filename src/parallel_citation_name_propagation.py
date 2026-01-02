@@ -219,6 +219,20 @@ class ParallelCitationPropagator:
                     continue
                 if not same_clause(src_ctx, ctx):
                     continue
+                
+                # CRITICAL: Filter out header patterns before propagating
+                # Check if src_ctx.case_name contains header patterns (ET AL + role word, or role word + NO)
+                if src_ctx.case_name:
+                    case_name_upper = src_ctx.case_name.upper()
+                    has_et_al = 'ET AL' in case_name_upper or 'ETAL' in case_name_upper.replace(' ', '')
+                    has_role_word = any(role in case_name_upper for role in ['PETITIONER', 'RESPONDENT', 'APPELLANT', 'APPELLEE', 'PLAINTIFF', 'DEFENDANT'])
+                    has_no = 'NO.' in case_name_upper or ' NO ' in case_name_upper or case_name_upper.endswith(' NO')
+                    
+                    # Skip if it's clearly a header (ET AL + role word, or role word + NO)
+                    if (has_et_al and has_role_word) or (has_role_word and has_no):
+                        logger.warning(f"[PROPAGATION] REJECTED header pattern: '{src_ctx.case_name}' - NOT propagating to {ctx.citation}")
+                        continue
+                
                 # Find this citation in the original list and update it
                 for cite_dict in citations:
                     if cite_dict.get('citation') == ctx.citation:

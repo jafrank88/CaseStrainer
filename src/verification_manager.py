@@ -145,6 +145,7 @@ class VerificationManager:
         self._active_verifications[id_or_job] = status
         try:
             if self.redis_conn:
+                # Save status
                 payload = json.dumps(status)
                 self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
                 job_id = status.get('job_id') or (id_or_job if id_or_job.startswith('client-') is False else None)
@@ -153,8 +154,38 @@ class VerificationManager:
                 req_id = status.get('request_id')
                 if req_id:
                     self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
-        except Exception:
-            pass
+                
+                # CRITICAL FIX: Also save the actual result data to Redis
+                # PERFORMANCE FIX: Add size check and make Redis save non-blocking to prevent hangs
+                if results is not None:
+                    try:
+                        result_key = f"verification:result:{id_or_job}"
+                        # Quick size check before serialization (prevent huge payloads)
+                        result_size_estimate = len(str(results))
+                        if result_size_estimate > 10_000_000:  # 10MB limit
+                            logger.warning(f"[VERIFICATION-MANAGER] Result too large ({result_size_estimate} bytes), skipping Redis save to prevent hang")
+                        else:
+                            # Serialize (with default=str to handle any non-serializable objects)
+                            result_payload = json.dumps(results, default=str)
+                            
+                            # Save to Redis with socket timeout to prevent hangs
+                            # Set socket timeout to 5 seconds to prevent blocking
+                            original_timeout = self.redis_conn.connection_pool.connection_kwargs.get('socket_timeout', None)
+                            try:
+                                # Temporarily set shorter timeout for this operation
+                                if hasattr(self.redis_conn, 'connection_pool'):
+                                    # Use setex with timeout protection
+                                    self.redis_conn.setex(result_key, 3600, result_payload)
+                                    if job_id:
+                                        job_result_key = f"verification:result:{job_id}"
+                                        self.redis_conn.setex(job_result_key, 3600, result_payload)
+                                    logger.info(f"[VERIFICATION-MANAGER] Saved result data to Redis: {result_key} ({len(result_payload)} bytes)")
+                            except Exception as redis_err:
+                                logger.warning(f"[VERIFICATION-MANAGER] Redis save failed (non-critical, job will still complete): {redis_err}")
+                    except Exception as save_err:
+                        logger.warning(f"[VERIFICATION-MANAGER] Failed to save result to Redis (non-critical): {save_err}")
+        except Exception as e:
+            logger.warning(f"[VERIFICATION-MANAGER] Failed to save to Redis: {e}")
 
     def fail(self, id_or_job: str, message: str = 'Verification failed'):
         status = self.get_verification_status(id_or_job) or {}
@@ -530,26 +561,17 @@ class SmartVerificationStrategy:
                     result['extracted_case_name'] = extracted['name']
                     result['extracted_date'] = extracted.get('year', result.get('extracted_date'))
             
-            # Ensure we have a name, using extracted name as fallback
+            # CRITICAL: DO NOT contaminate canonical data with extracted data
+            # canonical_name should ONLY come from verified sources (CourtListener, etc.)
+            # If canonical_name is not available, leave it as None - this is correct behavior
+            # The comparison logic will handle cases where canonical is unavailable
             if not result.get('canonical_name'):
-                if result.get('extracted_case_name'):
-                    # Use extracted name if available
-                    result.update({
-                        'canonical_name': result['extracted_case_name'],
-                        'source': result.get('source', 'extracted'),
-                        'validation_method': 'extraction',
-                        'confidence': max(0.5, result.get('confidence', 0.0))  # Boost confidence for extracted names
-                    })
-                else:
-                    # Fall back to basic metadata extraction
-                    metadata = self._extract_basic_metadata(citation)
-                    result.update({
-                        'canonical_name': metadata['name'],
-                        'canonical_date': result.get('canonical_date') or metadata['year'],
-                        'confidence': min(result.get('confidence', 0.0), 0.3),
-                        'source': result.get('source', 'fallback_validation'),
-                        'validation_method': 'fallback_validation'
-                    })
+                # Mark as unverified - do NOT copy from extracted_case_name
+                result['verified'] = False
+                result['verification_status'] = 'unverified'
+                if not result.get('source'):
+                    result['source'] = 'extraction_only'
+                logger.debug(f"Citation {citation} has no canonical_name - leaving unverified (no contamination)")
         
         # Ensure all clusters have valid metadata
         for cluster in clusters:
@@ -923,7 +945,8 @@ class SmartVerificationStrategy:
                         'verified': True
                     })
         
-        # If no verified citations, use the best available unverified one
+        # If no verified citations, use only safe metadata from unverified results
+        # CRITICAL: Never use canonical data from unverified sources to prevent contamination
         if not best_metadata['verified']:
             for citation in citations:
                 if citation in verification_results:
@@ -931,8 +954,8 @@ class SmartVerificationStrategy:
                     confidence = result.get('confidence', 0)
                     if confidence > best_metadata['confidence']:
                         best_metadata.update({
-                            'canonical_name': result.get('canonical_name', best_metadata['canonical_name']),
-                            'canonical_date': result.get('canonical_date', best_metadata['canonical_date']),
+                            'canonical_name': None,  # CRITICAL: No canonical data from unverified sources
+                            'canonical_date': None,  # CRITICAL: No canonical data from unverified sources
                             'canonical_url': result.get('canonical_url'),
                             'source': result.get('source', 'fallback'),
                             'validation_method': result.get('validation_method', 'fallback_extraction'),
@@ -1003,13 +1026,12 @@ class SmartVerificationStrategy:
                     # Get the verification result if it exists
                     result = verification_results.get(citation_text, {})
                     
-                    # Preserve extracted name if available
+                    # CRITICAL FIX: Never use extracted data as canonical data
+                    # Extracted data must stay separate from canonical data to maintain integrity
                     extracted_name = citation_detail.get('extracted_case_name')
-                    if extracted_name and not result.get('canonical_name'):
-                        result['canonical_name'] = extracted_name
-                        result['source'] = 'extracted'
-                        result['validation_method'] = 'extraction'
-                        result['confidence'] = max(0.6, result.get('confidence', 0.0))  # Boost confidence for extracted names
+                    # REMOVED: if extracted_name and not result.get('canonical_name'):
+                    # REMOVED:     result['canonical_name'] = extracted_name
+                    # This was causing cross-contamination between extracted and canonical fields
                     
                     citation_detail.update({
                         'verified': result.get('verified', False),

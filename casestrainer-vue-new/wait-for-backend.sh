@@ -1,10 +1,5 @@
 #!/bin/sh
 
-# Wait for the backend service to be resolvable
-until getent hosts backend; do
-  echo "Waiting for backend to be resolvable..."
-  sleep 2
-done
-
-# Start Nginx
+# Start Nginx directly since backend should be running
+echo "Starting Nginx..."
 exec nginx -g 'daemon off;'

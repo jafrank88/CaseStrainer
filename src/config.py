@@ -35,6 +35,18 @@ def get_config_value(key, default=None):
     return default
 
 
+def get_float_config_value(key: str, default: float = 0.0) -> float:
+    """Get a float configuration value from environment or config.json."""
+    value = get_config_value(key, default)
+    if isinstance(value, (int, float)):
+        return float(value)
+    if isinstance(value, str):
+        try:
+            return float(value)
+        except ValueError:
+            return default
+    return default
+
 def get_bool_config_value(key: str, default: bool = False) -> bool:
     """Get a boolean configuration value, converting string values appropriately."""
     value = get_config_value(key, default)
@@ -91,6 +103,9 @@ MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 CONTACT_EMAIL: str = "jafrank@uw.edu"
 CONTACT_SUBJECT_PREFIX: str = "[CaseStrainer Feedback]"
 
+# Admin email for monitoring notifications (can be overridden via CASESTRAINER_ADMIN_EMAIL env var)
+ADMIN_EMAIL: str = get_config_value("CASESTRAINER_ADMIN_EMAIL", "jafrank@uw.edu")
+
 
 LANGSEARCH_API_KEY: str = get_config_value("LANGSEARCH_API_KEY", "")
 SESSION_TYPE: str = get_config_value("SESSION_TYPE", "filesystem")
@@ -138,9 +153,9 @@ DEFAULT_MAX_RETRIES: int = int(get_config_value("DEFAULT_MAX_RETRIES", "3"))
 RETRY_DELAY: float = float(get_config_value("RETRY_DELAY", "1.0"))
 
 # Job Processing Timeouts
-JOB_TIMEOUT_MINUTES: int = int(get_config_value("JOB_TIMEOUT_MINUTES", "10"))
-VERIFICATION_TIMEOUT_MINUTES: int = int(get_config_value("VERIFICATION_TIMEOUT_MINUTES", "5"))
-FILE_PROCESSING_TIMEOUT_MINUTES: int = int(get_config_value("FILE_PROCESSING_TIMEOUT_MINUTES", "10"))
+JOB_TIMEOUT_MINUTES: int = int(get_config_value("JOB_TIMEOUT_MINUTES", "15"))
+VERIFICATION_TIMEOUT_MINUTES: int = int(get_config_value("VERIFICATION_TIMEOUT_MINUTES", "12"))
+FILE_PROCESSING_TIMEOUT_MINUTES: int = int(get_config_value("FILE_PROCESSING_TIMEOUT_MINUTES", "15"))
 
 REDIS_URL: str = get_config_value("REDIS_URL", "redis://localhost:6379/0")
 
@@ -172,6 +187,8 @@ def get_citation_config() -> dict:
         # Enable clustering and verification by default
         'enable_clustering': get_bool_config_value('ENABLE_CLUSTERING', True),
         'enable_verification': get_bool_config_value('ENABLE_VERIFICATION', True),
+        'fast_verification': get_bool_config_value('FAST_VERIFICATION', True),
+        'verification_timeout': get_float_config_value('VERIFICATION_TIMEOUT', 30.0),
         'clustering_options': {
             'enable_parallel_detection': True,
             'enable_case_relationship_detection': True,

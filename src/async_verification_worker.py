@@ -15,7 +15,7 @@ from typing import Dict, Any, List, Optional
 
 logger = logging.getLogger(__name__)
 
-def verify_citations_enhanced(citations: List, text: str, request_id: str, input_type: str, metadata: Dict) -> Dict[str, Any]:
+def verify_citations_enhanced(citations: List, text: str, request_id: str, input_type: str, metadata: Dict, progress_callback: Optional[callable] = None) -> Dict[str, Any]:
     """
     Enhanced async verification of citations using the fallback verifier.
     
@@ -27,10 +27,16 @@ def verify_citations_enhanced(citations: List, text: str, request_id: str, input
     """
     logger.info(f"[AsyncVerificationWorker {request_id}] Starting enhanced verification for {len(citations)} citations")
     
+    # Update progress at start of verification
+    if progress_callback:
+        progress_callback(15, "verification", "Starting citation verification")
+    
     try:
         enhanced_results = None
         if _is_enhanced_verification_available():
             try:
+                if progress_callback:
+                    progress_callback(20, "verification", "Running enhanced verification")
                 enhanced_results = _verify_with_enhanced_verification(citations, text, request_id)
                 logger.info(f"[AsyncVerificationWorker {request_id}] Enhanced verification completed successfully")
             except Exception as e:
@@ -38,11 +44,22 @@ def verify_citations_enhanced(citations: List, text: str, request_id: str, input
                 enhanced_results = None
         
         if enhanced_results is None:
+            if progress_callback:
+                progress_callback(25, "verification", "Running fallback verification")
             enhanced_results = _verify_with_enhanced_fallback(citations, text, request_id)
+        
+        if progress_callback:
+            progress_callback(80, "verification", "Processing verification results")
         
         final_results = _enhance_verification_results(enhanced_results, citations, text, request_id)
         
+        if progress_callback:
+            progress_callback(90, "verification", "Assessing result quality")
+        
         quality_metrics = _assess_overall_quality(final_results, text, request_id)
+        
+        if progress_callback:
+            progress_callback(95, "verification", "Finalizing verification results")
         
         return {
             'success': True,
@@ -72,72 +89,69 @@ def verify_citations_enhanced(citations: List, text: str, request_id: str, input
 def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) -> List[Dict[str, Any]]:
     """Verify citations using the enhanced fallback verifier with async methods."""
     try:
-        from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        from src.unified_verification_master import UnifiedVerificationMaster
         
-        verifier = EnhancedFallbackVerifier()
+        verifier = UnifiedVerificationMaster()
         verification_results = []
         
         async def verify_citations_async():
+            # Use batch verification for better performance
+            logger.info(f"[AsyncVerificationWorker {request_id}] Using batch verification for {len(citations)} citations")
+            
+            # Prepare data for batch verification
+            citation_texts = []
+            extracted_names = []
+            extracted_years = []
+            
+            for citation in citations:
+                citation_texts.append(citation.get('citation', str(citation)))
+                extracted_names.append(citation.get('extracted_case_name'))
+                extracted_years.append(citation.get('extracted_year') or citation.get('extracted_date'))
+            
+            # Call batch verification
+            batch_results = await verifier.verify_citations_batch(
+                citation_texts,
+                extracted_names,
+                extracted_years,
+                batch_size=50,  # Process 50 citations at a time
+                timeout_per_citation=10.0,
+                progress_callback=progress_callback
+            )
+            
+            # Convert batch results back to enhanced citation format
             results = []
-            for i, citation in enumerate(citations):
-                try:
-                    citation_text = citation.get('citation', str(citation))
-                    extracted_name = citation.get('extracted_case_name')
-                    extracted_year = citation.get('extracted_year') or citation.get('extracted_date')
-                    
-                    logger.info(f"[AsyncVerificationWorker {request_id}] Verifying citation {i+1}/{len(citations)}: {citation_text}")
-                    
-                    has_courtlistener_data = (
-                        citation.get('canonical_name') and 
-                        citation.get('canonical_date') and 
-                        citation.get('canonical_url')
-                    )
-                    
-                    result = await verifier.verify_citation(citation_text, extracted_name, extracted_year, has_courtlistener_data)
-                    
-                    # CRITICAL FIX: Override extracted date with canonical date from verification
-                    # This fixes the date contamination issue where dates are extracted from
-                    # citing context instead of the cited case
-                    final_date = result.get('canonical_date')
-                    date_source = 'verified' if (result.get('verified') and final_date) else 'extracted'
-                    
-                    # Fall back to extracted date only if no canonical date available
-                    if not final_date:
-                        final_date = citation.get('extracted_date') or citation.get('extracted_year')
-                    
-                    enhanced_citation = {
-                        **citation,
-                        'verified': result.get('verified', False),
-                        'verification_source': result.get('source', 'enhanced_fallback'),
-                        'canonical_name': result.get('canonical_name'),
-                        'canonical_date': final_date,  # Use verified date
-                        'extracted_date': citation.get('extracted_date') or citation.get('extracted_year'),  # Preserve original
-                        'date_source': date_source,  # Track where date came from
-                        'canonical_url': result.get('url'),
-                        'confidence': result.get('confidence', 0.0),
-                        'verification_error': result.get('error'),
-                        'verification_completed': True,
-                        'verification_timestamp': time.time()
-                    }
-                    
-                    results.append(enhanced_citation)
-                    
-                    if enhanced_citation['verified']:
-                        logger.info(f"[AsyncVerificationWorker {request_id}] ✓ Verified: {citation_text} -> {enhanced_citation['canonical_name']} via {enhanced_citation['verification_source']}")
-                    else:
-                        logger.info(f"[AsyncVerificationWorker {request_id}] ✗ Failed: {citation_text} - {enhanced_citation['verification_error']}")
-                        
-                except Exception as e:
-                    logger.warning(f"[AsyncVerificationWorker {request_id}] Error verifying citation {citation_text}: {e}")
-                    enhanced_citation = {
-                        **citation,
-                        'verified': False,
-                        'verification_source': 'enhanced_fallback_error',
-                        'verification_error': str(e),
-                        'verification_completed': True,
-                        'verification_timestamp': time.time()
-                    }
-                    results.append(enhanced_citation)
+            for i, (citation, verification_result) in enumerate(zip(citations, batch_results)):
+                # CRITICAL FIX: Override extracted date with canonical date from verification
+                # This fixes the date contamination issue where dates are extracted from
+                # citing context instead of the cited case
+                final_date = verification_result.canonical_date
+                date_source = 'verified' if (verification_result.verified and final_date) else 'extracted'
+                
+                # Fall back to extracted date only if no canonical date available
+                if not final_date:
+                    final_date = citation.get('extracted_date') or citation.get('extracted_year')
+                
+                enhanced_citation = {
+                    **citation,
+                    'verified': verification_result.verified,
+                    'verification_source': verification_result.source,
+                    'canonical_name': verification_result.canonical_name,
+                    'canonical_date': final_date,  # Use verified date
+                    'extracted_date': citation.get('extracted_date') or citation.get('extracted_year'),  # Preserve original
+                    'date_source': date_source,  # Track where date came from
+                    'canonical_url': verification_result.url,
+                    'confidence': verification_result.confidence,
+                    'verification_error': verification_result.error,
+                    'verification_completed': True,
+                    'verification_timestamp': time.time()
+                }
+                
+                results.append(enhanced_citation)
+                
+                if enhanced_citation['verified']:
+                    logger.info(f"[AsyncVerificationWorker {request_id}] ✓ Verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']} via {enhanced_citation['verification_source']}")
+                else:
+                    logger.info(f"[AsyncVerificationWorker {request_id}] ✗ Failed: {citation_texts[i]} - {enhanced_citation['verification_error']}")
             
             return results
         
@@ -174,52 +188,55 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
 def _verify_with_enhanced_fallback_sync_fallback(citations: List, text: str, request_id: str) -> List[Dict[str, Any]]:
     """Fallback to sync verification if async fails."""
     try:
-        from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        from src.unified_verification_master import UnifiedVerificationMaster
         
-        verifier = EnhancedFallbackVerifier()
+        verifier = UnifiedVerificationMaster()
+        
+        # Use batch verification even in sync fallback for efficiency
+        logger.info(f"[AsyncVerificationWorker {request_id}] Using batch verification in sync fallback for {len(citations)} citations")
+        
+        # Prepare data for batch verification
+        citation_texts = []
+        extracted_names = []
+        extracted_years = []
+        
+        for citation in citations:
+            citation_texts.append(citation.get('citation', str(citation)))
+            extracted_names.append(citation.get('extracted_case_name'))
+            extracted_years.append(citation.get('extracted_year') or citation.get('extracted_date'))
+        
+        # Use batch verification in sync context
+        import asyncio
+        batch_results = asyncio.run(verifier.verify_citations_batch(
+            citation_texts,
+            extracted_names,
+            extracted_years,
+            batch_size=50,  # Process 50 citations at a time
+            timeout_per_citation=10.0
+        ))
+        
+        # Convert batch results back to enhanced citation format
         verification_results = []
-        
-        for i, citation in enumerate(citations):
-            try:
-                citation_text = citation.get('citation', str(citation))
-                extracted_name = citation.get('extracted_case_name')
-                extracted_year = citation.get('extracted_year') or citation.get('extracted_date')
-                
-                logger.info(f"[AsyncVerificationWorker {request_id}] Sync fallback verification for citation {i+1}/{len(citations)}: {citation_text}")
-                
-                result = verifier.verify_citation_sync(citation_text, extracted_name, extracted_year)
-                
-                enhanced_citation = {
-                    **citation,
-                    'verified': result.get('verified', False),
-                    'verification_source': result.get('source', 'enhanced_fallback_sync'),
-                    'canonical_name': result.get('canonical_name'),
-                    'canonical_date': result.get('canonical_date'),
-                    'canonical_url': result.get('url'),
-                    'confidence': result.get('confidence', 0.0),
-                    'verification_error': result.get('error'),
-                    'verification_completed': True,
-                    'verification_timestamp': time.time()
-                }
-                
-                verification_results.append(enhanced_citation)
-                
-                if enhanced_citation['verified']:
-                    logger.info(f"[AsyncVerificationWorker {request_id}] ✓ Sync verified: {citation_text} -> {enhanced_citation['canonical_name']}")
-                else:
-                    logger.info(f"[AsyncVerificationWorker {request_id}] ✗ Sync failed: {citation_text} - {enhanced_citation['verification_error']}")
-                    
-            except Exception as e:
-                logger.warning(f"[AsyncVerificationWorker {request_id}] Error in sync fallback verification for {citation_text}: {e}")
-                enhanced_citation = {
-                    **citation,
-                    'verified': False,
-                    'verification_source': 'enhanced_fallback_sync_error',
-                    'verification_error': str(e),
-                    'verification_completed': True,
-                    'verification_timestamp': time.time()
-                }
-                verification_results.append(enhanced_citation)
+        for i, (citation, verification_result) in enumerate(zip(citations, batch_results)):
+            enhanced_citation = {
+                **citation,
+                'verified': verification_result.verified,
+                'verification_source': verification_result.source,
+                'canonical_name': verification_result.canonical_name,
+                'canonical_date': verification_result.canonical_date,
+                'canonical_url': verification_result.url,
+                'confidence': verification_result.confidence,
+                'verification_error': verification_result.error,
+                'verification_completed': True,
+                'verification_timestamp': time.time()
+            }
+            
+            verification_results.append(enhanced_citation)
+            
+            if enhanced_citation['verified']:
+                logger.info(f"[AsyncVerificationWorker {request_id}] ✓ Sync batch verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']}")
+            else:
+                logger.info(f"[AsyncVerificationWorker {request_id}] ✗ Sync batch failed: {citation_texts[i]} - {enhanced_citation['verification_error']}")
         
         return verification_results
         

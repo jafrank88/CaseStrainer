@@ -493,10 +493,10 @@ def analyze():
             
             # Extract force_mode parameter for file uploads
             force_mode = request.form.get('force_mode')
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: force_mode from file form: '{force_mode}'")
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: form keys: {list(request.form.keys())}")
+            logger.error(f"[Request {request_id}] DEBUG: force_mode from file form: '{force_mode}'")
+            logger.error(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
-                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}' for file upload")
+                logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for file upload")
 
             # EARLY: Register verification so client_request_id polling returns 200 immediately
             try:
@@ -563,41 +563,41 @@ def analyze():
         
         elif request.is_json or json_data:
             logger.info(f"[Request {request_id}] Processing JSON input")
-            logger.info(f"[Request {request_id}] 🔍 request.is_json: {request.is_json}, json_data exists: {json_data is not None}")
+            logger.info(f"[Request {request_id}] request.is_json: {request.is_json}, json_data exists: {json_data is not None}")
             # Be tolerant to malformed JSON – don't raise BadRequest here
             data = json_data or request.get_json(silent=True)
-            logger.info(f"[Request {request_id}] 🔍 Initial data from get_json: {type(data)}, keys: {list(data.keys()) if isinstance(data, dict) else 'N/A'}")
+            logger.info(f"[Request {request_id}] Initial data from get_json: {type(data)}, keys: {list(data.keys()) if isinstance(data, dict) else 'N/A'}")
             if data is None:
-                logger.info(f"[Request {request_id}] ⚠️  JSON data is None, trying fallback parsing...")
+                logger.info(f"[Request {request_id}] JSON data is None, trying fallback parsing...")
                 # Fallback: try to decode raw body as JSON or URL string
                 try:
                     raw_body = request.data.decode('utf-8') if request.data else ''
-                    logger.info(f"[Request {request_id}] 🔍 Raw body length: {len(raw_body)}")
+                    logger.info(f"[Request {request_id}] Raw body length: {len(raw_body)}")
                     if raw_body:
                         import json as _json
                         try:
                             data = _json.loads(raw_body)
-                            logger.info(f"[Request {request_id}] ✅ Successfully parsed JSON from raw body")
+                            logger.info(f"[Request {request_id}] Successfully parsed JSON from raw body")
                         except Exception as parse_error:
-                            logger.warning(f"[Request {request_id}] ⚠️  JSON parse failed: {parse_error}, trying as URL string...")
+                            logger.warning(f"[Request {request_id}] JSON parse failed: {parse_error}, trying as URL string...")
                             # If body is a plain URL string, accept it
                             raw_trim = raw_body.strip().strip('"')
                             if raw_trim.startswith(('http://', 'https://')):
                                 data = {'type': 'url', 'url': raw_trim}
-                                logger.info(f"[Request {request_id}] ✅ Detected URL string: {raw_trim[:100]}")
+                                logger.info(f"[Request {request_id}] Detected URL string: {raw_trim[:100]}")
                             else:
                                 data = {}
-                                logger.warning(f"[Request {request_id}] ⚠️  Raw body doesn't look like URL: {raw_trim[:100]}")
+                                logger.warning(f"[Request {request_id}] Raw body doesn't look like URL: {raw_trim[:100]}")
                     else:
                         data = {}
-                        logger.warning(f"[Request {request_id}] ⚠️  Raw body is empty")
+                        logger.warning(f"[Request {request_id}] Raw body is empty")
                 except Exception as fallback_error:
-                    logger.error(f"[Request {request_id}] ❌ Fallback parsing failed: {fallback_error}")
+                    logger.error(f"[Request {request_id}] Fallback parsing failed: {fallback_error}")
                     data = {}
             
             if data and isinstance(data, dict):
-                logger.info(f"[Request {request_id}] 📋 JSON data keys: {list(data.keys())}")
-                logger.info(f"[Request {request_id}] 📋 JSON data type: {data.get('type')}, has url: {bool(data.get('url'))}, has text: {bool(data.get('text'))}")
+                logger.info(f"[Request {request_id}] JSON data keys: {list(data.keys())}")
+                logger.info(f"[Request {request_id}] JSON data type: {data.get('type')}, has url: {bool(data.get('url'))}, has text: {bool(data.get('text'))}")
                 
                 # Accept explicit type=url, or infer URL when only 'url' provided
                 # Check for URL: explicit type='url' OR url field present without text field
@@ -605,12 +605,12 @@ def analyze():
                 has_url = bool(data.get('url'))
                 has_text = bool(data.get('text'))
                 
-                logger.info(f"[Request {request_id}] 🔍 URL detection: is_url_type={is_url_type}, has_url={has_url}, has_text={has_text}")
+                logger.info(f"[Request {request_id}] URL detection: is_url_type={is_url_type}, has_url={has_url}, has_text={has_text}")
                 
                 if (is_url_type and has_url) or (has_url and not has_text):
                     input_data = data['url']
                     input_type = 'url'
-                    logger.info(f"[Request {request_id}] ✅ URL request detected: {input_data[:100] if len(input_data) > 100 else input_data}")
+                    logger.info(f"[Request {request_id}] URL request detected: {input_data[:100] if len(input_data) > 100 else input_data}")
                     metadata.update({
                         'input_type': 'url',
                         'url': data['url']
@@ -622,10 +622,25 @@ def analyze():
                         # Convert to boolean if needed
                         if isinstance(enable_verification, str):
                             enable_verification = enable_verification.lower() in ('true', '1', 'yes', 'on')
-                        logger.info(f"[Request {request_id}] 🎯 User requested enable_verification={enable_verification} for URL")
+                        logger.info(f"[Request {request_id}] User requested enable_verification={enable_verification} for URL")
                     else:
                         enable_verification = True  # Default to True for end users - can be disabled for testing
-                        logger.info(f"[Request {request_id}] 🎯 Using default enable_verification={enable_verification} for URL")
+                        logger.info(f"[Request {request_id}] Using default enable_verification={enable_verification} for URL")
+                    
+                    # Extract force_mode/processing_mode parameter for URL inputs
+                    # Check both 'force_mode' and 'processing_mode' for compatibility
+                    requested_mode = data.get('force_mode') or data.get('processing_mode')
+                    logger.error(f"[Request {request_id}] 🔍 DEBUG: URL detected, checking processing_mode. force_mode={data.get('force_mode')}, processing_mode={data.get('processing_mode')}, requested_mode={requested_mode}")
+                    if requested_mode:
+                        # Map 'sync' to force_mode='sync', 'async' to force_mode='async'
+                        if requested_mode.lower() == 'sync':
+                            force_mode = 'sync'
+                            logger.info(f"[Request {request_id}] User requested sync mode for URL")
+                        elif requested_mode.lower() == 'async':
+                            force_mode = 'async'
+                            logger.info(f"[Request {request_id}] User requested async mode for URL")
+                        else:
+                            logger.info(f"[Request {request_id}] User requested processing_mode='{requested_mode}' for URL (will use auto-routing)")
                 elif data.get('type') == 'text' and data.get('text'):
                     text_data = data['text']
                     input_dict = {'type': 'text', 'text': text_data}
@@ -636,15 +651,15 @@ def analyze():
                         # Convert to boolean if needed
                         if isinstance(enable_verification, str):
                             enable_verification = enable_verification.lower() in ('true', '1', 'yes', 'on')
-                        logger.info(f"[Request {request_id}] 🎯 User requested enable_verification={enable_verification}")
+                        logger.info(f"[Request {request_id}] User requested enable_verification={enable_verification}")
                     else:
                         enable_verification = True  # Default to True for end users - can be disabled for testing
-                        logger.info(f"[Request {request_id}] 🎯 Using default enable_verification={enable_verification}")
+                        logger.info(f"[Request {request_id}] Using default enable_verification={enable_verification}")
                     
                     # Extract force_mode parameter
                     force_mode = data.get('force_mode')
                     if force_mode:
-                        logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}' for JSON text")
+                        logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for JSON text")
                     
                     if service.should_process_immediately(input_dict, force_mode=force_mode):
                         logger.info(f"[Request {request_id}] Processing JSON text immediately via UnifiedInputProcessor")
@@ -680,15 +695,15 @@ def analyze():
                         # Convert to boolean if needed
                         if isinstance(enable_verification, str):
                             enable_verification = enable_verification.lower() in ('true', '1', 'yes', 'on')
-                        logger.info(f"[Request {request_id}] 🎯 User requested enable_verification={enable_verification}")
+                        logger.info(f"[Request {request_id}] User requested enable_verification={enable_verification}")
                     else:
                         enable_verification = True  # Default to True for end users - can be disabled for testing
-                        logger.info(f"[Request {request_id}] 🎯 Using default enable_verification={enable_verification}")
+                        logger.info(f"[Request {request_id}] Using default enable_verification={enable_verification}")
                     
                     # Extract force_mode parameter
                     force_mode = data.get('force_mode')
                     if force_mode:
-                        logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}' for legacy JSON text")
+                        logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for legacy JSON text")
                     
                     if service.should_process_immediately(input_dict, force_mode=force_mode):
                         logger.info(f"[Request {request_id}] Processing legacy JSON text immediately via UnifiedInputProcessor")
@@ -728,10 +743,10 @@ def analyze():
             
             # Extract force_mode parameter for sync/async override
             force_mode = request.form.get('force_mode')
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: force_mode from form: '{force_mode}'")
-            logger.error(f"[Request {request_id}] 🔍 DEBUG: form keys: {list(request.form.keys())}")
+            logger.error(f"[Request {request_id}] DEBUG: force_mode from form: '{force_mode}'")
+            logger.error(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
-                logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
+                logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}'")
             
             # Extract enable_verification parameter
             enable_verification = request.form.get('enable_verification')
@@ -739,10 +754,10 @@ def analyze():
                 # Convert string to boolean if needed
                 if isinstance(enable_verification, str):
                     enable_verification = enable_verification.lower() in ('true', '1', 'yes', 'on')
-                logger.info(f"[Request {request_id}] 🎯 User requested enable_verification={enable_verification}")
+                logger.info(f"[Request {request_id}] User requested enable_verification={enable_verification}")
             else:
                 enable_verification = True  # Default to True for end users - can be disabled for testing
-                logger.info(f"[Request {request_id}] 🎯 Using default enable_verification={enable_verification}")
+                logger.info(f"[Request {request_id}] Using default enable_verification={enable_verification}")
             
             if 'url' in request.form:
                 input_data = request.form['url']
@@ -796,10 +811,14 @@ def analyze():
                     })
                     logger.info(f"[Request {request_id}] Converted URL to text ({len(normalized_text)} chars); proceeding as text")
                     
-                    # Let the routing logic decide sync vs async based on text size
-                    # Don't force sync mode - allow async processing for large PDFs
-                    force_mode = None  # Let routing logic decide
-                    logger.info(f"[Request {request_id}] Using automatic routing for URL input (text size: {len(normalized_text)} chars)")
+                    # Respect user's force_mode preference if explicitly set
+                    # Only use auto-routing if user didn't specify sync/async mode
+                    if force_mode is None:
+                        # Let the routing logic decide sync vs async based on text size
+                        # Don't force sync mode - allow async processing for large PDFs
+                        logger.info(f"[Request {request_id}] Using automatic routing for URL input (text size: {len(normalized_text)} chars)")
+                    else:
+                        logger.info(f"[Request {request_id}] Using user-requested mode: {force_mode} for URL input (text size: {len(normalized_text)} chars)")
                     
                 except Exception as _e:
                     logger.error(f"[Request {request_id}] URL fetch failed: {_e}")
@@ -857,6 +876,7 @@ def analyze():
                     logger.info(f"[Request {request_id}] Using UnifiedInputProcessor for {input_type} input")
                     logger.info(f"[Request {request_id}] Input data length: {len(str(input_data)) if input_data else 0}")
                     logger.info(f"[Request {request_id}] Force mode: {force_mode}")
+                    logger.error(f"[Request {request_id}] 🔍 DEBUG: About to call process_any_input with force_mode='{force_mode}'")
                     
                     # Log before processing to track async behavior
                     logger.info(f"[Request {request_id}] About to call process_any_input...")
@@ -867,6 +887,7 @@ def analyze():
                         force_mode=force_mode,
                         enable_verification=enable_verification  # Pass enable_verification parameter
                     )
+                    logger.error(f"[Request {request_id}] 🔍 DEBUG: process_any_input returned, processing_mode={result.get('metadata', {}).get('processing_mode', 'unknown') if result else 'None'}")
                     logger.info(f"[Request {request_id}] process_any_input completed")
                     logger.info(f"[Request {request_id}] Result keys: {list(result.keys()) if result else 'None'}")
                     
@@ -998,26 +1019,56 @@ def analyze():
                 result['request_id'] = request_id
                 if 'metadata' not in result:
                     result['metadata'] = {}
-                result['metadata'].update({
-                    'processing_mode': result.get('metadata', {}).get('processing_mode', result.get('processing_mode', 'enhanced_sync')),
-                    'input_type': input_type,
-                    'text_length': len(str(input_data)) if hasattr(input_data, '__len__') else 0,
-                    'async_verification_queued': result.get('async_verification_queued', False),
-                    'progress_data': {
-                        'current_step': 100,
-                        'total_steps': 5,
-                        'current_message': 'Processing completed successfully',
-                        'start_time': start_time,
-                        'steps': [
-                            {'name': 'Initializing...', 'progress': 100, 'status': 'completed', 'message': 'Started enhanced sync processing'},
-                            {'name': 'Extract', 'progress': 100, 'status': 'completed', 'message': 'Citations extracted successfully'},
-                            {'name': 'Analyze', 'progress': 100, 'status': 'completed', 'message': 'Citations normalized locally'},
-                            {'name': 'Extract Names', 'progress': 100, 'status': 'completed', 'message': 'Case names and years extracted'},
-                            {'name': 'Cluster', 'progress': 100, 'status': 'completed', 'message': 'Citations clustered successfully'},
-                            {'name': 'Verify', 'progress': 100, 'status': 'completed', 'message': 'Results prepared successfully'}
-                        ]
-                    }
-                })
+                
+                # CRITICAL FIX: Only add progress_data with completed steps if processing was synchronous
+                # For async/queued tasks, progress_data should only be added when task completes
+                processing_mode = result.get('metadata', {}).get('processing_mode', result.get('processing_mode', 'enhanced_sync'))
+                is_async_or_queued = processing_mode in ('queued', 'async', 'async_progress')
+                
+                if not is_async_or_queued:
+                    # Only add completed progress_data for synchronous processing
+                    result['metadata'].update({
+                        'processing_mode': processing_mode,
+                        'input_type': input_type,
+                        'text_length': len(str(input_data)) if hasattr(input_data, '__len__') else 0,
+                        'async_verification_queued': result.get('async_verification_queued', False),
+                        'progress_data': {
+                            'current_step': 100,
+                            'total_steps': 5,
+                            'current_message': 'Processing completed successfully',
+                            'start_time': start_time,
+                            'steps': [
+                                {'name': 'Initializing...', 'progress': 100, 'status': 'completed', 'message': 'Started enhanced sync processing'},
+                                {'name': 'Extract', 'progress': 100, 'status': 'completed', 'message': 'Citations extracted successfully'},
+                                {'name': 'Analyze', 'progress': 100, 'status': 'completed', 'message': 'Citations normalized locally'},
+                                {'name': 'Extract Names', 'progress': 100, 'status': 'completed', 'message': 'Case names and years extracted'},
+                                {'name': 'Cluster', 'progress': 100, 'status': 'completed', 'message': 'Citations clustered successfully'},
+                                {'name': 'Verify', 'progress': 100, 'status': 'completed', 'message': 'Results prepared successfully'}
+                            ]
+                        }
+                    })
+                else:
+                    # For async/queued tasks, only add basic metadata without completed progress_data
+                    result['metadata'].update({
+                        'processing_mode': processing_mode,
+                        'input_type': input_type,
+                        'text_length': len(str(input_data)) if hasattr(input_data, '__len__') else 0,
+                        'async_verification_queued': result.get('async_verification_queued', False),
+                        'progress_data': {
+                            'current_step': 0,
+                            'total_steps': 5,
+                            'current_message': 'Processing started',
+                            'start_time': start_time,
+                            'steps': [
+                                {'name': 'Initializing...', 'progress': 0, 'status': 'pending'},
+                                {'name': 'Extract', 'progress': 0, 'status': 'pending'},
+                                {'name': 'Analyze', 'progress': 0, 'status': 'pending'},
+                                {'name': 'Extract Names', 'progress': 0, 'status': 'pending'},
+                                {'name': 'Cluster', 'progress': 0, 'status': 'pending'},
+                                {'name': 'Verify', 'progress': 0, 'status': 'pending'}
+                            ]
+                        }
+                    })
                 # If we have a task identifier, register verification so polling has a source
                 try:
                     from src.verification_manager import VerificationManager
@@ -1126,7 +1177,7 @@ def _format_response(result, request_id, metadata, start_time):
     processing_time_ms = int((time.time() - start_time) * 1000)
     
     # NEW: Apply parallel verification to citations before returning response
-    print(f"🔥🔥🔥 _format_response: Applying parallel verification to {len(result.get('citations', []))} citations")
+    print(f"_format_response: Applying parallel verification to {len(result.get('citations', []))} citations")
     try:
         citations = result.get('citations', [])
         if citations and len(citations) > 1:
@@ -1162,7 +1213,7 @@ def _format_response(result, request_id, metadata, start_time):
             
             # Apply parallel verification
             processor.propagate_canonical_to_cluster(citation_objects)
-            print(f"🔥🔥🔥 _format_response: Parallel verification completed")
+            print(f"_format_response: Parallel verification completed")
             
             # Update the result with parallel verification data
             updated_citations = []
@@ -1205,11 +1256,11 @@ def _format_response(result, request_id, metadata, start_time):
                     if getattr(c, 'true_by_parallel', False):
                         parallel_count += 1
             if parallel_count > 0:
-                print(f"🔥🔥🔥 _format_response: ✅ Applied parallel verification to {parallel_count} citations")
-                logger.info(f"[_format_response] ✅ Applied parallel verification to {parallel_count} citations")
+                print(f"_format_response: Applied parallel verification to {parallel_count} citations")
+                logger.info(f"[_format_response] Applied parallel verification to {parallel_count} citations")
             
     except Exception as parallel_error:
-        print(f"🔥🔥🔥 _format_response: Parallel verification failed: {parallel_error}")
+        print(f"_format_response: Parallel verification failed: {parallel_error}")
         logger.warning(f"[_format_response] Parallel verification failed (non-critical): {parallel_error}")
         import traceback
         logger.warning(f"[_format_response] Parallel verification error details: {traceback.format_exc()}")
@@ -1232,21 +1283,38 @@ def _format_response(result, request_id, metadata, start_time):
             x = html.unescape(str(s)).lower()
             x = x.replace('' ', "'").replace('`', "'").replace('' ', "'")
             patterns = [
-                (r"\bdep[''.\.]?t\b", 'dept'),
-                (r"\bcomm[''.\.]?n\b", 'commission'),
+                (r"\bdep[''.\']?t\b", 'department'),
+                (r"\bcomm[''.\']?n\b", 'commission'),
+                (r"\binfo\.?\b", 'information'),  # FIX DEC 2025: Info. -> Information
                 (r"\bpub\.?\b", 'public'),
                 (r"\butil\.?\b", 'utility'),
                 (r"\bins\.?\b", 'insurance'),
-                (r"\bfed[''.\.]?n\b", 'federation'),
-                (r"\bass\.?n\b", 'association'),
+                (r"\bfed[''.\']?n\b", 'federation'),
+                (r"\bass[''.\']?n\b", 'association'),
                 (r"\bpa\.?\b", 'pennsylvania'),
                 (r"\bu\.?s\.?\b", 'united states'),
                 (r"\bsec\.?\b", 'securities'),
                 (r"\bexch\.?\b", 'exchange'),
                 (r"\bmfrs?\.?\b", 'manufacturers'),
                 (r"\bindus\.?\b", 'industries'),
-                (r"\bnat\.?l\b", 'national'),
+                (r"\bnat[''.\']?l\b", 'national'),
                 (r"\bcommw\.?\b", 'commonwealth'),
+                # FIX DEC 2025: Additional legal abbreviations
+                (r"\bhous\.?\b", 'housing'),
+                (r"\bauth\.?\b", 'authority'),
+                (r"\bcmtys?\.?\b", 'communities'),
+                (r"\bwash\.?\b", 'washington'),
+                (r"\bcty\.?\b", 'county'),
+                (r"\brsrv\.?\b", 'reservation'),
+                (r"\bbd\.?\b", 'board'),
+                (r"\btrs\.?\b", 'trustees'),
+                (r"\bcommc\.?\b", 'communications'),
+                (r"\bsoc[''.\']?y\b", 'society'),
+                (r"\bdef\.?\b", 'defense'),
+                (r"\bcent\.?\b", 'central'),
+                (r"\bdev\.?\b", 'development'),
+                (r"\bserv\.?\b", 'services'),
+                (r"\bsrvs\.?\b", 'services'),
             ]
             for pat, repl in patterns:
                 x = re.sub(pat, repl, x)
@@ -1808,7 +1876,7 @@ def task_status(task_id):
             try:
                 from rq.job import Job
                 job = Job.fetch(task_id, connection=redis_conn)
-                logger.info(f"✅ FIX: Found completed job {task_id} outside queue using Job.fetch()")
+                logger.info(f"FIX: Found completed job {task_id} outside queue using Job.fetch()")
             except Exception as fetch_error:
                 logger.warning(f"Job {task_id} not found in queue or Redis: {fetch_error}")
                 
@@ -1819,7 +1887,7 @@ def task_status(task_id):
                     if result_data:
                         import json
                         result = json.loads(result_data)
-                        logger.info(f"✅ FIX: Found result in verification Redis key: {result_key}")
+                        logger.info(f"FIX: Found result in verification Redis key: {result_key}")
                         return jsonify({
                             'status': 'completed',
                             'task_id': task_id,
@@ -1854,7 +1922,7 @@ def task_status(task_id):
                                             # Try to unpickle the result
                                             import pickle
                                             result = pickle.loads(result_data)
-                                            logger.info(f"✅ FIX: Found result in Redis stream: {result_stream_key}")
+                                            logger.info(f"FIX: Found result in Redis stream: {result_stream_key}")
                                             return jsonify({
                                                 'status': 'completed',
                                                 'task_id': task_id,
@@ -1871,7 +1939,7 @@ def task_status(task_id):
                                             try:
                                                 import json
                                                 result = json.loads(result_data.decode('utf-8'))
-                                                logger.info(f"✅ FIX: Found result in Redis stream (JSON): {result_stream_key}")
+                                                logger.info(f"FIX: Found result in Redis stream (JSON): {result_stream_key}")
                                                 return jsonify({
                                                     'status': 'completed',
                                                     'task_id': task_id,
@@ -1891,7 +1959,7 @@ def task_status(task_id):
                     if result_data:
                         import json
                         result = json.loads(result_data)
-                        logger.info(f"✅ FIX: Found result in Redis key: {result_key}")
+                        logger.info(f"FIX: Found result in Redis key: {result_key}")
                         return jsonify({
                             'status': 'completed',
                             'task_id': task_id,
@@ -1935,20 +2003,74 @@ def task_status(task_id):
                 logger.error(f"Error getting job result: {e}")
         
         if job.is_finished:
-            if result and isinstance(result, dict) and (result.get('status') in ['success', 'completed'] or result.get('success') is True):
-                # CRITICAL FIX: Handle nested result structure from worker
-                # Worker returns: {'success': True, 'result': {'citations': [...], 'clusters': [...]}}
-                # We need to extract from the nested 'result' key if it exists
+            # ALWAYS check verification Redis key first, as it's the authoritative source
+            # RQ's job.result can be unreliable or have inconsistent structure
+            verification_result = None
+            try:
+                result_key = f'verification:result:{task_id}'
+                result_data = redis_conn.get(result_key)
+                if result_data:
+                    import json
+                    # Decode bytes if necessary
+                    if isinstance(result_data, bytes):
+                        result_data = result_data.decode('utf-8')
+                    verification_result = json.loads(result_data)
+                    logger.info(f"[TASK_STATUS] Found result in verification Redis key: {result_key} with {len(verification_result.get('citations', []))} citations, {len(verification_result.get('clusters', []))} clusters")
+            except Exception as redis_fallback_err:
+                logger.warning(f"[TASK_STATUS] Failed to retrieve verification result from Redis: {redis_fallback_err}")
+            
+            # Use verification_result if available, otherwise fall back to job.result
+            if verification_result:
+                result = verification_result
+                logger.info(f"[TASK_STATUS] Using verification_result from Redis for task {task_id}")
+            elif result is None:
+                logger.warning(f"[TASK_STATUS] Job {task_id} is finished but job.result is None and no verification result found")
+            
+            # Extract citations and clusters from result, handling nested structures
+            citations = []
+            clusters = []
+            actual_result = result if result and isinstance(result, dict) else {}
+            
+            if result and isinstance(result, dict):
+                # Handle nested result structure from worker
+                # Worker may return: {'success': True, 'result': {'citations': [...], 'clusters': [...]}}
+                # Or: {'success': True, 'citations': [...], 'clusters': [...]}
                 actual_result = result.get('result', result)  # Use nested result if exists, otherwise use result directly
+                
+                citations = actual_result.get('citations', []) or []
+                clusters = actual_result.get('clusters', []) or []
+                
+                logger.info(f"[TASK_STATUS] Extracted from result: {len(citations)} citations, {len(clusters)} clusters")
+            
+            # If still no citations/clusters, try one more time with verification_result
+            if (not citations and not clusters) and verification_result:
+                citations = verification_result.get('citations', []) or []
+                clusters = verification_result.get('clusters', []) or []
+                logger.info(f"[TASK_STATUS] Using verification_result directly: {len(citations)} citations, {len(clusters)} clusters")
+            
+            # Check if we have a successful result (either from job.result or verification_result)
+            is_success = (
+                (result and isinstance(result, dict) and (result.get('status') in ['success', 'completed'] or result.get('success') is True)) or
+                (verification_result and isinstance(verification_result, dict) and (verification_result.get('status') in ['success', 'completed'] or verification_result.get('success') is True)) or
+                (citations or clusters)  # If we have citations/clusters, consider it successful
+            )
+            
+            if is_success:
+                logger.info(f"[TASK_STATUS] Returning successful result for task {task_id}: {len(citations)} citations, {len(clusters)} clusters")
+                
+                # Merge metadata from both sources if available
+                metadata = actual_result.get('metadata', {})
+                if verification_result and 'metadata' in verification_result:
+                    metadata = {**metadata, **verification_result.get('metadata', {})}
                 
                 return jsonify({
                     'status': 'completed',
                     'task_id': task_id,
                     'is_finished': True,
-                    'citations': actual_result.get('citations', []),
-                    'clusters': actual_result.get('clusters', []),
+                    'citations': citations,
+                    'clusters': clusters,
                     'statistics': actual_result.get('statistics', {}),
-                    'metadata': actual_result.get('metadata', {}),
+                    'metadata': metadata,
                     'success': True
                 })
             else:
@@ -1958,7 +2080,10 @@ def task_status(task_id):
                 elif job.exc_info:
                     error_msg = f"Job failed with exception: {job.exc_info}"
                 
-                logger.error(f"Job {task_id} failed: {error_msg}")
+                logger.error(f"[TASK_STATUS] Job {task_id} failed: {error_msg}")
+                logger.error(f"[TASK_STATUS] Result structure: {type(result)}, verification_result: {type(verification_result)}")
+                logger.error(f"[TASK_STATUS] Citations: {len(citations)}, Clusters: {len(clusters)}")
+                
                 return jsonify({
                     'status': 'failed',
                     'task_id': task_id,
@@ -2022,7 +2147,14 @@ def task_status(task_id):
                     # Citations have been extracted - show real progress
                     progress_pct = vstatus.get('progress_percent', 0)
                     response['progress_percent'] = progress_pct
-                    response['current_message'] = f'{current_message} ({processed_cites}/{total_cites} citations)'
+                    # CRITICAL FIX: Don't append citation count if current_message already contains it
+                    # The current_message from vstatus already has the count (e.g., "Verifying citations... (50/140 citations)")
+                    # Only append if the message doesn't already contain a citation count pattern
+                    import re
+                    if not re.search(r'\(\d+/\d+\s+citations\)', current_message):
+                        response['current_message'] = f'{current_message} ({processed_cites}/{total_cites} citations)'
+                    else:
+                        response['current_message'] = current_message
                     response['message'] = f'Processing {total_cites} citations... ({processed_cites} processed)'
                 elif elapsed_time:
                     # Citations not extracted yet, but show elapsed time to indicate activity
@@ -2919,10 +3051,10 @@ def _process_text_input(service, request_id, text, source_name="form-input"):
                     citation['verified'] = True
                     citation['verification_status'] = 'verified'
                     fixed_count += 1
-                    logger.info(f"🔧 [VERIFICATION-PARADOX-FIX] Fixed verification paradox for {citation.get('citation')}: verified=False → True")
+                    logger.info(f"[VERIFICATION-PARADOX-FIX] Fixed verification paradox for {citation.get('citation')}: verified=False → True")
             
             if fixed_count > 0:
-                logger.info(f"🔧 [VERIFICATION-PARADOX-FIX] Fixed verification paradox for {fixed_count} citations")
+                logger.info(f"[VERIFICATION-PARADOX-FIX] Fixed verification paradox for {fixed_count} citations")
             
             logger.info(f"[Text Input {request_id}] Final processing path: {result.get('metadata', {}).get('processing_path')}")
             return result
@@ -2937,14 +3069,14 @@ def _process_text_input(service, request_id, text, source_name="form-input"):
             
             citations = result.get('citations', [])
             # DEBUG: Log citation data before processing
-            logger.error(f"🔍 [DEBUG] Processing {len(citations)} citations from unified pipeline")
+            logger.error(f"[DEBUG] Processing {len(citations)} citations from unified pipeline")
             for i, citation in enumerate(citations[:3]):  # Log first 3 citations
-                logger.error(f"🔍 [DEBUG] Citation {i+1}: {citation.citation}")
-                logger.error(f"🔍 [DEBUG]   verified: {getattr(citation, 'verified', 'MISSING')}")
-                logger.error(f"🔍 [DEBUG]   canonical_name: {getattr(citation, 'canonical_name', 'MISSING')}")
-                logger.error(f"🔍 [DEBUG]   canonical_date: {getattr(citation, 'canonical_date', 'MISSING')}")
-                logger.error(f"🔍 [DEBUG]   canonical_url: {getattr(citation, 'canonical_url', 'MISSING')}")
-                logger.error(f"🔍 [DEBUG]   verification_status: {getattr(citation, 'verification_status', 'MISSING')}")
+                logger.error(f"[DEBUG] Citation {i+1}: {citation.citation}")
+                logger.error(f"[DEBUG]   verified: {getattr(citation, 'verified', 'MISSING')}")
+                logger.error(f"[DEBUG]   canonical_name: {getattr(citation, 'canonical_name', 'MISSING')}")
+                logger.error(f"[DEBUG]   canonical_date: {getattr(citation, 'canonical_date', 'MISSING')}")
+                logger.error(f"[DEBUG]   canonical_url: {getattr(citation, 'canonical_url', 'MISSING')}")
+                logger.error(f"[DEBUG]   verification_status: {getattr(citation, 'verification_status', 'MISSING')}")
             
             for citation in citations:
                 citation.setdefault('extracted_case_name', None)

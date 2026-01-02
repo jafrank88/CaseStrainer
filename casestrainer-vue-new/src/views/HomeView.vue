@@ -15,14 +15,14 @@
                 U.S. Case Citation Verification
               </h1>
               <p class="hero-subtitle">
-                Upload legal documents, paste text, or provide URLs to automatically extract and verify U.S. case citations against authoritative legal databases.
+                Extract and verify U.S. legal case citations from documents, text, or URLs against authoritative databases.
               </p>
             </div>
 
             <!-- Experimental Use Banner -->
             <div class="experimental-banner">
               <i class="bi bi-flask me-2"></i>
-              <strong>Experimental Use:</strong> This tool is for research and educational purposes. Always verify results independently.
+              <strong>Research Tool:</strong> For educational and research purposes. Always verify results independently.
             </div>
           </div>
 
@@ -38,7 +38,7 @@
                 </div>
                 <div class="method-content">
                   <h4>Paste Text</h4>
-                  <p>Copy and paste legal text directly</p>
+                  <p>Copy and paste legal text</p>
                 </div>
                 <div v-if="activeTab === 'paste'" class="active-indicator">
                   <i class="bi bi-check"></i>
@@ -54,7 +54,7 @@
                 </div>
                 <div class="method-content">
                   <h4>Upload File</h4>
-                  <p>Upload PDF, DOCX, TXT, RTF, MD, HTML, or XML files</p>
+                  <p>PDF, DOCX, TXT, RTF, MD, HTML, XML</p>
                 </div>
                 <div v-if="activeTab === 'file'" class="active-indicator">
                   <i class="bi bi-check"></i>
@@ -70,7 +70,7 @@
                 </div>
                 <div class="method-content">
                   <h4>URL Input</h4>
-                  <p>Provide a URL to analyze online content</p>
+                  <p>Analyze online content</p>
                 </div>
                 <div v-if="activeTab === 'url'" class="active-indicator">
                   <i class="bi bi-check"></i>
@@ -86,7 +86,7 @@
                   <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="form-label mb-0">
                       <i class="bi bi-clipboard-text me-2"></i>
-                      Legal Text Content
+                      Legal Text
                     </label>
                     <div v-if="textContent" class="text-muted small">
                       {{ textContent.length.toLocaleString() }} characters
@@ -314,7 +314,8 @@
                 >
                   <!-- Button content -->
                   <div class="d-flex align-items-center justify-content-center">
-                    <i class="bi bi-search me-2"></i>
+                    <span v-if="isAnalyzing" class="spinning-loader me-2" role="status" aria-hidden="true"></span>
+                    <i v-else class="bi bi-search me-2"></i>
                     <span class="fw-medium">
                       {{ getAnalyzeButtonText }}
                     </span>
@@ -418,8 +419,9 @@
 
           
           <!-- CitationResults Component -->
+          <!-- HARMONIZED: Pass top-level structure directly - both sync and async now have citations/clusters at top level -->
           <CitationResults
-            :results="analysisResults?.result || analysisResults"
+            :results="analysisResults"
             :error="analysisError"
             component-id="home"
             @new-analysis="handleNewAnalysis"
@@ -493,6 +495,9 @@ watch(activeTab, () => {
 
 // Initialize with URL parameters if present
 onMounted(() => {
+  // CRITICAL FIX: Reset any lingering progress state to prevent timer from starting on page load
+  globalProgressStore.resetProgress();
+  
   if (route.query.tab) {
     activeTab.value = route.query.tab;
     
@@ -635,7 +640,7 @@ const yearCount = computed(() => {
 // Remove computed property and class for qualityScore and qualityScoreClass
 
 const canAnalyze = computed(() => {
-  console.log('🔍 Checking canAnalyze for tab:', activeTab.value);
+  console.log('Checking canAnalyze for tab:', activeTab.value);
   
   switch (activeTab.value) {
     case 'paste':
@@ -651,11 +656,11 @@ const canAnalyze = computed(() => {
       
     case 'url':
       const urlValid = urlContent.value.trim() !== '' && !urlError.value;
-      console.log('🌐 URL valid:', urlValid, 'URL:', urlContent.value, 'Error:', urlError.value);
+      console.log('URL valid:', urlValid, 'URL:', urlContent.value, 'Error:', urlError.value);
       return urlValid;
       
     default:
-      console.log('❌ No active tab or invalid tab');
+      console.log('No active tab or invalid tab');
       return false;
   }
 });
@@ -755,10 +760,10 @@ const validateInput = () => {
       
       // Clear any previous errors if URL is valid
       urlError.value = '';
-      console.log('✅ Valid URL:', urlContent.value);
+      console.log('Valid URL:', urlContent.value);
     } catch (error) {
       urlError.value = 'Please enter a valid URL starting with http:// or https://';
-      console.log('❌ Invalid URL:', urlContent.value, error);
+      console.log('Invalid URL:', urlContent.value, error);
     }
   } else if (activeTab.value === 'url' && !urlContent.value.trim()) {
     // Clear error when URL is empty
@@ -790,15 +795,15 @@ const onFileChange = (event) => {
   const fullPath = window.location.pathname;
   const isEnhancedValidatorPage = currentPath === '/enhanced-validator' || fullPath.includes('enhanced-validator');
   
-  console.log('🔍 HomeView onFileChange called!');
-  console.log('🔍 Router path:', currentPath);
-  console.log('🔍 Full URL path:', fullPath);
-  console.log('🔍 Is EnhancedValidator page:', isEnhancedValidatorPage);
+  console.log('HomeView onFileChange called!');
+  console.log('Router path:', currentPath);
+  console.log('Full URL path:', fullPath);
+  console.log('Is EnhancedValidator page:', isEnhancedValidatorPage);
   
   // NUCLEAR BLOCK: Prevent ANY file handling if on EnhancedValidator page
   if (isEnhancedValidatorPage) {
-    console.log('🔍 NUCLEAR BLOCK: HomeView file handling completely disabled!');
-    console.log('🔍 NUCLEAR BLOCK: HomeView file handling completely disabled on EnhancedValidator page!');
+    console.log('NUCLEAR BLOCK: HomeView file handling completely disabled!');
+    console.log('NUCLEAR BLOCK: HomeView file handling completely disabled on EnhancedValidator page!');
     // Clear the file input to prevent any further processing
     if (event.target) {
       event.target.value = '';
@@ -807,7 +812,7 @@ const onFileChange = (event) => {
     return;
   }
   
-  console.log('🔍 Proceeding with HomeView file handling');
+  console.log('Proceeding with HomeView file handling');
   const file = event.target.files[0];
   if (file) {
     handleFile(file);
@@ -827,7 +832,7 @@ const onFileDrop = (event) => {
   const fullPath = window.location.pathname;
   const isEnhancedValidatorPage = currentPath === '/enhanced-validator' || fullPath.includes('enhanced-validator');
   if (isEnhancedValidatorPage) {
-    console.log('🔍 NUCLEAR BLOCK: File drop disabled on EnhancedValidator page!');
+    console.log('NUCLEAR BLOCK: File drop disabled on EnhancedValidator page!');
     return;
   }
   
@@ -872,7 +877,7 @@ const handleFile = (file) => {
 
   // If we get here, the file is valid
   selectedFile.value = file;
-  console.log('✅ File selected and validated:', file.name);
+  console.log('File selected and validated:', file.name);
 };
 
 const fileInput = ref(null);
@@ -880,8 +885,8 @@ const fileInput = ref(null);
 const triggerFileInput = () => {
   // NUCLEAR BLOCK: Completely disable file input trigger on EnhancedValidator page
   if (isOnEnhancedValidatorPage.value) {
-    console.log('🔍 NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
-    console.log('🔍 NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
+    console.log('NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
+    console.log('NUCLEAR BLOCK: File input trigger disabled on EnhancedValidator page!');
     return;
   }
   
@@ -901,7 +906,7 @@ const clearFile = () => {
   analysisResults.value = null;
   analysisError.value = '';
   
-  console.log('🗑️ File selection cleared');
+  console.log('File selection cleared');
 };
 
 const formatFileSize = (bytes) => {
@@ -916,34 +921,44 @@ const formatFileSize = (bytes) => {
 
 // Enhanced async job polling function
 const pollAsyncJob = async (jobId) => {
-  console.log('🔄 Enhanced async job polling started for:', jobId);
+  console.log('Enhanced async job polling started for:', jobId);
   
-  const maxAttempts = 60; // 5 minutes max (60 * 5 seconds)
+  // CRITICAL FIX: Extended timeout for large documents
+  // Base timeout: 10 minutes (120 attempts * 5 seconds)
+  // For large documents with 100+ citations, allow up to 20 minutes (240 attempts)
+  const baseMaxAttempts = 120; // 10 minutes
+  const largeDocMaxAttempts = 240; // 20 minutes for documents with 100+ citations
+  const maxAttempts = largeDocMaxAttempts; // Use extended timeout for all documents
   let attempts = 0;
   let consecutiveErrors = 0;
-  const maxConsecutiveErrors = 3; // Stop after 3 errors in a row
+  const maxConsecutiveErrors = 10; // Increased from 3 to 10 - allow more resilience for network hiccups
   
   // Track stuck job detection
   let stuckDetection = {
     lastStep: null,
+    lastProgress: null,
+    lastCitationsProcessed: null,
     lastStepTime: Date.now(),
-    stuckThreshold: 120000 // 2 minutes
+    stuckThreshold: 180000 // 3 minutes (increased from 2 minutes for large documents)
   };
   
   const poll = async () => {
     try {
       attempts++;
-      console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
-      console.log('🔧 FRONTEND FIX ACTIVE: Enhanced completion detection enabled');
+      console.log(`Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
+      console.log('FRONTEND FIX ACTIVE: Enhanced completion detection enabled');
       
-      const statusResponse = await axios.get(`task_status/${jobId}?t=${Date.now()}`);
+      const statusResponse = await axios.get(`task_status/${jobId}?t=${Date.now()}`, {
+        timeout: 30000, // 30 second timeout for status checks
+        validateStatus: (status) => status < 500 // Don't throw on 404, 400, etc - only on 500+
+      });
       const jobData = statusResponse.data;
       
       // Reset error counter on successful API call
       consecutiveErrors = 0;
       
-      console.log('📋 Job status:', jobData.status);
-      console.log('🔍 DETAILED JOB DATA:', {
+      console.log('Job status:', jobData.status);
+      console.log('DETAILED JOB DATA:', {
         status: jobData.status,
         is_finished: jobData.is_finished,
         is_failed: jobData.is_failed,
@@ -964,8 +979,8 @@ const pollAsyncJob = async (jobId) => {
                       jobData.error;
       
       if (isCompleted) {
-        console.log('✅ Async job completed successfully');
-        console.log('📊 Completion indicators:', {
+        console.log('Async job completed successfully');
+        console.log('Completion indicators:', {
           status: jobData.status,
           is_finished: jobData.is_finished,
           citations_count: jobData.citations?.length || 0,
@@ -980,66 +995,188 @@ const pollAsyncJob = async (jobId) => {
           clusters: jobData.clusters || []
         };
       } else if (isFailed) {
-        console.error('❌ Async job failed:', jobData.error);
+        console.error('Async job failed:', jobData.error);
         globalProgress.setError(jobData.error || 'Async processing failed');
         throw new Error(jobData.error || 'Async processing failed');
       } else if (attempts >= maxAttempts) {
-        console.error('❌ Async job polling timeout');
+        console.error('Async job polling timeout');
         if (!globalProgress.progressState.hasResults) {
           globalProgress.setError('Processing timeout - please try again');
         }
         throw new Error('Processing timeout - please try again');
       } else {
         // Job still running, continue polling
-        console.log('⏳ Job still running, continuing to poll...');
+        console.log('Job still running, continuing to poll...');
         
         // STUCK JOB DETECTION: Check if job is stuck at same step
-        const currentStep = jobData.current_step || jobData.progress_data?.current_message || 'Unknown';
-        const currentProgress = jobData.progress || jobData.progress_data?.overall_progress || 0;
+        // Better fallback chain for currentStep - check multiple sources
+        const currentStep = jobData.current_step || 
+                           jobData.progress_data?.current_message || 
+                           jobData.message || 
+                           jobData.progress_data?.message ||
+                           jobData.current_message ||
+                           jobData.verification_status?.current_message ||
+                           jobData.status || 
+                           'Initializing...'; // Use sensible default instead of 'Unknown'
         
-        if (currentStep === stuckDetection.lastStep) {
-          const timeStuck = Date.now() - stuckDetection.lastStepTime;
-          if (timeStuck > stuckDetection.stuckThreshold) {
-            console.error(`❌ Job appears stuck at "${currentStep}" for ${Math.round(timeStuck/1000)}s`);
-            console.error('⚠️ Job may be waiting in queue or encountered an issue');
-            globalProgress.setError(`Processing stuck at "${currentStep}". The job may be queued behind other tasks. Please try again later or contact support.`);
+        const currentProgress = jobData.progress || jobData.progress_data?.progress || jobData.progress_data?.overall_progress || 0;
+        
+        // Enhanced stuck detection: Check if progress AND citation counts are stuck
+        const vs = jobData.verification_status || {};
+        const citationsProcessed = vs.citations_processed || 0;
+        const totalCitations = vs.total_citations || 0;
+        const lastUpdated = vs.updated_at || 0;
+        
+        // Detect if progress is stuck (same values for multiple polls)
+        const isProgressStuck = currentStep === stuckDetection.lastStep && 
+                               currentProgress === stuckDetection.lastProgress &&
+                               citationsProcessed === stuckDetection.lastCitationsProcessed;
+        
+        // Calculate time stuck
+        const timeStuck = Date.now() - stuckDetection.lastStepTime;
+        
+        // Only trigger stuck detection if we have meaningful progress data
+        // Don't trigger if currentStep is still "Initializing..." (might be normal for large docs)
+        if (currentStep !== 'Initializing...' && currentStep !== 'Unknown' && isProgressStuck) {
+          // Increase threshold to 3 minutes for large documents
+          if (timeStuck > 180000) { // 3 minutes instead of 2
+            console.error(`Job appears stuck at "${currentStep}" for ${Math.round(timeStuck/1000)}s`);
+            console.error('Job may be waiting in queue or encountered an issue');
+            
+            // More helpful error message
+            if (currentProgress === 0 && citationsProcessed === 0) {
+              globalProgress.setError(`Processing appears to be queued. The job may be waiting behind other tasks. Please wait a moment or try again later.`);
+            } else if (citationsProcessed > 0 && citationsProcessed < totalCitations) {
+              // Show progress-based message when citations are being processed
+              const progressPct = totalCitations > 0 ? Math.round((citationsProcessed / totalCitations) * 100) : currentProgress;
+              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${progressPct}% complete, ${citationsProcessed}/${totalCitations} citations). The job may be processing a large document or encountering delays. Please wait or try again later.`);
+            } else {
+              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${Math.round(currentProgress)}% complete). The job may be queued or processing a large document. Please wait or try again later.`);
+            }
             throw new Error(`Job stuck at ${currentStep}`);
           }
-        } else {
-          // Step changed, reset stuck detection
+        } else if (!isProgressStuck) {
+          // Progress changed, reset stuck detection
           stuckDetection.lastStep = currentStep;
+          stuckDetection.lastProgress = currentProgress;
+          stuckDetection.lastCitationsProcessed = citationsProcessed;
           stuckDetection.lastStepTime = Date.now();
         }
         
         // Enhanced debugging and progress updates
-        console.log('🔍 RAW BACKEND RESPONSE:', JSON.stringify(jobData, null, 2));
+        console.log('RAW BACKEND RESPONSE:', JSON.stringify(jobData, null, 2));
         
         // Update progress with detailed backend data
-        if (jobData.progress !== undefined || jobData.current_step || jobData.progress_data) {
-          console.log('📊 Updating progress from backend:', {
+        // Check for progress in multiple formats: progress_data, progress_percent, verification_status
+        const hasProgressData = jobData.progress !== undefined || 
+                               jobData.current_step || 
+                               jobData.progress_data ||
+                               jobData.progress_percent !== undefined ||
+                               jobData.verification_status?.progress_percent !== undefined ||
+                               jobData.current_message ||
+                               jobData.verification_status?.current_message;
+        
+        if (hasProgressData) {
+          console.log('Updating progress from backend:', {
             progress: jobData.progress,
+            progress_percent: jobData.progress_percent,
             current_step: jobData.current_step,
+            current_message: jobData.current_message,
             progress_data: jobData.progress_data,
+            verification_status: jobData.verification_status,
             hasProgressData: !!jobData.progress_data,
+            hasVerificationStatus: !!jobData.verification_status,
             hasSteps: !!(jobData.progress_data && jobData.progress_data.steps)
           });
           
-          // Use backend progress data if available
-          let progressPercent = jobData.progress || jobData.progress_data?.overall_progress;
-          let currentStep = jobData.current_step || jobData.progress_data?.current_message;
+          // Use backend progress data if available - check multiple sources
+          let progressPercent = jobData.progress || 
+                               jobData.progress_percent ||
+                               jobData.progress_data?.progress || 
+                               jobData.progress_data?.overall_progress ||
+                               jobData.verification_status?.progress_percent ||
+                               0;
+          
+          let currentStep = jobData.current_step || 
+                           jobData.current_message ||
+                           jobData.progress_data?.current_message || 
+                           jobData.message || 
+                           jobData.progress_data?.message ||
+                           jobData.verification_status?.current_message ||
+                           jobData.status || 
+                           'Initializing...'; // Better default
           
           // If no explicit progress, try to calculate from steps
           if (!progressPercent && jobData.progress_data?.steps) {
             const completedSteps = jobData.progress_data.steps.filter(s => s.status === 'completed').length;
             const totalSteps = jobData.progress_data.steps.length;
             progressPercent = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
-            console.log('📊 Calculated progress from steps:', progressPercent, `(${completedSteps}/${totalSteps})`);
+            console.log('Calculated progress from steps:', progressPercent, `(${completedSteps}/${totalSteps})`);
+          }
+          
+          // If still no progress but we have verification_status with citations info, estimate progress
+          // OR if progress_percent seems stuck (same value for multiple polls), use citation counts for better estimate
+          let estimatedTimeRemaining = null;
+          if (jobData.verification_status) {
+            const vs = jobData.verification_status;
+            if (vs.total_citations > 0 && vs.citations_processed !== undefined) {
+              // Calculate progress based on citation processing
+              // 30% for extraction, 70% for verification
+              const extractionProgress = Math.min(30, (vs.citations_processed / vs.total_citations) * 30);
+              
+              // If state is running/verifying, add verification progress
+              let verificationProgress = 0;
+              if (vs.state === 'running' || vs.state === 'verifying') {
+                // Estimate verification progress based on citations processed
+                verificationProgress = Math.min(70, (vs.citations_processed / vs.total_citations) * 70);
+              }
+              
+              const calculatedProgress = extractionProgress + verificationProgress;
+              
+              // CRITICAL FIX: Calculate estimated time remaining based on citation processing rate
+              // Only show estimate if we have processed at least 5 citations to avoid inaccurate early estimates
+              if (vs.citations_processed >= 5 && vs.start_time) {
+                const elapsedSeconds = (Date.now() / 1000) - vs.start_time;
+                const citationsPerSecond = vs.citations_processed / elapsedSeconds;
+                const remainingCitations = vs.total_citations - vs.citations_processed;
+                if (citationsPerSecond > 0) {
+                  const estimatedSecondsRemaining = remainingCitations / citationsPerSecond;
+                  estimatedTimeRemaining = Math.ceil(estimatedSecondsRemaining);
+                  // Cap at reasonable maximum (15 minutes) - more conservative than before
+                  if (estimatedTimeRemaining > 900) {
+                    estimatedTimeRemaining = null; // Don't show if estimate is too high
+                  }
+                  // Also cap minimum estimate - if less than 30 seconds, don't show
+                  if (estimatedTimeRemaining < 30) {
+                    estimatedTimeRemaining = null;
+                  }
+                }
+              }
+              
+              // Use calculated progress if it's better than the provided progress_percent
+              // OR if progress_percent is stuck at a low value (< 5%)
+              if (!progressPercent || progressPercent < 5 || calculatedProgress > progressPercent) {
+                progressPercent = Math.min(95, calculatedProgress); // Cap at 95% until complete
+                const timeMsg = estimatedTimeRemaining ? ` (~${Math.ceil(estimatedTimeRemaining / 60)} min remaining)` : '';
+                console.log(`Using calculated progress from verification_status: ${progressPercent}% (${vs.citations_processed}/${vs.total_citations} citations, state: ${vs.state}, extraction: ${extractionProgress.toFixed(1)}%, verification: ${verificationProgress.toFixed(1)}%)${timeMsg}`);
+              } else {
+                console.log(`Using backend progress_percent: ${progressPercent}% (calculated would be ${calculatedProgress.toFixed(1)}%)`);
+              }
+            }
+          }
+          
+          // Update progress message with time estimate if available
+          if (estimatedTimeRemaining && currentStep) {
+            const minutesRemaining = Math.ceil(estimatedTimeRemaining / 60);
+            if (minutesRemaining > 0) {
+              currentStep = `${currentStep} (est. ${minutesRemaining} min remaining)`;
+            }
           }
           
           // Ensure progressPercent is a valid number (not NaN, null, or undefined)
           if (!progressPercent || isNaN(progressPercent) || progressPercent === 0) {
             progressPercent = Math.max(5, globalProgress.progressPercent || 5); // Minimum 5% to show activity
-            console.log('📊 Using minimum progress to show activity:', progressPercent);
+            console.log('Using minimum progress to show activity:', progressPercent);
           }
           
           // Final safety check - ensure it's a valid number
@@ -1050,7 +1187,7 @@ const pollAsyncJob = async (jobId) => {
             const activeStep = jobData.progress_data.steps.find(s => s.status === 'in_progress' || s.status === 'running');
             const lastCompletedStep = jobData.progress_data.steps.filter(s => s.status === 'completed').pop();
             currentStep = activeStep?.name || lastCompletedStep?.name || 'Processing...';
-            console.log('📊 Determined current step:', currentStep);
+            console.log('Determined current step:', currentStep);
           }
           
           globalProgress.updateProgress({
@@ -1059,7 +1196,7 @@ const pollAsyncJob = async (jobId) => {
             total_progress: progressPercent
           });
           
-          console.log('📊 Updated global progress:', {
+          console.log('Updated global progress:', {
             step: currentStep,
             progress: progressPercent,
             globalProgressPercent: globalProgress.progressPercent
@@ -1078,13 +1215,13 @@ const pollAsyncJob = async (jobId) => {
             }));
             
             globalProgress.setSteps(steps);
-            console.log('📋 Updated processing steps:', {
+            console.log('Updated processing steps:', {
               count: steps.length,
               steps: steps.map(s => `${s.step}: ${s.status} (${s.progress}%)`)
             });
           }
         } else {
-          console.log('⚠️ No progress data found in backend response');
+          console.log('No progress data found in backend response');
           // Force a small progress increment to show activity
           const currentProgress = globalProgress.progressPercent;
           if (currentProgress < 95) {
@@ -1093,40 +1230,64 @@ const pollAsyncJob = async (jobId) => {
               progress: Math.min(currentProgress + 2, 95), // Small increment, max 95%
               total_progress: Math.min(currentProgress + 2, 95)
             });
-            console.log('📊 Incremented progress to show activity:', globalProgress.progressPercent);
+            console.log('Incremented progress to show activity:', globalProgress.progressPercent);
           }
         }
         
-        // Wait 5 seconds before next poll
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        // Wait 2 seconds before next poll (reduced from 5 seconds for more responsive updates)
+        await new Promise(resolve => setTimeout(resolve, 2000));
         return await poll(); // Recursive call
       }
     } catch (error) {
-      consecutiveErrors++;
+      // Check if this is a network error or a non-fatal HTTP error
+      const isNetworkError = !error.response || error.code === 'ECONNABORTED' || error.code === 'ERR_NETWORK';
+      const is404Error = error.response?.status === 404;
+      const is500Error = error.response?.status >= 500;
+      
+      // Only count network errors and 500+ errors as consecutive errors
+      // 404 errors might mean the task isn't registered yet, which is okay for async tasks
+      if (isNetworkError || is500Error) {
+        consecutiveErrors++;
+      } else if (is404Error) {
+        // 404 is not necessarily an error - task might not be registered yet
+        // Only count it if we've been polling for a while (more than 10 attempts)
+        if (attempts > 10) {
+          consecutiveErrors++;
+        }
+        // Reset to 0 if we get a 404 early (task might not be registered yet)
+        else {
+          consecutiveErrors = Math.max(0, consecutiveErrors - 1);
+        }
+      }
       
       // Only log first error and every 5th error to reduce spam
       if (consecutiveErrors === 1 || consecutiveErrors % 5 === 0) {
-        console.error(`❌ Error polling async job (${consecutiveErrors} consecutive errors):`, error.message || error);
+        const errorType = isNetworkError ? 'Network' : is404Error ? 'Not Found (404)' : is500Error ? 'Server Error' : 'Unknown';
+        console.error(`Error polling async job (${consecutiveErrors} consecutive errors, ${errorType}):`, error.message || error);
       }
       
       // Stop if too many consecutive errors
       if (consecutiveErrors >= maxConsecutiveErrors) {
-        console.error(`❌ Polling stopped after ${consecutiveErrors} consecutive errors`);
-        globalProgress.setError(`Connection error: Unable to check job status. The job may still be processing. Please refresh the page in a few minutes.`);
+        console.error(`Polling stopped after ${consecutiveErrors} consecutive errors`);
+        // More helpful error message that doesn't suggest the job failed
+        globalProgress.setError(`Temporarily unable to check job status (${consecutiveErrors} consecutive errors). The job may still be processing successfully. Please wait a moment and refresh the page to check status.`);
         throw new Error(`Polling failed after ${consecutiveErrors} consecutive errors`);
       }
       
       // Stop if max attempts reached
       if (attempts >= maxAttempts) {
-        console.error('❌ Async job polling timeout after', attempts, 'attempts');
+        console.error('Async job polling timeout after', attempts, 'attempts');
         if (!globalProgress.progressState.hasResults) {
           globalProgress.setError('Processing timeout (5 minutes). The job may still be running. Please check back later.');
         }
         throw new Error('Processing timeout');
       }
       
-      // Retry on error after delay
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Retry on error after delay with exponential backoff
+      // Start with 2 seconds, increase up to 10 seconds
+      const retryDelay = Math.min(2000 * Math.pow(1.5, consecutiveErrors - 1), 10000);
+      console.log(`Retrying after ${retryDelay}ms delay (consecutive errors: ${consecutiveErrors})`);
+      await new Promise(resolve => setTimeout(resolve, retryDelay));
       return await poll(); // Recursive call
     }
   };
@@ -1138,20 +1299,39 @@ const pollAsyncJob = async (jobId) => {
 const processImmediateResults = (response) => {
   // Store results in the format expected by CitationResults component
   // Map citation_objects to citations for component compatibility
-  const mappedClusters = (response.result.clusters || []).map(cluster => ({
-    ...cluster,
-    citations: cluster.citation_objects || cluster.citations || []
-  }));
+  // FIXED: Look for clusters at top level (new structure) or fallback to result.clusters
+  const clusters = response.clusters || response.result?.clusters || [];
+  console.log('🔍 processImmediateResults - Raw clusters from response:', {
+    hasClusters: !!response.clusters,
+    clustersCount: clusters.length,
+    firstCluster: clusters[0] ? Object.keys(clusters[0]) : null
+  });
+  
+  // Ensure clusters have citations array - clusters from backend already have citations
+  const mappedClusters = clusters.map(cluster => {
+    // Clusters from backend already have citations array, just ensure it exists
+    const clusterCitations = cluster.citation_objects || cluster.citations || [];
+    console.log(`🔍 Cluster ${cluster.cluster_id}: ${clusterCitations.length} citations`);
+    return {
+      ...cluster,
+      citations: clusterCitations  // Use existing citations array from cluster
+    };
+  });
+  
+  console.log('🔍 processImmediateResults - Mapped clusters:', {
+    mappedCount: mappedClusters.length,
+    clustersWithCitations: mappedClusters.filter(c => c.citations && c.citations.length > 0).length
+  });
 
   // Extract and use progress data from backend response
   if (response.result && response.result.progress_data) {
     const progressData = response.result.progress_data;
-    console.log('📊 Backend progress data received:', progressData);
+    console.log('Backend progress data received:', progressData);
 
     // Update global progress with real backend data
     if (progressData.steps && progressData.steps.length > 0) {
       // Use real progress data from backend instead of time-based estimation
-      globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
+      globalProgress.progressState.totalProgress = progressData.progress || progressData.overall_progress || 0;
       globalProgress.progressState.currentStep = progressData.current_message || progressData.steps.find(s => s.status === 'in_progress')?.name || 'Processing...';
 
       // Set up processing steps from backend with real progress
@@ -1172,9 +1352,9 @@ const processImmediateResults = (response) => {
       globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
       globalProgress.progressState.startTime = progressData.start_time ? progressData.start_time * 1000 : Date.now(); // Convert to milliseconds
 
-      console.log('✅ Updated progress with real backend data:', {
-        totalProgress: progressData.overall_progress,
-        currentStep: progressData.current_message,
+      console.log('Updated progress with real backend data:', {
+        totalProgress: progressData.progress || progressData.overall_progress,
+        currentStep: progressData.current_message || progressData.message,
         elapsedTime: progressData.elapsed_time,
         steps: backendSteps.length
       });
@@ -1192,39 +1372,50 @@ const processImmediateResults = (response) => {
     }
   }
 
+  // HARMONIZED: Ensure both sync and async paths use the same structure
+  // The component expects: { citations: [...], clusters: [...] } at the top level
   analysisResults.value = {
+    citations: response.citations || [],  // Top level for component
+    clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
     result: {
-      citations: response.result.citations || [],
-      clusters: response.result.clusters || []
+      citations: response.citations || [],
+      clusters: clusters  // Raw clusters for backward compatibility
     },
-    clusters: mappedClusters,
-    citations: response.result.citations || [],
     message: response.message,
     metadata: response.metadata,
     success: response.success,
-    total_citations: response.result.citations?.length || 0
+    total_citations: response.citations?.length || 0
   };
   analysisError.value = '';
 
-  console.log('✅ Results stored for display:', {
-    citations: response.result?.citations?.length || 0,
-    clusters: response.result?.clusters?.length || 0,
+  console.log('Results stored for display:', {
+    citations: response.citations?.length || 0,  // FIXED: Use top level citations
+    clusters: clusters?.length || 0,  // FIXED: Use extracted clusters
+    mappedClusters: mappedClusters?.length || 0,
     message: response.message,
     hasResults: !!analysisResults.value
   });
-  console.log('✅ analysisResults.value =', analysisResults.value);
+  console.log('🔍 analysisResults.value structure:', {
+    hasCitations: !!analysisResults.value.citations,
+    citationsCount: analysisResults.value.citations?.length || 0,
+    hasClusters: !!analysisResults.value.clusters,
+    clustersCount: analysisResults.value.clusters?.length || 0,
+    firstClusterId: analysisResults.value.clusters?.[0]?.cluster_id,
+    firstClusterCitationsCount: analysisResults.value.clusters?.[0]?.citations?.length || 0
+  });
+  console.log('analysisResults.value =', analysisResults.value);
 };
 
 const analyzeContent = async () => {
-  console.log('🚀 HOMEVIEW analyzeContent CALLED!');
-  console.log('🚀 canAnalyze:', canAnalyze.value);
-  console.log('🚀 isAnalyzing:', isAnalyzing.value);
+  console.log('HOMEVIEW analyzeContent CALLED!');
+  console.log('canAnalyze:', canAnalyze.value);
+  console.log('isAnalyzing:', isAnalyzing.value);
   
   // Show debug popup
       // Debug alert removed for cleaner interface
   
   if (!canAnalyze.value || isAnalyzing.value) {
-    console.log('⚠️ Early return - canAnalyze:', canAnalyze.value, 'isAnalyzing:', isAnalyzing.value);
+    console.log('Early return - canAnalyze:', canAnalyze.value, 'isAnalyzing:', isAnalyzing.value);
     return;
   }
   
@@ -1235,7 +1426,7 @@ const analyzeContent = async () => {
   
   isAnalyzing.value = true;
   // showProcessing removed - SimpleProgress component handles progress display
-  console.log('🔄 isAnalyzing set to:', isAnalyzing.value);
+  console.log('isAnalyzing set to:', isAnalyzing.value);
   
   // Force Vue to recognize the change
   await nextTick();
@@ -1315,7 +1506,7 @@ const analyzeContent = async () => {
     // Generate a client-side request_id that we can use for polling
     // This allows us to poll for progress even during long-running sync requests (30+ seconds)
     const clientRequestId = 'client-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    console.log('📋 Generated client request_id:', clientRequestId);
+    console.log('Generated client request_id:', clientRequestId);
     
     // Add the request_id to the request data
     if (requestData instanceof FormData) {
@@ -1333,6 +1524,7 @@ const analyzeContent = async () => {
     
     // Start polling after a short delay (give backend time to initialize)
     let pollAttempts = 0;
+    const lastProgressPercent = ref(0);
     const MAX_POLL_ATTEMPTS = 300; // 5 minutes max (300 seconds)
     
     // Always poll server progress as soon as we have a client_request_id
@@ -1355,7 +1547,7 @@ const analyzeContent = async () => {
         if (pollAttempts > MAX_POLL_ATTEMPTS) {
           clearInterval(pollingInterval);
           pollingInterval = null;
-          console.error('⚠️ Polling timeout after 5 minutes - stopping');
+          console.error('Polling timeout after 5 minutes - stopping');
           if (!globalProgress.progressState.hasResults) {
             globalProgress.setError('Request timed out after 5 minutes');
           }
@@ -1365,9 +1557,20 @@ const analyzeContent = async () => {
         try {
           const progressResponse = await api.get(`/analyze/progress/${clientRequestId}`);
           const pd = progressResponse.data?.progress_data || {};
-          const percent = pd.overall_progress ?? pd.total_progress ?? pd.progress ?? 0;
-          const message = pd.current_message || pd.currentStep || pd.message || 'Processing...';
-          console.log(`📊 [${pollAttempts}] Progress: ${percent}% - ${message}`);
+          let percent = pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress ?? 0;
+          const message = pd.current_message ?? pd.message ?? pd.currentStep ?? 'Processing...';
+          
+          // If progress is stuck for too long, add small increments to show activity
+          if (percent === lastProgressPercent.value && pollAttempts > 5) {
+            // Add small increment every 10 polls to show activity
+            if (pollAttempts % 10 === 0) {
+              percent = Math.min(95, percent + 1); // Cap at 95% to allow completion
+            }
+          }
+          
+          lastProgressPercent.value = percent;
+          
+          console.log(`[${pollAttempts}] Progress: ${percent}% - ${message}`);
           globalProgress.updateProgress({
             step: message,
             progress: percent,
@@ -1377,21 +1580,21 @@ const analyzeContent = async () => {
           // Ignore polling errors - request might not be ready yet
           console.debug('Polling attempt (request not ready yet)');
         }
-      }, 1000); // Poll every second
-    }, 1500); // Wait 1.5 seconds before starting to poll to reduce early 404s
+      }, 500); // Poll every 500ms for more frequent updates
+    }, 500); // Start polling after 500ms to get updates quickly
     }
     
     // Now await the response
-    console.log('⏳ Waiting for main API response...');
+    console.log('Waiting for main API response...');
     const response = await analyzePromise;
     responseArrived = true;
-    console.log('✅ Main API response received!');
+    console.log('Main API response received!');
     
     // Stop polling once we have the response
     if (pollingInterval) {
       clearInterval(pollingInterval);
       pollingInterval = null;
-      console.log('✅ Stopped polling - response received');
+      console.log('Stopped polling - response received');
     }
     // Debug alert removed for cleaner interface
     
@@ -1399,7 +1602,7 @@ const analyzeContent = async () => {
     const processingMode = response?.metadata?.processing_mode;
     const jobId = response?.metadata?.job_id;
     
-    console.log('🔍 Enhanced Processing Analysis:');
+    console.log('Enhanced Processing Analysis:');
     console.log('- Processing mode:', processingMode);
     console.log('- Job ID:', jobId);
     console.log('- Document size:', textContent.value?.length || 'unknown');
@@ -1407,7 +1610,7 @@ const analyzeContent = async () => {
     
     // Handle async processing with dedicated polling
     if (processingMode === 'queued' && jobId) {
-      console.log('🔄 Large document detected - starting enhanced async polling');
+      console.log('Large document detected - starting unified async polling');
       
       // Update metadata to indicate async mode
       globalProgress.progressState.metadata = {
@@ -1416,36 +1619,79 @@ const analyzeContent = async () => {
         job_id: jobId
       };
       
-      try {
-        const asyncResults = await pollAsyncJob(jobId);
-        if (asyncResults) {
-          // Process async results
-          analysisResults.value = {
-            result: {
-              citations: asyncResults.citations || [],
-              clusters: asyncResults.clusters || []
-            },
-            clusters: asyncResults.clusters || [],
-            citations: asyncResults.citations || [],
-            message: 'Analysis completed successfully',
-            metadata: { processing_mode: 'queued', job_id: jobId },
-            success: true,
-            total_citations: asyncResults.citations?.length || 0
-          };
-          analysisError.value = '';
-          
-          console.log('✅ Async processing completed:', {
-            citations: asyncResults.citations?.length || 0,
-            clusters: asyncResults.clusters?.length || 0
-          });
-          
-          return; // Exit early since we handled async processing
+      // Initialize async task state similar to task_id path
+      activeAsyncTask.value = jobId;
+      asyncTaskProgress.value = { taskId: jobId, status: 'queued', message: 'Task queued and waiting to be processed' };
+      isAsyncProcessing.value = true;
+      
+      // Start unified polling using the same progress callback used elsewhere
+      pollingService.startPolling(
+        jobId,
+        async (progressData) => {
+          console.log('Task progress:', progressData);
+          try {
+            const progressResponse = await api.get(`/analyze/progress/${jobId}`);
+            const pd = progressResponse.data?.progress_data || {};
+            const pct = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
+            const msg = pd.current_message || pd.message;
+            if (pct !== undefined) {
+              globalProgress.updateProgress({ step: msg || 'Processing...', progress: pct || 0, total_progress: pct || 0 });
+              return;
+            }
+          } catch (e) {
+            console.debug('Progress endpoint not available yet, using task status');
+          }
+          if (progressData.status === 'queued') {
+            globalProgress.updateProgress({ step: 'Task queued...', progress: 20, total_progress: 20 });
+          } else if (progressData.status === 'processing') {
+            globalProgress.updateProgress({ step: 'Processing citations...', progress: 50, total_progress: 50 });
+          } else if (progressData.status === 'verifying') {
+            globalProgress.updateProgress({ step: 'Verifying citations...', progress: 75, total_progress: 75 });
+          }
+          if (asyncTaskProgress.value) {
+            asyncTaskProgress.value.status = progressData.status;
+            asyncTaskProgress.value.message = progressData.message;
+          }
+        },
+        (result) => {
+          console.log('Task completed:', result);
+          const citations = result.citations || [];
+          const clusters = result.clusters || [];
+          if (citations.length > 0 || clusters.length > 0) {
+            // HARMONIZED: Ensure both sync and async paths use the same structure
+            const mappedClusters = clusters.map(cluster => ({ ...cluster, citations: cluster.citation_objects || cluster.citations || [] }));
+            analysisResults.value = {
+              citations: citations,  // Top level for component
+              clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
+              result: {
+                citations: citations,
+                clusters: clusters  // Raw clusters for backward compatibility
+              },
+              message: result.message || 'Analysis completed successfully',
+              metadata: result.metadata || {},
+              success: true,
+              total_citations: citations.length
+            };
+          } else {
+            analysisResults.value = { clusters: [], citations: [], message: 'Analysis completed but no citations found', metadata: result.metadata || {}, success: result.success !== false, total_citations: 0 };
+          }
+          activeAsyncTask.value = null;
+          asyncTaskProgress.value = null;
+          isAsyncProcessing.value = false;
+          isAnalyzing.value = false;
+          globalProgress.completeProgress(analysisResults.value, 'home');
+        },
+        (errorMessage) => {
+          console.error('Task failed:', errorMessage);
+          analysisError.value = `Task failed: ${errorMessage}`;
+          activeAsyncTask.value = null;
+          asyncTaskProgress.value = null;
+          isAsyncProcessing.value = false;
+          isAnalyzing.value = false;
+          globalProgress.completeProgress(null);
         }
-      } catch (asyncError) {
-        console.error('❌ Async polling failed:', asyncError);
-        analysisError.value = `Async processing failed: ${asyncError.message}`;
-        return;
-      }
+      );
+      return;
     }
     
     // Response details logged to console for debugging
@@ -1464,21 +1710,21 @@ const analyzeContent = async () => {
       if (pollingInterval) {
         clearInterval(pollingInterval);
         pollingInterval = null;
-        console.log('🛑 Stopped polling before processing results');
+        console.log('Stopped polling before processing results');
       }
       
       // Check if we have a task_id - if so, poll for progress even though task is complete
       // This shows the progress animation for sync tasks
       if (response.task_id || response.result?.task_id) {
         const taskId = response.task_id || response.result?.task_id;
-        console.log('📊 Sync task with task_id - polling for progress animation:', taskId);
+        console.log('Sync task with task_id - polling for progress animation:', taskId);
         
         // Poll the progress endpoint to show progress animation
         try {
-          const progressResponse = await api.get(`/analyze/verification-status/${taskId}`);
-          const pr = (progressResponse.data && progressResponse.data.result) ? progressResponse.data.result : (progressResponse.data.status || progressResponse.data || {});
-          const percent = (pr.progress_percent !== undefined) ? pr.progress_percent : (pr.progress !== undefined ? pr.progress : pr.total_progress);
-          const message = pr.current_message || pr.message;
+          const progressResponse = await api.get(`/analyze/progress/${taskId}`);
+          const pd = progressResponse.data?.progress_data || {};
+          const percent = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
+          const message = pd.current_message || pd.message;
           if (percent !== undefined) {
             console.log('Progress data retrieved:', { percent, message });
             globalProgress.updateProgress({
@@ -1523,7 +1769,7 @@ const analyzeContent = async () => {
     
     // Handle async task with task_id
     if (response && response.task_id) {
-      console.log('🔄 Async task started with task_id:', response.task_id);
+      console.log('Async task started with task_id:', response.task_id);
       
       // Always initialize progress state for async tasks
       // Don't reset if already initialized from startProgress
@@ -1538,7 +1784,7 @@ const analyzeContent = async () => {
       // Extract and use progress data from backend response for async tasks if available
       if (response.progress_data) {
         const progressData = response.progress_data;
-        console.log('📊 Backend progress data for async task:', progressData);
+        console.log('Backend progress data for async task:', progressData);
         
         // Update progress state with backend data (don't reset, just update)
         if (progressData.start_time) {
@@ -1546,7 +1792,7 @@ const analyzeContent = async () => {
         }
         globalProgress.progressState.elapsedTime = progressData.elapsed_time || 0;
         globalProgress.progressState.currentStep = progressData.current_message || 'Initializing...';
-        globalProgress.progressState.totalProgress = progressData.overall_progress || 0;
+        globalProgress.progressState.totalProgress = progressData.progress || progressData.overall_progress || 0;
         
         // Update global progress with real backend data for async tasks
         if (progressData.steps && progressData.steps.length > 0) {
@@ -1564,9 +1810,9 @@ const analyzeContent = async () => {
           
           globalProgress.setSteps(backendSteps);
           
-          console.log('✅ Initialized async progress with backend data:', {
-            totalProgress: progressData.overall_progress,
-            currentStep: progressData.current_message,
+          console.log('Initialized async progress with backend data:', {
+            totalProgress: progressData.progress || progressData.overall_progress,
+            currentStep: progressData.current_message || progressData.message,
             elapsedTime: progressData.elapsed_time,
             startTime: globalProgress.progressState.startTime,
             isActive: globalProgress.progressState.isActive,
@@ -1600,16 +1846,16 @@ const analyzeContent = async () => {
         response.task_id,
         // Progress callback
         async (progressData) => {
-          console.log('📊 Task progress:', progressData);
+          console.log('Task progress:', progressData);
           
           // Also poll the progress endpoint for real progress data
           try {
-            const progressResponse = await api.get(`/analyze/verification-status/${response.task_id}`);
-            const pr = (progressResponse.data && progressResponse.data.result) ? progressResponse.data.result : (progressResponse.data || {});
-            const pct = (pr.progress_percent !== undefined) ? pr.progress_percent : (pr.progress !== undefined ? pr.progress : pr.total_progress);
-            const msg = pr.current_message || pr.message;
+            const progressResponse = await api.get(`/analyze/progress/${response.task_id}`);
+            const pd = progressResponse.data?.progress_data || {};
+            const pct = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
+            const msg = pd.current_message || pd.message;
             if (pct !== undefined) {
-              console.log('📊 Real async progress:', pct + '%', msg);
+              console.log('Real async progress:', pct + '%', msg);
               
               // DON'T stop polling when reaching 100% - let it continue until task actually completes
               // The completion callback will handle final cleanup
@@ -1653,7 +1899,7 @@ const analyzeContent = async () => {
         },
         // Complete callback
         (result) => {
-          console.log('✅ Task completed:', result);
+          console.log('Task completed:', result);
           
           // The async task result should now have the same flat structure as sync results
           const citations = result.citations || [];
@@ -1674,13 +1920,15 @@ const analyzeContent = async () => {
               citations: cluster.citation_objects || cluster.citations || []
             }));
             
+            // HARMONIZED: Ensure both sync and async paths use the same structure
+            // The component expects: { citations: [...], clusters: [...] } at the top level
             analysisResults.value = {
+              citations: citations,  // Top level for component
+              clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
               result: {
                 citations: citations,
-                clusters: clusters
+                clusters: clusters  // Raw clusters for backward compatibility
               },
-              clusters: mappedClusters,
-              citations: citations,
               message: result.message || 'Analysis completed successfully',
               metadata: result.metadata || {},
               success: true,
@@ -1711,7 +1959,7 @@ const analyzeContent = async () => {
         },
         // Error callback
         (errorMessage) => {
-          console.error('❌ Task failed:', errorMessage);
+          console.error('Task failed:', errorMessage);
           
           analysisError.value = `Task failed: ${errorMessage}`;
           
@@ -1760,13 +2008,15 @@ const analyzeContent = async () => {
           allCitations.map(item => [item.citation || item.citation_text, item])
         ).values());
         
+        // HARMONIZED: Ensure both sync and async paths use the same structure
+        // The component expects: { citations: [...], clusters: [...] } at the top level
         analysisResults.value = {
+          citations: uniqueCitations,  // Top level for component
+          clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
           result: {
             citations: uniqueCitations,
-            clusters: mappedClusters
+            clusters: mappedClusters  // Raw clusters for backward compatibility
           },
-          clusters: mappedClusters,
-          citations: uniqueCitations,
           message: response.message || 'Analysis completed',
           metadata: response.metadata || {},
           success: response.success !== false, // Default to true if not specified
@@ -1884,25 +2134,25 @@ const analyzeContent = async () => {
       if (typeof pollingInterval !== 'undefined' && pollingInterval) {
         clearInterval(pollingInterval);
         pollingInterval = null;
-        console.log('🛑 Cleanup: Stopped polling in finally block');
+        console.log('Cleanup: Stopped polling in finally block');
       }
     } catch (e) {
       // pollingInterval doesn't exist in this scope (async mode) - that's ok
-      console.log('ℹ️ No polling interval to clean up (async mode)');
+      console.log('No polling interval to clean up (async mode)');
     }
     
-    console.log('🔍 isAsyncProcessing:', isAsyncProcessing.value);
-    console.log('🔍 activeAsyncTask:', activeAsyncTask.value);
+    console.log('isAsyncProcessing:', isAsyncProcessing.value);
+    console.log('activeAsyncTask:', activeAsyncTask.value);
     
     // Only reset isAnalyzing if we're NOT in async processing mode
     // Async mode will reset it in the polling callbacks
     if (!isAsyncProcessing.value && !activeAsyncTask.value) {
       isAnalyzing.value = false;
       // showProcessing removed - SimpleProgress component handles progress display
-      console.log('✅ Spinner reset (sync mode)');
+      console.log('Spinner reset (sync mode)');
     } else {
-      console.log('⏳ Spinner still active (async mode - will reset in callback)');
-      console.log('⏳ isAnalyzing value:', isAnalyzing.value);
+      console.log('Spinner still active (async mode - will reset in callback)');
+      console.log('isAnalyzing value:', isAnalyzing.value);
     }
     
     // Ensure any loading states are reset for non-async cases

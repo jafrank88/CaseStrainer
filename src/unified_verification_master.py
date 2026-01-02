@@ -25,6 +25,7 @@ import time
 import requests
 import os
 import re
+import html  # For unescaping HTML entities like &amp;
 from typing import Dict, Any, Optional, List, Union
 from dataclasses import dataclass
 from enum import Enum
@@ -625,17 +626,26 @@ class UnifiedVerificationMaster:
         batches = [citations[i:i + batch_size] for i in range(0, len(citations), batch_size)]
         
         for batch_idx, batch in enumerate(batches):
-            logger.info(f"Processing batch {batch_idx + 1}/{len(batches)} ({len(batch)} citations)")
+            logger.info(f"[BATCH {batch_idx + 1}/{len(batches)}] Processing batch {batch_idx + 1} with {len(batch)} citations")
             
-            # Update progress based on batch completion
+            # CRITICAL FIX: Add delay between batches to avoid rate limiting
+            # CourtListener allows 180 requests/minute = ~3 requests/second
+            # With batches of 50 citations, we need to space them out
+            if batch_idx > 0:  # Don't delay before first batch
+                # Wait 1 second between batches to stay well under rate limit
+                # This gives us ~60 batches/minute, well under the 180 requests/minute limit
+                await asyncio.sleep(1.0)
+                logger.info(f"[BATCH {batch_idx + 1}/{len(batches)}] Waited 1s before batch to avoid rate limiting")
+            
+            # Update progress at START of batch to show we're working
             if progress_callback:
-                # Calculate progress: 40% to 70% during verification
-                base_progress = 40
-                verification_range = 30  # 70% - 40%
-                batch_progress = base_progress + (batch_idx + 1) / len(batches) * verification_range
-                logger.error(f"[PROGRESS] Calling progress_callback with {int(batch_progress)}% - Batch {batch_idx + 1}/{len(batches)}")
-                progress_callback(int(batch_progress), "Verifying", f"Verifying citations with external sources ({batch_idx + 1}/{len(batches)})")
-                logger.error(f"[PROGRESS] Progress callback completed for batch {batch_idx + 1}")
+                start_idx = batch_idx * batch_size
+                try:
+                    progress_callback(start_idx, "Verifying", 
+                                     f"Starting batch {batch_idx + 1}/{len(batches)}... ({start_idx}/{len(citations)} citations)")
+                    logger.info(f"[PROGRESS] Starting batch {batch_idx + 1}: {start_idx}/{len(citations)} citations")
+                except Exception as e:
+                    logger.warning(f"[PROGRESS] Progress callback failed at batch start: {e}")
             
             # Get case names and dates for this batch
             start_idx = batch_idx * batch_size
@@ -644,13 +654,68 @@ class UnifiedVerificationMaster:
             batch_dates = dates[start_idx:end_idx]
             
             # Use batch API - much more efficient than individual requests
-            batch_results = await self._verify_with_courtlistener_lookup_batch(
-                batch,
-                batch_case_names,
-                batch_dates
-            )
+            # CRITICAL FIX: Add timeout protection to prevent hanging
+            import asyncio
+            batch_timeout = 75.0  # 75 seconds per batch (60s API timeout + 15s buffer)
             
-            results.extend(batch_results)
+            try:
+                # Wrap batch API call with timeout to prevent hanging
+                batch_results = await asyncio.wait_for(
+                    self._verify_with_courtlistener_lookup_batch(
+                        batch,
+                        batch_case_names,
+                        batch_dates
+                    ),
+                    timeout=batch_timeout
+                )
+                
+                results.extend(batch_results)
+                
+                # Update progress AFTER batch completes successfully
+                if progress_callback:
+                    # Calculate citations processed so far based on actual batch completion
+                    citations_processed_so_far = end_idx  # Use end_idx (actual citations processed)
+                    if citations_processed_so_far > len(citations):
+                        citations_processed_so_far = len(citations)
+                    
+                    # Call progress callback with citations_processed count
+                    # CRITICAL FIX: Only show cumulative count, not batch-specific count
+                    try:
+                        progress_callback(citations_processed_so_far, "Verifying", 
+                                         f"Verifying citations... ({citations_processed_so_far}/{len(citations)} citations)")
+                        logger.info(f"[PROGRESS] Updated progress after batch {batch_idx + 1}: {citations_processed_so_far}/{len(citations)} citations processed")
+                    except Exception as e:
+                        logger.warning(f"[PROGRESS] Progress callback failed: {e}")
+            except asyncio.TimeoutError:
+                logger.error(f"[BATCH-TIMEOUT] Batch {batch_idx + 1} timed out after {batch_timeout}s - marking as unverified and continuing")
+                # Mark batch citations as unverified due to timeout
+                batch_results = [VerificationResult(citation=c, verified=False, error=f"Batch timeout after {batch_timeout}s") for c in batch]
+                results.extend(batch_results)
+                # CRITICAL: Still update progress even on timeout
+                if progress_callback:
+                    citations_processed_so_far = end_idx
+                    if citations_processed_so_far > len(citations):
+                        citations_processed_so_far = len(citations)
+                    try:
+                        progress_callback(citations_processed_so_far, "Verifying", 
+                                         f"Batch {batch_idx + 1} timed out, continuing... ({citations_processed_so_far}/{len(citations)} citations)")
+                        logger.info(f"[PROGRESS] Updated progress after batch {batch_idx + 1} timeout: {citations_processed_so_far}/{len(citations)} citations")
+                    except Exception as e:
+                        logger.warning(f"[PROGRESS] Progress callback failed after timeout: {e}")
+            except Exception as batch_error:
+                logger.error(f"[BATCH-ERROR] Batch {batch_idx + 1} failed: {batch_error}")
+                # Still update progress even if batch failed - mark citations as processed (even if unverified)
+                if progress_callback:
+                    end_idx = start_idx + len(batch)
+                    citations_processed_so_far = min(end_idx, len(citations))
+                    try:
+                        progress_callback(citations_processed_so_far, "Verifying", 
+                                         f"Batch {batch_idx + 1} encountered errors, continuing... ({citations_processed_so_far}/{len(citations)} citations)")
+                        logger.info(f"[PROGRESS] Updated progress after batch {batch_idx + 1} error: {citations_processed_so_far}/{len(citations)} citations")
+                    except Exception as e:
+                        logger.warning(f"[PROGRESS] Progress callback failed after error: {e}")
+                # Add unverified results for failed batch
+                results.extend([VerificationResult(citation=c, verified=False, error=f"Batch processing failed: {str(batch_error)}") for c in batch])
             
             # Rate limiting between batches
             if batch_idx < len(batches) - 1:  # Don't sleep after last batch
@@ -660,23 +725,98 @@ class UnifiedVerificationMaster:
         unverified_count = len(results) - verified_count
         logger.info(f"✅ MASTER_BATCH_VERIFY: Completed {len(results)} verifications ({verified_count} verified, {(verified_count/len(results)*100):.1f}%)")
         
-        # USER FIX: RE-ENABLED fallback verification with optimized timeouts
-        # Optimized to 8 seconds per citation since verification fixes are working well
+        # FIX DEC 2025: LIMITED fallback - only try up to 5 unverified citations with Justia site search
+        # This replaces the old approach that made 48+ HTTP requests and crashed workers
+        MAX_FALLBACK_CITATIONS = 5  # Strict limit to prevent timeouts
         if unverified_count > 0:
-            logger.info(f"🔄 COURTLISTENER SEARCH ENABLED: Attempting search API for {unverified_count} unverified citations")
+            logger.info(f"🔄 LIMITED FALLBACK: Trying Justia site search for up to {min(MAX_FALLBACK_CITATIONS, unverified_count)} of {unverified_count} unverified citations")
             
-            # Step 2: Try CourtListener search API for unverified citations
-            search_verified_count = 0
+            external_verified_count = 0
+            fallback_attempts = 0
+            
             for i, result in enumerate(results):
+                if fallback_attempts >= MAX_FALLBACK_CITATIONS:
+                    logger.info(f"⏹️ FALLBACK LIMIT REACHED: Stopping after {MAX_FALLBACK_CITATIONS} attempts")
+                    break
+                    
                 if not result.verified:
+                    citation = citations[i]
+                    extracted_name = case_names[i] if case_names and i < len(case_names) else None
+                    extracted_date = dates[i] if dates and i < len(dates) else None
+                    
+                    # Skip obviously invalid citations
+                    if self._is_obviously_invalid_citation(citation):
+                        continue
+                    
+                    fallback_attempts += 1
+                    logger.info(f"🔍 FALLBACK [{fallback_attempts}/{MAX_FALLBACK_CITATIONS}]: Trying Justia for '{citation}'")
+                    
+                    try:
+                        # Use Justia search (via Bing) - single targeted request
+                        fallback_result = await self._verify_with_justia_search(
+                            citation=citation,
+                            extracted_case_name=extracted_name,
+                            extracted_date=extracted_date,
+                            timeout=8.0  # 8s timeout per citation
+                        )
+                        if fallback_result.verified:
+                            logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via Justia")
+                            results[i] = fallback_result
+                            external_verified_count += 1
+                        elif getattr(fallback_result, 'possible_match', False):
+                            logger.info(f"🔶 FALLBACK POSSIBLE: Found possible match for '{citation}'")
+                            results[i] = fallback_result
+                    except Exception as e:
+                        logger.warning(f"⚠️ FALLBACK ERROR for '{citation}': {e}")
+            
+            logger.info(f"✅ LIMITED FALLBACK COMPLETE: {external_verified_count}/{fallback_attempts} verified via Justia")
+            
+            # Step 3: LAST RESORT - Try CourtListener Search API for remaining unverified
+            # Only for citations not found anywhere else (Search API is slow and times out often)
+            remaining_unverified = sum(1 for r in results if not r.verified)
+            if remaining_unverified > 0:
+                logger.info(f"🔄 SEARCH-API (LAST RESORT): Attempting search API for {remaining_unverified} citations still unverified")
+                
+                # CRITICAL FIX: Strict limits to prevent worker timeouts
+                max_search_citations = min(10, remaining_unverified)  # Reduced from 20 to 10
+                search_verified_count = 0
+                timeout_count = 0
+                max_timeouts = 3  # Reduced from 5 to 3 - fail fast
+                
+                # Prioritize WL (Westlaw) citations in fallback search
+                try:
+                    import re
+                except Exception:
+                    re = None
+
+                unverified_indices = [i for i, r in enumerate(results) if not r.verified]
+                def is_wl(cit: str) -> bool:
+                    if not cit:
+                        return False
+                    return bool(re.search(r"\bWL\b", cit, flags=re.I)) if re else ('wl' in cit.lower())
+
+                wl_indices = [i for i in unverified_indices if is_wl(citations[i])]
+                other_indices = [i for i in unverified_indices if i not in wl_indices]
+                ordered_indices = wl_indices + other_indices
+
+                for i in ordered_indices:
+                    if search_verified_count + timeout_count >= max_search_citations:
+                        break
+                    if timeout_count >= max_timeouts:
+                        logger.warning(f"⚠️ Too many Search API timeouts ({timeout_count}), skipping remaining")
+                        break
+
                     citation = citations[i]
                     extracted_name = case_names[i] if case_names and i < len(case_names) else None
                     extracted_date = dates[i] if dates and i < len(dates) else None
                     logger.info(f"🔍 SEARCH-API: Trying CourtListener search for '{citation}'")
                     try:
-                        # Use CourtListener search API with reasonable timeout
-                        search_result = await self._verify_with_courtlistener_search(
-                            citation, extracted_name, extracted_date, timeout=5.0
+                        # Use CourtListener search API with reduced timeout
+                        search_result = await asyncio.wait_for(
+                            self._verify_with_courtlistener_search(
+                                citation, extracted_name, extracted_date, timeout=8.0
+                            ),
+                            timeout=10.0  # Reduced from 15s to 10s
                         )
                         if search_result.verified:
                             logger.info(f"✅ SEARCH-API SUCCESS: Verified '{citation}' via CourtListener search")
@@ -684,50 +824,13 @@ class UnifiedVerificationMaster:
                             search_verified_count += 1
                         else:
                             logger.info(f"⚠️ SEARCH-API FAILED: Could not verify '{citation}' via search")
+                    except asyncio.TimeoutError:
+                        timeout_count += 1
+                        logger.warning(f"⏱️ SEARCH-API TIMEOUT for '{citation}' (timeout {timeout_count}/{max_timeouts})")
                     except Exception as e:
                         logger.error(f"❌ SEARCH-API ERROR for '{citation}': {e}")
-            
-            # Update unverified count after search API
-            newly_verified = search_verified_count
-            remaining_unverified = unverified_count - newly_verified
-            
-            logger.info(f"✅ SEARCH-API COMPLETE: {newly_verified} additional citations verified via search")
-            
-            # Step 3: Only after both CourtListener APIs fail, use external fallback sources
-            if remaining_unverified > 0:
-                logger.info(f"🔄 EXTERNAL FALLBACK ENABLED: Attempting external sources for {remaining_unverified} citations (1s timeout per citation)")
                 
-                # Run external fallback with strict timeouts
-                for i, result in enumerate(results):
-                    if not result.verified:
-                        citation = citations[i]
-                        extracted_name = case_names[i] if case_names and i < len(case_names) else None
-                        extracted_date = dates[i] if dates and i < len(dates) else None
-                        logger.info(f"🔍 EXTERNAL FALLBACK: Attempting external sources for '{citation}'")
-                        try:
-                            # CRITICAL: 1-second timeout per citation for test/invalid citations
-                            # Real citations usually verify quickly, invalid ones timeout fast
-                            # Skip obviously invalid citations (test cases with high numbers)
-                            if self._is_obviously_invalid_citation(citation):
-                                logger.info(f"⚡ SKIPPING INVALID: '{citation}' appears to be a test/invalid citation")
-                                continue
-                                
-                            fallback_result = await self._verify_with_enhanced_fallback(
-                                citation=citation,
-                                extracted_case_name=extracted_name,
-                                extracted_date=extracted_date,
-                                remaining_timeout=10.0  # Increased to 10s for proper verification
-                            )
-                            if fallback_result.verified:
-                                logger.info(f"✅ EXTERNAL FALLBACK SUCCESS: Verified '{citation}' via {fallback_result.source}")
-                                results[i] = fallback_result
-                            elif getattr(fallback_result, 'possible_match', False):
-                                logger.info(f"🔶 EXTERNAL FALLBACK POSSIBLE MATCH: Found possible match for '{citation}' via {fallback_result.source}")
-                                results[i] = fallback_result
-                            else:
-                                logger.info(f"⚠️ EXTERNAL FALLBACK FAILED: Could not verify '{citation}'")
-                        except Exception as e:
-                            logger.error(f"❌ EXTERNAL FALLBACK ERROR for '{citation}': {e}")
+                logger.info(f"✅ SEARCH-API COMPLETE: {search_verified_count} additional citations verified via search")
             
             # Log final stats
             final_verified_count = sum(1 for r in results if r.verified)
@@ -787,62 +890,127 @@ class UnifiedVerificationMaster:
             if citations != normalized_citations:
                 logger.info(f"   Dash-separated citations normalized")
             
-            # DEBUG: Log what we're sending
-            logger.error(f"[BATCH-API-DEBUG] Sending {len(normalized_citations)} citations")
-            logger.error(f"[BATCH-API-DEBUG] First 3: {normalized_citations[:3]}")
-            logger.error(f"[BATCH-API-DEBUG] API Key set: {bool(self.api_key)}")
-            logger.error(f"[BATCH-API-DEBUG] Session has Auth header: {'Authorization' in self.session.headers}")
-            if 'Authorization' in self.session.headers:
-                auth_val = self.session.headers['Authorization']
-                logger.error(f"[BATCH-API-DEBUG] Auth header: {auth_val[:20]}...")
+            # DEBUG: Log what we're sending (only for first batch to reduce log noise)
+            if len(normalized_citations) == len(citations) or len(normalized_citations) <= 50:
+                logger.info(f"[BATCH-API] Sending {len(normalized_citations)} citations to CourtListener batch API")
+                logger.debug(f"[BATCH-API] First 3 citations: {normalized_citations[:3]}")
+                logger.debug(f"[BATCH-API] API Key set: {bool(self.api_key)}")
+                logger.debug(f"[BATCH-API] Session has Auth header: {'Authorization' in self.session.headers}")
             
-            try:
-                response = self.session.post(url, json=payload, timeout=30)
-                logger.error(f"[BATCH-API-DEBUG] Response status: {response.status_code}")
-                
-                # USER FIX: Re-enabled fallback with FAST verification system
-                # Handle 429 rate limit - fall back to enhanced fallback verifier
-                if response.status_code == 429:
-                    logger.warning(f"⚠️  CourtListener rate limited (429) - using fast fallback verification")
-                    # RE-ENABLED - now uses fast verification (seconds instead of minutes)
-                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
-                    fallback = EnhancedFallbackVerifier()
-                    fallback_results = []
-                    for i, citation in enumerate(citations):
-                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
-                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
-                        fallback_result = await fallback.verify_citation_async(
-                            citation, extracted_name, extracted_date, timeout=5.0
-                        )
-                        fallback_results.append(fallback_result)
-                    logger.info(f"✅ Fast fallback verification completed for {len(fallback_results)} citations")
-                    return fallback_results
+            # CRITICAL FIX: Implement exponential backoff for rate limiting
+            max_retries = 3
+            base_delay = 2.0  # Start with 2 seconds
+            response = None
+            for attempt in range(max_retries):
+                try:
+                    # CRITICAL FIX: Increase timeout to 60 seconds to handle slow CourtListener responses
+                    # The batch API can take longer with 50 citations
+                    response = self.session.post(url, json=payload, timeout=60)
+                    logger.info(f"[BATCH-API] Response status: {response.status_code} for {len(normalized_citations)} citations")
                     
-                    # Return unverified results
-                    return [VerificationResult(citation=c, verified=False, error="CourtListener rate limited") for c in citations]
+                    # Handle 429 rate limit with exponential backoff
+                    if response.status_code == 429:
+                        # Extract Retry-After header if available
+                        retry_after = response.headers.get('Retry-After')
+                        if retry_after:
+                            try:
+                                wait_time = float(retry_after)
+                                logger.warning(f"⚠️  CourtListener rate limited (429) - Retry-After header: {wait_time}s")
+                            except ValueError:
+                                wait_time = base_delay * (2 ** attempt)  # Fallback to exponential backoff
+                                logger.warning(f"⚠️  CourtListener rate limited (429) - Invalid Retry-After, using exponential backoff: {wait_time}s")
+                        else:
+                            # Exponential backoff: 2s, 4s, 8s
+                            wait_time = base_delay * (2 ** attempt)
+                            logger.warning(f"⚠️  CourtListener rate limited (429) - Exponential backoff: {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                        
+                        # If this is the last attempt, fall back to alternative verification
+                        if attempt == max_retries - 1:
+                            logger.warning(f"⚠️  CourtListener rate limited after {max_retries} attempts - using fast fallback verification")
+                            from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                            fallback = EnhancedFallbackVerifier()
+                            fallback_results = []
+                            for i, citation in enumerate(citations):
+                                extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                                extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                                fallback_result = await fallback.verify_citation_async(
+                                    citation, extracted_name, extracted_date, timeout=5.0
+                                )
+                                fallback_results.append(fallback_result)
+                            logger.info(f"✅ Fast fallback verification completed for {len(fallback_results)} citations")
+                            return fallback_results
+                        
+                        # Wait before retrying
+                        await asyncio.sleep(wait_time)
+                        continue  # Retry the request
+                    
+                    # Success - break out of retry loop
+                    response.raise_for_status()
+                    break
+                    
+                except requests.exceptions.HTTPError as e:
+                    # Check if it's a 429 that wasn't caught above
+                    if hasattr(e, 'response') and e.response and e.response.status_code == 429:
+                        # Extract Retry-After header if available
+                        retry_after = e.response.headers.get('Retry-After')
+                        if retry_after:
+                            try:
+                                wait_time = float(retry_after)
+                                logger.warning(f"⚠️  CourtListener rate limited (429) in exception - Retry-After header: {wait_time}s")
+                            except ValueError:
+                                wait_time = base_delay * (2 ** attempt)
+                                logger.warning(f"⚠️  CourtListener rate limited (429) in exception - Exponential backoff: {wait_time}s")
+                        else:
+                            wait_time = base_delay * (2 ** attempt)
+                            logger.warning(f"⚠️  CourtListener rate limited (429) in exception - Exponential backoff: {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                        
+                        # If this is the last attempt, fall back to alternative verification
+                        if attempt == max_retries - 1:
+                            logger.warning(f"⚠️  CourtListener rate limited after {max_retries} attempts - using fast fallback verification")
+                            from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+                            fallback = EnhancedFallbackVerifier()
+                            fallback_results = []
+                            for i, citation in enumerate(citations):
+                                extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                                extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                                fallback_result = await fallback.verify_citation_async(
+                                    citation, extracted_name, extracted_date, timeout=5.0
+                                )
+                                fallback_results.append(fallback_result)
+                            return fallback_results
+                        
+                        # Wait before retrying
+                        await asyncio.sleep(wait_time)
+                        continue  # Retry the request
+                    
+                    # For other HTTP errors, log and re-raise if last attempt
+                    if attempt == max_retries - 1:
+                        logger.error(f"[BATCH-API-DEBUG] HTTP Error: {e}")
+                        if hasattr(e, 'response') and e.response:
+                            logger.error(f"[BATCH-API-DEBUG] Response text: {e.response.text[:200]}")
+                        raise
+                    
+                    # For other errors, wait and retry
+                    wait_time = base_delay * (2 ** attempt)
+                    logger.warning(f"⚠️  HTTP error {e.response.status_code if hasattr(e, 'response') and e.response else 'unknown'} - retrying in {wait_time}s")
+                    await asyncio.sleep(wait_time)
+                    continue
                 
-                response.raise_for_status()
-            except requests.exceptions.HTTPError as e:
-                # USER FIX: Re-enabled fallback with FAST verification system
-                # Check if it's a 429 that wasn't caught above
-                if hasattr(e, 'response') and e.response.status_code == 429:
-                    logger.warning(f"⚠️  CourtListener rate limited (429) - using fast fallback verification")
-                    # RE-ENABLED - now uses fast verification (seconds instead of minutes)
-                    from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
-                    fallback = EnhancedFallbackVerifier()
-                    fallback_results = []
-                    for i, citation in enumerate(citations):
-                        extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
-                        extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
-                        fallback_result = await fallback.verify_citation_async(
-                            citation, extracted_name, extracted_date, timeout=5.0
-                        )
-                        fallback_results.append(fallback_result)
-                    return fallback_results
-                
-                logger.error(f"[BATCH-API-DEBUG] HTTP Error: {e}")
-                logger.error(f"[BATCH-API-DEBUG] Response text: {response.text[:200]}")
-                raise
+                except requests.exceptions.Timeout as e:
+                    # Handle timeout with exponential backoff
+                    if attempt == max_retries - 1:
+                        logger.error(f"[BATCH-API-DEBUG] Timeout after {max_retries} attempts")
+                        raise
+                    
+                    wait_time = base_delay * (2 ** attempt)
+                    logger.warning(f"⚠️  CourtListener batch API timeout - retrying in {wait_time}s (attempt {attempt + 1}/{max_retries})")
+                    await asyncio.sleep(wait_time)
+                    continue
+            
+            # If we get here, we should have a successful response
+            if response is None:
+                raise RuntimeError("Failed to get response after all retries")
+            
             data = response.json()
             
             # DEBUG: Log what we got back
@@ -874,6 +1042,12 @@ class UnifiedVerificationMaster:
                 
                 # CRITICAL FIX: The batch API returns normalized citations, not full citations
                 # We need to match using partial matching or extract the core citation
+                # DEBUG: Log what we're looking for vs what API returned (for Conn. Supp. citations)
+                if 'Supp' in citation or 'supp' in citation.lower():
+                    api_citations_list = [item.get('citation', '') for item in data if isinstance(item, dict)]
+                    logger.error(f"[SUPP-DEBUG] Looking for: '{citation}' (normalized: '{normalized_citation}')")
+                    logger.error(f"[SUPP-DEBUG] API returned {len(api_citations_list)} citations: {api_citations_list[:5]}")
+                
                 for result_item in data:
                     if isinstance(result_item, dict):
                         api_citation = result_item.get('citation', '')
@@ -891,12 +1065,32 @@ class UnifiedVerificationMaster:
                         # Method 3: Extract core citation (volume + page) and match
                         import re
                         # Extract volume and page from original citation
-                        core_match = re.search(r'\b\d+\s+[A-Za-z\.]+\s+\d+\b', citation)
+                        # FIX: Handle multi-segment reporters like "Conn. Supp." or "F. Supp. 2d"
+                        # Pattern: volume + (reporter segments) + page
+                        core_match = re.search(r'\b(\d+)\s+([A-Za-z\.\s]+?)\s+(\d+)\b', citation)
                         if core_match:
                             core_citation = core_match.group()
                             if core_citation in api_citation or api_citation in core_citation:
                                 citation_result = result_item
                                 break
+                        
+                        # Method 4: Match by volume and page numbers only (for complex reporters)
+                        # Extract just the numbers: "47 Conn. Supp. 113" -> "47" and "113"
+                        vol_match = re.match(r'^(\d+)', citation.strip())
+                        page_match = re.search(r'(\d+)$', citation.strip())
+                        api_vol_match = re.match(r'^(\d+)', api_citation.strip())
+                        api_page_match = re.search(r'(\d+)$', api_citation.strip())
+                        if vol_match and page_match and api_vol_match and api_page_match:
+                            if vol_match.group(1) == api_vol_match.group(1) and page_match.group(1) == api_page_match.group(1):
+                                citation_result = result_item
+                                break
+                        
+                        # Method 5: Normalize both citations (remove extra spaces, lowercase) and compare
+                        norm_cit = re.sub(r'\s+', ' ', citation.strip().lower())
+                        norm_api = re.sub(r'\s+', ' ', api_citation.strip().lower())
+                        if norm_cit == norm_api:
+                            citation_result = result_item
+                            break
                 
                 if not citation_result:
                     # Citation not found in API response
@@ -910,7 +1104,10 @@ class UnifiedVerificationMaster:
                     if re.search(r'\bF\.?(?:2d|3d)\b', citation):  # Federal Reporter citations
                         logger.info(f"🎯 [TARGETED-FALLBACK] Trying Law Resource.org for federal citation: {citation}")
                         try:
-                            law_resource_result = await self._verify_with_law_resource(citation, extracted_case_name, extracted_date, timeout=10.0)
+                            # Get extracted_name and extracted_date for this citation
+                            cit_extracted_name = extracted_case_names[i] if extracted_case_names and i < len(extracted_case_names) else None
+                            cit_extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+                            law_resource_result = await self._verify_with_law_resource(citation, cit_extracted_name, cit_extracted_date, timeout=10.0)
                             if law_resource_result.verified:
                                 logger.info(f"✅ [TARGETED-FALLBACK] Law Resource.org found match for {citation}")
                                 results.append(law_resource_result)
@@ -936,24 +1133,39 @@ class UnifiedVerificationMaster:
                     results.append(VerificationResult(citation=citation, error=error_message or "Citation not found"))
                     continue
                 
-                # CRITICAL FIX: If there's only one cluster, use it directly
-                # The CourtListener API already did the matching for us
-                if len(clusters_for_citation) == 1:
-                    matched_cluster = clusters_for_citation[0]
-                    logger.error(f"[BATCH-DEBUG] {citation}: Using single cluster directly")
-                else:
-                    # Use improved matching logic for multiple clusters
-                    matched_cluster = self._find_best_matching_cluster_sync(
-                        clusters_for_citation, 
-                        citation, 
-                        extracted_name, 
-                        extracted_date
-                    )
-                    logger.error(f"[BATCH-DEBUG] {citation}: Selected from {len(clusters_for_citation)} clusters")
+                # CRITICAL FIX: ALWAYS validate clusters, even single ones
+                # This catches cases where CourtListener returns a case with same name but different proceeding
+                # (e.g., appeals court vs supreme court, different years)
+                matched_cluster = self._find_best_matching_cluster_sync(
+                    clusters_for_citation, 
+                    citation, 
+                    extracted_name, 
+                    extracted_date
+                )
+                logger.error(f"[BATCH-DEBUG] {citation}: Validated from {len(clusters_for_citation)} cluster(s)")
                 
                 logger.error(f"[BATCH-DEBUG] {citation}: matched_cluster={'YES' if matched_cluster else 'NO'}")
                 
                 if matched_cluster:
+                    # CRITICAL FIX: Check for year_mismatch flag and handle specially
+                    # This preserves canonical data for clustering while marking as unverified
+                    if matched_cluster.get('_year_mismatch'):
+                        canonical_name = matched_cluster.get('caseName') or matched_cluster.get('case_name')
+                        canonical_date = matched_cluster.get('dateFiled') or matched_cluster.get('date_filed')
+                        canonical_url = f"https://www.courtlistener.com{matched_cluster.get('absolute_url', '')}"
+                        year_mismatch_info = matched_cluster.get('_year_mismatch_info', 'year mismatch')
+                        logger.warning(f"[BATCH-YEAR-MISMATCH] {citation}: {year_mismatch_info} - creating year_mismatch_rejected result")
+                        results.append(VerificationResult(
+                            citation=citation,
+                            verified=False,
+                            canonical_name=canonical_name,
+                            canonical_date=canonical_date,
+                            canonical_url=canonical_url,
+                            error=f"Year mismatch: {year_mismatch_info}",
+                            source="year_mismatch_rejected"
+                        ))
+                        continue
+                    
                     # CRITICAL FIX: Try both camelCase and snake_case field names
                     # CourtListener v4 API uses different formats: batch lookup may use snake_case, search uses camelCase
                     canonical_name = matched_cluster.get('caseName') or matched_cluster.get('case_name')
@@ -986,27 +1198,63 @@ class UnifiedVerificationMaster:
                             validation_warning = f"Low similarity ({similarity:.2f}) between canonical '{canonical_name}' and extracted '{extracted_name}'"
                             logger.warning(f"⚠️ SUSPICIOUS NAME MISMATCH for {citation}: {validation_warning}")
                     
-                    # FIX #61: COMPREHENSIVE LOGGING - Track every verification result
-                    logger.error(f"🔍 [FIX #61] VERIFICATION: '{citation}'")
-                    logger.error(f"   ✅ VERIFIED via courtlistener_lookup_batch")
-                    logger.error(f"   📝 Canonical: '{canonical_name}' ({canonical_date})")
-                    logger.error(f"   🔗 URL: {canonical_url}")
-                    logger.error(f"   📊 Confidence: {confidence:.2f}")
-                    if validation_warning:
-                        logger.error(f"   ⚠️  Warning: {validation_warning}")
+                    # USER FIX: Final year validation before creating verified result
+                    # UPDATED: Allow ±1 year tolerance for year mismatch (common with legal citations)
+                    # Citations are often cited with a year that's 1 off from the official filing date
+                    year_mismatch = False
+                    year_warning = False  # Flag for ±1 year differences
+                    logger.error(f"🔍 [YEAR-CHECK] {citation}: extracted_date={extracted_date}, canonical_date={canonical_date}")
+                    if extracted_date and canonical_date:
+                        ext_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
+                        can_year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
+                        if ext_year_match and can_year_match:
+                            ext_year = int(ext_year_match.group(0))
+                            can_year = int(can_year_match.group(0))
+                            year_diff = abs(ext_year - can_year)
+                            if year_diff > 1:
+                                # More than 1 year difference - reject
+                                year_mismatch = True
+                                logger.warning(f"❌ [BATCH-YEAR-REJECT] {citation}: Year mismatch - extracted={extracted_date} vs canonical={canonical_date} (diff={year_diff})")
+                            elif year_diff == 1:
+                                # Exactly 1 year difference - accept with warning
+                                year_warning = True
+                                validation_warning = f"Year difference of 1: extracted {ext_year} vs canonical {can_year}"
+                                logger.info(f"⚠️ [BATCH-YEAR-WARNING] {citation}: {validation_warning} - ACCEPTING due to ±1 tolerance")
                     
-                    results.append(VerificationResult(
-                        citation=citation,
-                        verified=True,
-                        canonical_name=canonical_name,
-                        canonical_date=canonical_date,
-                        canonical_url=canonical_url,
-                        source="courtlistener_lookup_batch",
-                        confidence=confidence,
-                        method="citation_lookup_v4_batch",
-                        raw_data=matched_cluster,
-                        validation_warning=validation_warning
-                    ))
+                    if year_mismatch:
+                        # Year mismatch - create unverified result BUT PRESERVE canonical data
+                        # This allows clustering to split by canonical year even when unverified
+                        results.append(VerificationResult(
+                            citation=citation,
+                            verified=False,
+                            canonical_name=canonical_name,
+                            canonical_date=canonical_date,
+                            canonical_url=canonical_url,
+                            error=f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}",
+                            source="year_mismatch_rejected"
+                        ))
+                    else:
+                        # FIX #61: COMPREHENSIVE LOGGING - Track every verification result
+                        logger.error(f"🔍 [FIX #61] VERIFICATION: '{citation}'")
+                        logger.error(f"   ✅ VERIFIED via courtlistener_lookup_batch")
+                        logger.error(f"   📝 Canonical: '{canonical_name}' ({canonical_date})")
+                        logger.error(f"   🔗 URL: {canonical_url}")
+                        logger.error(f"   📊 Confidence: {confidence:.2f}")
+                        if validation_warning:
+                            logger.error(f"   ⚠️  Warning: {validation_warning}")
+                        
+                        results.append(VerificationResult(
+                            citation=citation,
+                            verified=True,
+                            canonical_name=canonical_name,
+                            canonical_date=canonical_date,
+                            canonical_url=canonical_url,
+                            source="courtlistener_lookup_batch",
+                            confidence=confidence,
+                            method="citation_lookup_v4_batch",
+                            raw_data=matched_cluster,
+                            validation_warning=validation_warning
+                        ))
                 else:
                     results.append(VerificationResult(
                         citation=citation,
@@ -1159,10 +1407,11 @@ class UnifiedVerificationMaster:
                         logger.warning(f"  Extracted name: '{extracted_case_name}' (length: {len(extracted_case_name)})")
                         logger.warning(f"  Canonical name: '{canonical_name}' (length: {len(canonical_name)})")
                         
-                        # Prefer extracted name if it's significantly longer and appears complete
-                        if extracted_case_name and len(extracted_case_name) > len(canonical_name) + 10:
-                            logger.info(f"  Using extracted name instead of truncated canonical name")
-                            canonical_name = extracted_case_name
+                        # CRITICAL: Do NOT replace canonical with extracted - this is contamination
+                        # Instead, log the discrepancy for analysis
+                        # The comparison logic will detect the mismatch
+                        logger.info(f"  Keeping truncated canonical name - will flag as potential mismatch")
+                        # Do NOT set: canonical_name = extracted_case_name
                     else:
                         # ALWAYS prefer verified canonical name over extraction
                         logger.info(f"  Using verified canonical name: '{canonical_name}' (not truncated)")
@@ -1291,7 +1540,7 @@ class UnifiedVerificationMaster:
         # FIX #26: If we have no extracted name, we CANNOT validate which cluster is correct!
         # USER FIX 2024-10-16: UNLESS there's only 1 cluster OR it's a high-confidence citation
         if not extracted_name or extracted_name == "N/A":
-            # USER FIX: If there's only ONE cluster, it's safe to use it
+            # USER FIX: If there's only ONE cluster, use it (year validation happens later)
             if len(clusters) == 1:
                 logger.info(f"✅ ACCEPTING SINGLE CLUSTER for {target_citation} (no extracted name, but only 1 option)")
                 return clusters[0]
@@ -1309,168 +1558,53 @@ class UnifiedVerificationMaster:
             return None
         
         normalized_target = self._normalize_citation_for_matching(target_citation)
-        logger.error(f"🔍 [FIX #55-START] Starting cluster matching for {target_citation}")
-        logger.error(f"   Normalized target: '{normalized_target}'")
-        logger.error(f"   Total clusters to check: {len(clusters)}")
+        logger.info(f"[FIX #55-FAST] Starting cluster matching for {target_citation} (NO extra API calls)")
+        logger.debug(f"   Normalized target: '{normalized_target}'")
+        logger.debug(f"   Total clusters to check: {len(clusters)}")
         matching_clusters = []
         
+        # FIX DEC 2025: DO NOT fetch cluster details - use data already in clusters
+        # This was causing 100-200+ extra API calls and killing workers
         for cluster in clusters:
             try:
-                # CRITICAL FIX: Use resource_uri (API endpoint), not absolute_url (web page)
-                # resource_uri = "https://www.courtlistener.com/api/rest/v4/clusters/xxx/"
-                # absolute_url = "/opinion/xxx/case-name/" (returns HTML, not JSON!)
-                cluster_url = cluster.get('resource_uri') or cluster.get('absolute_url')
-                if not cluster_url:
-                    logger.error(f"🚫 [FIX #55] No resource_uri or absolute_url in cluster!")
-                    continue
+                # Use citations already in the cluster data (from batch API response)
+                cluster_citations = cluster.get('citations', [])
                 
-                # Fetch full cluster details to check citations
-                # resource_uri already includes full URL, absolute_url needs domain prepended
-                if cluster_url.startswith('http'):
-                    full_url = cluster_url  # Already complete
-                else:
-                    full_url = f"https://www.courtlistener.com{cluster_url}"
-                logger.error(f"🌐 [FIX #55] Fetching cluster details from: {full_url}")
-                response = self.session.get(full_url, timeout=20)  # FIX #66: Increased from 10s to 20s
-                logger.error(f"📡 [FIX #55] Response status: {response.status_code}")
-                
-                # ONLY accept 200 (OK) - 202 (Accepted) means processing, no data yet
-                if response.status_code == 200:
-                    cluster_data = response.json()
-                    
-                    # Check if this cluster contains our target citation (EXACT match, not substring)
-                    cluster_citations = cluster_data.get('citations', [])
-                    for cit in cluster_citations:
-                        cit_text = None
-                        if isinstance(cit, str):
-                            cit_text = cit
-                        elif isinstance(cit, dict):
+                # Check if this cluster contains our target citation (EXACT match, not substring)
+                for cit in cluster_citations:
+                    cit_text = None
+                    if isinstance(cit, str):
+                        cit_text = cit
+                    elif isinstance(cit, dict):
+                        # Citation is an object like {'volume': '142', 'reporter': 'Wash. 2d', 'page': '347'}
+                        volume = cit.get('volume', '')
+                        reporter = cit.get('reporter', '')
+                        page = cit.get('page', '')
+                        cit_text = f"{volume} {reporter} {page}".strip()
+                        if not cit_text.strip():
                             cit_text = cit.get('cite', '') or cit.get('citation', '')
-                        
-                        if cit_text:
-                            normalized_cit = self._normalize_citation_for_matching(cit_text)
-                            # FIX #55: Diagnostic logging for citation matching
-                            logger.error(f"🔍 [FIX #55] Comparing citations for {target_citation}:")
-                            logger.error(f"   Target normalized: '{normalized_target}'")
-                            logger.error(f"   API cit normalized: '{normalized_cit}'")
-                            logger.error(f"   Match: {normalized_target == normalized_cit}")
-                            if normalized_target == normalized_cit:  # EXACT match
-                                matching_clusters.append(cluster_data)
-                                logger.error(f"✅ [FIX #55] MATCH FOUND!")
-                                break
+                    
+                    if cit_text:
+                        normalized_cit = self._normalize_citation_for_matching(cit_text)
+                        if normalized_target == normalized_cit:  # EXACT match
+                            matching_clusters.append(cluster)
+                            logger.info(f"✅ [FIX #55-FAST] MATCH FOUND for {target_citation}")
+                            break
             
             except Exception as e:
-                logger.error(f"❌ [FIX #55] Exception checking cluster: {e}")
-                logger.error(f"❌ [FIX #55] Exception type: {type(e).__name__}")
-                import traceback
-                logger.error(f"❌ [FIX #55] Traceback: {traceback.format_exc()}")
+                logger.warning(f"[FIX #55-FAST] Exception checking cluster: {e}")
                 continue
         
+        # USER FIX: If no exact match but only 1 cluster, trust the API - it matched by citation lookup
+        if not matching_clusters and len(clusters) == 1:
+            logger.info(f"⚠️ [FIX #55-FAST] No exact match but only 1 cluster - trusting API for '{target_citation}'")
+            matching_clusters = clusters
+        
         if not matching_clusters:
-            logger.warning(f"⚠️  No cluster found matching {target_citation} in citation-lookup")
-            
-            # FIX #56: Fallback to Search API using case name
-            # Many cases exist in CourtListener but aren't findable by citation-lookup
-            # FIX #56B: Add quality checks - only use if extraction is good
-            if extracted_name and extracted_name != "N/A":
-                # Quality check: name must be at least 10 chars and contain "v." or "v "
-                name_quality_ok = (
-                    len(extracted_name) >= 10 and 
-                    (' v.' in extracted_name.lower() or ' v ' in extracted_name.lower())
-                )
-                
-                if not name_quality_ok:
-                    logger.warning(f"⚠️  [FIX #56B] Skipping Search API - extracted name too short or malformed: '{extracted_name}'")
-                    return None
-                
-                logger.error(f"🔄 [FIX #56] Trying Search API fallback with case name: '{extracted_name}'")
-                try:
-                    # Use Search API to find case by name
-                    search_url = "https://www.courtlistener.com/api/rest/v4/search/"
-                    search_params = {
-                        "q": extracted_name,
-                        "type": "o",  # Opinion search
-                    }
-                    if extracted_date:
-                        # Add date filter if available
-                        search_params["filed_after"] = f"{extracted_date}-01-01"
-                        search_params["filed_before"] = f"{extracted_date}-12-31"
-                    
-                    search_response = self.session.get(search_url, params=search_params, timeout=20)  # FIX #66: Increased from 10s to 20s
-                    if search_response.status_code == 200:
-                        search_data = search_response.json()
-                        results = search_data.get('results', [])
-                        logger.error(f"🔍 [FIX #56] Search API returned {len(results)} results")
-                        
-                        if results:
-                            # FIX #56B: Validate the result before accepting
-                            for result in results[:3]:  # Check top 3 results
-                                result_name = result.get('caseName', '')
-                                
-                                # Check if result name has reasonable overlap with extracted name
-                                extracted_words = set(extracted_name.lower().split())
-                                result_words = set(result_name.lower().split())
-                                common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and'}
-                                extracted_words -= common_words
-                                result_words -= common_words
-                                
-                                if not extracted_words:
-                                    continue
-                                
-                                overlap = len(extracted_words & result_words) / len(extracted_words)
-                                
-                                # FIX #64: Special validation for criminal cases (same as async path)
-                                is_criminal_case = False
-                                criminal_patterns = [
-                                    r'\bstate\s+v\.?\s+',
-                                    r'\bpeople\s+v\.?\s+',
-                                    r'\bcommonwealth\s+v\.?\s+',
-                                    r'\bunited\s+states\s+v\.?\s+',
-                                    r'\bcity\s+of\s+\w+\s+v\.?\s+'
-                                ]
-                                
-                                for pattern in criminal_patterns:
-                                    if re.search(pattern, extracted_name, re.IGNORECASE):
-                                        is_criminal_case = True
-                                        break
-                                
-                                if is_criminal_case:
-                                    # For criminal cases, extract and compare defendant/party names
-                                    extracted_party = re.sub(r'^(state|people|commonwealth|united\s+states|city\s+of\s+\w+)\s+v\.?\s+', '', extracted_name, flags=re.IGNORECASE).strip()
-                                    result_party = re.sub(r'^(state|people|commonwealth|united\s+states|city\s+of\s+\w+)\s+v\.?\s+', '', result_name, flags=re.IGNORECASE).strip()
-                                    
-                                    # Remove common suffixes and punctuation
-                                    extracted_party = re.sub(r'[,\.].*$', '', extracted_party).strip().lower()
-                                    result_party = re.sub(r'[,\.].*$', '', result_party).strip().lower()
-                                    
-                                    if not extracted_party or not result_party:
-                                        logger.warning(f"⚠️  [FIX #64] Could not extract party names from '{extracted_name}' vs '{result_name}'")
-                                        continue
-                                    
-                                    party_similarity = self._calculate_name_similarity(extracted_party, result_party)
-                                    
-                                    if party_similarity < 0.7:
-                                        logger.warning(f"⚠️  [FIX #64] CRIMINAL CASE MISMATCH: '{extracted_party}' vs '{result_party}' (similarity: {party_similarity:.2f})")
-                                        logger.warning(f"   Full names: '{extracted_name}' vs '{result_name}'")
-                                        logger.warning(f"   Different defendants = different cases! Rejecting.")
-                                        continue
-                                    
-                                    logger.info(f"✅ [FIX #64] Criminal case party names match: '{extracted_party}' vs '{result_party}' (similarity: {party_similarity:.2f})")
-                                
-                                if overlap >= 0.5:  # At least 50% word overlap
-                                    logger.error(f"✅ [FIX #56B] Valid match via Search API: {result_name} (overlap: {overlap:.0%})")
-                                    return result
-                                else:
-                                    logger.warning(f"⚠️  [FIX #56B] Rejected result - low overlap ({overlap:.0%}): {result_name}")
-                            
-                            logger.warning(f"⚠️  [FIX #56B] No results passed validation (min 50% word overlap)")
-                        else:
-                            logger.warning(f"⚠️  [FIX #56] Search API found no results for '{extracted_name}'")
-                    else:
-                        logger.warning(f"⚠️  [FIX #56] Search API returned status {search_response.status_code}")
-                except Exception as e:
-                    logger.error(f"❌ [FIX #56] Search API fallback failed: {e}")
-            
+            # FIX DEC 2025: DO NOT call Search API here - it causes extra API calls per citation
+            # Search API is now at the END of the fallback chain (after external sources)
+            # This was causing 100+ extra API calls and killing workers
+            logger.info(f"⚠️ [FIX #55-FAST] No cluster found for {target_citation} - will use external fallback later")
             return None
         
         # FIX #50: Filter by jurisdiction BEFORE validating extracted names (ASYNC VERSION)
@@ -1500,20 +1634,24 @@ class UnifiedVerificationMaster:
             canonical_name = single_cluster.get('case_name', '')
             logger.info(f"Single cluster match for {target_citation}: {canonical_name}")
             
-            # FIX #26: Validate this single cluster against extracted data
+            # USER FIX: For citation-lookup API, the citation is an EXACT match, so trust CourtListener
+            # over potentially wrong extraction. Log warning but DON'T reject.
             if extracted_name and extracted_name != "N/A" and canonical_name:
                 similarity = self._calculate_name_similarity(canonical_name, extracted_name)
                 logger.info(f"  Validating single match: similarity = {similarity:.2f}")
                 
                 if similarity < 0.6:
-                    logger.warning(f"❌ REJECTED single cluster: similarity {similarity:.2f} too low for {target_citation}")
-                    logger.warning(f"   Canonical: {canonical_name}")
-                    logger.warning(f"   Extracted: {extracted_name}")
-                    return None  # Reject low-similarity match
+                    # DON'T reject - CourtListener's citation-lookup is authoritative
+                    # The extracted name may be wrong, but the citation match is exact
+                    logger.warning(f"⚠️ LOW SIMILARITY but ACCEPTING (citation-lookup is authoritative): {target_citation}")
+                    logger.warning(f"   Canonical: {canonical_name} (TRUSTED - from CourtListener)")
+                    logger.warning(f"   Extracted: {extracted_name} (may be wrong extraction)")
+                    # Continue and return the cluster - don't reject
             
             # FIX #26: Validate date if available
             if extracted_date and extracted_date != "N/A":
-                canonical_date = single_cluster.get('date_filed', '')
+                # Try both camelCase and snake_case field names
+                canonical_date = single_cluster.get('dateFiled') or single_cluster.get('date_filed', '')
                 if canonical_date:
                     extracted_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
                     canonical_year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
@@ -1523,10 +1661,10 @@ class UnifiedVerificationMaster:
                         canonical_year = int(canonical_year_match.group(0))
                         year_diff = abs(extracted_year - canonical_year)
                         
-                        if year_diff > 2:
+                        if year_diff > 0:
                             logger.warning(f"❌ REJECTED single cluster: year mismatch for {target_citation}")
                             logger.warning(f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)")
-                            return None  # Reject date mismatch
+                            return None  # Reject ANY date mismatch - user prefers unverified over wrong-year match
             
             logger.info(f"✅ Validated single cluster match for {target_citation}")
             return single_cluster
@@ -1557,7 +1695,8 @@ class UnifiedVerificationMaster:
         
         # FIX #26: Validate date of best match
         if best_cluster and extracted_date and extracted_date != "N/A":
-            canonical_date = best_cluster.get('date_filed', '')
+            # Try both camelCase and snake_case field names
+            canonical_date = best_cluster.get('dateFiled') or best_cluster.get('date_filed', '')
             if canonical_date:
                 extracted_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
                 canonical_year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
@@ -1567,12 +1706,12 @@ class UnifiedVerificationMaster:
                     canonical_year = int(canonical_year_match.group(0))
                     year_diff = abs(extracted_year - canonical_year)
                     
-                    if year_diff > 2:
-                        logger.warning(f"❌ REJECTED: Year mismatch too large for {target_citation}")
+                    if year_diff > 0:
+                        logger.warning(f"❌ REJECTED: Year mismatch for {target_citation}")
                         logger.warning(f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)")
                         logger.warning(f"   Canonical: {best_cluster.get('case_name')}")
                         logger.warning(f"   Extracted: {extracted_name}")
-                        return None  # Reject date mismatches
+                        return None  # Reject ANY date mismatch - user prefers unverified over wrong-year match
         
         logger.info(f"✅ Best match for {target_citation}: '{best_cluster.get('case_name', '')[:50]}...' (similarity: {best_similarity:.2f})")
         return best_cluster
@@ -1616,7 +1755,17 @@ class UnifiedVerificationMaster:
             
             # Check each citation in the cluster for exact match
             for cit in cluster_citations:
-                cit_text = str(cit)
+                # USER FIX: CourtListener citations can be objects with volume/reporter/page fields
+                # or strings. Handle both formats.
+                if isinstance(cit, dict):
+                    # Citation is an object like {'volume': '142', 'reporter': 'Wash. 2d', 'page': '347'}
+                    volume = cit.get('volume', '')
+                    reporter = cit.get('reporter', '')
+                    page = cit.get('page', '')
+                    cit_text = f"{volume} {reporter} {page}".strip()
+                else:
+                    cit_text = str(cit)
+                
                 normalized_cit = self._normalize_citation_for_matching(cit_text)
                 
                 # EXACT match (after normalization), not substring
@@ -1625,10 +1774,14 @@ class UnifiedVerificationMaster:
                     logger.info(f"✅ Cluster matches {target_citation}: {cluster.get('case_name', 'Unknown')}")
                     break
         
-        # If no exact match found, reject the clusters (don't trust the API blindly)
+        # USER FIX: If no exact match but only 1 cluster, trust the API - it matched by citation lookup
         if not matching_clusters:
-            logger.warning(f"⚠️ No exact citation match found for '{target_citation}' in {len(clusters)} clusters")
-            return None
+            if len(clusters) == 1:
+                logger.warning(f"⚠️ No exact citation match but only 1 cluster - trusting API for '{target_citation}'")
+                matching_clusters = clusters  # Trust the single cluster from citation-lookup
+            else:
+                logger.warning(f"⚠️ No exact citation match found for '{target_citation}' in {len(clusters)} clusters")
+                return None
         
         # FIX #50: Filter by jurisdiction BEFORE validating extracted names
         # This catches cases like '9 P.3d 655' matching Mississippi instead of WA
@@ -1652,26 +1805,31 @@ class UnifiedVerificationMaster:
             logger.info(f"✅ [FIX #50] {len(matching_clusters)} cluster(s) passed jurisdiction filter")
         
         # FIX #20: Even with single cluster, validate it against extracted data!
-        # Don't blindly accept API results - they might be wrong
+        # USER FIX: For citation-lookup, trust CourtListener over potentially wrong extraction
         if len(matching_clusters) == 1:
             single_cluster = matching_clusters[0]
             canonical_name = single_cluster.get('case_name', '')
             logger.info(f"Single cluster match for {target_citation}: {canonical_name}")
             
-            # Validate this single cluster against extracted data
+            # USER FIX: For citation-lookup API, the citation is an EXACT match, so trust CourtListener
+            # over potentially wrong extraction. Log warning but DON'T reject.
             if extracted_name and extracted_name != "N/A" and canonical_name:
                 similarity = self._calculate_name_similarity(canonical_name, extracted_name)
                 logger.info(f"  Validating single match: similarity = {similarity:.2f}")
                 
                 if similarity < 0.6:
-                    logger.warning(f"❌ REJECTED single cluster: similarity {similarity:.2f} too low for {target_citation}")
-                    logger.warning(f"   Canonical: {canonical_name}")
-                    logger.warning(f"   Extracted: {extracted_name}")
-                    return None  # Reject low-similarity match
+                    # DON'T reject - CourtListener's citation-lookup is authoritative
+                    logger.warning(f"⚠️ LOW SIMILARITY but ACCEPTING (citation-lookup is authoritative): {target_citation}")
+                    logger.warning(f"   Canonical: {canonical_name} (TRUSTED - from CourtListener)")
+                    logger.warning(f"   Extracted: {extracted_name} (may be wrong extraction)")
+                    # Continue and return the cluster - don't reject
             
             # Validate date if available
+            # USER FIX: Tighten year tolerance to reject cases with >1 year difference
+            # (e.g., Frederick 2015 vs 2017 - same name, different proceedings)
             if extracted_date and extracted_date != "N/A":
-                canonical_date = single_cluster.get('date_filed', '')
+                # Try both camelCase and snake_case field names
+                canonical_date = single_cluster.get('dateFiled') or single_cluster.get('date_filed', '')
                 if canonical_date:
                     extracted_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
                     canonical_year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
@@ -1681,10 +1839,20 @@ class UnifiedVerificationMaster:
                         canonical_year = int(canonical_year_match.group(0))
                         year_diff = abs(extracted_year - canonical_year)
                         
-                        if year_diff > 2:
-                            logger.warning(f"❌ REJECTED single cluster: year mismatch for {target_citation}")
-                            logger.warning(f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)")
-                            return None  # Reject date mismatch
+                        # USER FIX: Allow ±1 year tolerance for legal citations
+                        # Citations are often cited with a year that's 1 off from the official filing date
+                        if year_diff > 1:
+                            logger.warning(f"⚠️ YEAR MISMATCH for {target_citation}: extracted {extracted_year} vs canonical {canonical_year} (diff={year_diff})")
+                            logger.warning(f"   Returning cluster with year_mismatch flag for proper handling")
+                            # CRITICAL FIX: Return the cluster with a flag instead of None
+                            # This allows the caller to create a year_mismatch_rejected result
+                            # that preserves canonical data for clustering purposes
+                            single_cluster['_year_mismatch'] = True
+                            single_cluster['_year_mismatch_info'] = f"extracted {extracted_year} vs canonical {canonical_year}"
+                            return single_cluster  # Return cluster with flag, not None
+                        elif year_diff == 1:
+                            # 1 year difference is acceptable - just log a warning
+                            logger.info(f"⚠️ YEAR TOLERANCE applied for {target_citation}: extracted {extracted_year} vs canonical {canonical_year} (±1 year OK)")
             
             return single_cluster
         
@@ -1767,7 +1935,8 @@ class UnifiedVerificationMaster:
         
         # FIX #20: Validate dates if available
         if best_cluster and extracted_date and extracted_date != "N/A":
-            canonical_date = best_cluster.get('date_filed', '')
+            # Try both camelCase and snake_case field names
+            canonical_date = best_cluster.get('dateFiled') or best_cluster.get('date_filed', '')
             if canonical_date:
                 # Extract years from both dates
                 extracted_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
@@ -1778,15 +1947,15 @@ class UnifiedVerificationMaster:
                     canonical_year = int(canonical_year_match.group(0))
                     year_diff = abs(extracted_year - canonical_year)
                     
-                    # CRITICAL: Reject if years are more than 2 years apart
-                    # This catches cases like 2015 vs 2003 (Lopez Demetrio mismatch)
-                    if year_diff > 2:
-                        logger.warning(f"❌ REJECTED: Year mismatch too large for {target_citation}")
+                    # CRITICAL: Reject ANY year mismatch
+                    # User prefers unverified over verified-with-wrong-year
+                    if year_diff > 0:
+                        logger.warning(f"❌ REJECTED: Year mismatch for {target_citation}")
                         logger.warning(f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)")
                         logger.warning(f"   Canonical: {best_cluster.get('case_name')}")
                         logger.warning(f"   Extracted: {extracted_name}")
-                        logger.warning(f"   This is likely a different case with the same citation!")
-                        return None  # Reject date mismatches
+                        logger.warning(f"   Leaving unverified - user prefers unverified over wrong-year match")
+                        return None  # Reject ANY date mismatch
         
         logger.info(f"✅ Selected cluster with composite score {best_score:.2f}: {best_cluster.get('case_name')}")
         return best_cluster
@@ -2032,9 +2201,9 @@ class UnifiedVerificationMaster:
                         
                         if is_truncated:
                             logger.warning(f"TRUNCATION_DETECTED (search): CourtListener returned truncated name '{canonical_name}'")
-                            if extracted_case_name and len(extracted_case_name) > len(canonical_name) + 5:
-                                logger.info(f"  Using extracted name '{extracted_case_name}' instead")
-                                canonical_name = extracted_case_name
+                            # CRITICAL: Do NOT replace canonical with extracted - this is contamination
+                            # Keep the truncated canonical name - comparison logic will flag mismatch
+                            logger.info(f"  Keeping truncated canonical name - will flag as potential mismatch")
                     
                     confidence = self._calculate_confidence(citation, canonical_name, extracted_case_name, canonical_date, extracted_date)
                     
@@ -2062,6 +2231,30 @@ class UnifiedVerificationMaster:
                                     confidence=0.5,
                                     method="search_api_v4",
                                     validation_warning=f"Possible mismatch: No unusual words match between extracted '{extracted_case_name}' and canonical '{canonical_name}'"
+                                )
+                    
+                    # USER FIX: Year validation for search API - reject if years differ by >1
+                    # This catches cases like Frederick 2015 vs 2017 (same name, different proceedings)
+                    if extracted_date and extracted_date != "N/A" and canonical_date:
+                        import re
+                        extracted_year_match = re.search(r'(19|20)\d{2}', str(extracted_date))
+                        canonical_year_match = re.search(r'(19|20)\d{2}', str(canonical_date))
+                        if extracted_year_match and canonical_year_match:
+                            extracted_year = int(extracted_year_match.group(0))
+                            canonical_year = int(canonical_year_match.group(0))
+                            year_diff = abs(extracted_year - canonical_year)
+                            if year_diff > 0:
+                                logger.warning(f"❌ [SEARCH API] REJECTED: Year mismatch for {citation}")
+                                logger.warning(f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)")
+                                logger.warning(f"   Leaving unverified - user prefers unverified over wrong-year match")
+                                return VerificationResult(
+                                    citation=citation,
+                                    verified=False,
+                                    canonical_name=canonical_name,
+                                    canonical_date=canonical_date,
+                                    canonical_url=canonical_url,
+                                    source="courtlistener_search",
+                                    error=f"Year mismatch: extracted {extracted_year} vs canonical {canonical_year}"
                                 )
                     
                     if confidence > 0.6:  # Lower threshold for search API
@@ -2150,20 +2343,24 @@ class UnifiedVerificationMaster:
                 return reporter_result
         
         # Select verification sources based on fast verification mode
+        # FIX DEC 2025: REMOVED COURTLISTENER_LOOKUP - batch already tried it!
+        # Adding it here causes 100+ extra individual API calls that crash the worker
         if self.fast_verification:
-            # Fast mode: Use batch lookup first, then individual sources
+            # Fast mode: External sources only (CourtListener already tried in batch)
             fallback_sources = [
-                (VerificationSource.COURTLISTENER_LOOKUP, self._verify_with_courtlistener_lookup),  # Direct lookup (fastest)
                 (VerificationSource.CASEMINE, self._verify_with_casemine),  # CaseMine citation-first path (federal/state)
                 (VerificationSource.JUSTIA, self._verify_with_justia),  # Justia (fast for federal citations)
+                (VerificationSource.BING, self._verify_with_bing),  # Bing search (open web)
+                (VerificationSource.GOOGLE_SCHOLAR, self._verify_with_google_scholar),  # Google Scholar
             ]
-            logger.info(f"[FAST_VERIFICATION] Using {len(fallback_sources)} fast sources")
+            logger.info(f"[FAST_VERIFICATION] Using {len(fallback_sources)} fast sources (CourtListener already tried in batch)")
         else:
-            # Full mode: Use all available sources
+            # Full mode: External sources (CourtListener already tried in batch)
+            # FIX DEC 2025: REMOVED COURTLISTENER_LOOKUP and COURTLISTENER_SEARCH
+            # Both were already tried in batch - retrying individually crashes the worker
             fallback_sources = [
                 ('Universal_State', self._verify_with_universal_state),  # All 50 states support
                 ('State_Courts', self._verify_with_state_courts),        # CaseMine-backed state lookups
-                (VerificationSource.COURTLISTENER_SEARCH, self._verify_with_courtlistener_search),  # NEW: Search API when lookup fails
                 (VerificationSource.CASEMINE, self._verify_with_casemine),  # CaseMine citation-first path (federal/state)
                 (VerificationSource.LAW_RESOURCE, self._verify_with_law_resource),  # Law Resource.org
                 (VerificationSource.JUSTIA, self._verify_with_justia),
@@ -2172,8 +2369,10 @@ class UnifiedVerificationMaster:
                 ('NC_Courts', self._verify_with_nc_courts),
                 ('CO_Courts', self._verify_with_co_courts),
                 (VerificationSource.GOOGLE_SCHOLAR, self._verify_with_google_scholar),
+                (VerificationSource.BING, self._verify_with_bing),        # Bing search (open web)
+                (VerificationSource.FINDLAW, self._verify_with_findlaw),  # FindLaw (legal database)
             ]
-            logger.info(f"[FULL_VERIFICATION] Using {len(fallback_sources)} sources")
+            logger.info(f"[FULL_VERIFICATION] Using {len(fallback_sources)} external sources (CourtListener already tried in batch)")
         
         # Guard against division by zero / zero timeout
         time_per_source = (remaining_timeout / len(fallback_sources)) if fallback_sources else 0
@@ -2189,6 +2388,18 @@ class UnifiedVerificationMaster:
                 result = await verify_func(citation, extracted_case_name, extracted_date, time_per_source)
                 
                 if result.verified or getattr(result, 'possible_match', False):
+                    # USER FIX: Validate year match before accepting fallback result
+                    # This prevents verifying citations with wrong-year canonical data
+                    canonical_date = getattr(result, 'canonical_date', None)
+                    if extracted_date and canonical_date:
+                        ext_year = re.search(r'(19|20)\d{2}', str(extracted_date))
+                        can_year = re.search(r'(19|20)\d{2}', str(canonical_date))
+                        if ext_year and can_year and ext_year.group(0) != can_year.group(0):
+                            src_name = getattr(source, 'value', source)
+                            logger.warning(f"❌ FALLBACK_VERIFY: {src_name} REJECTED for '{citation}' - year mismatch (extracted={extracted_date}, canonical={canonical_date})")
+                            remaining_timeout -= (time.time() - source_start)
+                            continue  # Skip this result, try next source
+                    
                     src_name = getattr(source, 'value', source)
                     logger.info(f"✅ FALLBACK_VERIFY: {src_name} succeeded for '{citation}' (verified={result.verified}, possible_match={getattr(result, 'possible_match', False)})")
                     return result
@@ -2301,6 +2512,8 @@ class UnifiedVerificationMaster:
                         m = re.search(pat, content, re.IGNORECASE)
                         if m:
                             name = re.sub(r'\s+', ' ', m.group(1)).strip()
+                            # CRITICAL FIX: Unescape HTML entities (e.g., &amp; -> &)
+                            name = html.unescape(name)
                             break
 
                     # Check citation presence on page (flexible spacing/periods)
@@ -2318,15 +2531,17 @@ class UnifiedVerificationMaster:
                         canonical_date = ym.group(0)
 
                     if found_citation:
+                        # CRITICAL: Only use name from CaseMine, never fall back to extracted
+                        # If CaseMine doesn't provide a name, canonical_name stays None
                         return VerificationResult(
                             citation=citation,
-                            verified=True,
-                            possible_match=False,
-                            canonical_name=name or extracted_case_name,
+                            verified=True if name else False,  # Only verified if we have a canonical name
+                            possible_match=not name,  # Possible match if citation found but no name
+                            canonical_name=name,  # Do NOT fall back to extracted_case_name
                             canonical_date=canonical_date,
                             canonical_url=case_url,
                             source=VerificationSource.CASEMINE.value,
-                            confidence=0.85,
+                            confidence=0.85 if name else 0.5,
                             method="casemine_direct"
                         )
 
@@ -2575,40 +2790,73 @@ class UnifiedVerificationMaster:
             if response.status_code == 200:
                 content = response.text
                 
-                # Look for Justia case links
-                case_link_pattern = r'<a[^>]*href="([^"]*cases[^"]+)"[^>]*>([^<]*)</a>'
-                matches = re.findall(case_link_pattern, content, re.IGNORECASE)
+                # Look for Justia case links - multiple patterns for Bing results
+                justia_urls = []
                 
-                for link_url, link_text in matches[:3]:  # Check top 3 results
+                # Pattern 1: Direct Justia URLs in href
+                pattern1 = r'href="(https?://law\.justia\.com/cases/[^"]+)"'
+                justia_urls.extend(re.findall(pattern1, content, re.IGNORECASE))
+                
+                # Pattern 2: Bing redirect URLs containing Justia
+                pattern2 = r'href="[^"]*?(https?://law\.justia\.com/cases/[^"&]+)'
+                justia_urls.extend(re.findall(pattern2, content, re.IGNORECASE))
+                
+                # Pattern 3: URL-encoded Justia links
+                pattern3 = r'(law\.justia\.com/cases/[^"&\s<>]+)'
+                for match in re.findall(pattern3, content, re.IGNORECASE):
+                    justia_urls.append(f"https://{match}")
+                
+                # Deduplicate and clean URLs
+                seen = set()
+                matches = []
+                for url in justia_urls:
+                    url = url.split('&')[0].rstrip('/')  # Clean URL
+                    if url not in seen and '/cases/' in url:
+                        seen.add(url)
+                        matches.append((url, ""))  # Empty link_text, will extract from page
+                
+                logger.info(f"🔍 [JUSTIA-SEARCH] Found {len(matches)} Justia URLs for '{citation}'")
+                
+                for link_url, _ in matches[:3]:  # Check top 3 results
                     # Clean link URL
                     full_url = link_url if link_url.startswith('http') else f"https://law.justia.com{link_url}"
                     
-                    # Extract case name from link text
-                    case_name_match = re.search(r'([^,\-|]+\s+v\.?\s+[^,\-|]+)', link_text, re.IGNORECASE)
-                    if not case_name_match:
-                        continue
-                    
-                    canonical_name = case_name_match.group(1).strip()
-                    
-                    # Validate case name similarity if we have extracted name
-                    if extracted_case_name and extracted_case_name != "N/A":
-                        extracted_words = set(extracted_case_name.lower().split())
-                        canonical_words = set(canonical_name.lower().split())
-                        common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and'}
-                        extracted_words -= common_words
-                        canonical_words -= common_words
-                        
-                        if extracted_words:
-                            overlap = len(extracted_words & canonical_words) / len(extracted_words)
-                            if overlap < 0.3:  # Low similarity threshold
-                                logger.warning(f"⚠️  [JUSTIA-SEARCH] Low name similarity: '{canonical_name}' vs '{extracted_case_name}' (overlap: {overlap:.0%})")
-                                continue
-                    
-                    # Try to access the case page to verify citation and extract date
+                    # Try to access the case page to verify citation and extract case name/date
                     try:
                         page_response = self.session.get(full_url, headers=headers, timeout=5)
                         if page_response.status_code == 200:
                             page_content = page_response.text
+                            
+                            # Extract case name from page title or h1
+                            canonical_name = None
+                            name_patterns = [
+                                r'<h1[^>]*>([^<]+v\.?[^<]+)</h1>',
+                                r'<title>([^<]+v\.?[^<]+)\s*[|\-]',
+                                r'<meta\s+property="og:title"\s+content="([^"]+v\.?[^"]+)"',
+                            ]
+                            for pattern in name_patterns:
+                                name_match = re.search(pattern, page_content, re.IGNORECASE)
+                                if name_match:
+                                    canonical_name = re.sub(r'\s+', ' ', name_match.group(1).strip())
+                                    break
+                            
+                            if not canonical_name:
+                                logger.warning(f"⚠️  [JUSTIA-SEARCH] No case name found on page: {full_url}")
+                                continue
+                            
+                            # Validate case name similarity if we have extracted name
+                            if extracted_case_name and extracted_case_name != "N/A":
+                                extracted_words = set(extracted_case_name.lower().split())
+                                canonical_words = set(canonical_name.lower().split())
+                                common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and'}
+                                extracted_words -= common_words
+                                canonical_words -= common_words
+                                
+                                if extracted_words:
+                                    overlap = len(extracted_words & canonical_words) / len(extracted_words)
+                                    if overlap < 0.3:  # Low similarity threshold
+                                        logger.warning(f"⚠️  [JUSTIA-SEARCH] Low name similarity: '{canonical_name}' vs '{extracted_case_name}' (overlap: {overlap:.0%})")
+                                        continue
                             
                             # Check if citation is on the page
                             citation_found = False
@@ -2720,15 +2968,17 @@ class UnifiedVerificationMaster:
                             
                             if citation_found:
                                 logger.info(f"✅ [JUSTIA-SEARCH] Citation found on known URL: {known_url}")
+                                # CRITICAL: Do NOT use extracted_case_name as canonical_name
+                                # Justia URL confirms citation exists, but we don't have canonical name from Justia
                                 return VerificationResult(
                                     citation=citation,
-                                    verified=True,
-                                    possible_match=False,
-                                    canonical_name=extracted_case_name,
+                                    verified=False,  # Citation exists but no canonical name from source
+                                    possible_match=True,  # Mark as possible match
+                                    canonical_name=None,  # No canonical name from Justia
                                     canonical_date=canonical_date,
                                     canonical_url=known_url,
                                     source="Justia",
-                                    confidence=0.9,
+                                    confidence=0.7,
                                     method="justia_known_url"
                                 )
                             else:
@@ -2748,14 +2998,15 @@ class UnifiedVerificationMaster:
                                 
                                 if extracted_year and canonical_year and extracted_year == canonical_year:
                                     logger.info(f"✅ [JUSTIA-SEARCH] Years match ({extracted_year}), returning possible match")
+                                    # CRITICAL: Do NOT use extracted_case_name as canonical_name
                                     return VerificationResult.create_possible_match(
                                         citation=citation,
-                                        canonical_name=extracted_case_name,
+                                        canonical_name=None,  # No canonical name from Justia
                                         canonical_url=known_url,
                                         canonical_date=canonical_date,
                                         extracted_date=extracted_date,
                                         source="Justia",
-                                        confidence=0.7,
+                                        confidence=0.6,
                                         method="justia_known_url_possible_match"
                                     )
                                 else:
@@ -3222,12 +3473,14 @@ class UnifiedVerificationMaster:
         # FIX #57: Integrate with Fix #56C validation
         logger.info(f"🔍 [FIX #57-FINDLAW] Verifying {citation} with FindLaw")
         
-        if not extracted_case_name or extracted_case_name == "N/A" or len(extracted_case_name) < 10:
-            logger.warning(f"⚠️  [FIX #57-FINDLAW] Skipping - no valid extracted name")
-            return VerificationResult(citation=citation, error="No extracted name for validation")
+        # FIX DEC 2025: Allow FindLaw search even without extracted name
+        use_citation_only = False
+        if not extracted_case_name or extracted_case_name == "N/A" or len(extracted_case_name) < 5:
+            logger.info(f"🔍 [FINDLAW] No extracted name - will search by citation only")
+            use_citation_only = True
         
         try:
-            search_query = f"{citation} {extracted_case_name}"
+            search_query = citation if use_citation_only else f"{citation} {extracted_case_name}"
             search_url = f"https://caselaw.findlaw.com/search?query={quote(search_query)}"
             
             response = self.session.get(search_url, timeout=min(timeout, 10))
@@ -3245,7 +3498,22 @@ class UnifiedVerificationMaster:
                         case_name_match = re.search(r'([^,]+\s+v\.?\s+[^,]+)', link_text, re.IGNORECASE)
                         canonical_name = case_name_match.group(1).strip() if case_name_match else link_text.strip()
                         
-                        # FIX #56C: Validate name overlap
+                        # FIX DEC 2025: In citation-only mode, accept the first valid case name found
+                        if use_citation_only:
+                            full_url = link_url if link_url.startswith('http') else f"https://caselaw.findlaw.com{link_url}"
+                            logger.info(f"✅ [FINDLAW] Citation-only mode: Found case '{canonical_name}' for {citation}")
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=canonical_name,
+                                canonical_date=extracted_date,
+                                canonical_url=full_url,
+                                source="FindLaw",
+                                confidence=0.65,
+                                method="findlaw_search_citation_only"
+                            )
+                        
+                        # FIX #56C: Validate name overlap (only when we have an extracted name)
                         extracted_words = set(extracted_case_name.lower().split())
                         canonical_words = set(canonical_name.lower().split())
                         common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and', 'inc', 'inc.', 'llc', 'ltd', 'ltd.', 'co', 'co.', 'corp', 'corp.'}
@@ -3358,13 +3626,14 @@ class UnifiedVerificationMaster:
                             if citation in content or f"F.3d {volume}" in content:
                                 logger.info(f"✅ [LAW_RESOURCE] Found citation at actual URL")
                                 
-                                # Extract canonical name from title or content
-                                canonical_name = title if title and 'v.' in title else extracted_case_name
+                                # Extract canonical name from title ONLY - do not fall back to extracted
+                                canonical_name = title if title and 'v.' in title else None
                                 
                                 return VerificationResult(
                                     citation=citation,
-                                    verified=True,
-                                    canonical_name=canonical_name,
+                                    verified=True if canonical_name else False,
+                                    possible_match=not canonical_name,
+                                    canonical_name=canonical_name,  # Do NOT fall back to extracted_case_name
                                     canonical_date=None,  # CRITICAL: Never use extracted_date as canonical_date - must come from verification API
                                     canonical_url=actual_url,
                                     source="Law Resource.org",
@@ -3383,14 +3652,16 @@ class UnifiedVerificationMaster:
                     # Extract case name from content if possible
                     canonical_name = self._extract_case_name_from_content(content)
                     
+                    # CRITICAL: Do NOT fall back to extracted_case_name
                     return VerificationResult(
                         citation=citation,
-                        verified=True,
-                        canonical_name=canonical_name or extracted_case_name,
-                        canonical_date=extracted_date,
+                        verified=True if canonical_name else False,
+                        possible_match=not canonical_name,
+                        canonical_name=canonical_name,  # Do NOT fall back to extracted_case_name
+                        canonical_date=None,  # CRITICAL: Never use extracted_date as canonical_date
                         canonical_url=direct_url,
                         source="Law Resource.org",
-                        confidence=0.9,  # High confidence for direct URL match
+                        confidence=0.9 if canonical_name else 0.5,
                         method="law_resource_direct_url"
                     )
                 else:
@@ -3478,12 +3749,19 @@ class UnifiedVerificationMaster:
         # FIX #57: Integrate with Fix #56C validation  
         logger.info(f"🔍 [FIX #57-BING] Verifying {citation} with Bing")
         
-        if not extracted_case_name or extracted_case_name == "N/A" or len(extracted_case_name) < 10:
-            logger.warning(f"⚠️  [FIX #57-BING] Skipping - no valid extracted name")
-            return VerificationResult(citation=citation, error="No extracted name for validation")
+        # FIX DEC 2025: Allow Bing search even without extracted name - use citation only
+        # This enables verification for cases where name extraction failed
+        use_citation_only = False
+        if not extracted_case_name or extracted_case_name == "N/A" or len(extracted_case_name) < 5:
+            logger.info(f"🔍 [BING] No extracted name - will search by citation only")
+            use_citation_only = True
         
         try:
-            search_query = f'"{citation}" "{extracted_case_name}" site:(.gov OR .edu OR justia.com OR findlaw.com)'
+            # FIX DEC 2025: Use citation-only search when no extracted name available
+            if use_citation_only:
+                search_query = f'"{citation}" site:(.gov OR .edu OR justia.com OR findlaw.com OR casetext.com OR leagle.com)'
+            else:
+                search_query = f'"{citation}" "{extracted_case_name}" site:(.gov OR .edu OR justia.com OR findlaw.com)'
             search_url = f"https://www.bing.com/search?q={quote(search_query)}"
             
             headers = {
@@ -3509,7 +3787,21 @@ class UnifiedVerificationMaster:
                     
                     canonical_name = case_name_match.group(1).strip()
                     
-                    # FIX #56C: Validate name overlap
+                    # FIX DEC 2025: In citation-only mode, accept the first valid case name found
+                    if use_citation_only:
+                        logger.info(f"✅ [BING] Citation-only mode: Found case '{canonical_name}' for {citation}")
+                        return VerificationResult(
+                            citation=citation,
+                            verified=True,
+                            canonical_name=canonical_name,
+                            canonical_date=extracted_date,
+                            canonical_url=link_url,
+                            source="Bing",
+                            confidence=0.65,  # Slightly lower confidence without name validation
+                            method="bing_search_citation_only"
+                        )
+                    
+                    # FIX #56C: Validate name overlap (only when we have an extracted name)
                     extracted_words = set(extracted_case_name.lower().split())
                     canonical_words = set(canonical_name.lower().split())
                     common_words = {'v', 'v.', 'vs', 'vs.', 'the', 'of', 'in', 'a', 'an', '&', 'and', 'inc', 'inc.', 'llc', 'ltd', 'ltd.', 'co', 'co.', 'corp', 'corp.'}
@@ -3696,14 +3988,15 @@ class UnifiedVerificationMaster:
                 
                 if response.status_code == 200 and citation in response.text:
                     logger.info(f"✅ [NC-COURTS] Found via case name search")
+                    # CRITICAL: Do NOT use extracted_case_name as canonical_name
                     return VerificationResult.create_possible_match(
                         citation=citation,
-                        canonical_name=extracted_case_name,
+                        canonical_name=None,  # No canonical name from NC Courts
                         canonical_url=response.url,
-                        canonical_date=extracted_date,
+                        canonical_date=None,  # No canonical date from NC Courts
                         extracted_date=extracted_date,
                         source="NC_Courts",
-                        confidence=0.6
+                        confidence=0.5
                     )
             
             logger.info(f"❌ [NC-COURTS] Not found: {citation}")
@@ -3865,15 +4158,16 @@ class UnifiedVerificationMaster:
                                     confidence=0.7
                                 )
                         
-                        # Return possible match
+                        # Return possible match - only use found_name if available, never extracted
+                        # CRITICAL: Do NOT use extracted_case_name as canonical_name
                         return VerificationResult.create_possible_match(
                             citation=citation,
-                            canonical_name=found_name if case_name_match else extracted_case_name,
+                            canonical_name=found_name if case_name_match else None,
                             canonical_url=casemine_url,
-                            canonical_date=extracted_date,
+                            canonical_date=None,  # No canonical date from State Courts
                             extracted_date=extracted_date,
                             source="State_Courts",
-                            confidence=0.6
+                            confidence=0.5
                         )
             
             logger.info(f"❌ [STATE-COURTS] Not found: {citation}")

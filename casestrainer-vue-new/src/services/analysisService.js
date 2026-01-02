@@ -275,7 +275,7 @@ export const useAnalysisService = () => {
           await new Promise(resolve => setTimeout(resolve, 2000));
           
           // Poll for results
-          const pollResponse = await currentApi.get(`/casestrainer/api/task_status/${taskId}`);
+          const pollResponse = await currentApi.get(`/task_status/${taskId}`);
           
           if (pollResponse.data && pollResponse.data.status === 'completed') {
             console.log('Task completed, returning results');

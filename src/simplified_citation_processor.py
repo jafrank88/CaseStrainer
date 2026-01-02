@@ -224,7 +224,7 @@ class SimplifiedCitationProcessor:
         # Use existing extraction logic
         result = extract_citations_with_clustering(
             text,
-            enable_verification=False,  # We'll handle verification separately
+            enable_verification=self.config.enable_verification,  # Use config setting instead of hardcoded False
             progress_callback=self.config.progress_callback
         )
         

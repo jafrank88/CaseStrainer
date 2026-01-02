@@ -220,9 +220,10 @@ class AdvancedErrorRecovery:
             'leagle': ['justia', 'findlaw', 'courtlistener_web'],
             'casetext': ['justia', 'findlaw', 'leagle'],
             'vlex': ['justia', 'findlaw', 'courtlistener_web'],
+            'law_resource': ['justia', 'findlaw', 'courtlistener_web'],
             'google_scholar': ['bing', 'duckduckgo', 'justia'],
             'bing': ['google_scholar', 'duckduckgo', 'justia'],
             'duckduckgo': ['google_scholar', 'bing', 'justia']
         }
         
-        return source_alternatives.get(current_source, ['justia', 'findlaw', 'courtlistener_web']) 
+        return source_alternatives.get(current_source, ['justia', 'findlaw', 'courtlistener_web'])
