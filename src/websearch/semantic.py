@@ -4,7 +4,6 @@ Enhanced semantic matching for legal text using TF-IDF and cosine similarity.
 """
 
 import logging
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import re
 import threading
@@ -16,19 +15,15 @@ logger = logging.getLogger(__name__)
 
 class SemanticMatcher:
     """Enhanced semantic matching for legal text using TF-IDF and cosine similarity."""
-    
+
     def __init__(self):
         try:
             from sklearn.feature_extraction.text import TfidfVectorizer
             from sklearn.metrics.pairwise import cosine_similarity
             import numpy as np
-            
+
             self.vectorizer = TfidfVectorizer(
-                stop_words='english',
-                ngram_range=(1, 3),
-                max_features=5000,
-                min_df=1,
-                max_df=0.95
+                stop_words="english", ngram_range=(1, 3), max_features=5000, min_df=1, max_df=0.95
             )
             self.is_fitted = False
             self._lock = threading.Lock()
@@ -38,45 +33,45 @@ class SemanticMatcher:
             logger.warning("scikit-learn not available, using fallback similarity")
             self.vectorizer = None
             self.is_fitted = False
-    
+
     def preprocess_legal_text(self, text: str) -> str:
         """Preprocess legal text for better matching."""
         if not text:
             return ""
-        
-        text = re.sub(r'\bv\.?\s+', ' v. ', text, flags=re.IGNORECASE)
-        
-        text = re.sub(r'\bDep\'t\b', 'Department', text)
-        text = re.sub(r'\bCorp\.?\b', 'Corporation', text)
-        text = re.sub(r'\bInc\.?\b', 'Incorporated', text)
-        text = re.sub(r'\bLLC\b', 'Limited Liability Company', text)
-        
-        text = re.sub(r'\s+', ' ', text.strip())
-        
+
+        text = re.sub(r"\bv\.?\s+", " v. ", text, flags=re.IGNORECASE)
+
+        text = re.sub(r"\bDep\'t\b", "Department", text)
+        text = re.sub(r"\bCorp\.?\b", "Corporation", text)
+        text = re.sub(r"\bInc\.?\b", "Incorporated", text)
+        text = re.sub(r"\bLLC\b", "Limited Liability Company", text)
+
+        text = re.sub(r"\s+", " ", text.strip())
+
         return text.lower()
-    
+
     def fit_documents(self, documents: List[str]):
         """Fit the vectorizer on a collection of documents."""
         if not self.vectorizer:
             return
-            
+
         with self._lock:
             if documents:
                 processed_docs = [self.preprocess_legal_text(doc) for doc in documents]
                 self.vectorizer.fit(processed_docs)
                 self.is_fitted = True
-    
+
     def calculate_similarity(self, text1: str, text2: str) -> float:
         """Calculate semantic similarity between two texts."""
         if not text1 or not text2:
             return 0.0
-        
+
         processed1 = self.preprocess_legal_text(text1)
         processed2 = self.preprocess_legal_text(text2)
-        
+
         if not self.vectorizer or not self.is_fitted:
             return SequenceMatcher(None, processed1, processed2).ratio()
-        
+
         try:
             with self._lock:
                 vectors = self.vectorizer.transform([processed1, processed2])
@@ -84,19 +79,19 @@ class SemanticMatcher:
                 return float(similarity_matrix[0, 1])
         except Exception:
             return SequenceMatcher(None, processed1, processed2).ratio()
-    
+
     def find_best_match(self, query: str, candidates: List[str], threshold: float = 0.3) -> Tuple[Optional[str], float]:
         """Find the best matching candidate for a query."""
         if not candidates:
             return None, 0.0
-        
+
         best_match = None
         best_score = 0.0
-        
+
         for candidate in candidates:
             score = self.calculate_similarity(query, candidate)
             if score > best_score and score >= threshold:
                 best_score = score
                 best_match = candidate
-        
-        return best_match, best_score 
+
+        return best_match, best_score
