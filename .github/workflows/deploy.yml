@@ -74,7 +74,17 @@ jobs:
     - name: Test production images
       run: |
         docker-compose -f docker-compose.prod.yml up -d redis backend
-        sleep 30
+        echo "Waiting for backend to be ready..."
+        # Wait up to 60 seconds for the health check to pass
+        for i in {1..12}; do
+          sleep 5
+          if curl -f http://localhost:5000/casestrainer/api/health >/dev/null 2>&1; then
+            echo "Backend is ready after $((i * 5)) seconds"
+            break
+          fi
+          echo "Attempt $i/12: Backend not ready yet..."
+        done
+        # Final check (will fail if not ready)
         curl -f http://localhost:5000/casestrainer/api/health || exit 1
         docker-compose -f docker-compose.prod.yml down
 
