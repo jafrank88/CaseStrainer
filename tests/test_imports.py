@@ -32,7 +32,7 @@ def test_imports():
 
         # Test some basic routes
         with app.test_client() as client:
-            response = client.get("/")
+            response = client.get("/casestrainer/")
             logger.info(f"Root route status code: {response.status_code}")
             assert response.status_code == 200
 
