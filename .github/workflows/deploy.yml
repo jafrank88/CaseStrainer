@@ -42,6 +42,8 @@ jobs:
 
     - name: Security scan
       run: |
+        # Install safety for dependency vulnerability scanning
+        pip install safety
         # Bandit scan - only high severity issues are critical for CI
         bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high
         safety check --json --output safety-report.json
