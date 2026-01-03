@@ -29,7 +29,6 @@ RUN useradd --create-home --shell /bin/bash app
 
 # Copy only essential source code and config
 COPY --chown=app:app src/ /app/src/
-COPY --chown=app:app app/ /app/app/
 COPY --chown=app:app config/ /app/config/
 COPY --chown=app:app templates/ /app/templates/
 COPY --chown=app:app static/ /app/static/
