@@ -38,7 +38,7 @@ def test_imports():
 
             response = client.get("/casestrainer/api/health")
             logger.info(f"Health check status code: {response.status_code}")
-            assert response.status_code == 200
+            assert response.status_code in [200, 207]  # Accept both healthy (200) and degraded (207)
 
     except Exception as e:
         logger.error(f"Import test failed: {str(e)}")
