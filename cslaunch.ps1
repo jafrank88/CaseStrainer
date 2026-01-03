@@ -40,7 +40,28 @@ param(
     [int]$MaxDockerRestartsPerHour = 5,  # Maximum Docker daemon restarts per hour (default: 5) # TODO: Implement rate limiting
     
     [Parameter()]
-    [int]$ExtendedDowntimeMinutes = 15  # After this many minutes of downtime, bypass rate limit # TODO: Implement bypass logic
+    [int]$ExtendedDowntimeMinutes = 15,  # After this many minutes of downtime, bypass rate limit # TODO: Implement bypass logic
+    
+    [Parameter()]
+    [switch]$EmergencyRecovery,  # Perform deep emergency recovery of Docker
+    
+    [Parameter()]
+    [switch]$ConfigureServiceRecovery,  # Configure Windows service recovery actions
+    
+    [Parameter()]
+    [switch]$RemoveServiceRecovery,  # Remove Windows service recovery actions
+    
+    [Parameter()]
+    [switch]$CleanupDocker,  # Clean up Docker resources (prune unused images, containers, etc.)
+    
+    [Parameter()]
+    [switch]$AutoCleanup,  # Enable automatic Docker cleanup when disk space is low
+    
+    [Parameter()]
+    [switch]$ScheduleCleanup,  # Schedule weekly automatic cleanup
+    
+    [Parameter()]
+    [switch]$RemoveCleanupSchedule  # Remove the weekly cleanup schedule
 )
 
 # Internal configuration
@@ -52,7 +73,7 @@ Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan
 Write-Host "`n========================================" -ForegroundColor Cyan
 
 # Start auto-monitoring if no flags provided
-if (-not $Build -and -not $Monitor -and -not $ConfigureAutostart -and -not $NoAutostart -and -not $ConfigurePeriodicHealthCheck -and -not $RemovePeriodicHealthCheck -and -not $DeepCleanRestart -and -not $MemoryOptimizeRestart -and -not $NoCache -and -not $Force) {
+if (-not $Build -and -not $Monitor -and -not $ConfigureAutostart -and -not $NoAutostart -and -not $ConfigurePeriodicHealthCheck -and -not $RemovePeriodicHealthCheck -and -not $DeepCleanRestart -and -not $MemoryOptimizeRestart -and -not $NoCache -and -not $Force -and -not $EmergencyRecovery -and -not $ConfigureServiceRecovery -and -not $RemoveServiceRecovery -and -not $CleanupDocker) {
     Write-Host "[AUTO] Starting unattended monitoring setup..." -ForegroundColor Cyan
     
     # Import and run unattended monitoring setup
@@ -669,7 +690,7 @@ function Test-IsDockerAutostartEnabled {
     #>
     $TaskName = "CaseStrainer-Docker-AutoStart"
     $Task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
-    return ($Task -ne $null)
+    return ($null -ne $Task)
 }
 
 function Get-ContainerCrashInfo {
@@ -1030,6 +1051,26 @@ Write-Log "=== Auto-Start Complete ==="
             Write-Host "  [OK] Docker autostart configured successfully" -ForegroundColor Green
             Write-Host "       Containers will start automatically 2 minutes after boot" -ForegroundColor Gray
         }
+        
+        # Configure service recovery actions
+        try {
+            $serviceName = "com.docker.service"
+            $recoveryScript = Join-Path $PSScriptRoot "scripts\docker_emergency_recovery.ps1"
+            
+            # Configure service recovery
+            sc.exe failure $serviceName reset= 86400 actions= restart/5000/run/15000/restart/30000 command= "`"$recoveryScript`" -Force" 2>$null
+            sc.exe config $serviceName start= auto 2>$null
+            
+            if (-not $Silent) {
+                Write-Host "  [OK] Service recovery configured" -ForegroundColor Green
+                Write-Host "       Docker service will auto-restart on failure" -ForegroundColor Gray
+            }
+        } catch {
+            if (-not $Silent) {
+                Write-Host "  [WARN] Could not configure service recovery (requires admin)" -ForegroundColor Yellow
+            }
+        }
+        
         return $true
     } catch {
         if (-not $Silent) {
@@ -1636,7 +1677,12 @@ function Restart-DockerDaemon {
 
 function Start-ContainerMonitoring {
     [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
-    param()
+    param(
+        [int]$Interval = 60,
+        [int]$Timeout = 15,
+        [int]$MaxRestarts = 5,
+        [int]$DowntimeMinutes = 15
+    )
     
     <#
     .SYNOPSIS
@@ -1658,14 +1704,14 @@ function Start-ContainerMonitoring {
     Write-Host "========================================`n" -ForegroundColor Cyan
     
     # Show monitoring configuration
-    Write-Host "Container Check Interval: $MonitorInterval seconds" -ForegroundColor Gray
+    Write-Host "Container Check Interval: $Interval seconds" -ForegroundColor Gray
     Write-Host "Crash log: $crashLogPath" -ForegroundColor Gray
     
     if ($EnableDockerDaemonMonitor) {
         Write-Host "Docker Daemon Monitor: ENABLED" -ForegroundColor Green
-        Write-Host "  - Freeze timeout: ${DockerDaemonTimeout}s" -ForegroundColor Gray
-        Write-Host "  - Max restarts/hour: $MaxDockerRestartsPerHour" -ForegroundColor Gray
-        Write-Host "  - Nuclear option: Force restart after ${ExtendedDowntimeMinutes} min downtime" -ForegroundColor Gray
+        Write-Host "  - Freeze timeout: ${Timeout}s" -ForegroundColor Gray
+        Write-Host "  - Max restarts per hour: $MaxRestarts" -ForegroundColor Gray
+        Write-Host "  - Extended downtime threshold: ${DowntimeMinutes} minutes (nuclear option)" -ForegroundColor Gray
         Write-Host "  - Daemon log: $dockerDaemonLogPath" -ForegroundColor Gray
     } else {
         Write-Host "Docker Daemon Monitor: DISABLED" -ForegroundColor Yellow
@@ -1716,11 +1762,11 @@ function Start-ContainerMonitoring {
         if ($EnableDockerDaemonMonitor) {
             # Check every 2 cycles to avoid overhead, or if we had previous failures
             $shouldCheckDocker = ($null -eq $lastDockerCheck -or 
-                                 ((Get-Date) - $lastDockerCheck).TotalSeconds -ge ($MonitorInterval * 2) -or
+                                 ((Get-Date) - $lastDockerCheck).TotalSeconds -ge ($Interval * 2) -or
                                  $dockerDaemonFailures -gt 0)
             
             if ($shouldCheckDocker) {
-                $health = Test-DockerDaemonHealth -TimeoutSeconds $DockerDaemonTimeout
+                $health = Test-DockerDaemonHealth -TimeoutSeconds $Timeout
                 $lastDockerCheck = Get-Date
                 
                 # Determine overall health
@@ -1737,6 +1783,18 @@ function Start-ContainerMonitoring {
                     # Log periodic health status (every 10 checks)
                     if ($null -eq $lastDockerCheck -or ((Get-Date) - $lastDockerCheck).TotalMinutes -ge 5) {
                         Write-DockerDaemonLog "Docker daemon health check: OK (Info: $($health.DockerInfo), Ps: $($health.DockerPs), Service: $($health.DockerService))" "INFO"
+                        
+                        # Check disk space periodically (every 5 minutes)
+                        if ($AutoCleanup) {
+                            $systemDrive = Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
+                            $freeSpaceGB = [math]::Round($systemDrive.FreeSpace / 1GB, 2)
+                            
+                            if ($freeSpaceGB -lt 30) {
+                                Write-DockerDaemonLog "Low disk space detected: $freeSpaceGB GB free" "WARN"
+                                Write-Host "[WARN] Low disk space: $freeSpaceGB GB free - running automatic cleanup" -ForegroundColor Yellow
+                                Invoke-DockerCleanup -Auto
+                            }
+                        }
                     }
                 } else {
                     $dockerDaemonFailures++
@@ -1762,14 +1820,14 @@ function Start-ContainerMonitoring {
                         
                         # NUCLEAR OPTION: If Docker has been down for extended time, bypass rate limit
                         $downtimeMinutes = if ($dockerFirstFailureTime) { ($now - $dockerFirstFailureTime).TotalMinutes } else { 0 }
-                        $bypassRateLimit = $downtimeMinutes -ge $ExtendedDowntimeMinutes
+                        $bypassRateLimit = $downtimeMinutes -ge $DowntimeMinutes
                         
                         if ($bypassRateLimit) {
                             Write-DockerDaemonLog "NUCLEAR OPTION: Docker down for $([math]::Round($downtimeMinutes, 1)) minutes - bypassing rate limit" "WARN"
                             Write-Host "[$timestamp] as?i,?  NUCLEAR OPTION: Docker down for $([math]::Round($downtimeMinutes, 1)) min - forcing restart" -ForegroundColor Magenta
                         }
                         
-                        if ($recentRestarts.Count -lt $MaxDockerRestartsPerHour -or $bypassRateLimit) {
+                        if ($recentRestarts.Count -lt $MaxRestarts -or $bypassRateLimit) {
                             $restartReason = if ($bypassRateLimit) {
                                 "NUCLEAR: Extended downtime ($([math]::Round($downtimeMinutes, 1)) min) - bypassing rate limit"
                             } else {
@@ -1993,7 +2051,7 @@ if ($Monitor) {
     }
     
     # Start foreground monitoring (blocks until Ctrl+C)
-    Start-ContainerMonitoring
+    Start-ContainerMonitoring -Interval $MonitorInterval -Timeout $DockerDaemonTimeout -MaxRestarts $MaxDockerRestartsPerHour -DowntimeMinutes $ExtendedDowntimeMinutes
     exit 0
 }
 
@@ -2772,13 +2830,28 @@ if (-not $NoAutostart) {
                 if ($autostartInstalled) {
                     Write-Host "[SUCCESS] Docker autostart configured - containers will auto-start on boot" -ForegroundColor Green
                     Write-Host "          Run with -NoAutostart to disable this feature" -ForegroundColor Gray
+                    
+                    # Also configure service recovery by default when running as admin
+                    Write-Host "[AUTOSTART] Configuring Docker service recovery actions..." -ForegroundColor Yellow
+                    $serviceRecoveryConfigured = Set-DockerServiceRecovery
+                    if ($serviceRecoveryConfigured) {
+                        Write-Host "[SUCCESS] Service recovery configured - Docker will auto-restart on failure" -ForegroundColor Green
+                    } else {
+                        Write-Host "[WARN] Service recovery configuration failed" -ForegroundColor Yellow
+                    }
+                    
+                    # Check if automatic cleanup should be performed
+                    if ($AutoCleanup) {
+                        Write-Host "[AUTOSTART] Checking disk space for automatic cleanup..." -ForegroundColor Yellow
+                        Invoke-DockerCleanup -Auto
+                    }
                 } else {
                     Write-Host "[WARN] Autostart configuration failed" -ForegroundColor Yellow
                 }
             } else {
                 # Not admin - inform user how to enable
                 Write-Host "[INFO] Docker autostart not configured (requires Administrator privileges)" -ForegroundColor Yellow
-                Write-Host "       To enable autostart, run as Administrator once:" -ForegroundColor Gray
+                Write-Host "       To enable autostart and service recovery, run as Administrator once:" -ForegroundColor Gray
                 Write-Host "       .\cslaunch.ps1 -ConfigureAutostart" -ForegroundColor Cyan
                 Write-Host "       Or run with -NoAutostart to suppress this message" -ForegroundColor Gray
             }
@@ -3324,6 +3397,246 @@ if ($deployExitCode -eq 0) {
 }
 
 exit $deployExitCode
+
+# Emergency Recovery Function
+function Invoke-DockerEmergencyRecovery {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    param()
+    Write-Host "`n========================================" -ForegroundColor Red
+    Write-Host "Docker Emergency Recovery" -ForegroundColor Red
+    Write-Host "========================================`n" -ForegroundColor Red
+    
+    Write-Host "[WARN] This will perform a deep cleanup of Docker..." -ForegroundColor Yellow
+    Write-Host "  - Stop all Docker processes" -ForegroundColor Gray
+    Write-Host "  - Clear temporary files" -ForegroundColor Gray
+    Write-Host "  - Reset WSL (if applicable)" -ForegroundColor Gray
+    Write-Host "  - Reset network adapters" -ForegroundColor Gray
+    
+    if ($PSCmdlet.ShouldProcess("Docker Desktop", "Perform emergency recovery")) {
+        try {
+            # Import the emergency recovery script
+            $recoveryScript = Join-Path $PSScriptRoot "scripts\docker_emergency_recovery.ps1"
+            if (Test-Path $recoveryScript) {
+                & $recoveryScript -Force
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "[SUCCESS] Emergency recovery completed" -ForegroundColor Green
+                    return $true
+                } else {
+                    Write-Host "[ERROR] Emergency recovery failed" -ForegroundColor Red
+                    return $false
+                }
+            } else {
+                Write-Host "[ERROR] Emergency recovery script not found" -ForegroundColor Red
+                return $false
+            }
+        } catch {
+            Write-Host "[ERROR] Emergency recovery failed: $($_.Exception.Message)" -ForegroundColor Red
+            return $false
+        }
+    }
+}
+
+# Service Recovery Configuration Function
+function Set-DockerServiceRecovery {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    param(
+        [switch]$Remove
+    )
+    
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    if ($Remove) {
+        Write-Host "Removing Docker Service Recovery" -ForegroundColor Cyan
+    } else {
+        Write-Host "Configuring Docker Service Recovery" -ForegroundColor Cyan
+    }
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    $serviceName = "com.docker.service"
+    
+    $action = if ($Remove) { "Remove" } else { "Configure" }
+    if (-not $PSCmdlet.ShouldProcess("Docker service recovery", $action)) {
+        Write-Host "Operation cancelled by user." -ForegroundColor Yellow
+        return $false
+    }
+    
+    if (-not (Test-AdminPrivileges)) {
+        Write-Host "[ERROR] Administrator privileges required" -ForegroundColor Red
+        return $false
+    }
+    
+    try {
+        if ($Remove) {
+            # Reset service recovery
+            sc.exe failure $serviceName reset= actions= "" 2>$null
+            Write-Host "[SUCCESS] Service recovery actions removed" -ForegroundColor Green
+        } else {
+            # Configure service recovery actions
+            $recoveryScript = Join-Path $PSScriptRoot "scripts\docker_emergency_recovery.ps1"
+            sc.exe failure $serviceName reset= 86400 actions= restart/5000/run/15000/restart/30000 command= "`"$recoveryScript`" -Force" 2>$null
+            Write-Host "[SUCCESS] Service recovery configured:" -ForegroundColor Green
+            Write-Host "  - First failure: Restart after 5 seconds" -ForegroundColor Gray
+            Write-Host "  - Second failure: Run recovery script after 15 seconds" -ForegroundColor Gray
+            Write-Host "  - Subsequent failures: Restart after 30 seconds" -ForegroundColor Gray
+            Write-Host "  - Reset period: 24 hours" -ForegroundColor Gray
+        }
+        
+        # Set service startup type
+        sc.exe config $serviceName start= auto 2>$null
+        Write-Host "[SUCCESS] Service set to automatic start" -ForegroundColor Green
+        
+        return $true
+    } catch {
+        Write-Host "[ERROR] Failed to configure service recovery: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+}
+
+# Handle emergency recovery request
+if ($EmergencyRecovery) {
+    $success = Invoke-DockerEmergencyRecovery
+    exit $(if ($success) { 0 } else { 1 })
+}
+
+# Handle service recovery configuration
+if ($ConfigureServiceRecovery) {
+    $success = Set-DockerServiceRecovery
+    exit $(if ($success) { 0 } else { 1 })
+}
+
+# Handle service recovery removal
+if ($RemoveServiceRecovery) {
+    $success = Set-DockerServiceRecovery -Remove
+    exit $(if ($success) { 0 } else { 1 })
+}
+
+# Handle Docker cleanup request
+if ($CleanupDocker) {
+    $success = Invoke-DockerCleanup -Force
+    exit $(if ($success) { 0 } else { 1 })
+}
+
+# Handle cleanup scheduler request
+if ($ScheduleCleanup -or $RemoveCleanupSchedule) {
+    $schedulerScript = Join-Path $PSScriptRoot "scripts\docker_cleanup_scheduler.ps1"
+    if (Test-Path $schedulerScript) {
+        $args = @()
+        if ($RemoveCleanupSchedule) { $args += "-Remove" }
+        
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $schedulerScript @args
+        exit $LASTEXITCODE
+    } else {
+        Write-Host "[ERROR] Cleanup scheduler script not found: $schedulerScript" -ForegroundColor Red
+        exit 1
+    }
+}
+
+function Invoke-DockerCleanup {
+    <#
+    .SYNOPSIS
+        Cleans up Docker resources to free disk space.
+    #>
+    param(
+        [switch]$Force,
+        [switch]$Auto
+    )
+    
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "Docker Cleanup" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    try {
+        # Check current disk usage
+        $dockerInfo = docker system df --format "{{json .}}" | ConvertFrom-Json
+        $totalSize = [math]::Round($dockerInfo.LayersSize / 1GB, 2)
+        
+        Write-Host "Current Docker disk usage: $totalSize GB" -ForegroundColor Yellow
+        
+        # Check system disk space
+        $systemDrive = Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
+        $freeSpaceGB = [math]::Round($systemDrive.FreeSpace / 1GB, 2)
+        
+        Write-Host "Free disk space on C: drive: $freeSpaceGB GB" -ForegroundColor Yellow
+        
+        $shouldCleanup = $false
+        
+        if ($Auto) {
+            # Automatic cleanup if less than 30GB free
+            if ($freeSpaceGB -lt 30) {
+                $shouldCleanup = $true
+                Write-Host "[AUTO] Disk space below 30GB threshold - initiating cleanup..." -ForegroundColor Yellow
+            }
+        } elseif ($Force -or $freeSpaceGB -lt 20) {
+            # Force cleanup or if less than 20GB free
+            $shouldCleanup = $true
+            if ($freeSpaceGB -lt 20) {
+                Write-Host "[WARNING] Disk space critically low (< 20GB) - cleanup required!" -ForegroundColor Red
+            }
+        }
+        
+        if ($shouldCleanup) {
+            Write-Host "`n[CLEANUP] Removing unused Docker resources..." -ForegroundColor Yellow
+            
+            # Prune containers
+            Write-Host "  - Removing stopped containers..." -ForegroundColor Gray
+            $containerCleanup = docker container prune -f
+            if ($LASTEXITCODE -eq 0) {
+                $containersRemoved = ($containerCleanup | Select-String "Total reclaimed space:").ToString().Split(":")[1].Trim()
+                Write-Host "    Reclaimed: $containersRemoved" -ForegroundColor Green
+            }
+            
+            # Prune images
+            Write-Host "  - Removing unused images..." -ForegroundColor Gray
+            $imageCleanup = docker image prune -f
+            if ($LASTEXITCODE -eq 0) {
+                $imagesReclaimed = ($imageCleanup | Select-String "Total reclaimed space:").ToString().Split(":")[1].Trim()
+                Write-Host "    Reclaimed: $imagesReclaimed" -ForegroundColor Green
+            }
+            
+            # Prune build cache
+            Write-Host "  - Cleaning build cache..." -ForegroundColor Gray
+            $buildCleanup = docker builder prune -f
+            if ($LASTEXITCODE -eq 0) {
+                $buildReclaimed = ($buildCleanup | Select-String "Total reclaimed space:").ToString().Split(":")[1].Trim()
+                Write-Host "    Reclaimed: $buildReclaimed" -ForegroundColor Green
+            }
+            
+            # Full system prune
+            Write-Host "  - Running full system prune..." -ForegroundColor Gray
+            $systemCleanup = docker system prune -f
+            if ($LASTEXITCODE -eq 0) {
+                $systemReclaimed = ($systemCleanup | Select-String "Total reclaimed space:").ToString().Split(":")[1].Trim()
+                Write-Host "    Reclaimed: $systemReclaimed" -ForegroundColor Green
+            }
+            
+            # Check final disk space
+            $finalFreeSpace = [math]::Round((Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}).FreeSpace / 1GB, 2)
+            $spaceFreed = [math]::Round($finalFreeSpace - $freeSpaceGB, 2)
+            
+            Write-Host "`n[SUCCESS] Cleanup completed!" -ForegroundColor Green
+            Write-Host "  - Free space before: $freeSpaceGB GB" -ForegroundColor Gray
+            Write-Host "  - Free space after: $finalFreeSpace GB" -ForegroundColor Gray
+            Write-Host "  - Space freed: $spaceFreed GB" -ForegroundColor Green
+            
+            # Log the cleanup
+            $logPath = Join-Path $PSScriptRoot "logs\docker_cleanup.log"
+            if (!(Test-Path (Split-Path $logPath -Parent))) {
+                New-Item -ItemType Directory -Path (Split-Path $logPath -Parent) -Force | Out-Null
+            }
+            
+            $logEntry = "[$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] Docker cleanup completed. Space freed: $spaceFreed GB`n"
+            Add-Content -Path $logPath -Value $logEntry
+            
+        } else {
+            Write-Host "[INFO] No cleanup needed. Disk space is sufficient." -ForegroundColor Green
+        }
+        
+    } catch {
+        Write-Host "[ERROR] Docker cleanup failed: $($_.Exception.Message)" -ForegroundColor Red
+        return $false
+    }
+    
+    return $true
+}
 
 
 
