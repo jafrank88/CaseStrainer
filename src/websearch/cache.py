@@ -123,7 +123,7 @@ class CacheManager:
             """
             DELETE FROM search_cache 
             WHERE datetime(timestamp, '+' || ttl_hours || ' hours') < datetime('now')
-        """
+            """
         )
 
         conn.commit()
@@ -160,7 +160,8 @@ class CacheManager:
         cursor = conn.cursor()
 
         cursor.execute(
-            "INSERT OR REPLACE INTO url_status (url, status, status_code, last_checked, content_hash) VALUES (?, ?, ?, ?, ?)",
+            "INSERT OR REPLACE INTO url_status (url, status, status_code, "
+            "last_checked, content_hash) VALUES (?, ?, ?, ?, ?)",
             (url, status, status_code, datetime.now().isoformat(), content_hash),
         )
 
