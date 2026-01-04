@@ -352,7 +352,7 @@ class ComprehensiveWebSearchEngine:
         """Extract domain from URL."""
         try:
             return urlparse(url).netloc.lower()
-        except:
+        except Exception:
             return ""
 
     def _rate_limit_check(self, engine: str):
@@ -987,7 +987,7 @@ class ComprehensiveWebSearchEngine:
                             res["source"] = source
                         results.extend(result["results"])
 
-            except Exception as e:
+            except Exception:
                 continue
 
         return {"results": results, "sources_used": fallback_sources, "fallback_used": True}
@@ -1050,7 +1050,7 @@ class ComprehensiveWebSearchEngine:
 
                         all_results.extend(result["results"])
 
-                except Exception as e:
+                except Exception:
                     continue
 
         unique_results = {}
@@ -1085,7 +1085,7 @@ class ComprehensiveWebSearchEngine:
                 parsed = urlparse(url)
                 if not parsed.scheme or not parsed.netloc:
                     return False
-            except:
+            except Exception:
                 return False
 
         return True
