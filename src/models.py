@@ -1,7 +1,7 @@
-from dataclasses import dataclass, asdict
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from dataclasses import dataclass
 
 from typing import Optional, List, Dict, Any
+
 
 @dataclass
 class CitationResult:
@@ -54,73 +54,77 @@ class CitationResult:
             self.case_history = []
         if self.metadata is None:
             self.metadata = {}
-            
+
     def to_dict(self):
         """Convert the CitationResult to a dictionary for JSON serialization."""
-        
+
         # Get cluster case name from attribute or metadata
-        cluster_case_name = getattr(self, 'cluster_case_name', None)
+        cluster_case_name = getattr(self, "cluster_case_name", None)
         # Also check metadata if direct attribute is not set
-        if not cluster_case_name and hasattr(self, 'metadata') and self.metadata:
-            cluster_case_name = self.metadata.get('cluster_case_name')
-            
+        if not cluster_case_name and hasattr(self, "metadata") and self.metadata:
+            cluster_case_name = self.metadata.get("cluster_case_name")
+
         extracted_case_name = self.extracted_case_name
         canonical_name = self.canonical_name
-        
+
         # FIX #13: Add case_name field with intelligent fallback
         # Priority: canonical_name (verified) > extracted_case_name (unverified) > N/A
         case_name = canonical_name or extracted_case_name or "N/A"
-        
+
         # Debug logging for data separation
         import logging
+
         logger = logging.getLogger(__name__)
-        logger.debug(f"DATA_SEPARATION: case_name='{case_name}', cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'")
-        
+        logger.debug(
+            f"DATA_SEPARATION: case_name='{case_name}', cluster='{cluster_case_name}', extracted='{extracted_case_name}', canonical='{canonical_name}'"
+        )
+
         # CRITICAL FIX: DO NOT override verified status!
         # A citation with verified=False should stay False even if it has canonical data
         # This is because canonical data can come from true_by_parallel propagation
         # (unverified citation inherits canonical data from verified parallel citation)
         verified_status = self.verified  # Use the actual verification status
-        
+
         result = {
-            'citation': self.citation,
-            'case_name': case_name,  # FIX #13: Intelligent fallback (canonical > extracted > N/A)
-            'extracted_case_name': extracted_case_name,
-            'extracted_date': self.extracted_date,
-            'canonical_name': canonical_name,
-            'canonical_date': self.canonical_date,
-            'canonical_url': self.canonical_url,
-            'cluster_case_name': cluster_case_name,  # FIXED: Add cluster_case_name field
-            'verified': verified_status,  # Use actual verification status (not overridden)
-            'url': self.url,
-            'court': self.court,
-            'docket_number': self.docket_number,
-            'confidence': self.confidence,
-            'method': self.method,
-            'pattern': self.pattern,
-            'context': self.context,
-            'start_index': self.start_index,
-            'end_index': self.end_index,
-            'is_parallel': self.is_parallel,
-            'is_cluster': self.is_cluster,
-            'parallel_citations': self.parallel_citations,
-            'cluster_members': self.cluster_members,
-            'pinpoint_pages': self.pinpoint_pages,
-            'docket_numbers': self.docket_numbers,
-            'case_history': self.case_history,
-            'publication_status': self.publication_status,
-            'source': self.source,
-            'error': self.error,
-            'metadata': self.metadata,
-            'cluster_id': self.cluster_id,
-            'true_by_parallel': self.true_by_parallel,  # Useful for tracking verification by parallel citations
-            'is_verified': self.verified,  # Add is_verified alias for backward compatibility
-            'name_mismatch': self.name_mismatch,  # Flag when extracted ≠ canonical
-            'date_mismatch': self.date_mismatch,
-            'mismatch_confidence': self.mismatch_confidence,
-            'possible_match': self.possible_match
+            "citation": self.citation,
+            "case_name": case_name,  # FIX #13: Intelligent fallback (canonical > extracted > N/A)
+            "extracted_case_name": extracted_case_name,
+            "extracted_date": self.extracted_date,
+            "canonical_name": canonical_name,
+            "canonical_date": self.canonical_date,
+            "canonical_url": self.canonical_url,
+            "cluster_case_name": cluster_case_name,  # FIXED: Add cluster_case_name field
+            "verified": verified_status,  # Use actual verification status (not overridden)
+            "url": self.url,
+            "court": self.court,
+            "docket_number": self.docket_number,
+            "confidence": self.confidence,
+            "method": self.method,
+            "pattern": self.pattern,
+            "context": self.context,
+            "start_index": self.start_index,
+            "end_index": self.end_index,
+            "is_parallel": self.is_parallel,
+            "is_cluster": self.is_cluster,
+            "parallel_citations": self.parallel_citations,
+            "cluster_members": self.cluster_members,
+            "pinpoint_pages": self.pinpoint_pages,
+            "docket_numbers": self.docket_numbers,
+            "case_history": self.case_history,
+            "publication_status": self.publication_status,
+            "source": self.source,
+            "error": self.error,
+            "metadata": self.metadata,
+            "cluster_id": self.cluster_id,
+            "true_by_parallel": self.true_by_parallel,  # Useful for tracking verification by parallel citations
+            "is_verified": self.verified,  # Add is_verified alias for backward compatibility
+            "name_mismatch": self.name_mismatch,  # Flag when extracted ≠ canonical
+            "date_mismatch": self.date_mismatch,
+            "mismatch_confidence": self.mismatch_confidence,
+            "possible_match": self.possible_match,
         }
         return result
+
 
 @dataclass
 class ProcessingConfig:
@@ -134,4 +138,4 @@ class ProcessingConfig:
     context_window: int = 400
     min_confidence: float = 0.5
     max_citations_per_text: int = 1000
-    debug_mode: bool = False 
+    debug_mode: bool = False

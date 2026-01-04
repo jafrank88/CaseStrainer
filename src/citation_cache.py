@@ -1,10 +1,10 @@
 import shelve
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import threading
 
 _langsearch_cache_lock = threading.Lock()
-_langsearch_cache_path = 'langsearch_cache.db'
+_langsearch_cache_path = "langsearch_cache.db"
+
 
 def get_langsearch(citation):
     """Retrieve a citation's langsearch result from the persistent cache."""
@@ -12,8 +12,9 @@ def get_langsearch(citation):
         with shelve.open(_langsearch_cache_path) as db:
             return db.get(citation)
 
+
 def set_langsearch(citation, value):
     """Store a citation's langsearch result in the persistent cache."""
     with _langsearch_cache_lock:
         with shelve.open(_langsearch_cache_path) as db:
-            db[citation] = value 
+            db[citation] = value

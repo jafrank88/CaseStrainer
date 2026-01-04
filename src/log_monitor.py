@@ -1,5 +1,4 @@
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import time
 import re
@@ -43,9 +42,7 @@ def colorize_log_line(line):
         return f"{Fore.GREEN}{line}{Style.RESET_ALL}"
     elif re.search(r"DEBUG", line, re.IGNORECASE):
         return f"{Fore.CYAN}{line}{Style.RESET_ALL}"
-    elif re.search(
-        r"enhanced.validator|citation.context|validation", line, re.IGNORECASE
-    ):
+    elif re.search(r"enhanced.validator|citation.context|validation", line, re.IGNORECASE):
         return f"{Fore.MAGENTA}{line}{Style.RESET_ALL}"
     else:
         return line
@@ -71,8 +68,7 @@ def tail_log_file(file_path, follow=True):
         if not follow:
             return
 
-        logger.info(f"\n{Fore.CYAN}=== Following log file: {file_path} (Ctrl+C to exit) ==={Style.RESET_ALL}\n"
-        )
+        logger.info(f"\n{Fore.CYAN}=== Following log file: {file_path} (Ctrl+C to exit) ==={Style.RESET_ALL}\n")
 
         last_size = file_size
         try:

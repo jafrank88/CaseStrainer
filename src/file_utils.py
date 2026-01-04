@@ -1,13 +1,9 @@
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 import tempfile
 import subprocess
-import sys
 import time
-from pathlib import Path
-import traceback
 import warnings
 
 logger = logging.getLogger(__name__)
@@ -22,28 +18,30 @@ PDF2MD_AVAILABLE = False
 
 try:
     from pdfminer.high_level import extract_text as pdfminer_extract_text
+
     PDFMINER_AVAILABLE = True
 except ImportError:
     PDFMINER_AVAILABLE = False
 
+
 def is_pdf2md_installed():
     try:
-        subprocess.run(['pdf2md', '--version'], 
-                      stdout=subprocess.PIPE, 
-                      stderr=subprocess.PIPE)
+        subprocess.run(["pdf2md", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         return True
     except (subprocess.SubprocessError, FileNotFoundError):
         return False
 
+
 PDF2MD_CMD_AVAILABLE = is_pdf2md_installed()
+
 
 def convert_pdf_to_markdown(pdf_path):
     """
     Convert a PDF file to markdown format using available tools.
-    
+
     Args:
         pdf_path (str): Path to the PDF file
-        
+
     Returns:
         str: Extracted markdown text or None if conversion fails
     """
@@ -62,65 +60,59 @@ def convert_pdf_to_markdown(pdf_path):
         #         return result
         #     except Exception as e:
         #         logger.warning(f"[PDF2MD_DEBUG] pdf2md library failed: {str(e)}", exc_info=True)
-        
+
         if PDF2MD_CMD_AVAILABLE:
             try:
                 start_time = time.time()
-                with tempfile.NamedTemporaryFile(suffix='.md', delete=False) as temp_file:
+                with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as temp_file:
                     temp_path = temp_file.name
-                
-                result = subprocess.run(
-                    ['pdf2md', '-o', temp_path, pdf_path],
-                    capture_output=True,
-                    text=True
-                )
+
+                result = subprocess.run(["pdf2md", "-o", temp_path, pdf_path], capture_output=True, text=True)
                 elapsed_time = time.time() - start_time
                 if True:
 
                     pass  # Empty block
 
-                
                     pass  # Empty block
 
-                
                 if result.returncode == 0 and os.path.exists(temp_path):
-                    with open(temp_path, 'r', encoding='utf-8') as f:
+                    with open(temp_path, "r", encoding="utf-8") as f:
                         content = f.read()
                     if content:
-                        content_preview = content[:200].replace('\n', ' ')
+                        content_preview = content[:200].replace("\n", " ")
                     return content
                 else:
                     logger.warning(f"[PDF2MD_DEBUG] pdf2md command failed with return code {result.returncode}")
             except Exception as e:
                 logger.warning(f"[PDF2MD_DEBUG] pdf2md command failed: {str(e)}", exc_info=True)
             finally:
-                if 'temp_path' in locals() and os.path.exists(temp_path):
+                if "temp_path" in locals() and os.path.exists(temp_path):
                     try:
                         os.unlink(temp_path)
                     except Exception as e:
                         logger.warning(f"[PDF2MD_DEBUG] Failed to delete temporary file {temp_path}: {str(e)}")
-        
+
         if PDFMINER_AVAILABLE:
             try:
                 start_time = time.time()
                 text = pdfminer_extract_text(pdf_path)
                 elapsed_time = time.time() - start_time
                 if text:
-                    text_preview = text[:200].replace('\n', ' ')
-                    paragraphs = [p.strip() for p in text.split('\n\n') if p.strip()]
-                    result = '\n\n'.join(paragraphs)
+                    text_preview = text[:200].replace("\n", " ")
+                    paragraphs = [p.strip() for p in text.split("\n\n") if p.strip()]
+                    result = "\n\n".join(paragraphs)
                     if result:
-                        result_preview = result[:200].replace('\n', ' ')
+                        result_preview = result[:200].replace("\n", " ")
                     return result
                 else:
                     logger.warning("[PDF2MD_DEBUG] pdfminer extracted text is empty")
                     return None
             except Exception as e:
                 logger.warning(f"[PDF2MD_DEBUG] pdfminer failed: {str(e)}", exc_info=True)
-        
+
         logger.warning("[PDF2MD_DEBUG] No PDF to markdown conversion tools available")
         return None
-        
+
     except Exception as e:
         logger.error(f"[PDF2MD_DEBUG] Error converting PDF to markdown: {str(e)}", exc_info=True)
         return None
@@ -134,6 +126,6 @@ def extract_text_from_file(file_path, convert_pdf_to_md=False, file_type=None, f
     warnings.warn(
         "extract_text_from_file is deprecated. Use src.document_processing_unified.extract_text_from_file instead.",
         DeprecationWarning,
-        stacklevel=2
+        stacklevel=2,
     )
     return extract_text_from_file_unified(file_path)

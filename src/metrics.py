@@ -101,4 +101,4 @@ def get_counts_last_n_days(days: int = 30, end_date: Optional[str] = None) -> Li
         return series
     except Exception:
         # Fallback: compute naively
-        return [get_daily_counts(d) for d in dates] if 'dates' in locals() else []
+        return [get_daily_counts(d) for d in dates] if "dates" in locals() else []

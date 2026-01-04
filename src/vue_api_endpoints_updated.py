@@ -4,7 +4,7 @@ Main API routes for the CaseStrainer application
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT, DATA_SEPARATION_SIMILARITY_THRESHOLD
+from src.config import WEBSEARCH_TIMEOUT
 
 import sys
 import uuid
@@ -17,13 +17,10 @@ from datetime import datetime
 import re
 import html
 from urllib.parse import urlparse
-from typing import Dict, Any, Optional, List, Union
 from flask import Blueprint, request, jsonify, current_app, Response
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
-from src.data_separation_validator import validate_data_separation, enforce_data_separation, restore_extracted_name_if_contaminated
-from src.unified_processing_pipeline import process_citations_unified
 from src.utils.strict_context_isolator import (
     find_all_citation_positions,
     get_strict_context_for_citation,
@@ -109,7 +106,6 @@ def health_check():
             health_data['components']['upload_directory'] = f'error: {str(e)}'
 
         try:
-            from api.services.citation_service import CitationService
             health_data['components']['citation_processor'] = 'healthy'
         except Exception as e:
             health_data['status'] = 'degraded'
@@ -1830,8 +1826,7 @@ def task_status(task_id):
     logger.info(f"Checking status for task_id: {task_id}")
     
     try:
-        from rq import Queue, Worker
-        from redis import Connection
+        from rq import Queue
         from redis import Redis
         
         redis_url = os.environ.get('REDIS_URL')

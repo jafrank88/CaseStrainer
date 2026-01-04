@@ -6,7 +6,9 @@ It first checks if the case is found in CourtListener, and if not, then uses the
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from src.config import (
+    DEFAULT_REQUEST_TIMEOUT,
+)
 
 import requests
 from typing import Optional, Dict, Any
@@ -35,15 +37,11 @@ def setup_langsearch_api(api_key: Optional[str] = None):
     try:
         key = api_key or os.environ.get("LANGSEARCH_API_KEY")
         if not key:
-            logger.error(
-                "Error: LangSearch API key not provided and LANGSEARCH_API_KEY environment variable not set."
-            )
+            logger.error("Error: LangSearch API key not provided and LANGSEARCH_API_KEY environment variable not set.")
             return False
 
         if not key.startswith("sk-"):
-            logger.warning(
-                "Warning: API key format doesn't match expected pattern. Key should start with 'sk-'."
-            )
+            logger.warning("Warning: API key format doesn't match expected pattern. Key should start with 'sk-'.")
 
         os.environ["LANGSEARCH_API_KEY"] = key
 
@@ -59,20 +57,18 @@ def setup_langsearch_api(api_key: Optional[str] = None):
                 "https://api.langsearch.com/v1/web-search",
                 headers=headers,
                 json=payload,
-                timeout=DEFAULT_REQUEST_TIMEOUT
+                timeout=DEFAULT_REQUEST_TIMEOUT,
             )
 
             if response.status_code == 200:
                 logger.info("LangSearch API connection successful.")
                 return True
             else:
-                logger.error(
-                    f"Error testing LangSearch API connection: Status code {response.status_code}"
-                )
+                logger.error(f"Error testing LangSearch API connection: Status code {response.status_code}")
                 try:
                     logger.error(f"Response: {response.text}")
                 except UnicodeEncodeError:
-                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    safe_text = response.text.encode("cp1252", errors="replace").decode("cp1252")
                     logger.error(f"Response (safe): {safe_text}")
                 return False
         except requests.exceptions.RequestException as e:
@@ -99,13 +95,10 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
     """
     api_key = os.environ.get("LANGSEARCH_API_KEY")
     if not api_key:
-        raise ValueError(
-            "LangSearch API key not set. Call setup_langsearch_api() first."
-        )
+        raise ValueError("LangSearch API key not set. Call setup_langsearch_api() first.")
 
     if not case_citation or not case_citation.strip():
         raise ValueError("Case citation cannot be empty")
-
 
     max_retries = DEFAULT_MAX_RETRIES
     retry_delay = 2  # seconds
@@ -129,27 +122,21 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 "https://api.langsearch.com/v1/web-search",
                 headers=headers,
                 json=payload,
-                timeout=DEFAULT_REQUEST_TIMEOUT
+                timeout=DEFAULT_REQUEST_TIMEOUT,
             )
 
             if response.status_code == 200:
                 response_data = response.json()
 
                 if not response_data or "data" not in response_data:
-                    raise ValueError(
-                        "Invalid response from LangSearch API: No data returned"
-                    )
+                    raise ValueError("Invalid response from LangSearch API: No data returned")
 
                 data = response_data["data"]
                 if "_type" not in data or data["_type"] != "SearchResponse":
-                    raise ValueError(
-                        "Invalid response from LangSearch API: Not a SearchResponse"
-                    )
+                    raise ValueError("Invalid response from LangSearch API: Not a SearchResponse")
 
                 if "webPages" not in data or "value" not in data["webPages"]:
-                    raise ValueError(
-                        "Invalid response from LangSearch API: No web pages returned"
-                    )
+                    raise ValueError("Invalid response from LangSearch API: No web pages returned")
 
                 summary = f"Summary for case: {case_citation}\n\n"
 
@@ -174,35 +161,27 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 last_error = f"Rate limit exceeded: {response.text}"
                 if attempt < max_retries - 1:
                     wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                    logger.warning(
-                        f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
-                    )
+                    logger.warning(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                     time.sleep(wait_time)
                 else:
                     logger.error(f"Rate limit exceeded after {max_retries} attempts.")
-                    raise RuntimeError(
-                        f"Failed to generate summary due to rate limits: {response.text}"
-                    )
+                    raise RuntimeError(f"Failed to generate summary due to rate limits: {response.text}")
             elif response.status_code == 401:  # Unauthorized
                 try:
                     logger.error(f"Authentication error: {response.text}")
                 except UnicodeEncodeError:
-                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    safe_text = response.text.encode("cp1252", errors="replace").decode("cp1252")
                     logger.error(f"Authentication error (safe): {safe_text}")
-                raise ValueError(
-                    f"LangSearch API authentication failed: {response.text}"
-                )
+                raise ValueError(f"LangSearch API authentication failed: {response.text}")
             elif response.status_code == 400:  # Bad Request
                 try:
                     logger.error(f"Invalid request: {response.text}")
                 except UnicodeEncodeError:
-                    safe_text = response.text.encode('cp1252', errors='replace').decode('cp1252')
+                    safe_text = response.text.encode("cp1252", errors="replace").decode("cp1252")
                     logger.error(f"Invalid request (safe): {safe_text}")
                 raise ValueError(f"Invalid request to LangSearch API: {response.text}")
             else:
-                last_error = (
-                    f"API error (status code {response.status_code}): {response.text}"
-                )
+                last_error = f"API error (status code {response.status_code}): {response.text}"
                 if attempt < max_retries - 1:
                     wait_time = retry_delay * (2**attempt)  # Exponential backoff
                     logger.error(f"API error. Retrying in {wait_time} seconds...")
@@ -223,9 +202,7 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 logger.error(
                     "This may be due to a large file or server load. Processing will continue with other methods."
                 )
-                raise RuntimeError(
-                    f"Failed to generate summary: Request timed out after {max_retries} attempts"
-                )
+                raise RuntimeError(f"Failed to generate summary: Request timed out after {max_retries} attempts")
         except requests.exceptions.RequestException as e:
             last_error = str(e)
             if attempt < max_retries - 1:
@@ -234,22 +211,16 @@ def generate_case_summary_with_langsearch_api(case_citation: str) -> str:
                 time.sleep(wait_time)
             else:
                 logger.error(f"Request error after {max_retries} attempts.")
-                raise RuntimeError(
-                    f"Failed to generate summary: Request error: {str(e)}"
-                )
+                raise RuntimeError(f"Failed to generate summary: Request error: {str(e)}")
         except Exception as e:
             last_error = str(e)
             if attempt < max_retries - 1:
                 wait_time = retry_delay * (2**attempt)  # Exponential backoff
-                logger.error(
-                    f"Error calling LangSearch API: {str(e)}. Retrying in {wait_time} seconds..."
-                )
+                logger.error(f"Error calling LangSearch API: {str(e)}. Retrying in {wait_time} seconds...")
                 time.sleep(wait_time)
             else:
                 logger.error(f"Failed to generate summary after {max_retries} attempts")
-                raise RuntimeError(
-                    f"Failed to generate summary after {max_retries} attempts: {str(e)}"
-                )
+                raise RuntimeError(f"Failed to generate summary after {max_retries} attempts: {str(e)}")
 
     if last_error:
         raise RuntimeError(f"Failed to generate summary: {last_error}")
@@ -303,9 +274,7 @@ def generate_case_summary_from_data(case_data: Dict[str, Any]) -> str:
         """
 
         if unknown_count >= 3:
-            summary = (
-                "WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA\n\n" + summary
-            )
+            summary = "WARNING: CASE VERIFICATION FAILED - INSUFFICIENT DATA\n\n" + summary
 
         if opinion_text:
             preview = opinion_text[:500].strip()
@@ -342,9 +311,7 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
     exists, case_data = search_citation(case_citation)
 
     if exists:
-        logger.info(
-            f"Case '{case_citation}' found in CourtListener. Generating summary from case data."
-        )
+        logger.info(f"Case '{case_citation}' found in CourtListener. Generating summary from case data.")
 
         if case_data is not None:
             case_id = case_data.get("id")
@@ -359,9 +326,7 @@ def generate_case_summary_with_langsearch(case_citation: str) -> str:
         else:
             return f"Error: No case data available for '{case_citation}'"
     else:
-        logger.info(
-            f"Case '{case_citation}' not found in CourtListener. Using LangSearch API."
-        )
+        logger.info(f"Case '{case_citation}' not found in CourtListener. Using LangSearch API.")
         try:
             return generate_case_summary_with_langsearch_api(case_citation)
         except Exception as e:

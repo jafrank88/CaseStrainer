@@ -3,7 +3,6 @@ Input validation utilities for the CaseStrainer API.
 """
 
 import re
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 from functools import wraps
 from flask import jsonify, request
@@ -117,12 +116,7 @@ def validate_file_upload(f: Callable[..., Any]) -> Callable[..., Any]:
             or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
         ):
             return (
-                jsonify(
-                    {
-                        "error": "Invalid file type. Allowed types: "
-                        + ", ".join(allowed_extensions)
-                    }
-                ),
+                jsonify({"error": "Invalid file type. Allowed types: " + ", ".join(allowed_extensions)}),
                 400,
             )
 
@@ -135,10 +129,10 @@ def validate_file_direct(file: Any) -> Tuple[bool, str]:
     """Direct function to validate a file object (not a decorator)."""
     if not file:
         return False, "No file provided"
-    
+
     if file.filename == "":
         return False, "No selected file"
-    
+
     allowed_extensions = ALLOWED_EXTENSIONS
     if (
         file.filename is None
@@ -146,10 +140,10 @@ def validate_file_direct(file: Any) -> Tuple[bool, str]:
         or file.filename.rsplit(".", 1)[1].lower() not in allowed_extensions
     ):
         return False, f"Invalid file type. Allowed types: {', '.join(allowed_extensions)}"
-    
-    if hasattr(file, 'content_length') and file.content_length > 100 * 1024 * 1024:
+
+    if hasattr(file, "content_length") and file.content_length > 100 * 1024 * 1024:
         return False, "File size must be less than 100MB"
-    
+
     return True, ""
 
 
@@ -163,13 +157,14 @@ def validate_text_input(text: str) -> Tuple[bool, str]:
         return False, "Text input contains invalid control characters"
     return True, ""
 
+
 def validate_url_input(url: str) -> Tuple[bool, str]:
     """Validate that the URL input is a non-empty, valid http(s) URL."""
     if not isinstance(url, str) or not url.strip():
         return False, "URL must be a non-empty string"
     if len(url) > 2048:
         return False, "URL is too long (max 2048 characters)"
-    url_pattern = re.compile(r'^https?://[\w\-\.]+(:\d+)?(/[\w\-\./?%&=]*)?$', re.IGNORECASE)
+    url_pattern = re.compile(r"^https?://[\w\-\.]+(:\d+)?(/[\w\-\./?%&=]*)?$", re.IGNORECASE)
     if not url_pattern.match(url):
         return False, "URL must start with http:// or https:// and be a valid URL"
     return True, ""

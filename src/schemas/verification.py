@@ -20,5 +20,5 @@ class VerificationResultDTO:
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
-        d['verified'] = bool(self.verified)
+        d["verified"] = bool(self.verified)
         return d

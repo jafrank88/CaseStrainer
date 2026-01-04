@@ -4,10 +4,9 @@ A simpler approach that focuses on working with the streamlined case name extrac
 """
 
 import re
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
-from typing import List, Dict, Optional
+from typing import List, Optional
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)

@@ -6,7 +6,6 @@ into CaseStrainer's database for display in the Unconfirmed Citations tab.
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import sqlite3
 import csv
@@ -98,7 +97,9 @@ def main():
 
     import_citations()
 
-    logger.info("Import complete. You can now view the unconfirmed citations in CaseStrainer's Unconfirmed Citations tab.")
+    logger.info(
+        "Import complete. You can now view the unconfirmed citations in CaseStrainer's Unconfirmed Citations tab."
+    )
 
 
 if __name__ == "__main__":

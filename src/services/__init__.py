@@ -11,12 +11,7 @@ Architecture:
 - CitationProcessor: Orchestrator that coordinates all services
 """
 
-from .interfaces import (
-    ICitationExtractor,
-    ICitationVerifier, 
-    ICitationClusterer,
-    ICitationProcessor
-)
+from .interfaces import ICitationExtractor, ICitationVerifier, ICitationClusterer, ICitationProcessor
 
 from .citation_extractor import CitationExtractor
 from .citation_verifier import CitationVerifier
@@ -24,13 +19,13 @@ from .citation_clusterer import CitationClusterer
 from .citation_processor import CitationProcessor, ServiceContainer
 
 __all__ = [
-    'ICitationExtractor',
-    'ICitationVerifier',
-    'ICitationClusterer', 
-    'ICitationProcessor',
-    'CitationExtractor',
-    'CitationVerifier',
-    'CitationClusterer',
-    'CitationProcessor',
-    'ServiceContainer'
+    "ICitationExtractor",
+    "ICitationVerifier",
+    "ICitationClusterer",
+    "ICitationProcessor",
+    "CitationExtractor",
+    "CitationVerifier",
+    "CitationClusterer",
+    "CitationProcessor",
+    "ServiceContainer",
 ]

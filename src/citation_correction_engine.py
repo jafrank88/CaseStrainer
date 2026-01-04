@@ -6,23 +6,15 @@ by finding similar verified citations and applying intelligent correction rules.
 """
 
 import sqlite3
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 import re
 import os
 import sys
 import traceback
-from typing import Dict, List, Any, Optional, Tuple
-from dataclasses import dataclass, asdict
-import json
-import time
-from datetime import datetime
-import warnings
-from collections import defaultdict
-import unicodedata
+from typing import Dict, List, Any
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 try:
     from src.citation_utils_consolidated import apply_washington_spacing_rules
@@ -42,6 +34,7 @@ logger = logging.getLogger(__name__)
 
 try:
     import Levenshtein
+
     LEVENSHTEIN_AVAILABLE = True
 except ImportError:
     LEVENSHTEIN_AVAILABLE = False
@@ -52,6 +45,7 @@ from typing import List, Dict, Any
 from difflib import SequenceMatcher
 from .database_manager import get_database_manager
 
+
 class CitationCorrectionEngine:
     """
     A system for suggesting corrections to invalid or unverified citations
@@ -60,19 +54,17 @@ class CitationCorrectionEngine:
 
     def __init__(self) -> None:
         """Initialize the correction engine."""
-        self.db_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "citations.db"
-        )
-        self.cache_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "correction_cache"
-        )
+        self.db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")
+        self.cache_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "correction_cache")
 
         if not os.path.exists(self.cache_dir):
             os.makedirs(self.cache_dir)
 
         self._init_database()
 
-    def suggest_corrections(self, citation: str, max_suggestions: int = 5, min_similarity: float = 0.7) -> Dict[str, Any]:
+    def suggest_corrections(
+        self, citation: str, max_suggestions: int = 5, min_similarity: float = 0.7
+    ) -> Dict[str, Any]:
         """
         Suggest corrections for a potentially invalid citation.
 
@@ -109,9 +101,7 @@ class CitationCorrectionEngine:
                 }
 
             try:
-                similar_citations = self._find_similar_citations(
-                    citation, min_similarity
-                )
+                similar_citations = self._find_similar_citations(citation, min_similarity)
 
                 if similar_citations:
                     suggestions = [
@@ -148,10 +138,7 @@ class CitationCorrectionEngine:
 
             if "U.S." in normalized_citation or "US" in normalized_citation.upper():
                 us_corrected = (
-                    normalized_citation.replace("US", "U.S.")
-                    .replace(" ", " ")
-                    .replace("U.S.", "U.S. ")
-                    .strip()
+                    normalized_citation.replace("US", "U.S.").replace(" ", " ").replace("U.S.", "U.S. ").strip()
                 )
 
                 if us_corrected != normalized_citation:
@@ -185,11 +172,11 @@ class CitationCorrectionEngine:
     def _normalize_citation_comprehensive(self, citation: str, purpose: str = "general") -> str:
         """
         Comprehensive citation normalization that replaces the deprecated _normalize_citation.
-        
+
         Args:
             citation: The citation to normalize
             purpose: The purpose of normalization ("general", "bluebook", "verification", "comparison")
-            
+
         Returns:
             The normalized citation
         """
@@ -213,15 +200,11 @@ class CitationCorrectionEngine:
             fed_reporter = re.match(r"^(\d+)\s+([A-Za-z\.\d]+)\s+(\d+)$", normalized)
             if fed_reporter:
                 vol = fed_reporter.group(1)
-                reporter = (
-                    fed_reporter.group(2).upper().replace(" ", "")
-                )  # Remove any spaces in reporter
+                reporter = fed_reporter.group(2).upper().replace(" ", "")  # Remove any spaces in reporter
                 page = fed_reporter.group(3)
                 return f"{vol} {reporter} {page}"
 
-            us_reports = re.match(
-                r"^(\d+)\s+U\.?\s*S\.?\s*(\d+)$", normalized, re.IGNORECASE
-            )
+            us_reports = re.match(r"^(\d+)\s+U\.?\s*S\.?\s*(\d+)$", normalized, re.IGNORECASE)
             if us_reports:
                 vol = us_reports.group(1)
                 page = us_reports.group(2)
@@ -233,27 +216,18 @@ class CitationCorrectionEngine:
                 page = us_no_periods.group(2)
                 return f"{vol} U.S. {page}"
 
-            wash_cites = re.match(
-                r"^(\d+)\s+Wn\.?\s*(2d|App)?\s*(\d*)$", normalized, re.IGNORECASE
-            )
+            wash_cites = re.match(r"^(\d+)\s+Wn\.?\s*(2d|App)?\s*(\d*)$", normalized, re.IGNORECASE)
             if wash_cites:
                 vol = wash_cites.group(1)
-                series = (
-                    f" {wash_cites.group(2).upper()}" if wash_cites.group(2) else ""
-                )
+                series = f" {wash_cites.group(2).upper()}" if wash_cites.group(2) else ""
                 page = f" {wash_cites.group(3)}" if wash_cites.group(3) else ""
                 return f"{vol} WASH{series}{page}"
-
 
             normalized = re.sub(r"Wash\.\s*App\.", "Wn. App.", normalized)
             normalized = re.sub(r"Wash\.", "Wn.", normalized)
 
-            normalized = re.sub(
-                r"P\.\s*(\d+)(d|th)", r"P.\1\2", normalized, flags=re.IGNORECASE
-            )  # P.2d, P.3d
-            normalized = re.sub(
-                r"F\.\s*(\d+)(d|th)", r"F.\1\2", normalized, flags=re.IGNORECASE
-            )  # F.2d, F.3d
+            normalized = re.sub(r"P\.\s*(\d+)(d|th)", r"P.\1\2", normalized, flags=re.IGNORECASE)  # P.2d, P.3d
+            normalized = re.sub(r"F\.\s*(\d+)(d|th)", r"F.\1\2", normalized, flags=re.IGNORECASE)  # F.2d, F.3d
 
             normalized = re.sub(
                 r"\.\s+(?=[a-z])", ".", normalized
@@ -272,9 +246,7 @@ class CitationCorrectionEngine:
         try:
             normalized = citation.upper()
 
-            us_reports = re.match(
-                r"^(\d+)\s+U\.?\s*S\.?\s*(\d+)", normalized, re.IGNORECASE
-            )
+            us_reports = re.match(r"^(\d+)\s+U\.?\s*S\.?\s*(\d+)", normalized, re.IGNORECASE)
             if us_reports:
                 components["volume"] = us_reports.group(1)
                 components["reporter"] = "U.S."
@@ -282,14 +254,10 @@ class CitationCorrectionEngine:
                 components["court"] = "United States Supreme Court"
                 return components
 
-            fed_reporter = re.match(
-                r"^(\d+)\s+([A-Za-z\.\d]+)\s+(\d+)", normalized, re.IGNORECASE
-            )
+            fed_reporter = re.match(r"^(\d+)\s+([A-Za-z\.\d]+)\s+(\d+)", normalized, re.IGNORECASE)
             if fed_reporter:
                 components["volume"] = fed_reporter.group(1)
-                reporter = (
-                    fed_reporter.group(2).upper().replace(" ", "")
-                )  # Remove any spaces in reporter
+                reporter = fed_reporter.group(2).upper().replace(" ", "")  # Remove any spaces in reporter
 
                 reporter = re.sub(r"F(\d+)(D|d)", r"F.\1d", reporter)
 
@@ -298,22 +266,15 @@ class CitationCorrectionEngine:
 
                 if any(rep in reporter.upper() for rep in ["F.2D", "F.3D"]):
                     components["court"] = "United States Court of Appeals"
-                elif any(
-                    rep in reporter.upper()
-                    for rep in ["F.SUPP", "F.SUPP.2D", "F.SUPP.3D"]
-                ):
+                elif any(rep in reporter.upper() for rep in ["F.SUPP", "F.SUPP.2D", "F.SUPP.3D"]):
                     components["court"] = "United States District Court"
 
                 return components
 
-            wash_cites = re.match(
-                r"^(\d+)\s+WN\.?\s*(2D|APP)?\s*(\d*)", normalized, re.IGNORECASE
-            )
+            wash_cites = re.match(r"^(\d+)\s+WN\.?\s*(2D|APP)?\s*(\d*)", normalized, re.IGNORECASE)
             if wash_cites:
                 components["volume"] = wash_cites.group(1)
-                series = (
-                    f" {wash_cites.group(2).upper()}" if wash_cites.group(2) else ""
-                )
+                series = f" {wash_cites.group(2).upper()}" if wash_cites.group(2) else ""
                 components["reporter"] = f"WASH{series}"
                 if wash_cites.group(3):
                     components["page"] = wash_cites.group(3)
@@ -323,9 +284,7 @@ class CitationCorrectionEngine:
                     components["court"] = "Washington Supreme Court"
                 return components
 
-            volume_reporter_page = re.search(
-                r"(\d+)\s+([A-Za-z\.\s]+?)(?:\s+(\d+))?\s*$", citation
-            )
+            volume_reporter_page = re.search(r"(\d+)\s+([A-Za-z\.\s]+?)(?:\s+(\d+))?\s*$", citation)
             if volume_reporter_page:
                 components["volume"] = volume_reporter_page.group(1)
                 components["reporter"] = volume_reporter_page.group(2).strip()
@@ -350,9 +309,7 @@ class CitationCorrectionEngine:
                         components["court"] = "United States Court of Appeals"
 
         except Exception as e:
-            logger.error(
-                f"Error extracting components from citation '{citation}': {str(e)}"
-            )
+            logger.error(f"Error extracting components from citation '{citation}': {str(e)}")
             logger.error(traceback.format_exc())
 
         return components
@@ -448,9 +405,7 @@ class CitationCorrectionEngine:
                 except Exception as e:
                     logger.warning(f"Could not insert citation {citation}: {e}")
 
-            logger.info(
-                f"Seeded database with {len(sample_citations)} sample citations"
-            )
+            logger.info(f"Seeded database with {len(sample_citations)} sample citations")
 
         except Exception as e:
             logger.error(f"Error seeding database: {e}")
@@ -474,7 +429,7 @@ class CitationCorrectionEngine:
                 return []
 
             columns = db_manager.execute_query("PRAGMA table_info(citations)")
-            column_names = [col['name'] for col in columns]
+            column_names = [col["name"] for col in columns]
 
             if "found" in column_names:
                 query = "SELECT citation_text FROM citations WHERE found = 1"
@@ -501,10 +456,10 @@ class CitationCorrectionEngine:
         if LEVENSHTEIN_AVAILABLE:
             distance = Levenshtein.distance(norm1, norm2)
             max_len = max(len(norm1), len(norm2))
-            
+
             if max_len == 0:
                 return 0.0
-            
+
             similarity = 1.0 - (distance / max_len)
         else:
             similarity = SequenceMatcher(None, norm1, norm2).ratio()
@@ -543,18 +498,14 @@ class CitationCorrectionEngine:
             logger.warning(f"Invalid citation provided: {citation}")
             return []
 
-        logger.debug(
-            f"Finding similar citations for: {citation} (threshold: {threshold})"
-        )
+        logger.debug(f"Finding similar citations for: {citation} (threshold: {threshold})")
 
         try:
             verified_citations = self._get_verified_citations()
             if not verified_citations:
                 return []
 
-            logger.debug(
-                f"Comparing against {len(verified_citations)} verified citations"
-            )
+            logger.debug(f"Comparing against {len(verified_citations)} verified citations")
 
             similar_citations = []
 
@@ -566,14 +517,10 @@ class CitationCorrectionEngine:
                     similarity = self._similarity_score(citation, verified_citation)
 
                     if similarity >= threshold:
-                        similar_citations.append(
-                            {"citation": verified_citation, "similarity": similarity}
-                        )
+                        similar_citations.append({"citation": verified_citation, "similarity": similarity})
 
                 except Exception as e:
-                    logger.warning(
-                        f"Error comparing citations '{citation}' and '{verified_citation}': {e}"
-                    )
+                    logger.warning(f"Error comparing citations '{citation}' and '{verified_citation}': {e}")
                     continue
 
             similar_citations.sort(key=lambda x: x["similarity"], reverse=True)
@@ -584,8 +531,8 @@ class CitationCorrectionEngine:
                     f"Found {result_count} similar citations (best match: {similar_citations[0]['similarity']:.2f})"
                 )
             else:
-
-            return similar_citations
+                # No similar citations found, return empty list
+                return similar_citations
 
         except Exception as e:
             logger.error(f"Error in _find_similar_citations: {e}")
@@ -597,12 +544,8 @@ class CitationCorrectionEngine:
 
         corrected = apply_washington_spacing_rules(corrected)
 
-        corrected = re.sub(
-            r"(\d+)([A-Za-z])", r"\1 \2", corrected
-        )  # Add space between number and letter
-        corrected = re.sub(
-            r"([A-Za-z])(\d+)", r"\1 \2", corrected
-        )  # Add space between letter and number
+        corrected = re.sub(r"(\d+)([A-Za-z])", r"\1 \2", corrected)  # Add space between number and letter
+        corrected = re.sub(r"([A-Za-z])(\d+)", r"\1 \2", corrected)  # Add space between letter and number
 
         corrected = re.sub(r"Wash\.\s*App\.", "Wn. App.", corrected)
         corrected = re.sub(r"Wash\.", "Wn.", corrected)
@@ -614,9 +557,7 @@ class CitationCorrectionEngine:
         corrected = re.sub(r"F\s*(\d+\s*d)", r"F.\1", corrected)
         corrected = re.sub(r"F\s*(\d+)\s*th", r"F.\1d", corrected)
 
-        corrected = re.sub(
-            r"(\b[A-Z][a-z]*)(\s)", r"\1.\2", corrected
-        )  # Add period after abbreviations
+        corrected = re.sub(r"(\b[A-Z][a-z]*)(\s)", r"\1.\2", corrected)  # Add period after abbreviations
 
         if " v " in corrected:
             corrected = corrected.replace(" v ", " v. ")
@@ -635,8 +576,6 @@ class CitationCorrectionEngine:
         except Exception as e:
             logger.error(f"Error checking database: {e}")
             return False
-
-
 
     def batch_suggest_corrections(self, citations: List[str]) -> List[Dict[str, Any]]:
         """
@@ -695,8 +634,7 @@ if __name__ == "__main__":
         logger.info(f"Suggestions: {len(result['suggestions'])}")
 
         for i, suggestion in enumerate(result["suggestions"]):
-            logger.info(f"  {i+1}. {suggestion['corrected_citation']} (similarity: {suggestion['similarity']:.2f})"
-            )
+            logger.info(f"  {i+1}. {suggestion['corrected_citation']} (similarity: {suggestion['similarity']:.2f})")
             logger.info(f"     Explanation: {suggestion['explanation']}")
 
         logger.info("")  # Empty message for spacing

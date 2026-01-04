@@ -7,7 +7,6 @@ and multiple import path strategies for different deployment scenarios.
 """
 
 import logging
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import sys
 from typing import Optional, Any
@@ -20,22 +19,23 @@ api_blueprint: Optional[Any] = None
 def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[Any]:
     """
     Attempt to import the vue_api blueprint from a specific path.
-    
+
     Args:
         import_path: The import path to try (e.g., 'src.vue_api_endpoints')
         module_name: Human-readable name for logging
-        
+
     Returns:
         The imported blueprint or None if import fails
     """
     try:
-        if import_path.startswith('.'):
+        if import_path.startswith("."):
             from . import vue_api_endpoints
-            blueprint = getattr(vue_api_endpoints, 'vue_api', None)
+
+            blueprint = getattr(vue_api_endpoints, "vue_api", None)
         else:
-            module = __import__(import_path, fromlist=['vue_api'])
-            blueprint = getattr(module, 'vue_api', None)
-        
+            module = __import__(import_path, fromlist=["vue_api"])
+            blueprint = getattr(module, "vue_api", None)
+
         if blueprint is not None:
             logger.info(f"Successfully imported vue_api blueprint from {module_name}")
             logger.info(f"Successfully imported vue_api blueprint from {module_name}")
@@ -43,7 +43,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[An
         else:
             logger.warning(f"Module {module_name} found but vue_api attribute missing")
             return None
-            
+
     except ImportError as e:
         return None
     except AttributeError as e:
@@ -57,76 +57,79 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[An
 def _get_blueprint() -> Optional[Any]:
     """
     Attempt to import the vue_api blueprint using multiple strategies.
-    
+
     Returns:
         The imported blueprint or None if all attempts fail
     """
-    blueprint = _attempt_import_with_path('.vue_api_endpoints', 'vue_api_endpoints.py (relative)')
+    blueprint = _attempt_import_with_path(".vue_api_endpoints", "vue_api_endpoints.py (relative)")
     if blueprint is not None:
         return blueprint
-    
+
     try:
         from .vue_api_endpoints import vue_api
+
         logger.info("Successfully imported vue_api blueprint via direct relative import")
         return vue_api
     except ImportError:
         pass
-    
-    blueprint = _attempt_import_with_path('src.vue_api_endpoints', 'src.vue_api_endpoints')
+
+    blueprint = _attempt_import_with_path("src.vue_api_endpoints", "src.vue_api_endpoints")
     if blueprint is not None:
         return blueprint
-    
+
     try:
         from .vue_api_endpoints import vue_api
+
         logger.info("Successfully imported vue_api blueprint via direct absolute import")
         logger.info("Successfully imported vue_api blueprint via direct absolute import")
         return vue_api
     except ImportError:
         pass
-    
-    blueprint = _attempt_import_with_path('vue_api_endpoints', 'vue_api_endpoints (no prefix)')
+
+    blueprint = _attempt_import_with_path("vue_api_endpoints", "vue_api_endpoints (no prefix)")
     if blueprint is not None:
         return blueprint
-    
+
     try:
         import vue_api_endpoints
-        vue_api = getattr(vue_api_endpoints, 'vue_api', None)
+
+        vue_api = getattr(vue_api_endpoints, "vue_api", None)
         if vue_api is not None:
             logger.info("Successfully imported vue_api blueprint from current directory")
             logger.info("Successfully imported vue_api blueprint from current directory")
             return vue_api
     except (ImportError, AttributeError):
         pass
-    
+
     return None
 
 
 def _validate_blueprint(blueprint: Any) -> bool:
     """
     Validate that the imported object is actually a Flask Blueprint.
-    
+
     Args:
         blueprint: The object to validate
-        
+
     Returns:
         True if valid blueprint, False otherwise
     """
     try:
-        if hasattr(blueprint, 'name') and hasattr(blueprint, 'url_prefix'):
+        if hasattr(blueprint, "name") and hasattr(blueprint, "url_prefix"):
             return True
-        
-        if hasattr(blueprint, '__class__'):
+
+        if hasattr(blueprint, "__class__"):
             class_name = blueprint.__class__.__name__
-            if 'Blueprint' in class_name:
+            if "Blueprint" in class_name:
                 return True
-        
-        blueprint_methods = ['route', 'before_request', 'after_request']
+
+        blueprint_methods = ["route", "before_request", "after_request"]
         if all(hasattr(blueprint, method) for method in blueprint_methods):
             return True
-        
+
         logger.warning("Imported object doesn't appear to be a valid Flask Blueprint")
         return False
-        
+
     except Exception as e:
         logger.error(f"Error validating blueprint: {e}")
         return False
@@ -139,23 +142,19 @@ def _log_import_diagnostics():
     logger.info(f"Current working directory: {sys.path[0] if sys.path else 'Unknown'}")
     logger.info(f"Module name: {__name__}")
     logger.info(f"Package: {__package__}")
-    
+
     available_modules = []
-    potential_modules = [
-        'vue_api_endpoints',
-        'src.vue_api_endpoints',
-        '.vue_api_endpoints'
-    ]
-    
+    potential_modules = ["vue_api_endpoints", "src.vue_api_endpoints", ".vue_api_endpoints"]
+
     for module_name in potential_modules:
         try:
-            if module_name.startswith('.'):
+            if module_name.startswith("."):
                 continue
             __import__(module_name)
             available_modules.append(module_name)
         except ImportError:
             pass
-    
+
     logger.info(f"Available vue_api modules: {available_modules}")
     logger.info("=== End Diagnostics ===")
 
@@ -163,9 +162,9 @@ def _log_import_diagnostics():
 try:
     if logger.isEnabledFor(logging.DEBUG):
         _log_import_diagnostics()
-    
+
     api_blueprint = _get_blueprint()
-    
+
     if api_blueprint is not None:
         if _validate_blueprint(api_blueprint):
             logger.info("Vue API blueprint successfully imported and validated")
@@ -189,54 +188,44 @@ except Exception as e:
 def get_blueprint_info() -> dict:
     """
     Get information about the imported blueprint for debugging.
-    
+
     Returns:
         Dictionary with blueprint information
     """
     if api_blueprint is None:
-        return {
-            'status': 'not_imported',
-            'blueprint': None,
-            'name': None,
-            'url_prefix': None,
-            'routes': []
-        }
-    
+        return {"status": "not_imported", "blueprint": None, "name": None, "url_prefix": None, "routes": []}
+
     try:
         info = {
-            'status': 'imported',
-            'blueprint': str(type(api_blueprint)),
-            'name': getattr(api_blueprint, 'name', 'Unknown'),
-            'url_prefix': getattr(api_blueprint, 'url_prefix', None),
-            'routes': []
+            "status": "imported",
+            "blueprint": str(type(api_blueprint)),
+            "name": getattr(api_blueprint, "name", "Unknown"),
+            "url_prefix": getattr(api_blueprint, "url_prefix", None),
+            "routes": [],
         }
-        
-        if hasattr(api_blueprint, 'deferred_functions'):
-            deferred_funcs = getattr(api_blueprint, 'deferred_functions', [])
-            info['deferred_functions_count'] = len(deferred_funcs) if deferred_funcs else 0
-        
+
+        if hasattr(api_blueprint, "deferred_functions"):
+            deferred_funcs = getattr(api_blueprint, "deferred_functions", [])
+            info["deferred_functions_count"] = len(deferred_funcs) if deferred_funcs else 0
+
         return info
-        
+
     except Exception as e:
         logger.error(f"Error getting blueprint info: {e}")
-        return {
-            'status': 'error',
-            'error': str(e),
-            'blueprint': str(type(api_blueprint)) if api_blueprint else None
-        }
+        return {"status": "error", "error": str(e), "blueprint": str(type(api_blueprint)) if api_blueprint else None}
 
 
 def is_blueprint_available() -> bool:
     """
     Check if the vue_api blueprint was successfully imported.
-    
+
     Returns:
         True if blueprint is available, False otherwise
     """
     return api_blueprint is not None and _validate_blueprint(api_blueprint)
 
 
-__all__ = ['api_blueprint', 'get_blueprint_info', 'is_blueprint_available']
+__all__ = ["api_blueprint", "get_blueprint_info", "is_blueprint_available"]
 
 if api_blueprint is not None:
     logger.info(f"[SUCCESS] Vue API blueprint ready: {getattr(api_blueprint, 'name', 'unnamed')}")

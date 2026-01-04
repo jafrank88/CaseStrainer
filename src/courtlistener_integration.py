@@ -6,14 +6,17 @@ It also provides functions to search for citations in local PDF folders as an al
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT, DEFAULT_MAX_RETRIES
+from src.config import (
+    DEFAULT_REQUEST_TIMEOUT,
+    COURTLISTENER_TIMEOUT,
+    DEFAULT_MAX_RETRIES,
+)
 
 import re
 import time
 import requests
 from typing import Optional, Dict, Any, Tuple
 import logging
-import sys
 
 logger = logging.getLogger(__name__)
 
@@ -94,9 +97,7 @@ def setup_courtlistener_api(
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        logger.info(
-                            f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
-                        )
+                        logger.info(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
                     else:
@@ -126,9 +127,7 @@ def setup_courtlistener_api(
                     time.sleep(wait_time)
                     continue
                 else:
-                    logger.warning(
-                        "Failed to connect to CourtListener API after multiple attempts."
-                    )
+                    logger.warning("Failed to connect to CourtListener API after multiple attempts.")
                     COURTLISTENER_AVAILABLE = False
                     return False
             except requests.exceptions.RequestException as e:
@@ -139,9 +138,7 @@ def setup_courtlistener_api(
                     time.sleep(wait_time)
                     continue
                 else:
-                    logger.warning(
-                        f"Failed to connect to CourtListener API after {max_retries} attempts."
-                    )
+                    logger.warning(f"Failed to connect to CourtListener API after {max_retries} attempts.")
                     COURTLISTENER_AVAILABLE = False
                     return False
             except Exception as e:
@@ -158,16 +155,12 @@ def setup_courtlistener_api(
         COURTLISTENER_AVAILABLE = False
         if verbose:
             logger.warning("Failed to set up CourtListener API after multiple attempts.")
-            logger.warning(
-                "API will be used in limited mode or local PDF search will be used instead."
-            )
+            logger.warning("API will be used in limited mode or local PDF search will be used instead.")
         return False
     except Exception as e:
         if verbose:
             logger.warning(f"Warning: Error setting up CourtListener API: {str(e)}")
-            logger.warning(
-                "API will be used in limited mode or local PDF search will be used instead."
-            )
+            logger.warning("API will be used in limited mode or local PDF search will be used instead.")
         COURTLISTENER_AVAILABLE = False
         return False
 
@@ -189,9 +182,7 @@ def normalize_westlaw_citation(citation: str) -> str:
     return citation
 
 
-def search_citation(
-    citation: str, max_retries: int = 5
-) -> Tuple[bool, Optional[Dict[str, Any]]]:
+def search_citation(citation: str, max_retries: int = 5) -> Tuple[bool, Optional[Dict[str, Any]]]:
     """
     Search for a case citation in the CourtListener API.
 
@@ -226,22 +217,16 @@ def search_citation(
                 try:
                     lookup_url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
                     response = requests.post(
-                        lookup_url,
-                        data={"text": citation},
-                        headers=headers,
-                        timeout=DEFAULT_REQUEST_TIMEOUT)
+                        lookup_url, data={"text": citation}, headers=headers, timeout=DEFAULT_REQUEST_TIMEOUT
+                    )
 
                     if response.status_code == 200:
                         data = response.json()
                         if data and len(data) > 0:
                             logger.info("Citation found via citation lookup API")
                             return True, data[0]
-                    elif (
-                        response.status_code != 404
-                    ):  # 404 means citation not found, which is expected
-                        logger.warning(
-                            f"Warning: Citation lookup API returned status code {response.status_code}"
-                        )
+                    elif response.status_code != 404:  # 404 means citation not found, which is expected
+                        logger.warning(f"Warning: Citation lookup API returned status code {response.status_code}")
                         logger.warning(f"Response: {response.text}")
                 except Exception as e:
                     logger.warning(f"Warning: Error using citation lookup API: {str(e)}")
@@ -282,18 +267,14 @@ def search_citation(
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        logger.info(
-                            f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
-                        )
+                        logger.info(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
                     else:
                         logger.info(f"Rate limit exceeded after {max_retries} attempts.")
                         return False, None
                 else:
-                    logger.warning(
-                        f"Warning: Error searching CourtListener API: Status code {response.status_code}"
-                    )
+                    logger.warning(f"Warning: Error searching CourtListener API: Status code {response.status_code}")
                     logger.warning(f"Response: {response.text}")
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
@@ -365,9 +346,7 @@ def get_case_details(case_id: str, max_retries: int = DEFAULT_MAX_RETRIES) -> Op
                 elif response.status_code == 429:  # Too Many Requests
                     if attempt < max_retries - 1:
                         wait_time = 3**attempt  # Increased exponential backoff
-                        logger.info(
-                            f"Rate limit exceeded. Waiting {wait_time} seconds before retrying..."
-                        )
+                        logger.info(f"Rate limit exceeded. Waiting {wait_time} seconds before retrying...")
                         time.sleep(wait_time)
                         continue
                     else:
@@ -416,9 +395,7 @@ def get_case_details(case_id: str, max_retries: int = DEFAULT_MAX_RETRIES) -> Op
     return None
 
 
-def generate_case_summary_from_courtlistener(
-    citation: str, max_retries: int = 5
-) -> str:
+def generate_case_summary_from_courtlistener(citation: str, max_retries: int = 5) -> str:
     """
     Generate a summary of a legal case using the CourtListener API.
 
@@ -451,9 +428,7 @@ def generate_case_summary_from_courtlistener(
             exists, case_data = search_citation(citation)
 
             if not exists or not case_data:
-                return (
-                    f"Case citation '{citation}' not found in CourtListener database."
-                )
+                return f"Case citation '{citation}' not found in CourtListener database."
 
             case_id = case_data.get("id")
             if case_id:
@@ -610,9 +585,7 @@ def search_citation_in_local_pdfs(citation: str, timeout_seconds: int = 10) -> b
         return False
 
 
-def batch_citation_validation(
-    citations: list, max_retries: int = 5, local_search_timeout: int = 15
-) -> list:
+def batch_citation_validation(citations: list, max_retries: int = 5, local_search_timeout: int = 15) -> list:
     """
     Validate a list of citations using CourtListener API with fallback to local PDF or pattern-based validation.
     Returns a list of dicts: [{citation: str, exists: bool, method: str, error: Optional[str]}]
@@ -631,9 +604,7 @@ def batch_citation_validation(
         except Exception as e:
             if USE_LOCAL_PDF_SEARCH:
                 try:
-                    result["exists"] = search_citation_in_local_pdfs(
-                        citation, timeout_seconds=local_search_timeout
-                    )
+                    result["exists"] = search_citation_in_local_pdfs(citation, timeout_seconds=local_search_timeout)
                     result["method"] = "local_pdf_fallback"
                 except Exception as e2:
                     result["exists"] = None
@@ -647,9 +618,7 @@ def batch_citation_validation(
     return results
 
 
-def check_citation_exists(
-    citation: str, max_retries: int = 5, local_search_timeout: int = 15
-) -> bool:
+def check_citation_exists(citation: str, max_retries: int = 5, local_search_timeout: int = 15) -> bool:
     """
     Check if a citation exists in the CourtListener database.
 
@@ -683,9 +652,7 @@ def check_citation_exists(
 
     if USE_LOCAL_PDF_SEARCH:
         logger.info(f"Using local PDF search for citation: {citation}")
-        return search_citation_in_local_pdfs(
-            citation, timeout_seconds=local_search_timeout
-        )
+        return search_citation_in_local_pdfs(citation, timeout_seconds=local_search_timeout)
 
     for attempt in range(max_retries):
         try:
@@ -701,9 +668,7 @@ def check_citation_exists(
                 time.sleep(wait_time)
                 continue
             else:
-                logger.warning(
-                    f"Failed to check citation after {max_retries} attempts. Assuming it exists."
-                )
+                logger.warning(f"Failed to check citation after {max_retries} attempts. Assuming it exists.")
                 return True  # Default to assuming it exists if there's an error
 
     return True
