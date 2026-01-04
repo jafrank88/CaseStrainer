@@ -868,7 +868,36 @@ def main():
         sys.exit(1)
 
 
-app = create_app()
+# Create app at module level with error handling
+try:
+    app = create_app()
+    logger.info("Flask app created successfully at module level")
+except Exception as e:
+    # If app creation fails, create a minimal app that returns an error
+    logging.basicConfig(level=logging.ERROR)
+    logger = logging.getLogger(__name__)
+    logger.critical(f"Failed to create Flask app: {e}", exc_info=True)
+    
+    # Create minimal Flask app for error reporting
+    from flask import Flask, jsonify
+    app = Flask(__name__)
+    
+    @app.route('/casestrainer/api/health')
+    def health_error():
+        return jsonify({
+            'status': 'unhealthy',
+            'error': 'App creation failed',
+            'details': str(e)
+        }), 500
+    
+    @app.route('/casestrainer/')
+    def root_error():
+        return jsonify({
+            'status': 'unhealthy',
+            'error': 'App creation failed',
+            'details': str(e)
+        }), 500
+
 
 if __name__ == "__main__":
     main()

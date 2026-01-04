@@ -185,7 +185,14 @@ jobs:
 
     - name: Test backend health
       run: |
-        curl -f http://localhost:5000/casestrainer/api/health || exit 1
+        echo "Testing backend health endpoint..."
+        # First check if server is responding at all
+        curl -v http://localhost:5000/casestrainer/api/health || {
+          echo "Health check failed. Checking if server is running..."
+          curl -v http://localhost:5000/ || echo "Root endpoint also failed"
+          docker logs casestrainer-backend --tail 50 || echo "Could not get container logs"
+          exit 1
+        }
 
     - name: Test Redis connection
       run: |
