@@ -6,7 +6,6 @@ in the unconfirmed citations database, ensuring they follow standard legal citat
 """
 
 import json
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 
@@ -65,9 +64,7 @@ def load_unconfirmed_citations(
         return {}
 
 
-def save_corrected_citations(
-    citations, filename="downloaded_briefs/properly_formatted_citations.json"
-):
+def save_corrected_citations(citations, filename="downloaded_briefs/properly_formatted_citations.json"):
     """Save corrected citations to a JSON file."""
     try:
         with open(filename, "w") as f:
@@ -104,12 +101,8 @@ def create_properly_formatted_citations():
                 formatted_citation["original_citation_text"] = citation_text
                 formatted_citation["citation_text"] = CORRECTED_CITATIONS[citation_text]
                 formatted_citation["format_correction"] = "Corrected to standard format"
-                formatted_citation["confidence"] = (
-                    0.7  # Higher confidence for corrected citations
-                )
-                formatted_citation["explanation"] = (
-                    "Citation format corrected to standard legal format"
-                )
+                formatted_citation["confidence"] = 0.7  # Higher confidence for corrected citations
+                formatted_citation["explanation"] = "Citation format corrected to standard legal format"
 
             properly_formatted[document].append(formatted_citation)
 

@@ -71,7 +71,7 @@ class VerificationRegistry:
                     getattr(provider, "__name__", str(provider)),
                     ok,
                     time.time() - start,
-                    data.get("source")
+                    data.get("source"),
                 )
                 if ok:
                     if self.cache_enabled:
@@ -84,7 +84,7 @@ class VerificationRegistry:
                     "[VerifyRegistry] Provider #%d %s raised: %s",
                     idx + 1,
                     getattr(provider, "__name__", str(provider)),
-                    e
+                    e,
                 )
             finally:
                 remaining -= per
@@ -99,10 +99,7 @@ class VerificationRegistry:
         name_hint: Optional[str],
         date_hint: Optional[str],
     ) -> Any:
-        return await asyncio.wait_for(
-            provider(citation, name_hint, date_hint, per_timeout),
-            timeout=per_timeout + 0.1
-        )
+        return await asyncio.wait_for(provider(citation, name_hint, date_hint, per_timeout), timeout=per_timeout + 0.1)
 
     def _to_plain_dict(self, res: Any, citation: str) -> Dict[str, Any]:
         if res is None:
@@ -145,7 +142,9 @@ class VerificationRegistry:
             self._cache.pop(key, None)
         return None
 
-    def _set_cache(self, citation: str, name_hint: Optional[str], date_hint: Optional[str], data: Dict[str, Any]) -> None:
+    def _set_cache(
+        self, citation: str, name_hint: Optional[str], date_hint: Optional[str], data: Dict[str, Any]
+    ) -> None:
         if not self.cache_enabled or self.ttl_seconds <= 0:
             return
         key = self._cache_key(citation, name_hint, date_hint)

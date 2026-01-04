@@ -6,21 +6,24 @@ Currently a placeholder for future performance enhancements.
 """
 
 import time
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 
 logger = logging.getLogger(__name__)
 
+
 def measure_performance(func):
     """Decorator to measure function performance."""
+
     def wrapper(*args, **kwargs):
         start_time = time.time()
         result = func(*args, **kwargs)
         end_time = time.time()
         return result
+
     return wrapper
+
 
 def optimize_cache():
     """Placeholder for cache optimization functions."""
-    logger.info("Performance optimization module initialized") 
+    logger.info("Performance optimization module initialized")

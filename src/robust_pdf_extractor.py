@@ -19,10 +19,12 @@ FAST_EXTRACTION_TIMEOUT = 20  # seconds for fast libraries
 # Import footnote converter
 try:
     from src.footnote_to_endnote_converter import convert_footnotes_to_endnotes
+
     FOOTNOTE_CONVERTER_AVAILABLE = True
 except ImportError:
     logger.warning("Footnote converter not available")
     FOOTNOTE_CONVERTER_AVAILABLE = False
+
 
 class RobustPDFExtractor:
     """
@@ -39,7 +41,7 @@ class RobustPDFExtractor:
     def __init__(self, convert_footnotes: bool = False, verbose: bool = False):  # FIX #13: Disabled - breaks text order
         """
         Initialize PDF extractor.
-        
+
         Args:
             convert_footnotes: Whether to convert footnotes to endnotes (improves citation extraction)
             verbose: Enable verbose logging (default: False for speed)
@@ -54,36 +56,41 @@ class RobustPDFExtractor:
 
         # Test PyMuPDF (best performer) - FASTEST
         try:
-            import fitz
-            libraries.append('fitz')
+            pass
+
+            libraries.append("fitz")
         except ImportError:
             pass
 
         # Test PDFPlumber (fast and accurate) - SECOND FASTEST
         try:
-            import pdfplumber
-            libraries.append('pdfplumber')
+            pass
+
+            libraries.append("pdfplumber")
         except ImportError:
             pass
 
         # Test PyPDF (basic, fast)
         try:
-            import pypdf
-            libraries.append('pypdf')
+            pass
+
+            libraries.append("pypdf")
         except ImportError:
             pass
 
         # Test PyPDF2 (legacy, slower)
         try:
-            import PyPDF2
-            libraries.append('PyPDF2')
+            pass
+
+            libraries.append("PyPDF2")
         except ImportError:
             pass
-            
+
         # Test PDFMiner (SLOWEST but thorough) - LAST RESORT
         try:
-            from pdfminer.high_level import extract_text
-            libraries.append('pdfminer')
+            pass
+
+            libraries.append("pdfminer")
         except ImportError:
             pass
 
@@ -91,7 +98,7 @@ class RobustPDFExtractor:
             logger.info(f"PDF extraction libraries available: {', '.join(libraries)}")
         else:
             logger.error("No PDF extraction libraries available!")
-            
+
         return libraries
 
     def extract_text(self, pdf_path: str, max_pages: Optional[int] = None) -> Tuple[str, str]:
@@ -109,16 +116,16 @@ class RobustPDFExtractor:
             raise FileNotFoundError(f"PDF file not found: {pdf_path}")
 
         start_time = time.time()
-        
+
         # Try libraries in order of SPEED (fitz/pdfplumber fastest)
         for library in self.available_libraries:
             try:
                 if self.verbose:
                     logger.info(f"Trying {library}...")
-                
+
                 # USER OPTIMIZATION: Use timeout to prevent hanging
-                timeout = FAST_EXTRACTION_TIMEOUT if library in ['fitz', 'pdfplumber', 'pypdf'] else EXTRACTION_TIMEOUT
-                
+                timeout = FAST_EXTRACTION_TIMEOUT if library in ["fitz", "pdfplumber", "pypdf"] else EXTRACTION_TIMEOUT
+
                 with ThreadPoolExecutor(max_workers=1) as executor:
                     future = executor.submit(self._extract_with_library, pdf_path, library, max_pages)
                     try:
@@ -130,13 +137,13 @@ class RobustPDFExtractor:
                 if text and len(text.strip()) > 100:  # Minimum viable text
                     # USER OPTIMIZATION: Quick quality check (no complex scoring for speed)
                     quality_score = self._assess_text_quality_fast(text)
-                    
+
                     if self.verbose:
                         logger.info(f"✅ {library}: {len(text):,} chars, quality={quality_score:.2f}")
 
                     # USER OPTIMIZATION: Lower threshold for fast libraries (they're reliable)
-                    threshold = 0.2 if library in ['fitz', 'pdfplumber'] else 0.3
-                    
+                    threshold = 0.2 if library in ["fitz", "pdfplumber"] else 0.3
+
                     if quality_score >= threshold:
                         # Convert footnotes if enabled (fast operation)
                         if self.convert_footnotes:
@@ -146,7 +153,7 @@ class RobustPDFExtractor:
                                     logger.info(f"📝 Converted {footnote_count} footnotes")
                             except:
                                 pass  # Fail silently, use original
-                        
+
                         elapsed = time.time() - start_time
                         logger.info(f"✅ PDF extracted in {elapsed:.1f}s using {library}")
                         return text, library
@@ -171,15 +178,15 @@ class RobustPDFExtractor:
 
     def _extract_with_library(self, pdf_path: str, library: str, max_pages: Optional[int]) -> str:
         """Extract text using a specific library."""
-        if library == 'fitz':
+        if library == "fitz":
             return self._extract_fitz(pdf_path, max_pages)
-        elif library == 'pdfminer':
+        elif library == "pdfminer":
             return self._extract_pdfminer(pdf_path, max_pages)
-        elif library == 'pdfplumber':
+        elif library == "pdfplumber":
             return self._extract_pdfplumber(pdf_path, max_pages)
-        elif library == 'pypdf':
+        elif library == "pypdf":
             return self._extract_pypdf(pdf_path, max_pages)
-        elif library == 'PyPDF2':
+        elif library == "PyPDF2":
             return self._extract_pypdf2(pdf_path, max_pages)
         else:
             raise ValueError(f"Unknown library: {library}")
@@ -187,7 +194,7 @@ class RobustPDFExtractor:
     def _extract_fitz(self, pdf_path: str, max_pages: Optional[int]) -> str:
         """
         Extract text using PyMuPDF (fitz) - Best performer.
-        
+
         FIX #13: Enhanced with header/footer removal to prevent citation contamination.
         - Removes top 65px (headers like case numbers "No. 103430-0")
         - Removes bottom 50px (page numbers like "15")
@@ -196,7 +203,7 @@ class RobustPDFExtractor:
         import fitz
 
         doc = fitz.open(pdf_path)
-        text = ''
+        text = ""
 
         try:
             pages_to_process = range(min(max_pages, len(doc))) if max_pages else range(len(doc))
@@ -204,26 +211,26 @@ class RobustPDFExtractor:
             for page_num in pages_to_process:
                 page = doc.load_page(page_num)
                 page_height = page.rect.height
-                
+
                 # FIX #13: Extract with position-based filtering to remove headers/footers
                 # Get text blocks with position information
                 blocks = page.get_text("dict")["blocks"]
-                
+
                 for block in blocks:
                     if "bbox" not in block or "lines" not in block:
                         continue
-                    
+
                     y_top = block["bbox"][1]
                     y_bottom = block["bbox"][3]
-                    
+
                     # Skip header area (top 65 pixels) - removes case numbers, titles
                     if y_top < 65:
                         continue
-                    
+
                     # Skip page number area (bottom 50 pixels) - removes "1", "2", etc.
                     if y_bottom > page_height - 50:
                         continue
-                    
+
                     # Keep this block - it's main content (body text or footnotes)
                     for line in block["lines"]:
                         for span in line.get("spans", []):
@@ -240,31 +247,24 @@ class RobustPDFExtractor:
         """Extract text using PDFMiner - Good balance."""
         from pdfminer.high_level import extract_text
         from pdfminer.layout import LAParams
-        from io import StringIO
         import logging as pdfminer_logging
-        
+
         # USER FIX: Disable ALL PDFMiner sub-loggers (psparser, cmapdb, pdfinterp, etc.)
         # This is critical - PDFMiner creates massive DEBUG spam that slows everything down
         pdfminer_loggers = [
-            pdfminer_logging.getLogger('pdfminer'),
-            pdfminer_logging.getLogger('pdfminer.psparser'),
-            pdfminer_logging.getLogger('pdfminer.cmapdb'),
-            pdfminer_logging.getLogger('pdfminer.pdfinterp'),
-            pdfminer_logging.getLogger('pdfminer.pdfpage'),
-            pdfminer_logging.getLogger('pdfminer.converter'),
+            pdfminer_logging.getLogger("pdfminer"),
+            pdfminer_logging.getLogger("pdfminer.psparser"),
+            pdfminer_logging.getLogger("pdfminer.cmapdb"),
+            pdfminer_logging.getLogger("pdfminer.pdfinterp"),
+            pdfminer_logging.getLogger("pdfminer.pdfpage"),
+            pdfminer_logging.getLogger("pdfminer.converter"),
         ]
         original_levels = [logger.level for logger in pdfminer_loggers]
         for logger in pdfminer_loggers:
             logger.setLevel(pdfminer_logging.ERROR)  # Only show errors
-        
+
         try:
-            laparams = LAParams(
-                line_margin=0.5,
-                word_margin=0.1,
-                char_margin=2.0,
-                detect_vertical=True,
-                all_texts=True
-            )
+            laparams = LAParams(line_margin=0.5, word_margin=0.1, char_margin=2.0, detect_vertical=True, all_texts=True)
 
             # PDFMiner doesn't have direct page limit, so we'll extract all and truncate if needed
             text = extract_text(pdf_path, laparams=laparams)
@@ -285,14 +285,14 @@ class RobustPDFExtractor:
         """Extract text using PDFPlumber - Good for structured documents."""
         import pdfplumber
 
-        text = ''
+        text = ""
         with pdfplumber.open(pdf_path) as pdf:
             pages_to_process = pdf.pages[:max_pages] if max_pages else pdf.pages
 
             for page in pages_to_process:
                 page_text = page.extract_text()
                 if page_text:
-                    text += page_text + '\n'
+                    text += page_text + "\n"
 
         return text
 
@@ -300,15 +300,17 @@ class RobustPDFExtractor:
         """Extract text using PyPDF - Basic functionality."""
         import pypdf
 
-        text = ''
-        with open(pdf_path, 'rb') as file:
+        text = ""
+        with open(pdf_path, "rb") as file:
             pdf_reader = pypdf.PdfReader(file)
-            pages_to_process = range(min(max_pages, len(pdf_reader.pages))) if max_pages else range(len(pdf_reader.pages))
+            pages_to_process = (
+                range(min(max_pages, len(pdf_reader.pages))) if max_pages else range(len(pdf_reader.pages))
+            )
 
             for page_num in pages_to_process:
                 page = pdf_reader.pages[page_num]
                 page_text = page.extract_text()
-                text += page_text + '\n'
+                text += page_text + "\n"
 
         return text
 
@@ -316,15 +318,17 @@ class RobustPDFExtractor:
         """Extract text using PyPDF2 - Legacy library."""
         import PyPDF2
 
-        text = ''
-        with open(pdf_path, 'rb') as file:
+        text = ""
+        with open(pdf_path, "rb") as file:
             pdf_reader = PyPDF2.PdfReader(file)
-            pages_to_process = range(min(max_pages, len(pdf_reader.pages))) if max_pages else range(len(pdf_reader.pages))
+            pages_to_process = (
+                range(min(max_pages, len(pdf_reader.pages))) if max_pages else range(len(pdf_reader.pages))
+            )
 
             for page_num in pages_to_process:
                 page = pdf_reader.pages[page_num]
                 page_text = page.extract_text()
-                text += page_text + '\n'
+                text += page_text + "\n"
 
         return text
 
@@ -340,24 +344,26 @@ class RobustPDFExtractor:
         score = 0.0
 
         # Quick legal/citation indicator check (most important)
-        indicators = ['court', 'v.', 'f.', 'u.s.', 'p.', 'supp', 'plaintiff', 'defendant']
+        indicators = ["court", "v.", "f.", "u.s.", "p.", "supp", "plaintiff", "defendant"]
         matches = sum(1 for ind in indicators if ind in text_lower)
         score += min(matches / len(indicators), 1.0) * 0.7
 
         # Quick structure check (periods indicate sentences)
-        period_ratio = text.count('.') / len(text) if text else 0
+        period_ratio = text.count(".") / len(text) if text else 0
         if 0.01 < period_ratio < 0.1:  # Reasonable range
             score += 0.3
 
         return min(score, 1.0)
-    
+
     def _assess_text_quality(self, text: str) -> float:
         """Backward compatibility wrapper."""
         return self._assess_text_quality_fast(text)
 
 
 # Convenience function for easy use
-def extract_pdf_text_robust(pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = False, verbose: bool = False) -> Tuple[str, str]:  # FIX #13: Disabled footnote conversion
+def extract_pdf_text_robust(
+    pdf_path: str, max_pages: Optional[int] = None, convert_footnotes: bool = False, verbose: bool = False
+) -> Tuple[str, str]:  # FIX #13: Disabled footnote conversion
     """
     USER OPTIMIZED: Fast PDF extraction with robust fallbacks.
 
@@ -379,11 +385,11 @@ def extract_text_from_pdf_smart(pdf_path: str, max_pages: Optional[int] = None) 
     """
     Compatibility wrapper for extract_pdf_text_robust.
     Returns only the text (not the library name) for backward compatibility.
-    
+
     Args:
         pdf_path: Path to PDF file
         max_pages: Maximum pages to process (None for all)
-    
+
     Returns:
         Extracted text as string
     """
@@ -395,10 +401,10 @@ def extract_text_from_pdf_ultra_fast(pdf_path: str) -> str:
     """
     Compatibility wrapper for fast PDF extraction.
     Uses the same robust extraction as extract_text_from_pdf_smart.
-    
+
     Args:
         pdf_path: Path to PDF file
-    
+
     Returns:
         Extracted text as string
     """
@@ -424,11 +430,11 @@ if __name__ == "__main__":
 
     if text:
         # Count citation indicators
-        citation_count = text.count('U.S.') + text.count('F.3d') + text.count('F.2d') + text.count('F. Supp')
+        citation_count = text.count("U.S.") + text.count("F.3d") + text.count("F.2d") + text.count("F. Supp")
         print(f"📋 Citation indicators found: {citation_count}")
 
         # Show sample
-        sample = text[:500].replace('\n', ' ').strip()
+        sample = text[:500].replace("\n", " ").strip()
         print(f"📖 Sample text: {sample}...")
     else:
         print("❌ No text extracted")

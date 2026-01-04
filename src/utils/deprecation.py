@@ -8,6 +8,7 @@ def deprecated(replacement: str | None = None):
     Args:
         replacement: Optional string hinting at the new function to use.
     """
+
     def _wrap(func):
         warned = {"emitted": False}
 
@@ -24,5 +25,3 @@ def deprecated(replacement: str | None = None):
         return _inner
 
     return _wrap
-
-

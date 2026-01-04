@@ -5,13 +5,22 @@ This module provides enhanced type annotations and type checking utilities.
 """
 
 from typing import (
-    List, Dict, Any, Optional, Union, Tuple, Set, 
-    Callable, Awaitable, TypeVar, Generic, Protocol,
-    runtime_checkable, get_type_hints, TYPE_CHECKING
+    List,
+    Dict,
+    Any,
+    Optional,
+    Union,
+    Tuple,
+    Set,
+    Callable,
+    TypeVar,
+    Protocol,
+    runtime_checkable,
+    get_type_hints,
+    TYPE_CHECKING,
 )
 from typing_extensions import TypedDict, Literal
 from dataclasses import dataclass
-from abc import ABC, abstractmethod
 import inspect
 import logging
 
@@ -28,12 +37,13 @@ ConfidenceScore = float  # 0.0 to 1.0
 ProcessingMethod = Literal["regex", "eyecite", "api", "landmark", "cache"]
 VerificationStatus = Literal["verified", "unverified", "pending", "error"]
 
-T = TypeVar('T')
-ResultType = TypeVar('ResultType')
+T = TypeVar("T")
+ResultType = TypeVar("ResultType")
 
 
 class CitationDict(TypedDict, total=False):
     """Typed dictionary for citation data."""
+
     citation: CitationText
     extracted_case_name: Optional[CaseNameText]
     extracted_date: Optional[DateText]
@@ -56,6 +66,7 @@ class CitationDict(TypedDict, total=False):
 
 class ClusterDict(TypedDict, total=False):
     """Typed dictionary for citation cluster data."""
+
     cluster_id: str
     canonical_name: Optional[CaseNameText]
     canonical_date: Optional[DateText]
@@ -69,6 +80,7 @@ class ClusterDict(TypedDict, total=False):
 
 class ProcessingResultDict(TypedDict):
     """Typed dictionary for processing results."""
+
     success: bool
     citations: List[CitationDict]
     clusters: List[ClusterDict]
@@ -80,6 +92,7 @@ class ProcessingResultDict(TypedDict):
 
 class ConfigDict(TypedDict, total=False):
     """Typed dictionary for configuration."""
+
     debug_mode: bool
     use_eyecite: bool
     api_timeout: float
@@ -92,8 +105,8 @@ class ConfigDict(TypedDict, total=False):
 @runtime_checkable
 class Extractable(Protocol):
     """Protocol for objects that can extract citations."""
-    
-    def extract_citations(self, text: str) -> List['CitationResult']:
+
+    def extract_citations(self, text: str) -> List["CitationResult"]:
         """Extract citations from text."""
         ...
 
@@ -101,8 +114,8 @@ class Extractable(Protocol):
 @runtime_checkable
 class Verifiable(Protocol):
     """Protocol for objects that can verify citations."""
-    
-    async def verify_citations(self, citations: List['CitationResult']) -> List['CitationResult']:
+
+    async def verify_citations(self, citations: List["CitationResult"]) -> List["CitationResult"]:
         """Verify citations."""
         ...
 
@@ -110,8 +123,8 @@ class Verifiable(Protocol):
 @runtime_checkable
 class Clusterable(Protocol):
     """Protocol for objects that can cluster citations."""
-    
-    def cluster_citations(self, citations: List['CitationResult']) -> List[ClusterDict]:
+
+    def cluster_citations(self, citations: List["CitationResult"]) -> List[ClusterDict]:
         """Cluster citations."""
         ...
 
@@ -119,6 +132,7 @@ class Clusterable(Protocol):
 @dataclass
 class TypedCitationResult:
     """Strongly typed citation result with validation."""
+
     citation: CitationText
     start_index: int
     end_index: int
@@ -137,31 +151,31 @@ class TypedCitationResult:
     url: Optional[UrlText] = None
     source: Optional[str] = None
     metadata: Optional[Dict[str, Any]] = None
-    
+
     def __post_init__(self):
         """Validate fields after initialization."""
         self._validate_confidence()
         self._validate_indices()
         self._validate_method()
-    
+
     def _validate_confidence(self) -> None:
         """Validate confidence score is between 0 and 1."""
         if not 0.0 <= self.confidence <= 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
-    
+
     def _validate_indices(self) -> None:
         """Validate start and end indices."""
         if self.start_index < 0:
             raise ValueError(f"Start index must be non-negative, got {self.start_index}")
         if self.end_index < self.start_index:
             raise ValueError(f"End index ({self.end_index}) must be >= start index ({self.start_index})")
-    
+
     def _validate_method(self) -> None:
         """Validate processing method."""
         valid_methods = {"regex", "eyecite", "api", "landmark", "cache"}
         if self.method not in valid_methods:
             raise ValueError(f"Method must be one of {valid_methods}, got {self.method}")
-    
+
     def to_dict(self) -> CitationDict:
         """Convert to dictionary format."""
         return CitationDict(
@@ -182,55 +196,60 @@ class TypedCitationResult:
             docket_number=self.docket_number,
             url=self.url,
             source=self.source,
-            metadata=self.metadata or {}
+            metadata=self.metadata or {},
         )
 
 
 class TypeValidator:
     """Utility class for runtime type validation."""
-    
+
     @staticmethod
-    def validate_citation_list(citations: Any) -> List['CitationResult']:
+    def validate_citation_list(citations: Any) -> List["CitationResult"]:
         """Validate and convert citation list."""
         if not isinstance(citations, list):
             raise TypeError(f"Expected list, got {type(citations)}")
-        
+
         # from ..models import CitationResult # This line is removed
-        
+
         validated = []
         for i, citation in enumerate(citations):
             if not isinstance(citation, CitationResult):
                 raise TypeError(f"Citation {i} is not a CitationResult, got {type(citation)}")
             validated.append(citation)
-        
+
         return validated
-    
+
     @staticmethod
     def validate_text_input(text: Any) -> str:
         """Validate text input."""
         if not isinstance(text, str):
             raise TypeError(f"Expected string, got {type(text)}")
-        
+
         if not text.strip():
             raise ValueError("Text cannot be empty or whitespace only")
-        
+
         return text
-    
+
     @staticmethod
     def validate_config(config: Any) -> Dict[str, Any]:
         """Validate configuration dictionary."""
         if not isinstance(config, dict):
             raise TypeError(f"Expected dict, got {type(config)}")
-        
+
         valid_keys = {
-            'debug_mode', 'use_eyecite', 'api_timeout', 'max_retries',
-            'cache_ttl', 'rate_limit_delay', 'courtlistener_api_key'
+            "debug_mode",
+            "use_eyecite",
+            "api_timeout",
+            "max_retries",
+            "cache_ttl",
+            "rate_limit_delay",
+            "courtlistener_api_key",
         }
-        
+
         for key in config:
             if key not in valid_keys:
                 logger.warning(f"Unknown config key: {key}")
-        
+
         return config
 
 
@@ -238,43 +257,40 @@ def type_checked(func: Callable[..., T]) -> Callable[..., T]:
     """
     Decorator for runtime type checking based on type annotations.
     """
+
     def wrapper(*args, **kwargs) -> T:
         sig = inspect.signature(func)
         type_hints = get_type_hints(func)
-        
+
         bound_args = sig.bind(*args, **kwargs)
         bound_args.apply_defaults()
-        
+
         for param_name, value in bound_args.arguments.items():
             if param_name in type_hints:
                 expected_type = type_hints[param_name]
                 if not _is_instance_of_type(value, expected_type):
                     raise TypeError(
-                        f"Parameter '{param_name}' expected {expected_type}, "
-                        f"got {type(value)} with value {value}"
+                        f"Parameter '{param_name}' expected {expected_type}, " f"got {type(value)} with value {value}"
                     )
-        
+
         result = func(*args, **kwargs)
-        
-        if 'return' in type_hints:
-            return_type = type_hints['return']
+
+        if "return" in type_hints:
+            return_type = type_hints["return"]
             if not _is_instance_of_type(result, return_type):
-                raise TypeError(
-                    f"Return value expected {return_type}, "
-                    f"got {type(result)} with value {result}"
-                )
-        
+                raise TypeError(f"Return value expected {return_type}, " f"got {type(result)} with value {result}")
+
         return result
-    
+
     return wrapper
 
 
 def _is_instance_of_type(value: Any, expected_type: type) -> bool:
     """Check if value is instance of expected type, handling generics."""
     try:
-        if hasattr(expected_type, '__origin__'):
+        if hasattr(expected_type, "__origin__"):
             origin = expected_type.__origin__
-            
+
             if origin is Union:
                 args = expected_type.__args__
                 if len(args) == 2 and type(None) in args:
@@ -284,7 +300,7 @@ def _is_instance_of_type(value: Any, expected_type: type) -> bool:
                     return isinstance(value, non_none_type)
                 else:
                     return any(isinstance(value, arg) for arg in args)
-            
+
             elif origin in (list, List):
                 return isinstance(value, list)
             elif origin in (dict, Dict):
@@ -293,52 +309,58 @@ def _is_instance_of_type(value: Any, expected_type: type) -> bool:
                 return isinstance(value, tuple)
             elif origin in (set, Set):
                 return isinstance(value, set)
-        
+
         return isinstance(value, expected_type)
-        
+
     except Exception:
         return True
 
 
 class TypedServiceMixin:
     """Mixin class providing type checking capabilities to services."""
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._enable_type_checking = True
-    
+
     def _validate_input(self, value: Any, expected_type: type, param_name: str) -> Any:
         """Validate input parameter type."""
         if not self._enable_type_checking:
             return value
-        
+
         if not _is_instance_of_type(value, expected_type):
-            raise TypeError(
-                f"Parameter '{param_name}' expected {expected_type}, "
-                f"got {type(value)}"
-            )
-        
+            raise TypeError(f"Parameter '{param_name}' expected {expected_type}, " f"got {type(value)}")
+
         return value
-    
+
     def _validate_output(self, value: Any, expected_type: type, operation: str) -> Any:
         """Validate output type."""
         if not self._enable_type_checking:
             return value
-        
+
         if not _is_instance_of_type(value, expected_type):
-            raise TypeError(
-                f"Operation '{operation}' expected to return {expected_type}, "
-                f"got {type(value)}"
-            )
-        
+            raise TypeError(f"Operation '{operation}' expected to return {expected_type}, " f"got {type(value)}")
+
         return value
 
 
 __all__ = [
-    'CitationText', 'CaseNameText', 'DateText', 'UrlText', 
-    'ConfidenceScore', 'ProcessingMethod', 'VerificationStatus',
-    'CitationDict', 'ClusterDict', 'ProcessingResultDict', 'ConfigDict',
-    'Extractable', 'Verifiable', 'Clusterable',
-    'TypedCitationResult', 'TypeValidator', 'TypedServiceMixin',
-    'type_checked'
+    "CitationText",
+    "CaseNameText",
+    "DateText",
+    "UrlText",
+    "ConfidenceScore",
+    "ProcessingMethod",
+    "VerificationStatus",
+    "CitationDict",
+    "ClusterDict",
+    "ProcessingResultDict",
+    "ConfigDict",
+    "Extractable",
+    "Verifiable",
+    "Clusterable",
+    "TypedCitationResult",
+    "TypeValidator",
+    "TypedServiceMixin",
+    "type_checked",
 ]

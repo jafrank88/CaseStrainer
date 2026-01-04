@@ -6,7 +6,6 @@ that can identify valid citations with high accuracy without requiring API calls
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 import sqlite3
@@ -35,12 +34,8 @@ class CitationClassifier:
 
     def __init__(self):
         """Initialize the classifier."""
-        self.db_path = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "citations.db"
-        )
-        self.model_dir = os.path.join(
-            os.path.dirname(os.path.abspath(__file__)), "ml_models"
-        )
+        self.db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "citations.db")
+        self.model_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "ml_models")
         self.vectorizer_path = os.path.join(self.model_dir, "citation_vectorizer.pkl")
         self.model_path = os.path.join(self.model_dir, "citation_classifier.pkl")
         self.vectorizer = None
@@ -187,9 +182,7 @@ class CitationClassifier:
 
         try:
             logger.info("Creating feature vectors...")
-            self.vectorizer = TfidfVectorizer(
-                analyzer="char_wb", ngram_range=(2, 5), max_features=5000
-            )
+            self.vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5), max_features=5000)
 
             X_text = self.vectorizer.fit_transform(citations)
 
@@ -216,14 +209,10 @@ class CitationClassifier:
             X_additional = np.array(additional_features)
             X_combined = np.hstack((X_text.toarray(), X_additional))  # type: ignore
 
-            X_train, X_test, y_train, y_test = train_test_split(
-                X_combined, labels, test_size=0.2, random_state=42
-            )
+            X_train, X_test, y_train, y_test = train_test_split(X_combined, labels, test_size=0.2, random_state=42)
 
             logger.info("Training the model...")
-            self.model = RandomForestClassifier(
-                n_estimators=100, max_depth=10, random_state=42
-            )
+            self.model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42)
 
             self.model.fit(X_train, y_train)
 
@@ -231,9 +220,7 @@ class CitationClassifier:
             accuracy = accuracy_score(y_test, y_pred)
 
             logger.info(f"Model trained with accuracy: {accuracy:.4f}")
-            logger.info(
-                "\nClassification Report:\n" + str(classification_report(y_test, y_pred))
-            )
+            logger.info("\nClassification Report:\n" + str(classification_report(y_test, y_pred)))
 
             self._save_model()
 
@@ -304,9 +291,7 @@ class CitationClassifier:
                 explanation.append("Does not contain a recognized legal reporter")
 
             if features["has_vol_page"]:
-                explanation.append(
-                    f"Contains volume ({features['volume']}) and page ({features['page']}) numbers"
-                )
+                explanation.append(f"Contains volume ({features['volume']}) and page ({features['page']}) numbers")
             else:
                 explanation.append("Missing volume and page number pattern")
 

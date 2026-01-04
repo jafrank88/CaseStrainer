@@ -8,7 +8,6 @@ This script enhances the CaseStrainer database by:
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
 import sqlite3
@@ -24,9 +23,7 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(),
-        logging.FileHandler(
-            os.path.join(os.path.expanduser("~"), "Documents", "enhance_citations.log")
-        ),
+        logging.FileHandler(os.path.join(os.path.expanduser("~"), "Documents", "enhance_citations.log")),
     ],
 )
 logger = logging.getLogger("citation_enhancer")
@@ -39,9 +36,7 @@ EXTRACTED_DIR = os.path.join(RESULTS_DIR, "extracted_text")
 BRIEFS_DIR = "D:\\CaseStrainer\\downloaded_briefs"
 WEB_BASE_URL = "https://wolf.law.uw.edu/casestrainer/briefs/"
 
-BACKUP_DIR = os.path.join(
-    USER_DOCS, "CaseStrainer_Backups", datetime.now().strftime("%Y%m%d_%H%M%S")
-)
+BACKUP_DIR = os.path.join(USER_DOCS, "CaseStrainer_Backups", datetime.now().strftime("%Y%m%d_%H%M%S"))
 
 
 def backup_database():
@@ -61,9 +56,7 @@ def get_citations_from_database():
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT id, citation_text, source, source_document FROM citations"
-        )
+        cursor.execute("SELECT id, citation_text, source, source_document FROM citations")
         rows = cursor.fetchall()
 
         conn.close()
@@ -136,16 +129,10 @@ def extract_citation_context(text, citation, context_chars=200):
         start_index = max(0, citation_index - context_chars // 2)
         end_index = min(len(text), citation_index + len(citation) + context_chars // 2)
 
-        while (
-            start_index > 0 and text[start_index] != " " and text[start_index] != "\n"
-        ):
+        while start_index > 0 and text[start_index] != " " and text[start_index] != "\n":
             start_index -= 1
 
-        while (
-            end_index < len(text) - 1
-            and text[end_index] != " "
-            and text[end_index] != "\n"
-        ):
+        while end_index < len(text) - 1 and text[end_index] != " " and text[end_index] != "\n":
             end_index += 1
 
         context = text[start_index:end_index].strip()
@@ -174,9 +161,7 @@ def parse_citation(citation_text):
     }
 
     try:
-        volume_reporter_page = re.search(
-            r"(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)", citation_text
-        )
+        volume_reporter_page = re.search(r"(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)", citation_text)
         if volume_reporter_page:
             result["volume"] = volume_reporter_page.group(1)
             result["reporter"] = volume_reporter_page.group(2).strip()
@@ -249,9 +234,7 @@ def update_citation_in_database(citation_id, context, file_link, citation_detail
 
         for col_name, col_type in new_columns.items():
             if col_name not in columns:
-                cursor.execute(
-                    f"ALTER TABLE citations ADD COLUMN {col_name} {col_type}"
-                )
+                cursor.execute(f"ALTER TABLE citations ADD COLUMN {col_name} {col_type}")
                 logger.info(f"Added new column '{col_name}' to the database")
 
         cursor.execute(
@@ -371,9 +354,7 @@ def main():
                     with open(pdf_path, "rb") as file:
                         pdf_reader = PyPDF2.PdfReader(file)
                         for page_num in range(len(pdf_reader.pages)):
-                            text_content += (
-                                pdf_reader.pages[page_num].extract_text() + "\n"
-                            )
+                            text_content += pdf_reader.pages[page_num].extract_text() + "\n"
                 except Exception as e:
                     logger.error(f"Error extracting text from PDF {pdf_path}: {e}")
 
@@ -383,9 +364,7 @@ def main():
 
         citation_details = parse_citation(citation_text)
 
-        if update_citation_in_database(
-            citation_id, context, file_link, citation_details
-        ):
+        if update_citation_in_database(citation_id, context, file_link, citation_details):
             updated_count += 1
 
     logger.info(f"Enhanced {updated_count} citations in the database")

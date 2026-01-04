@@ -1,4 +1,3 @@
-
 """
 Machine Learning Citation Classifier
 
@@ -8,7 +7,6 @@ content, and context. This reduces the need for API calls to verify citations.
 """
 
 import os
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import re
 import json
@@ -24,9 +22,7 @@ from sklearn.metrics import classification_report, accuracy_score
 logger = logging.getLogger(__name__)
 
 DOWNLOAD_DIR = "downloaded_briefs"
-UNCONFIRMED_CITATIONS_FILE = os.path.join(
-    DOWNLOAD_DIR, "unconfirmed_citations_flat.json"
-)
+UNCONFIRMED_CITATIONS_FILE = os.path.join(DOWNLOAD_DIR, "unconfirmed_citations_flat.json")
 MODEL_FILE = os.path.join(DOWNLOAD_DIR, "citation_classifier_model.pkl")
 VECTORIZER_FILE = os.path.join(DOWNLOAD_DIR, "citation_vectorizer.pkl")
 
@@ -34,7 +30,7 @@ VECTORIZER_FILE = os.path.join(DOWNLOAD_DIR, "citation_vectorizer.pkl")
 def extract_features_from_citation(citation_text, canonical_name=None):
     """Extract features from citation text for classification."""
     features = {}
-    
+
     features["length"] = len(citation_text)
     features["has_case_name"] = 1 if canonical_name and len(canonical_name) > 0 else 0
     if canonical_name:
@@ -42,9 +38,7 @@ def extract_features_from_citation(citation_text, canonical_name=None):
     else:
         features["canonical_name_length"] = 0
 
-    features["has_volume_reporter_page"] = (
-        1 if re.search(r"\d+\s+[A-Za-z\.]+\s+\d+", citation_text) else 0
-    )
+    features["has_volume_reporter_page"] = 1 if re.search(r"\d+\s+[A-Za-z\.]+\s+\d+", citation_text) else 0
     features["has_year"] = 1 if re.search(r"\(\d{4}\)", citation_text) else 0
     features["has_court_abbreviation"] = (
         1
@@ -56,16 +50,10 @@ def extract_features_from_citation(citation_text, canonical_name=None):
         else 0
     )
 
-    features["is_wl_citation"] = (
-        1 if re.search(r"\d{4}\s+WL\s+\d+", citation_text) else 0
-    )
+    features["is_wl_citation"] = 1 if re.search(r"\d{4}\s+WL\s+\d+", citation_text) else 0
 
-    features["has_unusual_characters"] = (
-        1 if re.search(r"[^\w\s\.,;\(\)\[\]\-]", citation_text) else 0
-    )
-    features["has_excessive_numbers"] = (
-        1 if len(re.findall(r"\d+", citation_text)) > 5 else 0
-    )
+    features["has_unusual_characters"] = 1 if re.search(r"[^\w\s\.,;\(\)\[\]\-]", citation_text) else 0
+    features["has_excessive_numbers"] = 1 if len(re.findall(r"\d+", citation_text)) > 5 else 0
 
     reporter_match = re.search(r"([A-Za-z]+\.(?:\s*\d+)?[A-Za-z]*)", citation_text)
     features["has_valid_reporter"] = 0
@@ -89,9 +77,7 @@ def extract_features_from_citation(citation_text, canonical_name=None):
             "wash.2d",
             "wash.app.",
         ]
-        features["has_valid_reporter"] = (
-            1 if any(r in reporter for r in common_reporters) else 0
-        )
+        features["has_valid_reporter"] = 1 if any(r in reporter for r in common_reporters) else 0
 
     return features
 
@@ -106,9 +92,7 @@ def prepare_citation_data(citations):
         if "confidence" not in citation:
             continue
 
-        features = extract_features_from_citation(
-            citation.get("citation_text", ""), citation.get("canonical_name", "")
-        )
+        features = extract_features_from_citation(citation.get("citation_text", ""), citation.get("canonical_name", ""))
 
         label = 1 if citation.get("confidence", 0) >= 0.7 else 0
 
@@ -130,17 +114,14 @@ def train_citation_classifier():
         return None, None
 
     if len(citations) < 50:
-        logger.info(f"Not enough citation data to train a model. Found only {len(citations)} citations."
-        )
+        logger.info(f"Not enough citation data to train a model. Found only {len(citations)} citations.")
         return None, None
 
     logger.info(f"Preparing data from {len(citations)} citations...")
     features_df, labels, texts = prepare_citation_data(citations)
 
     logger.info("Creating text features...")
-    vectorizer = TfidfVectorizer(
-        analyzer="char_wb", ngram_range=(2, 5), max_features=200
-    )
+    vectorizer = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 5), max_features=200)
     vectorizer.fit_transform(texts)
 
     feature_array = features_df.to_numpy()
@@ -216,9 +197,7 @@ def classify_citation(citation_text, canonical_name=None):
             if hasattr(proba, "shape"):
                 if len(proba.shape) > 1 and proba.shape[0] > 0:
                     if proba.shape[1] > 1:
-                        confidence = float(
-                            proba[0, 1]
-                        )  # Probability of reliable class (index 1)
+                        confidence = float(proba[0, 1])  # Probability of reliable class (index 1)
                     else:
                         confidence = float(proba[0, 0])
                 elif len(proba.shape) == 1 and len(proba) > 0:
@@ -230,20 +209,12 @@ def classify_citation(citation_text, canonical_name=None):
                     confidence = float(proba[0])
             else:
                 prediction = model.predict(text_features)
-                confidence = (
-                    float(prediction[0])
-                    if hasattr(prediction, "__len__") and len(prediction) > 0
-                    else 0.5
-                )
+                confidence = float(prediction[0]) if hasattr(prediction, "__len__") and len(prediction) > 0 else 0.5
         except (IndexError, TypeError, AttributeError) as e:
             logger.error(f"Error processing prediction probabilities: {e}")
             try:
                 prediction = model.predict(text_features)
-                confidence = (
-                    float(prediction[0])
-                    if hasattr(prediction, "__len__") and len(prediction) > 0
-                    else 0.5
-                )
+                confidence = float(prediction[0]) if hasattr(prediction, "__len__") and len(prediction) > 0 else 0.5
             except Exception as e2:
                 logger.error(f"Fallback prediction also failed: {e2}")
                 confidence = 0.5
@@ -291,9 +262,7 @@ def batch_classify_citations(citations):
                 if hasattr(probas, "shape"):
                     if len(probas.shape) == 2 and probas.shape[0] > 0:
                         if probas.shape[1] > 1:
-                            confidences = [
-                                float(p[-1]) for p in probas
-                            ]  # Take last probability
+                            confidences = [float(p[-1]) for p in probas]  # Take last probability
                         else:
                             confidences = [float(p[0]) for p in probas]
                     elif len(probas.shape) == 1:
@@ -305,11 +274,7 @@ def batch_classify_citations(citations):
                             if hasattr(p, "__len__") and len(p) > 1:
                                 confidences.append(float(p[-1]))
                             else:
-                                confidences.append(
-                                    float(p[0])
-                                    if hasattr(p, "__len__") and len(p) > 0
-                                    else 0.5
-                                )
+                                confidences.append(float(p[0]) if hasattr(p, "__len__") and len(p) > 0 else 0.5)
                         except (IndexError, TypeError, ValueError) as e:
                             logger.error(f"Error processing probability: {e}")
                             confidences.append(0.5)
@@ -318,9 +283,7 @@ def batch_classify_citations(citations):
                 try:
                     predictions = model.predict(text_features)
                     confidences = (
-                        [float(p) for p in predictions]
-                        if hasattr(predictions, "__len__")
-                        else [0.5] * len(texts)
+                        [float(p) for p in predictions] if hasattr(predictions, "__len__") else [0.5] * len(texts)
                     )
                 except Exception as e2:
                     logger.error(f"Fallback prediction also failed: {e2}")

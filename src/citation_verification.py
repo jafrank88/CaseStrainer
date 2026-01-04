@@ -1,10 +1,5 @@
-import requests
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
 
 import logging
-import json
-from typing import List
-import sys
 
 logger = logging.getLogger(__name__)
 

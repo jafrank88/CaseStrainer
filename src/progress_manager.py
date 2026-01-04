@@ -8,41 +8,44 @@ AUTO-RELOAD LIVE TEST: This change should trigger immediate restart!
 import os
 import re
 import threading
-from src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+from src.config import (
+    DEFAULT_REQUEST_TIMEOUT,
+)
 
-import sys
 import time
 import json
 import logging
 import requests
 import traceback
 import uuid
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional, List, Union, Tuple, Generator, Callable, TYPE_CHECKING
-from flask import Flask, jsonify, request, Response, stream_with_context
+from datetime import datetime
+from typing import Dict, Any, Optional, List
+from flask import Flask
 import asyncio
-from dataclasses import dataclass, asdict
 
-logging.getLogger('urllib3').setLevel(logging.WARNING)
-logging.getLogger('requests').setLevel(logging.WARNING)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-from concurrent.futures import ThreadPoolExecutor
 
 try:
     from flask_socketio import SocketIO, emit  # type: ignore
+
     FLASK_SOCKETIO_AVAILABLE = True
 except ImportError:
     FLASK_SOCKETIO_AVAILABLE = False
+
     class SocketIO:  # type: ignore
         def __init__(self, *args, **kwargs):
             pass
-    
+
     def emit(*args, **kwargs):  # type: ignore
         pass
 
+
 try:
     import redis
+
     REDIS_AVAILABLE = True
 except ImportError:
     REDIS_AVAILABLE = False
@@ -54,50 +57,52 @@ logger = logging.getLogger(__name__)
 def preprocess_extracted_text(text: str) -> str:
     """
     FIX #13: Preprocess extracted text to remove markers that break context isolation.
-    
+
     This MUST happen before eyecite parses the text, so it's done immediately
     after PDF extraction in fetch_url_content().
-    
+
     Removes endnote/footnote markers that separate case names from citations.
     Example: "Acres Bonusing, Inc. v. Marston [Endnote 18], 17 F.4th 901"
     Becomes: "Acres Bonusing, Inc. v. Marston, 17 F.4th 901"
     """
     if not text:
         return text
-    
+
     original_length = len(text)
-    
+
     # Pattern 1: [Endnote N] with optional surrounding whitespace
-    text, count1 = re.subn(r'\s*\[(?:Endnote|Footnote|FN|n\.?)\s*\d+\]\s*', ' ', text, flags=re.IGNORECASE)
-    
+    text, count1 = re.subn(r"\s*\[(?:Endnote|Footnote|FN|n\.?)\s*\d+\]\s*", " ", text, flags=re.IGNORECASE)
+
     # Pattern 2: Endnote markers without brackets (less common but possible)
-    text, count2 = re.subn(r'\s+(?:Endnote|Footnote|FN)\s+\d+\s+', ' ', text, flags=re.IGNORECASE)
-    
+    text, count2 = re.subn(r"\s+(?:Endnote|Footnote|FN)\s+\d+\s+", " ", text, flags=re.IGNORECASE)
+
     # Pattern 3: Remove standalone footnote superscripts/numbers between text
     # Be conservative - only remove if it looks like a footnote (small number between words)
     # This catches: "argument that\n\n18\n\nMarston" -> "argument that Marston"
-    text = re.sub(r'(\w)\s+\d{1,3}\s+(?=[A-Z][a-z])', r'\1 ', text)
-    
+    text = re.sub(r"(\w)\s+\d{1,3}\s+(?=[A-Z][a-z])", r"\1 ", text)
+
     # Pattern 3b: Remove orphan numbers after "v." in case names
     # This catches: "Inc. v. 15 Marston" -> "Inc. v. Marston"
-    text = re.sub(r'(v\.\s+)\d{1,3}\s+(?=[A-Z])', r'\1', text, flags=re.IGNORECASE)
-    
+    text = re.sub(r"(v\.\s+)\d{1,3}\s+(?=[A-Z])", r"\1", text, flags=re.IGNORECASE)
+
     total_removed = count1 + count2
     if total_removed > 0:
-        logger.info(f"[PREPROCESSING] Removed {total_removed} endnote/footnote markers ({original_length} -> {len(text)} chars)")
-    
+        logger.info(
+            f"[PREPROCESSING] Removed {total_removed} endnote/footnote markers ({original_length} -> {len(text)} chars)"
+        )
+
     # Clean up any double spaces or excessive whitespace created by removals
-    text = re.sub(r'\s+', ' ', text)
-    
+    text = re.sub(r"\s+", " ", text)
+
     # Clean up double commas
-    text = re.sub(r',\s*,', ',', text)
-    
+    text = re.sub(r",\s*,", ",", text)
+
     return text
 
 
 class ProgressTracker:
     """Thread-safe progress tracking for citation processing"""
-    
+
     def __init__(self, task_id: str, total_steps: int):
         self.task_id = task_id
         self.total_steps = total_steps
@@ -108,9 +113,10 @@ class ProgressTracker:
         self.errors = []
         self.start_time = datetime.now()
         self.estimated_completion = None
-        
-    def update(self, step: int, status: str, message: str, 
-               partial_results: Optional[List] = None, error: Optional[str] = None):
+
+    def update(
+        self, step: int, status: str, message: str, partial_results: Optional[List] = None, error: Optional[str] = None
+    ):
         """Update progress and optionally add partial results"""
         # FIX DEC 2025: Prevent progress regression - only allow forward progress
         # This prevents confusing UX where progress bar goes backwards
@@ -118,82 +124,83 @@ class ProgressTracker:
             self.current_step = step
         self.status = status
         self.message = message
-        
+
         if partial_results:
             self.results.extend(partial_results)
-            
+
         if error:
             self.errors.append(error)
-            
+
         if step > 0:
             elapsed = (datetime.now() - self.start_time).total_seconds()
             estimated_total = (elapsed / step) * self.total_steps
             remaining = estimated_total - elapsed
             self.estimated_completion = remaining
-    
+
     def get_progress_data(self) -> Dict:
         """Get current progress data for client updates"""
         progress_percent = (self.current_step / self.total_steps * 100) if self.total_steps > 0 else 0
-        
+
         return {
-            'task_id': self.task_id,
-            'progress': round(progress_percent, 2),
-            'current_step': self.current_step,
-            'total_steps': self.total_steps,
-            'status': self.status,
-            'message': self.message,
-            'results_count': len(self.results),
-            'error_count': len(self.errors),
-            'estimated_completion': self.estimated_completion,
-            'timestamp': datetime.now().isoformat()
+            "task_id": self.task_id,
+            "progress": round(progress_percent, 2),
+            "current_step": self.current_step,
+            "total_steps": self.total_steps,
+            "status": self.status,
+            "message": self.message,
+            "results_count": len(self.results),
+            "error_count": len(self.errors),
+            "estimated_completion": self.estimated_completion,
+            "timestamp": datetime.now().isoformat(),
         }
-    
+
     def is_complete(self) -> bool:
-        return self.status in ['completed', 'failed']
+        return self.status in ["completed", "failed"]
 
 
 class SSEProgressManager:
     """Manages Server-Sent Events for real-time progress updates"""
-    
+
     def __init__(self):
         self.active_tasks: Dict[str, ProgressTracker] = {}
         self.redis_client = None
         if REDIS_AVAILABLE and redis is not None:
             try:
                 # Use REDIS_URL environment variable if available, otherwise fallback to localhost
-                redis_url = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
-                if redis_url.startswith('redis://'):
+                redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
+                if redis_url.startswith("redis://"):
                     # Parse redis://:password@host:port/db format
                     import re
-                    match = re.match(r'redis://:(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)', redis_url)
+
+                    match = re.match(
+                        r"redis://:(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)", redis_url
+                    )
                     if match:
                         self.redis_client = redis.Redis(
-                            host=match.group('host'),
-                            port=int(match.group('port')),
-                            db=int(match.group('db')),
-                            password=match.group('password')
+                            host=match.group("host"),
+                            port=int(match.group("port")),
+                            db=int(match.group("db")),
+                            password=match.group("password"),
                         )
                     else:
                         # Fallback for simple redis://host:port/db
-                        match = re.match(r'redis://(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)', redis_url)
+                        match = re.match(r"redis://(?P<host>[^:]+):(?P<port>\d+)/(?P<db>\d+)", redis_url)
                         if match:
                             self.redis_client = redis.Redis(
-                                host=match.group('host'),
-                                port=int(match.group('port')),
-                                db=int(match.group('db'))
+                                host=match.group("host"), port=int(match.group("port")), db=int(match.group("db"))
                             )
                 else:
                     # Direct connection fallback
-                    self.redis_client = redis.Redis(host='localhost', port=6379, db=0)
+                    self.redis_client = redis.Redis(host="localhost", port=6379, db=0)
             except Exception as e:
                 logger.warning(f"Redis not available, using in-memory progress tracking: {e}")
                 self.redis_client = None
         else:
             logger.info("Redis not installed, using in-memory progress tracking")
-    
+
     def start_task(self, total_steps: int, task_id_override: str = None) -> str:
         """Start a new task and return task ID
-        
+
         Args:
             total_steps: Number of steps in the task
             task_id_override: Optional custom task ID to use instead of generating UUID
@@ -201,85 +208,97 @@ class SSEProgressManager:
         task_id = task_id_override if task_id_override else str(uuid.uuid4())
         tracker = ProgressTracker(task_id, total_steps)
         self.active_tasks[task_id] = tracker
-        
+
         if self.redis_client:
             self._store_progress_in_redis(task_id, tracker)
-            
+
         return task_id
-    
-    def update_progress(self, task_id: str, step: int, status: str, 
-                       message: str, partial_results: Optional[List] = None, error: Optional[str] = None):
+
+    def update_progress(
+        self,
+        task_id: str,
+        step: int,
+        status: str,
+        message: str,
+        partial_results: Optional[List] = None,
+        error: Optional[str] = None,
+    ):
         """Update task progress"""
         if task_id in self.active_tasks:
             self.active_tasks[task_id].update(step, status, message, partial_results, error)
-            
+
             if self.redis_client:
                 self._store_progress_in_redis(task_id, self.active_tasks[task_id])
-    
+
     def get_progress(self, task_id: str) -> Dict:
         """Get current progress for a task"""
         if task_id in self.active_tasks:
             return self.active_tasks[task_id].get_progress_data()
-        
+
         if self.redis_client:
             return self._get_progress_from_redis(task_id)
-            
-        return {'error': 'Task not found'}
-    
+
+        return {"error": "Task not found"}
+
     def get_results(self, task_id: str) -> Dict:
         """Get final results for a completed task"""
         if task_id in self.active_tasks:
             tracker = self.active_tasks[task_id]
             return {
-                'task_id': task_id,
-                'status': tracker.status,
-                'results': tracker.results,
-                'errors': tracker.errors,
-                'progress_data': tracker.get_progress_data()
+                "task_id": task_id,
+                "status": tracker.status,
+                "results": tracker.results,
+                "errors": tracker.errors,
+                "progress_data": tracker.get_progress_data(),
             }
-        return {'error': 'Task not found'}
-    
+        return {"error": "Task not found"}
+
     def cleanup_task(self, task_id: str, keep_redis_data: bool = False):
         """Clean up completed task
-        
+
         Args:
             keep_redis_data: If True, keep Redis data for polling after completion
         """
         if task_id in self.active_tasks:
             del self.active_tasks[task_id]
-            
+
         # Only delete Redis data if not keeping it for polling
         if self.redis_client and not keep_redis_data:
             self.redis_client.delete(f"progress:{task_id}")
-    
+
     def _store_progress_in_redis(self, task_id: str, tracker: ProgressTracker):
         """Store progress in Redis for multi-instance support"""
         try:
             if self.redis_client is not None:
                 data = tracker.get_progress_data()
-                data['results'] = tracker.results
-                data['errors'] = tracker.errors
+                data["results"] = tracker.results
+                data["errors"] = tracker.errors
                 self.redis_client.setex(  # type: ignore
-                    f"progress:{task_id}", 
-                    3600,  # 1 hour expiration
-                    json.dumps(data, default=str)
+                    f"progress:{task_id}", 3600, json.dumps(data, default=str)  # 1 hour expiration
                 )
         except Exception as e:
             logger.error(f"Failed to store progress in Redis: {e}")
-    
+
     def _get_progress_from_redis(self, task_id: str) -> Dict:
         """Get progress from Redis"""
         try:
             if self.redis_client is not None:
                 data = self.redis_client.get(f"progress:{task_id}")  # type: ignore
                 if data:
-                    return json.loads(data.decode('utf-8') if isinstance(data, bytes) else data)  # type: ignore
+                    return json.loads(data.decode("utf-8") if isinstance(data, bytes) else data)  # type: ignore
         except Exception as e:
             logger.error(f"Failed to get progress from Redis: {e}")
-        return {'error': 'Task not found'}
+        return {"error": "Task not found"}
 
-    def start_eta_heartbeat(self, task_id: str, start_pct: int, cap_pct: int, expected_seconds: float,
-                             message: str = 'Processing...', interval: float = 0.8) -> None:
+    def start_eta_heartbeat(
+        self,
+        task_id: str,
+        start_pct: int,
+        cap_pct: int,
+        expected_seconds: float,
+        message: str = "Processing...",
+        interval: float = 0.8,
+    ) -> None:
         """Start an ETA-based heartbeat that advances progress smoothly up to cap_pct.
 
         - Never decreases progress (monotonic).
@@ -296,18 +315,19 @@ class SSEProgressManager:
                         task = self.active_tasks.get(task_id)
                         if not task:
                             break
-                        status = getattr(task, 'status', '')
-                        if status in ('completed', 'failed'):
+                        status = getattr(task, "status", "")
+                        if status in ("completed", "failed"):
                             break
                         elapsed = max(0.0, time.time() - start_time)
                         frac = min(1.0, elapsed / max(1.0, expected_seconds))
                         target = start_pct + int((cap_pct - start_pct) * frac)
                         # Monotonic increase: don't regress existing current_step
-                        current = int(getattr(task, 'current_step', 0))
+                        current = int(getattr(task, "current_step", 0))
                         nxt = max(current, max(start_pct, min(cap_pct, target)))
-                        self.update_progress(task_id, nxt, 'processing', message)
+                        self.update_progress(task_id, nxt, "processing", message)
                 except Exception:
                     pass
+
             threading.Thread(target=_hb, daemon=True).start()
         except Exception:
             pass
@@ -333,474 +353,470 @@ def estimate_citations_cheap(text: str) -> int:
         return 0
 
 
-
 class WebSocketProgressManager:
     """WebSocket-based real-time progress updates"""
-    
+
     def __init__(self, socketio: Any):
         self.socketio = socketio
         self.active_tasks: Dict[str, ProgressTracker] = {}
-    
+
     def start_task(self, total_steps: int, client_id: str) -> str:
         """Start task and join client to room for updates"""
         task_id = str(uuid.uuid4())
         tracker = ProgressTracker(task_id, total_steps)
         self.active_tasks[task_id] = tracker
-        
+
         self.socketio.server.enter_room(client_id, f"task_{task_id}")
-        
-        self.socketio.emit('progress_update', 
-                          tracker.get_progress_data(), 
-                          room=f"task_{task_id}")
-        
+
+        self.socketio.emit("progress_update", tracker.get_progress_data(), room=f"task_{task_id}")
+
         return task_id
-    
-    def update_progress(self, task_id: str, step: int, status: str, 
-                       message: str, partial_results: Optional[List] = None, error: Optional[str] = None):
+
+    def update_progress(
+        self,
+        task_id: str,
+        step: int,
+        status: str,
+        message: str,
+        partial_results: Optional[List] = None,
+        error: Optional[str] = None,
+    ):
         """Update progress and emit to all clients watching this task"""
         if task_id in self.active_tasks:
             self.active_tasks[task_id].update(step, status, message, partial_results or [], error)
-            
-            progress_data = self.active_tasks[task_id].get_progress_data()
-            
-            if partial_results:
-                progress_data['partial_results'] = partial_results
-            
-            self.socketio.emit('progress_update', 
-                              progress_data, 
-                              room=f"task_{task_id}")
 
+            progress_data = self.active_tasks[task_id].get_progress_data()
+
+            if partial_results:
+                progress_data["partial_results"] = partial_results
+
+            self.socketio.emit("progress_update", progress_data, room=f"task_{task_id}")
 
 
 class ChunkedCitationProcessor:
     """Process citations in chunks to provide incremental progress"""
-    
+
     def __init__(self, progress_manager: SSEProgressManager):
         self.progress_manager = progress_manager
         self.chunk_size = 5000  # Characters per chunk (increased to prevent citation splitting)
-    
-    async def process_document_with_progress(self, 
-                                           document_text: str, 
-                                           document_type: str = "legal_brief") -> str:
+
+    async def process_document_with_progress(self, document_text: str, document_type: str = "legal_brief") -> str:
         """Process document in chunks with progress updates"""
-        logger.info("\n" + "="*80)
+        logger.info("\n" + "=" * 80)
         logger.info("Starting process_document_with_progress")
         logger.info(f"Document type: {document_type}")
         logger.info(f"Document text length: {len(document_text)} characters")
-        
+
         try:
             if not document_text or not isinstance(document_text, str):
                 error_msg = f"Invalid document text. Type: {type(document_text)}, Length: {len(str(document_text)) if document_text is not None else 'None'}"
                 logger.error(error_msg)
                 raise ValueError(error_msg)
-                
+
             task_id = str(uuid.uuid4())
             logger.info(f"Created task ID: {task_id}")
-            
+
             # CITATION-BASED PROGRESS: First do a quick citation count to determine realistic progress steps
             logger.info(f"[Task {task_id}] Counting citations for citation-based progress tracking...")
             try:
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
+
                 # Do a quick extraction without verification to count citations
                 quick_result = extract_citations_with_clustering(document_text, enable_verification=False)
-                citation_count = len(quick_result.get('citations', []))
-                
+                citation_count = len(quick_result.get("citations", []))
+
                 # Calculate realistic total steps based on citation count
                 # Base steps: initialization, extraction, clustering, verification, completion
                 base_steps = 5
                 # Citation processing steps: more citations = more steps
                 citation_steps = max(1, min(citation_count, 100))  # Cap at 100 steps for performance
                 total_steps = base_steps + citation_steps
-                
-                logger.info(f"[Task {task_id}] Citation-based progress: {citation_count} citations → {total_steps} total steps")
+
+                logger.info(
+                    f"[Task {task_id}] Citation-based progress: {citation_count} citations → {total_steps} total steps"
+                )
             except Exception as e:
                 logger.warning(f"[Task {task_id}] Failed to count citations, using default steps: {e}")
                 total_steps = 25  # Fallback to reasonable default
-            
+
             tracker = ProgressTracker(task_id, total_steps=total_steps)
             logger.info(f"Initialized progress tracker with {total_steps} steps")
-            
+
             self.progress_manager.active_tasks[task_id] = tracker
             logger.info(f"Stored task in active_tasks. Total active tasks: {len(self.progress_manager.active_tasks)}")
-            
-            logger.info(f"Redis available: {hasattr(self.progress_manager, 'redis_client') and self.progress_manager.redis_client is not None}")
-            
+
+            logger.info(
+                f"Redis available: {hasattr(self.progress_manager, 'redis_client') and self.progress_manager.redis_client is not None}"
+            )
+
             logger.info("Creating background task for document processing...")
-            
+
             # Submit to RQ queue instead of local asyncio task
             try:
                 from rq import Queue
-                from rq.job import Job
-                
+
                 # Get RQ queue
-                queue = Queue('casestrainer', connection=self.progress_manager.redis_client)
-                
+                queue = Queue("casestrainer", connection=self.progress_manager.redis_client)
+
                 # Enqueue the async task
                 job = queue.enqueue(
-                    'src.rq_worker.process_citation_task_async',
+                    "src.rq_worker.process_citation_task_async",
                     task_id=task_id,
                     document_text=document_text,
                     document_type=document_type,
                     timeout=3600,  # 1 hour timeout
-                    ttl=86400,     # Job expires after 24 hours
+                    ttl=86400,  # Job expires after 24 hours
                     result_ttl=86400,  # Result kept for 24 hours
-                    failure_ttl=3600   # Failure info kept for 1 hour
+                    failure_ttl=3600,  # Failure info kept for 1 hour
                 )
-                
+
                 logger.info(f"Task submitted to RQ queue: job_id={job.id}, task_id={task_id}")
-                
+
             except Exception as rq_error:
                 logger.error(f"Failed to submit task to RQ: {rq_error}")
                 # Fallback to local asyncio task if RQ fails
                 logger.info("Falling back to local asyncio task...")
                 asyncio.create_task(self._process_document_async(task_id, document_text, document_type, tracker))
-            
+
             logger.info("Background task created successfully")
-            
+
             self.progress_manager.update_progress(
-                task_id, 0, "started", 
-                "Document processing started...",
-                partial_results=[]
+                task_id, 0, "started", "Document processing started...", partial_results=[]
             )
-            
+
             return task_id
-            
+
         except Exception as e:
-            self.progress_manager.update_progress(
-                task_id, 0, "failed", f"Processing failed: {str(e)}", error=str(e)
-            )
+            self.progress_manager.update_progress(task_id, 0, "failed", f"Processing failed: {str(e)}", error=str(e))
             raise
-    
+
     def _split_into_chunks(self, text: str) -> List[str]:
         """Split document into processable chunks"""
         chunks = []
         for i in range(0, len(text), self.chunk_size):
-            chunk = text[i:i + self.chunk_size]
-            
+            chunk = text[i : i + self.chunk_size]
+
             if i + self.chunk_size < len(text):
-                break_points = ['. ', '\n\n', '\n', '. ']
+                break_points = [". ", "\n\n", "\n", ". "]
                 for bp in break_points:
                     last_bp = chunk.rfind(bp)
                     if last_bp > self.chunk_size * 0.8:  # Don't make chunks too small
-                        chunk = chunk[:last_bp + len(bp)]
+                        chunk = chunk[: last_bp + len(bp)]
                         break
-            
+
             chunks.append(chunk)
-        
+
         return chunks
-    
+
     async def _preprocess_chunks(self, chunks: List[str]) -> List[str]:
         """Preprocess chunks for better citation extraction"""
         processed = []
         for chunk in chunks:
-            processed_chunk = chunk.replace('  ', ' ').strip()
+            processed_chunk = chunk.replace("  ", " ").strip()
             processed.append(processed_chunk)
-        
+
         return processed
-    
+
     async def _process_chunk(self, chunk: str, document_type: str) -> List[Dict]:
         """Process a single chunk for citations using the CLEAN extraction pipeline."""
         chunk_hash = hash(chunk) % 1000
         logger.info(f"[Chunk-{chunk_hash}] Starting chunk processing (size: {len(chunk)} chars)")
-        
+
         try:
             logger.info(f"[Chunk-{chunk_hash}] Using CleanExtractionPipeline...")
             from src.clean_extraction_pipeline import CleanExtractionPipeline
-            
+
             logger.info(f"[Chunk-{chunk_hash}] Creating clean pipeline...")
             pipeline = CleanExtractionPipeline()
-            
+
             logger.info(f"[Chunk-{chunk_hash}] Starting extract_citations()...")
             start_time = time.time()
-            
+
             # Extract citations using clean pipeline
             citation_results = pipeline.extract_citations(chunk)
-            
+
             # NEW: Apply verification and parallel verification to chunk results
             logger.info(f"[Chunk-{chunk_hash}] Applying verification and parallel verification to chunk results...")
             try:
                 # Convert to list for verification
                 citations_list = list(citation_results)
-                
+
                 # Import verification functions
                 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
                 processor = UnifiedCitationProcessorV2()
-                
+
                 # First verify citations to get canonical data
                 verified_citations = processor._verify_citations_sync(citations_list, chunk)
                 citation_results = verified_citations
                 logger.info(f"[Chunk-{chunk_hash}] Verification complete, {len(citation_results)} citations verified")
-                
+
                 # Apply parallel verification to the verified citations
                 processor.propagate_canonical_to_cluster(citation_results)
                 logger.info(f"[Chunk-{chunk_hash}] Parallel verification complete")
-                
+
                 # Log if parallel verification was applied
-                parallel_count = sum(1 for c in citation_results if getattr(c, 'true_by_parallel', False))
+                parallel_count = sum(1 for c in citation_results if getattr(c, "true_by_parallel", False))
                 if parallel_count > 0:
                     logger.info(f"[Chunk-{chunk_hash}] ✅ Applied parallel verification to {parallel_count} citations")
-                
+
             except Exception as parallel_error:
                 logger.warning(f"[Chunk-{chunk_hash}] Parallel verification failed (non-critical): {parallel_error}")
                 import traceback
+
                 logger.warning(f"[Chunk-{chunk_hash}] Parallel verification error details: {traceback.format_exc()}")
-            
+
             process_time = time.time() - start_time
-            logger.info(f"[Chunk-{chunk_hash}] extract_citations() completed in {process_time:.2f}s, got {len(citation_results)} citations")
-            
+            logger.info(
+                f"[Chunk-{chunk_hash}] extract_citations() completed in {process_time:.2f}s, got {len(citation_results)} citations"
+            )
+
             # Convert CitationResult objects to dicts
-            results = {'citations': []}
+            results = {"citations": []}
             for cit_obj in citation_results:
-                results['citations'].append({
-                    'citation': cit_obj.citation,
-                    'extracted_case_name': cit_obj.extracted_case_name,
-                    'extracted_date': cit_obj.extracted_date,
-                    'start_index': cit_obj.start_index,
-                    'end_index': cit_obj.end_index,
-                    'method': cit_obj.method,
-                    'confidence': cit_obj.confidence,
-                    'metadata': cit_obj.metadata,
-                    'verified': False,  # Verification happens later
-                    'canonical_name': None,
-                    'canonical_date': None,
-                    'url': None
-                })
-            
+                results["citations"].append(
+                    {
+                        "citation": cit_obj.citation,
+                        "extracted_case_name": cit_obj.extracted_case_name,
+                        "extracted_date": cit_obj.extracted_date,
+                        "start_index": cit_obj.start_index,
+                        "end_index": cit_obj.end_index,
+                        "method": cit_obj.method,
+                        "confidence": cit_obj.confidence,
+                        "metadata": cit_obj.metadata,
+                        "verified": False,  # Verification happens later
+                        "canonical_name": None,
+                        "canonical_date": None,
+                        "url": None,
+                    }
+                )
+
             citations = []
-            raw_citations = results.get('citations', [])
+            raw_citations = results.get("citations", [])
             logger.info(f"[Chunk-{chunk_hash}] Converting {len(raw_citations)} citations to dicts...")
-            
+
             for i, citation_dict in enumerate(raw_citations, 1):
                 try:
                     citation_data = {
-                        'id': len(citations) + 1,
-                        'citation': citation_dict.get('citation', ''),
-                        'raw_text': citation_dict.get('citation', ''),
-                        'case_name': citation_dict.get('extracted_case_name') or 'Unknown Case',
-                        'year': citation_dict.get('extracted_date') or 'No year',
-                        'confidence_score': citation_dict.get('confidence_score', 0.7),
-                        'chunk_index': chunk_hash,
-                        'extracted_case_name': citation_dict.get('extracted_case_name'),
-                        'canonical_name': citation_dict.get('canonical_name'),
-                        'extracted_date': citation_dict.get('extracted_date'),
-                        'canonical_date': citation_dict.get('canonical_date'),
-                        'verified': citation_dict.get('verified', False),
-                        'source': citation_dict.get('source', 'enhanced_sync'),
-                        'method': citation_dict.get('extraction_method', 'enhanced_sync'),
-                        'is_parallel': citation_dict.get('is_parallel', False),
-                        'parallel_citations': citation_dict.get('parallel_citations', []),
-                        'start_index': citation_dict.get('start_index'),
-                        'end_index': citation_dict.get('end_index'),
-                        'context': citation_dict.get('context'),
-                        'url': citation_dict.get('url'),
-                        'metadata': citation_dict.get('metadata', {})
+                        "id": len(citations) + 1,
+                        "citation": citation_dict.get("citation", ""),
+                        "raw_text": citation_dict.get("citation", ""),
+                        "case_name": citation_dict.get("extracted_case_name") or "Unknown Case",
+                        "year": citation_dict.get("extracted_date") or "No year",
+                        "confidence_score": citation_dict.get("confidence_score", 0.7),
+                        "chunk_index": chunk_hash,
+                        "extracted_case_name": citation_dict.get("extracted_case_name"),
+                        "canonical_name": citation_dict.get("canonical_name"),
+                        "extracted_date": citation_dict.get("extracted_date"),
+                        "canonical_date": citation_dict.get("canonical_date"),
+                        "verified": citation_dict.get("verified", False),
+                        "source": citation_dict.get("source", "enhanced_sync"),
+                        "method": citation_dict.get("extraction_method", "enhanced_sync"),
+                        "is_parallel": citation_dict.get("is_parallel", False),
+                        "parallel_citations": citation_dict.get("parallel_citations", []),
+                        "start_index": citation_dict.get("start_index"),
+                        "end_index": citation_dict.get("end_index"),
+                        "context": citation_dict.get("context"),
+                        "url": citation_dict.get("url"),
+                        "metadata": citation_dict.get("metadata", {}),
                     }
                     citations.append(citation_data)
-                    
+
                     if i <= 3:  # Only log first 3 citations to avoid log spam
-                        logger.info(f"[Chunk-{chunk_hash}] Citation {i}: "
-                                   f"Name: {citation_dict.get('extracted_case_name')} | "
-                                   f"Date: {citation_dict.get('extracted_date')} | "
-                                   f"Verified: {citation_dict.get('verified')}")
+                        logger.info(
+                            f"[Chunk-{chunk_hash}] Citation {i}: "
+                            f"Name: {citation_dict.get('extracted_case_name')} | "
+                            f"Date: {citation_dict.get('extracted_date')} | "
+                            f"Verified: {citation_dict.get('verified')}"
+                        )
                 except Exception as cite_err:
                     logger.error(f"[Chunk-{chunk_hash}] Error processing citation {i}: {str(cite_err)}")
                     logger.error(traceback.format_exc())
-            
+
             logger.info(f"[Chunk-{chunk_hash}] Processed {len(citations)} citations")
             return citations
-            
+
         except Exception as e:
             error_msg = f"[Chunk-{chunk_hash}] Error processing chunk: {str(e)}"
             logger.error(error_msg)
             logger.error(traceback.format_exc())
             return []
-    
-    async def _process_document_async(self, task_id: str, document_text: str, document_type: str, tracker: 'ProgressTracker'):
+
+    async def _process_document_async(
+        self, task_id: str, document_text: str, document_type: str, tracker: "ProgressTracker"
+    ):
         """Background task to process document asynchronously"""
         print(f"🔥🔥🔥 _process_document_async CALLED with {len(document_text)} chars, task_id={task_id}")
-        logger.info("\n" + "="*80)
+        logger.info("\n" + "=" * 80)
         logger.info(f"Starting _process_document_async for task {task_id}")
         logger.info(f"Document type: {document_type}")
         logger.info(f"Document text length: {len(document_text)} characters")
         logger.info(f"Tracker status: {tracker.status if tracker else 'No tracker'}")
-        
+
         try:
             if not document_text or not isinstance(document_text, str):
                 error_msg = f"Invalid document text in _process_document_async. Type: {type(document_text)}"
                 logger.error(error_msg)
-                self.progress_manager.update_progress(
-                    task_id, 0, "failed", error_msg, error=error_msg
-                )
+                self.progress_manager.update_progress(task_id, 0, "failed", error_msg, error=error_msg)
                 return
-                
+
             logger.info(f"Document sample: {document_text[:200]}...")
-            
+
             logger.info("Splitting document into chunks...")
             chunks = self._split_into_chunks(document_text)
             logger.info(f"Document split into {len(chunks)} chunks")
-            
+
             logger.info("Updating progress to 10% (chunking complete)")
-            self.progress_manager.update_progress(
-                task_id, 10, "processing", "Processing document chunks..."
-            )
-            
+            self.progress_manager.update_progress(task_id, 10, "processing", "Processing document chunks...")
+
             results = []
             total_chunks = len(chunks)
             logger.info(f"Starting to process {total_chunks} chunks...")
-            
+
             for i, chunk in enumerate(chunks, 1):
                 try:
                     logger.info(f"\nProcessing chunk {i}/{total_chunks}")
-                    
+
                     logger.info("Calling _process_chunk...")
                     chunk_results = await self._process_chunk(chunk, document_type)
                     logger.info(f"Processed chunk {i}, found {len(chunk_results)} citations")
-                    
+
                     results.extend(chunk_results)
-                    
+
                     progress = 10 + int(70 * i / total_chunks)
                     progress_msg = f"Processed chunk {i}/{total_chunks} with {len(chunk_results)} citations"
                     logger.info(f"Updating progress to {progress}%: {progress_msg}")
-                    
+
                     self.progress_manager.update_progress(
-                        task_id, progress, "processing", progress_msg,
-                        partial_results=chunk_results
+                        task_id, progress, "processing", progress_msg, partial_results=chunk_results
                     )
-                    
+
                 except Exception as chunk_error:
                     error_msg = f"Error processing chunk {i}/{total_chunks}: {str(chunk_error)}"
                     logger.error(error_msg)
                     logger.error(traceback.format_exc())
-                    
-                    self.progress_manager.update_progress(
-                        task_id, 0, "failed", error_msg, error=error_msg
-                    )
+
+                    self.progress_manager.update_progress(task_id, 0, "failed", error_msg, error=error_msg)
                     return
-            
+
             logger.info("\nPerforming final analysis...")
-            self.progress_manager.update_progress(
-                task_id, 90, "processing", "Performing final analysis..."
-            )
-            
+            self.progress_manager.update_progress(task_id, 90, "processing", "Performing final analysis...")
+
             try:
                 final_results = await self._perform_final_analysis(results)
-                
+
                 logger.info("Marking task as complete")
                 # Store final results in tracker
                 if task_id in self.progress_manager.active_tasks:
                     tracker = self.progress_manager.active_tasks[task_id]
                     tracker.results.extend(final_results)  # Use extend instead of assignment
-                
+
                 self.progress_manager.update_progress(
-                    task_id, 100, "completed", 
+                    task_id,
+                    100,
+                    "completed",
                     f"Processing complete! Found {len(results)} citations.",
-                    partial_results=results  # Keep original results for partial updates
+                    partial_results=results,  # Keep original results for partial updates
                 )
                 logger.info("Task completed successfully")
-                
+
             except Exception as analysis_error:
                 error_msg = f"Error in final analysis: {str(analysis_error)}"
                 logger.error(error_msg)
                 logger.error(traceback.format_exc())
-                
-                self.progress_manager.update_progress(
-                    task_id, 0, "failed", error_msg, error=error_msg
-                )
-            
+
+                self.progress_manager.update_progress(task_id, 0, "failed", error_msg, error=error_msg)
+
         except Exception as e:
             error_msg = f"Unexpected error in _process_document_async: {str(e)}"
-            logger.error("\n" + "!"*80)
+            logger.error("\n" + "!" * 80)
             logger.error("UNEXPECTED ERROR IN _process_document_async")
-            logger.error("!"*80)
+            logger.error("!" * 80)
             logger.error(error_msg)
             logger.error(traceback.format_exc())
-            logger.error("!"*80 + "\n")
-            
+            logger.error("!" * 80 + "\n")
+
             try:
-                self.progress_manager.update_progress(
-                    task_id, 0, "failed", error_msg, error=error_msg
-                )
+                self.progress_manager.update_progress(task_id, 0, "failed", error_msg, error=error_msg)
             except Exception as update_error:
                 logger.error(f"Failed to update progress with error: {str(update_error)}")
-            
+
             raise
-    
+
     async def _perform_final_analysis(self, citations: List[Dict]) -> Dict:
         """Perform final analysis on all collected citations with proper clustering"""
         await asyncio.sleep(0.2)  # Simulate analysis time
-        
+
         from src.models import CitationResult
         from src.unified_clustering_master import cluster_citations_unified_master as cluster_citations_unified
-        
+
         citation_objects = []
         for citation_dict in citations:
             citation_obj = CitationResult(
-                citation=citation_dict.get('citation', ''),
-                extracted_case_name=citation_dict.get('extracted_case_name'),
-                extracted_date=citation_dict.get('extracted_date'),
-                canonical_name=citation_dict.get('canonical_name'),
-                canonical_date=citation_dict.get('canonical_date'),
-                verified=citation_dict.get('verified', False),
-                is_parallel=citation_dict.get('is_parallel', False),
-                parallel_citations=citation_dict.get('parallel_citations', []),
-                start_index=citation_dict.get('start_index', 0),
-                end_index=citation_dict.get('end_index', 0),
-                context=citation_dict.get('context', ''),
-                source=citation_dict.get('source', ''),
-                url=citation_dict.get('url'),
-                metadata=citation_dict.get('metadata', {})
+                citation=citation_dict.get("citation", ""),
+                extracted_case_name=citation_dict.get("extracted_case_name"),
+                extracted_date=citation_dict.get("extracted_date"),
+                canonical_name=citation_dict.get("canonical_name"),
+                canonical_date=citation_dict.get("canonical_date"),
+                verified=citation_dict.get("verified", False),
+                is_parallel=citation_dict.get("is_parallel", False),
+                parallel_citations=citation_dict.get("parallel_citations", []),
+                start_index=citation_dict.get("start_index", 0),
+                end_index=citation_dict.get("end_index", 0),
+                context=citation_dict.get("context", ""),
+                source=citation_dict.get("source", ""),
+                url=citation_dict.get("url"),
+                metadata=citation_dict.get("metadata", {}),
             )
             citation_objects.append(citation_obj)
-        
+
         # CRITICAL: Enable verification in clustering
-        clusters = cluster_citations_unified(
-            citations=citation_objects,
-            enable_verification=True
-        )
-        
+        clusters = cluster_citations_unified(citations=citation_objects, enable_verification=True)
+
         # CRITICAL FIX: Update citation objects with cluster information
         # This must happen BEFORE serialization to ensure cluster data persists
         logger.info(f"[PROGRESS_MANAGER] Updating citations with cluster information")
         citation_to_cluster = {}
         for cluster in clusters:
-            cluster_id = cluster.get('cluster_id')
-            cluster_case_name = cluster.get('cluster_case_name') or cluster.get('case_name')
-            cluster_citations = cluster.get('citations', [])
-            
+            cluster_id = cluster.get("cluster_id")
+            cluster_case_name = cluster.get("cluster_case_name") or cluster.get("case_name")
+            cluster_citations = cluster.get("citations", [])
+
             # Match by citation text, not object id (clusters contain dicts, not objects)
             for cit_dict in cluster_citations:
-                citation_text = cit_dict.get('citation') if isinstance(cit_dict, dict) else getattr(cit_dict, 'citation', None)
+                citation_text = (
+                    cit_dict.get("citation") if isinstance(cit_dict, dict) else getattr(cit_dict, "citation", None)
+                )
                 if citation_text:
                     citation_to_cluster[citation_text] = (cluster_id, cluster_case_name, len(cluster_citations))
-        
+
         updated_count = 0
         for citation_obj in citation_objects:
-            citation_text = getattr(citation_obj, 'citation', None)
+            citation_text = getattr(citation_obj, "citation", None)
             if citation_text and citation_text in citation_to_cluster:
                 cluster_id, cluster_case_name, size = citation_to_cluster[citation_text]
                 citation_obj.cluster_id = cluster_id
                 citation_obj.cluster_case_name = cluster_case_name
                 citation_obj.is_cluster = size > 1
                 updated_count += 1
-        
+
         # Update the citation dicts with cluster info from objects
         for i, citation_dict in enumerate(citations):
             if i < len(citation_objects):
                 citation_obj = citation_objects[i]
-                citation_dict['cluster_id'] = getattr(citation_obj, 'cluster_id', None)
-                citation_dict['cluster_case_name'] = getattr(citation_obj, 'cluster_case_name', None)
-                citation_dict['is_cluster'] = getattr(citation_obj, 'is_cluster', False)
-        
-        logger.info(f"[PROGRESS_MANAGER] Updated {updated_count} citations with cluster information")
-        
-        return {
-            'citations': citations,
-            'clusters': clusters,
-            'total_citations': len(citations),
-            'high_confidence': len([c for c in citations if c.get('confidence_score', 0) > 0.8]),
-            'needs_review': len([c for c in citations if c.get('confidence_score', 0) < 0.6])
-        }
+                citation_dict["cluster_id"] = getattr(citation_obj, "cluster_id", None)
+                citation_dict["cluster_case_name"] = getattr(citation_obj, "cluster_case_name", None)
+                citation_dict["is_cluster"] = getattr(citation_obj, "is_cluster", False)
 
+        logger.info(f"[PROGRESS_MANAGER] Updated {updated_count} citations with cluster information")
+
+        return {
+            "citations": citations,
+            "clusters": clusters,
+            "total_citations": len(citations),
+            "high_confidence": len([c for c in citations if c.get("confidence_score", 0) > 0.8]),
+            "needs_review": len([c for c in citations if c.get("confidence_score", 0) < 0.6]),
+        }
 
 
 def fetch_url_content(url: str) -> str:
@@ -808,23 +824,24 @@ def fetch_url_content(url: str) -> str:
     try:
         logger.info(f"Fetching URL: {url}")
         headers = {
-            'User-Agent': USER_AGENT,
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.5',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
+            "User-Agent": USER_AGENT,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
         }
-        
+
         # OPTIMIZATION: For CourtListener opinion URLs, convert to API endpoint
         # Web URLs return 202, but API endpoint returns JSON immediately with full text
         # Store original URL for fallback if API is rate-limited
         original_url = url
         courtlistener_api_attempted = False
-        
-        if 'courtlistener.com' in url.lower() and '/opinion/' in url and '/api/' not in url:
+
+        if "courtlistener.com" in url.lower() and "/opinion/" in url and "/api/" not in url:
             import re
+
             # Extract opinion ID from URL: /opinion/10460933/robert-cassell-v-state...
-            opinion_match = re.search(r'/opinion/(\d+)/', url)
+            opinion_match = re.search(r"/opinion/(\d+)/", url)
             if opinion_match:
                 opinion_id = opinion_match.group(1)
                 # Convert to API endpoint
@@ -836,36 +853,39 @@ def fetch_url_content(url: str) -> str:
                 courtlistener_api_attempted = True
                 # Add API headers
                 from src.config import COURTLISTENER_API_KEY
+
                 if COURTLISTENER_API_KEY:
-                    headers['Authorization'] = f'Token {COURTLISTENER_API_KEY}'
-                    headers['Accept'] = 'application/json'
+                    headers["Authorization"] = f"Token {COURTLISTENER_API_KEY}"
+                    headers["Accept"] = "application/json"
                     logger.info(f"✅ Added CourtListener API authorization header")
                 else:
                     logger.error(f"❌ COURTLISTENER_API_KEY is not set!")
             else:
                 logger.warning(f"⚠️  Could not extract opinion ID from URL")
-        
+
         # API search disabled for CourtListener opinion URLs (see above)
         # This avoids rate limit errors and is faster
-        
-        if url.lower().endswith('.pdf'):
-            headers['Accept'] = 'application/pdf,application/x-pdf,application/octet-stream'
-        elif url.lower().endswith(('.docx', '.doc')):
-            headers['Accept'] = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/octet-stream'
-        elif url.lower().endswith('.rtf'):
-            headers['Accept'] = 'application/rtf,text/rtf,application/octet-stream'
-        elif url.lower().endswith(('.md', '.markdown')):
-            headers['Accept'] = 'text/markdown,text/plain,application/octet-stream'
-        elif url.lower().endswith(('.txt', '.html', '.htm', '.xml', '.xhtml')):
-            headers['Accept'] = 'text/html,text/xml,text/plain,application/xhtml+xml,application/xml'
-        
-        
+
+        if url.lower().endswith(".pdf"):
+            headers["Accept"] = "application/pdf,application/x-pdf,application/octet-stream"
+        elif url.lower().endswith((".docx", ".doc")):
+            headers["Accept"] = (
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/octet-stream"
+            )
+        elif url.lower().endswith(".rtf"):
+            headers["Accept"] = "application/rtf,text/rtf,application/octet-stream"
+        elif url.lower().endswith((".md", ".markdown")):
+            headers["Accept"] = "text/markdown,text/plain,application/octet-stream"
+        elif url.lower().endswith((".txt", ".html", ".htm", ".xml", ".xhtml")):
+            headers["Accept"] = "text/html,text/xml,text/plain,application/xhtml+xml,application/xml"
+
         # Handle 202 (Accepted) and 429 (Rate Limit) responses with retry
         # CourtListener sometimes returns 202 while page is being generated or 429 when rate limited
         import time
+
         max_attempts = 4
         retry_delay = 5  # Start with 5 seconds
-        
+
         for attempt in range(max_attempts):
             # Try with SSL verification first, then fallback to unverified if SSL fails
             try:
@@ -875,43 +895,50 @@ def fetch_url_content(url: str) -> str:
                     timeout=DEFAULT_REQUEST_TIMEOUT,  # 30 second timeout
                     allow_redirects=True,
                     stream=True,  # Stream the response for large files
-                    verify=True  # Try SSL verification first
+                    verify=True,  # Try SSL verification first
                 )
             except requests.exceptions.SSLError as ssl_error:
-                logger.warning(f"SSL verification failed for {url} (attempt {attempt + 1}), trying without verification: {ssl_error}")
+                logger.warning(
+                    f"SSL verification failed for {url} (attempt {attempt + 1}), trying without verification: {ssl_error}"
+                )
                 try:
                     # Suppress SSL warnings for unverified requests
                     import urllib3
+
                     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-                    
+
                     response = requests.get(
                         url,
                         headers=headers,
                         timeout=DEFAULT_REQUEST_TIMEOUT,
                         allow_redirects=True,
                         stream=True,
-                        verify=False  # nosec - Disable SSL verification as fallback after SSL fails
+                        verify=False,  # nosec - Disable SSL verification as fallback after SSL fails
                     )
                     logger.info(f"Successfully fetched {url} without SSL verification")
                 except Exception as e:
                     logger.error(f"Failed to fetch {url} even without SSL verification: {e}")
                     raise
-            
+
             logger.info(f"Response status: {response.status_code}")
-            
+
             # Handle 202 (Accepted) - page still generating
             if response.status_code == 202:
                 if attempt < max_attempts - 1:
-                    logger.warning(f"⚠️  Got 202 Accepted - page still generating, retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})")
+                    logger.warning(
+                        f"⚠️  Got 202 Accepted - page still generating, retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})"
+                    )
                     time.sleep(retry_delay)
                     continue
                 else:
                     logger.error(f"❌ Still getting 202 after {max_attempts} attempts")
-            
+
             # Handle 429 (Too Many Requests) - rate limited
             elif response.status_code == 429:
                 if attempt < max_attempts - 1:
-                    logger.warning(f"⚠️  Rate limited (429), retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})")
+                    logger.warning(
+                        f"⚠️  Rate limited (429), retrying in {retry_delay}s (attempt {attempt + 1}/{max_attempts})"
+                    )
                     time.sleep(retry_delay)
                     retry_delay *= 2  # Exponential backoff
                     continue
@@ -923,10 +950,12 @@ def fetch_url_content(url: str) -> str:
                         logger.info(f"   Original URL: {original_url}")
                         url = original_url
                         # Reset headers for HTML scraping
-                        headers.pop('Authorization', None)
-                        headers['Accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+                        headers.pop("Authorization", None)
+                        headers["Accept"] = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
                         # Try one more time with the original URL
-                        response = requests.get(url, headers=headers, timeout=DEFAULT_REQUEST_TIMEOUT, allow_redirects=True, stream=True)
+                        response = requests.get(
+                            url, headers=headers, timeout=DEFAULT_REQUEST_TIMEOUT, allow_redirects=True, stream=True
+                        )
                         logger.info(f"Fallback response status: {response.status_code}")
                         if response.status_code != 429:
                             response.raise_for_status()
@@ -935,30 +964,31 @@ def fetch_url_content(url: str) -> str:
                             logger.error(f"❌ HTML fallback also rate limited")
                     # If not CourtListener or fallback failed, raise the error
                     response.raise_for_status()
-            
+
             response.raise_for_status()
             break
-        
-        content_type = response.headers.get('content-type', '').lower()
+
+        content_type = response.headers.get("content-type", "").lower()
         logger.info(f"Content type: {content_type}")
-        
-        if 'pdf' in content_type or url.lower().endswith('.pdf'):
+
+        if "pdf" in content_type or url.lower().endswith(".pdf"):
             # USER FIX: Use the same PDF extraction pipeline as file uploads for consistency
             # Save PDF content to temporary file and use extract_text_from_pdf_smart()
             import tempfile
             import os
-            
+
             try:
                 # Save PDF content to temp file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.pdf') as temp_pdf:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
                     temp_pdf.write(response.content)
                     temp_pdf_path = temp_pdf.name
-                
+
                 try:
                     logger.info(f"Extracting PDF from URL using extract_text_from_pdf_smart()")
                     from src.robust_pdf_extractor import extract_text_from_pdf_smart
+
                     result = extract_text_from_pdf_smart(temp_pdf_path)
-                    
+
                     if result and len(result.strip()) > 0:
                         logger.info(f"Successfully extracted {len(result)} characters from URL PDF")
                         # FIX #13: Preprocess text to remove endnote markers BEFORE eyecite sees it
@@ -968,47 +998,56 @@ def fetch_url_content(url: str) -> str:
                     else:
                         logger.error("PDF extraction returned empty content")
                         raise Exception("The PDF document appears to be empty or unreadable")
-                        
+
                 finally:
                     # Clean up temp file
                     try:
                         os.unlink(temp_pdf_path)
                     except OSError:
                         pass
-                        
+
             except Exception as e:
                 logger.error(f"PDF extraction from URL failed: {str(e)}")
-                raise Exception(f"The PDF document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format.")
-        
-        elif ('word' in content_type or 'openxmlformats' in content_type or 
-              url.lower().endswith('.docx') or url.lower().endswith('.doc')):
+                raise Exception(
+                    f"The PDF document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format."
+                )
+
+        elif (
+            "word" in content_type
+            or "openxmlformats" in content_type
+            or url.lower().endswith(".docx")
+            or url.lower().endswith(".doc")
+        ):
             # Handle Word documents (DOCX and DOC)
             import tempfile
             import os
-            
+
             try:
                 # Determine file extension from URL or content type
-                if url.lower().endswith('.docx') or 'openxmlformats' in content_type:
-                    file_ext = 'docx'
-                elif url.lower().endswith('.doc') or 'msword' in content_type:
-                    file_ext = 'doc'
+                if url.lower().endswith(".docx") or "openxmlformats" in content_type:
+                    file_ext = "docx"
+                elif url.lower().endswith(".doc") or "msword" in content_type:
+                    file_ext = "doc"
                 else:
                     # Default to docx for modern Word documents
-                    file_ext = 'docx'
-                
+                    file_ext = "docx"
+
                 # Save document content to temp file
-                with tempfile.NamedTemporaryFile(delete=False, suffix=f'.{file_ext}') as temp_doc:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=f".{file_ext}") as temp_doc:
                     temp_doc.write(response.content)
                     temp_doc_path = temp_doc.name
-                
+
                 try:
                     logger.info(f"Extracting {file_ext.upper()} from URL using unified_text_extractor")
                     from src.unified_text_extractor import UnifiedTextExtractor
+
                     extractor = UnifiedTextExtractor(verbose=True)
                     result, method = extractor.extract_text_from_file(temp_doc_path)
-                    
+
                     if result and len(result.strip()) > 0:
-                        logger.info(f"Successfully extracted {len(result)} characters from URL {file_ext.upper()} using {method}")
+                        logger.info(
+                            f"Successfully extracted {len(result)} characters from URL {file_ext.upper()} using {method}"
+                        )
                         # Preprocess text to clean artifacts
                         result = preprocess_extracted_text(result)
                         logger.info(f"After preprocessing: {len(result)} characters")
@@ -1016,35 +1055,38 @@ def fetch_url_content(url: str) -> str:
                     else:
                         logger.error(f"{file_ext.upper()} extraction returned empty content")
                         raise Exception(f"The {file_ext.upper()} document appears to be empty or unreadable")
-                        
+
                 finally:
                     # Clean up temp file
                     try:
                         os.unlink(temp_doc_path)
                     except OSError:
                         pass
-                        
+
             except Exception as e:
                 logger.error(f"{file_ext.upper()} extraction from URL failed: {str(e)}")
-                raise Exception(f"The Word document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format.")
-        
-        elif ('rtf' in content_type or url.lower().endswith('.rtf')):
+                raise Exception(
+                    f"The Word document could not be processed: {str(e)}. It may be corrupted, password-protected, or in an unsupported format."
+                )
+
+        elif "rtf" in content_type or url.lower().endswith(".rtf"):
             # Handle Rich Text Format (RTF) files
             import tempfile
             import os
-            
+
             try:
                 # Save RTF content to temp file
-                with tempfile.NamedTemporaryFile(delete=False, suffix='.rtf') as temp_rtf:
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".rtf") as temp_rtf:
                     temp_rtf.write(response.content)
                     temp_rtf_path = temp_rtf.name
-                
+
                 try:
                     logger.info(f"Extracting RTF from URL using unified_text_extractor")
                     from src.unified_text_extractor import UnifiedTextExtractor
+
                     extractor = UnifiedTextExtractor(verbose=True)
                     result, method = extractor.extract_text_from_file(temp_rtf_path)
-                    
+
                     if result and len(result.strip()) > 0:
                         logger.info(f"Successfully extracted {len(result)} characters from URL RTF using {method}")
                         # Preprocess text to clean artifacts
@@ -1054,44 +1096,53 @@ def fetch_url_content(url: str) -> str:
                     else:
                         logger.error("RTF extraction returned empty content")
                         raise Exception("The RTF document appears to be empty or unreadable")
-                        
+
                 finally:
                     # Clean up temp file
                     try:
                         os.unlink(temp_rtf_path)
                     except OSError:
                         pass
-                        
+
             except Exception as e:
                 logger.error(f"RTF extraction from URL failed: {str(e)}")
-                raise Exception(f"The RTF document could not be processed: {str(e)}. It may be corrupted or in an unsupported format.")
-        
-        elif 'json' in content_type or 'application/json' in content_type:
+                raise Exception(
+                    f"The RTF document could not be processed: {str(e)}. It may be corrupted or in an unsupported format."
+                )
+
+        elif "json" in content_type or "application/json" in content_type:
             # Handle JSON responses (e.g., from CourtListener API)
             logger.info(f"Processing JSON response from API")
             try:
                 import json
+
                 data = response.json()
-                
+
                 # Extract text from CourtListener API opinion response
                 # Check plain_text first, but only if it actually contains content
-                if 'plain_text' in data and data['plain_text'] and len(data['plain_text'].strip()) > 0:
-                    text = data['plain_text']
+                if "plain_text" in data and data["plain_text"] and len(data["plain_text"].strip()) > 0:
+                    text = data["plain_text"]
                     logger.info(f"✅ Extracted opinion plain_text: {len(text)} characters")
                     return text
-                elif 'html_with_citations' in data and data['html_with_citations'] and len(data['html_with_citations'].strip()) > 0:
+                elif (
+                    "html_with_citations" in data
+                    and data["html_with_citations"]
+                    and len(data["html_with_citations"].strip()) > 0
+                ):
                     # Fallback to HTML version with citations
                     from bs4 import BeautifulSoup
-                    html = data['html_with_citations']
-                    soup = BeautifulSoup(html, 'html.parser')
-                    text = soup.get_text(separator=' ', strip=True)
+
+                    html = data["html_with_citations"]
+                    soup = BeautifulSoup(html, "html.parser")
+                    text = soup.get_text(separator=" ", strip=True)
                     logger.info(f"✅ Extracted from html_with_citations: {len(text)} characters")
                     return text
-                elif 'html' in data and data['html'] and len(data['html'].strip()) > 0:
+                elif "html" in data and data["html"] and len(data["html"].strip()) > 0:
                     from bs4 import BeautifulSoup
-                    html = data['html']
-                    soup = BeautifulSoup(html, 'html.parser')
-                    text = soup.get_text(separator=' ', strip=True)
+
+                    html = data["html"]
+                    soup = BeautifulSoup(html, "html.parser")
+                    text = soup.get_text(separator=" ", strip=True)
                     logger.info(f"✅ Extracted from html field: {len(text)} characters")
                     return text
                 else:
@@ -1102,83 +1153,97 @@ def fetch_url_content(url: str) -> str:
             except Exception as e:
                 logger.error(f"Failed to parse JSON response: {e}")
                 return response.text
-        
-        elif ('html' in content_type or 'xml' in content_type or 
-              url.lower().endswith('.html') or url.lower().endswith('.htm') or 
-              url.lower().endswith('.xml') or url.lower().endswith('.xhtml')):
+
+        elif (
+            "html" in content_type
+            or "xml" in content_type
+            or url.lower().endswith(".html")
+            or url.lower().endswith(".htm")
+            or url.lower().endswith(".xml")
+            or url.lower().endswith(".xhtml")
+        ):
             # Handle HTML and XML content
             logger.info(f"Processing {'HTML' if 'html' in content_type else 'XML'} content")
             try:
                 from bs4 import BeautifulSoup
-                soup = BeautifulSoup(response.text, 'html.parser')
+
+                soup = BeautifulSoup(response.text, "html.parser")
                 # Remove script and style elements
                 for script in soup(["script", "style"]):
                     script.decompose()
                 # Get text
-                text = soup.get_text(separator=' ', strip=True)
-                logger.info(f"✅ Extracted text from {'HTML' if 'html' in content_type else 'XML'}: {len(text)} characters")
+                text = soup.get_text(separator=" ", strip=True)
+                logger.info(
+                    f"✅ Extracted text from {'HTML' if 'html' in content_type else 'XML'}: {len(text)} characters"
+                )
                 return text
             except Exception as e:
                 logger.warning(f"Failed to parse {'HTML' if 'html' in content_type else 'XML'} with BeautifulSoup: {e}")
                 logger.info(f"Returning raw content, length: {len(response.text)}")
                 return response.text
-        
-        elif ('text/plain' in content_type or 'text/markdown' in content_type or
-              url.lower().endswith('.txt') or url.lower().endswith('.md') or 
-              url.lower().endswith('.markdown')):
+
+        elif (
+            "text/plain" in content_type
+            or "text/markdown" in content_type
+            or url.lower().endswith(".txt")
+            or url.lower().endswith(".md")
+            or url.lower().endswith(".markdown")
+        ):
             # Handle plain text and markdown files
             logger.info(f"Processing {'plain text' if 'text/plain' in content_type else 'markdown'} content")
             text = response.text
-            
+
             # Basic markdown cleanup for .md files
-            if url.lower().endswith('.md') or 'markdown' in content_type:
+            if url.lower().endswith(".md") or "markdown" in content_type:
                 # Remove common markdown syntax that might interfere with citation extraction
                 import re
+
                 # Remove markdown links [text](url) -> text
-                text = re.sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', text)
+                text = re.sub(r"\[([^\]]+)\]\([^)]+\)", r"\1", text)
                 # Remove markdown headers (# ## ###)
-                text = re.sub(r'^#+\s*', '', text, flags=re.MULTILINE)
+                text = re.sub(r"^#+\s*", "", text, flags=re.MULTILINE)
                 # Remove bold/italic markers
-                text = re.sub(r'\*\*([^*]+)\*\*', r'\1', text)
-                text = re.sub(r'\*([^*]+)\*', r'\1', text)
-                text = re.sub(r'__([^_]+)__', r'\1', text)
-                text = re.sub(r'_([^_]+)_', r'\1', text)
+                text = re.sub(r"\*\*([^*]+)\*\*", r"\1", text)
+                text = re.sub(r"\*([^*]+)\*", r"\1", text)
+                text = re.sub(r"__([^_]+)__", r"\1", text)
+                text = re.sub(r"_([^_]+)_", r"\1", text)
                 logger.info(f"✅ Cleaned markdown content: {len(text)} characters")
             else:
                 logger.info(f"✅ Plain text content: {len(text)} characters")
-            
+
             return text
-        
+
         else:
             try:
                 logger.info(f"Attempting to decode unknown content type: {content_type}")
                 text = response.text
-                
+
                 # Try to detect if it's HTML and parse it
-                if text.strip().startswith('<!DOCTYPE html') or text.strip().startswith('<html'):
+                if text.strip().startswith("<!DOCTYPE html") or text.strip().startswith("<html"):
                     logger.info(f"Detected HTML in unknown content type, attempting to parse")
                     try:
                         from bs4 import BeautifulSoup
-                        soup = BeautifulSoup(text, 'html.parser')
+
+                        soup = BeautifulSoup(text, "html.parser")
                         # Remove script and style elements
                         for script in soup(["script", "style"]):
                             script.decompose()
                         # Get text
-                        parsed_text = soup.get_text(separator=' ', strip=True)
+                        parsed_text = soup.get_text(separator=" ", strip=True)
                         logger.info(f"✅ Extracted text from HTML: {len(parsed_text)} characters")
                         return parsed_text
                     except Exception as e:
                         logger.warning(f"Failed to parse as HTML: {e}")
-                
+
                 return text
             except UnicodeDecodeError:
                 logger.warning(f"Could not decode content as text: {content_type}")
                 return f"[Binary content from {url} - cannot be processed as text]"
-                
+
     except requests.exceptions.Timeout:
         logger.error(f"Timeout fetching URL {url}")
         raise Exception(f"The URL took too long to respond. Please check if the URL is accessible and try again.")
-    
+
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection error fetching URL {url}: {str(e)}")
         if "Name or service not known" in str(e) or "nodename nor servname provided" in str(e):
@@ -1187,13 +1252,15 @@ def fetch_url_content(url: str) -> str:
             raise Exception(f"The server refused the connection. The URL may be temporarily unavailable.")
         else:
             raise Exception(f"Could not connect to the URL. Please check your internet connection and try again.")
-    
+
     except requests.exceptions.HTTPError as e:
         status_code = e.response.status_code if e.response else None
         logger.error(f"HTTP error fetching URL {url}: {status_code} - {str(e)}")
-        
+
         if status_code == 404:
-            raise Exception(f"The document was not found at this URL (404 error). Please check that the URL is correct.")
+            raise Exception(
+                f"The document was not found at this URL (404 error). Please check that the URL is correct."
+            )
         elif status_code == 403:
             # Check if this is a Cloudflare protection issue
             response_text = ""
@@ -1202,7 +1269,7 @@ def fetch_url_content(url: str) -> str:
                     response_text = e.response.text[:500].lower()  # Get first 500 chars
                 except:
                     response_text = ""
-            
+
             # Detect anti-bot protection indicators
             protection_indicators = [
                 "cloudflare",
@@ -1219,28 +1286,36 @@ def fetch_url_content(url: str) -> str:
                 "access denied",
                 "blocked by",
                 "please wait",
-                "verifying you are human"
+                "verifying you are human",
             ]
-            
+
             is_protected = any(indicator in response_text for indicator in protection_indicators)
-            
+
             if is_protected:
                 # Determine if this is likely a PDF or HTML page
-                is_pdf = url.lower().endswith('.pdf') or 'pdf' in url.lower()
+                is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
                 file_type = "PDF file" if is_pdf else "web page"
-                action = "download the PDF file manually from the URL and upload it directly to the tool" if is_pdf else "copy the text content from the web page and paste it into the tool"
-                
+                action = (
+                    "download the PDF file manually from the URL and upload it directly to the tool"
+                    if is_pdf
+                    else "copy the text content from the web page and paste it into the tool"
+                )
+
                 raise Exception(
                     f"This website is protected by anti-bot protection and blocks automated access. "
                     f"Please {action} instead. "
                     f"This will allow the citation extraction to work properly."
                 )
             else:
-                raise Exception(f"Access to this document is forbidden (403 error). The document may require special permissions.")
+                raise Exception(
+                    f"Access to this document is forbidden (403 error). The document may require special permissions."
+                )
         elif status_code == 500:
             raise Exception(f"The server encountered an error (500 error). Please try again later.")
         elif status_code and 400 <= status_code < 500:
-            raise Exception(f"There was a problem with the request ({status_code} error). Please check the URL and try again.")
+            raise Exception(
+                f"There was a problem with the request ({status_code} error). Please check the URL and try again."
+            )
         elif status_code and status_code >= 500:
             raise Exception(f"The server is experiencing problems ({status_code} error). Please try again later.")
         else:
@@ -1262,17 +1337,21 @@ def fetch_url_content(url: str) -> str:
                 "blocked by",
                 "please wait",
                 "verifying you are human",
-                "403 client error: forbidden"
+                "403 client error: forbidden",
             ]
-            
+
             is_protected = any(indicator in error_message for indicator in protection_indicators)
-            
+
             if is_protected:
                 # Determine if this is likely a PDF or HTML page
-                is_pdf = url.lower().endswith('.pdf') or 'pdf' in url.lower()
+                is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
                 file_type = "PDF file" if is_pdf else "web page"
-                action = "download the PDF file manually from the URL and upload it directly to the tool" if is_pdf else "copy the text content from the web page and paste it into the tool"
-                
+                action = (
+                    "download the PDF file manually from the URL and upload it directly to the tool"
+                    if is_pdf
+                    else "copy the text content from the web page and paste it into the tool"
+                )
+
                 raise Exception(
                     f"This website is protected by anti-bot protection and blocks automated access. "
                     f"Please {action} instead. "
@@ -1280,27 +1359,30 @@ def fetch_url_content(url: str) -> str:
                 )
             else:
                 raise Exception(f"The URL returned an error ({status_code}). Please check the URL and try again.")
-    
+
     except requests.exceptions.RequestException as e:
         logger.error(f"Error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
         raise Exception(f"Failed to fetch the URL: {str(e)}. Please check that the URL is accessible and try again.")
-    
+
     except Exception as e:
         logger.error(f"Unexpected error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
         if "PDF extraction" in str(e):
-            raise Exception(f"The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format.")
+            raise Exception(
+                f"The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format."
+            )
         else:
             raise Exception(f"An unexpected error occurred while processing the URL: {str(e)}")
+
 
 def _extract_with_pypdf2(pdf_content: bytes) -> str:
     """Extract text using PyPDF2."""
     import PyPDF2
     import io
-    
+
     pdf_content_io = io.BytesIO(pdf_content)
     pdf_reader = PyPDF2.PdfReader(pdf_content_io)
     text_parts = []
-    
+
     for i, page in enumerate(pdf_reader.pages, 1):
         try:
             text = page.extract_text()
@@ -1308,8 +1390,9 @@ def _extract_with_pypdf2(pdf_content: bytes) -> str:
                 text_parts.append(text)
         except Exception as e:
             logger.warning(f"Error extracting text from page {i}: {str(e)}")
-    
-    return '\n\n'.join(text_parts)
+
+    return "\n\n".join(text_parts)
+
 
 def _extract_with_pdfminer(pdf_content: bytes) -> str:
     """Extract text using pdfminer."""
@@ -1317,61 +1400,57 @@ def _extract_with_pdfminer(pdf_content: bytes) -> str:
         from pdfminer.high_level import extract_text_to_fp
         from pdfminer.layout import LAParams
         import io
-        
+
         output_string = io.StringIO()
         pdf_content_io = io.BytesIO(pdf_content)
-        
-        extract_text_to_fp(
-            pdf_content_io,
-            output_string,
-            laparams=LAParams(),
-            output_type='text',
-            codec='utf-8'
-        )
-        
+
+        extract_text_to_fp(pdf_content_io, output_string, laparams=LAParams(), output_type="text", codec="utf-8")
+
         return output_string.getvalue()
     except ImportError:
         raise Exception("pdfminer not available")
+
 
 def _extract_with_pdfplumber(pdf_content: bytes) -> str:
     """Extract text using pdfplumber."""
     try:
         import pdfplumber
         import io
-        
+
         pdf_content_io = io.BytesIO(pdf_content)
         text_parts = []
-        
+
         with pdfplumber.open(pdf_content_io) as pdf:
             for page in pdf.pages:
                 text = page.extract_text()
                 if text:
                     text_parts.append(text)
-        
-        return '\n\n'.join(text_parts)
+
+        return "\n\n".join(text_parts)
     except ImportError:
         raise Exception("pdfplumber not available")
+
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
     """
     Process citation task directly (for use with RQ workers).
-    
+
     Args:
         task_id: Unique task ID
         input_type: Type of input ('text', 'url', 'file')
         input_data: Dictionary containing the input data
-        
+
     Returns:
         Dictionary with processing results
     """
     import logging
     import traceback
     import time
-    
+
     logger = logging.getLogger(__name__)
     logger.info(f"[Task {task_id}] Starting direct citation processing for {input_type}")
     logger.debug(f"[Task {task_id}] Input data keys: {list(input_data.keys())}")
-    
+
     # FIX #21: Function to sync progress to Redis for API consumption
     def sync_progress_to_redis(status: str, progress_pct: int, message: str):
         """Sync progress updates to Redis so the API endpoint can read them."""
@@ -1380,303 +1459,333 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
             from src.config import REDIS_URL
             import json
             from datetime import datetime
-            
+
             redis_conn = Redis.from_url(REDIS_URL)
-            
+
             progress_data = {
-                'task_id': task_id,
-                'progress': progress_pct,
-                'status': status,
-                'message': message,
-                'timestamp': datetime.now().isoformat(),
-                'current_step': progress_pct // 10,  # Approximate step
-                'total_steps': 10  # Approximate total
+                "task_id": task_id,
+                "progress": progress_pct,
+                "status": status,
+                "message": message,
+                "timestamp": datetime.now().isoformat(),
+                "current_step": progress_pct // 10,  # Approximate step
+                "total_steps": 10,  # Approximate total
             }
-            
+
             # Use same key format as SSEProgressManager (f"progress:{task_id}")
-            redis_conn.setex(
-                f"progress:{task_id}",
-                3600,  # 1 hour expiry
-                json.dumps(progress_data)
-            )
+            redis_conn.setex(f"progress:{task_id}", 3600, json.dumps(progress_data))  # 1 hour expiry
             logger.info(f"✅ FIX #21: Progress synced to Redis: {status} ({progress_pct}%)")
-            
+
         except Exception as e:
             logger.error(f"Failed to sync progress to Redis: {e}")
-    
+
     # Create or get progress tracker for this task
     from src.progress_tracker import create_progress_tracker, get_progress_tracker
+
     progress_tracker = get_progress_tracker(task_id) or create_progress_tracker(task_id)
-    
+
     # FIX #21: Initial sync
-    sync_progress_to_redis('initializing', 16, 'Starting background processing...')
-    
+    sync_progress_to_redis("initializing", 16, "Starting background processing...")
+
     try:
-        if input_type == 'text':
-            text = input_data.get('text', '')
+        if input_type == "text":
+            text = input_data.get("text", "")
             logger.debug(f"[Task {task_id}] Text length: {len(text)} characters")
-            
+
             if not text:
                 error_msg = "No text provided for processing"
                 logger.error(f"[Task {task_id}] {error_msg}")
                 raise ValueError(error_msg)
-            
+
             # Use CLEAN PIPELINE (87-93% accuracy, zero case name bleeding)
             try:
-                progress_tracker.start_step(0, 'Initializing async processing...')
-                
+                progress_tracker.start_step(0, "Initializing async processing...")
+
                 logger.info(f"[Task {task_id}] Importing production pipeline with clustering and verification...")
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
                 from src.models import CitationResult
-                
-                progress_tracker.update_step(0, 50, 'Loading processing modules...')
-                sync_progress_to_redis('loading', 25, 'Loading pipeline with verification...')  # FIX #21
-                
+
+                progress_tracker.update_step(0, 50, "Loading processing modules...")
+                sync_progress_to_redis("loading", 25, "Loading pipeline with verification...")  # FIX #21
+
                 logger.info(f"[Task {task_id}] Using FULL PIPELINE with clustering and batch verification...")
-                
-                progress_tracker.update_step(0, 75, 'Initializing processor...')
-                sync_progress_to_redis('initializing', 30, 'Initializing clean pipeline...')  # FIX #21
-                
-                progress_tracker.complete_step(0, 'Initialization complete')
-                progress_tracker.start_step(1, 'Extracting citations from text...')
-                sync_progress_to_redis('extracting', 35, 'Extracting citations with clean pipeline...')  # FIX #21
-                
+
+                progress_tracker.update_step(0, 75, "Initializing processor...")
+                sync_progress_to_redis("initializing", 30, "Initializing clean pipeline...")  # FIX #21
+
+                progress_tracker.complete_step(0, "Initialization complete")
+                progress_tracker.start_step(1, "Extracting citations from text...")
+                sync_progress_to_redis("extracting", 35, "Extracting citations with clean pipeline...")  # FIX #21
+
                 # Process the text through the clean extraction pipeline WITH CLUSTERING + VERIFICATION
-                logger.info(f"[🔥🔥🔥 PROGRESS MANAGER 🔥🔥🔥] About to call extract_citations_with_clustering() with {len(text)} chars")
+                logger.info(
+                    f"[🔥🔥🔥 PROGRESS MANAGER 🔥🔥🔥] About to call extract_citations_with_clustering() with {len(text)} chars"
+                )
                 # CRITICAL FIX: Use FULL pipeline with clustering and verification
                 # instead of just extraction
                 from src.citation_extraction_endpoint import extract_citations_with_clustering
-                
+
                 # Extract enable_verification flag from input_data
-                enable_verification = input_data.get('enable_verification', True)
-                logger.error(f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification={enable_verification} (with fallback sources)")
+                enable_verification = input_data.get("enable_verification", True)
+                logger.error(
+                    f"[Task {task_id}] >>>>>>> ABOUT TO CALL extract_citations_with_clustering with verification={enable_verification} (with fallback sources)"
+                )
                 result = extract_citations_with_clustering(text, enable_verification=enable_verification)
-                
+
                 # Check if any citations show CourtListener rate limit messages
                 courtlistener_rate_limited = False
-                if result.get('citations'):
-                    for cit in result['citations']:
-                        error_msg = cit.get('error', '') or cit.get('verification_error', '')
-                        if 'heavy usage' in str(error_msg).lower() or 'try again' in str(error_msg).lower():
+                if result.get("citations"):
+                    for cit in result["citations"]:
+                        error_msg = cit.get("error", "") or cit.get("verification_error", "")
+                        if "heavy usage" in str(error_msg).lower() or "try again" in str(error_msg).lower():
                             courtlistener_rate_limited = True
                             break
-                
+
                 # Add user notice if CourtListener is rate-limited
                 if courtlistener_rate_limited:
-                    if 'metadata' not in result:
-                        result['metadata'] = {}
-                    result['metadata']['verification_notice'] = (
+                    if "metadata" not in result:
+                        result["metadata"] = {}
+                    result["metadata"]["verification_notice"] = (
                         "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
                         "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
                         "CourtListener, please try again in a few minutes."
                     )
-                logger.error(f"[Task {task_id}] >>>>>>> extract_citations_with_clustering RETURNED: {len(result.get('citations', []))} citations")
-                
+                logger.error(
+                    f"[Task {task_id}] >>>>>>> extract_citations_with_clustering RETURNED: {len(result.get('citations', []))} citations"
+                )
+
                 # Convert clean pipeline results to CitationResult objects
                 # CRITICAL FIX: Include verification fields from result
                 citations_found = []
-                if result.get('status') == 'success':
-                    for cit_dict in result['citations']:
-                        citations_found.append(CitationResult(
-                            citation=cit_dict['citation'],
-                            extracted_case_name=cit_dict.get('extracted_case_name'),
-                            extracted_date=cit_dict.get('extracted_date'),
-                            method=cit_dict.get('method', 'clean_pipeline_v1'),
-                            confidence=cit_dict.get('confidence', 0.9),
-                            start_index=cit_dict.get('start_index'),
-                            end_index=cit_dict.get('end_index'),
-                            metadata=cit_dict.get('metadata', {}),
-                            # CRITICAL: Include verification data (CitationResult doesn't have verification_source field)
-                            verified=cit_dict.get('verified', False),
-                            canonical_name=cit_dict.get('canonical_name'),
-                            canonical_date=cit_dict.get('canonical_date'),
-                            canonical_url=cit_dict.get('canonical_url')
-                        ))
+                if result.get("status") == "success":
+                    for cit_dict in result["citations"]:
+                        citations_found.append(
+                            CitationResult(
+                                citation=cit_dict["citation"],
+                                extracted_case_name=cit_dict.get("extracted_case_name"),
+                                extracted_date=cit_dict.get("extracted_date"),
+                                method=cit_dict.get("method", "clean_pipeline_v1"),
+                                confidence=cit_dict.get("confidence", 0.9),
+                                start_index=cit_dict.get("start_index"),
+                                end_index=cit_dict.get("end_index"),
+                                metadata=cit_dict.get("metadata", {}),
+                                # CRITICAL: Include verification data (CitationResult doesn't have verification_source field)
+                                verified=cit_dict.get("verified", False),
+                                canonical_name=cit_dict.get("canonical_name"),
+                                canonical_date=cit_dict.get("canonical_date"),
+                                canonical_url=cit_dict.get("canonical_url"),
+                            )
+                        )
                     verified_count = sum(1 for c in citations_found if c.verified)
-                    logger.error(f"[Task {task_id}] >>>>>>> Converted {len(citations_found)} citations ({verified_count} verified) to CitationResult objects")
+                    logger.error(
+                        f"[Task {task_id}] >>>>>>> Converted {len(citations_found)} citations ({verified_count} verified) to CitationResult objects"
+                    )
                 else:
                     logger.error(f"[Task {task_id}] Clean pipeline returned non-success status: {result.get('status')}")
                     logger.error(f"[Task {task_id}] Clean pipeline error: {result.get('error', 'Unknown error')}")
-                
+
                 # Extract clusters from result
-                clusters_from_pipeline = result.get('clusters', [])
-                
-                result = {
-                    'citations': citations_found,
-                    'clusters': clusters_from_pipeline
-                }
-                logger.info(f"[Task {task_id}] Result dict created with {len(citations_found)} citations and {len(clusters_from_pipeline)} clusters")
-                
-                progress_tracker.complete_step(1, 'Citation extraction completed')
-                progress_tracker.start_step(2, 'Analyzing and normalizing citations...')
-                sync_progress_to_redis('clustering', 60, 'Clustering citations...')  # FIX #21
-                
+                clusters_from_pipeline = result.get("clusters", [])
+
+                result = {"citations": citations_found, "clusters": clusters_from_pipeline}
+                logger.info(
+                    f"[Task {task_id}] Result dict created with {len(citations_found)} citations and {len(clusters_from_pipeline)} clusters"
+                )
+
+                progress_tracker.complete_step(1, "Citation extraction completed")
+                progress_tracker.start_step(2, "Analyzing and normalizing citations...")
+                sync_progress_to_redis("clustering", 60, "Clustering citations...")  # FIX #21
+
                 # DYNAMIC PROGRESS: Update progress based on citation processing
-                citations = result.get('citations', [])
+                citations = result.get("citations", [])
                 citation_count = len(citations)
                 logger.info(f"[Task {task_id}] Processing {citation_count} citations with dynamic progress tracking")
-                
+
                 # Ensure we have the expected structure from UnifiedCitationProcessorV2
                 if not isinstance(result, dict):
-                    result = {'citations': [], 'clusters': []}
-                
+                    result = {"citations": [], "clusters": []}
+
                 # Extract citations and clusters from UnifiedCitationProcessorV2 result
-                citations = result.get('citations', [])
-                clusters = result.get('clusters', [])
+                citations = result.get("citations", [])
+                clusters = result.get("clusters", [])
                 citation_dicts = []
-                
+
                 # CITATION-COUNT-BASED PROGRESS: Process citations with realistic progress updates
                 total_citations = len(citations)
                 logger.info(f"[Task {task_id}] Starting citation processing: {total_citations} citations to process")
-                
+
                 # Update progress to show we're starting citation processing
-                progress_tracker.update_step(2, 50, f'Processing {total_citations} citations...')
-                sync_progress_to_redis('processing', 50, f'Starting citation processing: {total_citations} citations found')
-                
+                progress_tracker.update_step(2, 50, f"Processing {total_citations} citations...")
+                sync_progress_to_redis(
+                    "processing", 50, f"Starting citation processing: {total_citations} citations found"
+                )
+
                 # Process each citation with granular progress updates
                 for i, citation in enumerate(citations):
                     try:
                         # Convert citation to dict format
-                        if hasattr(citation, 'to_dict'):
+                        if hasattr(citation, "to_dict"):
                             citation_dict = citation.to_dict()
                         else:
                             citation_dict = citation
-                        
+
                         citation_dicts.append(citation_dict)
-                        
+
                         # CITATION-BASED PROGRESS: Update progress based on actual citation processing
                         if total_citations > 0:
                             # Calculate progress: 50% (extraction) + 30% (citation processing) + 20% (verification/clustering)
                             citation_progress = 50 + int(30 * (i + 1) / total_citations)  # 50-80% range
-                            
+
                             # Update progress every 5 citations or at the end to avoid spam
                             if (i + 1) % 5 == 0 or (i + 1) == total_citations:
-                                progress_tracker.update_step(2, citation_progress, f'Processed {i+1}/{total_citations} citations')
-                                sync_progress_to_redis('processing', citation_progress, f'Processing citations: {i+1}/{total_citations} completed')
-                                logger.info(f"[Task {task_id}] Citation progress: {i+1}/{total_citations} ({citation_progress}%)")
-                        
+                                progress_tracker.update_step(
+                                    2, citation_progress, f"Processed {i+1}/{total_citations} citations"
+                                )
+                                sync_progress_to_redis(
+                                    "processing",
+                                    citation_progress,
+                                    f"Processing citations: {i+1}/{total_citations} completed",
+                                )
+                                logger.info(
+                                    f"[Task {task_id}] Citation progress: {i+1}/{total_citations} ({citation_progress}%)"
+                                )
+
                     except Exception as e:
                         logger.error(f"[Task {task_id}] Error processing citation {i}: {e}")
                         continue
-                
+
                 for citation in citations:
-                    if hasattr(citation, 'to_dict'):
+                    if hasattr(citation, "to_dict"):
                         citation_dicts.append(citation.to_dict())
                     elif isinstance(citation, dict):
                         citation_dicts.append(citation)
                     else:
                         # Convert CitationResult to dict manually
-                        citation_dicts.append({
-                            'citation': getattr(citation, 'citation', ''),
-                            'extracted_case_name': getattr(citation, 'extracted_case_name', ''),
-                            'extracted_date': getattr(citation, 'extracted_date', ''),
-                            'canonical_name': getattr(citation, 'canonical_name', None),
-                            'canonical_date': getattr(citation, 'canonical_date', None),
-                            'canonical_url': getattr(citation, 'canonical_url', None),
-                            'verified': getattr(citation, 'verified', False),
-                            'confidence': getattr(citation, 'confidence', 0.0),
-                            'method': getattr(citation, 'method', 'unified_processor'),
-                            'source': getattr(citation, 'source', 'unified_architecture'),
-                            'start_index': getattr(citation, 'start_index', 0),
-                            'end_index': getattr(citation, 'end_index', 0),
-                            'is_parallel': getattr(citation, 'is_parallel', False),
-                            'is_cluster': getattr(citation, 'is_cluster', False),
-                            'parallel_citations': getattr(citation, 'parallel_citations', []),
-                            'cluster_members': getattr(citation, 'cluster_members', []),
-                            'pinpoint_pages': getattr(citation, 'pinpoint_pages', []),
-                            'docket_numbers': getattr(citation, 'docket_numbers', []),
-                            'case_history': getattr(citation, 'case_history', []),
-                            'publication_status': getattr(citation, 'publication_status', None),
-                            'error': getattr(citation, 'error', None),
-                            'metadata': getattr(citation, 'metadata', {}),
-                            'cluster_id': getattr(citation, 'cluster_id', None),
-                            'true_by_parallel': getattr(citation, 'true_by_parallel', False)
-                        })
-                
-                progress_tracker.complete_step(2, 'Citation analysis completed')
-                progress_tracker.start_step(3, 'Deduplicating citations...')
-                sync_progress_to_redis('verifying', 75, 'Verifying citations...')  # FIX #21
-                
+                        citation_dicts.append(
+                            {
+                                "citation": getattr(citation, "citation", ""),
+                                "extracted_case_name": getattr(citation, "extracted_case_name", ""),
+                                "extracted_date": getattr(citation, "extracted_date", ""),
+                                "canonical_name": getattr(citation, "canonical_name", None),
+                                "canonical_date": getattr(citation, "canonical_date", None),
+                                "canonical_url": getattr(citation, "canonical_url", None),
+                                "verified": getattr(citation, "verified", False),
+                                "confidence": getattr(citation, "confidence", 0.0),
+                                "method": getattr(citation, "method", "unified_processor"),
+                                "source": getattr(citation, "source", "unified_architecture"),
+                                "start_index": getattr(citation, "start_index", 0),
+                                "end_index": getattr(citation, "end_index", 0),
+                                "is_parallel": getattr(citation, "is_parallel", False),
+                                "is_cluster": getattr(citation, "is_cluster", False),
+                                "parallel_citations": getattr(citation, "parallel_citations", []),
+                                "cluster_members": getattr(citation, "cluster_members", []),
+                                "pinpoint_pages": getattr(citation, "pinpoint_pages", []),
+                                "docket_numbers": getattr(citation, "docket_numbers", []),
+                                "case_history": getattr(citation, "case_history", []),
+                                "publication_status": getattr(citation, "publication_status", None),
+                                "error": getattr(citation, "error", None),
+                                "metadata": getattr(citation, "metadata", {}),
+                                "cluster_id": getattr(citation, "cluster_id", None),
+                                "true_by_parallel": getattr(citation, "true_by_parallel", False),
+                            }
+                        )
+
+                progress_tracker.complete_step(2, "Citation analysis completed")
+                progress_tracker.start_step(3, "Deduplicating citations...")
+                sync_progress_to_redis("verifying", 75, "Verifying citations...")  # FIX #21
+
                 # Apply deduplication to async processing (MISSING FEATURE ADDED)
                 logger.info(f"[Task {task_id}] Starting deduplication of {len(citation_dicts)} citations")
                 try:
                     from src.citation_deduplication import deduplicate_citations
-                    
+
                     original_count = len(citation_dicts)
                     citation_dicts = deduplicate_citations(citation_dicts, debug=True)
-                    
-                    logger.info(f"[Task {task_id}] Deduplication completed: {original_count} → {len(citation_dicts)} citations")
+
+                    logger.info(
+                        f"[Task {task_id}] Deduplication completed: {original_count} → {len(citation_dicts)} citations"
+                    )
                     if len(citation_dicts) < original_count:
-                        logger.info(f"[Task {task_id}] Removed {original_count - len(citation_dicts)} duplicate citations")
-                    
+                        logger.info(
+                            f"[Task {task_id}] Removed {original_count - len(citation_dicts)} duplicate citations"
+                        )
+
                 except Exception as e:
                     logger.error(f"[Task {task_id}] Deduplication FAILED: {e}")
                     # Continue with original citations if deduplication fails
-                
-                progress_tracker.complete_step(3, f'Deduplication completed ({len(citation_dicts)} unique citations)')
-                progress_tracker.start_step(4, 'Clustering parallel citations...')
-                
+
+                progress_tracker.complete_step(3, f"Deduplication completed ({len(citation_dicts)} unique citations)")
+                progress_tracker.start_step(4, "Clustering parallel citations...")
+
                 # Get clusters if available
-                clusters = result.get('clusters', [])
+                clusters = result.get("clusters", [])
                 cluster_dicts = []
-                
-                progress_tracker.update_step(4, 50, f'Processing {len(clusters)} clusters...')
-                
+
+                progress_tracker.update_step(4, 50, f"Processing {len(clusters)} clusters...")
+
                 for cluster in clusters:
-                    if hasattr(cluster, 'to_dict'):
+                    if hasattr(cluster, "to_dict"):
                         cluster_dict = cluster.to_dict()
                     elif isinstance(cluster, dict):
                         cluster_dict = cluster.copy()
                     else:
                         continue
-                    
+
                     # CRITICAL FIX: DON'T replace citations from clusters!
                     # The clusters have UPDATED citations from batch verification with verified=True/False set correctly
                     # citation_dicts has OLD citations from before clustering/verification
                     # We need to KEEP the citations from clusters as they have the latest verification status
-                    
+
                     # Just convert citation objects to dicts if needed
-                    if 'citations' in cluster_dict and cluster_dict['citations']:
+                    if "citations" in cluster_dict and cluster_dict["citations"]:
                         converted_citations = []
-                        for cit in cluster_dict['citations']:
-                            if hasattr(cit, 'to_dict'):
+                        for cit in cluster_dict["citations"]:
+                            if hasattr(cit, "to_dict"):
                                 converted_citations.append(cit.to_dict())
                             elif isinstance(cit, dict):
                                 converted_citations.append(cit)
                             else:
                                 # Manual conversion for citation objects
-                                cit_text = getattr(cit, 'citation', str(cit))
-                                converted_citations.append({
-                                    'citation': cit_text,
-                                    'verified': getattr(cit, 'verified', False),
-                                    'extracted_case_name': getattr(cit, 'extracted_case_name', None),
-                                    'extracted_date': getattr(cit, 'extracted_date', None),
-                                    'canonical_name': getattr(cit, 'canonical_name', None),
-                                    'canonical_date': getattr(cit, 'canonical_date', None),
-                                    'canonical_url': getattr(cit, 'canonical_url', None),
-                                    'verification_source': getattr(cit, 'verification_source', None),
-                                    'verification_error': getattr(cit, 'verification_error', None),
-                                    'true_by_parallel': getattr(cit, 'true_by_parallel', False),
-                                })
-                        
-                        cluster_dict['citations'] = converted_citations
-                        logger.error(f"[Task {task_id}] ✅ Converted cluster with {len(converted_citations)} citations (preserving verification status)")
-                    
+                                cit_text = getattr(cit, "citation", str(cit))
+                                converted_citations.append(
+                                    {
+                                        "citation": cit_text,
+                                        "verified": getattr(cit, "verified", False),
+                                        "extracted_case_name": getattr(cit, "extracted_case_name", None),
+                                        "extracted_date": getattr(cit, "extracted_date", None),
+                                        "canonical_name": getattr(cit, "canonical_name", None),
+                                        "canonical_date": getattr(cit, "canonical_date", None),
+                                        "canonical_url": getattr(cit, "canonical_url", None),
+                                        "verification_source": getattr(cit, "verification_source", None),
+                                        "verification_error": getattr(cit, "verification_error", None),
+                                        "true_by_parallel": getattr(cit, "true_by_parallel", False),
+                                    }
+                                )
+
+                        cluster_dict["citations"] = converted_citations
+                        logger.error(
+                            f"[Task {task_id}] ✅ Converted cluster with {len(converted_citations)} citations (preserving verification status)"
+                        )
+
                     cluster_dicts.append(cluster_dict)
 
                 # Apply cluster deduplication to async processing
                 logger.info(f"[Task {task_id}] Starting cluster deduplication of {len(cluster_dicts)} clusters")
                 try:
                     from src.citation_deduplication import deduplicate_clusters
-                    
+
                     original_cluster_count = len(cluster_dicts)
                     cluster_dicts = deduplicate_clusters(cluster_dicts, debug=True)
-                    
-                    logger.info(f"[Task {task_id}] Cluster deduplication completed: {original_cluster_count} → {len(cluster_dicts)} clusters")
+
+                    logger.info(
+                        f"[Task {task_id}] Cluster deduplication completed: {original_cluster_count} → {len(cluster_dicts)} clusters"
+                    )
                     if len(cluster_dicts) < original_cluster_count:
-                        logger.info(f"[Task {task_id}] Cluster deduplication SUCCESS: "
-                                   f"({original_cluster_count - len(cluster_dicts)} duplicate clusters removed)")
-                    
+                        logger.info(
+                            f"[Task {task_id}] Cluster deduplication SUCCESS: "
+                            f"({original_cluster_count - len(cluster_dicts)} duplicate clusters removed)"
+                        )
+
                 except Exception as e:
                     logger.error(f"[Task {task_id}] Cluster deduplication FAILED: {e}")
                     # Continue with original clusters if deduplication fails
@@ -1687,18 +1796,25 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                 logger.error(f"[Task {task_id}] 🔍 EXTRACTED NAME VALIDATION: Processing {len(cluster_dicts)} clusters")
                 validation_corrections = 0
                 validation_errors = 0
-                
+
                 for cluster_dict in cluster_dicts:
-                    citations_in_cluster = cluster_dict.get('citations', [])
-                    
+                    citations_in_cluster = cluster_dict.get("citations", [])
+
                     # First pass: Clean contaminated names (but don't propagate)
                     for cit in citations_in_cluster:
-                        extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
-                        
-                        if extracted and extracted != 'N/A':
+                        extracted = (
+                            cit.get("extracted_case_name")
+                            if isinstance(cit, dict)
+                            else getattr(cit, "extracted_case_name", None)
+                        )
+
+                        if extracted and extracted != "N/A":
                             # USER FIX 2024-10-17: Use robust contamination detector
-                            from src.utils.name_contamination_detector import is_contaminated_case_name, clean_contaminated_case_name
-                            
+                            from src.utils.name_contamination_detector import (
+                                is_contaminated_case_name,
+                                clean_contaminated_case_name,
+                            )
+
                             # Check for contamination
                             if is_contaminated_case_name(extracted):
                                 logger.error(f"[Task {task_id}] 🚨 CONTAMINATION DETECTED: '{extracted}'")
@@ -1708,153 +1824,198 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                                     logger.error(f"[Task {task_id}] ✅ CLEANED: '{cleaned}'")
                                     # Update THIS citation only
                                     if isinstance(cit, dict):
-                                        cit['extracted_case_name'] = cleaned
+                                        cit["extracted_case_name"] = cleaned
                                     else:
                                         cit.extracted_case_name = cleaned
                                     validation_corrections += 1
                                 else:
                                     logger.error(f"[Task {task_id}] ❌ Could not clean, marking as N/A")
                                     if isinstance(cit, dict):
-                                        cit['extracted_case_name'] = 'N/A'
+                                        cit["extracted_case_name"] = "N/A"
                                     else:
-                                        cit.extracted_case_name = 'N/A'
+                                        cit.extracted_case_name = "N/A"
                                     validation_errors += 1
-                    
+
                     # Second pass: Validate against canonical names using comprehensive validator
                     # If extracted name differs significantly from verified canonical name, flag it
-                    from src.utils.citation_name_validator import validate_extracted_name_for_citation, should_re_extract
-                    
+                    from src.utils.citation_name_validator import (
+                        validate_extracted_name_for_citation,
+                        should_re_extract,
+                    )
+
                     for cit in citations_in_cluster:
-                        extracted = cit.get('extracted_case_name') if isinstance(cit, dict) else getattr(cit, 'extracted_case_name', None)
-                        canonical = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
-                        canonical_year = cit.get('canonical_date') if isinstance(cit, dict) else getattr(cit, 'canonical_date', None)
-                        verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
-                        citation_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', '?')
-                        
-                        if extracted and extracted != 'N/A' and citation_text:
+                        extracted = (
+                            cit.get("extracted_case_name")
+                            if isinstance(cit, dict)
+                            else getattr(cit, "extracted_case_name", None)
+                        )
+                        canonical = (
+                            cit.get("canonical_name") if isinstance(cit, dict) else getattr(cit, "canonical_name", None)
+                        )
+                        canonical_year = (
+                            cit.get("canonical_date") if isinstance(cit, dict) else getattr(cit, "canonical_date", None)
+                        )
+                        verified = (
+                            cit.get("verified", False) if isinstance(cit, dict) else getattr(cit, "verified", False)
+                        )
+                        citation_text = cit.get("citation") if isinstance(cit, dict) else getattr(cit, "citation", "?")
+
+                        if extracted and extracted != "N/A" and citation_text:
                             # Validate extracted name
                             validation = validate_extracted_name_for_citation(
                                 extracted_name=extracted,
                                 citation=citation_text,
                                 canonical_name=canonical if verified else None,
                                 canonical_year=canonical_year,
-                                debug=True
+                                debug=True,
                             )
-                            
+
                             # Log validation results
-                            if not validation['valid']:
+                            if not validation["valid"]:
                                 logger.error(f"[Task {task_id}] ❌ VALIDATION FAILED for {citation_text}:")
                                 logger.error(f"    Extracted: '{extracted}'")
                                 if canonical:
                                     logger.error(f"    Canonical: '{canonical}'")
                                 logger.error(f"    Confidence: {validation['confidence']:.2f}")
-                                for error in validation['errors']:
+                                for error in validation["errors"]:
                                     logger.error(f"    - {error}")
                                 validation_errors += 1
-                                
+
                                 # CRITICAL FIX: Don't clear extracted_case_name to N/A!
                                 # Extracted name is what's IN THE DOCUMENT (even if wrong)
                                 # Validation failure should add a flag, not erase the extraction
                                 if should_re_extract(validation):
                                     logger.error(f"[Task {task_id}] ⚠️ Extracted name mismatch for {citation_text}")
                                     if isinstance(cit, dict):
-                                        cit['name_mismatch'] = True
-                                        cit['mismatch_confidence'] = validation['confidence']
+                                        cit["name_mismatch"] = True
+                                        cit["mismatch_confidence"] = validation["confidence"]
                                     else:
                                         cit.name_mismatch = True
-                                        cit.mismatch_confidence = validation['confidence']
-                            
-                            elif validation['warnings']:
+                                        cit.mismatch_confidence = validation["confidence"]
+
+                            elif validation["warnings"]:
                                 logger.warning(f"[Task {task_id}] ⚠️ Validation warnings for {citation_text}:")
-                                for warning in validation['warnings']:
+                                for warning in validation["warnings"]:
                                     logger.warning(f"    - {warning}")
-                
+
                 if validation_corrections > 0:
                     logger.error(f"[Task {task_id}] ✅ Corrected {validation_corrections} contaminated names")
                 if validation_errors > 0:
                     logger.error(f"[Task {task_id}] ⚠️ Found {validation_errors} validation mismatches (check logs)")
-                
+
                 # CRITICAL FIX: Extract cluster-level canonical data from verified citations
                 # This happens AFTER verification, so verified citations now have canonical data
                 logger.error(f"[Task {task_id}] 🔍 CANONICAL DATA EXTRACTION: Processing {len(cluster_dicts)} clusters")
                 clusters_with_canonical = 0
                 for cluster_dict in cluster_dicts:
-                    citations_in_cluster = cluster_dict.get('citations', [])
+                    citations_in_cluster = cluster_dict.get("citations", [])
                     logger.error(f"[Task {task_id}] 🔍 Cluster has {len(citations_in_cluster)} citations")
-                    
+
                     # STEP 1: Check if cluster has ANY verified citation (for true_by_parallel)
                     # USER RULE: verified=True means citation HAS canonical_name, canonical_date, canonical_url
                     # So if ANY citation is verified, we know the case exists and can mark parallels
                     has_any_verified = False
                     for cit in citations_in_cluster:
-                        is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
+                        is_verified = (
+                            cit.get("verified", False) if isinstance(cit, dict) else getattr(cit, "verified", False)
+                        )
                         if is_verified:
                             has_any_verified = True
                             break
-                    
+
                     # STEP 2: Find first verified citation WITH canonical data (for cluster metadata)
                     best_verified = None
                     for cit in citations_in_cluster:
-                        is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
-                        canonical_name = cit.get('canonical_name') if isinstance(cit, dict) else getattr(cit, 'canonical_name', None)
-                        logger.error(f"[Task {task_id}] 🔍 Citation: verified={is_verified}, has_canonical={canonical_name is not None}")
-                        
+                        is_verified = (
+                            cit.get("verified", False) if isinstance(cit, dict) else getattr(cit, "verified", False)
+                        )
+                        canonical_name = (
+                            cit.get("canonical_name") if isinstance(cit, dict) else getattr(cit, "canonical_name", None)
+                        )
+                        logger.error(
+                            f"[Task {task_id}] 🔍 Citation: verified={is_verified}, has_canonical={canonical_name is not None}"
+                        )
+
                         if is_verified and canonical_name:
                             best_verified = cit
-                            logger.error(f"[Task {task_id}] ✅ Found verified citation with canonical: {canonical_name}")
+                            logger.error(
+                                f"[Task {task_id}] ✅ Found verified citation with canonical: {canonical_name}"
+                            )
                             break
-                    
+
                     # STEP 3: Set cluster-level canonical data (if available)
                     if best_verified:
                         if isinstance(best_verified, dict):
-                            cluster_dict['canonical_name'] = best_verified.get('canonical_name')
-                            cluster_dict['canonical_date'] = best_verified.get('canonical_date')
-                            cluster_dict['verification_source'] = best_verified.get('verification_source', best_verified.get('source'))
-                            cluster_dict['verification_status'] = 'verified'
+                            cluster_dict["canonical_name"] = best_verified.get("canonical_name")
+                            cluster_dict["canonical_date"] = best_verified.get("canonical_date")
+                            cluster_dict["verification_source"] = best_verified.get(
+                                "verification_source", best_verified.get("source")
+                            )
+                            cluster_dict["verification_status"] = "verified"
                         else:
-                            cluster_dict['canonical_name'] = getattr(best_verified, 'canonical_name', None)
-                            cluster_dict['canonical_date'] = getattr(best_verified, 'canonical_date', None)
-                            cluster_dict['verification_source'] = getattr(best_verified, 'verification_source', getattr(best_verified, 'source', None))
-                            cluster_dict['verification_status'] = 'verified'
+                            cluster_dict["canonical_name"] = getattr(best_verified, "canonical_name", None)
+                            cluster_dict["canonical_date"] = getattr(best_verified, "canonical_date", None)
+                            cluster_dict["verification_source"] = getattr(
+                                best_verified, "verification_source", getattr(best_verified, "source", None)
+                            )
+                            cluster_dict["verification_status"] = "verified"
                         clusters_with_canonical += 1
-                    
+
                     # STEP 4: Mark unverified citations as true_by_parallel if cluster has ANY verified citation
                     # USER REQUIREMENT: If cluster has ANY verified citation, ALL unverified become true_by_parallel
                     if has_any_verified:
-                        logger.error(f"[Task {task_id}] 🔄 MARKING PARALLEL: Cluster has verified citation(s), marking unverified as true_by_parallel")
+                        logger.error(
+                            f"[Task {task_id}] 🔄 MARKING PARALLEL: Cluster has verified citation(s), marking unverified as true_by_parallel"
+                        )
                         unverified_count = 0
                         for idx, cit in enumerate(citations_in_cluster):
-                            cit_is_verified = cit.get('verified', False) if isinstance(cit, dict) else getattr(cit, 'verified', False)
-                            cit_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', 'unknown')
+                            cit_is_verified = (
+                                cit.get("verified", False) if isinstance(cit, dict) else getattr(cit, "verified", False)
+                            )
+                            cit_text = (
+                                cit.get("citation") if isinstance(cit, dict) else getattr(cit, "citation", "unknown")
+                            )
                             logger.error(f"[Task {task_id}]   [{idx+1}] {cit_text}: verified={cit_is_verified}")
-                            
+
                             if not cit_is_verified:
                                 unverified_count += 1
                                 # ONLY set true_by_parallel flag - do NOT copy canonical data
                                 if isinstance(cit, dict):
-                                    cit['true_by_parallel'] = True
+                                    cit["true_by_parallel"] = True
                                     logger.error(f"[Task {task_id}] ✅ Marked as parallel: {cit_text} (dict)")
                                 else:
                                     cit.true_by_parallel = True
                                     logger.error(f"[Task {task_id}] ✅ Marked as parallel: {cit_text} (object)")
-                        
+
                         if unverified_count > 0:
-                            logger.error(f"[Task {task_id}] 📊 Marked {unverified_count} unverified citations as true_by_parallel")
+                            logger.error(
+                                f"[Task {task_id}] 📊 Marked {unverified_count} unverified citations as true_by_parallel"
+                            )
                         else:
-                            logger.error(f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified")
+                            logger.error(
+                                f"[Task {task_id}] ℹ️  All {len(citations_in_cluster)} citations already verified"
+                            )
                     else:
                         # CRITICAL FIX: Clear orphaned true_by_parallel flags when NO verified citation exists
-                        logger.error(f"[Task {task_id}] ⚠️  No verified citations in this cluster - clearing orphaned true_by_parallel flags")
+                        logger.error(
+                            f"[Task {task_id}] ⚠️  No verified citations in this cluster - clearing orphaned true_by_parallel flags"
+                        )
                         orphan_cleared = 0
                         for idx, cit in enumerate(citations_in_cluster):
-                            cit_text = cit.get('citation') if isinstance(cit, dict) else getattr(cit, 'citation', 'unknown')
-                            has_true_by_parallel = cit.get('true_by_parallel', False) if isinstance(cit, dict) else getattr(cit, 'true_by_parallel', False)
+                            cit_text = (
+                                cit.get("citation") if isinstance(cit, dict) else getattr(cit, "citation", "unknown")
+                            )
+                            has_true_by_parallel = (
+                                cit.get("true_by_parallel", False)
+                                if isinstance(cit, dict)
+                                else getattr(cit, "true_by_parallel", False)
+                            )
                             if has_true_by_parallel:
                                 if isinstance(cit, dict):
-                                    cit['true_by_parallel'] = False
-                                    cit['canonical_name'] = None
-                                    cit['canonical_date'] = None
-                                    cit['canonical_url'] = None
+                                    cit["true_by_parallel"] = False
+                                    cit["canonical_name"] = None
+                                    cit["canonical_date"] = None
+                                    cit["canonical_url"] = None
                                 else:
                                     cit.true_by_parallel = False
                                     cit.canonical_name = None
@@ -1863,44 +2024,50 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                                 orphan_cleared += 1
                                 logger.error(f"[Task {task_id}] 🧹 Cleared orphaned true_by_parallel from: {cit_text}")
                         if orphan_cleared > 0:
-                            logger.error(f"[Task {task_id}] 📊 Cleared {orphan_cleared} orphaned true_by_parallel citations")
-                
-                logger.error(f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data")
+                            logger.error(
+                                f"[Task {task_id}] 📊 Cleared {orphan_cleared} orphaned true_by_parallel citations"
+                            )
+
+                logger.error(
+                    f"[Task {task_id}] 📊 CANONICAL DATA SUMMARY: {clusters_with_canonical}/{len(cluster_dicts)} clusters have canonical data"
+                )
 
                 # CITATION-BASED PROGRESS: Update clustering progress based on actual work done
-                progress_tracker.complete_step(4, f'Clustering completed ({len(cluster_dicts)} unique clusters)')
-                sync_progress_to_redis('clustering', 80, f'Clustering completed - {len(cluster_dicts)} clusters found')
-                progress_tracker.start_step(5, 'Verifying citations...')
-                
+                progress_tracker.complete_step(4, f"Clustering completed ({len(cluster_dicts)} unique clusters)")
+                sync_progress_to_redis("clustering", 80, f"Clustering completed - {len(cluster_dicts)} clusters found")
+                progress_tracker.start_step(5, "Verifying citations...")
+
                 # CITATION-BASED PROGRESS: Start verification with realistic progress
-                sync_progress_to_redis('verifying', 82, f'Starting verification of {len(citation_dicts)} citations...')
-                
+                sync_progress_to_redis("verifying", 82, f"Starting verification of {len(citation_dicts)} citations...")
+
                 # CRITICAL FIX: Update top-level citations with verification data from clusters
                 # AND add any citations that are only in clusters (like vendor-neutral citations)
                 logger.info(f"[Task {task_id}] Syncing verification data from clusters to top-level citations")
-                citation_map = {c['citation']: c for c in citation_dicts}
-                verified_count_before = len([c for c in citation_dicts if c.get('verified', False)])
+                citation_map = {c["citation"]: c for c in citation_dicts}
+                verified_count_before = len([c for c in citation_dicts if c.get("verified", False)])
                 citations_added = 0
-                
+
                 # CITATION-BASED PROGRESS: Update progress during verification sync with citation count
-                sync_progress_to_redis('verifying', 85, f'Syncing verification data for {len(citation_dicts)} citations...')
-                
+                sync_progress_to_redis(
+                    "verifying", 85, f"Syncing verification data for {len(citation_dicts)} citations..."
+                )
+
                 # Count total citations to process for progress tracking
-                total_citations_to_sync = sum(len(cluster.get('citations', [])) for cluster in cluster_dicts)
+                total_citations_to_sync = sum(len(cluster.get("citations", [])) for cluster in cluster_dicts)
                 citations_processed = 0
-                
+
                 for cluster_idx, cluster in enumerate(cluster_dicts):
-                    for cluster_citation in cluster.get('citations', []):
-                        citation_text = cluster_citation.get('citation')
+                    for cluster_citation in cluster.get("citations", []):
+                        citation_text = cluster_citation.get("citation")
                         citations_processed += 1
-                        
+
                         if citation_text in citation_map:
                             # Update existing top-level citation with verification data from cluster
-                            if cluster_citation.get('verified'):
-                                citation_map[citation_text]['verified'] = True
-                                citation_map[citation_text]['canonical_name'] = cluster_citation.get('canonical_name')
-                                citation_map[citation_text]['canonical_date'] = cluster_citation.get('canonical_date')
-                                citation_map[citation_text]['canonical_url'] = cluster_citation.get('canonical_url')
+                            if cluster_citation.get("verified"):
+                                citation_map[citation_text]["verified"] = True
+                                citation_map[citation_text]["canonical_name"] = cluster_citation.get("canonical_name")
+                                citation_map[citation_text]["canonical_date"] = cluster_citation.get("canonical_date")
+                                citation_map[citation_text]["canonical_url"] = cluster_citation.get("canonical_url")
                         else:
                             # NEW FIX: Add missing citation from cluster to top-level array
                             # This happens with vendor-neutral citations that may only appear in clusters
@@ -1908,260 +2075,281 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                             citation_dicts.append(cluster_citation)
                             citation_map[citation_text] = cluster_citation
                             citations_added += 1
-                        
+
                         # Update progress every 10 citations or at the end
                         if citations_processed % 10 == 0 or citations_processed == total_citations_to_sync:
-                            verification_progress = 85 + int(10 * citations_processed / total_citations_to_sync)  # 85-95% range
-                            sync_progress_to_redis('verifying', verification_progress, f'Verifying citations: {citations_processed}/{total_citations_to_sync} processed')
-                
-                verified_count_after = len([c for c in citation_dicts if c.get('verified', False)])
-                logger.info(f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations")
+                            verification_progress = 85 + int(
+                                10 * citations_processed / total_citations_to_sync
+                            )  # 85-95% range
+                            sync_progress_to_redis(
+                                "verifying",
+                                verification_progress,
+                                f"Verifying citations: {citations_processed}/{total_citations_to_sync} processed",
+                            )
+
+                verified_count_after = len([c for c in citation_dicts if c.get("verified", False)])
+                logger.info(
+                    f"[Task {task_id}] Verification sync: {verified_count_before} → {verified_count_after} verified citations"
+                )
                 if citations_added > 0:
                     logger.info(f"[Task {task_id}] Added {citations_added} citations from clusters to top-level array")
-                
+
                 # STEP 4: FINAL CLUSTER-LEVEL CHECK - Clear orphaned true_by_parallel at cluster level
                 # This catches cases where proximity groups didn't cover all citations
                 final_orphan_cleared = 0
                 orphaned_citations = set()  # Track which citations to clear from top-level
-                
+
                 for cluster in cluster_dicts:
                     if not isinstance(cluster, dict):
                         continue
-                    cluster_cits = cluster.get('citations', [])
+                    cluster_cits = cluster.get("citations", [])
                     if not cluster_cits:
                         continue
-                    
+
                     # Check if ANY citation in this cluster is verified=True
                     has_verified_in_cluster = False
                     for cit in cluster_cits:
-                        if isinstance(cit, dict) and cit.get('verified') == True:
+                        if isinstance(cit, dict) and cit.get("verified") == True:
                             has_verified_in_cluster = True
                             break
-                    
+
                     if not has_verified_in_cluster:
                         # NO verified citation in cluster - clear ALL true_by_parallel flags
                         for cit in cluster_cits:
-                            if isinstance(cit, dict) and cit.get('true_by_parallel', False):
-                                cit['true_by_parallel'] = False
-                                cit['canonical_name'] = None
-                                cit['canonical_date'] = None
-                                cit['canonical_url'] = None
-                                orphaned_citations.add(cit.get('citation', ''))
+                            if isinstance(cit, dict) and cit.get("true_by_parallel", False):
+                                cit["true_by_parallel"] = False
+                                cit["canonical_name"] = None
+                                cit["canonical_date"] = None
+                                cit["canonical_url"] = None
+                                orphaned_citations.add(cit.get("citation", ""))
                                 final_orphan_cleared += 1
-                                logger.error(f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Cleared true_by_parallel from {cit.get('citation')} (no verified in cluster)")
-                
+                                logger.error(
+                                    f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Cleared true_by_parallel from {cit.get('citation')} (no verified in cluster)"
+                                )
+
                 # CRITICAL: Also clear from TOP-LEVEL citation_dicts
                 # The cluster citations may be separate dicts from citation_dicts
                 if orphaned_citations:
                     top_level_cleared = 0
                     for cit in citation_dicts:
-                        if isinstance(cit, dict) and cit.get('citation', '') in orphaned_citations:
-                            if cit.get('true_by_parallel', False):
-                                cit['true_by_parallel'] = False
-                                cit['canonical_name'] = None
-                                cit['canonical_date'] = None
-                                cit['canonical_url'] = None
+                        if isinstance(cit, dict) and cit.get("citation", "") in orphaned_citations:
+                            if cit.get("true_by_parallel", False):
+                                cit["true_by_parallel"] = False
+                                cit["canonical_name"] = None
+                                cit["canonical_date"] = None
+                                cit["canonical_url"] = None
                                 top_level_cleared += 1
                     if top_level_cleared > 0:
-                        logger.error(f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Also cleared {top_level_cleared} from top-level citations")
-                
+                        logger.error(
+                            f"[Task {task_id}] 🧹 CLUSTER-ORPHAN: Also cleared {top_level_cleared} from top-level citations"
+                        )
+
                 if final_orphan_cleared > 0:
-                    logger.error(f"[Task {task_id}] 📊 CLUSTER-ORPHAN: Cleared {final_orphan_cleared} orphaned true_by_parallel flags at cluster level")
-                
+                    logger.error(
+                        f"[Task {task_id}] 📊 CLUSTER-ORPHAN: Cleared {final_orphan_cleared} orphaned true_by_parallel flags at cluster level"
+                    )
+
                 # CITATION-BASED PROGRESS: Update progress after verification sync
-                sync_progress_to_redis('verifying', 95, f'Verification completed - {len(citation_dicts)} citations processed')
-                
+                sync_progress_to_redis(
+                    "verifying", 95, f"Verification completed - {len(citation_dicts)} citations processed"
+                )
+
                 citation_result = {
-                    'citations': citation_dicts,
-                    'clusters': cluster_dicts,
-                    'statistics': {
-                        'total_citations': len(citation_dicts),
-                        'verified_citations': len([c for c in citation_dicts if c.get('verified', False)]),
-                        'total_clusters': len(cluster_dicts),
-                        'verified_clusters': len([c for c in cluster_dicts if c.get('verified', False)]),
-                        'processing_time': result.get('processing_time', 0.0)
+                    "citations": citation_dicts,
+                    "clusters": cluster_dicts,
+                    "statistics": {
+                        "total_citations": len(citation_dicts),
+                        "verified_citations": len([c for c in citation_dicts if c.get("verified", False)]),
+                        "total_clusters": len(cluster_dicts),
+                        "verified_clusters": len([c for c in cluster_dicts if c.get("verified", False)]),
+                        "processing_time": result.get("processing_time", 0.0),
                     },
-                    'success': True,
-                    'processing_mode': 'async_full_processing',
-                    'verification_enabled': True,
-                    'request_id': task_id
+                    "success": True,
+                    "processing_mode": "async_full_processing",
+                    "verification_enabled": True,
+                    "request_id": task_id,
                 }
-                
-                progress_tracker.complete_step(5, 'Verification completed')
-                
+
+                progress_tracker.complete_step(5, "Verification completed")
+
                 # CITATION-BASED PROGRESS: Don't mark as 100% complete until results are stored and available
                 # Update to 98% to show we're in final stages but not complete yet
-                sync_progress_to_redis('finalizing', 98, f'Finalizing results... Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters')
-                
+                sync_progress_to_redis(
+                    "finalizing",
+                    98,
+                    f"Finalizing results... Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters",
+                )
+
                 # Add progress data to result
-                citation_result['progress_data'] = progress_tracker.get_progress_data()
-                
-                logger.info(f"[Task {task_id}] Processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters")
-                
+                citation_result["progress_data"] = progress_tracker.get_progress_data()
+
+                logger.info(
+                    f"[Task {task_id}] Processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters"
+                )
+
                 # Store results in Redis for frontend access
                 try:
                     from redis import Redis
                     from src.config import REDIS_URL
                     import json
-                    
+
                     redis_conn = Redis.from_url(REDIS_URL)
-                    
+
                     # Store the complete result in Redis
                     result_key = f"task_result:{task_id}"
-                    redis_conn.setex(
-                        result_key,
-                        3600,  # 1 hour expiry
-                        json.dumps(citation_result)
-                    )
+                    redis_conn.setex(result_key, 3600, json.dumps(citation_result))  # 1 hour expiry
                     logger.info(f"[Task {task_id}] Results stored in Redis: {result_key}")
-                    
+
                 except Exception as e:
                     logger.error(f"[Task {task_id}] Failed to store results in Redis: {e}")
-                
+
                 # CITATION-BASED PROGRESS: Only mark as 100% complete AFTER results are stored and accessible
-                progress_tracker.complete_all('Async processing completed successfully')
-                sync_progress_to_redis('completed', 100, f'Completed! Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters - Results available')
-                
-                return {
-                    'success': True,
-                    'task_id': task_id,
-                    'status': 'completed',
-                    'result': citation_result
-                }
-            
+                progress_tracker.complete_all("Async processing completed successfully")
+                sync_progress_to_redis(
+                    "completed",
+                    100,
+                    f"Completed! Found {len(citation_dicts)} citations in {len(cluster_dicts)} clusters - Results available",
+                )
+
+                return {"success": True, "task_id": task_id, "status": "completed", "result": citation_result}
+
             except Exception as e:
-                progress_tracker.fail_step(progress_tracker.current_step, f'Processing failed: {str(e)}')
+                progress_tracker.fail_step(progress_tracker.current_step, f"Processing failed: {str(e)}")
                 logger.error(f"[Task {task_id}] UnifiedSyncProcessor failed: {str(e)}")
                 logger.error(f"[Task {task_id}] Traceback: {traceback.format_exc()}")
-                
+
                 # Fallback to CLEAN EXTRACTION PIPELINE (87-93% accuracy)
                 try:
                     logger.info(f"[Task {task_id}] Using CLEAN EXTRACTION PIPELINE for fallback (87-93% accuracy)")
-                    
+
                     # USE CLEAN PIPELINE - guarantees zero case name bleeding with 87-93% accuracy
                     from src.citation_extraction_endpoint import extract_citations_production
-                    
+
                     result = extract_citations_production(text)
-                    
-                    if result['status'] == 'success':
+
+                    if result["status"] == "success":
                         logger.info(f"[Task {task_id}] Clean pipeline extracted {result['total']} citations")
-                        
+
                         # Convert to expected format
                         citations = []
-                        for cit in result['citations']:
-                            citations.append({
-                                'citation': cit['citation'],
-                                'case_name': cit.get('extracted_case_name'),
-                                'canonical_name': None,
-                                'canonical_date': None,
-                                'canonical_url': None,
-                                'extracted_case_name': cit.get('extracted_case_name'),
-                                'extracted_date': cit.get('extracted_date'),
-                                'confidence': cit.get('confidence', 0.9),
-                                'verified': False,
-                                'method': cit.get('method', 'clean_pipeline_v1'),
-                                'context': '',
-                                'court': None,
-                                'year': cit.get('extracted_date'),
-                                'is_parallel': False
-                            })
+                        for cit in result["citations"]:
+                            citations.append(
+                                {
+                                    "citation": cit["citation"],
+                                    "case_name": cit.get("extracted_case_name"),
+                                    "canonical_name": None,
+                                    "canonical_date": None,
+                                    "canonical_url": None,
+                                    "extracted_case_name": cit.get("extracted_case_name"),
+                                    "extracted_date": cit.get("extracted_date"),
+                                    "confidence": cit.get("confidence", 0.9),
+                                    "verified": False,
+                                    "method": cit.get("method", "clean_pipeline_v1"),
+                                    "context": "",
+                                    "court": None,
+                                    "year": cit.get("extracted_date"),
+                                    "is_parallel": False,
+                                }
+                            )
                     else:
                         logger.error(f"[Task {task_id}] Clean pipeline failed, using basic regex")
                         citations = []
-                    
+
                     # Remove duplicates
                     unique_citations = []
                     seen = set()
                     for citation in citations:
-                        if citation['citation'] not in seen:
+                        if citation["citation"] not in seen:
                             unique_citations.append(citation)
-                            seen.add(citation['citation'])
-                    
+                            seen.add(citation["citation"])
+
                     logger.info(f"[Task {task_id}] Fallback extraction found {len(unique_citations)} citations")
-                    
+
                     return {
-                        'success': True,
-                        'task_id': task_id,
-                        'status': 'completed',
-                        'result': {
-                            'citations': unique_citations,
-                            'clusters': [],
-                            'clustering_applied': False,
-                            'extraction_method': 'fallback_regex',
-                            'processing_strategy': 'fallback',
-                            'processing_time': 0.1,
-                            'progress_data': {
-                                'current_message': 'Fallback extraction completed',
-                                'current_step': 100,
-                                'start_time': time.time(),
-                                'steps': [
+                        "success": True,
+                        "task_id": task_id,
+                        "status": "completed",
+                        "result": {
+                            "citations": unique_citations,
+                            "clusters": [],
+                            "clustering_applied": False,
+                            "extraction_method": "fallback_regex",
+                            "processing_strategy": "fallback",
+                            "processing_time": 0.1,
+                            "progress_data": {
+                                "current_message": "Fallback extraction completed",
+                                "current_step": 100,
+                                "start_time": time.time(),
+                                "steps": [
                                     {
-                                        'message': 'Fallback extraction completed',
-                                        'name': 'Extract',
-                                        'progress': 100,
-                                        'status': 'completed'
+                                        "message": "Fallback extraction completed",
+                                        "name": "Extract",
+                                        "progress": 100,
+                                        "status": "completed",
                                     }
                                 ],
-                                'total_steps': 1
+                                "total_steps": 1,
                             },
-                            'request_id': f'fallback_{task_id}',
-                            'success': True,
-                            'verification_applied': False
-                        }
+                            "request_id": f"fallback_{task_id}",
+                            "success": True,
+                            "verification_applied": False,
+                        },
                     }
-                    
+
                 except Exception as fallback_error:
                     logger.error(f"[Task {task_id}] Fallback extraction also failed: {str(fallback_error)}")
-                    
+
                     # Return empty result but mark as successful
                     return {
-                        'success': True,
-                        'task_id': task_id,
-                        'status': 'completed',
-                        'result': {
-                            'citations': [],
-                            'clusters': [],
-                            'clustering_applied': False,
-                            'extraction_method': 'none',
-                            'processing_strategy': 'failed',
-                            'processing_time': 0.01,
-                            'progress_data': {
-                                'current_message': 'Processing failed - no citations found',
-                                'current_step': 100,
-                                'start_time': time.time(),
-                                'steps': [
+                        "success": True,
+                        "task_id": task_id,
+                        "status": "completed",
+                        "result": {
+                            "citations": [],
+                            "clusters": [],
+                            "clustering_applied": False,
+                            "extraction_method": "none",
+                            "processing_strategy": "failed",
+                            "processing_time": 0.01,
+                            "progress_data": {
+                                "current_message": "Processing failed - no citations found",
+                                "current_step": 100,
+                                "start_time": time.time(),
+                                "steps": [
                                     {
-                                        'message': 'Processing failed',
-                                        'name': 'Extract',
-                                        'progress': 100,
-                                        'status': 'completed'
+                                        "message": "Processing failed",
+                                        "name": "Extract",
+                                        "progress": 100,
+                                        "status": "completed",
                                     }
                                 ],
-                                'total_steps': 1
+                                "total_steps": 1,
                             },
-                            'request_id': f'failed_{task_id}',
-                            'success': True,
-                            'verification_applied': False,
-                            'error': f'Processing failed: {str(e)}'
-                        }
+                            "request_id": f"failed_{task_id}",
+                            "success": True,
+                            "verification_applied": False,
+                            "error": f"Processing failed: {str(e)}",
+                        },
                     }
-            
-        elif input_type == 'url':
+
+        elif input_type == "url":
             # FIX DEC 2025: Check if content was pre-fetched at API level
-            url = input_data.get('url', '')
-            pre_fetched_content = input_data.get('content', '')
-            
-            logger.info(f"[Task {task_id}] URL input type - URL: {url}, pre-fetched content: {len(pre_fetched_content) if pre_fetched_content else 0} chars")
-            
+            url = input_data.get("url", "")
+            pre_fetched_content = input_data.get("content", "")
+
+            logger.info(
+                f"[Task {task_id}] URL input type - URL: {url}, pre-fetched content: {len(pre_fetched_content) if pre_fetched_content else 0} chars"
+            )
+
             if not url and not pre_fetched_content:
                 error_msg = "No URL or content provided for processing"
                 logger.error(f"[Task {task_id}] {error_msg}")
                 raise ValueError(error_msg)
-            
+
             # Use pre-fetched content if available, otherwise fetch from URL
             try:
-                progress_tracker.start_step(0, 'Processing URL content...')
-                
+                progress_tracker.start_step(0, "Processing URL content...")
+
                 if pre_fetched_content and len(pre_fetched_content.strip()) >= 10:
                     # Use pre-fetched content (already extracted at API level)
                     text = pre_fetched_content
@@ -2170,143 +2358,136 @@ def process_citation_task_direct(task_id: str, input_type: str, input_data: dict
                     # Fallback: fetch content from URL
                     logger.info(f"[Task {task_id}] No pre-fetched content, extracting from URL...")
                     text = fetch_url_content(url)
-                
+
                 if not text or len(text.strip()) < 10:
                     error_msg = f"URL returned empty or insufficient content: {len(text) if text else 0} characters"
                     logger.error(f"[Task {task_id}] {error_msg}")
                     progress_tracker.fail_step(0, error_msg)
                     raise ValueError(error_msg)
-                
-                progress_tracker.complete_step(0, f'Extracted {len(text)} characters from URL')
+
+                progress_tracker.complete_step(0, f"Extracted {len(text)} characters from URL")
                 logger.info(f"[Task {task_id}] Extracted {len(text)} characters from URL")
-                
+
                 # Now process the extracted text using UnifiedCitationProcessorV2 (FIXED: was using EnhancedSyncProcessor)
                 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
                 import asyncio
-                
+
                 logger.info(f"[Task {task_id}] Initializing UnifiedCitationProcessorV2 for URL content...")
-                
+
                 processor = UnifiedCitationProcessorV2()
-                
+
                 # Process the extracted text
                 logger.info(f"[Task {task_id}] Starting URL content processing...")
                 result = asyncio.run(processor.process_text(text))
                 logger.info(f"[Task {task_id}] URL content processing completed")
-                
+
                 # Use the same result processing logic as text processing
                 if not isinstance(result, dict):
-                    result = {'citations': [], 'clusters': []}
-                
+                    result = {"citations": [], "clusters": []}
+
                 # Extract citations and clusters from UnifiedCitationProcessorV2 result
-                citations = result.get('citations', [])
-                clusters = result.get('clusters', [])
+                citations = result.get("citations", [])
+                clusters = result.get("clusters", [])
                 citation_dicts = []
-                
+
                 for citation in citations:
-                    if hasattr(citation, '__dict__'):
+                    if hasattr(citation, "__dict__"):
                         citation_dict = citation.__dict__.copy()
                     elif isinstance(citation, dict):
                         citation_dict = citation.copy()
                     else:
-                        citation_dict = {'citation': str(citation)}
+                        citation_dict = {"citation": str(citation)}
                     citation_dicts.append(citation_dict)
-                
+
                 # Handle clusters
-                clusters = result.get('clusters', [])
+                clusters = result.get("clusters", [])
                 cluster_dicts = []
-                
+
                 for cluster in clusters:
-                    if hasattr(cluster, '__dict__'):
+                    if hasattr(cluster, "__dict__"):
                         cluster_dict = cluster.__dict__.copy()
                     elif isinstance(cluster, dict):
                         cluster_dict = cluster.copy()
                     else:
-                        cluster_dict = {'cluster_id': str(cluster)}
+                        cluster_dict = {"cluster_id": str(cluster)}
                     cluster_dicts.append(cluster_dict)
-                
+
                 # Create the final result
                 citation_result = {
-                    'citations': citation_dicts,
-                    'clusters': cluster_dicts,
-                    'statistics': {
-                        'total_citations': len(citation_dicts),
-                        'total_clusters': len(cluster_dicts),
-                        'verified_citations': len([c for c in citation_dicts if c.get('verified', False)]),
-                        'verified_clusters': len([c for c in cluster_dicts if c.get('verified', False)]),
-                        'processing_time': result.get('processing_time', 0.0),
-                        'content_length': len(text),
-                        'url': url
+                    "citations": citation_dicts,
+                    "clusters": cluster_dicts,
+                    "statistics": {
+                        "total_citations": len(citation_dicts),
+                        "total_clusters": len(cluster_dicts),
+                        "verified_citations": len([c for c in citation_dicts if c.get("verified", False)]),
+                        "verified_clusters": len([c for c in cluster_dicts if c.get("verified", False)]),
+                        "processing_time": result.get("processing_time", 0.0),
+                        "content_length": len(text),
+                        "url": url,
                     },
-                    'success': True,
-                    'processing_mode': 'async_url_processing',
-                    'verification_enabled': True,
-                    'request_id': task_id
+                    "success": True,
+                    "processing_mode": "async_url_processing",
+                    "verification_enabled": True,
+                    "request_id": task_id,
                 }
-                
-                logger.info(f"[Task {task_id}] URL processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters")
-                
-                return {
-                    'success': True,
-                    'task_id': task_id,
-                    'status': 'completed',
-                    'result': citation_result
-                }
-                
+
+                logger.info(
+                    f"[Task {task_id}] URL processing completed with {len(citation_dicts)} citations and {len(cluster_dicts)} clusters"
+                )
+
+                return {"success": True, "task_id": task_id, "status": "completed", "result": citation_result}
+
             except Exception as e:
                 logger.error(f"[Task {task_id}] URL processing failed: {str(e)}")
                 logger.error(f"[Task {task_id}] Traceback: {traceback.format_exc()}")
                 raise
-        
+
         else:
             raise ValueError(f"Unsupported input type for direct processing: {input_type}")
-            
+
     except Exception as e:
         logger.error(f"[Task {task_id}] Error in direct citation processing: {str(e)}", exc_info=True)
-        return {
-            'success': False,
-            'task_id': task_id,
-            'status': 'failed',
-            'error': str(e)
-        }
+        return {"success": False, "task_id": task_id, "status": "failed", "error": str(e)}
 
 
 def setup_progress_enabled_app():
     """Complete setup example for progress-enabled citation processing"""
     app = Flask(__name__)
-    
+
     logging.basicConfig(level=logging.INFO)
-    
+
     progress_manager = SSEProgressManager()
-    
+
     citation_processor = ChunkedCitationProcessor(progress_manager)
-    
+
     # create_progress_routes_DISABLED(app, progress_manager, citation_processor)  # DISABLED to prevent route conflicts
-    
+
     return app
+
 
 if __name__ == "__main__":
     app = setup_progress_enabled_app()
-    debug_mode = os.getenv('FLASK_ENV') == 'development'
+    debug_mode = os.getenv("FLASK_ENV") == "development"
     app.run(debug=debug_mode, threaded=True)  # nosec B201 - Debug mode is environment-controlled
 
 
 PROGRESS_CONFIG = {
-    'sse': {
-        'description': 'Server-Sent Events - Best for most cases',
-        'pros': ['Simple to implement', 'Works with load balancers', 'Automatic reconnection'],
-        'cons': ['HTTP/1.1 connection limit', 'Some proxy issues'],
-        'recommended_for': 'Most web applications'
+    "sse": {
+        "description": "Server-Sent Events - Best for most cases",
+        "pros": ["Simple to implement", "Works with load balancers", "Automatic reconnection"],
+        "cons": ["HTTP/1.1 connection limit", "Some proxy issues"],
+        "recommended_for": "Most web applications",
     },
-    'websockets': {
-        'description': 'WebSocket - Best for real-time applications',
-        'pros': ['Full bidirectional', 'Lower latency', 'More efficient'],
-        'cons': ['More complex', 'Load balancer challenges', 'Sticky sessions needed'],
-        'recommended_for': 'Real-time collaborative features'
+    "websockets": {
+        "description": "WebSocket - Best for real-time applications",
+        "pros": ["Full bidirectional", "Lower latency", "More efficient"],
+        "cons": ["More complex", "Load balancer challenges", "Sticky sessions needed"],
+        "recommended_for": "Real-time collaborative features",
     },
-    'polling': {
-        'description': 'HTTP Polling - Most compatible fallback',
-        'pros': ['Universal compatibility', 'Simple to implement', 'Works everywhere'],
-        'cons': ['Higher server load', 'Delayed updates', 'Less efficient'],
-        'recommended_for': 'Fallback mechanism'
-    }
-} 
+    "polling": {
+        "description": "HTTP Polling - Most compatible fallback",
+        "pros": ["Universal compatibility", "Simple to implement", "Works everywhere"],
+        "cons": ["Higher server load", "Delayed updates", "Less efficient"],
+        "recommended_for": "Fallback mechanism",
+    },
+}

@@ -16,8 +16,10 @@ logger = logging.getLogger(__name__)
 try:
     from src.config import get_database_path
 except ImportError:
+
     def get_database_path() -> str:
         return "citations.db"
+
 
 DATABASE_FILE = get_database_path()
 VERIFICATION_RESULTS_FILE = "verification_results.json"
@@ -103,15 +105,9 @@ def populate_multitool_confirmed_tab(citations, verification_results):
         context = citation.get("context", "")
 
         verification_result = results_lookup.get(citation_id, {})
-        verification_source = verification_result.get(
-            "source", citation.get("verification_source", "Unknown")
-        )
-        verification_confidence = verification_result.get(
-            "confidence", citation.get("verification_confidence", 0.0)
-        )
-        verification_explanation = verification_result.get(
-            "explanation", "No explanation available"
-        )
+        verification_source = verification_result.get("source", citation.get("verification_source", "Unknown"))
+        verification_confidence = verification_result.get("confidence", citation.get("verification_confidence", 0.0))
+        verification_explanation = verification_result.get("explanation", "No explanation available")
 
         cursor.execute(
             """
@@ -150,9 +146,7 @@ def export_to_tab_delimited(citations, verification_results):
 
     try:
         with open(output_file, "w", encoding="utf-8") as f:
-            f.write(
-                "Citation\tBrief URL\tContext\tVerification Source\tConfidence\tExplanation\n"
-            )
+            f.write("Citation\tBrief URL\tContext\tVerification Source\tConfidence\tExplanation\n")
 
             for citation in citations:
                 citation_id = citation["id"]
@@ -161,15 +155,11 @@ def export_to_tab_delimited(citations, verification_results):
                 context = citation.get("context", "")
 
                 verification_result = results_lookup.get(citation_id, {})
-                verification_source = verification_result.get(
-                    "source", citation.get("verification_source", "Unknown")
-                )
+                verification_source = verification_result.get("source", citation.get("verification_source", "Unknown"))
                 verification_confidence = verification_result.get(
                     "confidence", citation.get("verification_confidence", 0.0)
                 )
-                verification_explanation = verification_result.get(
-                    "explanation", "No explanation available"
-                )
+                verification_explanation = verification_result.get("explanation", "No explanation available")
 
                 f.write(
                     f"{citation_text}\t{brief_url}\t{context}\t{verification_source}\t{verification_confidence}\t{verification_explanation}\n"
@@ -194,9 +184,7 @@ def generate_summary_report(citations, verification_results):
     for citation in citations:
         citation_id = citation["id"]
         verification_result = results_lookup.get(citation_id, {})
-        source = verification_result.get(
-            "source", citation.get("verification_source", "Unknown")
-        )
+        source = verification_result.get("source", citation.get("verification_source", "Unknown"))
 
         if source not in sources:
             sources[source] = 0
@@ -213,9 +201,7 @@ def generate_summary_report(citations, verification_results):
     for citation in citations:
         citation_id = citation["id"]
         verification_result = results_lookup.get(citation_id, {})
-        confidence = verification_result.get(
-            "confidence", citation.get("verification_confidence", 0.0)
-        )
+        confidence = verification_result.get("confidence", citation.get("verification_confidence", 0.0))
 
         if 0.0 <= confidence < 0.2:
             confidence_ranges["0.0-0.2"] += 1
@@ -253,16 +239,10 @@ def generate_summary_report(citations, verification_results):
                 citation_text = citation["citation_text"]
                 citation_id = citation["id"]
                 verification_result = results_lookup.get(citation_id, {})
-                source = verification_result.get(
-                    "source", citation.get("verification_source", "Unknown")
-                )
-                confidence = verification_result.get(
-                    "confidence", citation.get("verification_confidence", 0.0)
-                )
+                source = verification_result.get("source", citation.get("verification_source", "Unknown"))
+                confidence = verification_result.get("confidence", citation.get("verification_confidence", 0.0))
 
-                f.write(
-                    f"  {i}. {citation_text} (Source: {source}, Confidence: {confidence:.2f})\n"
-                )
+                f.write(f"  {i}. {citation_text} (Source: {source}, Confidence: {confidence:.2f})\n")
 
         logger.info(f"Generated summary report: {report_file}")
         return True
@@ -303,9 +283,7 @@ def tabs():
         'Citation Database'
     ])"""
 
-        app_code = app_code.replace(
-            app_code[app_code.find(tabs_section) : app_code.find("])") + 2], tabs_code
-        )
+        app_code = app_code.replace(app_code[app_code.find(tabs_section) : app_code.find("])") + 2], tabs_code)
 
         new_tab_route = """
 @app.route('/confirmed_with_multitool')

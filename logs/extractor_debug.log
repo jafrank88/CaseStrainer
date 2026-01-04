@@ -49003,3 +49003,13 @@ Another citation: 150 Wn. App. 476'
 2026-01-01 05:37:25,175 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2026-01-01 05:43:42,289 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
 2026-01-02 18:48:23,713 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-02 19:03:41,651 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-02 19:14:25,802 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-02 19:24:35,076 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 21:53:33,293 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 22:16:13,652 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 22:34:13,793 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 22:44:33,627 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 22:53:19,449 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 23:07:12,921 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log
+2026-01-03 23:14:38,696 - src.unified_case_name_extractor_v2 - INFO - Logging initialized successfully to /app/src/../logs/extractor_debug.log

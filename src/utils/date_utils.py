@@ -8,7 +8,5 @@ def normalize_year(date_str: str | None) -> str | None:
     """
     if not date_str:
         return None
-    m = re.search(r'(\d{4})', str(date_str))
+    m = re.search(r"(\d{4})", str(date_str))
     return m.group(1) if m else None
-
-

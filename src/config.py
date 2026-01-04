@@ -11,9 +11,9 @@ except ImportError:
     sentry_sdk = None
 
 load_dotenv()
-config_env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.env')
+config_env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.env")
 load_dotenv(config_env_path)
-env_production_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env.production')
+env_production_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), ".env.production")
 load_dotenv(env_production_path)
 
 CONFIG_JSON_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config.json")
@@ -47,38 +47,40 @@ def get_float_config_value(key: str, default: float = 0.0) -> float:
             return default
     return default
 
+
 def get_bool_config_value(key: str, default: bool = False) -> bool:
     """Get a boolean configuration value, converting string values appropriately."""
     value = get_config_value(key, default)
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
-        return value.lower() in ('true', '1', 'yes', 'on')
+        return value.lower() in ("true", "1", "yes", "on")
     return bool(value)
 
 
 SECRET_KEY: str = get_config_value("SECRET_KEY", "devkey")
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
 def get_database_path() -> str:
     """
     Get the canonical database path, ensuring the directory exists.
-    
+
     Returns:
         str: Absolute path to the citations database file
     """
     db_dir = os.path.join(BASE_DIR, "data")
-    
+
     os.makedirs(db_dir, exist_ok=True)
-    
+
     return get_config_value("DATABASE_FILE", os.path.join(db_dir, "citations.db"))
+
 
 DATABASE_FILE: str = get_database_path()
 
 
 USE_ENHANCED_VALIDATOR: bool = get_bool_config_value("USE_ENHANCED_VALIDATOR", True)
-ENHANCED_VALIDATOR_AVAILABLE: bool = get_bool_config_value(
-    "ENHANCED_VALIDATOR_AVAILABLE", True
-)
+ENHANCED_VALIDATOR_AVAILABLE: bool = get_bool_config_value("ENHANCED_VALIDATOR_AVAILABLE", True)
 ENHANCED_VALIDATOR_MODEL_PATH: str = get_config_value(
     "ENHANCED_VALIDATOR_MODEL_PATH",
     os.path.join(os.path.dirname(__file__), "..", "models", "enhanced_validator"),
@@ -88,16 +90,14 @@ ML_CLASSIFIER_MODEL_PATH: str = get_config_value(
     "ML_CLASSIFIER_MODEL_PATH",
     os.path.join(os.path.dirname(__file__), "..", "models", "ml_classifier"),
 )
-CORRECTION_ENGINE_AVAILABLE: bool = get_bool_config_value(
-    "CORRECTION_ENGINE_AVAILABLE", True
-)
+CORRECTION_ENGINE_AVAILABLE: bool = get_bool_config_value("CORRECTION_ENGINE_AVAILABLE", True)
 CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
     "CORRECTION_ENGINE_MODEL_PATH",
     os.path.join(os.path.dirname(__file__), "..", "models", "correction_engine"),
 )
 
 UPLOAD_FOLDER = os.path.abspath("uploads")
-ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'txt', 'rtf', 'odt', 'html', 'htm'}
+ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "rtf", "odt", "html", "htm"}
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
 CONTACT_EMAIL: str = "jafrank@uw.edu"
@@ -135,10 +135,7 @@ CITATION_EXTRACTION_TIMEOUT: int = int(get_config_value("CITATION_EXTRACTION_TIM
 
 
 COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
-COURTLISTENER_API_URL: str = get_config_value(
-    "COURTLISTENER_API_URL", 
-    "https://www.courtlistener.com/api/rest/v4/"
-)
+COURTLISTENER_API_URL: str = get_config_value("COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/")
 CASELAW_API_KEY: str = get_config_value("CASELAW_API_KEY", "")
 WESTLAW_API_KEY: str = get_config_value("WESTLAW_API_KEY", "")
 
@@ -173,112 +170,115 @@ WEBCONF_LENGTH_THRESHOLD: int = int(get_config_value("WEBCONF_LENGTH_THRESHOLD",
 DEBUG_EXTRACTION: bool = get_bool_config_value("DEBUG_EXTRACTION", False)
 LOG_EXTRACTION_DETAILS: bool = get_bool_config_value("LOG_EXTRACTION_DETAILS", False)
 
+
 def get_citation_config() -> dict:
     """
     Get citation processing configuration for CitationService.
     """
     return {
-        'context_window': CITATION_CONTEXT_WINDOW,
-        'chunk_size': CITATION_CHUNK_SIZE,
-        'min_confidence': MIN_CITATION_CONFIDENCE,
-        'immediate_max_length': IMMEDIATE_PROCESSING_MAX_LENGTH,
-        'immediate_max_words': IMMEDIATE_PROCESSING_MAX_WORDS,
-        'extraction_timeout': CITATION_EXTRACTION_TIMEOUT,
+        "context_window": CITATION_CONTEXT_WINDOW,
+        "chunk_size": CITATION_CHUNK_SIZE,
+        "min_confidence": MIN_CITATION_CONFIDENCE,
+        "immediate_max_length": IMMEDIATE_PROCESSING_MAX_LENGTH,
+        "immediate_max_words": IMMEDIATE_PROCESSING_MAX_WORDS,
+        "extraction_timeout": CITATION_EXTRACTION_TIMEOUT,
         # Enable clustering and verification by default
-        'enable_clustering': get_bool_config_value('ENABLE_CLUSTERING', True),
-        'enable_verification': get_bool_config_value('ENABLE_VERIFICATION', True),
-        'fast_verification': get_bool_config_value('FAST_VERIFICATION', True),
-        'verification_timeout': get_float_config_value('VERIFICATION_TIMEOUT', 30.0),
-        'clustering_options': {
-            'enable_parallel_detection': True,
-            'enable_case_relationship_detection': True,
-            'enable_metadata_propagation': True
+        "enable_clustering": get_bool_config_value("ENABLE_CLUSTERING", True),
+        "enable_verification": get_bool_config_value("ENABLE_VERIFICATION", True),
+        "fast_verification": get_bool_config_value("FAST_VERIFICATION", True),
+        "verification_timeout": get_float_config_value("VERIFICATION_TIMEOUT", 30.0),
+        "clustering_options": {
+            "enable_parallel_detection": True,
+            "enable_case_relationship_detection": True,
+            "enable_metadata_propagation": True,
         },
-        'verification_options': {
-            'enable_courtlistener': True,
-            'enable_fallback_sources': True,
-            'enable_confidence_scoring': True,
-            'min_confidence_threshold': 0.7
-        }
+        "verification_options": {
+            "enable_courtlistener": True,
+            "enable_fallback_sources": True,
+            "enable_confidence_scoring": True,
+            "min_confidence_threshold": 0.7,
+        },
     }
+
 
 def get_timeout_config() -> dict:
     """
     Get timeout and retry configuration for all services.
     """
     return {
-        'default_request_timeout': DEFAULT_REQUEST_TIMEOUT,
-        'courtlistener_timeout': COURTLISTENER_TIMEOUT,
-        'casemine_timeout': CASEMINE_TIMEOUT,
-        'websearch_timeout': WEBSEARCH_TIMEOUT,
-        'scrapingbee_timeout': SCRAPINGBEE_TIMEOUT,
-        'default_max_retries': DEFAULT_MAX_RETRIES,
-        'retry_delay': RETRY_DELAY,
-        'job_timeout_minutes': JOB_TIMEOUT_MINUTES,
-        'verification_timeout_minutes': VERIFICATION_TIMEOUT_MINUTES,
-        'file_processing_timeout_minutes': FILE_PROCESSING_TIMEOUT_MINUTES
+        "default_request_timeout": DEFAULT_REQUEST_TIMEOUT,
+        "courtlistener_timeout": COURTLISTENER_TIMEOUT,
+        "casemine_timeout": CASEMINE_TIMEOUT,
+        "websearch_timeout": WEBSEARCH_TIMEOUT,
+        "scrapingbee_timeout": SCRAPINGBEE_TIMEOUT,
+        "default_max_retries": DEFAULT_MAX_RETRIES,
+        "retry_delay": RETRY_DELAY,
+        "job_timeout_minutes": JOB_TIMEOUT_MINUTES,
+        "verification_timeout_minutes": VERIFICATION_TIMEOUT_MINUTES,
+        "file_processing_timeout_minutes": FILE_PROCESSING_TIMEOUT_MINUTES,
     }
+
 
 def get_external_api_config() -> dict:
     """
     Get external API configuration for CitationService.
     """
     return {
-        'courtlistener': {
-            'api_key': COURTLISTENER_API_KEY,
-            'api_url': COURTLISTENER_API_URL
-        },
-        'langsearch': {
-            'api_key': LANGSEARCH_API_KEY
-        }
+        "courtlistener": {"api_key": COURTLISTENER_API_KEY, "api_url": COURTLISTENER_API_URL},
+        "langsearch": {"api_key": LANGSEARCH_API_KEY},
     }
+
 
 def get_file_config() -> dict:
     """Get file processing configuration for CitationService."""
     return {
-        'max_file_size': int(get_config_value('MAX_FILE_SIZE', 100 * 1024 * 1024)),  # 100MB
-        'allowed_extensions': get_config_value('ALLOWED_EXTENSIONS', '.pdf,.txt,.docx').split(','),
-        'upload_folder': get_config_value('UPLOAD_FOLDER', os.path.join(BASE_DIR, 'uploads')),
-        'temp_folder': get_config_value('TEMP_FOLDER', os.path.join(BASE_DIR, 'temp'))
+        "max_file_size": int(get_config_value("MAX_FILE_SIZE", 100 * 1024 * 1024)),  # 100MB
+        "allowed_extensions": get_config_value("ALLOWED_EXTENSIONS", ".pdf,.txt,.docx").split(","),
+        "upload_folder": get_config_value("UPLOAD_FOLDER", os.path.join(BASE_DIR, "uploads")),
+        "temp_folder": get_config_value("TEMP_FOLDER", os.path.join(BASE_DIR, "temp")),
     }
+
 
 def get_adaptive_learning_config():
     """Get adaptive learning configuration for CitationService."""
     return {
-        'enabled': get_config_value('ADAPTIVE_LEARNING_ENABLED', 'true').lower() == 'true',
-        'learning_data_dir': get_config_value('ADAPTIVE_LEARNING_DATA_DIR', os.path.join(BASE_DIR, 'data', 'adaptive_learning')),
-        'min_confidence_threshold': float(get_config_value('ADAPTIVE_MIN_CONFIDENCE', 0.6)),
-        'max_patterns_to_learn': int(get_config_value('ADAPTIVE_MAX_PATTERNS', 100)),
-        'pattern_success_threshold': float(get_config_value('ADAPTIVE_PATTERN_SUCCESS_THRESHOLD', 0.6)),
-        'learning_batch_size': int(get_config_value('ADAPTIVE_LEARNING_BATCH_SIZE', 10)),
-        'enable_pattern_learning': get_config_value('ADAPTIVE_PATTERN_LEARNING', 'true').lower() == 'true',
-        'enable_confidence_adjustment': get_config_value('ADAPTIVE_CONFIDENCE_ADJUSTMENT', 'true').lower() == 'true',
-        'enable_case_name_database': get_config_value('ADAPTIVE_CASE_NAME_DB', 'true').lower() == 'true',
-        'save_learning_data': get_config_value('ADAPTIVE_SAVE_DATA', 'true').lower() == 'true'
+        "enabled": get_config_value("ADAPTIVE_LEARNING_ENABLED", "true").lower() == "true",
+        "learning_data_dir": get_config_value(
+            "ADAPTIVE_LEARNING_DATA_DIR", os.path.join(BASE_DIR, "data", "adaptive_learning")
+        ),
+        "min_confidence_threshold": float(get_config_value("ADAPTIVE_MIN_CONFIDENCE", 0.6)),
+        "max_patterns_to_learn": int(get_config_value("ADAPTIVE_MAX_PATTERNS", 100)),
+        "pattern_success_threshold": float(get_config_value("ADAPTIVE_PATTERN_SUCCESS_THRESHOLD", 0.6)),
+        "learning_batch_size": int(get_config_value("ADAPTIVE_LEARNING_BATCH_SIZE", 10)),
+        "enable_pattern_learning": get_config_value("ADAPTIVE_PATTERN_LEARNING", "true").lower() == "true",
+        "enable_confidence_adjustment": get_config_value("ADAPTIVE_CONFIDENCE_ADJUSTMENT", "true").lower() == "true",
+        "enable_case_name_database": get_config_value("ADAPTIVE_CASE_NAME_DB", "true").lower() == "true",
+        "save_learning_data": get_config_value("ADAPTIVE_SAVE_DATA", "true").lower() == "true",
     }
 
 
 def test_config_additions():
     """Test that the new config additions work correctly."""
     import logging
+
     logger = logging.getLogger(__name__)
-    
+
     logger.info("Testing config additions...")
-    
+
     citation_config = get_citation_config()
     logger.info(f"Citation config: {citation_config}")
-    
+
     api_config = get_external_api_config()
     logger.info(f"API config: {api_config}")
-    
+
     file_config = get_file_config()
     logger.info(f"File config: {file_config}")
-    
+
     logger.info(f"Context window: {CITATION_CONTEXT_WINDOW}")
     logger.info(f"Chunk size: {CITATION_CHUNK_SIZE}")
     logger.info(f"Immediate max length: {IMMEDIATE_PROCESSING_MAX_LENGTH}")
     logger.info(f"CourtListener API key: {'✓ Set' if COURTLISTENER_API_KEY else '✗ Not set'}")
-    
+
     logger.info("Config test complete!")
 
 
@@ -294,10 +294,10 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
 
     project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     logs_dir = os.path.join(project_root, "logs")
-    
+
     if os.path.exists("/app/logs"):
         logs_dir = "/app/logs"
-    
+
     os.makedirs(logs_dir, exist_ok=True)
 
     try:
@@ -318,7 +318,7 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
 
     formatter = logging.Formatter(
         "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"  # FIXED: Removed %f and %z for compatibility
+        datefmt="%Y-%m-%d %H:%M:%S",  # FIXED: Removed %f and %z for compatibility
     )
     file_handler.setFormatter(formatter)
     file_handler.setLevel(log_level)
@@ -337,7 +337,7 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
                 try:
                     self.stream.write(msg + self.terminator)
                 except UnicodeEncodeError:
-                    safe_msg = msg.encode('cp1252', errors='replace').decode('cp1252')
+                    safe_msg = msg.encode("cp1252", errors="replace").decode("cp1252")
                     self.stream.write(safe_msg + self.terminator)
                 self.flush()
             except Exception:
@@ -371,33 +371,36 @@ def configure_specific_loggers() -> None:
             "INFO": logging.INFO,
             "WARNING": logging.WARNING,
             "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL
+            "CRITICAL": logging.CRITICAL,
         }
         case_name_level = level_map.get(case_name_log_level.upper(), logging.WARNING)
-        
+
         case_name_logger = logging.getLogger("case_name_extraction")
         case_name_logger.setLevel(case_name_level)
-        
+
         root_logger = logging.getLogger()
         root_logger.info(f"Configured case_name_extraction logger to level: {case_name_log_level} ({case_name_level})")
-        
+
     except Exception as e:
         logging.getLogger().warning(f"Failed to configure case_name_extraction logger: {e}")
         case_name_logger = logging.getLogger("case_name_extraction")
         case_name_logger.setLevel(logging.WARNING)
 
+
 def validate_config():
     """Validate critical configuration values"""
     import logging
+
     logger = logging.getLogger(__name__)
-    
-    if not get_config_value('SECRET_KEY'):
+
+    if not get_config_value("SECRET_KEY"):
         error_msg = "Missing required config: SECRET_KEY"
         logger.error(error_msg)
         raise ValueError(error_msg)
-    
+
     try:
         import os
+
         db_path = DATABASE_FILE  # Use the already-configured value
         db_dir = os.path.dirname(db_path)
         if not os.path.exists(db_dir):
@@ -406,7 +409,7 @@ def validate_config():
     except Exception as e:
         logger.error(f"Database path validation failed: {e}")
         raise
-    
+
     try:
         upload_dir = UPLOAD_FOLDER
         if not os.path.exists(upload_dir):
@@ -415,7 +418,7 @@ def validate_config():
     except Exception as e:
         logger.error(f"Upload directory validation failed: {e}")
         raise
-    
+
     logger.info("Configuration validation completed successfully")
     return True
 
@@ -424,20 +427,20 @@ def get_environment_info():
     """Get comprehensive environment information for debugging"""
     import sys
     import platform
-    
+
     return {
-        'python_version': sys.version,
-        'platform': platform.platform(),
-        'architecture': platform.architecture(),
-        'processor': platform.processor(),
-        'environment': os.getenv('FLASK_ENV', 'production'),
-        'debug_mode': os.getenv('FLASK_DEBUG', '').lower() == 'true',
-        'database_file': DATABASE_FILE,
-        'upload_folder': UPLOAD_FOLDER,
-        'max_content_length': MAX_CONTENT_LENGTH,
-        'allowed_extensions': list(ALLOWED_EXTENSIONS),
-        'courtlistener_api_configured': bool(COURTLISTENER_API_KEY),
-        'session_type': SESSION_TYPE
+        "python_version": sys.version,
+        "platform": platform.platform(),
+        "architecture": platform.architecture(),
+        "processor": platform.processor(),
+        "environment": os.getenv("FLASK_ENV", "production"),
+        "debug_mode": os.getenv("FLASK_DEBUG", "").lower() == "true",
+        "database_file": DATABASE_FILE,
+        "upload_folder": UPLOAD_FOLDER,
+        "max_content_length": MAX_CONTENT_LENGTH,
+        "allowed_extensions": list(ALLOWED_EXTENSIONS),
+        "courtlistener_api_configured": bool(COURTLISTENER_API_KEY),
+        "session_type": SESSION_TYPE,
     }
 
 
