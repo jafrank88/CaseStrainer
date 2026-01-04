@@ -15,13 +15,23 @@ from typing import Callable, Any, Union, Optional
 # Initialize persistent logging FIRST (before other imports)
 try:
     from src.persistent_logger import init_persistent_logging, get_persistent_logger
-    persistent_logger = init_persistent_logging("casestrainer-backend", "/app/logs")
-    logger = persistent_logger.get_logger()
-    event_logger = persistent_logger.get_event_logger()
-    logger.info("Persistent logging initialized successfully")
+    # Make logs directory if it doesn't exist, with fallback
+    log_dir = "/app/logs"
+    try:
+        os.makedirs(log_dir, exist_ok=True)
+        persistent_logger = init_persistent_logging("casestrainer-backend", log_dir)
+        logger = persistent_logger.get_logger()
+        event_logger = persistent_logger.get_event_logger()
+        logger.info("Persistent logging initialized successfully")
+    except (PermissionError, OSError) as e:
+        # Fallback to basic logging if can't create log directory
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        logger = logging.getLogger(__name__)
+        event_logger = logger
+        logger.warning(f"Failed to initialize persistent logging in {log_dir}: {e}. Using basic logging.")
 except Exception as e:
     # Fallback to basic logging if persistent logger fails
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     logger = logging.getLogger(__name__)
     event_logger = logger
     logger.warning(f"Failed to initialize persistent logging: {e}")
@@ -579,8 +589,24 @@ class ApplicationFactory:
     def _setup_upload_security(self, app: Any) -> None:
         """Setup secure upload directory"""
         upload_folder = self.config_manager.get('upload.folder')
-        if not SecurityManager.setup_secure_upload_directory(upload_folder, self.logger):
-            raise ApplicationError("Failed to setup secure upload directory")
+        try:
+            # Try to setup secure upload directory
+            if not SecurityManager.setup_secure_upload_directory(upload_folder, self.logger):
+                # If it fails, try with a temporary directory
+                temp_upload = "/tmp/uploads"
+                self.logger.warning(f"Failed to setup upload directory at {upload_folder}, trying {temp_upload}")
+                if SecurityManager.setup_secure_upload_directory(temp_upload, self.logger):
+                    # Update config to use temp directory
+                    self.config_manager._config['upload']['folder'] = temp_upload
+                    app.config['UPLOAD_FOLDER'] = temp_upload
+                    self.logger.info(f"Using temporary upload directory: {temp_upload}")
+                else:
+                    # As last resort, disable uploads but continue
+                    self.logger.error("Failed to setup any upload directory, uploads will be disabled")
+                    app.config['UPLOAD_FOLDER'] = None
+        except Exception as e:
+            self.logger.error(f"Upload setup failed: {e}. Continuing without upload functionality.")
+            app.config['UPLOAD_FOLDER'] = None
 
     def _register_routes(self, app: Any) -> None:
         """Register application routes"""
