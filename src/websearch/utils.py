@@ -6,9 +6,6 @@ Standalone utility functions for web search operations.
 from typing import Dict, List, Optional
 
 
-
-
-
 async def search_cluster_for_canonical_sources(cluster: Dict, max_results: int = 10) -> List[Dict]:
     """Convenience function to search for canonical sources."""
     from .engine import ComprehensiveWebSearchEngine
