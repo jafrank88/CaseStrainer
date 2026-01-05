@@ -119,7 +119,6 @@ except Exception as e:
 try:
     from src.citation_clustering import (
         _propagate_canonical_to_parallels,
-        _propagate_extracted_to_parallels_clusters,
         _is_citation_contained_in_any,
     )
 
@@ -129,13 +128,11 @@ except ImportError as e:
     CITATION_CLUSTERING_AVAILABLE = False
     logger.warning(f"Citation clustering utilities not available: {e}")
     _propagate_canonical_to_parallels = None
-    _propagate_extracted_to_parallels_clusters = None
     _is_citation_contained_in_any = None
 except Exception as e:
     CITATION_CLUSTERING_AVAILABLE = False
     logger.warning(f"Citation clustering utilities import failed with unexpected error: {e}")
     _propagate_canonical_to_parallels = None
-    _propagate_extracted_to_parallels_clusters = None
     _is_citation_contained_in_any = None
 
 try:
@@ -288,6 +285,10 @@ class UnifiedCitationProcessorV2:
             ),
             "parallel_citation_cluster": re.compile(
                 r"\b(\d+)\s+(?:Wash\.|Wn\.)\s*2d\s+(\d+)(?:\s*,\s*(\d+)\s+(?:P\.3d|P\.2d)\s+(\d+))?\s*(?:\(\d{4}\))?\b",
+                re.IGNORECASE,
+            ),
+            "wash_with_pinpoint_and_parallel": re.compile(
+                r"\b(\d+)\s+(?:Wash\.|Wn\.)\s*(?:App\.)\s*2d\s+(\d+)(?:\s*,\s*(\d+))?(?:\s*,\s*(\d+)\s+(?:P\.3d|P\.2d)\s+(\d+))?\s*(?:\(\d{4}\))?\b",
                 re.IGNORECASE,
             ),
             "westlaw": re.compile(r"\b(\d{4})\s+WL\s+(\d{1,12})\b", re.IGNORECASE),
@@ -915,7 +916,7 @@ class UnifiedCitationProcessorV2:
             return
 
         representative = citations[0]
-        state = self._infer_state_from_citation(representative.citation)
+        self._infer_state_from_citation(representative.citation)
 
         # Use unified clustering instead of deprecated verification
         if hasattr(representative, "verified") and representative.verified:
@@ -1116,9 +1117,9 @@ class UnifiedCitationProcessorV2:
         citations = []
         seen_citations = set()
         priority_patterns = [
+            "wash_with_pinpoint_and_parallel",  # NEW: Handle pinpoint pages with parallel citations
             "parallel_citation_cluster",
             "flexible_wash2d",
-            "flexible_p3d",
             "flexible_p2d",
             "wash_complete",
             "wash_with_parallel",
@@ -1150,6 +1151,9 @@ class UnifiedCitationProcessorV2:
                         citation_str = match.group(0).strip()
                         if not citation_str or citation_str in seen_citations:
                             continue
+                        # Check containment for priority patterns too
+                        if _is_citation_contained_in_any and _is_citation_contained_in_any(citation_str, seen_citations):
+                            continue
                         components = self._extract_citation_components(citation_str)
                         reporter = components.get("reporter", "").strip().lower().replace(".", "")
                         if reporter == "at":
@@ -1161,6 +1165,18 @@ class UnifiedCitationProcessorV2:
                         is_parallel = "," in citation_str and any(
                             reporter in citation_str for reporter in ["P.3d", "P.2d", "Wash.2d", "Wn.2d"]
                         )
+                        
+                        # Special handling for wash_with_pinpoint_and_parallel pattern
+                        pinpoint_pages = []
+                        parallel_citations = []
+                        
+                        if pattern_name == "wash_with_pinpoint_and_parallel" and match.groups():
+                            # Extract pinpoint page (group 3) and parallel citation (groups 4-5)
+                            if match.group(3):  # Pinpoint page
+                                pinpoint_pages = [match.group(3)]
+                            if match.group(4) and match.group(5):  # Parallel citation
+                                parallel_citations = [f"{match.group(4)} P.3d {match.group(5)}"]
+                        
                         citation = CitationResult(
                             citation=citation_str,
                             start_index=start_pos,
@@ -1170,6 +1186,8 @@ class UnifiedCitationProcessorV2:
                             context=context,
                             source="regex",
                             is_parallel=is_parallel,
+                            pinpoint_pages=pinpoint_pages,
+                            parallel_citations=parallel_citations,
                         )
                         logger.info(f"[REGEX-DEBUG] Extracted {citation_str} at positions {start_pos}-{end_pos}")
                         self._extract_metadata(citation, text, match)
@@ -1183,11 +1201,12 @@ class UnifiedCitationProcessorV2:
                     citation_str = match.group(0).strip()
                     if not citation_str or citation_str in seen_citations:
                         continue
+                    # Check containment for non-priority patterns
+                    if _is_citation_contained_in_any(citation_str, seen_citations):
+                        continue
                     components = self._extract_citation_components(citation_str)
                     reporter = components.get("reporter", "").strip().lower().replace(".", "")
                     if reporter == "at":
-                        continue
-                    if _is_citation_contained_in_any(citation_str, seen_citations):
                         continue
                     seen_citations.add(citation_str)
                     start_pos = match.start()
@@ -1576,7 +1595,7 @@ class UnifiedCitationProcessorV2:
                     f"[EXTRACT-OVERRIDE] Eyecite extracted '{citation.extracted_case_name}' for {citation.citation}, but will re-extract with better logic to fix truncation issues"
                 )
                 # Clear eyecite's extraction so we can override it
-                old_eyecite_name = citation.extracted_case_name
+                citation.extracted_case_name
                 citation.extracted_case_name = None
 
             # CRITICAL: Always extract case names (even if eyecite already extracted)
@@ -1804,16 +1823,16 @@ class UnifiedCitationProcessorV2:
                                         f"[FIX] Replacing canonical date '{citation.extracted_date}' with user document year '{year_from_context}'"
                                     )
                                     citation.extracted_date = year_from_context
-                except Exception as e:
+                except Exception:
                     if not citation.extracted_date:
                         citation.extracted_date = None
             try:
                 citation.confidence = self._calculate_confidence(citation, text)
-            except Exception as e:
+            except Exception:
                 citation.confidence = 0.5
             try:
                 citation.context = self._extract_context(text, citation.start_index or 0, citation.end_index or 0)
-            except Exception as e:
+            except Exception:
                 citation.context = ""
         except Exception as e:
             logger.error(f"Critical error in _extract_metadata: {e}")
@@ -2887,7 +2906,7 @@ class UnifiedCitationProcessorV2:
 
             return None
 
-        except Exception as e:
+        except Exception:
             return None
 
     def _extract_case_name_candidates(self, text: str) -> List[str]:
@@ -3072,7 +3091,6 @@ class UnifiedCitationProcessorV2:
             return False
 
         lowercase_count = 0
-        max_lowercase_in_row = 4
 
         capitalized_words = sum(
             1 for word in words if re.sub(r"[^\w]", "", word) and re.sub(r"[^\w]", "", word)[0].isupper()
@@ -3309,7 +3327,7 @@ class UnifiedCitationProcessorV2:
                     for c in group
                     if c.extracted_date and c.extracted_date != "N/A" and re.match(r"^\d{4}$", str(c.extracted_date))
                 ]  # Year-only format
-                best_date = document_dates[0] if document_dates else None
+                document_dates[0] if document_dates else None
                 for citation in group:
                     # FIX #36: REMOVED ALL EXTRACTED DATA PROPAGATION!
                     # Each citation MUST preserve its OWN extracted_case_name/extracted_date from its document location.
@@ -3588,7 +3606,7 @@ class UnifiedCitationProcessorV2:
             citations_to_verify = []
             for citation in citations:
                 verification_status = getattr(citation, "verification_status", None)
-                is_parallel = getattr(citation, "is_parallel", False)
+                getattr(citation, "is_parallel", False)
 
                 # More thorough check: only skip if citation is actually verified with complete data
                 is_actually_verified = (
@@ -4316,9 +4334,9 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[DEBUG] Text length: {len(original_text)} chars")
 
         priority_patterns = [
+            "wash_with_pinpoint_and_parallel",  # NEW: Handle pinpoint pages with parallel citations
             "parallel_citation_cluster",
             "flexible_wash2d",
-            "flexible_p3d",
             "flexible_p2d",
             "wash_complete",
             "wash_with_parallel",
@@ -4348,6 +4366,9 @@ class UnifiedCitationProcessorV2:
                     citation_str = match.group(0).strip()
                     if not citation_str or citation_str in seen_citations:
                         continue
+                    # Check containment for priority patterns too
+                    if _is_citation_contained_in_any and _is_citation_contained_in_any(citation_str, seen_citations):
+                        continue
 
                     components = self._extract_citation_components(citation_str)
                     reporter = components.get("reporter", "").strip().lower().replace(".", "")
@@ -4364,6 +4385,17 @@ class UnifiedCitationProcessorV2:
                     start_pos = match.start()
                     end_pos = match.end()
 
+                    # Special handling for wash_with_pinpoint_and_parallel pattern
+                    pinpoint_pages = []
+                    parallel_citations = []
+                    
+                    if pattern_name == "wash_with_pinpoint_and_parallel" and match.groups():
+                        # Extract pinpoint page (group 3) and parallel citation (groups 4-5)
+                        if match.group(3):  # Pinpoint page
+                            pinpoint_pages = [match.group(3)]
+                        if match.group(4) and match.group(5):  # Parallel citation
+                            parallel_citations = [f"{match.group(4)} P.3d {match.group(5)}"]
+
                     citation = CitationResult(
                         citation=citation_str,
                         start_index=start_pos,
@@ -4371,6 +4403,8 @@ class UnifiedCitationProcessorV2:
                         method="regex_enhanced",
                         pattern=pattern_name,
                         confidence=0.8,
+                        pinpoint_pages=pinpoint_pages,
+                        parallel_citations=parallel_citations,
                     )
 
                     citations.append(citation)
@@ -4850,11 +4884,17 @@ class UnifiedCitationProcessorV2:
 
         # CRITICAL: Pass the actual verification configuration from processor
         clusters = cluster_citations_unified_master(
-            citations, original_text=text, enable_verification=self.config.enable_verification
+            citations, 
+            original_text=text, 
+            enable_verification=self.config.enable_verification,
+            progress_callback=self._update_progress
         )
         logger.info(
             f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering (verification: {self.config.enable_verification})"
         )
+        
+        # Update progress to show clustering is complete
+        self._update_progress(90, "Finalizing", "Finalizing results...")
 
         # CRITICAL FIX: Update citation objects with cluster information immediately
         # This must happen BEFORE any serialization to ensure cluster data persists
@@ -5890,8 +5930,8 @@ class UnifiedCitationProcessorV2:
         for pattern in priority_patterns:
             matches = re.finditer(pattern, normalized_text, re.IGNORECASE)
             for match in matches:
-                volume = match.group(1)
-                page = match.group(2)
+                match.group(1)
+                match.group(2)
                 year = match.group(3) if len(match.groups()) >= 3 and match.group(3) else None
 
                 citation_text = match.group(0)
