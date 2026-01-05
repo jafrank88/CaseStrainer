@@ -21,7 +21,7 @@ Key Features Consolidated:
 import re
 import logging
 import time
-from typing import Dict, Any, Optional, List, Set, Tuple
+from typing import Dict, Any, Optional, List, Set, Tuple, Callable
 from dataclasses import dataclass
 from enum import Enum
 from collections import defaultdict, Counter, deque
@@ -297,7 +297,7 @@ class UnifiedClusteringMaster:
         return self._score_case_name(candidate) > self._score_case_name(existing)
 
     def cluster_citations(
-        self, citations: List[Any], original_text: str = "", enable_verification: bool = None, request_id: str = ""
+        self, citations: List[Any], original_text: str = "", enable_verification: bool = None, request_id: str = "", progress_callback: Optional[Callable[[int, str, str], None]] = None
     ) -> List[Dict[str, Any]]:
         """
         THE MASTER CLUSTERING FUNCTION
@@ -389,6 +389,10 @@ class UnifiedClusteringMaster:
             # Step 1: Detect parallel citations and create initial groups
             logger.info("MASTER_CLUSTER: Step 1 - Detecting parallel citations")
             logger.error(f"[CLUSTER-DEBUG] Input: {len(citations)} citations")
+            
+            # Update progress for parallel detection
+            if progress_callback:
+                progress_callback(72, "Clustering", "Detecting parallel citations...")
 
             # Sample first 3 citations to see their structure
             for i, cit in enumerate(citations[:3]):
@@ -428,11 +432,15 @@ class UnifiedClusteringMaster:
 
             # Step 2: Extract and propagate metadata within groups
             logger.info("MASTER_CLUSTER: Step 2 - Extracting and propagating metadata")
+            if progress_callback:
+                progress_callback(75, "Clustering", "Extracting citation metadata...")
             enhanced_citations = self._extract_and_propagate_metadata(citations, parallel_groups, original_text)
             logger.info(f"MASTER_CLUSTER: Enhanced {len(enhanced_citations)} citations")
 
             # Step 3: Create final clusters by metadata similarity
             logger.info("MASTER_CLUSTER: Step 3 - Creating final clusters")
+            if progress_callback:
+                progress_callback(80, "Clustering", "Creating citation clusters...")
             final_clusters = self._create_final_clusters(enhanced_citations)
             logger.info(f"MASTER_CLUSTER: Created {len(final_clusters)} final clusters")
 
@@ -457,6 +465,8 @@ class UnifiedClusteringMaster:
             # Step 4: Apply verification if enabled
             if enable_verification:
                 logger.info("MASTER_CLUSTER: Step 4 - Applying verification")
+                if progress_callback:
+                    progress_callback(85, "Clustering", "Verifying citations...")
                 # CRITICAL FIX: Set instance variable before calling verification
                 # so _apply_verification_to_clusters uses the correct value
                 self.enable_verification = enable_verification
@@ -466,6 +476,8 @@ class UnifiedClusteringMaster:
             # CRITICAL: This runs EVEN IF enable_verification=False because verification
             # may have been done externally (before clustering). We check for canonical data.
             logger.info("MASTER_CLUSTER: Step 4.5 - Validating canonical consistency (Fix #22)")
+            if progress_callback:
+                progress_callback(88, "Clustering", "Validating cluster consistency...")
             final_clusters = self._validate_canonical_consistency(final_clusters)
             logger.info(f"MASTER_CLUSTER: After canonical validation: {len(final_clusters)} clusters")
 
@@ -902,13 +914,13 @@ class UnifiedClusteringMaster:
                 c_name = cit.get("canonical_name")
                 c_date = cit.get("canonical_date")
                 c_url = cit.get("canonical_url")
-                extracted_name = cit.get("extracted_case_name")
+                cit.get("extracted_case_name")
             else:
                 verified = getattr(cit, "verified", False)
                 c_name = getattr(cit, "canonical_name", None)
                 c_date = getattr(cit, "canonical_date", None)
                 c_url = getattr(cit, "canonical_url", None)
-                extracted_name = getattr(cit, "extracted_case_name", None)
+                getattr(cit, "extracted_case_name", None)
 
             # Only group verified citations with stable canonical identifiers
             if not verified or (not c_url and (not c_name or not c_date)):
@@ -1332,8 +1344,8 @@ class UnifiedClusteringMaster:
                 return citation_meta.get("parallel_citations", []) or []
             return getattr(citation_meta, "parallel_citations", []) or []
 
-        parallel1 = get_parallel_citations(citation1_meta)
-        parallel2 = get_parallel_citations(citation2_meta)
+        get_parallel_citations(citation1_meta)
+        get_parallel_citations(citation2_meta)
 
         # USER FIX: Always use EXTRACTED names for clustering, never canonical
         def get_clustering_name_for_validation(cit: Any) -> Optional[str]:
@@ -5306,12 +5318,23 @@ class UnifiedClusteringMaster:
                 if not re.search(r"\d+\s+\w+\.\s*\d*\s+\d+", line):  # Not "123 F.3d 456"
                     # Clean up common prefix/suffix patterns
                     cleaned = re.sub(r"^\s*(?:IN\s+THE\s+)?(?:MATTER\s+OF\s+)?", "", line, flags=re.IGNORECASE)
+                    # ENHANCED: Clean role words from both ends
                     cleaned = re.sub(
                         r"\s*,?\s*(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*$",
                         "",
                         cleaned,
                         flags=re.IGNORECASE,
                     )
+                    # Also clean role words at the beginning (e.g., "Appellant CARTER")
+                    cleaned = re.sub(
+                        r"^(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*,?\s*",
+                        "",
+                        cleaned,
+                        flags=re.IGNORECASE,
+                    )
+                    # Clean extra commas and spaces
+                    cleaned = re.sub(r"\s*,\s*,\s*", ", ", cleaned)  # Remove double commas
+                    cleaned = re.sub(r"^\s*,\s*|\s*,\s*$", "", cleaned)  # Remove leading/trailing commas
 
                     if " v. " in cleaned and len(cleaned) > 10:
                         logger.warning(f"[CONTAMINATION-FILTER] Found primary case (Strategy 2): '{cleaned}'")
@@ -5319,10 +5342,24 @@ class UnifiedClusteringMaster:
 
         # Strategy 3: Pattern match for common formats
         # "PLAINTIFF, v. DEFENDANT," or "PLAINTIFF v. DEFENDANT No."
-        pattern = r"([A-Z][A-Za-z\s\.,&\-\']{8,80})\s+v\.\s+([A-Za-z][A-Za-z\s\.,&\-\']{8,80})(?:\s*,|\s+No\.)"
+        # ENHANCED: Handle role words in both positions
+        pattern = r"([A-Z][A-Za-z\s\.,\&\-']{8,80})\s+v\.\s+([A-Za-z][A-Za-z\s\.,\&\-']{8,80})(?:\s*,|\s+No\.)"
         match = re.search(pattern, header)
         if match:
             case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
+            # ENHANCED: Clean role words from both parties
+            # Clean plaintiff side
+            plaintiff = match.group(1).strip()
+            plaintiff = re.sub(r"\s*,?\s*(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*$", "", plaintiff, flags=re.IGNORECASE)
+            plaintiff = re.sub(r"^(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*,?\s*", "", plaintiff, flags=re.IGNORECASE)
+            # Clean defendant side
+            defendant = match.group(2).strip()
+            defendant = re.sub(r"\s*,?\s*(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*$", "", defendant, flags=re.IGNORECASE)
+            defendant = re.sub(r"^(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*,?\s*", "", defendant, flags=re.IGNORECASE)
+            
+            case_name = f"{plaintiff.strip()} v. {defendant.strip()}"
+            case_name = re.sub(r"\s*,\s*,\s*", ", ", case_name)  # Remove double commas
+            case_name = re.sub(r"^\s*,\s*|\s*,\s*$", "", case_name)  # Remove leading/trailing commas
             # CRITICAL: Even if it has header patterns, extract and clean it for comparison
             case_name_upper = case_name.upper()
             has_et_al = "ET AL" in case_name_upper or "ETAL" in case_name_upper.replace(" ", "")
@@ -5417,6 +5454,7 @@ def cluster_citations_unified_master(
     enable_verification: bool = None,
     request_id: str = "",
     config: Optional[Dict[str, Any]] = None,
+    progress_callback: Optional[Callable[[int, str, str], None]] = None,
 ) -> List[Dict[str, Any]]:
     """
     THE SINGLE, UNIFIED CLUSTERING FUNCTION
@@ -5433,4 +5471,4 @@ def cluster_citations_unified_master(
         List of cluster dictionaries with comprehensive metadata
     """
     clusterer = get_master_clusterer(config)
-    return clusterer.cluster_citations(citations, original_text, enable_verification, request_id)
+    return clusterer.cluster_citations(citations, original_text, enable_verification, request_id, progress_callback)
