@@ -18,12 +18,14 @@
         
         <div class="progress-title-section">
           <h3 class="progress-title">
-            <span v-if="progressState.processingError">Processing Failed</span>
+            <span v-if="progressState.processingError && !progressState.isTimeout">Processing Failed</span>
+            <span v-else-if="progressState.processingError && progressState.isTimeout">Processing Timed Out</span>
             <span v-else-if="progressState.hasResults">Processing Complete</span>
             <span v-else>Processing {{ getUploadTypeLabel() }}</span>
           </h3>
           <p class="progress-subtitle">
-            <span v-if="progressState.processingError">{{ progressState.processingError }}</span>
+            <span v-if="progressState.processingError && !progressState.isTimeout">{{ progressState.processingError }}</span>
+            <span v-else-if="progressState.processingError && progressState.isTimeout">{{ progressState.processingError }} The job may still be running. Please refresh to check.</span>
             <span v-else-if="progressState.hasResults">Analysis completed successfully</span>
             <span v-else>{{ progressState.currentStep }}</span>
           </p>

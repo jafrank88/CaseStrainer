@@ -19,6 +19,7 @@
           <div class="header-content">
             <h4 class="title">
               <span v-if="isComplete">Processing Complete</span>
+              <span v-else-if="hasError && isTimeout">Processing Timed Out</span>
               <span v-else-if="hasError">Processing Failed</span>
               <span v-else>Processing Content</span>
             </h4>
@@ -97,6 +98,11 @@ const processingMode = ref('')
 const hasError = ref(false)
 const errorMessage = ref('')
 const isComplete = ref(false)
+
+// Computed for timeout state
+const isTimeout = computed(() => {
+  return globalProgress.progressState.isTimeout || false
+})
 
 // Timers
 let elapsedTimer = null

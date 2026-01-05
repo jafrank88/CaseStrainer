@@ -213,7 +213,7 @@ export default {
                 return false;
               } else if (attempts >= maxAttempts) {
                 console.error('❌ Async job polling timeout');
-                globalProgress.setError('Processing timeout - please try again');
+                globalProgress.setError('Processing timeout - please try again', true);
                 return false;
               } else {
                 // Job still running, continue polling
