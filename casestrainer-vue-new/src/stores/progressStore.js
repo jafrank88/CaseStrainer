@@ -23,6 +23,7 @@ const progressState = reactive({
   // Error handling
   processingError: null,
   canRetry: false,
+  isTimeout: false,
   
   // Upload context
   uploadType: null, // 'file', 'url', 'text'
@@ -376,9 +377,10 @@ export function useUnifiedProgress() {
     }
   };
 
-  const setError = (error) => {
+  const setError = (error, isTimeout = false) => {
     console.error('Progress error:', error);
     progressState.processingError = error;
+    progressState.isTimeout = isTimeout;
     progressState.canRetry = true;
     progressState.isActive = false;
     stopHeuristicTimer();
@@ -387,6 +389,7 @@ export function useUnifiedProgress() {
   const clearError = () => {
     console.log('Clearing progress error');
     progressState.processingError = null;
+    progressState.isTimeout = false;
     progressState.canRetry = false;
   };
 
@@ -453,6 +456,7 @@ export function useUnifiedProgress() {
       rateLimitInfo: null,
       processingError: null,
       canRetry: false,
+      isTimeout: false,
       pollCount: 0,  // CRITICAL FIX: Reset poll count on progress reset
       uploadType: null,
       uploadData: null,

@@ -1278,7 +1278,7 @@ const pollAsyncJob = async (jobId) => {
       if (attempts >= maxAttempts) {
         console.error('Async job polling timeout after', attempts, 'attempts');
         if (!globalProgress.progressState.hasResults) {
-          globalProgress.setError('Processing timeout (5 minutes). The job may still be running. Please check back later.');
+          globalProgress.setError('Processing timeout (5 minutes). The job may still be running. Please check back later.', true);
         }
         throw new Error('Processing timeout');
       }
@@ -1549,7 +1549,7 @@ const analyzeContent = async () => {
           pollingInterval = null;
           console.error('Polling timeout after 5 minutes - stopping');
           if (!globalProgress.progressState.hasResults) {
-            globalProgress.setError('Request timed out after 5 minutes');
+            globalProgress.setError('Request timed out after 5 minutes', true);
           }
           return;
         }
