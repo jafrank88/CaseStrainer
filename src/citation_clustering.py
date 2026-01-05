@@ -542,7 +542,7 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
             last_c = group[-1]
             last_context = getattr(last_c, "context", "") or ""
             year_match = re.search(r"\((\d{4})\)", last_context)
-            year = year_match.group(1) if year_match else getattr(last_c, "extracted_date", None)
+            year_match.group(1) if year_match else getattr(last_c, "extracted_date", None)
             # based on proximity and date matching, causing 578 U.S. 5 to get Gideon case name
             #
             # if filtered_case_name and year:
@@ -670,11 +670,11 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                 continue
             first_citation = cluster_citations[0]
             if hasattr(first_citation, "metadata") and first_citation.metadata:
-                cluster_metadata = first_citation.metadata
+                first_citation.metadata
             elif isinstance(first_citation, dict):
-                cluster_metadata = first_citation.get("metadata", {})
+                first_citation.get("metadata", {})
             else:
-                cluster_metadata = {}
+                pass
             sorted_citations = sorted(
                 cluster_citations,
                 key=lambda c: (
@@ -941,16 +941,30 @@ def _is_citation_contained_in_any(citation_str: str, existing_citations: set) ->
     """
     Check if a citation is contained within any existing citation.
     For example: '200 Wn.2d' is contained in '200 Wn.2d 72'
+    Also handles parallel citations like '520 P.3d 470' in '24 Wn. App. 2d 377, 392, 520 P.3d 470'
     """
     norm_citation = citation_str.strip()
 
     for existing in existing_citations:
         norm_existing = existing.strip()
-        # and the existing citation has additional content (like page numbers)
+        # Direct containment check
         if norm_citation in norm_existing and len(norm_existing) > len(norm_citation):
             remaining = norm_existing[len(norm_citation) :].strip()
             if remaining and any(c.isdigit() for c in remaining):
                 return True
+        
+        # Check if citation is a parallel citation within a larger citation
+        # Look for patterns like "24 Wn. App. 2d 377, 392, 520 P.3d 470"
+        if ", " in norm_existing and norm_citation.startswith(("P.", "F.")):
+            # Split by commas and check if our citation appears after the first part
+            parts = norm_existing.split(", ")
+            for part in parts[1:]:  # Skip the first part (main citation)
+                if norm_citation == part.strip():
+                    return True
+                # Also check if it's contained within a part (e.g., with year)
+                if norm_citation in part and len(part) > len(norm_citation):
+                    return True
+    
     return False
 
 
