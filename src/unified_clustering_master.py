@@ -2222,6 +2222,8 @@ class UnifiedClusteringMaster:
             # Standardize variations
             normalized = normalized.replace("pacific", "p").replace("pacific reporter", "p")
             normalized = normalized.replace("washington", "wash").replace("wn ", "wash ").replace("wn. ", "wash. ")
+            # Handle cases like 'Wn. App. 2d' -> 'wash app 2d' (must be before general app pattern)
+            normalized = re.sub(r"wash\.?\s+app\.?\s+(\d*)d", r"wash app \1d", normalized)
             # Handle cases like 'Wn. App.' -> 'wash app'
             normalized = re.sub(r"wash(?:ington)?\s+app(?:\.?\s*\w*)?", "wash app", normalized)
             # Handle cases like 'Wash.2d' -> 'wash2d'
@@ -2264,8 +2266,7 @@ class UnifiedClusteringMaster:
                         "wn.app",
                         "washapp",
                         "wnapp",
-                        "wash2d",
-                        "wn2d",
+                        "wash app 2d",  # Added this pattern
                         "wash. app. 2d",
                         "wn. app. 2d",
                         "wac ",  # Additional patterns
@@ -2274,6 +2275,7 @@ class UnifiedClusteringMaster:
                 or re.search(r"wash(?:ington)?\s*\d*d", cite)
                 or re.search(r"wn\.?\s*\d*d", cite)
                 or re.search(r"wac\s*\d+", cite)
+                or re.search(r"wash\s+app\s*\d*d", cite)  # Added regex pattern
             )
 
         def is_p_citation(cite):
@@ -2348,16 +2350,25 @@ class UnifiedClusteringMaster:
 
             # If we have both volumes and pages, check if they match
             if all(v is not None for v in [vol1, page1, vol2, page2]):
+                # FOR WASHINGTON PARALLEL CITATIONS: Volume/page numbers are ALWAYS different
+                # Washington reporter and Pacific Reporter use different numbering systems
+                # So we DON'T check for matching volumes/pages for Washington citations
+                if has_wash and has_p:
+                    if self.debug_mode:
+                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (different volumes expected): {citation1} ↔ {citation2}")
+                    return True
+                
+                # For non-Washington citations, require matching volumes/pages
                 # Exact match
                 if vol1 == vol2 and page1 == page2:
                     if self.debug_mode:
-                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (exact): {citation1} ↔ {citation2}")
+                        logger.debug(f"[SUCCESS] NON-WASHINGTON PARALLEL MATCH (exact): {citation1} ↔ {citation2}")
                     return True
 
                 # Allow for small page differences (same volume, pages within 5)
                 if vol1 == vol2 and abs(page1 - page2) <= 5:
                     if self.debug_mode:
-                        logger.debug(f"[SUCCESS] WASHINGTON PARALLEL MATCH (close pages): {citation1} ↔ {citation2}")
+                        logger.debug(f"[SUCCESS] NON-WASHINGTON PARALLEL MATCH (close pages): {citation1} ↔ {citation2}")
                     return True
 
             # If volume/page extraction failed, try to extract just page numbers
