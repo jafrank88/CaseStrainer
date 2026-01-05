@@ -61,11 +61,21 @@ param(
     [switch]$ScheduleCleanup,  # Schedule weekly automatic cleanup
     
     [Parameter()]
-    [switch]$RemoveCleanupSchedule  # Remove the weekly cleanup schedule
+    [switch]$RemoveCleanupSchedule,  # Remove the weekly cleanup schedule
+    
+    [Parameter()]
+    [switch]$Service  # Install/Manage CaseStrainer-Docker-Service for unattended operation
 )
 
 # Internal configuration
 $EnableNotifications = $false  # Notifications disabled - using external WHM monitoring
+
+# Helper function to test admin privileges
+function Test-AdminPrivileges {
+    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
+    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
+    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+}
 
 Write-Host "`n========================================" -ForegroundColor Cyan
 Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan  
@@ -73,27 +83,99 @@ Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan
 Write-Host "`n========================================" -ForegroundColor Cyan
 
 # Start auto-monitoring if no flags provided
-if (-not $Build -and -not $Monitor -and -not $ConfigureAutostart -and -not $NoAutostart -and -not $ConfigurePeriodicHealthCheck -and -not $RemovePeriodicHealthCheck -and -not $DeepCleanRestart -and -not $MemoryOptimizeRestart -and -not $NoCache -and -not $Force -and -not $EmergencyRecovery -and -not $ConfigureServiceRecovery -and -not $RemoveServiceRecovery -and -not $CleanupDocker) {
+if (-not $Build -and -not $Monitor -and -not $ConfigureAutostart -and -not $NoAutostart -and -not $ConfigurePeriodicHealthCheck -and -not $RemovePeriodicHealthCheck -and -not $DeepCleanRestart -and -not $MemoryOptimizeRestart -and -not $NoCache -and -not $Force -and -not $EmergencyRecovery -and -not $ConfigureServiceRecovery -and -not $RemoveServiceRecovery -and -not $CleanupDocker -and -not $Service) {
     Write-Host "[AUTO] Starting unattended monitoring setup..." -ForegroundColor Cyan
     
-    # Import and run unattended monitoring setup
-    $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
-    if (Test-Path $modulePath) {
-        Import-Module $modulePath -Force
-        SetUnattendedMonitoring
-        Write-Host "[SUCCESS] Monitoring is now configured and will survive reboots!" -ForegroundColor Green
+    # Check if CaseStrainer-Docker-Service is installed
+    $serviceTask = Get-ScheduledTask -TaskName "CaseStrainer-Docker-Service" -ErrorAction SilentlyContinue
+    if ($serviceTask) {
+        Write-Host "[SUCCESS] CaseStrainer-Docker-Service is already installed!" -ForegroundColor Green
+        Write-Host "  - Docker will auto-restart without user login" -ForegroundColor Gray
+        Write-Host "  - Service runs as SYSTEM account" -ForegroundColor Gray
+        Write-Host "  - Survives reboots and logoffs" -ForegroundColor Gray
+        
+        # Check if service is running
+        if ($serviceTask.State -eq "Running") {
+            Write-Host "  - Status: Running" -ForegroundColor Green
+        } else {
+            Write-Host "  - Status: $($serviceTask.State)" -ForegroundColor Yellow
+            Write-Host "  - Will start on next boot or manually" -ForegroundColor Gray
+        }
     } else {
-        # Fallback to old auto-monitor
-        Write-Host "[WARN] Unattended monitoring module not found, using legacy monitoring..." -ForegroundColor Yellow
-        & (Join-Path $PSScriptRoot "auto_monitor.ps1") -ScriptRoot $PSScriptRoot
+        # Service not installed - offer to install it
+        Write-Host "[INFO] CaseStrainer-Docker-Service is not installed" -ForegroundColor Yellow
+        Write-Host "  This service provides unattended Docker auto-restart without user login" -ForegroundColor Gray
+        Write-Host "  It runs as a Windows service and survives reboots and logoffs" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "Would you like to install the CaseStrainer-Docker-Service?" -ForegroundColor Cyan
+        Write-Host "Enter 'y' to install, 'n' to use legacy monitoring, any other key to skip" -ForegroundColor Gray
+        
+        $response = Read-Host "Install service? [y/n/skip]"
+        
+        if ($response -eq 'y') {
+            Write-Host "`n[INFO] Installing CaseStrainer-Docker-Service..." -ForegroundColor Yellow
+            
+            # Check if running as administrator
+            $isAdmin = Test-AdminPrivileges
+            
+            if (-not $isAdmin) {
+                Write-Host "[WARN] Administrator privileges required for service installation" -ForegroundColor Yellow
+                Write-Host "Please run PowerShell as Administrator and try again" -ForegroundColor Gray
+                Write-Host "Or run: .\cslaunch.ps1 -Service" -ForegroundColor Cyan
+                
+                # Fall back to legacy monitoring
+                Write-Host "`n[FALLBACK] Using legacy monitoring instead..." -ForegroundColor Yellow
+                $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
+                if (Test-Path $modulePath) {
+                    Import-Module $modulePath -Force
+                    SetUnattendedMonitoring
+                    Write-Host "[SUCCESS] Legacy monitoring configured (requires user login)" -ForegroundColor Green
+                } else {
+                    Write-Host "[WARN] Unattended monitoring module not found, using legacy monitoring..." -ForegroundColor Yellow
+                    & (Join-Path $PSScriptRoot "auto_monitor.ps1") -ScriptRoot $PSScriptRoot
+                }
+            } else {
+                # Run the service creation script
+                $serviceScript = Join-Path $PSScriptRoot "Create-DockerService.ps1"
+                if (Test-Path $serviceScript) {
+                    & $serviceScript
+                    Write-Host "[SUCCESS] CaseStrainer-Docker-Service installed!" -ForegroundColor Green
+                    Write-Host "Docker will now auto-restart without user login" -ForegroundColor Gray
+                } else {
+                    Write-Host "[ERROR] Service creation script not found: $serviceScript" -ForegroundColor Red
+                    Write-Host "Falling back to legacy monitoring..." -ForegroundColor Yellow
+                    
+                    # Fall back to legacy monitoring
+                    $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
+                    if (Test-Path $modulePath) {
+                        Import-Module $modulePath -Force
+                        SetUnattendedMonitoring
+                        Write-Host "[SUCCESS] Legacy monitoring configured (requires user login)" -ForegroundColor Green
+                    } else {
+                        Write-Host "[WARN] Unattended monitoring module not found, using legacy monitoring..." -ForegroundColor Yellow
+                        & (Join-Path $PSScriptRoot "auto_monitor.ps1") -ScriptRoot $PSScriptRoot
+                    }
+                }
+            }
+        } elseif ($response -eq 'n') {
+            Write-Host "`n[INFO] Using legacy monitoring (requires user login)..." -ForegroundColor Yellow
+            # Import and run unattended monitoring setup
+            $modulePath = Join-Path $PSScriptRoot "scripts\modules\UnattendedMonitoring.psm1"
+            if (Test-Path $modulePath) {
+                Import-Module $modulePath -Force
+                SetUnattendedMonitoring
+                Write-Host "[SUCCESS] Legacy monitoring is now configured and will survive reboots!" -ForegroundColor Green
+            } else {
+                # Fallback to old auto-monitor
+                Write-Host "[WARN] Unattended monitoring module not found, using legacy monitoring..." -ForegroundColor Yellow
+                & (Join-Path $PSScriptRoot "auto_monitor.ps1") -ScriptRoot $PSScriptRoot
+            }
+        } else {
+            Write-Host "[INFO] Skipped - no monitoring configured" -ForegroundColor Yellow
+            Write-Host "To install service later, run: .\cslaunch.ps1 -Service" -ForegroundColor Gray
+            Write-Host "To configure legacy monitoring, run: .\cslaunch.ps1 -Monitor" -ForegroundColor Gray
+        }
     }
-}
-
-# Helper function to test admin privileges
-function Test-AdminPrivileges {
-    $currentUser = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal($currentUser)
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
 # Function to implement exponential backoff for restart attempts
@@ -110,6 +192,9 @@ function Get-BackoffDelay {
 
 # Enhanced function to capture Docker events
 function Start-DockerEventMonitoring {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='Medium')]
+    param()
+    
     $eventLogPath = Join-Path $PSScriptRoot "logs\docker_events.log"
     
     $eventScriptBlock = {
@@ -134,12 +219,14 @@ function Start-DockerEventMonitoring {
         }
     }
     
-    $eventJob = Start-Job -Name "Docker-Event-Monitor" -ScriptBlock $eventScriptBlock -ArgumentList $eventLogPath
-    
-    Write-Host "[EVENTS] Docker event monitoring started (job ID: $($eventJob.Id))" -ForegroundColor Cyan
-    Write-Host "  - Event log: $eventLogPath" -ForegroundColor Gray
-    
-    return $eventJob
+    if ($PSCmdlet.ShouldProcess("Docker event monitoring", "Start")) {
+        $eventJob = Start-Job -Name "Docker-Event-Monitor" -ScriptBlock $eventScriptBlock -ArgumentList $eventLogPath
+        
+        Write-Host "[EVENTS] Docker event monitoring started (job ID: $($eventJob.Id))" -ForegroundColor Cyan
+        Write-Host "  - Event log: $eventLogPath" -ForegroundColor Gray
+        
+        return $eventJob
+    }
 }
 # Setup crash logging
 $crashLogPath = Join-Path $PSScriptRoot "logs\crash_log.txt"
@@ -1326,7 +1413,7 @@ function Test-DockerDaemonHealth {
                 Remove-Job $job -Force -ErrorAction SilentlyContinue
             }
         } catch {
-            # Non-critical
+            # Non-critical - ignore
         }
     }
     
@@ -1345,7 +1432,7 @@ function Test-DockerDaemonHealth {
                 Remove-Job $job -Force -ErrorAction SilentlyContinue
             }
         } catch {
-            # Non-critical
+            # Non-critical - ignore
         }
     }
     
@@ -1786,7 +1873,7 @@ function Start-ContainerMonitoring {
                         
                         # Check disk space periodically (every 5 minutes)
                         if ($AutoCleanup) {
-                            $systemDrive = Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
+                            $systemDrive = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
                             $freeSpaceGB = [math]::Round($systemDrive.FreeSpace / 1GB, 2)
                             
                             if ($freeSpaceGB -lt 30) {
@@ -2862,10 +2949,62 @@ if (-not $NoAutostart) {
             }
         }
     } catch {
-        # Silently ignore errors - autostart is optional
+        Write-Verbose "Autostart configuration error: $_"
     }
-} else {
-    Write-Host "[INFO] Docker autostart disabled (NoAutostart flag)" -ForegroundColor Gray
+}
+
+# ====================================================================
+# DOCKER SERVICE CONFIGURATION
+# ====================================================================
+
+# Handle Service parameter
+if ($Service) {
+    Write-Host "`n========================================" -ForegroundColor Cyan
+    Write-Host "CaseStrainer Docker Service Management" -ForegroundColor Cyan
+    Write-Host "========================================`n" -ForegroundColor Cyan
+    
+    # Check if running as administrator
+    $isAdmin = Test-AdminPrivileges
+    
+    if (-not $isAdmin) {
+        Write-Host "[ERROR] Administrator privileges required to manage the Docker service!" -ForegroundColor Red
+        Write-Host "Right-click PowerShell and select 'Run as Administrator'" -ForegroundColor Yellow
+        exit 1
+    }
+    
+    # Check current service status
+    $serviceTask = Get-ScheduledTask -TaskName "CaseStrainer-Docker-Service" -ErrorAction SilentlyContinue
+    
+    if ($serviceTask) {
+        Write-Host "[INFO] CaseStrainer-Docker-Service is already installed" -ForegroundColor Green
+        Write-Host "Status: $($serviceTask.State)" -ForegroundColor Gray
+        Write-Host "Last Run: $($serviceTask.LastRunTime)" -ForegroundColor Gray
+        Write-Host "Next Run: $($serviceTask.NextRunTime)" -ForegroundColor Gray
+        
+        # Ask if user wants to reinstall/update
+        Write-Host "`nWould you like to reinstall/update the service?" -ForegroundColor Cyan
+        $response = Read-Host "Enter 'y' to reinstall, any other key to keep current"
+        
+        if ($response -eq 'y') {
+            Write-Host "`n[INFO] Reinstalling service..." -ForegroundColor Yellow
+            & (Join-Path $PSScriptRoot "Create-DockerService.ps1")
+        }
+    } else {
+        Write-Host "[INFO] CaseStrainer-Docker-Service is not installed" -ForegroundColor Yellow
+        Write-Host "Installing service for unattended operation..." -ForegroundColor Gray
+        
+        # Run the service creation script
+        $serviceScript = Join-Path $PSScriptRoot "Create-DockerService.ps1"
+        if (Test-Path $serviceScript) {
+            & $serviceScript
+        } else {
+            Write-Host "[ERROR] Service creation script not found: $serviceScript" -ForegroundColor Red
+            Write-Host "Please ensure Create-DockerService.ps1 exists in the project root" -ForegroundColor Yellow
+        }
+    }
+    
+    Write-Host "`n[INFO] Service management complete" -ForegroundColor Green
+    exit 0
 }
 
 # ====================================================================
@@ -3552,7 +3691,7 @@ function Invoke-DockerCleanup {
         Write-Host "Current Docker disk usage: $totalSize GB" -ForegroundColor Yellow
         
         # Check system disk space
-        $systemDrive = Get-WmiObject -Class Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
+        $systemDrive = Get-CimInstance -ClassName Win32_LogicalDisk | Where-Object {$_.DeviceID -eq "C:"}
         $freeSpaceGB = [math]::Round($systemDrive.FreeSpace / 1GB, 2)
         
         Write-Host "Free disk space on C: drive: $freeSpaceGB GB" -ForegroundColor Yellow
