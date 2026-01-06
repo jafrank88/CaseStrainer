@@ -3,7 +3,6 @@ Memory Monitor for CaseStrainer
 Detects and prevents memory leaks in the application
 """
 
-
 import time
 import psutil
 import logging

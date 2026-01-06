@@ -901,7 +901,6 @@ class UnifiedDocumentProcessor:
     def convert_pdf_to_markdown(self, pdf_path: str) -> str:
         """Convert a PDF file to markdown format using pdf2md or pdfminer as fallback."""
         try:
-            result = None
             with tempfile.NamedTemporaryFile(suffix=".md", delete=False) as temp_file:
                 temp_path = temp_file.name
             try:

@@ -519,7 +519,6 @@ def get_strict_context_for_citation(
     # If the previous citation is very close (within 50 chars), it might be a parallel citation
     # for the same case, so we should look further back to find the actual case name
     closest_citation_distance = float("inf")
-    closest_citation_start = None
 
     for pos_start, pos_end, cit_text in all_citation_positions:
         # Skip if this is the same citation or after it
@@ -532,7 +531,6 @@ def get_strict_context_for_citation(
         # Track the closest citation
         if distance < closest_citation_distance:
             closest_citation_distance = distance
-            closest_citation_start = pos_start
             closest_citation_end = pos_end
 
         # This is a previous citation - use its END position as boundary (not start)

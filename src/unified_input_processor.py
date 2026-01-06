@@ -537,7 +537,15 @@ class UnifiedInputProcessor:
                     # Start centralized ETA heartbeat towards ~85% using cheap citation estimate
                     try:
                         qn = estimate_citations_cheap(input_data.get("text", "") or "")
-                        expected_seconds = max(4.0, min(45.0, 3.0 + 0.6 * qn))
+                        text_size = len(input_data.get("text", "") or "")
+                        # Enhanced ETA calculation for sync processing
+                        base_time = 5.0  # Minimum 5 seconds
+                        citation_time = min(60.0, 1.5 * qn)  # 1.5 seconds per citation, max 1 minute
+                        size_time = min(120.0, text_size / 20000)  # 0.5 seconds per 20KB, max 2 minutes
+                        expected_seconds = max(base_time, base_time + citation_time + size_time)
+                        # Cap at 3 minutes for sync processing
+                        expected_seconds = min(expected_seconds, 180.0)
+                        logger.error(f"[Unified Processor {request_id}] ETA: {expected_seconds:.1f}s (sync, citations: {qn}, size: {text_size//1024}KB)")
                         self.progress_manager.start_eta_heartbeat(
                             request_id,
                             start_pct=10,
@@ -699,7 +707,16 @@ class UnifiedInputProcessor:
                         # Estimate duration from cheap citation estimate and start ETA heartbeat up to ~60%
                         try:
                             qn = estimate_citations_cheap(text)
-                            expected_seconds = max(6.0, min(90.0, 5.0 + 0.5 * qn))
+                            text_size = len(text)
+                            # Enhanced ETA calculation for large documents
+                            # Base time + citation factor + size factor
+                            base_time = 10.0  # Minimum 10 seconds for any document
+                            citation_time = min(120.0, 2.0 * qn)  # 2 seconds per citation, max 2 minutes
+                            size_time = min(180.0, text_size / 10000)  # 1 second per 10KB, max 3 minutes
+                            expected_seconds = max(base_time, base_time + citation_time + size_time)
+                            # Cap at 5 minutes for very large documents
+                            expected_seconds = min(expected_seconds, 300.0)
+                            logger.error(f"[Unified Processor {request_id}] ETA: {expected_seconds:.1f}s (citations: {qn}, size: {text_size//1024}KB)")
                             self.progress_manager.start_eta_heartbeat(
                                 request_id,
                                 start_pct=10,

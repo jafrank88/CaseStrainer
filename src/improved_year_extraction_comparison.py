@@ -453,7 +453,7 @@ def log_mismatches_to_jsonl(batch_results: List[dict], output_path: str):
 
 def main():
     """Main comparison function."""
-    script_start_time = time.time()
+    time.time()
     logger.info("=== IMPROVED YEAR EXTRACTION COMPARISON ===")
     log_memory_usage("Script start")
 

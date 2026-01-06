@@ -175,7 +175,7 @@ class EnhancedAsyncManager:
         await self._store_job_info(job_info)
 
         # Submit job for processing
-        task = asyncio.create_task(self._process_job(job_id, input_data, processor_func))
+        asyncio.create_task(self._process_job(job_id, input_data, processor_func))
 
         logger.info(f"Job {job_id} submitted for processing")
         return job_id

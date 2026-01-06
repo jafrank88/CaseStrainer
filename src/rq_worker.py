@@ -2356,7 +2356,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             logger.info(f"[TASK:{task_id}] Returning safe result after serialization error")
             return safe_result
 
-    except TimeoutError as e:
+    except TimeoutError:
         error_msg = f"Task {task_id} timed out after 10 minutes"
         logger.error(f"[TASK:{task_id}] {error_msg}", exc_info=True)
         try:
@@ -2781,7 +2781,7 @@ def main():
                 monitor.stop_monitoring()
             break
 
-        except Exception as e:
+        except Exception:
             if monitor:
                 monitor.stop_monitoring()
 

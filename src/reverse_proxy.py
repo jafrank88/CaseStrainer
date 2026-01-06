@@ -1,4 +1,3 @@
-
 """
 Simple Reverse Proxy for CaseStrainer
 
@@ -7,7 +6,7 @@ application running on port 5000. This allows the application to be accessed fro
 if port 5000 is blocked by firewalls or other network restrictions.
 """
 
-import http.serverfrom src.config import DEFAULT_REQUEST_TIMEOUT, COURTLISTENER_TIMEOUT, CASEMINE_TIMEOUT, WEBSEARCH_TIMEOUT, SCRAPINGBEE_TIMEOUT
+import http.server
 
 import socketserver
 import urllib.request
@@ -15,9 +14,7 @@ import urllib.error
 import urllib.parse
 import logging
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger("reverse_proxy")
 
 TARGET_HOST = "localhost"
@@ -49,9 +46,7 @@ class ReverseProxyHandler(http.server.BaseHTTPRequestHandler):
             body = self.rfile.read(content_length) if content_length > 0 else None
 
         try:
-            req = urllib.request.Request(
-                url=target_url, data=body, headers=headers, method=method
-            )
+            req = urllib.request.Request(url=target_url, data=body, headers=headers, method=method)
 
             with urllib.request.urlopen(req) as response:
                 self.send_response(response.status)
@@ -62,9 +57,7 @@ class ReverseProxyHandler(http.server.BaseHTTPRequestHandler):
 
                 self.send_header("Access-Control-Allow-Origin", "*")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-                self.send_header(
-                    "Access-Control-Allow-Headers", "Content-Type, Authorization"
-                )
+                self.send_header("Access-Control-Allow-Headers", "Content-Type, Authorization")
 
                 self.end_headers()
 
@@ -102,9 +95,7 @@ def run_proxy_server():
     with socketserver.TCPServer(("", PROXY_PORT), handler) as httpd:
         logger.info(f"Reverse proxy started on port {PROXY_PORT}")
         logger.info(f"Forwarding requests to {TARGET_HOST}:{TARGET_PORT}")
-        logger.info(
-            f"Access the CaseStrainer application at http://localhost:{PROXY_PORT}/"
-        )
+        logger.info(f"Access the CaseStrainer application at http://localhost:{PROXY_PORT}/")
 
         try:
             httpd.serve_forever()
@@ -117,9 +108,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Run a reverse proxy for CaseStrainer")
-    parser.add_argument(
-        "--target-host", default=TARGET_HOST, help="Target host to forward requests to"
-    )
+    parser.add_argument("--target-host", default=TARGET_HOST, help="Target host to forward requests to")
     parser.add_argument(
         "--target-port",
         type=int,

@@ -2,7 +2,6 @@ class ValidationTimeoutError(Exception):
     """Exception raised when validation operation times out."""
 
 
-
 import logging
 
 import os

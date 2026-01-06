@@ -480,9 +480,8 @@ class UnifiedProcessingPipeline:
             # but are treated as DIFFERENT cases (appellate history of the same underlying dispute)
             # CRITICAL: Do NOT contaminate extracted data with canonical data or vice versa
             previous_case_name = None
-            previous_case_year = None
             for i, cit_dict in enumerate(citation_dicts):
-                ext_name = cit_dict.get("extracted_case_name")
+                cit_dict.get("extracted_case_name")
                 ext_year = cit_dict.get("extracted_date") or cit_dict.get("extracted_year")
 
                 # Check if this citation is preceded by appellate history indicators
@@ -536,7 +535,7 @@ class UnifiedProcessingPipeline:
                 if current_name and current_name != "N/A":
                     previous_case_name = current_name
                 if current_year:
-                    previous_case_year = current_year
+                    pass
 
             # CRITICAL FIX: Annotate mismatch flags BEFORE clustering
             # This ensures name_mismatch and date_mismatch are properly set for all citations
@@ -618,7 +617,7 @@ class UnifiedProcessingPipeline:
             # Build citation to cluster mapping
             citation_to_cluster = {}
             for i, cluster in enumerate(clusters):
-                cluster_id = f"cluster_{i + 1}"
+                f"cluster_{i + 1}"
                 for member in cluster.get("cluster_members", []):
                     citation_to_cluster[member] = i
 

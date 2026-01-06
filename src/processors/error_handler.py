@@ -25,25 +25,20 @@ class ProcessorError(CaseStrainerError):
     """Base error for processor-related issues."""
 
 
-
 class CitationExtractionProcessorError(CitationExtractionError):
     """Error specific to citation extraction in processors."""
-
 
 
 class CitationNormalizationError(ProcessorError):
     """Error specific to citation normalization."""
 
 
-
 class NameYearExtractionError(ProcessorError):
     """Error specific to name/year extraction."""
 
 
-
 class ClusteringProcessorError(CitationClusteringError):
     """Error specific to clustering in processors."""
-
 
 
 def handle_processor_errors(

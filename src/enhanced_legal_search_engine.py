@@ -167,7 +167,6 @@ class EnhancedLegalSearchEngine:
         queries = self.generate_enhanced_legal_queries(citation)
 
         all_results = []
-        seen_urls = set()
 
         priority_queries = sorted(queries, key=lambda x: x["priority"])[:15]
 

@@ -3,7 +3,6 @@ Enhanced Adaptive Processor for Case Name Extraction
 Implements advanced pattern learning, context awareness, and validation
 """
 
-
 import json
 import re
 import time

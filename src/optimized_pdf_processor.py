@@ -35,7 +35,6 @@ class PDFTimeoutError(Exception):
     """Custom timeout error for PDF processing"""
 
 
-
 @dataclass
 class ExtractionResult:
     """Result of PDF extraction attempt"""

@@ -78,8 +78,8 @@ class AdvancedErrorRecovery:
     async def _handle_rate_limit(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
         """Handle rate limit errors with exponential backoff."""
         source = context.get("source", "unknown")
-        citation = context.get("citation", "")
-        case_name = context.get("case_name", "")
+        context.get("citation", "")
+        context.get("case_name", "")
 
         alternative_sources = self._get_alternative_sources(source)
 
@@ -123,7 +123,7 @@ class AdvancedErrorRecovery:
     async def _handle_not_found(self, error: Exception, context: Dict[str, Any]) -> Dict[str, Any]:
         """Handle not found errors with citation variant generation."""
         citation = context.get("citation", "")
-        case_name = context.get("case_name", "")
+        context.get("case_name", "")
 
         if citation:
             logger.info(f"Trying citation variants for: {citation}")

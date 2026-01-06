@@ -5,7 +5,6 @@ This module provides comprehensive functionality to export citation analysis res
 to various formats commonly used in academic and legal research.
 """
 
-
 import re
 import json
 import csv

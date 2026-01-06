@@ -40,8 +40,8 @@ def analyze_document_citations():
             return jsonify({"error": "No JSON data provided"}), 400
 
         document_text = data.get("text", "")
-        document_type = data.get("document_type", "legal_brief")
-        user_context = data.get("context", {})
+        data.get("document_type", "legal_brief")
+        data.get("context", {})
 
         if not document_text:
             return jsonify({"error": "No document text provided"}), 400
@@ -135,7 +135,7 @@ def extract_citations():
         if not text:
             return jsonify({"error": "No text provided"}), 400
 
-        config = ExtractionConfig(**config_data) if config_data else ExtractionConfig()
+        ExtractionConfig(**config_data) if config_data else ExtractionConfig()
 
         processor = get_citation_processor()
         # Use modern process_text instead of deprecated extract_citations_from_text

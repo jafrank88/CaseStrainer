@@ -1450,7 +1450,7 @@ class UnifiedExtractionArchitecture:
             search_text = text[search_start:search_end]
 
             relative_start = start_index - search_start
-            relative_end = end_index - search_start
+            end_index - search_start
 
             for i, pattern in enumerate(self.fallback_patterns):
                 matches = list(re.finditer(pattern, search_text, re.IGNORECASE))
@@ -1661,7 +1661,7 @@ class UnifiedExtractionArchitecture:
         # Fix corporate name truncation (e.g., "Inc. v. Robins" -> "Spokeo, Inc. v. Robins")
         if name.startswith(("Inc. v. ", "LLC v. ", "Corp. v. ", "Ltd. v. ")):
             # Look for the full corporate name in the original text
-            corp_type = name.split(" v. ")[0]
+            name.split(" v. ")[0]
             if " " in original_name:
                 # Try to find the full corporate name before the citation
                 context_before = original_name.split(name)[0].strip()
@@ -1993,7 +1993,7 @@ class UnifiedExtractionArchitecture:
             )
 
         # Fallback: direct "Case Name, citation" pattern recovery (handles parenthetical references)
-        canonical_metadata = self._get_canonical_metadata_for_citation(citation)
+        self._get_canonical_metadata_for_citation(citation)
         fallback_result = self._recover_case_name_from_citation_pattern(extended_context, citation, debug)
         fallback_case = fallback_result.get("extracted_case_name") if fallback_result else None
 

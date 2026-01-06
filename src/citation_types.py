@@ -8,7 +8,6 @@ used across the citation processing system.
 from typing import List, Dict, Any, Optional, Tuple
 
 
-
 from dataclasses import dataclass
 from src.models import CitationResult
 

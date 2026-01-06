@@ -51,10 +51,10 @@ class APIDataPreferenceManager:
         self.preference_stats["total_processed"] += 1
 
         # Get current values
-        extracted_name = getattr(citation, "extracted_case_name", None)
-        canonical_name = getattr(citation, "canonical_name", None)
-        extracted_date = getattr(citation, "extracted_date", None)
-        canonical_date = getattr(citation, "canonical_date", None)
+        getattr(citation, "extracted_case_name", None)
+        getattr(citation, "canonical_name", None)
+        getattr(citation, "extracted_date", None)
+        getattr(citation, "canonical_date", None)
         verified = getattr(citation, "verified", False)
         verification_status = getattr(citation, "verification_status", "")
 

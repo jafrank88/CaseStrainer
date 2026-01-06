@@ -72,7 +72,7 @@ class CitationParser:
             citation_index = text.find(citation)
             matched_citation = citation
             if citation_index == -1:
-                citation_escaped = re.escape(citation)
+                re.escape(citation)
                 citation_no_year = re.sub(r"\s*\(?\d{4}\)?$", "", citation)
                 citation_no_year_escaped = re.escape(citation_no_year.strip())
                 pattern = rf"({citation_no_year_escaped})(?:\s*[\(,]\s*(\d{{4}})[\)]?)?"

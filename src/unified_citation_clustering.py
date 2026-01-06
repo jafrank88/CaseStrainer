@@ -1060,7 +1060,7 @@ class UnifiedCitationClusterer:
 
         if self.debug_mode:
             for cluster_key, citations in merged_clusters.items():
-                citation_strs = [c.citation for c in citations]
+                [c.citation for c in citations]
                 reporter_types = [self._extract_reporter_type(c.citation) for c in citations]
 
         return merged_clusters
@@ -1464,7 +1464,7 @@ class UnifiedCitationClusterer:
 
         best_year = None
         best_distance = float("inf")
-        best_priority = float("inf")
+        float("inf")
 
         for priority, pattern in enumerate(year_patterns):
             for match in re.finditer(pattern, context):
@@ -1482,7 +1482,6 @@ class UnifiedCitationClusterer:
                     if weighted_distance < best_distance:
                         best_year = year
                         best_distance = weighted_distance
-                        best_priority = priority
                         logger.warning(
                             f"✅ YEAR_EXTRACT: Found year '{year}' (priority: {priority}, distance: {distance})"
                         )
@@ -2671,7 +2670,7 @@ class UnifiedCitationClusterer:
         warnings = []
         import logging
 
-        logger = logging.getLogger(__name__)
+        logging.getLogger(__name__)
 
         for citation in citations:
             # Check case name consistency

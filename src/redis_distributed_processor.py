@@ -349,7 +349,7 @@ class RedisDistributedPDFSystem:
 
             with pdfplumber.open(file_path) as pdf:
                 return "\n".join(page.extract_text() or "" for page in pdf.pages[:50])  # Limit pages
-        except ImportError as e:
+        except ImportError:
             return None
         except Exception as e:
             logger.warning(f"pdfplumber extraction failed: {e}")

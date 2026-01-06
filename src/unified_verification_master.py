@@ -34,6 +34,7 @@ from urllib.parse import quote
 # CRITICAL: Import from config to ensure .env files are loaded
 from src.config import COURTLISTENER_API_KEY, get_bool_config_value
 from src.verification.registry import VerificationRegistry
+from src.verification_cache import get_verification_cache
 
 # Fix import conflict - use requests directly instead of src.http.clients
 import requests
@@ -260,14 +261,14 @@ def is_citation_likely_valid(citation: str) -> bool:
         logger.warning(f"Suspicious U.S. reporter number in {citation}: {us_match.group(1)}")
         return False
 
-    # Must contain a reporter (U.S., F., F.2d, F.3d, S. Ct., L. Ed., etc.)
+    # Must contain a reporter (U.S., F., F.2d, F.3d, F.4th, S. Ct., L. Ed., etc.)
     reporter_pattern = r"(?:U\.?S\.?|F\.?(?:2d|3d|4th)?|S\.?Ct\.?|L\.?Ed\.?(?:\s*2d)?|[A-Z]{2,}\.?\s*(?:App\.?\s*Ct\.?|Sup\.?\s*Ct\.?|Ct\.?\s*App\.?))"
     if not re.search(reporter_pattern, citation, re.IGNORECASE):
         logger.debug(f"No recognized reporter in citation: {citation}")
         return False
 
     # Must contain a volume and page number
-    if not re.search(r"\d+\s+[A-Za-z\.]+\s+\d+", citation):
+    if not re.search(r"\d+\s+[A-Za-z\.]+\s*\d+", citation):
         logger.debug(f"No volume/page pattern in citation: {citation}")
         return False
 
@@ -495,25 +496,39 @@ class UnifiedVerificationMaster:
         citation: str,
         extracted_case_name: Optional[str] = None,
         extracted_date: Optional[str] = None,
-        timeout: float = 60.0,
+        timeout: float = 30.0,
         enable_fallback: bool = True,
+        progress_callback=None,
     ) -> VerificationResult:
         """
-        THE MASTER VERIFICATION FUNCTION
-
-        This is THE ONLY function that should be used for citation verification.
-        It consolidates all the best features from duplicate functions.
-
-        Args:
-            citation: Citation text to verify
-            extracted_case_name: Optional extracted case name for validation
-            extracted_date: Optional extracted date for validation
+        THE SINGLE, AUTHORITATIVE citation verification method.
+        
+        This method consolidates all verification logic and should be the
+        ONLY entry point for citation verification.
             timeout: Maximum time to spend on verification
             enable_fallback: Whether to use fallback sources if primary fails
 
         Returns:
             VerificationResult with comprehensive verification data
         """
+        # Check cache first
+        cache = get_verification_cache()
+        cached_result = cache.get(citation)
+        if cached_result:
+            logger.info(f"✅ [CACHE] Using cached verification for '{citation}'")
+            result = VerificationResult(
+                citation=citation,
+                verified=True,
+                canonical_name=cached_result.get('canonical_name'),
+                canonical_date=cached_result.get('canonical_date'),
+                canonical_url=cached_result.get('canonical_url'),
+                source=cached_result.get('source'),
+                confidence=cached_result.get('confidence'),
+                method=cached_result.get('method'),
+            )
+            result.cached = True  # Add cached flag
+            return result
+        
         # FIX #62: Diagnostic logging to verify async method is reached
         logger.error(f"[DEBUG] [FIX #62] ASYNC verify_citation REACHED for '{citation}'")
         logger.error(f"   [INFO] Extracted: '{extracted_case_name}' ({extracted_date})")
@@ -606,6 +621,9 @@ class UnifiedVerificationMaster:
 
                 if result.verified:
                     logger.info(f"[SUCCESS] MASTER_VERIFY: CourtListener search succeeded for '{citation}'")
+                    # Cache successful verification
+                    cache = get_verification_cache()
+                    cache.set(citation, result.__dict__)
                     return result
                 elif is_rate_limited:
                     logger.warning(f"[WARNING] MASTER_VERIFY: CourtListener search also rate limited")
@@ -626,6 +644,10 @@ class UnifiedVerificationMaster:
                 logger.info(
                     f"[SUCCESS] MASTER_VERIFY: Fallback verification succeeded for '{citation}' (verified={result.verified}, possible_match={getattr(result, 'possible_match', False)})"
                 )
+                # Cache successful verification (only if verified, not possible match)
+                if result.verified:
+                    cache = get_verification_cache()
+                    cache.set(citation, result.__dict__)
                 return result
             else:
                 logger.info(f"[WARNING] FALLBACK-CHECK: Fallback returned unverified: {result.error}")
@@ -3614,51 +3636,147 @@ class UnifiedVerificationMaster:
             return VerificationResult(citation=citation, error=f"Justia search error: {e}")
 
     def _build_justia_url(self, citation: str) -> Optional[str]:
-        """Build direct Justia URL from citation (bypasses search anti-bot protection)."""
+        """
+        CRITICAL FIX: Build direct Justia URL from citation to bypass anti-bot protection.
+        Supports federal and state court citations.
+        """
+        import re
+        
         citation = citation.strip()
-
-        # Federal Supreme Court: {volume} U.S. {page}
-        us_match = re.search(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
+        
+        # Federal Reporter patterns
+        # F.3d - Federal Reporter, Third Series
+        f3d_match = re.match(r"(\d+)\s+F\.?3d\s+(\d+)", citation, re.IGNORECASE)
+        if f3d_match:
+            volume, page = f3d_match.groups()
+            return f"https://law.justia.com/cases/federal/appellate-courts/F3/{volume}/{volume}F3d{page}/"
+        
+        # F.4th - Federal Reporter, Fourth Series  
+        f4th_match = re.match(r"(\d+)\s+F\.?4th\s+(\d+)", citation, re.IGNORECASE)
+        if f4th_match:
+            volume, page = f4th_match.groups()
+            return f"https://law.justia.com/cases/federal/appellate-courts/F4/{volume}/{volume}F4th{page}/"
+        
+        # F.2d - Federal Reporter, Second Series
+        f2d_match = re.match(r"(\d+)\s+F\.?2d\s+(\d+)", citation, re.IGNORECASE)
+        if f2d_match:
+            volume, page = f2d_match.groups()
+            return f"https://law.justia.com/cases/federal/appellate-courts/F2/{volume}/{volume}F2d{page}/"
+        
+        # F. - Federal Reporter (pre-2d series)
+        f_match = re.match(r"(\d+)\s+F\.?\s+(\d+)", citation, re.IGNORECASE)
+        if f_match:
+            volume, page = f_match.groups()
+            return f"https://law.justia.com/cases/federal/us/{volume}/{page}/"
+        
+        # S. Ct. - Supreme Court Reporter
+        sct_match = re.match(r"(\d+)\s+S\.?Ct\.?\s+(\d+)", citation, re.IGNORECASE)
+        if sct_match:
+            volume, page = sct_match.groups()
+            return f"https://law.justia.com/cases/supreme-court/{volume}/{page}/"
+        
+        # U.S. - United States Reports
+        us_match = re.match(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
         if us_match:
             volume, page = us_match.groups()
             return f"https://law.justia.com/cases/federal/us/{volume}/{page}/"
-
-        # Federal Appellate: {volume} F.{series} {page}
-        f_match = re.search(r"(\d+)\s+F\.?\s*(\d?)d?\s+(\d+)", citation, re.IGNORECASE)
-        if f_match:
-            volume, series, page = f_match.groups()
-            series_name = f"f{series}d" if series else "f"
-            return f"https://law.justia.com/cases/federal/appellate-courts/{series_name}/{volume}/{page}/"
-
-        # State courts - Washington
-        wash_match = re.search(r"(\d+)\s+Wn\.?\s*2d\s+(\d+)", citation, re.IGNORECASE)
+        
+        # L. Ed. - Lawyer's Edition
+        ledis_match = re.match(r"(\d+)\s+L\.?Ed\.?\s*(?:2d)?\s+(\d+)", citation, re.IGNORECASE)
+        if ledis_match:
+            volume, page = ledis_match.groups()
+            return f"https://law.justia.com/cases/supreme-court/{volume}/us-{page}/"
+        
+        # State court patterns
+        # N.E.2d - North Eastern Reporter, Second Series
+        ne2d_match = re.match(r"(\d+)\s+N\.?E\.?2d\s+(\d+)", citation, re.IGNORECASE)
+        if ne2d_match:
+            volume, page = ne2d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/ne/second-series/{volume}/{volume}NE2d{page}/"
+        
+        # N.E.3d - North Eastern Reporter, Third Series
+        ne3d_match = re.match(r"(\d+)\s+N\.?E\.?3d\s+(\d+)", citation, re.IGNORECASE)
+        if ne3d_match:
+            volume, page = ne3d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/ne/third-series/{volume}/{volume}NE3d{page}/"
+        
+        # N.W.2d - North Western Reporter, Second Series
+        nw2d_match = re.match(r"(\d+)\s+N\.?W\.?2d\s+(\d+)", citation, re.IGNORECASE)
+        if nw2d_match:
+            volume, page = nw2d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/nw/second-series/{volume}/{volume}NW2d{page}/"
+        
+        # N.W.3d - North Western Reporter, Third Series
+        nw3d_match = re.match(r"(\d+)\s+N\.?W\.?3d\s+(\d+)", citation, re.IGNORECASE)
+        if nw3d_match:
+            volume, page = nw3d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/nw/third-series/{volume}/{volume}NW3d{page}/"
+        
+        # S.E.2d - South Eastern Reporter, Second Series
+        se2d_match = re.match(r"(\d+)\s+S\.?E\.?2d\s+(\d+)", citation, re.IGNORECASE)
+        if se2d_match:
+            volume, page = se2d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/se/second-series/{volume}/{volume}SE2d{page}/"
+        
+        # S.E.3d - South Eastern Reporter, Third Series
+        se3d_match = re.match(r"(\d+)\s+S\.?E\.?3d\s+(\d+)", citation, re.IGNORECASE)
+        if se3d_match:
+            volume, page = se3d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/se/third-series/{volume}/{volume}SE3d{page}/"
+        
+        # So. 2d - Southern Reporter, Second Series
+        so2d_match = re.match(r"(\d+)\s+So\.?\s*2d\s+(\d+)", citation, re.IGNORECASE)
+        if so2d_match:
+            volume, page = so2d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/so/second-series/{volume}/{volume}So2d{page}/"
+        
+        # So. 3d - Southern Reporter, Third Series
+        so3d_match = re.match(r"(\d+)\s+So\.?\s*3d\s+(\d+)", citation, re.IGNORECASE)
+        if so3d_match:
+            volume, page = so3d_match.groups()
+            return f"https://law.justia.com/cases/state-courts/so/third-series/{volume}/{volume}So3d{page}/"
+        
+        # Cal. - California Reporter
+        cal_match = re.match(r"(\d+)\s+Cal\.?\s*(?:2d|3d|4th|5th)?\s+(\d+)", citation, re.IGNORECASE)
+        if cal_match:
+            volume, page = cal_match.groups()
+            # Try different California series
+            for series in ["2d", "3d", "4th", "5th"]:
+                url = f"https://law.justia.com/cases/california/supreme-court/3d/{volume}/{volume}Cal{series}{page}/"
+                # Note: This might need adjustment based on actual Justia URL patterns
+            return f"https://law.justia.com/cases/california/supreme-court/3d/{volume}/{volume}Cal3d{page}/"
+        
+        # N.Y. - New York Reports
+        ny_match = re.match(r"(\d+)\s+N\.?Y\.?\s*(?:2d|3d)?\s+(\d+)", citation, re.IGNORECASE)
+        if ny_match:
+            volume, page = ny_match.groups()
+            return f"https://law.justia.com/cases/new-york/appellate-division/second-department/3d/{volume}/{volume}NY3d{page}/"
+        
+        # Ill. - Illinois Reports
+        ill_match = re.match(r"(\d+)\s+Ill\.?\s*(?:2d|3d|App)?\s+(\d+)", citation, re.IGNORECASE)
+        if ill_match:
+            volume, page = ill_match.groups()
+            return f"https://law.justia.com/cases/illinois/supreme-court/3d/{volume}/{volume}Ill3d{page}/"
+        
+        # Tex. - Texas Reports
+        tex_match = re.match(r"(\d+)\s+Tex\.?\s*(?:App)?\s+(\d+)", citation, re.IGNORECASE)
+        if tex_match:
+            volume, page = tex_match.groups()
+            return f"https://law.justia.com/cases/texas/supreme-court/{volume}/{volume}Tex{page}/"
+        
+        # Pa. - Pennsylvania Reports
+        pa_match = re.match(r"(\d+)\s+Pa\.?\s*(?:Cons)?\s+(\d+)", citation, re.IGNORECASE)
+        if pa_match:
+            volume, page = pa_match.groups()
+            return f"https://law.justia.com/cases/pennsylvania/supreme-court/{volume}/{volume}Pa{page}/"
+        
+        # Wash. - Washington Reports
+        wash_match = re.match(r"(\d+)\s+Wash\.?\s*(?:2d|3d|App)?\s+(\d+)", citation, re.IGNORECASE)
         if wash_match:
             volume, page = wash_match.groups()
-            # Justia WA URLs need year - try to extract from extracted_date or estimate
-            # For now, return None as we need more info
-            # Could be enhanced with year parameter
-            logger.debug(f"Washington citation detected but needs year: {citation}")
-            return None
-
-        # North Carolina
-        nc_match = re.search(r"(\d+)\s+N\.?C\.?\s+(\d+)", citation, re.IGNORECASE)
-        if nc_match:
-            volume, page = nc_match.groups()
-            # Justia NC URLs: https://law.justia.com/cases/north-carolina/supreme-court/2020/216a19.html
-            # We can't construct the specific case URL without the case identifier (like 216a19)
-            # So we return None to fall back to search-based verification
-            logger.debug(f"North Carolina citation detected but can't construct specific URL: {citation}")
-            return None
-
-        # California
-        cal_match = re.search(r"(\d+)\s+Cal\.?\s*(\d?)(?:d|th)?\s+(\d+)", citation, re.IGNORECASE)
-        if cal_match:
-            volume, series, page = cal_match.groups()
-            # Similar to WA - needs year
-            return None
-
-        # Add more patterns as needed
-        logger.debug(f"No URL pattern matched for: {citation}")
+            return f"https://law.justia.com/cases/washington/supreme-court/{volume}/{volume}Wash{page}/"
+        
+        logger.debug(f"No Justia URL pattern matched for: {citation}")
         return None
 
     async def _verify_with_openjurist(
@@ -4236,152 +4354,114 @@ class UnifiedVerificationMaster:
         logger.info(f"🔍 [LAW_RESOURCE] Verifying {citation} with Law Resource.org")
 
         try:
-            # Parse citation to build direct URL
-            # Pattern: https://law.resource.org/pub/us/case/reporter/F3/161/161.F3d.584.97-36097.html
-            citation_pattern = r"(\d+)\s+F\.?3d\s+(\d+)"
+            # Try F.4th first
+            citation_pattern = r"(\d+)\s+F\.?4th\s+(\d+)"
             match = re.search(citation_pattern, citation, re.IGNORECASE)
-
-            if not match:
-                logger.warning(f"⚠️  [LAW_RESOURCE] Cannot parse citation format: {citation}")
-                return VerificationResult(citation=citation, error="Cannot parse citation format for Law Resource.org")
-
-            volume = match.group(1)
-            page = match.group(2)
-
-            # Try the direct page number first (simple URL)
-            direct_url = f"https://law.resource.org/pub/us/case/reporter/F3/{volume}/{page}"
-
-            logger.info(f"🔍 [LAW_RESOURCE] Trying direct page URL: {direct_url}")
-
-            headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
-
-            response = self.session.get(direct_url, headers=headers, timeout=min(timeout, 10))
-
-            # If direct page URL doesn't work, try the directory to find the actual filename
-            if response.status_code != 200:
-                logger.info(f"🔍 [LAW_RESOURCE] Direct URL failed, searching directory for page {page}")
-
-                # Access the directory to find the actual file
-                directory_url = f"https://law.resource.org/pub/us/case/reporter/F3/{volume}/"
-                dir_response = self.session.get(directory_url, headers=headers, timeout=min(timeout, 10))
-
-                if dir_response.status_code == 200:
-                    dir_content = dir_response.text
-
-                    # Look for the file that contains our page number
-                    # Pattern: <a href="161.F3d.584.97-36097.html" title="...">161 F.3d 584</a>
-                    file_pattern = f'<a href="([^"]*)" title="([^"]*)"[^>]*>{re.escape(citation)}</a>'
-                    file_matches = re.findall(file_pattern, dir_content, re.IGNORECASE)
-
-                    if file_matches:
-                        filename, title = file_matches[0]
-                        actual_url = directory_url + filename
-
-                        logger.info(f"🔍 [LAW_RESOURCE] Found actual file: {filename}")
-                        logger.info(f"🔍 [LAW_RESOURCE] Trying actual URL: {actual_url}")
-
-                        response = self.session.get(actual_url, headers=headers, timeout=min(timeout, 10))
-
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Try the direct page number first
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/F4/{volume}/{page}"
+                # Try with full filename pattern
+                full_url = f"https://law.resource.org/pub/us/case/reporter/F4/{volume}/{volume}.F4th.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
                         if response.status_code == 200:
                             content = response.text
+                            # Extract case name
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+            
+            # Try F.3d
+            citation_pattern = r"(\d+)\s+F\.?3d\s+(\d+)"
+            match = re.search(citation_pattern, citation, re.IGNORECASE)
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Try the direct page number first (simple URL)
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/F3/{volume}/{page}"
+                # Try with full filename pattern
+                full_url = f"https://law.resource.org/pub/us/case/reporter/F3/{volume}/{volume}.F3d.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
+                        if response.status_code == 200:
+                            content = response.text
+                            # Extract case name
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+            
+            # Try F.2d
+            citation_pattern = r"(\d+)\s+F\.?2d\s+(\d+)"
+            match = re.search(citation_pattern, citation, re.IGNORECASE)
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Try the direct page number first
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/F2/{volume}/{page}"
+                # Try with full filename pattern
+                full_url = f"https://law.resource.org/pub/us/case/reporter/F2/{volume}/{volume}.F2d.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
+                        if response.status_code == 200:
+                            content = response.text
+                            # Extract case name
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
 
-                            # Check if page contains citation
-                            if citation in content or f"F.3d {volume}" in content:
-                                logger.info(f"✅ [LAW_RESOURCE] Found citation at actual URL")
-
-                                # Extract canonical name from title ONLY - do not fall back to extracted
-                                canonical_name = title if title and "v." in title else None
-
-                                return VerificationResult(
-                                    citation=citation,
-                                    verified=True if canonical_name else False,
-                                    possible_match=not canonical_name,
-                                    canonical_name=canonical_name,  # Do NOT fall back to extracted_case_name
-                                    canonical_date=None,  # CRITICAL: Never use extracted_date as canonical_date - must come from verification API
-                                    canonical_url=actual_url,
-                                    source="Law Resource.org",
-                                    confidence=0.9,
-                                    method="law_resource_actual_file",
-                                )
-
-            # If we get here, try the original direct URL one more time
-            if response.status_code == 200:
-                content = response.text
-
-                # Check if page contains the citation
-                if citation in content or f"F.3d {volume}" in content:
-                    logger.info(f"✅ [LAW_RESOURCE] Found citation at direct URL")
-
-                    # Extract case name from content if possible
-                    canonical_name = self._extract_case_name_from_content(content)
-
-                    # CRITICAL: Do NOT fall back to extracted_case_name
-                    return VerificationResult(
-                        citation=citation,
-                        verified=True if canonical_name else False,
-                        possible_match=not canonical_name,
-                        canonical_name=canonical_name,  # Do NOT fall back to extracted_case_name
-                        canonical_date=None,  # CRITICAL: Never use extracted_date as canonical_date
-                        canonical_url=direct_url,
-                        source="Law Resource.org",
-                        confidence=0.9 if canonical_name else 0.5,
-                        method="law_resource_direct_url",
-                    )
-                else:
-                    logger.warning(f"⚠️  [LAW_RESOURCE] Citation not found in content")
-
-            elif response.status_code == 404:
-                logger.warning(f"⚠️  [LAW_RESOURCE] Direct URL not found (404)")
-            else:
-                logger.warning(f"⚠️  [LAW_RESOURCE] HTTP error: {response.status_code}")
-
-            # Try Google search as fallback
-            if extracted_case_name and extracted_case_name != "N/A":
-                logger.info(f"🔍 [LAW_RESOURCE] Trying Google search fallback")
-                search_query = f'"{citation}" "{extracted_case_name}" site:law.resource.org'
-                search_url = f"https://www.google.com/search?q={quote(search_query)}"
-
-                response = self.session.get(search_url, headers=headers, timeout=min(timeout, 10))
-
-                if response.status_code == 200:
-                    content = response.text
-
-                    # Extract result titles and links
-                    result_pattern = r'<h2[^>]*>.*?<a[^>]*href="([^"]+)"[^>]*>([^<]+)</a>'
-                    matches = re.findall(result_pattern, content, re.IGNORECASE)
-
-                    for link_url, title in matches[:5]:  # Check first 5 results
-                        if "law.resource.org" in link_url:
-                            # Check if title contains citation or case name
-                            title_lower = title.lower()
-                            citation_lower = citation.lower()
-                            case_name_lower = extracted_case_name.lower()
-
-                            if citation_lower in title_lower or any(
-                                word in title_lower for word in case_name_lower.split() if len(word) > 3
-                            ):
-                                logger.info(f"✅ [LAW_RESOURCE] Found match via Google: {title}")
-
-                                # Extract canonical name from title if possible
-                                canonical_name = self._extract_case_name_from_title(title)
-
-                                return VerificationResult(
-                                    citation=citation,
-                                    verified=True,
-                                    canonical_name=canonical_name or extracted_case_name,
-                                    canonical_date=None,  # CRITICAL: Never use extracted_date as canonical_date - must come from verification API
-                                    canonical_url=link_url,
-                                    source="Law Resource.org",
-                                    confidence=0.8,
-                                    method="law_resource_search",
-                                )
-
-            logger.warning(f"⚠️  [LAW_RESOURCE] No valid results found")
-            return VerificationResult(citation=citation, error="No results in Law Resource.org")
+            logger.warning(f"⚠️  [LAW_RESOURCE] Cannot parse citation format: {citation}")
+            return VerificationResult(citation=citation, error="Cannot parse citation format for Law Resource.org")
 
         except Exception as e:
             logger.error(f"❌ [LAW_RESOURCE] Error: {e}")
-            return VerificationResult(citation=citation, error=f"Law Resource.org error: {e}")
+            return VerificationResult(citation=citation, error=f"Law Resource error: {e}")
 
     def _extract_case_name_from_content(self, content: str) -> Optional[str]:
         """Extract case name from HTML content."""

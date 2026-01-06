@@ -46,15 +46,12 @@ class CitationExtractionError(CaseStrainerError):
     """Errors related to citation extraction."""
 
 
-
 class CitationVerificationError(CaseStrainerError):
     """Errors related to citation verification."""
 
 
-
 class CitationClusteringError(CaseStrainerError):
     """Errors related to citation clustering."""
-
 
 
 class APIError(CaseStrainerError):
@@ -76,15 +73,12 @@ class ValidationError(CaseStrainerError):
     """Errors related to input validation."""
 
 
-
 class ConfigurationError(CaseStrainerError):
     """Errors related to configuration."""
 
 
-
 class CacheError(CaseStrainerError):
     """Errors related to caching operations."""
-
 
 
 class RateLimitError(CaseStrainerError):

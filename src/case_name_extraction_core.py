@@ -21,7 +21,6 @@ All other functions show deprecation warnings and will be removed.
 from typing import Dict, Optional, Any, List, Tuple
 
 
-
 import warnings
 from src.unified_case_name_extractor_v2 import (
     get_unified_extractor,
@@ -486,7 +485,7 @@ def extract_case_name_heuristic(text: str, citation: str) -> str:
 def initialize_extractor():
     """Initialize the unified extractor (called automatically)"""
     try:
-        extractor = get_extractor()
+        get_extractor()
         print("UnifiedCaseNameExtractorV2 initialized successfully")
         print("All extraction now goes through the unified extractor")
         print("WARNING: Many functions are deprecated and will be removed in v3.0.0")

@@ -449,7 +449,7 @@ class CitationService:
             import asyncio
 
             # Get configuration
-            config = get_citation_config()
+            get_citation_config()
 
             logger.info("[CitationService] Using UnifiedCitationProcessorV2 for immediate processing")
 

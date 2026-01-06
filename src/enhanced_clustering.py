@@ -468,7 +468,7 @@ class EnhancedCitationClusterer:
             citation_text = self._get_citation_text(citation)
             result = extractor.extract_case_name_and_date(text, citation_text, debug=self.config.debug_mode)
             return result.case_name
-        except Exception as e:
+        except Exception:
             if self.config.debug_mode:
                 return None
 
@@ -481,7 +481,7 @@ class EnhancedCitationClusterer:
             citation_text = self._get_citation_text(citation)
             result = extractor.extract_case_name_and_date(text, citation_text, debug=self.config.debug_mode)
             return result.year
-        except Exception as e:
+        except Exception:
             if self.config.debug_mode:
                 return None
 

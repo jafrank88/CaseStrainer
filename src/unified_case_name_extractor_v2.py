@@ -535,7 +535,7 @@ class UnifiedCaseNameExtractorV2:
                 pass  # Debug logging can be added here if needed
             return None
 
-        except Exception as e:
+        except Exception:
             if debug:
                 pass  # Debug logging can be added here if needed
             return None
@@ -727,7 +727,7 @@ class UnifiedCaseNameExtractorV2:
 
             return None
 
-        except Exception as e:
+        except Exception:
             if debug:
                 pass  # Debug logging can be added here if needed
             return None
@@ -996,7 +996,6 @@ class UnifiedCaseNameExtractorV2:
         if not party_name:
             return ""
 
-        name_prefixes = ["De", "La", "Van", "Von", "Mc", "Mac", "O'"]
         prefixes_to_remove = ["In re ", "In the Matter of ", "Matter of "]
 
         cleaned = party_name
