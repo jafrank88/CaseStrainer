@@ -41,6 +41,11 @@ def deduplicate_clusters_cross_document(clusters: List[Dict[str, Any]]) -> List[
             'Unknown'
         )
         
+        # Skip clusters with no case name - they should not be deduplicated
+        if not case_name or case_name == 'Unknown' or case_name == 'N/A':
+            logger.debug(f"[CROSS-DEDUP] Skipping cluster with no case name")
+            continue
+        
         # Also use canonical_date if available
         case_date = (
             cluster.get('canonical_date') or 
@@ -54,6 +59,12 @@ def deduplicate_clusters_cross_document(clusters: List[Dict[str, Any]]) -> List[
         key = (normalized_name, str(case_date))
         
         case_groups[key].append(cluster)
+    
+    # Keep clusters that weren't grouped (no case name)
+    ungrouped = [c for c in clusters if (
+        not (c.get('canonical_name') or c.get('canonical_case_name') or c.get('extracted_case_name')) or
+        (c.get('canonical_name') or c.get('canonical_case_name') or c.get('extracted_case_name')) in ('Unknown', 'N/A')
+    )]
     
     # Merge duplicates with stricter criteria
     deduplicated = []
@@ -108,6 +119,9 @@ def deduplicate_clusters_cross_document(clusters: List[Dict[str, Any]]) -> List[
             else:
                 # Don't merge - keep all clusters separate
                 deduplicated.extend(case_clusters)
+    
+    # Add ungrouped clusters back
+    deduplicated.extend(ungrouped)
     
     logger.info(f"[CROSS-DEDUP] After deduplication: {len(deduplicated)} clusters")
     logger.info(f"[CROSS-DEDUP] Removed {duplicates_found} duplicate clusters")

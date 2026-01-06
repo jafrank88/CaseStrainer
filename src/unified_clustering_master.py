@@ -4923,11 +4923,36 @@ class UnifiedClusteringMaster:
                 extracted_groups[group_key].append(citation)
 
             # FIX #48: If all citations have the same extracted data, keep the cluster
+            # BUT: If all citations have NO extracted data (all None), they should remain separate!
             if len(extracted_groups) <= 1:
-                logger.debug(
-                    f"[SUCCESS] [FIX #48] Cluster validation: {len(extracted_groups)} extracted group(s) - keeping intact"
-                )
-                validated_clusters.append(cluster)
+                # Check if this is because all citations have no extracted data
+                if len(extracted_groups) == 1 and len(no_extraction_citations) == len(citations):
+                    # All citations have no extracted case name - keep them separate
+                    logger.warning(
+                        f"[FIX #48] All citations have no extracted case name - keeping separate to avoid incorrect merging"
+                    )
+                    for citation in citations:
+                        new_cluster = {
+                            "cluster_id": f"{cluster['cluster_id']}_sep_{len(validated_clusters)}",
+                            "cluster_key": cluster.get("cluster_key", ""),
+                            "citations": [citation],
+                            "case_name": "N/A",
+                            "cluster_year": None,
+                            "verification_status": cluster.get("verification_status", "unverified"),
+                            "confidence": cluster.get("confidence", 0.5),
+                            "metadata": {
+                                **cluster.get("metadata", {}),
+                                "split_from": cluster.get("cluster_id", "unknown"),
+                                "split_reason": "no_extracted_names",
+                            },
+                        }
+                        validated_clusters.append(new_cluster)
+                else:
+                    # Normal case: all citations have the same extracted data
+                    logger.debug(
+                        f"[SUCCESS] [FIX #48] Cluster validation: {len(extracted_groups)} extracted group(s) - keeping intact"
+                    )
+                    validated_clusters.append(cluster)
                 continue
 
             # FIX #49: If citations are in CLOSE proximity, ALWAYS keep them together!
