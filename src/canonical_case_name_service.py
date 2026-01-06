@@ -356,7 +356,7 @@ class CanonicalCaseNameService:
                 logger.warning("UnifiedCitationProcessorV2 not available")
 
             if PROCESSOR_AVAILABLE:
-                processor = UnifiedCitationProcessorV2()
+                UnifiedCitationProcessorV2()
                 try:
                     from src.models import CitationResult
 
@@ -384,7 +384,7 @@ class CanonicalCaseNameService:
             response = self.session.get(url, headers=headers, params=params, timeout=COURTLISTENER_TIMEOUT)
             response.raise_for_status()
 
-            data = response.json()
+            response.json()
 
             return None
 
@@ -466,7 +466,7 @@ class CanonicalCaseNameService:
                     if isinstance(results, dict):
                         results = [results]
                     return results
-                except Exception as e:
+                except Exception:
                     error_counts[engine_name] += 1
                     return []
 
@@ -542,7 +542,7 @@ class CanonicalCaseNameService:
                     results = web_engine.search_with_engine(query, engine_name, num_results=20)
                     time.sleep(1.5)
                     return results
-                except Exception as e:
+                except Exception:
                     error_counts[engine_name] += 1
                     return []
 

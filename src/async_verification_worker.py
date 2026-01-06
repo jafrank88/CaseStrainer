@@ -175,7 +175,7 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
 
         try:
             try:
-                loop = asyncio.get_running_loop()
+                asyncio.get_running_loop()
                 import concurrent.futures
 
                 with concurrent.futures.ThreadPoolExecutor() as executor:
@@ -361,7 +361,7 @@ def _calculate_verification_confidence(verification_result: Dict) -> float:
 
         return min(confidence, 1.0)  # Cap at 1.0
 
-    except Exception as e:
+    except Exception:
         return 0.5  # Default confidence
 
 
@@ -452,7 +452,7 @@ def _extract_reporter_from_citation(citation: Dict) -> str:
 
         return "Unknown"
 
-    except Exception as e:
+    except Exception:
         return "Unknown"
 
 
@@ -473,7 +473,7 @@ def verify_citations_basic(
         verification_results = []
 
         for citation in citations:
-            citation_text = citation.get("citation", str(citation))
+            citation.get("citation", str(citation))
 
             basic_result = {
                 **citation,

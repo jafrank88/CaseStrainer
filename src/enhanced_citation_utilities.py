@@ -60,7 +60,7 @@ class StatuteFilter:
             if not self.is_statute(citation_text):
                 filtered.append(citation)
             else:
-                logger = logging.getLogger(__name__)
+                logging.getLogger(__name__)
 
         return filtered
 
@@ -99,7 +99,7 @@ class ExtractionDebugger:
         if not self.debug_enabled:
             return
 
-        logger = logging.getLogger(__name__)
+        logging.getLogger(__name__)
 
         step_info = {
             "step": step_name,
@@ -116,7 +116,7 @@ class ExtractionDebugger:
         if not self.debug_enabled:
             return
 
-        logger = logging.getLogger(__name__)
+        logging.getLogger(__name__)
 
         log_entry = {
             "citation": citation.get("citation", ""),
@@ -244,7 +244,7 @@ def extract_year_from_multiple_sources(citation: Dict[str, Any], context: str) -
     Extract year from multiple sources with fallback strategies.
     Extracted from unified_citation_processor.py.
     """
-    logger = logging.getLogger(__name__)
+    logging.getLogger(__name__)
 
     citation_text = citation.get("citation", "")
 
@@ -287,11 +287,11 @@ def time_function(func):
     """
 
     def wrapper(*args, **kwargs):
-        start_time = time.time()
+        time.time()
         result = func(*args, **kwargs)
-        end_time = time.time()
+        time.time()
 
-        logger = logging.getLogger(__name__)
+        logging.getLogger(__name__)
 
         return result
 

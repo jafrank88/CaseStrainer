@@ -3,7 +3,6 @@ Consolidated Citation Utilities
 Combines citation normalization, formatting, and validation functions from multiple files.
 """
 
-
 import re
 from typing import List, Dict, Any, Optional
 from eyecite import get_citations
@@ -634,7 +633,7 @@ def extract_case_info_enhanced_with_position(text: str, start: int, end: int, co
     logger.info(f"Enhanced extraction with position for: '{citation_text}'")
 
     context_info = efficient_context_extraction(text, start, end)
-    context = context_info["context"]
+    context_info["context"]
 
     results = {}
 

@@ -1180,6 +1180,9 @@ class UnifiedCaseExtractionMaster:
             r"^\s*No\.\s+\d+-\d+\s*$",  # Pure case number like "No. 102976-4" (alone on line)
             r"^\s*\d{1,2}/\d{1,2}/\d{4}\s*$",  # Pure date stamps
             r"^\s*[A-Z]{3,}\s+\d{1,2},\s+\d{4}\s*$",  # "JUNE 12, 2025" (alone on line)
+            # ENHANCED: Filter case caption patterns with role words
+            # These are headers like "CARTER, Respondent, v. MARY E. JONES, Appellant"
+            r"^[A-Z][A-Z\s&\.\-',]+\s+(?:Respondent|Appellant|Petitioner|Appellee|Plaintiff|Defendant)s?\s*,\s+v\.\s+[A-Z][A-Za-z\s\.\-',]+\s+(?:Respondent|Appellant|Petitioner|Appellee|Plaintiff|Defendant)s?,?$",
         ]
 
         for line in lines:
@@ -1188,11 +1191,29 @@ class UnifiedCaseExtractionMaster:
                 continue
 
             # CRITICAL: Never filter lines containing case names (have " v. ")
+            # UNLESS they're case caption headers with role words
             if re.search(case_name_pattern, line_stripped):
-                filtered_lines.append(line)
-                if debug:
-                    logger.warning(f"[FIX #67] KEPT case name line: '{line_stripped[:80]}'")
-                continue
+                # ENHANCED: Check if this is a case caption header (has role words)
+                line_upper = line_stripped.upper()
+                has_role_words = any(
+                    role in line_upper
+                    for role in ["RESPONDENT", "APPELLANT", "PETITIONER", "APPELLEE", "PLAINTIFF", "DEFENDANT"]
+                )
+                # Check pattern like "NAME, ROLE v. NAME, ROLE"
+                caption_pattern = r"^[A-Z][A-Z\s&\.\-',]+\s+(?:RESPONDENT|APPELLANT|PETITIONER|APPELLEE|PLAINTIFF|DEFENDANT)S?\s*,\s+V\.\s+[A-Z][A-Z\s&\.\-',]+\s+(?:RESPONDENT|APPELLANT|PETITIONER|APPELLEE|PLAINTIFF|DEFENDANT)S?,?$"
+                is_caption_header = has_role_words and re.search(caption_pattern, line_upper)
+                
+                if not is_caption_header:
+                    # Regular case discussion line - keep it
+                    filtered_lines.append(line)
+                    if debug:
+                        logger.warning(f"[FIX #67] KEPT case name line: '{line_stripped[:80]}'")
+                    continue
+                else:
+                    # This is a case caption header - filter it out
+                    if debug:
+                        logger.warning(f"[FIX #67] FILTERING case caption header: '{line_stripped[:80]}'")
+                    continue
 
             # Check if line matches any header pattern
             is_header = False
@@ -1421,10 +1442,10 @@ class UnifiedCaseExtractionMaster:
                 break
 
         # USER FIX: Work backwards from citation with expanding window
-        # Start with small window (40 chars), expand if no case name found
+        # Start with reasonable window (100 chars), expand if no case name found
         # This is the FIRST attempt - the fallback section handles expansion
-        # Standard: 40 chars (start small), Subsequent history: 150 chars
-        context_window = 150 if has_subsequent_history else 40
+        # Standard: 100 chars (start reasonable), Subsequent history: 150 chars
+        context_window = 150 if has_subsequent_history else 100
         search_start = max(0, comma_pos - context_window)
         potential_case_name = text[search_start:comma_pos]
 
@@ -1589,8 +1610,21 @@ class UnifiedCaseExtractionMaster:
             (r"(In\s+re\s+[A-Z][a-zA-Z\s]{3,}(?:\s+[A-Z][a-zA-Z\s]*)*)", 1, "in_re_fallback"),
             # Pattern 2: "Ex parte" cases
             (r"(Ex\s+parte\s+[A-Z][a-zA-Z\s\'&\-\.,]{3,})", 1, "ex_parte"),
-            # Pattern 3: Full case name with "v."
-            (r"([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})", 2, "standard"),
+            # Pattern 2a: Case names at end of sentence or clause - MORE PRECISE
+            # Matches: "...cited in Smith v. Johnson" where case name is at end
+            (
+                r"\b([A-Z][a-zA-Z\s\'&\-\.,]{5,40}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,40})(?=[,.;]|\s+(?:and|or|which|that|who|where|when|in|on|at|by|for|to|of)\b|$)",
+                2,
+                "end_clause",
+            ),
+            # Pattern 3: Standard case names - ENHANCED for better precision
+            # OLD: r"([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})" - too broad
+            # NEW: Added word boundaries and excluded common words to prevent false matches
+            (
+                r"\b([A-Z][a-zA-Z\s\'&\-\.,]{5,40}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,40})(?=\s|,|$)",
+                3,
+                "standard",
+            ),
             # Pattern 4: FIX #12 - Short-form citations (single party name at END)
             # Matches: "... that [Endnote 18] Marston" where full case appears earlier
             # Only matches if at very end of context (last 20 chars) to avoid false positives
@@ -1697,6 +1731,27 @@ class UnifiedCaseExtractionMaster:
             # Step 6: Clean the case name
             case_name = self._clean_case_name(case_name)
             logger.error(f"[FIX #8 CLEANED] After clean: '{case_name[:100]}'")
+            
+            # ENHANCED: Extract just the case name from longer sentences
+            # If we got something like "This was later cited in Smith v. Johnson",
+            # extract just "Smith v. Johnson"
+            if len(case_name) > 30 and " v. " in case_name:
+                # Check if this looks like a sentence with signal words
+                signal_words = ["see", "citing", "cited", "referenced", "following", "compare", "accord", "quoting", "holding", "stating", "noting", "observing", "finding", "concluding", "ruling", "precedent", "decision", "established", "as", "in", "the", "court", "ruled"]
+                lower_case = case_name.lower()
+                
+                # If signal words are present, try to extract just the case name
+                if any(word in lower_case for word in signal_words):
+                    # Find all case names in the text and take the last one
+                    # Use a more precise pattern that doesn't match the whole sentence
+                    case_name_matches = re.findall(r"\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\s+v\.\s+[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b", case_name)
+                    if case_name_matches:
+                        # Take the last (most recent) case name found
+                        extracted_case = case_name_matches[-1].strip()
+                        # Double check that this looks like a proper case name
+                        if " v. " in extracted_case and len(extracted_case) < 60:
+                            logger.error(f"[FIX #8 SENTENCE CLEAN] Extracted '{extracted_case}' from '{case_name}'")
+                            case_name = extracted_case
 
             # Step 7: Remove common citation introducers and signal phrases
             introducer_patterns = [
@@ -1890,17 +1945,22 @@ class UnifiedCaseExtractionMaster:
                     break
 
         # Check for obvious contamination
+        # FIX: Be more specific - only reject if these appear at the start or as standalone phrases
+        # Don't reject if they're part of "As established in" or "The court established"
         contamination_indicators = [
             "held that",
-            "the court",
-            "established",
-            "determined",
-            "argued that",
-            "concluded that",
-            "reasoned that",
+            "the court held that", 
+            "the court has held",
+            "the court argues",
+            "the court found",
+            "the court determined",
+            "the court concluded",
+            "the court reasoned",
+            "this court",
             "in recent times",
-            "in this case",
-            "as discussed",
+            "in the present case",
+            "for the purposes of",
+            "as a matter of law",
         ]
 
         # text_lower already defined above
@@ -2788,7 +2848,7 @@ class UnifiedCaseExtractionMaster:
             return True  # Don't validate empty names
 
         # Check for false extractions from complex case names
-        case_name_lower = case_name.lower()
+        case_name.lower()
         context_lower = context.lower()
 
         # Pattern 1: Check if we extracted a simple "Last v. Last" from a complex estate case
@@ -2964,6 +3024,18 @@ class UnifiedCaseExtractionMaster:
         # CRITICAL FIX: Remove sentence fragments BEFORE normalizing whitespace
         # Look for patterns like "scheme as a whole. Ass'n of..." and keep only "Ass'n of..."
         cleaned = case_name.strip()
+        
+        # ENHANCED: Remove case caption role patterns that cause contamination
+        # Patterns like "CARTER, Respondent, v. MARY E. JONES, Appellant" should be cleaned
+        # to "CARTER v. MARY E. JONES"
+        role_pattern = r"\s*,\s*(?:Respondent|Appellant|Petitioner|Appellee|Plaintiff|Defendant)s?\b"
+        cleaned = re.sub(role_pattern, "", cleaned, flags=re.IGNORECASE)
+        # Also handle role words before party names
+        role_prefix_pattern = r"^(?:Respondent|Appellant|Petitioner|Appellee|Plaintiff|Defendant)s?\s*,\s*"
+        cleaned = re.sub(role_prefix_pattern, "", cleaned, flags=re.IGNORECASE)
+        # Clean up any double commas left behind
+        cleaned = re.sub(r"\s*,\s*,\s*", ", ", cleaned)
+        cleaned = re.sub(r"^\s*,\s*|\s*,\s*$", "", cleaned)
 
         # FIX #68C: Match full case name, not just minimum
         # OLD: r'\.\s+([A-Z].+?\s+v\.\s+.+?)$' used NON-GREEDY .+? which truncated names

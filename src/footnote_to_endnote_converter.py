@@ -136,7 +136,7 @@ class FootnoteToEndnoteConverter:
                             endnotes.append(current_footnote)
 
                         # Start new footnote
-                        number = match.group(1)
+                        match.group(1)
                         content = match.group(2)
                         current_footnote = f"[Endnote {len(endnotes) + 1}] {content}"
                         matched = True

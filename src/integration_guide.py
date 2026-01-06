@@ -39,7 +39,7 @@ class OptimizedIntegrationGuide:
         try:
             from pdf_extraction_optimized import extract_text_from_pdf_ultra_fast
 
-            test_result = extract_text_from_pdf_ultra_fast("test.pdf")
+            extract_text_from_pdf_ultra_fast("test.pdf")
             status["components"]["pdf_extraction"] = {
                 "status": "✅ READY",
                 "details": "Ultra-fast PDF extraction module is functional",

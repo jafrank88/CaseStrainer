@@ -29,7 +29,7 @@ def get_health_status() -> Dict[str, Any]:
     try:
         from src.clean_extraction_pipeline import CleanExtractionPipeline
 
-        pipeline = CleanExtractionPipeline()
+        CleanExtractionPipeline()
         health["components"]["clean_pipeline"] = {"status": "healthy", "version": "v1.0.0", "accuracy": "87-93%"}
     except Exception as e:
         health["components"]["clean_pipeline"] = {"status": "unhealthy", "error": str(e)}

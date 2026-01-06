@@ -1294,7 +1294,7 @@ def fetch_url_content(url: str) -> str:
             if is_protected:
                 # Determine if this is likely a PDF or HTML page
                 is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
-                file_type = "PDF file" if is_pdf else "web page"
+                "PDF file" if is_pdf else "web page"
                 action = (
                     "download the PDF file manually from the URL and upload it directly to the tool"
                     if is_pdf
@@ -1345,7 +1345,7 @@ def fetch_url_content(url: str) -> str:
             if is_protected:
                 # Determine if this is likely a PDF or HTML page
                 is_pdf = url.lower().endswith(".pdf") or "pdf" in url.lower()
-                file_type = "PDF file" if is_pdf else "web page"
+                "PDF file" if is_pdf else "web page"
                 action = (
                     "download the PDF file manually from the URL and upload it directly to the tool"
                     if is_pdf
@@ -2458,7 +2458,7 @@ def setup_progress_enabled_app():
 
     progress_manager = SSEProgressManager()
 
-    citation_processor = ChunkedCitationProcessor(progress_manager)
+    ChunkedCitationProcessor(progress_manager)
 
     # create_progress_routes_DISABLED(app, progress_manager, citation_processor)  # DISABLED to prevent route conflicts
 

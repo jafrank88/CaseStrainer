@@ -204,7 +204,6 @@ class ApplicationError(Exception):
     """Custom exception for application-level errors"""
 
 
-
 class LoggingManager:
     """Centralized logging management"""
 

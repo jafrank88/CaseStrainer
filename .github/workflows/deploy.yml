@@ -70,13 +70,20 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
 
+    - name: Build frontend
+      run: |
+        cd casestrainer-vue-new
+        npm install
+        npm run build
+        cd ..
+
     - name: Build production images
       run: |
-        docker-compose -f docker-compose.prod.yml build
+        docker compose -f docker-compose.prod.yml build
 
     - name: Test production images
       run: |
-        docker-compose -f docker-compose.prod.yml up -d redis backend
+        docker compose -f docker-compose.prod.yml up -d redis backend
         echo "Waiting for backend to be ready..."
         # Wait up to 60 seconds for the health check to pass
         for i in {1..12}; do
@@ -89,7 +96,7 @@ jobs:
         done
         # Final check (will fail if not ready)
         curl -f http://localhost:5000/casestrainer/api/health || exit 1
-        docker-compose -f docker-compose.prod.yml down
+        docker compose -f docker-compose.prod.yml down
 
     - name: Upload production images
       uses: actions/upload-artifact@v4

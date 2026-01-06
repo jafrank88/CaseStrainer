@@ -9,7 +9,6 @@ Handles the complete verification flow including:
 - Smart verification strategies with fallbacks
 """
 
-
 import json
 import logging
 import os
@@ -368,7 +367,6 @@ class SmartVerificationStrategy:
         """Check if we have sufficient verification coverage"""
         if not citations:
             return True
-        results = {}
         remaining_citations = set(citations)
 
         for method in self.verification_priority:
@@ -579,7 +577,6 @@ class SmartVerificationStrategy:
                 continue
 
             # Check if cluster has valid name and date
-            needs_update = False
             cluster_metadata = {
                 "canonical_name": cluster.get("canonical_name"),
                 "canonical_date": cluster.get("canonical_date"),

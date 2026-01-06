@@ -155,7 +155,7 @@ class EnhancedLegalScraper:
                 score += 10
 
             title = result.get("title", "").lower()
-            snippet = result.get("snippet", "").lower()
+            result.get("snippet", "").lower()
             if "case" in title or "decision" in title:
                 score += 5
             if "law" in title or "court" in title:

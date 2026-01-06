@@ -5,7 +5,6 @@ This service coordinates all citation processing services and provides the main 
 for citation extraction, verification, and clustering.
 """
 
-
 import logging
 from typing import List, Dict, Any, Optional
 import time

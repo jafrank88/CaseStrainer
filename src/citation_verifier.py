@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 #     verify_citations_with_legal_websearch  # DEPRECATED
 
 
-
 class CitationVerifier:
     """Citation verification functionality."""
 

@@ -405,7 +405,7 @@ class UnifiedCaseNameExtractor:
                         break
 
                 if not compiled_pattern:
-                    pattern_start_time = time.time()
+                    time.time()
                     compiled_pattern = re.compile(pattern, re.IGNORECASE)
                     self.compiled_patterns.append({"name": method_name, "compiled": compiled_pattern})
 
@@ -705,7 +705,6 @@ class UnifiedCaseNameExtractor:
             look_back_start = max(0, citation_pos - 400)
             search_text = text[look_back_start:citation_pos]
 
-            case_name_start = None
 
             boundary_pos = -1
             boundary_type = None

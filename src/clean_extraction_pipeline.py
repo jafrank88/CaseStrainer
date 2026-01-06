@@ -1488,7 +1488,7 @@ class CleanExtractionPipeline:
                     search_end = min(len(text), citation.end_index + 100)  # Reduced from 300
                     before_context = text[search_start : citation.start_index]
                     after_context = text[citation.end_index : search_end]
-                    full_context = before_context + citation.citation + after_context
+                    before_context + citation.citation + after_context
 
                     # DEBUG: Log search window for cross-contamination debugging
                     logger.debug(

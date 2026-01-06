@@ -284,9 +284,9 @@ class PerformanceBenchmark:
                 start_time = time.time()
 
                 if asyncio.iscoroutinefunction(processor_func):
-                    result = await processor_func(text)
+                    await processor_func(text)
                 else:
-                    result = processor_func(text)
+                    processor_func(text)
 
                 end_time = time.time()
                 times.append(end_time - start_time)
