@@ -57,6 +57,9 @@
               <strong>Extracted from Document: </strong>
               <span :class="{ 'highlight-mismatch': hasNameMismatch(cluster) }">{{ getClusterSubmittedName(cluster) }}</span>,
               <span :class="{ 'highlight-mismatch': hasDateMismatch(cluster) }">{{ getClusterSubmittedDate(cluster) }}</span>
+              <span v-if="cluster.cross_document_merge" class="merge-badge" style="margin-left:8px;color:#2196F3;">
+                <strong>📄 Merged from {{ cluster.merge_source_count || 2 }} documents</strong>
+              </span>
             </div>
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-unv-${index}`" class="cluster-line citation-line">

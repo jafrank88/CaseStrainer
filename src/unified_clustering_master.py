@@ -28,6 +28,16 @@ from collections import defaultdict, Counter, deque
 
 logger = logging.getLogger(__name__)
 
+# Import cross-document deduplication
+try:
+    from src.cross_document_deduplication import deduplicate_clusters_cross_document
+    CROSS_DEDUP_AVAILABLE = True
+    logger.info("Cross-document deduplication successfully imported")
+except ImportError as e:
+    CROSS_DEDUP_AVAILABLE = False
+    logger.warning(f"Cross-document deduplication not available: {e}")
+    deduplicate_clusters_cross_document = None
+
 
 class ClusterType(Enum):
     """Types of citation clusters."""
@@ -498,6 +508,13 @@ class UnifiedClusteringMaster:
 
             # Step 6: Format clusters for output
             formatted_clusters = self._format_clusters_for_output(validated_clusters)
+            
+            # Step 6.5: Apply cross-document deduplication if available
+            if CROSS_DEDUP_AVAILABLE and deduplicate_clusters_cross_document:
+                logger.info("MASTER_CLUSTER: Step 6.5 - Applying cross-document deduplication")
+                deduplicated_count = len(formatted_clusters)
+                formatted_clusters = deduplicate_clusters_cross_document(formatted_clusters)
+                logger.info(f"MASTER_CLUSTER: Cross-document deduplication: {deduplicated_count} → {len(formatted_clusters)} clusters")
 
             elapsed_time = time.time() - start_time
             logger.info(
