@@ -5173,6 +5173,44 @@ class UnifiedCitationProcessorV2:
         if year_mismatch_count > 0:
             logger.info(f"[FINAL-YEAR-CHECK] Unverified {year_mismatch_count} citations due to year mismatch")
 
+        # SPECIAL HANDLING: Add "Unverified due to proprietary format" for WL and Lexis citations
+        # that are neither verified nor verified_by_parallel
+        proprietary_count = 0
+        for cit in citations:
+            if hasattr(cit, "__dict__"):
+                citation_text = getattr(cit, "citation", "")
+                is_verified = getattr(cit, "verified", False)
+                is_verified_by_parallel = getattr(cit, "true_by_parallel", False)
+                
+                # Check if this is a WL or Lexis citation that is not verified
+                if not is_verified and not is_verified_by_parallel:
+                    # WL citations: format like "2021 WL 3622166"
+                    # Lexis citations: format like "2021 WL 3622166" (often marked as WL but from Lexis)
+                    if re.search(r"\d{4}\s+WL\s+\d+", citation_text) or re.search(r"Lexis\s+\d+", citation_text, re.IGNORECASE):
+                        cit.verification_status = "proprietary_format"
+                        cit.verification_error = "Unverified due to proprietary format"
+                        proprietary_count += 1
+                        logger.debug(f"[PROPRIETARY] {citation_text}: Marked as unverified due to proprietary format")
+        
+        # Also check cluster citations (dicts)
+        for cluster in formatted_clusters:
+            cluster_citations = cluster.get("citations", [])
+            for cit in cluster_citations:
+                if isinstance(cit, dict):
+                    citation_text = cit.get("citation", "")
+                    is_verified = cit.get("verified", False)
+                    is_verified_by_parallel = cit.get("true_by_parallel", False)
+                    
+                    if not is_verified and not is_verified_by_parallel:
+                        if re.search(r"\d{4}\s+WL\s+\d+", citation_text) or re.search(r"Lexis\s+\d+", citation_text, re.IGNORECASE):
+                            cit["verification_status"] = "proprietary_format"
+                            cit["verification_error"] = "Unverified due to proprietary format"
+                            proprietary_count += 1
+                            logger.debug(f"[PROPRIETARY-CLUSTER] {citation_text}: Marked as unverified due to proprietary format")
+        
+        if proprietary_count > 0:
+            logger.info(f"[PROPRIETARY] Marked {proprietary_count} WL/Lexis citations as unverified due to proprietary format")
+
         result = {"citations": citations, "clusters": formatted_clusters}
 
         return result
