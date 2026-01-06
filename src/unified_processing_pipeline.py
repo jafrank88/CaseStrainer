@@ -88,7 +88,7 @@ class UnifiedProcessingPipeline:
         text: str,
         processing_mode: str = "enhanced_sync",
         enable_parallel_verification: bool = True,
-        enable_verification: bool = False,
+        enable_verification: bool = True,
         trace_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
@@ -1179,7 +1179,7 @@ async def process_citations_unified(
     text: str,
     processing_mode: str = "enhanced_sync",
     enable_parallel_verification: bool = True,
-    enable_verification: bool = False,
+    enable_verification: bool = True,
     trace_id: Optional[str] = None,
     progress_callback: Optional[callable] = None,
 ) -> Dict[str, Any]:

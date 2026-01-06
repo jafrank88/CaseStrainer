@@ -6,8 +6,7 @@ Enhanced batch fallback verification that can handle more unverified citations
 import asyncio
 import logging
 from typing import List, Optional
-from src.unified_verification_master import UnifiedVerificationMaster
-from src.schemas.verification import VerificationResult
+from src.unified_verification_master import UnifiedVerificationMaster, VerificationResult
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +41,7 @@ async def enhanced_batch_fallback(
     
     # Prioritize citations with case names (higher success rate)
     def has_case_name(idx):
-        return case_names and idx < len(case_names) and case_names[idx] and case_names[idx] != "N/A"
+        return 1 if (case_names and idx < len(case_names) and case_names[idx] and case_names[idx] != "N/A") else 0
     
     # Sort: citations with case names first
     unverified_indices.sort(key=has_case_name, reverse=True)
