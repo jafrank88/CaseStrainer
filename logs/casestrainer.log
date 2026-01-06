@@ -24575,3 +24575,123 @@ FOR THE DISTRICT OF ...' -> 'UNITED STATES DISTRICT COURT FOR THE DISTRICT OF C.
 2026-01-06 01:11:01 - casestrainer-backend.events - INFO - 🛑 NORMAL SHUTDOWN - Session: 20260106_004604
 2026-01-06 01:11:01 - casestrainer-backend.events - INFO - Uptime: 0:24:56.773967
 2026-01-06 01:11:01 - casestrainer-backend.events - INFO - ================================================================================
+2026-01-06 01:11:44 - root - INFO - Configured case_name_extraction logger to level: INFO (20)
+2026-01-06 01:11:44 - src.app_final_vue - INFO - === Logging Configuration ===
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Python version: 3.10.19 (main, Dec 30 2025, 00:42:16) [GCC 14.2.0]
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Working directory: /app
+2026-01-06 01:11:44 - src.app_final_vue - INFO - ✅ PDFMiner DEBUG logging suppressed
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Configuration loaded successfully
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Creating new Flask application instance
+2026-01-06 01:11:44 - src.app_final_vue - INFO - 🔍 Starting memory monitoring...
+2026-01-06 01:11:44 - src.memory_monitor - INFO - Memory monitoring started (threshold: 1024MB, interval: 60s)
+2026-01-06 01:11:44 - src.app_final_vue - INFO - ✅ Memory monitoring started
+2026-01-06 01:11:44 - src.app_final_vue - INFO - === STARTING BLUEPRINT REGISTRATION ===
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Current working directory: /app
+2026-01-06 01:11:44 - src.app_final_vue - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2026-01-06 01:11:44 - src.api.blueprints - INFO - === REGISTERING BLUEPRINTS ===
+2026-01-06 01:11:44 - src.api.blueprints - INFO - Current working directory: /app
+2026-01-06 01:11:44 - src.api.blueprints - INFO - Python path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2026-01-06 01:11:44 - src.api.blueprints - INFO - Attempting to import Vue API blueprint...
+2026-01-06 01:11:45 - root - WARNING - [DEBUG] sys.executable: /usr/local/bin/python3.10
+2026-01-06 01:11:45 - root - WARNING - [DEBUG] sys.path: ['/app/src', '/usr/local/bin', '/app', '/usr/local/lib/python310.zip', '/usr/local/lib/python3.10', '/usr/local/lib/python3.10/lib-dynload', '/usr/local/lib/python3.10/site-packages', '/app']
+2026-01-06 01:11:45 - src.api.blueprints - WARNING - Updated endpoints import failed: cannot import name 'normalize_citation_dict' from 'src.schemas' (/app/src/schemas/__init__.py), trying legacy fallback...
+2026-01-06 01:11:45 - src.redis_distributed_processor - INFO - Redis connection established
+2026-01-06 01:11:45 - src.api.blueprints - WARNING - ⚠️  Using legacy vue_api_endpoints.py (fallback)
+2026-01-06 01:11:45 - src.api.blueprints - INFO - Blueprint details: <Blueprint 'vue_api'>
+2026-01-06 01:11:45 - src.api.blueprints - INFO - - Name: vue_api
+2026-01-06 01:11:45 - src.api.blueprints - INFO - - Import Name: src.vue_api_endpoints
+2026-01-06 01:11:45 - src.api.blueprints - INFO - Registering Vue API blueprint...
+2026-01-06 01:11:45 - src.api.blueprints - INFO - ✅ Vue API blueprint registered successfully
+2026-01-06 01:11:45 - src.api.blueprints - INFO - 
+=== CURRENTLY REGISTERED BLUEPRINTS ===
+2026-01-06 01:11:45 - src.api.blueprints - INFO - - vue_api: <Blueprint 'vue_api'>
+2026-01-06 01:11:45 - src.api.blueprints - INFO -   - URL Prefix: None
+2026-01-06 01:11:45 - src.api.blueprints - INFO -   - Import Name: src.vue_api_endpoints
+2026-01-06 01:11:45 - src.app_final_vue - INFO - ✅ Successfully registered all blueprints
+2026-01-06 01:11:45 - src.app_final_vue - INFO - ✅ Vue API blueprint registered successfully
+2026-01-06 01:11:45 - src.app_final_vue - INFO - === REGISTERED BLUEPRINTS ===
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api: <Blueprint 'vue_api'>
+2026-01-06 01:11:45 - src.app_final_vue - INFO -   - URL Prefix: None
+2026-01-06 01:11:45 - src.app_final_vue - INFO -   - Import Name: src.vue_api_endpoints
+2026-01-06 01:11:45 - src.app_final_vue - INFO - 
+=== REGISTERED ROUTES ===
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - static: /casestrainer/<path:filename> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.analyze_text: /casestrainer/api/analyze (OPTIONS, POST)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.analyze_progress_stream: /casestrainer/api/analyze/progress-stream/<task_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_analyze_progress: /casestrainer/api/analyze/progress/<task_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_verification_results: /casestrainer/api/analyze/verification-results/<request_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_verification_status: /casestrainer/api/analyze/verification-status/<request_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.verification_stream: /casestrainer/api/analyze/verification-stream/<request_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.health_check: /casestrainer/api/health_check (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_processing_progress: /casestrainer/api/processing_progress (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.progress_stream: /casestrainer/api/progress-stream/<task_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_progress: /casestrainer/api/progress/<task_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - - vue_api.get_task_status: /casestrainer/api/task_status/<task_id> (OPTIONS, GET, HEAD)
+2026-01-06 01:11:45 - src.app_final_vue - INFO - CORS configured for origins: ['https://wolf.law.uw.edu', 'http://localhost:5000', 'http://localhost:8080']
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Upload directory ready: /app/uploads
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Secure upload directory setup completed: /app/uploads
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Application routes registered
+2026-01-06 01:11:45 - src.app_final_vue - INFO - === REGISTERED ROUTES ===
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/<path:filename> -> Endpoint: static
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/health_check -> Endpoint: vue_api.health_check
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health_check -> vue_api.health_check (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/health -> Endpoint: vue_api.health_check
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/health -> vue_api.health_check (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze -> Endpoint: vue_api.analyze_text
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze -> vue_api.analyze_text (methods: {'OPTIONS', 'POST'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/task_status/<task_id> -> Endpoint: vue_api.get_task_status
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/task_status/<task_id> -> vue_api.get_task_status (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-status/<request_id> -> Endpoint: vue_api.get_verification_status
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-status/<request_id> -> vue_api.get_verification_status (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-results/<request_id> -> Endpoint: vue_api.get_verification_results
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-results/<request_id> -> vue_api.get_verification_results (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/progress/<task_id> -> Endpoint: vue_api.get_progress
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/progress/<task_id> -> vue_api.get_progress (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress/<task_id> -> Endpoint: vue_api.get_analyze_progress
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress/<task_id> -> vue_api.get_analyze_progress (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/progress-stream/<task_id> -> Endpoint: vue_api.analyze_progress_stream
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/progress-stream/<task_id> -> vue_api.analyze_progress_stream (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/processing_progress -> Endpoint: vue_api.get_processing_progress
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/processing_progress -> vue_api.get_processing_progress (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/progress-stream/<task_id> -> Endpoint: vue_api.progress_stream
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/progress-stream/<task_id> -> vue_api.progress_stream (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/analyze/verification-stream/<request_id> -> Endpoint: vue_api.verification_stream
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/analyze/verification-stream/<request_id> -> vue_api.verification_stream (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/ -> Endpoint: serve_vue_app
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/<path:path> -> Endpoint: serve_vue_app
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /test -> Endpoint: test
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/routes -> Endpoint: list_routes
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/routes -> list_routes (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/memory -> Endpoint: memory_status
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory -> memory_status (methods: {'OPTIONS', 'GET', 'HEAD'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Route: /casestrainer/api/memory/force-gc -> Endpoint: force_garbage_collection
+2026-01-06 01:11:45 - src.app_final_vue - INFO - DEBUG ROUTE: /casestrainer/api/memory/force-gc -> force_garbage_collection (methods: {'OPTIONS', 'POST'})
+2026-01-06 01:11:45 - src.app_final_vue - INFO - Flask application created successfully
+2026-01-06 01:11:45 - casestrainer-backend.main - INFO - Flask app created successfully at module level
+2026-01-06 01:11:45 - waitress - INFO - Serving on http://0.0.0.0:5000
+2026-01-06 01:11:47 - src.app_final_vue - INFO - [RESPONSE #1] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:11:48 - src.app_final_vue - INFO - [RESPONSE #2] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:12:18 - src.app_final_vue - INFO - [RESPONSE #3] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:12:49 - src.app_final_vue - INFO - [RESPONSE #4] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:13:19 - src.app_final_vue - INFO - [RESPONSE #5] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:13:49 - src.app_final_vue - INFO - [RESPONSE #6] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:14:19 - src.app_final_vue - INFO - [RESPONSE #7] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:14:49 - src.app_final_vue - INFO - [RESPONSE #8] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:15:19 - src.app_final_vue - INFO - [RESPONSE #9] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:15:50 - src.app_final_vue - INFO - [RESPONSE #10] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:16:20 - src.app_final_vue - INFO - [RESPONSE #11] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:16:50 - src.app_final_vue - INFO - [RESPONSE #12] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:17:20 - src.app_final_vue - INFO - [RESPONSE #13] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:17:50 - src.app_final_vue - INFO - [RESPONSE #14] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:18:20 - src.app_final_vue - INFO - [RESPONSE #15] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:18:50 - src.app_final_vue - INFO - [RESPONSE #16] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:19:21 - src.app_final_vue - INFO - [RESPONSE #17] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:19:51 - src.app_final_vue - INFO - [RESPONSE #18] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:20:21 - src.app_final_vue - INFO - [RESPONSE #19] GET vue_api.health_check -> 200 (291 chars)
+2026-01-06 01:20:45 - src.memory_monitor - INFO - Memory usage: 46.4MB (0.3%)
+2026-01-06 01:20:51 - src.app_final_vue - INFO - Received signal 15, shutting down gracefully...
+2026-01-06 01:20:51 - casestrainer-backend.events - INFO - ================================================================================
+2026-01-06 01:20:51 - casestrainer-backend.events - INFO - 🛑 NORMAL SHUTDOWN - Session: 20260106_011143
+2026-01-06 01:20:51 - casestrainer-backend.events - INFO - Uptime: 0:09:07.200108
+2026-01-06 01:20:51 - casestrainer-backend.events - INFO - ================================================================================

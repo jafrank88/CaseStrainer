@@ -929,49 +929,27 @@ class UnifiedCaseExtractionMaster:
 
         # PATTERN 3: WESTLAW WITH DOCKET NUMBER
         # "Nazar v. Harbor Freight Tools USA Inc., No. 2:18-CV-00348-SMJ, 2019 WL 2066127"
-        # IMPROVED: Take LAST match and handle company suffixes
-        docket_pattern = r"([A-Z][^,]{10,150}?),\s*(?:LLC|Inc\.|Corp\.|Co\.|Ltd\.)?,?\s*No\.?\s+[\w:/-]+"
-        matches = list(re.finditer(docket_pattern, context_clean, re.IGNORECASE))
+        # "Doe, Inc. v. Roe, No. MC 21-43 (BAH), 2021 WL 3622166"
+        # IMPROVED: Use pattern that finds case name ending with 'v.' before WL
+        wl_pattern = r"([A-Z][\w\s&\-\.',]*v\.[\w\s&\-\.',]*?),\s*(?:No\.\s+[^,]+,\s*)?\d{4}\s+WL\s+\d+"
+        matches = list(re.finditer(wl_pattern, context_clean, re.IGNORECASE))
         if matches:
             match = matches[-1]
             case_name = match.group(1).strip()
-            logger.error(f"[SPECIAL-FORMATS] Pattern 3 raw match (last of {len(matches)}): '{case_name}'")
-
-            # IMPROVED: Two-step extraction
-            case_name_match = re.search(
-                r"([A-Z][\w\s&\',.-]+?\s+v\.\s+[\w\s&\',.-]+?)(?:,|\s*$)", case_name, re.IGNORECASE
+            logger.error(f"[SPECIAL-FORMATS] ✅ WESTLAW WITH DOCKET: '{case_name}'")
+            
+            # Clean up any trailing punctuation
+            case_name = re.sub(r"[,\s]+$", "", case_name)
+            year = self._extract_year_from_context(context_after, debug)
+            return MasterExtractionResult(
+                case_name=case_name,
+                year=year or "N/A",
+                confidence=0.9,
+                method="westlaw_docket",
+                debug_info={"pattern": "westlaw_with_docket"},
+                extracted_case_name=case_name,
+                extracted_year=year,
             )
-            if not case_name_match:
-                case_name_match = re.search(r"(In re\s+[\w\s&\',.-]+?)(?:,|\s*$)", case_name, re.IGNORECASE)
-
-            if case_name_match:
-                case_name = case_name_match.group(1).strip()
-                case_name = re.sub(r"[,\s]+$", "", case_name)
-                logger.error(f"[SPECIAL-FORMATS] ✅ WESTLAW WITH DOCKET (refined): '{case_name}'")
-                year = self._extract_year_from_context(context_after, debug)
-                return MasterExtractionResult(
-                    case_name=case_name,
-                    year=year or "N/A",
-                    confidence=0.9,
-                    method="westlaw_docket",
-                    debug_info={"pattern": "westlaw_with_docket"},
-                    extracted_case_name=case_name,
-                    extracted_year=year,
-                )
-
-            # FALLBACK: Use raw match if it contains "v." or "in re"
-            elif "v." in case_name.lower() or "in re" in case_name.lower():
-                logger.error(f"[SPECIAL-FORMATS] ⚠️  WESTLAW WITH DOCKET (unrefined): '{case_name}'")
-                year = self._extract_year_from_context(context_after, debug)
-                return MasterExtractionResult(
-                    case_name=case_name,
-                    year=year or "N/A",
-                    confidence=0.75,
-                    method="westlaw_docket_unrefined",
-                    debug_info={"pattern": "westlaw_docket_fallback"},
-                    extracted_case_name=case_name,
-                    extracted_year=year,
-                )
 
         # PATTERN 4: SIGNAL WORDS
         # "accord Goad v. Celotex Corp., 831 F.2d 508"
@@ -1576,6 +1554,35 @@ class UnifiedCaseExtractionMaster:
         # This prevents header contamination like "No. 103430 -0 15" from breaking patterns
         # NOTE: Don't add digits to patterns - that would capture page numbers!
         context_cleaned = potential_case_name
+        
+        # SPECIAL HANDLING FOR WL CITATIONS
+        # Check if this is a WL citation with docket number by looking at current position
+        # WL citations have format: Case Name, No. Docket, Year WL Number
+        # When start_index is at WL, we should see "WL Number" 
+        text_at_position = text[start_index:start_index + 20]
+        wl_at_position = r"WL\s+\d+"
+        
+        if re.search(wl_at_position, text_at_position, re.IGNORECASE):
+            logger.error(f"[WL DOCKET] Detected WL citation at position")
+            # Look backwards for the full pattern: Case Name, No. Docket, Year WL
+            search_start = max(0, start_index - 200)
+            search_text = text[search_start:start_index + 50]
+            full_wl_pattern = r"([A-Z][\w\s&\-\.',]*v\.[\w\s&\-\.',]*?),\s*No\.\s+[^,]+,\s*\d{4}\s+WL\s+\d+"
+            wl_match = re.search(full_wl_pattern, search_text, re.IGNORECASE)
+            if wl_match:
+                case_name = wl_match.group(1).strip()
+                case_name = re.sub(r"[,\s]+$", "", case_name)
+                logger.error(f"[WL DOCKET] Extracted case name: '{case_name}'")
+                year = self._extract_year_from_context(text[start_index-10:start_index + 100], debug)
+                return MasterExtractionResult(
+                    case_name=case_name,
+                    year=year or "N/A",
+                    confidence=0.9,
+                    method="wl_docket_comma_anchor",
+                    debug_info={"pattern": "wl_docket"},
+                    extracted_case_name=case_name,
+                    extracted_year=year,
+                )
 
         # FIX #13: More aggressive case number removal
         # Pattern: "No. 103430-0 15 v." where the case number has internal spaces/breaks
