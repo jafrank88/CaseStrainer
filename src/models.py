@@ -134,7 +134,7 @@ class ProcessingConfig:
     extract_dates: bool = True
     enable_clustering: bool = True
     enable_deduplication: bool = True
-    enable_verification: bool = False  # Changed default to False for speed
+    enable_verification: bool = True   # Changed default to True for verification
     context_window: int = 400
     min_confidence: float = 0.5
     max_citations_per_text: int = 1000

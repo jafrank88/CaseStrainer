@@ -453,7 +453,10 @@ class CitationService:
 
             logger.info("[CitationService] Using UnifiedCitationProcessorV2 for immediate processing")
 
-            processor = UnifiedCitationProcessorV2()
+            # Create processor with verification enabled
+            from src.models import ProcessingConfig
+            config = ProcessingConfig(enable_verification=True)
+            processor = UnifiedCitationProcessorV2(config)
 
             # Extract text using unified approach
             text_content = self.extract_text_from_input(input_data)
