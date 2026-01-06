@@ -715,6 +715,8 @@ class UnifiedVerificationMaster:
         batch_size: int = 50,
         timeout_per_citation: float = 10.0,
         progress_callback: Optional[callable] = None,
+        enable_fallback: bool = True,
+        max_fallback_citations: int = 50,
     ) -> List[VerificationResult]:
         """
         Batch verification with optimal rate limiting and performance.
@@ -729,6 +731,8 @@ class UnifiedVerificationMaster:
             batch_size: Number of citations to process in each API call (default 50)
             timeout_per_citation: Maximum time per citation
             progress_callback: Optional callback function for progress updates
+            enable_fallback: Whether to enable fallback verification (default True)
+            max_fallback_citations: Maximum number of citations to try fallback on (default 50)
 
         Returns:
             List of VerificationResult objects
@@ -874,130 +878,32 @@ class UnifiedVerificationMaster:
             f"✅ MASTER_BATCH_VERIFY: Completed {len(results)} verifications ({verified_count} verified, {(verified_count/len(results)*100):.1f}%)"
         )
 
-        # FIX DEC 2025: LIMITED fallback - only try up to 5 unverified citations with Justia site search
-        # This replaces the old approach that made 48+ HTTP requests and crashed workers
-        MAX_FALLBACK_CITATIONS = 5  # Strict limit to prevent timeouts
-        if unverified_count > 0:
+        # Enhanced fallback verification for unverified citations
+        if enable_fallback and unverified_count > 0:
             logger.info(
-                f"🔄 LIMITED FALLBACK: Trying Justia site search for up to {min(MAX_FALLBACK_CITATIONS, unverified_count)} of {unverified_count} unverified citations"
+                f"🔄 ENHANCED FALLBACK: Processing up to {min(max_fallback_citations, unverified_count)} of {unverified_count} unverified citations"
+            )
+            
+            # Import enhanced fallback
+            from src.enhanced_batch_fallback import enhanced_batch_fallback
+            
+            # Run enhanced fallback
+            results = await enhanced_batch_fallback(
+                verifier=self,
+                citations=citations,
+                results=results,
+                case_names=case_names,
+                dates=dates,
+                max_fallback_citations=max_fallback_citations,
+                timeout_per_citation=5.0,
             )
 
-            external_verified_count = 0
-            fallback_attempts = 0
-
-            for i, result in enumerate(results):
-                if fallback_attempts >= MAX_FALLBACK_CITATIONS:
-                    logger.info(f"⏹️ FALLBACK LIMIT REACHED: Stopping after {MAX_FALLBACK_CITATIONS} attempts")
-                    break
-
-                if not result.verified:
-                    citation = citations[i]
-                    extracted_name = case_names[i] if case_names and i < len(case_names) else None
-                    extracted_date = dates[i] if dates and i < len(dates) else None
-
-                    # Skip obviously invalid citations
-                    if self._is_obviously_invalid_citation(citation):
-                        continue
-
-                    fallback_attempts += 1
-                    logger.info(
-                        f"🔍 FALLBACK [{fallback_attempts}/{MAX_FALLBACK_CITATIONS}]: Trying Justia for '{citation}'"
-                    )
-
-                    try:
-                        # Use Justia search (via Bing) - single targeted request
-                        fallback_result = await self._verify_with_justia_search(
-                            citation=citation,
-                            extracted_case_name=extracted_name,
-                            extracted_date=extracted_date,
-                            timeout=8.0,  # 8s timeout per citation
-                        )
-                        if fallback_result.verified:
-                            logger.info(f"✅ FALLBACK SUCCESS: Verified '{citation}' via Justia")
-                            results[i] = fallback_result
-                            external_verified_count += 1
-                        elif getattr(fallback_result, "possible_match", False):
-                            logger.info(f"🔶 FALLBACK POSSIBLE: Found possible match for '{citation}'")
-                            results[i] = fallback_result
-                    except Exception as e:
-                        logger.warning(f"⚠️ FALLBACK ERROR for '{citation}': {e}")
-
-            logger.info(
-                f"✅ LIMITED FALLBACK COMPLETE: {external_verified_count}/{fallback_attempts} verified via Justia"
-            )
-
-            # Step 3: LAST RESORT - Try CourtListener Search API for remaining unverified
-            # Only for citations not found anywhere else (Search API is slow and times out often)
-            remaining_unverified = sum(1 for r in results if not r.verified)
-            if remaining_unverified > 0:
-                logger.info(
-                    f"🔄 SEARCH-API (LAST RESORT): Attempting search API for {remaining_unverified} citations still unverified"
-                )
-
-                # CRITICAL FIX: Strict limits to prevent worker timeouts
-                max_search_citations = min(10, remaining_unverified)  # Reduced from 20 to 10
-                search_verified_count = 0
-                timeout_count = 0
-                max_timeouts = 3  # Reduced from 5 to 3 - fail fast
-
-                # Prioritize WL (Westlaw) citations in fallback search
-                try:
-                    import re
-                except Exception:
-                    re = None
-
-                unverified_indices = [i for i, r in enumerate(results) if not r.verified]
-
-                def is_wl(cit: str) -> bool:
-                    if not cit:
-                        return False
-                    return bool(re.search(r"\bWL\b", cit, flags=re.I)) if re else ("wl" in cit.lower())
-
-                wl_indices = [i for i in unverified_indices if is_wl(citations[i])]
-                other_indices = [i for i in unverified_indices if i not in wl_indices]
-                ordered_indices = wl_indices + other_indices
-
-                for i in ordered_indices:
-                    if search_verified_count + timeout_count >= max_search_citations:
-                        break
-                    if timeout_count >= max_timeouts:
-                        logger.warning(f"⚠️ Too many Search API timeouts ({timeout_count}), skipping remaining")
-                        break
-
-                    citation = citations[i]
-                    extracted_name = case_names[i] if case_names and i < len(case_names) else None
-                    extracted_date = dates[i] if dates and i < len(dates) else None
-                    logger.info(f"🔍 SEARCH-API: Trying CourtListener search for '{citation}'")
-                    try:
-                        # Use CourtListener search API with reduced timeout
-                        search_result = await asyncio.wait_for(
-                            self._verify_with_courtlistener_search(
-                                citation, extracted_name, extracted_date, timeout=8.0
-                            ),
-                            timeout=10.0,  # Reduced from 15s to 10s
-                        )
-                        if search_result.verified:
-                            logger.info(f"✅ SEARCH-API SUCCESS: Verified '{citation}' via CourtListener search")
-                            results[i] = search_result
-                            search_verified_count += 1
-                        else:
-                            logger.info(f"⚠️ SEARCH-API FAILED: Could not verify '{citation}' via search")
-                    except asyncio.TimeoutError:
-                        timeout_count += 1
-                        logger.warning(
-                            f"⏱️ SEARCH-API TIMEOUT for '{citation}' (timeout {timeout_count}/{max_timeouts})"
-                        )
-                    except Exception as e:
-                        logger.error(f"❌ SEARCH-API ERROR for '{citation}': {e}")
-
-                logger.info(f"✅ SEARCH-API COMPLETE: {search_verified_count} additional citations verified via search")
-
-            # Log final stats
-            final_verified_count = sum(1 for r in results if r.verified)
-            fallback_verified = final_verified_count - verified_count
-            logger.info(
-                f"🎯 FALLBACK COMPLETE: {fallback_verified} additional citations verified via fallback ({final_verified_count}/{len(results)} total)"
-            )
+        # Final statistics
+        final_verified_count = sum(1 for r in results if r.verified)
+        final_unverified_count = len(results) - final_verified_count
+        logger.info(
+            f"✅ MASTER_BATCH_VERIFY FINAL: {len(results)} total citations ({final_verified_count} verified, {(final_verified_count/len(results)*100):.1f}%, {final_unverified_count} unverified)"
+        )
 
         return results
 
