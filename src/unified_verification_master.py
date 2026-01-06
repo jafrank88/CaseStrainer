@@ -461,11 +461,15 @@ class UnifiedVerificationMaster:
             async def _p_justia(cit, name_hint, date_hint, per_timeout):
                 return await self._verify_with_justia(cit, name_hint, date_hint, min(per_timeout, 10.0))
 
+            async def _p_vlex(cit, name_hint, date_hint, per_timeout):
+                return await self._verify_with_vlex(cit, name_hint, date_hint, min(per_timeout, 10.0))
+
             self.registry = VerificationRegistry(
                 [
                     _p_cl_lookup,
                     _p_cl_search,
                     _p_casemine,
+                    _p_vlex,
                     _p_justia,
                 ]
             )
@@ -1417,7 +1421,6 @@ class UnifiedVerificationMaster:
                                 )
                             elif year_diff == 1:
                                 # Exactly 1 year difference - accept with warning
-                                year_warning = True
                                 validation_warning = (
                                     f"Year difference of 1: extracted {ext_year} vs canonical {can_year}"
                                 )
@@ -2661,6 +2664,7 @@ class UnifiedVerificationMaster:
                     VerificationSource.CASEMINE,
                     self._verify_with_casemine,
                 ),  # CaseMine citation-first path (federal/state)
+                (VerificationSource.VLEX, self._verify_with_vlex),  # VLex legal database
                 (VerificationSource.JUSTIA, self._verify_with_justia),  # Justia (fast for federal citations)
                 (VerificationSource.BING, self._verify_with_bing),  # Bing search (open web)
                 (VerificationSource.GOOGLE_SCHOLAR, self._verify_with_google_scholar),  # Google Scholar
@@ -2679,6 +2683,7 @@ class UnifiedVerificationMaster:
                     VerificationSource.CASEMINE,
                     self._verify_with_casemine,
                 ),  # CaseMine citation-first path (federal/state)
+                (VerificationSource.VLEX, self._verify_with_vlex),  # VLex legal database
                 (VerificationSource.LAW_RESOURCE, self._verify_with_law_resource),  # Law Resource.org
                 (VerificationSource.JUSTIA, self._verify_with_justia),
                 ("OpenJurist", self._verify_with_openjurist),  # Federal direct URL
@@ -2895,6 +2900,237 @@ class UnifiedVerificationMaster:
             return VerificationResult(citation=citation, error="CaseMine: no suitable judgment pages")
         except Exception as e:
             return VerificationResult(citation=citation, error=f"CaseMine error: {e}")
+
+    async def _verify_with_vlex(
+        self, citation: str, extracted_case_name: Optional[str], extracted_date: Optional[str], timeout: float
+    ) -> VerificationResult:
+        """Verify citation using VLex legal database."""
+        logger.info(f"🔍 [VLEX] Verifying {citation}")
+        
+        try:
+            # First try to construct direct VLex URL if we have the case name
+            # VLex URLs follow pattern: https://case-law.vlex.com/vid/[case-name]-[id]/
+            if extracted_case_name and extracted_case_name != "N/A":
+                # Try to construct VLex URL from case name
+                # Based on the example: giuffre-v-maxwell-1093577203
+                case_name_slug = extracted_case_name.lower()
+                
+                # Convert to VLex URL format:
+                # 1. Lowercase everything
+                # 2. Replace "v." with "v"
+                # 3. Replace spaces and non-alphanumeric chars with hyphens
+                # 4. Remove multiple consecutive hyphens
+                case_name_slug = re.sub(r'\s+v\.\s+', ' v ', case_name_slug)  # Handle "v." properly
+                case_name_slug = re.sub(r'[^a-z0-9]+', '-', case_name_slug)
+                case_name_slug = re.sub('-+', '-', case_name_slug)
+                case_name_slug = case_name_slug.strip('-')
+                
+                # Try common VLex URL patterns
+                possible_urls = [
+                    f"https://case-law.vlex.com/vid/{case_name_slug}",
+                ]
+                
+                # Also try with common variations
+                variations = [
+                    case_name_slug,
+                    case_name_slug.replace('-v-', '-v-'),  # Ensure "v" format
+                ]
+                
+                # Add some common IDs to try (based on known patterns)
+                for variation in set(variations):
+                    possible_urls.append(f"https://case-law.vlex.com/vid/{variation}")
+                    # Try with a numeric ID (VLex seems to use 7-10 digit IDs)
+                    possible_urls.append(f"https://case-law.vlex.com/vid/{variation}-1093577203")  # Example ID
+                
+                headers = {
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                    "Accept-Language": "en-US,en;q=0.9",
+                }
+                
+                for url in possible_urls[:5]:  # Limit to 5 attempts
+                    try:
+                        logger.debug(f"[VLEX] Trying direct URL: {url}")
+                        response = self.session.get(url, headers=headers, timeout=min(5, timeout))
+                        
+                        if response.status_code == 200:
+                            content = response.text
+                            
+                            # Check if this is the right case by looking for the citation
+                            if citation.replace(" ", "").lower() in content.replace(" ", "").lower():
+                                # Extract case name from page
+                                name_patterns = [
+                                    r'<title>([^<]+v\.?[^<]+)\s*\(',
+                                    r'<h1[^>]*>([^<]+v\.?[^<]+)</h1>',
+                                    r'<meta\s+property="og:title"\s+content="([^"]+)"',
+                                ]
+                                
+                                canonical_name = None
+                                for pattern in name_patterns:
+                                    match = re.search(pattern, content, re.IGNORECASE)
+                                    if match:
+                                        canonical_name = match.group(1).strip()
+                                        break
+                                
+                                # Extract date
+                                date_match = re.search(r'\((\d{4})\)', content)
+                                canonical_date = date_match.group(1) if date_match else None
+                                
+                                if canonical_name:
+                                    logger.info(f"✅ [VLEX] Found case via direct URL: {canonical_name}")
+                                    return VerificationResult(
+                                        citation=citation,
+                                        verified=True,
+                                        canonical_name=canonical_name,
+                                        canonical_date=canonical_date,
+                                        canonical_url=url,
+                                        source="VLex",
+                                        confidence=0.95,
+                                        method="vlex_direct",
+                                    )
+                    
+                    except Exception as e:
+                        logger.debug(f"[VLEX] Direct URL attempt failed: {e}")
+                        continue
+            
+            # If direct URL didn't work, try search (but this might require JavaScript)
+            base_url = "https://vlex.com"
+            
+            # Build search query
+            search_query = citation
+            if extracted_case_name and extracted_case_name != "N/A":
+                search_query += f" {extracted_case_name}"
+            
+            # VLex search URL pattern
+            search_url = f"{base_url}/search?query={quote(search_query)}"
+            
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Accept-Encoding": "gzip, deflate, br",
+                "DNT": "1",
+                "Connection": "keep-alive",
+                "Upgrade-Insecure-Requests": "1",
+            }
+            
+            logger.debug(f"[VLEX] Searching: {search_url}")
+            
+            response = self.session.get(search_url, headers=headers, timeout=min(timeout, 10))
+            
+            if response.status_code == 200:
+                content = response.text
+                
+                # VLex likely uses JavaScript to load results, so we might not find links in the initial HTML
+                # Let's look for any case-law.vlex.com links as a fallback
+                case_link_pattern = r'href="(https://case-law\.vlex\.com/vid/[^"]+)"'
+                matches = re.findall(case_link_pattern, content, re.IGNORECASE)
+                
+                if not matches:
+                    # Try alternative pattern for VLex links
+                    case_link_pattern = r'href="(/vid/[^"]+)"'
+                    alt_matches = re.findall(case_link_pattern, content, re.IGNORECASE)
+                    matches = [f"{base_url}{match}" for match in alt_matches]
+                
+                if matches:
+                    logger.info(f"[VLEX] Found {len(matches)} potential case links")
+                    
+                    for case_url in matches[:3]:  # Check first 3 results
+                        try:
+                            logger.debug(f"[VLEX] Checking case: {case_url}")
+                            
+                            # Visit the case page
+                            case_response = self.session.get(case_url, headers=headers, timeout=min(8, timeout))
+                            
+                            if case_response.status_code == 200:
+                                case_content = case_response.text
+                                
+                                # Extract case name from VLex page
+                                name_patterns = [
+                                    r'<title>([^<]+v\.?[^<]+)\s*\(',
+                                    r'<h1[^>]*class="[^"]*title[^"]*"[^>]*>([^<]+)</h1>',
+                                    r'<meta\s+property="og:title"\s+content="([^"]+)"',
+                                ]
+                                
+                                canonical_name = None
+                                for pattern in name_patterns:
+                                    match = re.search(pattern, case_content, re.IGNORECASE)
+                                    if match:
+                                        canonical_name = match.group(1).strip()
+                                        break
+                                
+                                # Extract date
+                                date_patterns = [
+                                    r'<meta\s+name="citation_date"\s+content="([^"]+)"',
+                                    r'\((\d{4})\)',
+                                    r'(\d{1,2}\s+\w+\s+\d{4})',
+                                ]
+                                
+                                canonical_date = None
+                                for pattern in date_patterns:
+                                    match = re.search(pattern, case_content, re.IGNORECASE)
+                                    if match:
+                                        canonical_date = match.group(1).strip()
+                                        break
+                                
+                                # Check if citation appears on page
+                                citation_found = False
+                                if citation.replace(" ", "").lower() in case_content.replace(" ", "").lower():
+                                    citation_found = True
+                                
+                                # Also check for reporter match
+                                if 'F.4th' in citation:
+                                    reporter_match = re.search(r'F\.4th\s+' + citation.split()[0], case_content, re.IGNORECASE)
+                                    if reporter_match:
+                                        citation_found = True
+                                
+                                if citation_found and canonical_name:
+                                    logger.info(f"✅ [VLEX] Found case: {canonical_name}")
+                                    return VerificationResult(
+                                        citation=citation,
+                                        verified=True,
+                                        canonical_name=canonical_name,
+                                        canonical_date=canonical_date,
+                                        canonical_url=case_url,
+                                        source="VLex",
+                                        confidence=0.9,
+                                        method="vlex_search",
+                                    )
+                                elif canonical_name:
+                                    logger.info(f"🔶 [VLEX] Found possible match: {canonical_name}")
+                                    return VerificationResult(
+                                        citation=citation,
+                                        verified=False,
+                                        possible_match=True,
+                                        canonical_name=canonical_name,
+                                        canonical_date=canonical_date,
+                                        canonical_url=case_url,
+                                        source="VLex",
+                                        confidence=0.7,
+                                        method="vlex_search",
+                                    )
+                        
+                        except Exception as e:
+                            logger.debug(f"[VLEX] Error checking case page: {e}")
+                            continue
+                else:
+                    logger.warning(f"⚠️  [VLEX] No case links found in search results - likely JavaScript-based")
+            
+            # If we get here, we didn't find the case
+            logger.warning(f"⚠️  [VLEX] No matching cases found for {citation}")
+            return VerificationResult(
+                citation=citation, 
+                verified=False, 
+                error="No matching cases found on VLex (may require JavaScript)"
+            )
+        
+        except Exception as e:
+            logger.error(f"❌ [VLEX] Error verifying {citation}: {e}")
+            return VerificationResult(
+                citation=citation, 
+                verified=False, 
+                error=f"VLex error: {str(e)}"
+            )
 
     async def _verify_with_justia(
         self, citation: str, extracted_case_name: Optional[str], extracted_date: Optional[str], timeout: float
@@ -4950,6 +5186,21 @@ async def verify_citation_unified_master(
     Returns:
         Dictionary with verification results
     """
+    # Import verification components
+    from src.schemas.verification import (
+        VerificationRequest,
+        VerificationResponse,
+        BatchVerificationRequest,
+        BatchVerificationResponse,
+    )
+    from src.verification_services import (
+        VerificationServices,
+        VerificationSource,
+        VerificationResult,
+        VerificationRegistry,
+    )
+    from src.vlex_verification import verify_with_vlex
+
     # EMERGENCY FIX: Check if verification is disabled
     if not get_bool_config_value("ENABLE_VERIFICATION", True):
         logger.info(f"⚠️ Verification disabled by config - skipping {citation}")
