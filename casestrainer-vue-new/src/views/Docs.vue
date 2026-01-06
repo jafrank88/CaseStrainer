@@ -4,8 +4,8 @@
     <p>Welcome to the CaseStrainer documentation hub. Find guides, API docs, and more below.</p>
     <ul class="docs-list">
       <li><router-link to="/docs/api">API Documentation</router-link></li>
-      <li><a href="https://github.com/your-org/CaseStrainer/blob/main/README.md" target="_blank">User Guide (README)</a></li>
-      <li><a href="https://github.com/your-org/CaseStrainer/tree/main/docs" target="_blank">More Documentation</a></li>
+      <li><a href="https://github.com/jafrank88/CaseStrainer/blob/main/README.md" target="_blank">User Guide (README)</a></li>
+      <li><a href="https://github.com/jafrank88/CaseStrainer/tree/main/docs" target="_blank">More Documentation</a></li>
       <li><router-link to="/">Back to Home</router-link></li>
     </ul>
   </div>
