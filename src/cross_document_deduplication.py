@@ -3,7 +3,7 @@
 Cross-document deduplication utility
 """
 
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 import logging
 from collections import defaultdict
 
@@ -55,7 +55,7 @@ def deduplicate_clusters_cross_document(clusters: List[Dict[str, Any]]) -> List[
         
         case_groups[key].append(cluster)
     
-    # Merge duplicates
+    # Merge duplicates with stricter criteria
     deduplicated = []
     duplicates_found = 0
     
@@ -64,10 +64,50 @@ def deduplicate_clusters_cross_document(clusters: List[Dict[str, Any]]) -> List[
             # No duplicate, keep as is
             deduplicated.append(case_clusters[0])
         else:
-            # Found duplicates, merge them
-            duplicates_found += len(case_clusters) - 1
-            merged = _merge_duplicate_clusters(case_clusters)
-            deduplicated.append(merged)
+            # Check if these are truly duplicates
+            # Require either same year OR very high name similarity
+            should_merge = False
+            reference_name = case_clusters[0].get('canonical_name') or case_clusters[0].get('extracted_case_name', '')
+            reference_date = case_clusters[0].get('canonical_date') or case_clusters[0].get('extracted_date', '')
+            
+            for cluster in case_clusters[1:]:
+                current_name = cluster.get('canonical_name') or cluster.get('extracted_case_name', '')
+                current_date = cluster.get('canonical_date') or cluster.get('extracted_date', '')
+                
+                # Check if years match (allow for some variation in extracted dates)
+                ref_year = _extract_year(reference_date)
+                cur_year = _extract_year(current_date)
+                
+                if ref_year and cur_year:
+                    # If years are the same, allow merging with lower name similarity
+                    if ref_year == cur_year:
+                        name_similarity = _calculate_name_similarity(reference_name, current_name)
+                        if name_similarity > 0.7:  # 70% similarity required for same year
+                            should_merge = True
+                            break
+                    else:
+                        # If years are different, require very high name similarity
+                        if abs(ref_year - cur_year) > 2:  # More than 2 years difference
+                            continue  # Don't merge cases with significant year differences
+                        
+                        name_similarity = _calculate_name_similarity(reference_name, current_name)
+                        if name_similarity > 0.95:  # 95% similarity required for different years
+                            should_merge = True
+                            break
+                else:
+                    # If no year info, require very high similarity
+                    name_similarity = _calculate_name_similarity(reference_name, current_name)
+                    if name_similarity > 0.95:
+                        should_merge = True
+                        break
+            
+            if should_merge and len(case_clusters) > 1:
+                duplicates_found += len(case_clusters) - 1
+                merged = _merge_duplicate_clusters(case_clusters)
+                deduplicated.append(merged)
+            else:
+                # Don't merge - keep all clusters separate
+                deduplicated.extend(case_clusters)
     
     logger.info(f"[CROSS-DEDUP] After deduplication: {len(deduplicated)} clusters")
     logger.info(f"[CROSS-DEDUP] Removed {duplicates_found} duplicate clusters")
@@ -84,17 +124,57 @@ def _normalize_case_name(name: str) -> str:
     # Remove common variations and normalize
     normalized = name.lower().strip()
     
-    # Remove "v.", "vs.", "v " variations
+    # Remove "v.", "vs.", "v " variations but keep the parties
     normalized = re.sub(r'\bv\.?\s+', ' v ', normalized)
     normalized = re.sub(r'\bvs\.?\s+', ' v ', normalized)
     
     # Remove extra whitespace
     normalized = re.sub(r'\s+', ' ', normalized)
     
-    # Remove punctuation
-    normalized = re.sub(r'[^\w\s]', '', normalized)
+    # Keep important distinguishing information like "in re" and parentheticals
+    # Only remove punctuation that's not meaningful for comparison
+    normalized = re.sub(r'[^\w\s\(\)]', '', normalized)
     
     return normalized.strip()
+
+
+def _extract_year(date_str: str) -> Optional[int]:
+    """Extract 4-digit year from date string"""
+    if not date_str:
+        return None
+    
+    import re
+    # Look for 4-digit year
+    match = re.search(r'\b(19|20)\d{2}\b', date_str)
+    if match:
+        return int(match.group())
+    
+    return None
+
+
+def _calculate_name_similarity(name1: str, name2: str) -> float:
+    """Calculate similarity between two case names"""
+    if not name1 or not name2:
+        return 0.0
+    
+    from difflib import SequenceMatcher
+    
+    # Normalize both names for comparison
+    norm1 = _normalize_case_name(name1)
+    norm2 = _normalize_case_name(name2)
+    
+    # Calculate sequence similarity
+    similarity = SequenceMatcher(None, norm1, norm2).ratio()
+    
+    # Bonus for exact matches
+    if norm1 == norm2:
+        return 1.0
+    
+    # Penalty for very different lengths
+    len_ratio = min(len(norm1), len(norm2)) / max(len(norm1), len(norm2))
+    similarity *= len_ratio
+    
+    return similarity
 
 
 def _merge_duplicate_clusters(clusters: List[Dict[str, Any]]) -> Dict[str, Any]:
