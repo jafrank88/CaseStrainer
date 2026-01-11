@@ -409,7 +409,7 @@ class SmartVerificationStrategy:
                 request_id,
                 citations,
                 clusters,
-                job_timeout=VERIFICATION_TIMEOUT_MINUTES * 60,  # 5 minutes total timeout
+                job_timeout=900,  # 15 minutes total timeout (increased from 5 minutes due to rate limiting)
             )
 
             self.active_verifications[request_id] = VerificationMetadata(
