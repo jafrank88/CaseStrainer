@@ -1768,7 +1768,8 @@ const analyzeContent = async () => {
     }
     
     // Handle async task with task_id
-    if (response && response.task_id) {
+    // BUT: Check if api.js already polled and got results - if so, don't poll again
+    if (response && response.task_id && !response.citations && !response.clusters) {
       console.log('Async task started with task_id:', response.task_id);
       
       // Always initialize progress state for async tasks
@@ -1976,6 +1977,50 @@ const analyzeContent = async () => {
       );
       
       return; // Don't navigate, show progress on current page
+    } else if (response && response.task_id && (response.citations || response.clusters)) {
+      // api.js already polled and got results - process them directly
+      console.log('Results already retrieved by api.js polling:', {
+        citationsCount: response.citations?.length || 0,
+        clustersCount: response.clusters?.length || 0
+      });
+      
+      const citations = response.citations || [];
+      const clusters = response.clusters || [];
+      
+      if (citations.length > 0 || clusters.length > 0) {
+        const mappedClusters = clusters.map(cluster => ({
+          ...cluster,
+          citations: cluster.citation_objects || cluster.citations || []
+        }));
+        
+        analysisResults.value = {
+          citations: citations,
+          clusters: mappedClusters,
+          result: {
+            citations: citations,
+            clusters: clusters
+          },
+          message: response.message || 'Analysis completed successfully',
+          metadata: response.metadata || {},
+          success: true,
+          total_citations: citations.length
+        };
+      } else {
+        analysisResults.value = {
+          clusters: [],
+          citations: [],
+          message: 'Analysis completed but no citations found',
+          metadata: response.metadata || {},
+          success: response.success !== false,
+          total_citations: 0
+        };
+      }
+      
+      isAsyncProcessing.value = false;
+      isAnalyzing.value = false;
+      globalProgress.completeProgress(analysisResults.value, 'home');
+      
+      return;
     } else if (response) {
       console.log('Response received but no task_id or immediate results - storing for display');
       
