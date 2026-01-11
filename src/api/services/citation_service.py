@@ -141,17 +141,14 @@ class CitationService:
 
                 extractor = RobustPDFExtractor()
                 result = extractor.extract_text(file_path)
-                # extract_text returns a tuple (text, method)
+                # Text normalization happens in UnifiedTextExtractor
                 if isinstance(result, tuple):
                     text = result[0]
                 else:
                     text = result
-                if text and len(text.strip()) > 0:
-                    logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
-                    return text
-                else:
-                    logger.warning(f"No text extracted from file: {file_path}")
-                    return None
+                return text
+                logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
+                return text
             except Exception as e:
                 logger.error(f"Failed to extract text from file {file_path}: {e}")
                 return None

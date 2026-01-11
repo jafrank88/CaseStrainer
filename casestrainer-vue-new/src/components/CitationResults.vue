@@ -64,7 +64,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-unv-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -96,7 +96,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-nm-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -128,7 +128,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-dm-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -159,7 +159,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-vbp-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -190,7 +190,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-verified-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -221,7 +221,7 @@
             <div class="cluster-citations">
               <div v-for="(citation, index) in getClusterCitations(cluster)" :key="`${cluster.cluster_id}-oth-${index}`" class="cluster-line citation-line">
                 <strong>Citation {{ index + 1 }}: </strong>
-                <span class="citation-text">{{ citation.text || citation.citation }}</span>
+                <span class="citation-text">{{ formatCitationText(citation) }}</span>
                 <span class="citation-status" :class="getCitationStatusClass(citation)">{{ getCitationStatusText(citation) }}</span>
               </div>
             </div>
@@ -238,17 +238,20 @@
       </div>
       
       <div class="citations-list">
-        <div v-for="citation in citations" :key="citation.citation" class="citation-item">
-          <div class="citation-text">{{ citation.citation }}</div>
+        <div v-for="citation in citations" :key="citation.text || citation.citation" class="citation-item">
+          <div class="citation-text">{{ formatCitationText(citation) }}</div>
           <div class="citation-status">
             <span :style="{ color: citation.verified ? 'green' : (citation.true_by_parallel ? '#FF9800' : 'red') }">
               {{ citation.verified ? '✅ VERIFIED' : (citation.true_by_parallel ? '✅ VERIFIED BY PARALLEL' : '❌ UNVERIFIED') }}
             </span>
+            <div v-if="!citation.verified && citation.error" class="verification-error mt-1">
+              <small>{{ citation.error }}</small>
+            </div>
           </div>
           <div class="citation-details">
             <div><strong>Case:</strong> {{ citation.extracted_case_name && citation.extracted_case_name !== 'N/A' ? citation.extracted_case_name : (citation.canonical_name || citation.case_name || 'N/A') }}</div>
             <div><strong>Date:</strong> {{ citation.extracted_date }}</div>
-                      </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1005,9 +1008,61 @@ export default {
         return 'Verified by Parallel'
       } else if (citation.possible_match) {
         return 'Possible Match'
+      } else if (citation.error) {
+        // Display error message (e.g., proprietary format)
+        return citation.error
       } else {
         return 'Unverified'
       }
+    }
+
+    const formatCitationText = (citation) => {
+      // If citation has a text property, use it
+      if (citation.text) {
+        return citation.text
+      }
+      
+      // If citation is a string, return as-is
+      if (typeof citation === 'string') {
+        return citation
+      }
+      
+      // If citation.citation exists and is a string
+      if (citation.citation && typeof citation.citation === 'string') {
+        return citation.citation
+      }
+      
+      // If citation.citation is an object (eyecite citation), extract the basic citation text
+      if (citation.citation && typeof citation.citation === 'object') {
+        // Extract volume, reporter, and page from the eyecite object
+        const groups = citation.citation.groups || {}
+        const volume = groups.volume || ''
+        const reporter = groups.reporter || ''
+        const page = groups.page || ''
+        
+        if (volume && reporter && page) {
+          return `${volume} ${reporter} ${page}`
+        } else if (reporter && page) {
+          return `${reporter} ${page}`
+        } else {
+          // Fallback: try to get a string representation
+          const citStr = citation.citation.toString()
+          // Try to extract the citation text from FullCaseCitation('text', ...)
+          const match = citStr.match(/FullCaseCitation\('([^']+)'/)
+          if (match) return match[1]
+          
+          const shortMatch = citStr.match(/ShortCaseCitation\('([^']+)'/)
+          if (shortMatch) return shortMatch[1]
+          
+          const idMatch = citStr.match(/IdCitation\('([^']+)'/)
+          if (idMatch) return idMatch[1]
+          
+          return citStr.substring(0, 100) + '...'
+        }
+      }
+      
+      // Fallback
+      return citation.citation || 'N/A'
     }
 
     // Unified grouping for single display
@@ -1057,7 +1112,8 @@ export default {
       getClusterSubmittedName,
       getClusterSubmittedDate,
       getCitationStatusClass,
-      getCitationStatusText
+      getCitationStatusText,
+      formatCitationText
       ,clustersUnverified
       ,clustersCaseMismatch
       ,clustersDateMismatch
@@ -1099,6 +1155,19 @@ export default {
   margin-bottom: 0.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+}
+
+.citation-details {
+  margin-top: 8px;
+  font-size: 0.9em;
+  color: #666;
+}
+
+.verification-error {
+  margin-top: 4px;
+  font-size: 0.85em;
+  color: #d32f2f;
+  font-style: italic;
 }
 
 .perfect-score-celebration {

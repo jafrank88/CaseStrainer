@@ -57,19 +57,95 @@ class CitationResult:
 
     def to_dict(self):
         """Convert the CitationResult to a dictionary for JSON serialization."""
+        
+        # CRITICAL FIX: Clean FullCaseCitation contamination from case names
+        def _clean_case_name(name):
+            import re
+            
+            if not name or name == "N/A":
+                return name
+            
+            # Check for patterns like "Case (" that indicate contamination
+            if name == "Case (" or name == "(" or name.startswith("Case (FullCaseCitation"):
+                return "N/A"
+            
+            # USER FIX 2026-01-08: Handle FullLawCitation (e.g., "Pub. L. No. 111-31", "123 Stat. 1776")
+            if "FullLawCitation(" in name:
+                match = re.search(r"FullLawCitation\('([^']+)'", name)
+                if match:
+                    return match.group(1)
+                return name.split("FullLawCitation(")[0].strip() or "N/A"
+            
+            # USER FIX 2026-01-08: Handle SupraCitation (e.g., "supra")
+            if "SupraCitation(" in name:
+                match = re.search(r"SupraCitation\('([^']+)'", name)
+                if match:
+                    return match.group(1)
+                return name.split("SupraCitation(")[0].strip() or "N/A"
+            
+            # Check if it contains FullCaseCitation text
+            if "FullCaseCitation(" in name:
+                # Extract the actual citation text
+                match = re.search(r"FullCaseCitation\('([^']+)'", name)
+                if match:
+                    # Return just the citation text (e.g., "146 F.4th 165")
+                    return match.group(1)
+                # If we can't parse it, return a cleaned version
+                return name.split("FullCaseCitation(")[0].strip()
+            
+            # Check for other citation types
+            if "IdCitation(" in name:
+                return "Id."
+            if "ShortCaseCitation(" in name:
+                match = re.search(r"ShortCaseCitation\('([^']+)'", name)
+                if match:
+                    return match.group(1)
+                return name.split("ShortCaseCitation(")[0].strip()
+            if "FullJournalCitation(" in name:
+                match = re.search(r"FullJournalCitation\('([^']+)'", name)
+                if match:
+                    return match.group(1)
+                return name.split("FullJournalCitation(")[0].strip()
+            
+            return name
 
         # Get cluster case name from attribute or metadata
         cluster_case_name = getattr(self, "cluster_case_name", None)
         # Also check metadata if direct attribute is not set
         if not cluster_case_name and hasattr(self, "metadata") and self.metadata:
             cluster_case_name = self.metadata.get("cluster_case_name")
+        
+        # CRITICAL FIX: Clean cluster_case_name if it contains citation objects
+        if cluster_case_name and "FullCaseCitation(" in str(cluster_case_name):
+            cluster_case_name = _clean_case_name(cluster_case_name)
 
         extracted_case_name = self.extracted_case_name
         canonical_name = self.canonical_name
 
         # FIX #13: Add case_name field with intelligent fallback
         # Priority: canonical_name (verified) > extracted_case_name (unverified) > N/A
-        case_name = canonical_name or extracted_case_name or "N/A"
+        
+        # Clean both canonical and extracted names
+        cleaned_canonical_name = _clean_case_name(canonical_name)
+        cleaned_extracted_name = _clean_case_name(extracted_case_name)
+        
+        case_name = cleaned_canonical_name or cleaned_extracted_name or "N/A"
+        
+        # CRITICAL FIX: Clean the citation field itself
+        citation_text = self.citation
+        if citation_text and isinstance(citation_text, str):
+            # Check if it's a Python object representation
+            if "Citation(" in citation_text:
+                citation_text = _clean_case_name(citation_text)
+
+        # USER FIX 2026-01-08: Clean parallel_citations and cluster_members lists
+        parallel_citations = self.parallel_citations or []
+        if parallel_citations:
+            parallel_citations = [_clean_case_name(str(c)) if "Citation(" in str(c) else c for c in parallel_citations]
+        
+        cluster_members = self.cluster_members or []
+        if cluster_members:
+            cluster_members = [_clean_case_name(str(c)) if "Citation(" in str(c) else c for c in cluster_members]
 
         # Debug logging for data separation
         import logging
@@ -86,11 +162,11 @@ class CitationResult:
         verified_status = self.verified  # Use the actual verification status
 
         result = {
-            "citation": self.citation,
+            "citation": citation_text,
             "case_name": case_name,  # FIX #13: Intelligent fallback (canonical > extracted > N/A)
-            "extracted_case_name": extracted_case_name,
+            "extracted_case_name": cleaned_extracted_name,  # CRITICAL FIX: Return cleaned name
             "extracted_date": self.extracted_date,
-            "canonical_name": canonical_name,
+            "canonical_name": cleaned_canonical_name,  # CRITICAL FIX: Return cleaned name
             "canonical_date": self.canonical_date,
             "canonical_url": self.canonical_url,
             "cluster_case_name": cluster_case_name,  # FIXED: Add cluster_case_name field
@@ -106,8 +182,8 @@ class CitationResult:
             "end_index": self.end_index,
             "is_parallel": self.is_parallel,
             "is_cluster": self.is_cluster,
-            "parallel_citations": self.parallel_citations,
-            "cluster_members": self.cluster_members,
+            "parallel_citations": parallel_citations,  # USER FIX 2026-01-08: Use cleaned list
+            "cluster_members": cluster_members,  # USER FIX 2026-01-08: Use cleaned list
             "pinpoint_pages": self.pinpoint_pages,
             "docket_numbers": self.docket_numbers,
             "case_history": self.case_history,

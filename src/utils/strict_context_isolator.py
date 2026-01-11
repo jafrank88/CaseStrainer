@@ -413,12 +413,46 @@ def get_adaptive_context_for_citation(
         Adaptive context string containing a case name
     """
     logger.error(f"[BACKWARDS-EXTRACT] Starting backwards extraction for citation at {citation_start}")
+    
+    # SERIES CITATION FIX: Check if this is NOT the first citation in a series
+    # If it's not the first, don't extract case name to prevent incorrect association
+    # But only for clear series citations, not all nearby citations
+    if citation_start and citation_start > 0:
+        # Look backwards to see if there's another citation within 100 characters
+        look_behind = text[max(0, citation_start - 100):citation_start]
+        prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+        
+        # Only treat as series if there are clear indicators
+        is_series_citation = False
+        
+        # Check for semicolon (clear series indicator)
+        if ';' in look_behind:
+            is_series_citation = True
+            logger.info(f"[SERIES-DEBUG] Semicolon detected - treating as series citation")
+        
+        # Check if citations are comma-separated without periods between them
+        elif re.search(prev_citation_pattern, look_behind):
+            # Check if there's no period between the citations
+            last_period = look_behind.rfind('.')
+            last_citation = re.search(prev_citation_pattern, look_behind)
+            if last_citation and (last_period < 0 or last_period < last_citation.start()):
+                is_series_citation = True
+                logger.info(f"[SERIES-DEBUG] Comma-separated citations without period - treating as series")
+        
+        if is_series_citation and re.search(prev_citation_pattern, look_behind):
+            # This is NOT the first citation in a series
+            # Return empty context to prevent case name extraction
+            logger.info(f"[SERIES-FIX-ISOLATOR] Skipping case name extraction for non-first citation at position {citation_start}")
+            print(f"!!![SERIES-FIX-ISOLATOR] Non-first citation detected - returning empty context", flush=True)
+            return ""
 
     # USER FIX: Progressive window sizes - start small and expand only if needed
     # This ensures we get the CLOSEST case name to the citation first
     # FIX DEC 2025 v10: Increased initial windows to capture longer corporate names
     # like "Fisher Broad.–Seattle TV LLC v. City of Seattle" (56 chars)
-    window_sizes = [60, 80, 100, 125, max_lookback]
+    # FIX JAN 2026: Further increased to handle very long case names like
+    # "New York Civil Liberties Union v. New York City Transit Authority" (77 chars)
+    window_sizes = [100, 150, 200, 250, max_lookback]
 
     for window_size in window_sizes:
         # Get context with current window size
@@ -819,7 +853,8 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
         # - Single letter abbreviations followed by period (N., W., etc.)
         # - Corporate suffixes (LLC, Inc., Corp., Co., Ltd., etc.)
         # - Common legal abbreviations (Ry., Auto, Supply, etc.)
-        r"([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120}(?:,\s*(?:LLC|Inc\.?|Corp\.?|Co\.?|Ltd\.?|L\.P\.?|L\.L\.C\.?))?)\s+v\.\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,120}(?:,\s*(?:LLC|Inc\.?|Corp\.?|Co\.?|Ltd\.?|L\.P\.?|L\.L\.C\.?))?)(?:\s*[;\(,]|,\s*\d+|,\s*No\.|$)",
+        # FIX JAN 2026: Improved pattern to better handle signal words and docket numbers
+        r"([A-Z][a-zA-Z\'\.\&\-\s]*?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\-\s]*?)(?=\s*,\s*(?:No\.|\d+)|\s*[;\(,]|$)",
         # PRIORITY 4: In re/Matter of/Estate of patterns
         r"(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)",
         # PRIORITY 5: Ex parte pattern
@@ -1136,6 +1171,16 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 except Exception:
                     pass
                 case_name = f"{plaintiff} v. {defendant}"
+                
+                # FIX JAN 2026: Clean up signal words at the start of case names
+                # This handles cases like "See also, e.g., Alexander v. ..." where signal words are captured
+                signal_words = ["see also", "see", "cf.", "e.g.", "accord", "compare", "but see", "quoting"]
+                case_name_lower = case_name.lower()
+                for signal in signal_words:
+                    if case_name_lower.startswith(signal):
+                        # Remove the signal word and following punctuation/spaces
+                        case_name = case_name[len(signal):].strip(" ,;")
+                        break
 
                 # CRITICAL FIX: Reject document header patterns
                 # These patterns indicate the extracted name is from a document header/caption, not a citation

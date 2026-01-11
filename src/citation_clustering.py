@@ -46,7 +46,7 @@ def group_citations_into_clusters(citations: list, original_text: str | None = N
                         c.metadata = {}
                     c.metadata["is_in_cluster"] = True
                     c.metadata["cluster_id"] = cluster_id
-                    cluster_members = [other_c.citation for other_c in group_members if other_c.citation != c.citation]
+                    cluster_members = [str(other_c.citation) for other_c in group_members if other_c.citation != c.citation]
                     c.metadata["cluster_members"] = cluster_members
                     c.metadata["cluster_size"] = len(group_members)
                 if cluster_id not in clusters_by_id:

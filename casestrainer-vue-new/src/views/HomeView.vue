@@ -1771,9 +1771,21 @@ const analyzeContent = async () => {
     // BUT: Check if api.js already polled and got results - if so, don't poll again
     // api.js sets status='completed' when polling finishes successfully
     // ALSO check if citations/clusters are present - if so, api.js already got results
+    console.log('DEBUG: Checking hasCompletedResults:', {
+      status: response.status,
+      hasCitations: !!response.citations,
+      citationsIsArray: Array.isArray(response.citations),
+      citationsLength: response.citations?.length,
+      hasClusters: !!response.clusters,
+      clustersIsArray: Array.isArray(response.clusters),
+      clustersLength: response.clusters?.length
+    });
+    
     const hasCompletedResults = response.status === 'completed' || 
                                 (response.citations && response.citations.length > 0) ||
                                 (response.clusters && response.clusters.length > 0);
+    
+    console.log('DEBUG: hasCompletedResults =', hasCompletedResults);
     
     if (response && response.task_id && !hasCompletedResults) {
       console.log('Async task started with task_id:', response.task_id);

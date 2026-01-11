@@ -1041,26 +1041,115 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                             # Check for significant word overlap
                                             if words1 and words2:
                                                 overlap = words1 & words2
-                                                # If they share at least 2 significant words, merge
+                                                # If they share at least 2 significant words, check court compatibility
                                                 if len(overlap) >= 2:
-                                                    logger.info(
-                                                        f"[TASK:{task_id}] Merging clusters by name similarity: '{name1}' + '{name2}' (shared: {overlap})"
-                                                    )
-                                                    # Merge j into i
-                                                    leader = c1
-                                                    other = c2
-                                                    leader_members = leader.get("cluster_members", [])
-                                                    other_members = other.get("cluster_members", [])
-                                                    for m in other_members:
-                                                        if m not in leader_members:
-                                                            leader_members.append(m)
-                                                    leader["cluster_members"] = leader_members
-                                                    leader["cluster_size"] = len(leader_members)
-                                                    # Prefer longer canonical name
-                                                    if len(name2) > len(name1):
-                                                        leader["canonical_name"] = name2
-                                                        leader["verifying_display_name"] = name2
-                                                    to_remove.add(indices[j])
+                                                    # USER FIX 2026-01-09: Check court-level compatibility before merging
+                                                    # Supreme Court, Circuit Court, and District Court citations can NEVER be merged
+                                                    def get_court_types(cluster):
+                                                        """Extract court types from cluster citations."""
+                                                        import re
+                                                        court_types = set()
+                                                        for member in cluster.get("cluster_members", []):
+                                                            # Handle both dict and string types
+                                                            if isinstance(member, dict):
+                                                                cit_text = member.get("citation", "")
+                                                            elif isinstance(member, str):
+                                                                cit_text = member
+                                                            else:
+                                                                continue
+                                                            # Parse citation to get reporter
+                                                            pattern = r"(\d+)\s+([A-Z][\w\.]+(?:\s+[\w\.]+)*?)\s+(\d+)"
+                                                            match = re.search(pattern, cit_text)
+                                                            if match:
+                                                                reporter = match.group(2).strip().replace(" ", "")
+                                                                # Classify by court type
+                                                                if reporter in ["U.S.", "S.Ct.", "L.Ed.", "L.Ed.2d"]:
+                                                                    court_types.add("supreme")
+                                                                elif reporter in ["F.2d", "F.3d", "F.4th"]:
+                                                                    court_types.add("circuit")
+                                                                elif reporter in ["F.Supp.", "F.Supp.2d", "F.Supp.3d"]:
+                                                                    court_types.add("district")
+                                                        return court_types
+                                                    
+                                                    court_types_1 = get_court_types(c1)
+                                                    court_types_2 = get_court_types(c2)
+                                                    
+                                                    # Check for incompatible court types
+                                                    incompatible = False
+                                                    if court_types_1 and court_types_2:
+                                                        # Supreme + Circuit/District = incompatible
+                                                        if ("supreme" in court_types_1 and ("circuit" in court_types_2 or "district" in court_types_2)) or \
+                                                           ("supreme" in court_types_2 and ("circuit" in court_types_1 or "district" in court_types_1)):
+                                                            incompatible = True
+                                                            logger.info(
+                                                                f"[TASK:{task_id}] BLOCKING merge of '{name1}' + '{name2}': Supreme Court + Circuit/District (incompatible court levels)"
+                                                            )
+                                                        # Circuit + District = incompatible
+                                                        elif ("circuit" in court_types_1 and "district" in court_types_2) or \
+                                                             ("circuit" in court_types_2 and "district" in court_types_1):
+                                                            incompatible = True
+                                                            logger.info(
+                                                                f"[TASK:{task_id}] BLOCKING merge of '{name1}' + '{name2}': Circuit Court + District Court (incompatible court levels)"
+                                                            )
+                                                    
+                                                    # USER FIX 2026-01-09: Check for same reporter but different volumes
+                                                    # Multiple citations in same reporter = different cases
+                                                    # OPTIMIZED: Cache parsed citations to avoid O(n²) regex operations
+                                                    if not incompatible:
+                                                        # Get first citation from each cluster for quick check
+                                                        import re
+                                                        pattern = r"(\d+)\s+([A-Z][\w\.]+(?:\s+[\w\.]+)*?)\s+(\d+)"
+                                                        
+                                                        def get_first_citation_info(cluster):
+                                                            """Get reporter+volume from first citation only (optimization)."""
+                                                            members = cluster.get("cluster_members", [])
+                                                            if not members:
+                                                                return None, None
+                                                            
+                                                            member = members[0]
+                                                            if isinstance(member, dict):
+                                                                cit_text = member.get("citation", "")
+                                                            elif isinstance(member, str):
+                                                                cit_text = member
+                                                            else:
+                                                                return None, None
+                                                            
+                                                            match = re.search(pattern, cit_text)
+                                                            if match:
+                                                                volume = match.group(1)
+                                                                reporter = match.group(2).strip().replace(" ", "")
+                                                                return reporter, volume
+                                                            return None, None
+                                                        
+                                                        reporter1, vol1 = get_first_citation_info(c1)
+                                                        reporter2, vol2 = get_first_citation_info(c2)
+                                                        
+                                                        # Quick check: if same reporter but different volumes, incompatible
+                                                        if reporter1 and reporter2 and reporter1 == reporter2 and vol1 != vol2:
+                                                            incompatible = True
+                                                            logger.info(
+                                                                f"[TASK:{task_id}] BLOCKING merge of '{name1}' + '{name2}': Same reporter ({reporter1}) but different volumes ({vol1} vs {vol2}) = different cases"
+                                                            )
+                                                    
+                                                    if not incompatible:
+                                                        logger.info(
+                                                            f"[TASK:{task_id}] Merging clusters by name similarity: '{name1}' + '{name2}' (shared: {overlap})"
+                                                        )
+                                                        # Merge j into i
+                                                        leader = c1
+                                                        other = c2
+                                                        leader_members = leader.get("cluster_members", [])
+                                                        other_members = other.get("cluster_members", [])
+                                                        for m in other_members:
+                                                            if m not in leader_members:
+                                                                leader_members.append(m)
+                                                        leader["cluster_members"] = leader_members
+                                                        leader["cluster_size"] = len(leader_members)
+                                                        # Prefer longer canonical name
+                                                        if len(name2) > len(name1):
+                                                            leader["canonical_name"] = name2
+                                                            leader["verifying_display_name"] = name2
+                                                        to_remove.add(indices[j])
 
                             if to_remove:
                                 clusters_list = [c for i, c in enumerate(clusters_list) if i not in to_remove]

@@ -37,7 +37,7 @@ services:
       - PYTHONPATH=/app
       - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
       - COURTLISTENER_API_KEY=443a87912e4f444fb818fca454364d71e4aa9f91
-      - ENABLE_VERIFICATION=false
+      - ENABLE_VERIFICATION=true
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -89,7 +89,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=1
-      - ENABLE_VERIFICATION=false
+      - ENABLE_VERIFICATION=true
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -133,7 +133,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=2
-      - ENABLE_VERIFICATION=false
+      - ENABLE_VERIFICATION=true
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
@@ -177,7 +177,7 @@ services:
       - RQ_MAX_MEMORY_MB=1024
       - RQ_WORKER_AUTORELOAD=false
       - WORKER_ID=3
-      - ENABLE_VERIFICATION=false
+      - ENABLE_VERIFICATION=true
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
