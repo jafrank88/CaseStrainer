@@ -9,7 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
 class PollingService {
   constructor() {
     this.activePolls = new Map(); // Map of task_id -> poll interval
-    this.maxPollTime = 10 * 60 * 1000; // 10 minutes max
+    this.maxPollTime = 20 * 60 * 1000; // 20 minutes max (increased from 10 to handle rate-limited verification)
     this.pollInterval = 2000; // 2 seconds between polls
   }
 
@@ -37,6 +37,28 @@ class PollingService {
         console.log(`Polling task ${taskId} (attempt ${pollCount})`);
 
         const response = await fetch(`${API_BASE_URL}/task_status/${taskId}`);
+        
+        // Handle 404 - job may still be processing, results not ready yet
+        if (response.status === 404) {
+          console.log(`Task ${taskId} not found yet (404) - job may still be processing`);
+          onProgress({
+            taskId,
+            status: 'processing',
+            message: 'Processing...',
+            pollCount
+          });
+          
+          // Check if we've exceeded max poll time
+          if (Date.now() - startTime > this.maxPollTime) {
+            console.error(`Task ${taskId} exceeded max poll time (404 persists)`);
+            this.stopPolling(taskId);
+            onError('Task exceeded maximum processing time - results not found');
+            return;
+          }
+          
+          // Continue polling - don't treat 404 as fatal error during processing
+          return;
+        }
         
         if (!response.ok) {
           throw new Error(`HTTP ${response.status}: ${response.statusText}`);
