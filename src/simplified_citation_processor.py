@@ -164,10 +164,10 @@ class SimplifiedCitationProcessor:
             citations = citations[: self.config.max_citations]
             logger.warning(f"[{request_id}] Limited citations to {self.config.max_citations}")
 
-        # Verify if enabled
+        # Verify if enabled - skip since extract_citations_production already handles verification
         verification_results = None
-        if self.config.enable_verification:
-            verification_results = self._verify_citations(citations, request_id)
+        # if self.config.enable_verification:
+        #     verification_results = self._verify_citations(citations, request_id)
 
         # Cluster if enabled
         clusters = []
@@ -212,7 +212,7 @@ class SimplifiedCitationProcessor:
     def _extract_citations(self, text: str, request_id: str) -> List[Dict[str, Any]]:
         """Extract citations from text."""
         # Import the actual extraction function
-        from src.citation_extraction_endpoint import extract_citations_with_clustering
+        from src.citation_extraction_endpoint import extract_citations_production
 
         logger.info(f"[{request_id}] Extracting citations from {len(text)} characters")
 
@@ -220,16 +220,16 @@ class SimplifiedCitationProcessor:
         if self.config.progress_callback:
             self.config.progress_callback(20, "Extracting citations...")
 
-        # Use existing extraction logic
-        result = extract_citations_with_clustering(
-            text,
-            enable_verification=self.config.enable_verification,  # Use config setting instead of hardcoded False
-            progress_callback=self.config.progress_callback,
-        )
-
+        # Use the production extraction endpoint (which includes proprietary format marking and verification)
+        result = extract_citations_production(text)
+        
+        # Extract citations from result
         citations = result.get("citations", [])
         logger.info(f"[{request_id}] Extracted {len(citations)} citations")
-
+        
+        # Skip separate verification since extract_citations_production already handles it
+        verification_results = None
+        
         return citations
 
     def _verify_citations(self, citations: List[Dict[str, Any]], request_id: str) -> Dict[str, Any]:

@@ -688,7 +688,7 @@ class UnifiedInputProcessor:
                         "src.rq_worker.process_citation_task_direct",  # Use RQ worker that reports VM progress
                         args=(request_id, "text", {"text": text}),
                         job_id=request_id,  # Use request_id as the job ID
-                        job_timeout=300,  # 5 minutes timeout
+                        job_timeout=900,  # 15 minutes timeout (matches FILE_PROCESSING_TIMEOUT_MINUTES)
                         result_ttl=86400,
                         failure_ttl=86400,
                     )

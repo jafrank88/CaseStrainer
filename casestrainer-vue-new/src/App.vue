@@ -2,7 +2,7 @@
   <div id="app">
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-dark" style="background: linear-gradient(90deg, #4b2e83 60%, #6a4c93 100%);">
-      <div class="container">
+      <div class="container-lg">
         <router-link class="navbar-brand" to="/">
           <i class="bi bi-journal-check me-2"></i>
           <span class="d-none d-sm-inline">CaseStrainer</span>
@@ -85,7 +85,7 @@
 
     <!-- Footer -->
     <footer class="bg-light py-4 mt-5">
-      <div class="container">
+      <div class="container-lg">
         <div class="row g-4">
           <div class="col-12 col-md-6">
             <h5>About CaseStrainer</h5>

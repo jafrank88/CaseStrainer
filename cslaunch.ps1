@@ -3279,13 +3279,14 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
         if ($LASTEXITCODE -eq 0) {
             Write-Host "`n[OK] Backend + workers rebuilt and deployed in $([math]::Round($sw.Elapsed.TotalSeconds, 1)) seconds" -ForegroundColor Green
             
-            # CRITICAL: Reload nginx configuration to pick up any changes
-            Write-Host "`n[NGINX] Reloading nginx configuration..." -ForegroundColor Yellow
-            docker exec casestrainer-nginx-prod nginx -s reload > $null 2>&1
+            # CRITICAL: Restart nginx to re-establish connection to backend
+            # This prevents 502 Bad Gateway errors after backend restart
+            Write-Host "`n[NGINX] Restarting nginx to reconnect to backend..." -ForegroundColor Yellow
+            docker-compose -f docker-compose.prod.yml restart nginx 2>&1 | Out-Null
             if ($LASTEXITCODE -eq 0) {
-                Write-Host "  [OK] Nginx configuration reloaded successfully" -ForegroundColor Green
+                Write-Host "  [OK] Nginx restarted and reconnected to backend" -ForegroundColor Green
             } else {
-                Write-Host "  [WARN] Could not reload nginx config (container may not exist)" -ForegroundColor Yellow
+                Write-Host "  [WARN] Could not restart nginx (container may not exist)" -ForegroundColor Yellow
             }
             
             # NOW wait for services to be ready (after restart)

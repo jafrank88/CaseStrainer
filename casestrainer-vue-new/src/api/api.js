@@ -721,10 +721,11 @@ export const analyze = async (requestData, requestId = null) => {
                 console.error('Error during polling:', error);
                 throw error;
             }
+        } else {
+            // Synchronous response - return immediately
+            console.log('Returning response data:', response.data);
+            return { ...response.data, requestId: requestId };
         }
-        
-        console.log('Returning response data:', response.data);
-        return { ...response.data, requestId: requestId };
     } catch (error) {
         console.error('=== ANALYZE FUNCTION ERROR ===');
         console.error('Error in analyze request:', {

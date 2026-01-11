@@ -110,32 +110,30 @@ class UnifiedTextExtractor:
             logger.debug(f"Cached content for {cache_key}")
 
     def _enhanced_text_normalization(self, text: str) -> str:
-        """Enhanced text normalization with multiple cleaning steps."""
+        """
+        CRITICAL: Single point of text normalization for the entire system.
+        
+        This method ensures all text is normalized BEFORE eyecite extracts citations,
+        guaranteeing that position pointers (start_index, end_index) align correctly
+        with the text used for case name extraction and clustering.
+        
+        All extracted text flows through this method via extract_text() before being
+        passed to citation extraction, ensuring consistent normalization across
+        sync and async processing paths.
+        """
         if not text:
             return text
 
         try:
-            # Step 1: Basic Unicode normalization
-            from utils.text_normalizer import normalize_text
-
-            normalized = normalize_text(text)
-
-            # Step 2: Remove problematic characters
-            normalized = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", normalized)
-
-            # Step 3: Normalize whitespace
-            normalized = re.sub(r"\r\n", "\n", normalized)  # Windows newlines
-            normalized = re.sub(r"\r", "\n", normalized)  # Old Mac newlines
-            normalized = re.sub(r"\n{3,}", "\n\n", normalized)  # Multiple newlines
-            normalized = re.sub(r"[ \t]+", " ", normalized)  # Multiple spaces/tabs
-            normalized = re.sub(r" *\n *", "\n", normalized)  # Spaces around newlines
-
-            # Step 4: Remove common document artifacts
-            normalized = re.sub(r"\n\d+\n", "\n", normalized)  # Page numbers
-            normalized = re.sub(r"\n-+\s*\d+\s*-+\n", "\n", normalized)  # Header/footer
-            normalized = re.sub(r"\S+@\S+\.\S+", "", normalized)  # Email addresses
-
-            # Step 5: Final cleanup
+            # Step 1: Remove problematic control characters
+            normalized = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+            
+            # Step 2: Collapse ALL whitespace (including newlines, tabs) to single spaces
+            # This is critical for position alignment - eyecite will extract citations
+            # with positions based on this normalized text
+            normalized = re.sub(r"\s+", " ", normalized)
+            
+            # Step 3: Final cleanup
             normalized = normalized.strip()
 
             return normalized

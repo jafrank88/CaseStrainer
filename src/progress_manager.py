@@ -518,22 +518,21 @@ class ChunkedCitationProcessor:
         return processed
 
     async def _process_chunk(self, chunk: str, document_type: str) -> List[Dict]:
-        """Process a single chunk for citations using the CLEAN extraction pipeline."""
+        """Process a single chunk for citations using the unified extraction master."""
         chunk_hash = hash(chunk) % 1000
         logger.info(f"[Chunk-{chunk_hash}] Starting chunk processing (size: {len(chunk)} chars)")
 
         try:
-            logger.info(f"[Chunk-{chunk_hash}] Using CleanExtractionPipeline...")
-            from src.clean_extraction_pipeline import CleanExtractionPipeline
+            logger.info(f"[Chunk-{chunk_hash}] Using unified extraction master...")
+            from src.unified_case_extraction_master import extract_citations_unified
 
-            logger.info(f"[Chunk-{chunk_hash}] Creating clean pipeline...")
-            pipeline = CleanExtractionPipeline()
-
-            logger.info(f"[Chunk-{chunk_hash}] Starting extract_citations()...")
+            logger.info(f"[Chunk-{chunk_hash}] Starting extract_citations_unified()...")
             start_time = time.time()
 
-            # Extract citations using clean pipeline
-            citation_results = pipeline.extract_citations(chunk)
+            # Extract citations using unified master
+            citation_results = extract_citations_unified(chunk)
+            
+            logger.info(f"[Chunk-{chunk_hash}] Extracted {len(citation_results)} citations with unified master")
 
             # NEW: Apply verification and parallel verification to chunk results
             logger.info(f"[Chunk-{chunk_hash}] Applying verification and parallel verification to chunk results...")

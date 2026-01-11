@@ -6,6 +6,7 @@ Validates extracted case names to reject:
 - Single words without "v." or "vs."
 - Common phrases that get mistakenly extracted
 - N/A or empty values that should be cleaned up
+- Case names with docket numbers (treated as unverified)
 """
 
 import re
@@ -13,6 +14,63 @@ import logging
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+
+def has_docket_number(case_name: str) -> bool:
+    """Check if case name contains docket number patterns"""
+    docket_patterns = [
+        r":\d{1,4}[:-]\s*CV-\s*\d{4,}[\w\-]*",  # ":2:24-CV- 00074-APG-NJK"
+        r":\d{1,4}[:-]\s*CV-\d{4,}[\w\-]*",      # ":2:24-CV-00074"
+        r":\d{1,4}(?::[:-])?\d{3,4}[\w\-]*",     # General: ":2:24-CV-00074" or ":2023-CV-456"
+        r",\s*No\.\s*[\d\-\w:]+",               # ", No. 2:24-CV-00074"
+        r"\bNo\.\s*[\d\-\w:]+",                 # "No. 2:24-CV-00074"
+    ]
+    return any(re.search(pattern, case_name, re.IGNORECASE) for pattern in docket_patterns)
+
+
+def clean_docket_from_case_name(case_name: str) -> str:
+    """Remove docket number from case name"""
+    cleaned = case_name
+    docket_patterns = [
+        r":\d{1,4}[:-]\s*CV-\s*\d{4,}[\w\-]*",
+        r":\d{1,4}[:-]\s*CV-\d{4,}[\w\-]*",
+        r":\d{1,4}(?::[:-])?\d{3,4}[\w\-]*",
+        r",\s*No\.\s*[\d\-\w:]+",
+        r"\bNo\.\s*[\d\-\w:]+",
+    ]
+    for pattern in docket_patterns:
+        cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
+    cleaned = re.sub(r"\s*,\s*$", "", cleaned)
+    cleaned = re.sub(r"\s{2,}", " ", cleaned)
+    return cleaned.strip()
+
+
+def validate_and_clean_case_name(case_name: Optional[str], min_length: int = 5) -> tuple[bool, Optional[str]]:
+    """
+    Validate case name and optionally clean it if it contains docket numbers.
+    
+    Returns:
+        (is_valid, cleaned_name_or_original)
+        - If valid without docket: (True, case_name)
+        - If has docket: (False, cleaned_case_name)  # treated as unverified
+        - If invalid: (False, None)
+    """
+    if not case_name or case_name.strip() == "":
+        return False, None
+    
+    case_name = case_name.strip()
+    
+    # Check for docket numbers
+    if has_docket_number(case_name):
+        cleaned = clean_docket_from_case_name(case_name)
+        logger.warning(f"Case name has docket number - treating as unverified: '{case_name}' → '{cleaned}'")
+        return False, cleaned  # Return False to indicate unverified, but provide cleaned version
+    
+    # Normal validation
+    if is_valid_case_name(case_name, min_length):
+        return True, case_name
+    else:
+        return False, None
 
 
 def is_valid_case_name(case_name: Optional[str], min_length: int = 5) -> bool:
@@ -58,6 +116,11 @@ def is_valid_case_name(case_name: Optional[str], min_length: int = 5) -> bool:
 
     if not (has_v or is_special_case):
         logger.debug(f"Rejected: No 'v.'/'vs.' and not a special case: '{case_name}'")
+        return False
+
+    # FIX JAN 2026: Check for docket numbers and treat as unverified
+    if has_docket_number(case_name):
+        logger.warning(f"Rejected: Contains docket number (treated as unverified): '{case_name}'")
         return False
 
     # CRITICAL FIX: Reject if contains legal analysis phrases (not case names)

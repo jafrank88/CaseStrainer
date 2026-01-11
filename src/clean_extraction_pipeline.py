@@ -62,8 +62,14 @@ def _extract_special_citation_formats(text: str, citation_text: str, start_index
         Extracted case name or None if no pattern matched
     """
     # USER FIX v2: Further reduced from 100 to 50 chars to stop cascading contamination
-    context_before = text[max(0, start_index - 50) : start_index]
+    # FIX JAN 2026: Increase to 150 chars to handle longer case names like "Allegiant Travel Co."
+    context_before = text[max(0, start_index - 150) : start_index]
     context_clean = re.sub(r"\s+", " ", context_before)
+    
+    # For WestLaw citations, we need full context including the citation itself
+    # because the pattern matches both case name and WL citation
+    full_context = text[max(0, start_index - 150) : min(len(text), start_index + 100)]
+    full_context_clean = re.sub(r"\s+", " ", full_context)
 
     logger.error(f"[SPECIAL-FORMATS] ✨ Trying special format extraction for '{citation_text}'")
 
@@ -96,27 +102,20 @@ def _extract_special_citation_formats(text: str, citation_text: str, start_index
             return case_name
 
     # PATTERN 2: WESTLAW WITH DOCKET - "Name, Inc., No. 2:18-CV-00348-SMJ, 2019 WL 2066127"
-    # Handle company suffixes before docket number
-    # Look for the LAST occurrence
-    docket_pattern = r"([A-Z][^,]{10,120}?),\s*(?:LLC|Inc\.|Corp\.|Co\.|Ltd\.)?,?\s*No\.\s+[\w:-]+"
-    matches = list(re.finditer(docket_pattern, context_clean, re.IGNORECASE))
-    if matches:
-        match = matches[-1]
-        case_name = match.group(1).strip()
-
-        # Extract ONLY the case name, removing any prefix text
-        case_name_match = re.search(r"([A-Z][\w\s&\',.-]+?\s+v\.\s+[\w\s&\',.-]+?)(?:,|\s*$)", case_name, re.IGNORECASE)
-        if not case_name_match:
-            case_name_match = re.search(r"(In re\s+[\w\s&\',.-]+?)(?:,|\s*$)", case_name, re.IGNORECASE)
-
-        if case_name_match:
-            case_name = case_name_match.group(1).strip()
+    # Handle company suffixes anywhere in the case name (middle or end)
+    # IMPORTANT: Only apply for WL citations
+    if "WL" in citation_text:
+        # Updated pattern: captures full case name with v. and optional company suffix anywhere
+        # Uses full_context because pattern includes both case name and WL citation
+        docket_pattern = r"([A-Za-z][\w\s&\-\.',]*?(?:LLC|Inc\.|Corp\.|Co\.|Ltd\.)?[\w\s&\-\.',]*?v\.[\w\s&\-\.',]*?),\s*(?:No\.\s+[\w:-]+,?\s*)?\d{4}\s+WL\s+\d+"
+        matches = list(re.finditer(docket_pattern, full_context_clean, re.IGNORECASE))
+        if matches:
+            match = matches[-1]
+            case_name = match.group(1).strip()
+            
+            # The new pattern already captures the full case name, just clean it up
             case_name = re.sub(r"[,\s]+$", "", case_name)
             logger.error(f"[SPECIAL-FORMATS] ✅ WESTLAW WITH DOCKET: '{case_name}'")
-            return case_name
-
-        if "v." in case_name.lower() or "in re" in case_name.lower():
-            logger.error(f"[SPECIAL-FORMATS] ⚠️ WESTLAW WITH DOCKET (unfiltered): '{case_name}'")
             return case_name
 
     # PATTERN 3: SIGNAL WORDS - "accord Name, Corp., 831 F.2d 508"
@@ -458,6 +457,23 @@ class CleanExtractionPipeline:
         logger.info(
             f"[CLEAN-PIPELINE] Pipeline complete: {len(deduplicated)} citations extracted (verification handled by unified pipeline)"
         )
+        
+        # FIX JAN 2026: Mark WL and Lexis citations as unverified due to proprietary format
+        proprietary_count = 0
+        for cit in deduplicated:
+            # Check if this is a WL or Lexis citation that is not verified
+            if not cit.verified:
+                # WL citations: format like "2021 WL 3622166"
+                # Lexis citations: format like "2021 WL 3622166" (often marked as WL but from Lexis)
+                if re.search(r"\d{4}\s+WL\s+\d+", cit.citation) or re.search(r"Lexis\s+\d+", cit.citation, re.IGNORECASE):
+                    cit.verification_status = "proprietary_format"
+                    cit.verification_error = "Unverified due to proprietary format"
+                    proprietary_count += 1
+                    logger.debug(f"[PROPRIETARY] {cit.citation}: Marked as unverified due to proprietary format")
+        
+        if proprietary_count > 0:
+            logger.info(f"[PROPRIETARY] Marked {proprietary_count} WL/Lexis citations as unverified due to proprietary format")
+        
         return deduplicated
 
     def _share_names_in_citation_groups(self, text: str, citations: List[CitationResult]) -> None:
@@ -680,6 +696,60 @@ class CleanExtractionPipeline:
 
                         for cit in group:
                             old_name = cit.extracted_case_name
+                            # PARALLEL vs SERIES CITATION FIX: Check if this citation is parallel or series
+                            # Parallel citations (same case) should share names, series citations (different cases) should not
+                            if cit.start_index and cit.start_index > 0:
+                                look_behind = text[max(0, cit.start_index - 100):cit.start_index]
+                                prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+                                
+                                if re.search(prev_citation_pattern, look_behind):
+                                    # Found a previous citation - check if it's parallel (same case) or series (different case)
+                                    is_parallel = False
+                                    
+                                    # Check if we have eyecite metadata
+                                    if hasattr(cit, 'metadata') and cit.metadata:
+                                        current_plaintiff = cit.metadata.get('plaintiff')
+                                        current_defendant = cit.metadata.get('defendant')
+                                        
+                                        # Find the previous citation
+                                        for prev_cit in group:
+                                            if (hasattr(prev_cit, 'end_index') and hasattr(cit, 'start_index') and
+                                                prev_cit.end_index and cit.start_index and
+                                                prev_cit.end_index < cit.start_index and 
+                                                cit.start_index - prev_cit.end_index < 100):
+                                                
+                                                # Check if they have the same parties
+                                                if hasattr(prev_cit, 'metadata') and prev_cit.metadata:
+                                                    prev_plaintiff = prev_cit.metadata.get('plaintiff')
+                                                    prev_defendant = prev_cit.metadata.get('defendant')
+                                                    
+                                                    if (current_plaintiff and current_defendant and 
+                                                        current_plaintiff == prev_plaintiff and 
+                                                        current_defendant == prev_defendant):
+                                                        is_parallel = True
+                                                        logger.info(f"[PARALLEL-FIX-GROUP] Sharing name for parallel citation: {cit.citation}")
+                                                        break
+                                                    
+                                                    # Check extra field
+                                                    extra = prev_cit.metadata.get('extra')
+                                                    if extra and cit.citation in extra:
+                                                        is_parallel = True
+                                                        logger.info(f"[PARALLEL-FIX-GROUP] Sharing name for parallel citation (via extra): {cit.citation}")
+                                                        break
+                                        
+                                        # Check for semicolon
+                                        if ';' in look_behind:
+                                            is_parallel = False
+                                            logger.info(f"[SERIES-FIX-GROUP] Semicolon detected - not sharing name for series citation: {cit.citation}")
+                                    
+                                    if not is_parallel:
+                                        # This is a series citation - don't share the name
+                                        logger.info(f"[SERIES-FIX-GROUP] Not sharing name for series citation: {cit.citation}")
+                                        if not hasattr(cit, "metadata") or cit.metadata is None:
+                                            cit.metadata = {}
+                                        cit.metadata["is_series_citation"] = True
+                                        continue
+                            
                             if old_name != best_name:
                                 cit.extracted_case_name = best_name
                                 names_shared += 1
@@ -929,6 +999,10 @@ class CleanExtractionPipeline:
                         "type": cit_type,
                         "eyecite_extracted": bool(eyecite_case_name),
                         "context_extracted": bool(context_case_name),
+                        # Include eyecite metadata for parallel citation detection
+                        "plaintiff": plaintiff,
+                        "defendant": defendant,
+                        "extra": getattr(cit_obj.metadata, 'extra', None) if hasattr(cit_obj, 'metadata') and cit_obj.metadata else None,
                     },
                 )
 
@@ -1048,6 +1122,7 @@ class CleanExtractionPipeline:
         success_count = 0
         fail_count = 0
         skipped_count = 0
+        processed_citations = []  # Track citations as we process them
 
         for citation in citations:
             try:
@@ -1128,6 +1203,130 @@ class CleanExtractionPipeline:
 
                 # FIX NOV 9: Try special format extraction BEFORE strict isolation
                 case_name = None
+                
+                # PARALLEL vs SERIES CITATION FIX: Check if this is NOT the first citation
+                # If it's not the first, determine if it's a parallel citation (same case) or series citation (different case)
+                if citation.start_index and citation.start_index > 0:
+                    # Look backwards to see if there's another citation within 100 characters
+                    look_behind = text[max(0, citation.start_index - 100):citation.start_index]
+                    prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+                    
+                    # Only treat as series/parallel if there are clear indicators
+                    # 1. Semicolon indicates different cases (series)
+                    # 2. Comma-separated citations without periods between them (parallel/series)
+                    # 3. Citations within the same sentence without case names
+                    
+                    is_series_or_parallel = False
+                    
+                    # Check for semicolon (clear series indicator)
+                    if ';' in look_behind:
+                        is_series_or_parallel = True
+                        logger.info(f"[SERIES-DEBUG] Semicolon detected for {citation.citation}")
+                    
+                    # Check if citations are comma-separated without periods (likely parallel/series)
+                    elif re.search(prev_citation_pattern, look_behind):
+                        # Check if there's no period between the citations
+                        last_period = look_behind.rfind('.')
+                        last_citation = re.search(prev_citation_pattern, look_behind)
+                        if last_citation and (last_period < 0 or last_period < last_citation.start()):
+                            is_series_or_parallel = True
+                            logger.info(f"[SERIES-DEBUG] Comma-separated citations without period for {citation.citation}")
+                    
+                    # Check if multiple citations appear in the same sentence without individual case names
+                    elif re.search(prev_citation_pattern, look_behind):
+                        # Look at the full context
+                        full_context = text[max(0, citation.start_index - 200):citation.start_index + 50]
+                        # Count citations in this segment
+                        citation_count = len(re.findall(prev_citation_pattern, full_context))
+                        # If multiple citations but no "v." patterns between them, likely series/parallel
+                        v_patterns = len(re.findall(r'\s+v\.\s+', full_context))
+                        if citation_count > 1 and v_patterns < citation_count:
+                            is_series_or_parallel = True
+                            logger.info(f"[SERIES-DEBUG] Multiple citations without case names for {citation.citation}")
+                    
+                    if is_series_or_parallel:
+                        logger.info(f"[PARALLEL-DEBUG] Found previous citation pattern for {citation.citation}")
+                        # Found a previous citation - check if it's the same case (parallel) or different (series)
+                        is_parallel = False
+                        
+                        # Check if we have eyecite metadata to determine parallel vs series
+                        if hasattr(citation, 'metadata') and citation.metadata:
+                            current_plaintiff = citation.metadata.get('plaintiff')
+                            current_defendant = citation.metadata.get('defendant')
+                            logger.info(f"[PARALLEL-DEBUG] Current citation parties: {current_plaintiff} v. {current_defendant}")
+                            
+                            # Find the previous citation in our processed citations list
+                            for prev_cit in citations:
+                                if (hasattr(prev_cit, 'end_index') and hasattr(citation, 'start_index') and
+                                    prev_cit.end_index and citation.start_index and
+                                    prev_cit.end_index < citation.start_index and 
+                                    citation.start_index - prev_cit.end_index < 100):
+                                    
+                                    logger.info(f"[PARALLEL-DEBUG] Checking previous citation: {prev_cit.citation}")
+                                    
+                                    # Check if both citations have the same parties (parallel citation)
+                                    if hasattr(prev_cit, 'metadata') and prev_cit.metadata:
+                                        prev_plaintiff = prev_cit.metadata.get('plaintiff')
+                                        prev_defendant = prev_cit.metadata.get('defendant')
+                                        logger.info(f"[PARALLEL-DEBUG] Previous citation parties: {prev_plaintiff} v. {prev_defendant}")
+                                        
+                                        # Same plaintiff and defendant means it's a parallel citation
+                                        if (current_plaintiff and current_defendant and 
+                                            current_plaintiff == prev_plaintiff and 
+                                            current_defendant == prev_defendant):
+                                            is_parallel = True
+                                            logger.info(f"[PARALLEL-FIX] Detected parallel citation: {citation.citation} (same case as {prev_cit.citation})")
+                                            # Use the same case name as the previous citation
+                                            citation.extracted_case_name = prev_cit.extracted_case_name
+                                            if not hasattr(citation, "metadata") or citation.metadata is None:
+                                                citation.metadata = {}
+                                            citation.metadata["is_parallel_citation"] = True
+                                            success_count += 1
+                                            break
+                                    
+                                    # Also check if previous citation's extra field contains this citation
+                                    if hasattr(prev_cit, 'metadata') and prev_cit.metadata:
+                                        extra = prev_cit.metadata.get('extra')
+                                        if extra and citation.citation in extra:
+                                            is_parallel = True
+                                            logger.info(f"[PARALLEL-FIX] Detected parallel citation via extra field: {citation.citation}")
+                                            citation.extracted_case_name = prev_cit.extracted_case_name
+                                            if not hasattr(citation, "metadata") or citation.metadata is None:
+                                                citation.metadata = {}
+                                            citation.metadata["is_parallel_citation"] = True
+                                            success_count += 1
+                                            break
+                                    
+                                    # Also check if current citation's extra field contains the previous citation
+                                    # (for cases where eyecite puts parallel info in the second citation)
+                                    if hasattr(citation, 'metadata') and citation.metadata:
+                                        extra = citation.metadata.get('extra')
+                                        if extra and prev_cit.citation in extra:
+                                            is_parallel = True
+                                            logger.info(f"[PARALLEL-FIX] Detected parallel citation via current extra field: {citation.citation}")
+                                            citation.extracted_case_name = prev_cit.extracted_case_name
+                                            if not hasattr(citation, "metadata") or citation.metadata is None:
+                                                citation.metadata = {}
+                                            citation.metadata["is_parallel_citation"] = True
+                                            success_count += 1
+                                            break
+                            
+                            # Check for semicolon which indicates different cases
+                            if ';' in look_behind:
+                                is_parallel = False
+                                logger.info(f"[SERIES-FIX] Semicolon detected - treating as series citation: {citation.citation}")
+                        
+                        if not is_parallel:
+                            # This is a series citation (different case)
+                            # Skip case name extraction entirely
+                            logger.info(f"[SERIES-FIX-CLEAN] Skipping case name extraction for series citation: {citation.citation}")
+                            citation.extracted_case_name = "N/A"
+                            # Mark this as a series citation so Eyecite fallback doesn't override it
+                            if not hasattr(citation, "metadata") or citation.metadata is None:
+                                citation.metadata = {}
+                            citation.metadata["is_series_citation"] = True
+                            success_count += 1
+                            continue
 
                 # CRITICAL DEBUG: Check if start_index is None
                 if citation.start_index is None:
@@ -1424,15 +1623,19 @@ class CleanExtractionPipeline:
                     fail_count += 1
                     logger.warning(f"[CLEAN-PIPELINE] Invalid name rejected for {citation.citation}: '{case_name}'")
                 else:
-                    citation.extracted_case_name = "N/A"
+                    # No case name found - use improved fallback
+                    citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                     fail_count += 1
-                    logger.warning(f"[CLEAN-PIPELINE] No name found for {citation.citation}")
+                    logger.warning(f"[CLEAN-PIPELINE] No name found for {citation.citation}, using Unknown Case fallback")
 
             except Exception as e:
                 if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
-                    citation.extracted_case_name = "N/A"
+                    citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                     fail_count += 1
                 logger.error(f"[CLEAN-PIPELINE] Error extracting {citation.citation}: {e}")
+            
+            # Add to processed citations after handling
+            processed_citations.append(citation)
 
         logger.info(
             f"[CLEAN-PIPELINE] Extraction complete: {success_count} with names ({skipped_count} from eyecite), {fail_count} failed"
@@ -1596,42 +1799,61 @@ class CleanExtractionPipeline:
 def extract_citations_clean(text: str, document_primary_case_name: Optional[str] = None) -> List[CitationResult]:
     """
     Main entry point for clean citation extraction.
-
-    This function guarantees:
-    - Zero case name bleeding
-    - 100% accuracy (matching algorithm performance)
-    - No competing code paths
-    - Position data preservation for parallel verification
-
+    
+    DEPRECATED: This function is deprecated. Use extract_citations_unified from unified_case_extraction_master.py instead.
+    
+    This function now delegates to the unified extraction master to reduce code duplication.
+    
     Args:
         text: Document text
         document_primary_case_name: Optional document primary case name for contamination filtering
-
+        
     Returns:
         List of CitationResult objects with extracted_case_name set using strict context isolation
     """
-    print(f"extract_citations_clean CALLED with {len(text)} chars")
-    pipeline = CleanExtractionPipeline(document_primary_case_name=document_primary_case_name)
-    result = pipeline.extract_citations(text)
-
-    # CRITICAL: Validate position data preservation
+    import warnings
+    warnings.warn(
+        "extract_citations_clean is deprecated. Use extract_citations_unified from unified_case_extraction_master.py instead.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    
+    print(f"extract_citations_clean CALLED with {len(text)} chars [DEPRECATED]")
+    
+    # Use the new unified function
+    from src.unified_case_extraction_master import extract_citations_unified
+    
+    citations = extract_citations_unified(text, document_primary_case_name)
+    
+    # Add proprietary format marking for WL citations
+    import re
+    proprietary_count = 0
+    for cit in citations:
+        if not cit.verified:
+            if re.search(r"\d{4}\s+WL\s+\d+", cit.citation) or re.search(r"Lexis\s+\d+", cit.citation, re.IGNORECASE):
+                cit.verification_status = "proprietary_format"
+                cit.verification_error = "Unverified due to proprietary format"
+                proprietary_count += 1
+    
+    if proprietary_count > 0:
+        logger.info(f"[PROPRIETARY] Marked {proprietary_count} WL/Lexis citations as unverified due to proprietary format")
+    
+    # Validate position data preservation
     missing_position_count = 0
-    for i, cit in enumerate(result):
+    for i, cit in enumerate(citations):
         if cit.start_index is None or cit.end_index is None:
             missing_position_count += 1
             logger.warning(f"[CLEAN-PIPELINE] Missing position data for citation {i+1}: {cit.citation}")
-
+    
     if missing_position_count > 0:
         logger.error(
             f"[CLEAN-PIPELINE] {missing_position_count} citations missing position data - parallel verification may fail"
         )
     else:
-        logger.info(f"[CLEAN-PIPELINE] All {len(result)} citations have valid position data")
-
-    print(
-        f"extract_citations_clean returning {len(result)} citations (position data: {len(result) - missing_position_count}/{len(result)} valid)"
-    )
-    return result
+        logger.info(f"[CLEAN-PIPELINE] All {len(citations)} citations have valid position data")
+    
+    print(f"extract_citations_clean returning {len(citations)} citations (position data: {len(citations) - missing_position_count}/{len(citations)} valid) [DEPRECATED]")
+    return citations
 
 
 __all__ = ["CleanExtractionPipeline", "extract_citations_clean"]

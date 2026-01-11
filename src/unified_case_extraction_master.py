@@ -18,9 +18,10 @@ Key Features:
 
 import re
 import logging
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 from dataclasses import dataclass
 
+from src.models import CitationResult
 from src.utils.canonical_metadata import (
     normalize_citation_key,
     get_canonical_metadata,
@@ -53,6 +54,7 @@ class MasterExtractionResult:
 
 class UnifiedCaseExtractionMaster:
     """
+import re
     THE SINGLE, AUTHORITATIVE case name extraction implementation.
 
     This class consolidates the best features from:
@@ -276,6 +278,11 @@ class UnifiedCaseExtractionMaster:
         start_pos = max(0, v_position - 300)
         text_before_v = text[start_pos:v_position]
 
+        # USER FIX 2026-01-08: Handle hyphenated words across line breaks (e.g., "Invest-\nments")
+        # Replace "hyphen + newline + optional spaces" with empty string to join the word parts
+        import re
+        text_before_v = re.sub(r'-\s*\n\s*', '', text_before_v)
+
         if debug:
             logger.warning(f"[BACKWARD-V] Text before v.: '{text_before_v[-100:]}'")
 
@@ -296,8 +303,10 @@ class UnifiedCaseExtractionMaster:
                 # End of word - process it
                 if current_word:
                     word = "".join(reversed(current_word))
-                    word_lower = word.lower().rstrip(".,;:")
-                    word_clean = word.rstrip(".,;:")
+                    # USER FIX 2026-01-08: Keep commas in words for party names like "Company, Inc."
+                    # Only strip semicolons and colons which are true boundaries
+                    word_lower = word.lower().rstrip(";:")
+                    word_clean = word.rstrip(";:")
 
                     # Check if this word should be included
                     should_include = False
@@ -389,8 +398,9 @@ class UnifiedCaseExtractionMaster:
         # Don't forget the last word
         if current_word and not boundary_hit:
             word = "".join(reversed(current_word))
-            word_lower = word.lower().rstrip(".,;:")
-            word_clean = word.rstrip(".,;:")
+            # USER FIX 2026-01-08: Keep commas in words for party names
+            word_lower = word.lower().rstrip(";:")
+            word_clean = word.rstrip(";:")
 
             should_include = (
                 (word_clean and word_clean[0].isupper())
@@ -403,11 +413,13 @@ class UnifiedCaseExtractionMaster:
         if not words:
             return None
 
-        plaintiff = " ".join(words).strip(" ,;:")
+        plaintiff = " ".join(words).strip()
 
-        # Clean up any remaining artifacts
-        plaintiff = re.sub(r"^[,;:\s]+", "", plaintiff)
-        plaintiff = re.sub(r"[,;:\s]+$", "", plaintiff)
+        # Clean up any remaining artifacts (but preserve commas in party names)
+        plaintiff = re.sub(r"^[;:\s]+", "", plaintiff)
+        plaintiff = re.sub(r"[;:\s]+$", "", plaintiff)
+        # Remove trailing comma only if it's at the very end
+        plaintiff = plaintiff.rstrip(",")
 
         if debug:
             logger.warning(f"[BACKWARD-V] Extracted plaintiff: '{plaintiff}'")
@@ -422,6 +434,15 @@ class UnifiedCaseExtractionMaster:
 
         # Get text after 'v.' (up to 150 chars)
         text_after_v = text[v_end : min(len(text), v_end + 150)]
+        
+        # USER FIX 2026-01-08: Stop at semicolon boundary to prevent contamination from next citation
+        # Example: "Doe v. Teachers Council, Inc., 2024 WL 1232082; Schiller v. City of New York"
+        # Should extract "Teachers Council" not "Schiller"
+        semicolon_pos = text_after_v.find(';')
+        if semicolon_pos != -1:
+            text_after_v = text_after_v[:semicolon_pos]
+            if debug:
+                logger.warning(f"[BACKWARD-V] Trimmed at semicolon, text_after_v: '{text_after_v}'")
 
         # Extract defendant using similar logic (but forward)
         defendant_words = []
@@ -796,6 +817,18 @@ class UnifiedCaseExtractionMaster:
                     extracted_year="N/A",
                 )
 
+        # USER FIX 2026-01-08: Don't generate fallback for non-case citations
+        # These are statutes, regulations, and cross-references that should be filtered out
+        citation_lower = citation.lower()
+        if any(pattern in citation for pattern in [
+            "Pub. L.", "Stat.", "Fed. Reg.", "C.F.R.", "U.S.C.",
+            "Op. O.L.C.", "UnknownCitation"
+        ]) or any(pattern in citation_lower for pattern in [
+            "supra", "infra", "id.", "ibid."
+        ]):
+            # Return None to signal this citation should be skipped
+            return None
+
         # NEW: Instead of returning "N/A", try to provide a useful fallback name
         # This helps users understand what was found even if extraction failed
         fallback_name = self._generate_fallback_case_name(citation)
@@ -832,9 +865,43 @@ class UnifiedCaseExtractionMaster:
         """
         context_before = text[max(0, start_index - 500) : start_index]
         context_after = text[start_index : min(len(text), start_index + 200)]
+        
+        # CRITICAL FIX: Apply semicolon boundary detection BEFORE building full_context
+        # Semicolons separate different cases in citation series
+        # Example: "Doe v. Columbia, 2024 WL 4149252; Mastriano v. Gregory, 2024 WL 4003343"
+        # For the first WL citation, we must NOT include text after the semicolon
+        # Find semicolon in context_before and trim if found
+        context_before_clean = re.sub(r"\s+", " ", context_before)
+        if ";" in context_before_clean:
+            last_semicolon_pos = context_before_clean.rfind(";")
+            logger.error(
+                f"[SPECIAL-FORMATS-SEMICOLON] Found semicolon at position {last_semicolon_pos} in context_before"
+            )
+            old_context = context_before_clean
+            context_before_clean = context_before_clean[last_semicolon_pos + 1:].strip()
+            # Also trim the original context_before to match
+            actual_semicolon_pos = context_before.rfind(";")
+            if actual_semicolon_pos != -1:
+                context_before = context_before[actual_semicolon_pos + 1:].strip()
+            logger.error(f"[SPECIAL-FORMATS-SEMICOLON] Old context_before: '{old_context[-100:]}'")
+            logger.error(f"[SPECIAL-FORMATS-SEMICOLON] New context_before: '{context_before_clean}'")
+        
+        # For WestLaw citations, we need to search in the combined context
+        # because the pattern includes both the case name (before) and the WL citation (after)
+        # IMPORTANT: Use the trimmed context_before to avoid cross-citation contamination
+        # CRITICAL FIX: Also trim context_after at semicolon to prevent seeing subsequent citations
+        context_after_raw = text[start_index : min(len(text), start_index + 200)]
+        if ";" in context_after_raw:
+            first_semicolon_pos = context_after_raw.find(";")
+            logger.error(f"[SPECIAL-FORMATS-SEMICOLON-AFTER] Found semicolon at position {first_semicolon_pos} in context_after")
+            context_after_raw = context_after_raw[:first_semicolon_pos]
+            logger.error(f"[SPECIAL-FORMATS-SEMICOLON-AFTER] Trimmed context_after to: '{context_after_raw}'")
+        
+        full_context = context_before + context_after_raw
 
         # Normalize whitespace for better pattern matching
-        context_clean = re.sub(r"\s+", " ", context_before)
+        context_clean = context_before_clean if ";" in re.sub(r"\s+", " ", text[max(0, start_index - 500) : start_index]) else re.sub(r"\s+", " ", context_before)
+        full_context_clean = re.sub(r"\s+", " ", full_context)
 
         logger.error(f"[SPECIAL-FORMATS] 🔍 Analyzing context for '{citation}'")
         logger.error(f"[SPECIAL-FORMATS] Context (last 150 chars): ...{context_clean[-150:]}")
@@ -930,26 +997,50 @@ class UnifiedCaseExtractionMaster:
         # PATTERN 3: WESTLAW WITH DOCKET NUMBER
         # "Nazar v. Harbor Freight Tools USA Inc., No. 2:18-CV-00348-SMJ, 2019 WL 2066127"
         # "Doe, Inc. v. Roe, No. MC 21-43 (BAH), 2021 WL 3622166"
-        # IMPROVED: Use pattern that finds case name ending with 'v.' before WL
-        wl_pattern = r"([A-Z][\w\s&\-\.',]*v\.[\w\s&\-\.',]*?),\s*(?:No\.\s+[^,]+,\s*)?\d{4}\s+WL\s+\d+"
-        matches = list(re.finditer(wl_pattern, context_clean, re.IGNORECASE))
-        if matches:
-            match = matches[-1]
-            case_name = match.group(1).strip()
-            logger.error(f"[SPECIAL-FORMATS] ✅ WESTLAW WITH DOCKET: '{case_name}'")
-            
-            # Clean up any trailing punctuation
-            case_name = re.sub(r"[,\s]+$", "", case_name)
-            year = self._extract_year_from_context(context_after, debug)
-            return MasterExtractionResult(
-                case_name=case_name,
-                year=year or "N/A",
-                confidence=0.9,
-                method="westlaw_docket",
-                debug_info={"pattern": "westlaw_with_docket"},
-                extracted_case_name=case_name,
-                extracted_year=year,
-            )
+        # IMPORTANT: Only apply this pattern for actual WestLaw citations
+        if "WL" in citation:
+            # IMPROVED: Use pattern that finds case name ending with 'v.' before WL
+            # NOTE: Search in full_context_clean because pattern includes the WL citation
+            # CRITICAL: Use \s+v\.\s+ to ensure "v." is a word boundary (versus), not part of other words
+            # CRITICAL: Restrict character class to prevent matching across sentences (no periods except in abbreviations)
+            # Use negative lookahead to prevent matching text that ends with a sentence-ending period
+            wl_pattern = r"([A-Z][\w\s&\-,']{1,80}\s+v\.\s+[\w\s&\-,']{1,80}?),\s*(?:No\.\s+[^,]+,\s*)?\d{4}\s+WL\s+\d+"
+            matches = list(re.finditer(wl_pattern, full_context_clean, re.IGNORECASE))
+            if matches:
+                # CRITICAL FIX: Find the match that contains our citation, not just the last match
+                # If multiple WL citations are in full_context, we need the one that matches our citation
+                # Extract the WL number from our citation (e.g., "2024 WL 4149252" -> "4149252")
+                citation_wl_match = re.search(r"(\d{4})\s+WL\s+(\d+)", citation)
+                target_match = None
+                if citation_wl_match:
+                    target_year = citation_wl_match.group(1)
+                    target_number = citation_wl_match.group(2)
+                    logger.error(f"[SPECIAL-FORMATS] Looking for WL match with year={target_year}, number={target_number}")
+                    # Find the match that contains our specific WL citation
+                    for m in matches:
+                        match_text = m.group(0)
+                        if target_year in match_text and target_number in match_text:
+                            target_match = m
+                            logger.error(f"[SPECIAL-FORMATS] Found matching WL pattern: '{match_text}'")
+                            break
+                
+                # Fallback to last match if we couldn't find the specific one
+                match = target_match if target_match else matches[-1]
+                case_name = match.group(1).strip()
+                logger.error(f"[SPECIAL-FORMATS] ✅ WESTLAW WITH DOCKET: '{case_name}'")
+                
+                # Clean up any trailing punctuation
+                case_name = re.sub(r"[,\s]+$", "", case_name)
+                year = self._extract_year_from_context(context_after, debug)
+                return MasterExtractionResult(
+                    case_name=case_name,
+                    year=year or "N/A",
+                    confidence=0.9,
+                    method="westlaw_docket",
+                    debug_info={"pattern": "westlaw_with_docket"},
+                    extracted_case_name=case_name,
+                    extracted_year=year,
+                )
 
         # PATTERN 4: SIGNAL WORDS
         # "accord Goad v. Celotex Corp., 831 F.2d 508"
@@ -1429,6 +1520,17 @@ class UnifiedCaseExtractionMaster:
 
         # FIX DEC 2025 v3: Normalize newlines in context (PDF extraction artifact)
         potential_case_name = re.sub(r"\s+", " ", potential_case_name)
+        
+        # SERIES CITATION FIX: Check if this is NOT the first citation in a series
+        # Look backwards from the citation to see if there's another citation within 50 chars
+        look_behind = text[max(0, start_index - 50):start_index]
+        prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+        
+        if re.search(prev_citation_pattern, look_behind):
+            # This is NOT the first citation in the series, so don't extract case name
+            logger.info(f"[SERIES-CITATION] Skipping case name extraction for non-first citation: {citation}")
+            print(f"[SERIES-CITATION] Skipping case name for: {citation}", flush=True)
+            return None
 
         # FIX #69 DEBUG: Always log context
         logger.error(f"[FIX #69 CONTEXT] Length: {len(potential_case_name)} chars (window: {context_window})")
@@ -1567,7 +1669,18 @@ class UnifiedCaseExtractionMaster:
             # Look backwards for the full pattern: Case Name, No. Docket, Year WL
             search_start = max(0, start_index - 200)
             search_text = text[search_start:start_index + 50]
-            full_wl_pattern = r"([A-Z][\w\s&\-\.',]*v\.[\w\s&\-\.',]*?),\s*No\.\s+[^,]+,\s*\d{4}\s+WL\s+\d+"
+            
+            # CRITICAL FIX: Apply semicolon boundary detection
+            # If there's a semicolon, only search AFTER it to avoid cross-citation contamination
+            if ";" in search_text:
+                last_semicolon_pos = search_text.rfind(";")
+                logger.error(f"[WL DOCKET SEMICOLON] Found semicolon at position {last_semicolon_pos} in search_text")
+                old_search_text = search_text
+                search_text = search_text[last_semicolon_pos + 1:].strip()
+                logger.error(f"[WL DOCKET SEMICOLON] Old search_text: '{old_search_text[-100:]}'")
+                logger.error(f"[WL DOCKET SEMICOLON] New search_text: '{search_text}'")
+            
+            full_wl_pattern = r"([A-Z][\w\s&\-,']{1,80}\s+v\.\s+[\w\s&\-,']{1,80}?),\s*No\.\s+[^,]+,\s*\d{4}\s+WL\s+\d+"
             wl_match = re.search(full_wl_pattern, search_text, re.IGNORECASE)
             if wl_match:
                 case_name = wl_match.group(1).strip()
@@ -2230,10 +2343,10 @@ class UnifiedCaseExtractionMaster:
         # USER FIX 2024-10-21: Increase to 300 chars for vacatur pattern detection
         # 150 chars wasn't enough to reach both "vacated and remanded" AND the case name before it
         # Example: "Oneida v. Madison, 605 F.3d 149...vacated and remanded, 562 U.S. 42" needs ~200+ chars
-        # CRITICAL FIX: Reduce context window to prevent citation association bug
-        # 300 chars was too large and included other case discussions
-        # 150 chars is sufficient for immediate case name context while preventing cross-contamination
-        context_start = max(0, start_index - 150)  # FIXED: Reduced from 300 to 150 chars
+        # USER FIX 2026-01-08: Increase context window for semicolon detection
+        # Need larger window (1000 chars) to detect semicolons in citation series
+        # The semicolon detection will trim this down to only text after last semicolon
+        context_start = max(0, start_index - 1000)  # Increased from 150 to 1000 for semicolon detection
         # FIX #38: ONLY look BACKWARD! Context must end at START of citation, not END!
         # Fix #32 used end_index which allowed 15 chars of forward context (citation length),
         # causing extraction of "Spokane County" (after citation) instead of "Lopez Demetrio" (before).
@@ -2333,24 +2446,22 @@ class UnifiedCaseExtractionMaster:
         #          We want "Oneida" (after semicolon), not "Cayuga" (before)
         if ";" in context:
             last_semicolon_pos = context.rfind(";")
-            print(
-                f"[PHASE6-POSITION] Semicolon found at position {last_semicolon_pos} in context - using text after it",
-                flush=True,
+            logger.error(
+                f"[PHASE6-POSITION] Citation {citation} at {start_index}: Semicolon found at position {last_semicolon_pos} in context of length {len(context)}"
             )
             old_context = context
             context = context[last_semicolon_pos + 1 :]  # Only use text AFTER last semicolon
             # Strip leading/trailing whitespace and commas to help patterns match
             context = context.strip().rstrip(",").strip()
-            print(f"[PHASE6-POSITION] Old context: '{old_context[-80:]}'", flush=True)
-            print(f"[PHASE6-POSITION] New context (trimmed): '{context}'", flush=True)
+            logger.error(f"[PHASE6-POSITION] Old context: '{old_context[-100:]}'")
+            logger.error(f"[PHASE6-POSITION] New context: '{context[:100]}'")
 
             # IMPORTANT: After trimming, context_start is no longer accurate!
             # The trimmed context ends at start_index and has length len(context)
             # So it starts at: start_index - len(context)
             context_start = start_index - len(context)
-            print(
-                f"[PHASE6-POSITION] Adjusted context_start from {max(0, start_index - 300)} to {context_start}",
-                flush=True,
+            logger.error(
+                f"[PHASE6-POSITION] Adjusted context_start from {max(0, start_index - 1000)} to {context_start}"
             )
 
         # FIX #40: CRITICAL ASSERTION - Context must NOT include the citation itself!
@@ -2918,12 +3029,27 @@ class UnifiedCaseExtractionMaster:
 
         USER FIX 2024-12-24: Find the CLOSEST year to the start of context and
         stop at citation boundaries like 'aff'd', ';', etc.
+        
+        USER FIX 2026-01-09: PRIORITY - Check for parenthetical year at the START of context first
+        This handles cases like "442 U.S. 682, 702 (1979)" where year appears immediately after citation
 
         Example: For "47 Conn. Supp. 113, 119, 778 A.2d 1038 (Conn. Super. Ct. 2000), aff'd, 63 Conn. App. 695, 778 A.2d 1006 (2001)"
         Should return 2000 (closest), not 2001 (further away)
         """
         if not context:
             return None
+        
+        # USER FIX 2026-01-09: PRIORITY CHECK - Look for parenthetical year at the very start
+        # Pattern: ", 702 (1979)" or " (1979)" at beginning of context
+        # This is the most reliable year for a citation
+        immediate_year_pattern = r"^[,\s]*(?:\d+\s+)?\((\d{4})\)"
+        immediate_match = re.match(immediate_year_pattern, context)
+        if immediate_match:
+            year = immediate_match.group(1)
+            if 1800 <= int(year) <= 2030:
+                if debug:
+                    logger.debug(f"[YEAR-EXTRACT] Found IMMEDIATE parenthetical year: {year}")
+                return year
 
         # USER FIX: Truncate context at citation boundaries BEFORE searching for years
         # This prevents picking up years from subsequent citations like "aff'd, ... (2001)"
@@ -3079,7 +3205,9 @@ class UnifiedCaseExtractionMaster:
             r"^(?:The parties are|The parties were)\s+",
             # CRITICAL FIX: Be more specific about court phrases to avoid rejecting valid case names
             # FIX 2024-11-08: Simplified - just remove these prefixes, allow case names that follow
-            r"^(?:The court in|The court held|The court decided|The court stated|We review|we review)\s+",
+            # USER FIX 2026-01-09: Add "Court stayed/granted/denied" patterns for procedural contamination
+            r"^(?:The court in|The court held|The court decided|The court stated|Court stayed|Court granted|Court denied|Court reversed|Court affirmed|We review|we review)\s+",
+            r"^(?:those injunctions in|the injunctions in|the order in|the decision in|the judgment in|the ruling in)\s+",
             r"^(?:The defendant|The plaintiff)\s+(?!.*\s+v\.\s+)",
             r"^(?:If in|As in)\s+",
             # CRITICAL FIX: Filter generic appellant/defendant contamination
@@ -3455,6 +3583,33 @@ def extract_case_name_and_date_unified_master(
     if document_primary_case_name:
         logger.warning(f"[CONTAMINATION-FILTER] Set document primary case: '{document_primary_case_name[:80]}'")
 
+    # USER FIX 2026-01-08: For WL/LEXIS citations, check if eyecite metadata is available
+    # and use plaintiff/defendant directly instead of proximity-based extraction
+    # This prevents incorrect case name assignment when multiple WL citations are close together
+    if citation and ("WL" in citation or "LEXIS" in citation):
+        # Check if canonical_name contains eyecite plaintiff/defendant format
+        # The canonical_name parameter is passed from unified_citation_processor_v2 after eyecite extraction
+        if canonical_name and " v. " in canonical_name:
+            # Validate it looks like a real case name (not truncated or contaminated)
+            from src.case_name_validator import is_valid_case_name
+            if is_valid_case_name(canonical_name):
+                logger.info(f"[WL-EYECITE-PRIORITY] Using eyecite metadata '{canonical_name}' for {citation}")
+                return {
+                    "case_name": canonical_name,
+                    "year": canonical_date or "N/A",
+                    "date": canonical_date or "N/A",
+                    "confidence": 0.95,
+                    "method": "eyecite_metadata_direct",
+                    "start_index": start_index,
+                    "end_index": end_index,
+                    "context": text[max(0, start_index-50):min(len(text), end_index+50)] if start_index else "",
+                    "debug_info": {"source": "eyecite_plaintiff_defendant"},
+                    "canonical_name": canonical_name,
+                    "canonical_year": canonical_date,
+                    "extracted_case_name": canonical_name,
+                    "extracted_year": canonical_date or "N/A",
+                }
+
     if citation:
         extractor._update_canonical_cache(
             citation,
@@ -3505,3 +3660,262 @@ def extract_case_name_and_date_unified_master(
         "extracted_case_name": result.extracted_case_name or "N/A",  # NEVER use canonical
         "extracted_year": result.extracted_year or "N/A",  # NEVER use canonical
     }
+
+
+def extract_citations_unified(
+    text: str,
+    document_primary_case_name: Optional[str] = None,
+    debug: bool = False,
+) -> List[CitationResult]:
+    """
+    Unified citation extraction function to replace clean_extraction_pipeline.
+    
+    This function provides the same API as extract_citations_clean but uses
+    the unified case extraction master internally.
+    
+    Args:
+        text: Document text to extract citations from
+        document_primary_case_name: Optional primary case name for contamination filtering
+        debug: Enable debug logging
+        
+    Returns:
+        List of CitationResult objects with extracted case names
+    """
+    import warnings
+    
+    # Issue deprecation warning if this is being called directly
+    warnings.warn(
+        "extract_citations_unified is the replacement for extract_citations_clean. "
+        "This function will be moved to replace clean_extraction_pipeline.py in a future release.",
+        DeprecationWarning,
+        stacklevel=2
+    )
+    
+    logger = logging.getLogger(__name__)
+    logger.error(f"[UNIFIED-EXTRACT] ⚠️ STARTING unified extraction for {len(text)} chars")
+    
+    # USER FIX 2026-01-09: Detect and parse Table of Authorities section
+    toa_entries = {}  # Map citation -> (case_name, year)
+    toa_bounds = None
+    try:
+        from src.toa_parser import ImprovedToAParser
+        toa_parser = ImprovedToAParser()
+        toa_bounds = toa_parser.detect_toa_section(text)
+        
+        if toa_bounds:
+            toa_start, toa_end = toa_bounds
+            logger.info(f"[TOA-INTEGRATION] Detected TOA section at {toa_start}-{toa_end}")
+            toa_text = text[toa_start:toa_end]
+            toa_parsed = toa_parser.parse_toa_section(toa_text)
+            
+            # Build lookup map
+            for entry in toa_parsed:
+                for citation in entry.citations:
+                    # Normalize citation for matching
+                    citation_normalized = citation.strip()
+                    year = entry.years[0] if entry.years else None
+                    toa_entries[citation_normalized] = (entry.case_name, year)
+            
+            logger.info(f"[TOA-INTEGRATION] Parsed {len(toa_entries)} TOA entries")
+    except Exception as e:
+        logger.warning(f"[TOA-INTEGRATION] Failed to parse TOA: {e}")
+    
+    citations = []
+    
+    # Try to use eyecite if available to find citations
+    try:
+        import eyecite
+        from eyecite import get_citations
+        
+        # Text is already normalized by UnifiedTextExtractor
+        eyecite_citations = get_citations(text)
+        
+        for eyecite_cit in eyecite_citations:
+            try:
+                # USER FIX 2026-01-09: Filter non-case citations at eyecite extraction point
+                # This is the ACTUAL production code path - filtering must happen HERE
+                obj_type = type(eyecite_cit).__name__
+                if obj_type in ['IdCitation', 'SupraCitation', 'InfraCitation', 'ShortCaseCitation', 'UnknownCitation', 'FullLawCitation']:
+                    continue
+                
+                # Get citation text
+                citation_text = str(eyecite_cit)
+                
+                # USER FIX 2026-01-09: Filter by text patterns for statutes, regulations, and short-form citations
+                if any(pattern in citation_text for pattern in ['Stat.', 'U.S.C.', 'C.F.R.', 'Fed. Reg.', 'Pub. L.', 'Op. O.L.C.']):
+                    continue
+                
+                # USER FIX 2026-01-09: Filter short-form citations with " at " (pin cites)
+                if ' at ' in citation_text:
+                    continue
+                
+                # USER FIX 2026-01-09: Filter cross-references by text
+                citation_lower = citation_text.lower()
+                if any(pattern in citation_lower for pattern in ['supra', 'infra', 'id.', 'ibid.']):
+                    continue
+                
+                # Get position data
+                start_index = None
+                end_index = None
+                if hasattr(eyecite_cit, 'span'):
+                    start_index = eyecite_cit.span()[0]
+                    end_index = eyecite_cit.span()[1]
+                
+                # USER FIX 2026-01-09: Priority order for extraction:
+                # 1. TOA parser (if citation is in TOA section)
+                # 2. Eyecite metadata (if available)
+                # 3. Context extraction (fallback)
+                
+                extracted_case_name = None
+                extracted_year = None
+                extraction_method = None
+                
+                # Priority 1: Check TOA parser results if citation is in TOA section
+                in_toa_section = False
+                if toa_bounds and start_index is not None:
+                    toa_start, toa_end = toa_bounds
+                    in_toa_section = toa_start <= start_index <= toa_end
+                
+                if in_toa_section:
+                    logger.info(f"[TOA-DEBUG] Citation {citation_text} is in TOA section")
+                    logger.info(f"[TOA-DEBUG] Available TOA entries: {list(toa_entries.keys())[:10]}")
+                    
+                    if citation_text in toa_entries:
+                        toa_case_name, toa_year = toa_entries[citation_text]
+                        extracted_case_name = toa_case_name
+                        extracted_year = toa_year
+                        extraction_method = "toa_parser"
+                        logger.info(f"[TOA-LOOKUP] Using TOA parser for {citation_text}: {extracted_case_name}, {extracted_year}")
+                    else:
+                        logger.warning(f"[TOA-MISS] Citation {citation_text} not found in TOA entries")
+                
+                # Priority 2: Check eyecite metadata if TOA didn't have it
+                if not extracted_case_name and hasattr(eyecite_cit, 'metadata'):
+                    metadata = eyecite_cit.metadata
+                    plaintiff = getattr(metadata, 'plaintiff', None)
+                    defendant = getattr(metadata, 'defendant', None)
+                    year = getattr(metadata, 'year', None)
+                    
+                    # Use eyecite metadata if we have both plaintiff and defendant
+                    if plaintiff and defendant and len(plaintiff) >= 2 and len(defendant) >= 2:
+                        extracted_case_name = f"{plaintiff} v. {defendant}"
+                        # USER FIX 2026-01-09: For TOA citations, DO NOT use eyecite metadata year
+                        # Eyecite year is unreliable for TOA (picks up document year instead of case year)
+                        # Let context extraction handle year from parentheses
+                        if not in_toa_section:
+                            extracted_year = str(year) if year else None
+                            logger.info(f"[EYECITE-METADATA] Using eyecite metadata for {citation_text}: {extracted_case_name}, year={extracted_year}")
+                        else:
+                            # CRITICAL: Do NOT set extracted_year for TOA citations from eyecite
+                            logger.error(f"[EYECITE-TOA-SKIP] Skipping eyecite year for TOA citation {citation_text}: eyecite_year={year}, keeping extracted_year={extracted_year}")
+                        extraction_method = "eyecite_metadata"
+                
+                # USER FIX 2026-01-09: For TOA citations, extract year DIRECTLY from text after citation
+                # Pattern: "442 U.S. 682, 702 (1979)" - year is in parentheses immediately after citation
+                if in_toa_section and not extracted_year and end_index is not None:
+                    # Look at text immediately after citation (next 50 chars)
+                    after_citation = text[end_index:end_index+50] if end_index < len(text) else ""
+                    # Pattern: ", 702 (1979)" or " (1979)" - parenthetical year right after citation
+                    import re
+                    immediate_year_match = re.search(r'^[,\s]*(?:\d+\s+)?\((\d{4})\)', after_citation)
+                    if immediate_year_match:
+                        extracted_year = immediate_year_match.group(1)
+                        logger.error(f"[TOA-YEAR-DIRECT] Extracted year DIRECTLY after citation {citation_text}: {extracted_year} from '{after_citation[:30]}'")
+                    else:
+                        logger.error(f"[TOA-YEAR-DIRECT] No immediate parenthetical year found after {citation_text}, text: '{after_citation[:30]}'")
+                
+                # Priority 3: Fallback to context extraction
+                # USER FIX 2026-01-09: For TOA citations, ALWAYS extract year from context
+                # even if we have case name from eyecite, since year in parentheses is authoritative
+                if not extracted_case_name or (in_toa_section and not extracted_year):
+                    # Extract case name using unified master with text extraction
+                    # NOTE: Do NOT use eyecite metadata for WL citations - it bleeds metadata from adjacent citations
+                    result = extract_case_name_and_date_unified_master(
+                        text=text,
+                        citation=citation_text,
+                        start_index=start_index,
+                        end_index=end_index,
+                        debug=debug,
+                        document_primary_case_name=document_primary_case_name
+                    )
+                    if not extracted_case_name:
+                        extracted_case_name = result.get("extracted_case_name")
+                    if not extracted_year or in_toa_section:
+                        extracted_year = result.get("extracted_year")
+                        if in_toa_section and extracted_year:
+                            logger.info(f"[TOA-YEAR-CONTEXT] Extracted year from context for {citation_text}: {extracted_year}")
+                
+                # CRITICAL FIX: For WL citations, extract year from citation string itself
+                # Eyecite can bleed parentheticals/dates from adjacent citations in series
+                # Example: "2024 WL 1232082" should always be year 2024, not eyecite's extracted year
+                if "WL" in citation_text or "LEXIS" in citation_text:
+                    import re
+                    wl_year_match = re.search(r'(\d{4})\s+(?:WL|LEXIS)\s+\d+', citation_text)
+                    if wl_year_match:
+                        extracted_year = wl_year_match.group(1)
+                        logger.info(f"[WL-YEAR-FIX-UNIFIED] Using year from citation string: {extracted_year} for {citation_text}")
+                
+                # Set default extraction method if not set
+                if not extraction_method:
+                    extraction_method = result.get("method", "unified_master") if 'result' in locals() else "unified_master"
+                
+                # Set confidence based on extraction method
+                if extraction_method == "toa_parser":
+                    confidence = 0.95
+                elif extraction_method == "eyecite_metadata":
+                    confidence = 1.0
+                else:
+                    confidence = result.get("confidence", 0.0) if 'result' in locals() else 0.0
+                
+                # Create CitationResult
+                citation = CitationResult(
+                    citation=citation_text,
+                    start_index=start_index,
+                    end_index=end_index,
+                    extracted_case_name=extracted_case_name,
+                    extracted_date=extracted_year,
+                    method=extraction_method,
+                    confidence=confidence,
+                    metadata={
+                        "detector": "eyecite",
+                        "extraction_method": extraction_method,
+                        "canonical_name": result.get("canonical_name") if 'result' in locals() and extraction_method not in ["toa_parser", "eyecite_metadata"] else None,
+                        "canonical_year": result.get("canonical_year") if 'result' in locals() and extraction_method not in ["toa_parser", "eyecite_metadata"] else None,
+                        "in_toa_section": in_toa_section,
+                    }
+                )
+                
+                citations.append(citation)
+                
+            except Exception as e:
+                logger.debug(f"[UNIFIED-EXTRACT] Failed to process citation {eyecite_cit}: {e}")
+                continue
+                
+    except ImportError:
+        logger.warning("[UNIFIED-EXTRACT] Eyecite not available, using regex fallback")
+        # Fallback to regex-based extraction
+        import re
+        from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+        
+        processor = UnifiedCitationProcessorV2()
+        regex_citations = processor._extract_with_regex_enhanced(text)
+        
+        for cit in regex_citations:
+            # Extract case name for each regex citation
+            result = extract_case_name_and_date_unified_master(
+                text=text,
+                citation=cit.citation,
+                start_index=cit.start_index,
+                end_index=cit.end_index,
+                debug=debug,
+                document_primary_case_name=document_primary_case_name
+            )
+            
+            cit.extracted_case_name = result.get("extracted_case_name")
+            cit.extracted_date = result.get("extracted_year")
+            cit.method = result.get("method", "unified_master")
+            
+            citations.append(cit)
+    
+    logger.info(f"[UNIFIED-EXTRACT] Extracted {len(citations)} citations")
+    return citations

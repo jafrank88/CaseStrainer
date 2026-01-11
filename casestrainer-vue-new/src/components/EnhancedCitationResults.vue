@@ -224,11 +224,11 @@
             <div class="header-cell">Source</div>
           </div>
           
-          <div v-for="citation in results.citations" :key="citation.citation" 
+          <div v-for="citation in results.citations" :key="citation.text || citation.citation" 
                class="table-row" :class="{ verified: citation.verified }">
             
             <div class="cell citation-cell">
-              <code>{{ citation.citation }}</code>
+              <code>{{ citation.text || citation.citation }}</code>
             </div>
             
             <div class="cell name-cell">

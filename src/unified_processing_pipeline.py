@@ -614,12 +614,71 @@ class UnifiedProcessingPipeline:
                     f"[PIPELINE-{context.trace_id}] Failed to update cluster mismatch flags: {e}", exc_info=True
                 )
 
+            # FILTER: Remove Id. and short-form citations from clusters
+            def should_filter_citation(citation_text):
+                """Check if citation should be filtered out"""
+                if not citation_text:
+                    return True
+                # Filter Id. citations
+                if citation_text.lower() == "id." or citation_text.lower().startswith("id."):
+                    return True
+                # Filter short-form citations (e.g., "346 F.R.D. at 105")
+                if " at " in citation_text:
+                    return True
+                # Filter citation object representations
+                if "IdCitation(" in str(citation_text) or "ShortCaseCitation(" in str(citation_text):
+                    return True
+                # Filter law journals and law reviews
+                import re
+                law_journal_pattern = r'\b\d+\s+[A-Z][a-z]*\.?\s*(L\.J\.|Law\s+Rev\.|L\.\s*Rev\.|J\.|Rev\.)\s+\d+'
+                if re.search(law_journal_pattern, citation_text, re.IGNORECASE):
+                    return True
+                return False
+            
+            # Filter citations within each cluster
+            filtered_clusters = []
+            for cluster in clusters:
+                # Filter the citations list
+                if "citations" in cluster and cluster["citations"]:
+                    filtered_citations = [
+                        cit for cit in cluster["citations"]
+                        if not should_filter_citation(cit.get("citation", ""))
+                    ]
+                    cluster["citations"] = filtered_citations
+                    
+                # Filter the cluster_members list
+                if "cluster_members" in cluster and cluster["cluster_members"]:
+                    filtered_members = [
+                        member for member in cluster["cluster_members"]
+                        if not should_filter_citation(member.get("citation", "") if isinstance(member, dict) else member)
+                    ]
+                    cluster["cluster_members"] = filtered_members
+                    cluster["cluster_size"] = len(filtered_members)
+                
+                # Only keep clusters that have citations left after filtering
+                if cluster.get("citations") or cluster.get("cluster_members"):
+                    filtered_clusters.append(cluster)
+            
+            clusters = filtered_clusters
+            logger.info(f"[PIPELINE-{context.trace_id}] After filtering Id./short-form from clusters: {len(clusters)} clusters remain")
+
+            # FILTER: Also remove Id. and short-form citations from the main citations list
+            original_count = len(citation_dicts)
+            citation_dicts = [
+                cit for cit in citation_dicts
+                if not should_filter_citation(cit.get("citation", ""))
+            ]
+            logger.info(f"[PIPELINE-{context.trace_id}] After filtering Id./short-form from main list: {len(citation_dicts)}/{original_count} citations remain")
+
             # Build citation to cluster mapping
             citation_to_cluster = {}
             for i, cluster in enumerate(clusters):
                 f"cluster_{i + 1}"
                 for member in cluster.get("cluster_members", []):
-                    citation_to_cluster[member] = i
+                    # Extract citation text from member (could be dict or string)
+                    citation_key = member.get("citation", "") if isinstance(member, dict) else member
+                    if citation_key:
+                        citation_to_cluster[citation_key] = i
 
             # Update citations with cluster information
             for cit_dict in citation_dicts:
@@ -1080,8 +1139,10 @@ class UnifiedProcessingPipeline:
         seen_members = set()
         unique_members = []
         for member in all_members:
-            if member not in seen_members:
-                seen_members.add(member)
+            # Extract citation text as the deduplication key (dicts are unhashable)
+            member_key = member.get("citation", "") if isinstance(member, dict) else member
+            if member_key not in seen_members:
+                seen_members.add(member_key)
                 unique_members.append(member)
 
         # Remove duplicate citations by citation text

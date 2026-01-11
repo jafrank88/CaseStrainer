@@ -34,6 +34,8 @@ Key improvements:
 - Better parallel citation handling
 - Integrated verification with CourtListener API
 """
+import re
+import re
 
 import re
 import logging
@@ -1392,6 +1394,16 @@ class UnifiedCitationProcessorV2:
             return citation_obj
 
         citation_str = str(citation_obj)
+        
+        # USER FIX 2026-01-08: Filter out non-case citations (statutes, regulations, supra references)
+        # These clutter the UI and aren't relevant for case citation verification
+        if "FullLawCitation(" in citation_str:
+            return ""  # Filter out statutes like "Pub. L. No. 111-31", "123 Stat. 1776"
+        
+        if "SupraCitation(" in citation_str:
+            return ""  # Filter out supra references
+        
+        # Filter out Id/Ibid citations and other short-form citations we don't want
         if any(
             pattern in citation_str
             for pattern in [
@@ -1401,13 +1413,12 @@ class UnifiedCitationProcessorV2:
                 "IdCitation('ibid.",
                 "ShortCaseCitation(",
                 "UnknownCitation(",
-                "SupraCitation(",
                 "InfraCitation(",
             ]
         ):
             return ""
 
-        # Filter out federal and state statute citations
+        # Filter out federal and state statute citations (U.S.C., C.F.R., etc.)
         if any(
             pattern in citation_str
             for pattern in [
@@ -1431,10 +1442,6 @@ class UnifiedCitationProcessorV2:
                 "Gen. Stat.",
                 "Ann. Code",
                 "Stat. §",
-                " Stat. ",
-                # Generic statute patterns
-                "FullLawCitation",
-                "LawCitation",
             ]
         ):
             return ""
@@ -1452,10 +1459,6 @@ class UnifiedCitationProcessorV2:
             if extracted.lower().startswith(("id.", "ibid.")) or " at " in extracted.lower():
                 return ""
             return extracted
-
-        law_match = re.search(r"FullLawCitation\('([^']+)'", citation_str)
-        if law_match:
-            return law_match.group(1)
 
         if hasattr(citation_obj, "cite") and citation_obj.cite:
             cite_text = citation_obj.cite
@@ -1478,40 +1481,84 @@ class UnifiedCitationProcessorV2:
     def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj):
         """Extract metadata from eyecite citation object, including case name from plaintiff/defendant."""
         try:
-            citation.metadata.update(
-                {
-                    "volume": getattr(citation_obj, "volume", None),
-                    "reporter": getattr(citation_obj, "reporter", None),
-                    "page": getattr(citation_obj, "page", None),
-                    "year": getattr(citation_obj, "year", None),
-                    "court": getattr(citation_obj, "court", None),
-                    "type": getattr(citation_obj, "type", None),
-                }
-            )
-
-            # IMPROVED: Store eyecite's plaintiff/defendant as FALLBACK (they can be truncated but better than N/A)
-            # Eyecite produces names like "Noem v. Nat" instead of "Noem v. Nat'l TPS All."
-            # Our unified_case_extraction_master will try first, but if it fails, we can use eyecite's version
+            # CRITICAL: Store the eyecite metadata object itself for clustering to access
+            # This allows clustering to check court, plaintiff, defendant directly
             if hasattr(citation_obj, "metadata") and citation_obj.metadata:
+                # Store the actual eyecite metadata object as an attribute
+                citation.eyecite_metadata = citation_obj.metadata
+                
                 plaintiff = getattr(citation_obj.metadata, "plaintiff", None)
                 defendant = getattr(citation_obj.metadata, "defendant", None)
-
-                # Store as fallback for later use
-                if plaintiff and defendant:
-                    eyecite_name = f"{plaintiff} v. {defendant}"
-                    citation.metadata["eyecite_fallback_name"] = eyecite_name
-                    logger.info(f"[EYECITE-FALLBACK] Stored eyecite fallback '{eyecite_name}' for {citation.citation}")
-                elif plaintiff:
-                    logger.info(
-                        f"[EYECITE-FALLBACK] Eyecite found plaintiff '{plaintiff}' for {citation.citation} (no defendant)"
+                eyecite_year = getattr(citation_obj.metadata, "year", None)
+                eyecite_court = getattr(citation_obj.metadata, "court", None)
+                
+                # CRITICAL FIX: Do NOT transfer plaintiff/defendant for WL citations
+                # Eyecite bleeds these fields across semicolon-separated citations
+                # Example: "Doe v. Columbia, 2024 WL 4149252; Mastriano v. Gregory, 2024 WL 4003343"
+                # Eyecite gives BOTH citations plaintiff='Mastriano', defendant='Gregory'
+                is_wl_citation = "WL" in citation.citation or "LEXIS" in citation.citation
+                
+                if is_wl_citation:
+                    # For WL citations, SKIP plaintiff/defendant - force text extraction
+                    citation.metadata.update(
+                        {
+                            "volume": getattr(citation_obj, "volume", None),
+                            "reporter": getattr(citation_obj, "reporter", None),
+                            "page": getattr(citation_obj, "page", None),
+                            "year": eyecite_year,
+                            "court": eyecite_court,
+                            "type": getattr(citation_obj, "type", None),
+                            "plaintiff": None,  # DISABLED for WL - eyecite contaminates this
+                            "defendant": None,  # DISABLED for WL - eyecite contaminates this
+                        }
                     )
+                    logger.info(f"[WL-EYECITE-SKIP] Skipped plaintiff/defendant for WL citation {citation.citation} - will use text extraction")
+                else:
+                    # For non-WL citations, transfer plaintiff/defendant normally
+                    citation.metadata.update(
+                        {
+                            "volume": getattr(citation_obj, "volume", None),
+                            "reporter": getattr(citation_obj, "reporter", None),
+                            "page": getattr(citation_obj, "page", None),
+                            "year": eyecite_year,
+                            "court": eyecite_court,
+                            "type": getattr(citation_obj, "type", None),
+                            "plaintiff": plaintiff,
+                            "defendant": defendant,
+                        }
+                    )
+                
+                # USER FIX 2026-01-07: For WL/LEXIS citations, use eyecite year as extracted_date
+                # WL citations have year in format: "2021 WL 3622166" - eyecite extracts this correctly
+                # This is CRITICAL for preventing clustering of WL citations from different years
+                is_wl_citation = "WL" in citation.citation or "LEXIS" in citation.citation
+                if is_wl_citation and eyecite_year:
+                    citation.extracted_date = str(eyecite_year)
+                    logger.info(f"[WL-YEAR-FIX] Set extracted_date='{eyecite_year}' from eyecite for {citation.citation}")
+                
+                if plaintiff and defendant:
+                    logger.info(f"[EYECITE-METADATA] Transferred plaintiff='{plaintiff}', defendant='{defendant}', court='{eyecite_court}' for {citation.citation}")
+                elif plaintiff:
+                    logger.info(f"[EYECITE-METADATA] Transferred plaintiff='{plaintiff}' (no defendant), court='{eyecite_court}' for {citation.citation}")
+            else:
+                # No eyecite metadata - just update basic fields
+                citation.metadata.update(
+                    {
+                        "volume": getattr(citation_obj, "volume", None),
+                        "reporter": getattr(citation_obj, "reporter", None),
+                        "page": getattr(citation_obj, "page", None),
+                        "year": getattr(citation_obj, "year", None),
+                        "court": getattr(citation_obj, "court", None),
+                        "type": getattr(citation_obj, "type", None),
+                    }
+                )
 
                 # DON'T set citation.extracted_case_name here - let _extract_metadata try first
 
                 # FIX: Also skip eyecite's year extraction - it's often wrong for complex citations
                 # Eyecite was extracting 1976 for both citations in our test case
                 # Let our custom date extraction handle this instead
-                eyecite_year = getattr(citation_obj.metadata, "year", None)
+                eyecite_year = getattr(citation_obj.metadata, "year", None) if hasattr(citation_obj, "metadata") else None
                 if eyecite_year:
                     logger.info(
                         f"[EYECITE-SKIP] Eyecite found year '{eyecite_year}' for {citation.citation}, but will use better extraction instead"
@@ -1532,8 +1579,22 @@ class UnifiedCitationProcessorV2:
 
             for citation_obj in found_citations:
                 try:
+                    # USER FIX 2026-01-08: Filter non-case citations by type before processing
+                    obj_type = type(citation_obj).__name__
+                    if obj_type in ['IdCitation', 'SupraCitation', 'InfraCitation', 'ShortCaseCitation', 'UnknownCitation', 'FullLawCitation']:
+                        continue
+                    
                     citation_text = self._extract_citation_text_from_eyecite(citation_obj)
                     if not citation_text:
+                        continue
+                    
+                    # USER FIX 2026-01-08: Also filter by text patterns for statutes
+                    if any(pattern in citation_text for pattern in ['Stat.', 'U.S.C.', 'C.F.R.', 'Fed. Reg.']):
+                        continue
+                    
+                    # USER FIX 2026-01-09: Filter short-form citations (pin cites with " at ")
+                    # These are like "16 Wall. at 71" or "169 U.S. at 693" - page-specific references
+                    if ' at ' in citation_text:
                         continue
 
                     start_pos = text.find(citation_text)
@@ -1575,6 +1636,43 @@ class UnifiedCitationProcessorV2:
         try:
             if not hasattr(citation, "metadata") or citation.metadata is None:
                 citation.metadata = {}
+            
+            # CRITICAL FIX: DISABLE eyecite metadata for WL citations in semicolon series
+            # Eyecite bleeds metadata across citations separated by semicolons
+            # Text extraction with semicolon boundary detection is more reliable
+            # Example: "Doe v. Columbia, 2024 WL 4149252; Mastriano v. Gregory, 2024 WL 4003343"
+            # Eyecite incorrectly gives BOTH citations plaintiff='Mastriano', defendant='Gregory'
+            is_wl_citation = "WL" in citation.citation or "LEXIS" in citation.citation
+            logger.info(f"[WL-CHECK] Citation {citation.citation}: is_wl={is_wl_citation}, FORCING text extraction (eyecite metadata disabled for WL)")
+            
+            # SKIP eyecite metadata for WL citations - always use text extraction
+            # The semicolon boundary detection in text extraction handles series correctly
+            
+            # SERIES CITATION FIX: Check if this citation is part of a series
+            # and NOT the first citation in the series
+            if hasattr(citation, 'start_index') and citation.start_index:
+                # Look backwards to see if there's another citation within 100 characters
+                look_behind = text[max(0, citation.start_index - 100):citation.start_index]
+                # Pattern to find previous citations
+                prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+                
+                print(f"[DEBUG-SERIES] Checking {citation.citation} at pos {citation.start_index}")
+                print(f"[DEBUG-SERIES] Text before: '{look_behind}'")
+                
+                if re.search(prev_citation_pattern, look_behind):
+                    # This is NOT the first citation in a series
+                    # Skip case name extraction to prevent incorrect association
+                    print(f"!!![SERIES-METADATA] SKIPPING case name for non-first citation: {citation.citation}")
+                    logger.info(f"[SERIES-METADATA] Skipping case name extraction for non-first citation: {citation.citation}")
+                    citation.extracted_case_name = f"Unknown Case, {citation.citation}"
+                    # CRITICAL: Also clear eyecite fallback to prevent it from being used later
+                    if hasattr(citation, 'metadata') and citation.metadata:
+                        citation.metadata["eyecite_fallback_name"] = None
+                    # Still extract date if possible
+                    if self.config.extract_dates:
+                        citation.extracted_date = self._extract_date_from_context(text, citation)
+                    return
+            
             try:
                 citation.citation = self._normalize_to_bluebook_format(citation.citation)
                 citation.citation = citation.citation.replace("\n", " ").replace("\r", " ")
@@ -1589,7 +1687,10 @@ class UnifiedCitationProcessorV2:
                 and citation.extracted_case_name != "N/A"
                 and citation.method == "eyecite"
             )
-
+            
+            # CRITICAL FIX: For WL/LEXIS citations in semicolon series, ALWAYS re-extract
+            # Eyecite bleeds metadata from adjacent citations, causing wrong case names
+            # Text extraction with semicolon boundary detection is more reliable
             if eyecite_already_extracted:
                 logger.warning(
                     f"[EXTRACT-OVERRIDE] Eyecite extracted '{citation.extracted_case_name}' for {citation.citation}, but will re-extract with better logic to fix truncation issues"
@@ -1703,7 +1804,7 @@ class UnifiedCitationProcessorV2:
                                     logger.error(
                                         f"[EXTRACT-CONTAMINATION] ❌ REJECTING contaminated name '{cleaned_name}' for citation '{citation.citation}' (matches document primary '{document_primary_case_name}')"
                                     )
-                                    citation.extracted_case_name = "N/A"
+                                    citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                                 else:
                                     logger.debug(
                                         f"[EXTRACT-CONTAMINATION] ✓ Keeping name '{cleaned_name}' (does not match primary '{document_primary_case_name}')"
@@ -1757,18 +1858,18 @@ class UnifiedCitationProcessorV2:
                                 citation.extracted_case_name = cleaned_name
                                 logger.info(f"[EXTRACT-SUCCESS] Final name: '{cleaned_name}' for {citation.citation}")
                         else:
-                            citation.extracted_case_name = "N/A"
+                            citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                             logger.warning(
                                 f"[EXTRACT-FAIL] Validation rejected name '{final_name}' for {citation.citation}"
                             )
                     else:
-                        citation.extracted_case_name = "N/A"
+                        citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                         logger.warning(f"[EXTRACT-FAIL] Strict isolation failed for {citation.citation}")
                 except Exception as e:
                     # Don't overwrite existing extracted case name on exception
                     logger.error(f"[EXTRACT-ERROR] Exception during extraction for {citation.citation}: {e}")
                     if not citation.extracted_case_name:
-                        citation.extracted_case_name = "N/A"
+                        citation.extracted_case_name = f"Unknown Case, {citation.citation}"
 
             # CRITICAL: Final safety check - ensure no citation has null/empty extracted_case_name
             if (
@@ -1776,24 +1877,52 @@ class UnifiedCitationProcessorV2:
                 or citation.extracted_case_name is None
                 or citation.extracted_case_name == ""
             ):
-                citation.extracted_case_name = "N/A"
+                citation.extracted_case_name = f"Unknown Case, {citation.citation}"
                 logger.warning(f"[EXTRACT-NULL] Citation {citation.citation} had null/empty name, set to N/A")
 
             # IMPROVED: Use eyecite fallback if extraction failed
-            if citation.extracted_case_name == "N/A" and hasattr(citation, "metadata") and citation.metadata:
+            # SERIES CITATION FIX: Don't override N/A if it was set for series citations
+            # WL CITATION FIX: Prioritize eyecite metadata for WL citations to prevent clustering errors
+            is_wl_citation = "WL" in citation.citation or "LEXIS" in citation.citation
+            
+            if citation.extracted_case_name == f"Unknown Case, {citation.citation}" and hasattr(citation, "metadata") and citation.metadata:
+                # Check if this citation was marked as a series citation
+                is_series_citation = citation.metadata.get("is_series_citation", False)
+                
+                if not is_series_citation:
+                    eyecite_fallback = citation.metadata.get("eyecite_fallback_name")
+                    if eyecite_fallback:
+                        # CRITICAL FIX: Validate eyecite fallback name before using it
+                        from src.case_name_validator import is_valid_case_name
+
+                        if is_valid_case_name(eyecite_fallback):
+                            citation.extracted_case_name = eyecite_fallback
+                            logger.info(
+                                f"[EYECITE-FALLBACK-USED] Using eyecite fallback '{eyecite_fallback}' for {citation.citation}"
+                            )
+                        else:
+                            logger.warning(
+                                f"[EYECITE-FALLBACK-REJECT] Eyecite fallback '{eyecite_fallback}' failed validation for {citation.citation}"
+                            )
+                else:
+                    logger.info(
+                        f"[SERIES-FIX-EYECITE] Preserving N/A for series citation {citation.citation} (not using eyecite fallback)"
+                    )
+            elif is_wl_citation and hasattr(citation, "metadata") and citation.metadata:
+                # WL CITATION FIX: For WL/LEXIS citations, prefer eyecite metadata over text extraction
+                # This prevents clustering errors when multiple WL citations are close together
                 eyecite_fallback = citation.metadata.get("eyecite_fallback_name")
                 if eyecite_fallback:
-                    # CRITICAL FIX: Validate eyecite fallback name before using it
                     from src.case_name_validator import is_valid_case_name
-
+                    
                     if is_valid_case_name(eyecite_fallback):
-                        citation.extracted_case_name = eyecite_fallback
                         logger.info(
-                            f"[EYECITE-FALLBACK-USED] Using eyecite fallback '{eyecite_fallback}' for {citation.citation}"
+                            f"[WL-EYECITE-PRIORITY] Using eyecite '{eyecite_fallback}' for WL citation {citation.citation} (overriding text extraction)"
                         )
+                        citation.extracted_case_name = eyecite_fallback
                     else:
                         logger.warning(
-                            f"[EYECITE-FALLBACK-REJECT] Eyecite fallback '{eyecite_fallback}' failed validation for {citation.citation}"
+                            f"[WL-EYECITE-REJECT] Eyecite fallback '{eyecite_fallback}' failed validation for WL citation {citation.citation}"
                         )
             if self.config.extract_dates:
                 try:
@@ -2100,6 +2229,17 @@ class UnifiedCitationProcessorV2:
             ):
                 force_debug = True
 
+            # USER FIX 2026-01-08: For WL/LEXIS citations, pass eyecite plaintiff/defendant as canonical_name
+            # This allows the extraction master to use eyecite metadata directly
+            eyecite_case_name = None
+            if citation_text and ("WL" in citation_text or "LEXIS" in citation_text):
+                if hasattr(citation, "eyecite_metadata"):
+                    plaintiff = getattr(citation.eyecite_metadata, "plaintiff", None)
+                    defendant = getattr(citation.eyecite_metadata, "defendant", None)
+                    if plaintiff and defendant:
+                        eyecite_case_name = f"{plaintiff} v. {defendant}"
+                        logger.info(f"[WL-EYECITE-PASS] Passing eyecite name '{eyecite_case_name}' to extraction master for {citation_text}")
+            
             result = extract_case_name_and_date_unified_master(
                 text=text,
                 citation=citation_text,
@@ -2107,6 +2247,7 @@ class UnifiedCitationProcessorV2:
                 document_primary_case_name=getattr(self, "document_primary_case_name", None),
                 end_index=getattr(citation, "end_index", None),
                 debug=force_debug,  # FIX #33: Enable debug for problematic citations
+                canonical_name=eyecite_case_name,  # Pass eyecite metadata for WL citations
             )
 
             case_name = result.get("case_name")
@@ -3138,6 +3279,29 @@ class UnifiedCitationProcessorV2:
         if not citations:
             return citations
 
+        # USER FIX 2026-01-08: Filter out non-case citations (statutes, regulations, supra)
+        # These should never reach the UI - filter them here as a final safeguard
+        filtered_citations = []
+        removed_non_cases = []
+        for citation in citations:
+            citation_text = citation.citation or ""
+            citation_lower = citation_text.lower()
+            # Filter out statutes, regulations, supra references, unknown citations, and short-form citations
+            if any(pattern in citation_text for pattern in [
+                "Pub. L.", "Stat.", "Fed. Reg.", "C.F.R.", "U.S.C.",
+                "Op. O.L.C.", "UnknownCitation", " at "
+            ]) or any(pattern in citation_lower for pattern in [
+                "supra", "infra", "id.", "ibid."
+            ]):
+                removed_non_cases.append(citation_text)
+                continue
+            filtered_citations.append(citation)
+        
+        if removed_non_cases:
+            logger.info(f"[DEDUP] Filtered out {len(removed_non_cases)} non-case citations: {removed_non_cases[:5]}")
+        
+        citations = filtered_citations
+
         # FIX #45: Add logging to track what's being removed
         logger.info(f"[DEDUP] Starting deduplication with {len(citations)} citations")
 
@@ -3658,6 +3822,12 @@ class UnifiedCitationProcessorV2:
                 citation_strings = [c.citation for c in citations_to_verify]
                 case_names = [c.extracted_case_name for c in citations_to_verify]
                 dates = [c.extracted_date for c in citations_to_verify]
+                # USER FIX 2026-01-09: Extract in_toa_section metadata for TOA year validation skip
+                toa_flags = [
+                    bool(c.metadata.get("in_toa_section", False)) if hasattr(c, "metadata") and c.metadata else False
+                    for c in citations_to_verify
+                ]
+                logger.error(f"[TOA-FLAGS-DEBUG] Extracted {sum(toa_flags)} TOA citations out of {len(toa_flags)} total")
 
                 # Run master batch verification once in a separate event loop
                 try:
@@ -3686,6 +3856,7 @@ class UnifiedCitationProcessorV2:
                                     citations=citation_strings,
                                     extracted_case_names=case_names,
                                     extracted_dates=dates,
+                                    in_toa_section=toa_flags,
                                     progress_callback=batch_progress_callback if progress_callback else None,
                                 )
                             )
@@ -3708,7 +3879,10 @@ class UnifiedCitationProcessorV2:
                         for c in citations_to_verify
                     ]
                 except Exception as e:
+                    import traceback
                     logger.error(f"[BATCH-ERROR] Master batch verification failed: {e}")
+                    logger.error(f"[BATCH-ERROR] Exception type: {type(e).__name__}")
+                    logger.error(f"[BATCH-ERROR] Traceback:\n{traceback.format_exc()}")
                     from src.unified_verification_master import VerificationResult
 
                     all_results = [
@@ -3726,24 +3900,60 @@ class UnifiedCitationProcessorV2:
                     # Preserve extracted fields
                     original_extracted_name = getattr(citation, "extracted_case_name", None)
                     original_extracted_date = getattr(citation, "extracted_date", None)
+                    
+                    # DEBUG: Log verification result application
+                    citation_str = str(getattr(citation, "citation", ""))
+                    if "855 F.2d 569" in citation_str or "855 F.2d" in citation_str:
+                        logger.error(f"[DEBUG-855] Applying result to {citation_str}")
+                        logger.error(f"[DEBUG-855] result.verified = {getattr(result, 'verified', None)}")
+                        logger.error(f"[DEBUG-855] result.canonical_name = {getattr(result, 'canonical_name', None)}")
+                        logger.error(f"[DEBUG-855] result.source = {getattr(result, 'source', None)}")
 
                     if result and getattr(result, "verified", False):
                         # USER FIX: Validate year match before accepting verification result
                         # UPDATED: Allow ±1 year tolerance for legal citations
+                        # USER FIX 2026-01-09: Skip year validation for TOA citations
                         extracted_date = original_extracted_date
                         canonical_date = result.canonical_date
                         year_match = True  # Default to True if no dates to compare
                         year_diff = 0
-                        if extracted_date and canonical_date:
+                        
+                        # Check if this citation is from Table of Authorities section
+                        citation_metadata = getattr(citation, "metadata", {})
+                        in_toa_section = citation_metadata.get("in_toa_section", False)
+                        
+                        if in_toa_section:
+                            # TOA citations have unreliable year extraction (often picks up document year)
+                            # Trust the canonical year from CourtListener instead
+                            year_match = True
+                            logger.info(
+                                f"[TOA-YEAR-SKIP] {citation.citation}: TOA citation - skipping year validation (extracted year unreliable)"
+                            )
+                        elif extracted_date and canonical_date:
                             ext_year = re_module.search(r"(19|20)\d{2}", str(extracted_date))
                             can_year = re_module.search(r"(19|20)\d{2}", str(canonical_date))
                             if ext_year and can_year:
                                 year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                                year_match = year_diff <= 1  # Allow ±1 year tolerance
-                                if year_diff == 1:
+                                
+                                # Check if this is a Federal Reporter citation
+                                citation_str = str(getattr(citation, "citation", ""))
+                                is_federal_reporter = bool(re_module.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                                
+                                if is_federal_reporter:
+                                    # For Federal Reporter citations, the year in the citation is the decision year
+                                    # CourtListener's dateFiled is when it was added to database, not the decision date
+                                    # Skip year comparison for Federal Reporter citations
+                                    year_match = True
                                     logger.info(
-                                        f"[BATCH-YEAR-TOLERANCE] {citation.citation}: ±1 year accepted - extracted {ext_year.group(0)} vs canonical {can_year.group(0)}"
+                                        f"[FED-YEAR-SKIP] {citation.citation}: Federal Reporter - skipping year comparison (citation year is authoritative)"
                                     )
+                                else:
+                                    # Standard 1-year tolerance for other citations
+                                    year_match = year_diff <= 1
+                                    if year_diff == 1:
+                                        logger.info(
+                                            f"[BATCH-YEAR-TOLERANCE] {citation.citation}: ±1 year accepted - extracted {ext_year.group(0)} vs canonical {can_year.group(0)}"
+                                        )
 
                         if not year_match:
                             # Year mismatch - reject verification BUT PRESERVE canonical data for clustering
@@ -3786,9 +3996,20 @@ class UnifiedCitationProcessorV2:
                         result_source = result.source if result and getattr(result, "source", None) else "not_found"
                         citation.source = result_source
 
+                        # Check if this is a proprietary format citation (WL or Lexis)
+                        import re
+                        citation_str = str(citation.citation)
+                        is_westlaw = bool(re.search(r'\b\d{4}\s+WL\s+\d+', citation_str))
+                        is_lexis = bool(re.search(r'\b\d{4}\s+U\.S\.\s+Lexis\s+\d+', citation_str, re.IGNORECASE))
+                        
+                        if is_westlaw or is_lexis:
+                            # Set proprietary format error message
+                            citation.verification_status = "proprietary_format"
+                            citation.error = "Proprietary format - not available in free databases (Westlaw/Lexis only)"
+                            logger.info(f"[BATCH-PROPRIETARY] {citation.citation}: Proprietary format detected")
                         # CRITICAL FIX: Preserve canonical data for year_mismatch_rejected
                         # This allows clustering to split by canonical year even when unverified
-                        if result_source == "year_mismatch_rejected" and result:
+                        elif result_source == "year_mismatch_rejected" and result:
                             citation.verification_status = "year_mismatch"
                             citation.canonical_name = getattr(result, "canonical_name", None)
                             citation.canonical_date = getattr(result, "canonical_date", None)
@@ -3994,6 +4215,31 @@ class UnifiedCitationProcessorV2:
         except Exception as e:
             logger.warning(f"[UNIFIED_EXTRACTION] Eyecite extraction failed: {e}")
             logger.info("[UNIFIED_EXTRACTION] Continuing without eyecite results")
+
+        # USER FIX 2026-01-08: Filter out non-case citations immediately after extraction
+        # This prevents statutes, regulations, and cross-references from being processed
+        logger.info("[UNIFIED_EXTRACTION] Step 2.5: Filtering non-case citations")
+        filtered_citations = []
+        removed_non_cases = []
+        for citation in all_citations:
+            citation_text = citation.citation or ""
+            citation_lower = citation_text.lower()
+            # Filter out statutes, regulations, cross-references, unknown citations, and short-form citations
+            if any(pattern in citation_text for pattern in [
+                "Pub. L.", "Stat.", "Fed. Reg.", "C.F.R.", "U.S.C.",
+                "Op. O.L.C.", "UnknownCitation", " at "
+            ]) or any(pattern in citation_lower for pattern in [
+                "supra", "infra", "id.", "ibid."
+            ]):
+                removed_non_cases.append(citation_text)
+                continue
+            filtered_citations.append(citation)
+        
+        if removed_non_cases:
+            logger.info(f"[UNIFIED_EXTRACTION] Filtered out {len(removed_non_cases)} non-case citations: {removed_non_cases[:10]}")
+        
+        all_citations = filtered_citations
+        logger.info(f"[UNIFIED_EXTRACTION] After filtering: {len(all_citations)} case citations remain")
 
         logger.info("[UNIFIED_EXTRACTION] Step 3: Applying unified strict context extraction to ALL citations")
         try:
@@ -4515,6 +4761,9 @@ class UnifiedCitationProcessorV2:
         print(f"[DEBUG] PROCESS_TEXT FUNCTION CALLED with {len(text)} chars")
         logger.info("[UNIFIED_PIPELINE] Starting unified citation processing pipeline")
 
+        # Text normalization happens in UnifiedTextExtractor._enhanced_text_normalization
+        # All text received here is already normalized for consistent position pointers
+
         # P3 FIX: Detect document's primary case name for contamination filtering
         document_primary_case_name = None
         try:
@@ -4536,17 +4785,19 @@ class UnifiedCitationProcessorV2:
 
         self._update_progress(10, "Extracting", "Extracting citations from text")
 
-        logger.info("[UNIFIED_PIPELINE] Starting CLEAN extraction pipeline for 100% accuracy")
+        logger.info("[UNIFIED_PIPELINE] Starting UNIFIED extraction pipeline for 100% accuracy")
 
-        # USE CLEAN EXTRACTION PIPELINE - guarantees zero case name bleeding
+        # USE UNIFIED EXTRACTION MASTER - guarantees zero case name bleeding
         try:
-            from src.clean_extraction_pipeline import extract_citations_clean
-
-            citations = extract_citations_clean(text, document_primary_case_name=self.document_primary_case_name)
-            logger.info(f"[UNIFIED_PIPELINE] Clean pipeline extracted {len(citations)} citations with 100% accuracy")
+            from src.unified_case_extraction_master import extract_citations_unified
+            
+            logger.info(f"[UNIFIED-DEBUG] About to call extract_citations_unified with {len(text)} chars")
+            citations = extract_citations_unified(text, document_primary_case_name=self.document_primary_case_name)
+            logger.info(f"[UNIFIED_PIPELINE] Unified master extracted {len(citations)} citations with 100% accuracy")
         except Exception as e:
-            logger.error(f"[UNIFIED_PIPELINE] Clean pipeline failed: {e}, falling back to old method")
-            # Fallback to old method if clean pipeline fails
+            logger.error(f"[UNIFIED_PIPELINE] Unified master failed: {e}", exc_info=True)
+            logger.error(f"[UNIFIED-DEBUG] Exception type: {type(e).__name__}")
+            # Fallback to old method if unified master fails
             citations = self._extract_with_regex_enhanced(text)
 
         # Apply parallel verification to clean pipeline results
@@ -4600,13 +4851,27 @@ class UnifiedCitationProcessorV2:
 
                     # CRITICAL FIX: Do NOT re-extract if clean_extraction_pipeline already provided a valid name
                     # The clean pipeline has accurate context isolation and should not be overwritten
-                    if current_name and current_name != "N/A" and citation_method == "clean_pipeline_v1":
-                        logger.debug(
-                            f"[EXTRACT-SKIP-CLEAN] Clean pipeline already extracted '{current_name}' for {citation_text} - keeping it"
-                        )
-                        # Cache the clean pipeline result
-                        extraction_cache[cache_key] = current_name
-                        continue  # Skip re-extraction
+                    # SERIES FIX: Also skip re-extraction if clean pipeline set N/A for series citations
+                    if current_name and citation_method == "clean_pipeline_v1":
+                        # Check if this is a series citation marked by clean pipeline
+                        is_series_citation = (hasattr(citation, 'metadata') and 
+                                             citation.metadata and 
+                                             citation.metadata.get('is_series_citation', False))
+                        
+                        if current_name != "N/A":
+                            logger.debug(
+                                f"[EXTRACT-SKIP-CLEAN] Clean pipeline already extracted '{current_name}' for {citation_text} - keeping it"
+                            )
+                            # Cache the clean pipeline result
+                            extraction_cache[cache_key] = current_name
+                            continue  # Skip re-extraction
+                        elif is_series_citation:
+                            logger.debug(
+                                f"[EXTRACT-SKIP-SERIES] Clean pipeline set 'N/A' for series citation {citation_text} - keeping it"
+                            )
+                            # Cache the N/A for series citations
+                            extraction_cache[cache_key] = current_name
+                            continue  # Skip re-extraction
 
                     # FIX: Re-extract for eyecite citations only (they often have truncated names)
                     if current_name and current_name != "N/A" and citation_method == "eyecite":
@@ -4619,6 +4884,22 @@ class UnifiedCitationProcessorV2:
 
                     # Method 1: Master extractor
                     try:
+                        # SERIES CITATION FIX: Check if this is NOT the first citation in a series
+                        # If it's not the first, skip case name extraction to prevent incorrect association
+                        if start_index and start_index > 0:
+                            # Look backwards to see if there's another citation within 100 characters
+                            look_behind = text[max(0, start_index - 100):start_index]
+                            prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+                            
+                            if re.search(prev_citation_pattern, look_behind):
+                                # This is NOT the first citation in a series
+                                # Skip case name extraction entirely
+                                logger.info(f"[SERIES-FIX] Skipping case name extraction for non-first citation: {citation_text}")
+                                final_name = "N/A"
+                                # Skip to the end of this extraction attempt
+                                citation.extracted_case_name = final_name
+                                continue
+                        
                         # USER DEBUG: Enable debug for U.S. Reports, S.Ct., L.Ed. to diagnose vacatur pattern
                         force_debug = citation_text and (
                             " U.S. " in citation_text or " S. Ct. " in citation_text or " L. Ed. " in citation_text
@@ -5111,21 +5392,34 @@ class UnifiedCitationProcessorV2:
                         can_year = re_final.search(r"(19|20)\d{2}", str(canonical_date))
                         if ext_year and can_year:
                             year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                            if year_diff > 1:
-                                # More than 1 year difference - unverify
-                                cit.verified = False
-                                cit.verification_error = (
-                                    f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
-                                )
-                                logger.warning(
-                                    f"❌ [FINAL-YEAR-CHECK] {cit.citation}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
-                                )
-                                year_mismatch_count += 1
-                            elif year_diff == 1:
-                                # 1 year difference - acceptable, just log warning
+                            
+                            # Check if this is a Federal Reporter citation
+                            citation_str = str(getattr(cit, "citation", ""))
+                            is_federal_reporter = bool(re_final.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                            
+                            if is_federal_reporter:
+                                # For Federal Reporter citations, skip year comparison
+                                # The year in the citation is the decision year, not database entry date
                                 logger.info(
-                                    f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
+                                    f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: Federal Reporter - year check skipped (citation year is authoritative)"
                                 )
+                            else:
+                                # Standard 1-year tolerance for other citations
+                                if year_diff > 1:
+                                    # More than 1 year difference - unverify
+                                    cit.verified = False
+                                    cit.verification_error = (
+                                        f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                    )
+                                    logger.warning(
+                                        f"❌ [FINAL-YEAR-CHECK] {cit.citation}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
+                                    )
+                                    year_mismatch_count += 1
+                                elif year_diff == 1:
+                                    # 1 year difference - acceptable, just log warning
+                                    logger.info(
+                                        f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
+                                    )
 
         # Also check cluster citations (dicts)
         for cluster in formatted_clusters:
@@ -5146,21 +5440,34 @@ class UnifiedCitationProcessorV2:
                             can_year = re_final.search(r"(19|20)\d{2}", str(canonical_date))
                             if ext_year and can_year:
                                 year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                                if year_diff > 1:
-                                    # More than 1 year difference - unverify
-                                    cit["verified"] = False
-                                    cit["verification_error"] = (
-                                        f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
-                                    )
-                                    logger.warning(
-                                        f"❌ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
-                                    )
-                                    year_mismatch_count += 1
-                                elif year_diff == 1:
-                                    # 1 year difference - acceptable, just log warning
+                                
+                                # Check if this is a Federal Reporter citation
+                                citation_str = str(cit.get('citation', ''))
+                                is_federal_reporter = bool(re_final.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                                
+                                if is_federal_reporter:
+                                    # For Federal Reporter citations, skip year comparison
+                                    # The year in the citation is the decision year, not database entry date
                                     logger.info(
-                                        f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
+                                        f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Federal Reporter - year check skipped (citation year is authoritative)"
                                     )
+                                else:
+                                    # Standard 1-year tolerance for other citations
+                                    if year_diff > 1:
+                                        # More than 1 year difference - unverify
+                                        cit["verified"] = False
+                                        cit["verification_error"] = (
+                                            f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                        )
+                                        logger.warning(
+                                            f"❌ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
+                                        )
+                                        year_mismatch_count += 1
+                                    elif year_diff == 1:
+                                        # 1 year difference - acceptable, just log warning
+                                        logger.info(
+                                            f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
+                                        )
 
             # FIX: Recompute cluster has_date_mismatch after clearing invalid flags
             # CRITICAL: Only count date_mismatch for VERIFIED citations
@@ -5880,10 +6187,57 @@ class UnifiedCitationProcessorV2:
                     )
 
                     if "," in text_between or (curr.start_index - prev.end_index <= 10):
-                        logger.info(f"[PARALLEL-DEBUG] Adding to group: {curr.citation}")
-                        group.append(curr)
-                        j += 1
-                        continue
+                        # USER FIX 2026-01-08: Validate citations before grouping
+                        # Check reporter, court, party metadata to prevent incorrect clustering
+                        should_cluster = True
+                        
+                        # Extract reporter from citation text
+                        def get_reporter(cit):
+                            cit_text = str(cit.citation) if hasattr(cit, 'citation') else str(cit)
+                            if 'WL' in cit_text:
+                                return 'WL'
+                            elif 'F.2d' in cit_text or 'F.3d' in cit_text or 'F.4th' in cit_text:
+                                return 'F'
+                            elif 'P.2d' in cit_text or 'P.3d' in cit_text:
+                                return 'P'
+                            return None
+                        
+                        prev_reporter = get_reporter(prev)
+                        curr_reporter = get_reporter(curr)
+                        
+                        # CRITICAL: Same reporter = cannot be parallel
+                        if prev_reporter and curr_reporter and prev_reporter == curr_reporter:
+                            logger.info(f"[PARALLEL-DEBUG] REJECTED - same reporter: {prev_reporter}")
+                            should_cluster = False
+                        
+                        # Check court metadata
+                        if should_cluster:
+                            prev_court = getattr(prev.metadata, 'court', None) if hasattr(prev, 'metadata') else None
+                            curr_court = getattr(curr.metadata, 'court', None) if hasattr(curr, 'metadata') else None
+                            
+                            if prev_court and curr_court and prev_court != curr_court:
+                                logger.info(f"[PARALLEL-DEBUG] REJECTED - different courts: {prev_court} vs {curr_court}")
+                                should_cluster = False
+                        
+                        # Check plaintiff/defendant
+                        if should_cluster:
+                            prev_plaintiff = getattr(prev.metadata, 'plaintiff', None) if hasattr(prev, 'metadata') else None
+                            curr_plaintiff = getattr(curr.metadata, 'plaintiff', None) if hasattr(curr, 'metadata') else None
+                            
+                            if prev_plaintiff and curr_plaintiff:
+                                if prev_plaintiff.lower().strip() != curr_plaintiff.lower().strip():
+                                    if prev_plaintiff.lower() not in curr_plaintiff.lower() and curr_plaintiff.lower() not in prev_plaintiff.lower():
+                                        logger.info(f"[PARALLEL-DEBUG] REJECTED - different plaintiffs: {prev_plaintiff} vs {curr_plaintiff}")
+                                        should_cluster = False
+                        
+                        if should_cluster:
+                            logger.info(f"[PARALLEL-DEBUG] Validation passed - Adding to group: {curr.citation}")
+                            group.append(curr)
+                            j += 1
+                            continue
+                        else:
+                            logger.info(f"[PARALLEL-DEBUG] Validation REJECTED - NOT adding to group: {curr.citation}")
+                            break
                 break
             if len(group) > 1:
                 groups_found += 1

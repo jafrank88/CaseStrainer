@@ -155,6 +155,7 @@ class FastVerificationSystem:
         actual_date = None
 
         # Try CourtListener lookup for the actual case name
+        actual_url = None
         try:
             import requests
             from src.config import get_config_value
@@ -180,6 +181,12 @@ class FastVerificationSystem:
                     # Extract date from the result
                     if result.get("date"):
                         actual_date = result["date"]
+                    
+                    # USER FIX 2026-01-09: Extract URL from CourtListener result
+                    # The verification system requires canonical_url to mark citations as verified
+                    if result.get("absolute_url"):
+                        actual_url = f"https://www.courtlistener.com{result['absolute_url']}"
+                        logger.info(f"[FALLBACK-LOOKUP] Found CourtListener URL: {actual_url}")
             elif response.status_code == 401:
                 logger.warning("[FALLBACK-LOOKUP] CourtListener API unauthorized - missing or invalid API key")
         except Exception as e:
@@ -199,17 +206,26 @@ class FastVerificationSystem:
         # Mark if we found the actual case name vs using fallback
         source = "calculated_fallback"
         confidence = 0.5
-        if actual_case_name:
+        verified = False  # Only mark as verified if we have URL from CourtListener
+        
+        if actual_case_name and actual_url:
+            # USER FIX 2026-01-09: Only mark as verified if we have all three canonical fields
+            # The verification system requires canonical_name, canonical_date, AND canonical_url
+            source = "CourtListener"
+            confidence = 0.9  # High confidence for CourtListener API results
+            verified = True
+        elif actual_case_name:
             source = "calculated_fallback_with_lookup"
-            confidence = 0.7  # Higher confidence if we found the actual name
+            confidence = 0.7
+            verified = False  # No URL, so can't mark as fully verified
 
         return {
-            "verified": True,  # Mark as verified for system compatibility
+            "verified": verified,
             "canonical_name": canonical_name,
             "canonical_date": canonical_date,
             "source": source,
             "confidence": confidence,
-            "url": None,
+            "url": actual_url,  # Use actual URL from CourtListener
             "note": (
                 "Verification based on extracted data" if not actual_case_name else "Verification with external lookup"
             ),

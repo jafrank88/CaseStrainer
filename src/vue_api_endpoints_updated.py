@@ -4,7 +4,7 @@ Main API routes for the CaseStrainer application
 """
 
 import os
-from src.config import WEBSEARCH_TIMEOUT
+from src.config import WEBSEARCH_TIMEOUT, FILE_PROCESSING_TIMEOUT_MINUTES
 
 import sys
 import uuid
@@ -1618,6 +1618,11 @@ def _format_response(result, request_id, metadata, start_time):
                 c["name_mismatch"] = False
             c["submitted_display_name"] = html.unescape(exn or c.get("citation") or "")
             c["submitted_display_date"] = c.get("extracted_date") or _year_from(c.get("extracted_date")) or ""
+            
+            # USER FIX 2026-01-09: Map 'verified' to 'found' for UI compatibility
+            # The UI checks citation.found to determine verification status
+            if "verified" in c and "found" not in c:
+                c["found"] = c["verified"]
             # CAPTCHA masking: if canonical appears to be 'capcha/captcha', treat as unverified with no verifying display
             if ncan and ("captcha" in ncan or ncan == "capcha"):
                 try:

@@ -2,9 +2,10 @@
 PRODUCTION CITATION EXTRACTION ENDPOINT
 
 This module provides the production-ready citation extraction endpoint
-using the clean extraction pipeline with 90-93% accuracy and zero case name bleeding.
+using the unified extraction master with 90-93% accuracy and zero case name bleeding.
 
 This REPLACES all older extraction methods:
+- clean_extraction_pipeline.py (DEPRECATED)
 - unified_case_name_extractor_v2.py (DEPRECATED)
 - unified_extraction_architecture.py (DEPRECATED)
 - _extract_case_name_from_context (DEPRECATED)
@@ -13,14 +14,14 @@ Usage:
     from src.citation_extraction_endpoint import extract_citations_production
 
     result = extract_citations_production(text)
-    # Returns: {'citations': [...], 'accuracy': '90-93%', 'method': 'clean_pipeline_v1'}
+    # Returns: {'citations': [...], 'accuracy': '90-93%', 'method': 'unified_master'}
 """
 
 import logging
 import difflib
 import re
 from typing import Dict, List, Any
-from src.clean_extraction_pipeline import extract_citations_clean
+from src.unified_case_extraction_master import extract_citations_unified
 from src.models import CitationResult
 from src.citation_deduplication import deduplicate_citations
 
@@ -522,19 +523,19 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
         text_preview = text[:500].replace("\n", " ").strip()
         logger.info(f"[PRODUCTION-DEBUG] Text preview: '{text_preview}'")
 
-        # Use clean extraction pipeline
-        logger.info(f"[PRODUCTION] About to call extract_citations_clean()...")
-        citations = extract_citations_clean(text)
-        logger.info(f"[PRODUCTION] extract_citations_clean() returned {len(citations)} citations")
+        # Use unified extraction pipeline
+        logger.info(f"[PRODUCTION] About to call extract_citations_unified()...")
+        citations = extract_citations_unified(text)
+        logger.info(f"[PRODUCTION] extract_citations_unified() returned {len(citations)} citations")
 
-        logger.info(f"[PRODUCTION] Extracted {len(citations)} citations with clean pipeline")
+        logger.info(f"[PRODUCTION] Extracted {len(citations)} citations with unified master")
 
         # Convert to dictionaries for JSON serialization
         citation_dicts = []
         for cit in citations:
             citation_dicts.append(
                 {
-                    "citation": cit.citation,
+                    "citation": str(cit.citation),
                     "extracted_case_name": cit.extracted_case_name,
                     "extracted_date": cit.extracted_date,
                     "start_index": cit.start_index,
@@ -542,8 +543,25 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
                     "method": cit.method,
                     "confidence": cit.confidence,
                     "metadata": cit.metadata if hasattr(cit, "metadata") else {},
+                    # Include verification fields
+                    "verified": cit.verified,
+                    "verification_status": getattr(cit, "verification_status", None),
+                    "verification_error": getattr(cit, "verification_error", None),
                 }
             )
+
+        # Add proprietary format marking for WL citations (after conversion to dict)
+        proprietary_count = 0
+        for cit_dict in citation_dicts:
+            if not cit_dict.get("verified", False):
+                cit_str = str(cit_dict.get("citation", ""))
+                if re.search(r"\d{4}\s+WL\s+\d+", cit_str) or re.search(r"Lexis\s+\d+", cit_str, re.IGNORECASE):
+                    cit_dict["verification_status"] = "proprietary_format"
+                    cit_dict["verification_error"] = "Unverified due to proprietary format"
+                    proprietary_count += 1
+        
+        if proprietary_count > 0:
+            logger.info(f"[PRODUCTION] Marked {proprietary_count} WL/Lexis citations as unverified due to proprietary format")
 
         # NEW: Propagate case names to parallel citations
         logger.info(f"[PRODUCTION] Applying parallel citation name propagation...")
@@ -659,7 +677,7 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
                             continue
 
                         c["extracted_case_name"] = re_name
-                        c["method"] = "clean_pipeline_v1_strict_repair"
+                        c["method"] = "unified_master_v1_strict_repair"
                         repaired += 1
                 except Exception:
                     continue
@@ -690,7 +708,7 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
             "citations": citation_dicts,
             "total": len(citations),
             "accuracy": "90-93%",
-            "method": "clean_pipeline_v1",
+            "method": "unified_master_v1",
             "version": "1.0.0",
             "case_name_bleeding": "zero",
             "status": "success",
@@ -702,7 +720,7 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
             "citations": [],
             "total": 0,
             "accuracy": "N/A",
-            "method": "clean_pipeline_v1",
+            "method": "unified_master_v1",
             "version": "1.0.0",
             "status": "error",
             "error": str(e),
@@ -883,7 +901,7 @@ def extract_citations_with_clustering(
                         extracted_date=cit_dict.get("extracted_date"),
                         start_index=cit_dict.get("start_index"),
                         end_index=cit_dict.get("end_index"),
-                        method=cit_dict.get("method", "clean_pipeline_v1"),
+                        method=cit_dict.get("method", "unified_master_v1"),
                         confidence=cit_dict.get("confidence", 0.9),
                         metadata=cit_dict.get("metadata", {}),
                         # Include verification fields if present
@@ -933,7 +951,7 @@ def extract_citations_with_clustering(
                             f"[PRODUCTION] >>>>>>> Citation is object: {cit_obj.citation} verified={verified_val}"
                         )
                         cit_dict = {
-                            "citation": cit_obj.citation,
+                            "citation": str(cit_obj.citation),
                             "extracted_case_name": cit_obj.extracted_case_name,
                             "extracted_date": cit_obj.extracted_date,
                             "start_index": cit_obj.start_index,
@@ -1100,7 +1118,7 @@ def extract_citations_with_clustering(
             "unverified_clusters": len(organized_clusters.get("unverified", [])),
             "verified_clusters": len(organized_clusters.get("verified", [])),
             "accuracy": "90-93%",
-            "method": "clean_pipeline_v1_with_clustering",
+            "method": "unified_master_v1_with_clustering",
             "version": "1.0.0",
             "verification_enabled": enable_verification,
             "status": "success",

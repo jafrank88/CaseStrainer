@@ -1,0 +1,152 @@
+[
+  {
+    "citation": "855 F.2d 569",
+    "normalized_citations": [
+      "855 F.2d 569"
+    ],
+    "start_index": 0,
+    "end_index": 12,
+    "status": 300,
+    "error_message": "",
+    "clusters": [
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v4/clusters/8971994/",
+        "id": 8971994,
+        "absolute_url": "/opinion/8971994/in-re-search-warrant-for-secretarial-area-outside-office-of-gunn/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 66238210,
+        "docket": "https://www.courtlistener.com/api/rest/v4/dockets/66238210/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v4/opinions/8963543/",
+          "https://www.courtlistener.com/api/rest/v4/opinions/8963541/",
+          "https://www.courtlistener.com/api/rest/v4/opinions/8963542/"
+        ],
+        "citations": [
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": "855",
+            "reporter": "F.2d",
+            "page": "569",
+            "type": 1
+          },
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": "1988",
+            "reporter": "WL",
+            "page": "87487",
+            "type": 7
+          }
+        ],
+        "date_created": "2022-11-27T01:52:16.421550-08:00",
+        "date_modified": "2024-11-04T09:34:08.919148-08:00",
+        "judges": "Bowman, Heaney, McMillian",
+        "date_filed": "1988-08-26",
+        "date_filed_is_approximate": false,
+        "slug": "in-re-search-warrant-for-secretarial-area-outside-office-of-gunn",
+        "case_name_short": "",
+        "case_name": "In re Search Warrant for Secretarial Area Outside Office of Gunn",
+        "case_name_full": "In re SEARCH WARRANT FOR SECRETARIAL AREA OUTSIDE OFFICE OF Thomas GUNN, McDonnell Douglas Corporation. Appeal of PULITZER PUBLISHING COMPANY and Edward H. Kohn",
+        "scdb_id": "",
+        "scdb_decision_direction": null,
+        "scdb_votes_majority": null,
+        "scdb_votes_minority": null,
+        "source": "U",
+        "procedural_history": "",
+        "attorneys": "Stephen B. Higgins, St. Louis, Mo., for appellants., Joseph Aronica, Asst. U.S. Atty., Alexandria, Va., for appellee., Veryl L. Riddle, St. Louis, Mo., for ami-cus curiae McDonnell Douglas., Norman London, St. Louis, Mo., for ami-cus curiae Thomas Gunn.",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "Submitted July 29, 1988.",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 63,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": "law.free.cap.f2d.855/569.10530306.json",
+        "filepath_pdf_harvard": "harvard_pdf/8971994.pdf",
+        "arguments": "",
+        "headmatter": ""
+      },
+      {
+        "resource_uri": "https://www.courtlistener.com/api/rest/v4/clusters/510719/",
+        "id": 510719,
+        "absolute_url": "/opinion/510719/in-re-search-warrant-for-secretarial-area-outside-office-of-thomas-gunn/",
+        "panel": [],
+        "non_participating_judges": [],
+        "docket_id": 785364,
+        "docket": "https://www.courtlistener.com/api/rest/v4/dockets/785364/",
+        "sub_opinions": [
+          "https://www.courtlistener.com/api/rest/v4/opinions/510719/"
+        ],
+        "citations": [
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": "855",
+            "reporter": "F.2d",
+            "page": "569",
+            "type": 1
+          },
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": "15",
+            "reporter": "Media L. Rep. (BNA)",
+            "page": "1969",
+            "type": 4
+          },
+          {
+            "date_created": "2025-09-25T21:50:34.120042-07:00",
+            "date_modified": "2025-09-25T21:50:34.139566-07:00",
+            "volume": "1988",
+            "reporter": "U.S. App. LEXIS",
+            "page": "11687",
+            "type": 6
+          }
+        ],
+        "date_created": "2015-10-22T11:56:11.982619-07:00",
+        "date_modified": "2018-11-28T08:29:55.953401-08:00",
+        "judges": "",
+        "date_filed": "1988-08-26",
+        "date_filed_is_approximate": false,
+        "slug": "in-re-search-warrant-for-secretarial-area-outside-office-of-thomas-gunn",
+        "case_name_short": "In Re Search Warrant for Secretarial Area Outside Office of Thomas Gunn, McDonnell Douglas Corporation. Appeal of Pulitzer Publishing Company and Edward H. Kohn",
+        "case_name": "",
+        "case_name_full": "In Re Search Warrant for Secretarial Area Outside Office of Thomas Gunn, McDonnell Douglas Corporation. Appeal of Pulitzer Publishing Company and Edward H. Kohn",
+        "scdb_id": "",
+        "scdb_decision_direction": null,
+        "scdb_votes_majority": null,
+        "scdb_votes_minority": null,
+        "source": "R",
+        "procedural_history": "",
+        "attorneys": "",
+        "nature_of_suit": "",
+        "posture": "",
+        "syllabus": "",
+        "headnotes": "",
+        "summary": "",
+        "disposition": "",
+        "history": "",
+        "other_dates": "",
+        "cross_reference": "",
+        "correction": "",
+        "citation_count": 18,
+        "precedential_status": "Published",
+        "date_blocked": null,
+        "blocked": false,
+        "filepath_json_harvard": null,
+        "filepath_pdf_harvard": null,
+        "arguments": "",
+        "headmatter": ""
+      }
+    ]
+  }
+]

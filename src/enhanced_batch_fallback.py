@@ -66,14 +66,19 @@ async def enhanced_batch_fallback(
                 return idx, None
             
             # Try fallback sources in order of preference
-            # 1. CaseMine (highest success for recent cases)
-            # 2. VLex (if case name available)
-            # 3. Justia (direct URL)
-            # 4. Law Resource.org (for F.2d/F.3d/F.4th)
+            # 1. CourtListener Search (with case name + year - best for Federal Reporter)
+            # 2. CaseMine (highest success for recent cases)
+            # 3. VLex (if case name available)
+            # 4. Justia (direct URL)
+            # 5. Law Resource.org (for F.2d/F.3d/F.4th)
             
             sources_to_try = []
             
-            # Always try CaseMine first
+            # Try CourtListener search first if we have case name (enhanced with case name + year)
+            if extracted_name and extracted_name != "N/A":
+                sources_to_try.append(("CourtListener_Search", verifier._verify_with_courtlistener_search))
+            
+            # Always try CaseMine
             sources_to_try.append(("CaseMine", verifier._verify_with_casemine))
             
             # Add VLex if we have a case name
