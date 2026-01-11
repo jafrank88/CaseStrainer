@@ -1525,7 +1525,7 @@ const analyzeContent = async () => {
     // Start polling after a short delay (give backend time to initialize)
     let pollAttempts = 0;
     const lastProgressPercent = ref(0);
-    const MAX_POLL_ATTEMPTS = 300; // 5 minutes max (300 seconds)
+    const MAX_POLL_ATTEMPTS = 1200; // 20 minutes max (1200 seconds) - increased to match rate-limited verification times
     
     // Always poll server progress as soon as we have a client_request_id
     const shouldPoll = true;
@@ -1547,9 +1547,9 @@ const analyzeContent = async () => {
         if (pollAttempts > MAX_POLL_ATTEMPTS) {
           clearInterval(pollingInterval);
           pollingInterval = null;
-          console.error('Polling timeout after 5 minutes - stopping');
+          console.error('Polling timeout after 20 minutes - stopping');
           if (!globalProgress.progressState.hasResults) {
-            globalProgress.setError('Request timed out after 5 minutes', true);
+            globalProgress.setError('Request timed out after 20 minutes', true);
           }
           return;
         }
