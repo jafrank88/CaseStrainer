@@ -985,13 +985,64 @@ class CleanExtractionPipeline:
                             f"[CONTEXT-FIRST] Using context name (document text): '{context_case_name}' over eyecite '{eyecite_case_name}'"
                         )
 
+                # CRITICAL FIX: Filter eyecite_date if it's from a "Cite as:" header
+                # Eyecite extracts dates from document text which may include headers
+                filtered_eyecite_date = None
+                if eyecite_date:
+                    # Check if this date appears in a "Cite as:" header in the broader context
+                    broader_context = text[max(0, start - 200):min(len(text), end + 200)]
+                    cite_as_check = re.search(
+                        rf"Cite\s+as:?\s*[^\n]*{re.escape(str(eyecite_date))}[^\n]*",
+                        broader_context,
+                        re.IGNORECASE
+                    )
+                    if cite_as_check:
+                        logger.warning(
+                            f"[CLEAN-PIPELINE] Rejected eyecite_date {eyecite_date} for {cit_text} - appears in 'Cite as:' header"
+                        )
+                        filtered_eyecite_date = None
+                    else:
+                        # Also check volume-based heuristics
+                        if " U.S. " in cit_text:
+                            volume_match = re.search(r"(\d+)\s+U\.\s*S\.", cit_text)
+                            if volume_match:
+                                volume = int(volume_match.group(1))
+                                year_int = int(eyecite_date) if str(eyecite_date).isdigit() else None
+                                if year_int and 400 <= volume <= 600 and year_int >= 2015:
+                                    logger.warning(
+                                        f"[CLEAN-PIPELINE] Rejected eyecite_date {eyecite_date} for {cit_text} "
+                                        f"(U.S. volume {volume}) - year 2015+ is likely from header"
+                                    )
+                                    filtered_eyecite_date = None
+                                else:
+                                    filtered_eyecite_date = eyecite_date
+                            else:
+                                filtered_eyecite_date = eyecite_date
+                        elif " F.3d " in cit_text:
+                            volume_match = re.search(r"(\d+)\s+F\.\s*3d", cit_text)
+                            if volume_match:
+                                volume = int(volume_match.group(1))
+                                year_int = int(eyecite_date) if str(eyecite_date).isdigit() else None
+                                if year_int and 800 <= volume <= 900 and year_int >= 2020:
+                                    logger.warning(
+                                        f"[CLEAN-PIPELINE] Rejected eyecite_date {eyecite_date} for {cit_text} "
+                                        f"(F.3d volume {volume}) - year 2020+ is likely from header"
+                                    )
+                                    filtered_eyecite_date = None
+                                else:
+                                    filtered_eyecite_date = eyecite_date
+                            else:
+                                filtered_eyecite_date = eyecite_date
+                        else:
+                            filtered_eyecite_date = eyecite_date
+                
                 # Create CitationResult
                 citation = CitationResult(
                     citation=cit_text,
                     start_index=start,
                     end_index=end,
                     extracted_case_name=final_case_name,  # Prefer document context over eyecite metadata
-                    extracted_date=eyecite_date,  # Use eyecite's date if available
+                    extracted_date=filtered_eyecite_date,  # Use filtered eyecite date (headers removed)
                     method="clean_pipeline_v1",
                     confidence=0.9,
                     metadata={
@@ -1604,6 +1655,9 @@ class CleanExtractionPipeline:
                         r"^See\s+also\s+",  # "See also"
                         r"^See\s+generally\s+",  # "See generally"
                         r"^But\s+see\s+",  # "But see"
+                        r"^See\s+",  # "See " (standalone signal word)
+                        r"^Accord\s+",  # "Accord "
+                        r"^Compare\s+",  # "Compare "
                         r"^Cf\.?\s+",  # "Cf."
                         r"^E\.?g\.?\s*,?\s*",  # "E.g.,"
                         r"^I\.?e\.?\s*,?\s*",  # "I.e.,"
@@ -1705,12 +1759,70 @@ class CleanExtractionPipeline:
                     # Strategy 1: Look for (YYYY) immediately after citation - HIGHEST PRIORITY
                     # This is the most reliable pattern: "123 F.3d 456 (2010)"
                     immediate_after = after_context[:50]  # Only look 50 chars after citation
+                    
+                    # CRITICAL FIX: Remove "Cite as:" header patterns BEFORE searching for years
+                    cite_as_pattern = r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*"
+                    immediate_after = re.sub(cite_as_pattern, "", immediate_after, flags=re.IGNORECASE)
+                    
                     year_match = re.search(r"\((\d{4})\)", immediate_after)
                     if year_match:
                         year = year_match.group(1)
-                        if 1800 <= int(year) <= 2030:  # Expanded range to include 1876
+                        year_int = int(year)
+                        
+                        # CRITICAL FIX: Check if this year is part of a "Cite as:" header in broader context
+                        broader_context = text[max(0, citation.start_index - 200):min(len(text), citation.end_index + 200)]
+                        cite_as_check = re.search(
+                            rf"Cite\s+as:?\s*[^\n]*{re.escape(year)}[^\n]*",
+                            broader_context,
+                            re.IGNORECASE
+                        )
+                        if cite_as_check:
+                            logger.warning(
+                                f"[CLEAN-PIPELINE] Rejected year {year} for {citation.citation} - appears in 'Cite as:' header. "
+                                f"Context: '{broader_context[max(0, cite_as_check.start()-50):cite_as_check.end()+50]}'"
+                            )
+                        # CRITICAL FIX: Reject years 2015+ for U.S. Reports volumes 400-600 (cases from 1970s-2000s)
+                        # These are almost certainly from headers, not the actual case dates
+                        elif " U.S. " in citation.citation:
+                            volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation.citation)
+                            if volume_match:
+                                volume = int(volume_match.group(1))
+                                # U.S. Reports volumes 400-600 are from 1970s-2000s
+                                if 400 <= volume <= 600 and year_int >= 2015:
+                                    logger.warning(
+                                        f"[CLEAN-PIPELINE] Rejected year {year} for {citation.citation} (U.S. volume {volume}) - "
+                                        f"year 2015+ is likely from header, not case date"
+                                    )
+                                elif 1800 <= year_int <= 2030:
+                                    year_found = year
+                                    logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
+                            elif 1800 <= year_int <= 2030:
+                                year_found = year
+                                logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
+                        # CRITICAL FIX: Reject years 2015+ for F.3d volumes 800-900 (cases from 2010s, but 2020+ is suspicious)
+                        elif " F.3d " in citation.citation:
+                            volume_match = re.search(r"(\d+)\s+F\.\s*3d", citation.citation)
+                            if volume_match:
+                                volume = int(volume_match.group(1))
+                                # F.3d volumes 800-900 are from 2010s, but 2020+ is suspicious for older volumes
+                                if 800 <= volume <= 900 and year_int >= 2020:
+                                    logger.warning(
+                                        f"[CLEAN-PIPELINE] Rejected year {year} for {citation.citation} (F.3d volume {volume}) - "
+                                        f"year 2020+ is likely from header, not case date"
+                                    )
+                                elif 1800 <= year_int <= 2030:
+                                    year_found = year
+                                    logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
+                            elif 1800 <= year_int <= 2030:
+                                year_found = year
+                                logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
+                        elif 1800 <= year_int <= 2030:  # Expanded range to include 1876
                             year_found = year
                             logger.debug(f"[CLEAN-PIPELINE] Found (YYYY) immediately after: {year_found}")
+                        else:
+                            logger.warning(
+                                f"[CLEAN-PIPELINE] Rejected year {year} for {citation.citation} - outside valid range (1800-2030)"
+                            )
 
                     # Strategy 2: Look for year in citation itself (e.g., "123 F.3d 456, 2010")
                     if not year_found:
@@ -1738,6 +1850,7 @@ class CleanExtractionPipeline:
 
                             # Check if year appears in header-like patterns
                             header_patterns = [
+                                r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))",  # "Cite as: 594 U. S. ____ (2021)"
                                 r"[A-Z]{3,}\s+\d{1,2},\s*\d{4}",  # "JUNE 12, 2025"
                                 r"FILED[:\s]+\d{4}",  # "FILED: 2025" or "FILED 2025"
                                 r"^\s*[A-Z\s,\.\-]{10,}\s*\d{4}",  # All-caps text followed by year
@@ -1780,6 +1893,22 @@ class CleanExtractionPipeline:
                                 logger.debug(f"[CLEAN-PIPELINE] Found year in case name: {year_found}")
 
                     citation.extracted_date = year_found
+                    
+                    # DEBUG: Log for Davis and Braitberg to trace date extraction
+                    if "554 U.S. 724" in citation.citation or "836 F.3d 925" in citation.citation:
+                        logger.warning(
+                            f"🔍 [DATE-DEBUG] Citation: {citation.citation}"
+                        )
+                        logger.warning(
+                            f"🔍 [DATE-DEBUG] Final extracted_date: {year_found}"
+                        )
+                        logger.warning(
+                            f"🔍 [DATE-DEBUG] Immediate after context: '{immediate_after}'"
+                        )
+                        logger.warning(
+                            f"🔍 [DATE-DEBUG] Broader context (200 chars): '{text[max(0, citation.start_index - 200):min(len(text), citation.end_index + 200)]}'"
+                        )
+                    
                     if not year_found:
                         logger.debug(f"[CLEAN-PIPELINE] No year found for {citation.citation}")
 

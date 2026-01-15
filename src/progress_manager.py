@@ -64,11 +64,24 @@ def preprocess_extracted_text(text: str) -> str:
     Removes endnote/footnote markers that separate case names from citations.
     Example: "Acres Bonusing, Inc. v. Marston [Endnote 18], 17 F.4th 901"
     Becomes: "Acres Bonusing, Inc. v. Marston, 17 F.4th 901"
+    
+    Also removes "Cite as:" headers that contain dates, which can contaminate date extraction.
+    Example: "Cite as: 594 U. S. ____ (2021)" -> removed
     """
     if not text:
         return text
 
     original_length = len(text)
+
+    # CRITICAL FIX: Remove "Cite as:" headers that contain dates
+    # These are document headers like "Cite as: 594 U. S. ____ (2021)" that can contaminate date extraction
+    # Pattern matches: "Cite as:" followed by citation info and a date in parentheses
+    cite_as_pattern = r"(?:^|\n)\s*Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*"
+    text, count_cite_as = re.subn(cite_as_pattern, "", text, flags=re.IGNORECASE | re.MULTILINE)
+    
+    # Also remove standalone "Cite as:" lines (without dates, but still headers)
+    cite_as_simple = r"(?:^|\n)\s*Cite\s+as:?\s*[^\n]*(?:U\.?\s*S\.|F\.|P\.|S\.\s*Ct\.|L\.\s*Ed\.)[^\n]*(?:\n|$)"
+    text, count_cite_as_simple = re.subn(cite_as_simple, "", text, flags=re.IGNORECASE | re.MULTILINE)
 
     # Pattern 1: [Endnote N] with optional surrounding whitespace
     text, count1 = re.subn(r"\s*\[(?:Endnote|Footnote|FN|n\.?)\s*\d+\]\s*", " ", text, flags=re.IGNORECASE)
@@ -85,10 +98,11 @@ def preprocess_extracted_text(text: str) -> str:
     # This catches: "Inc. v. 15 Marston" -> "Inc. v. Marston"
     text = re.sub(r"(v\.\s+)\d{1,3}\s+(?=[A-Z])", r"\1", text, flags=re.IGNORECASE)
 
-    total_removed = count1 + count2
+    total_removed = count1 + count2 + count_cite_as + count_cite_as_simple
     if total_removed > 0:
         logger.info(
-            f"[PREPROCESSING] Removed {total_removed} endnote/footnote markers ({original_length} -> {len(text)} chars)"
+            f"[PREPROCESSING] Removed {total_removed} markers ({count_cite_as + count_cite_as_simple} 'Cite as:' headers, "
+            f"{count1 + count2} endnote/footnote markers) ({original_length} -> {len(text)} chars)"
         )
 
     # Clean up any double spaces or excessive whitespace created by removals

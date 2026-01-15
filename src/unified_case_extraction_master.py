@@ -1242,6 +1242,11 @@ import re
 
         # Header patterns to exclude - ONLY for pure headers, not case discussion
         header_patterns = [
+            # CRITICAL: Remove "Cite as:" headers that contain dates (can contaminate date extraction)
+            # Pattern: "Cite as: 594 U. S. ____ (2021)" - matches entire line
+            r"^\s*Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*$",
+            # Pattern: "Cite as:" with citation format (even without explicit date, still a header)
+            r"^\s*Cite\s+as:?\s*[^\n]*(?:U\.?\s*S\.|F\.|P\.|S\.\s*Ct\.|L\.\s*Ed\.)[^\n]*$",
             r"^\s*[A-Z\s,\.\-]{10,}$",  # All-caps lines (at least 10 chars, only caps/spaces/punctuation)
             r"^\s*IN THE .+ COURT\s*$",  # Pure court header lines (start of line)
             r"^\s*FILED:?\s*\d",  # "FILED: 01/15/2024"
@@ -1523,14 +1528,24 @@ import re
         
         # SERIES CITATION FIX: Check if this is NOT the first citation in a series
         # Look backwards from the citation to see if there's another citation within 50 chars
+        # CRITICAL FIX: Only skip if it's a parallel citation (same case, no semicolon)
+        # If there's a semicolon between citations, they're DIFFERENT cases (series citation)
         look_behind = text[max(0, start_index - 50):start_index]
         prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
         
         if re.search(prev_citation_pattern, look_behind):
-            # This is NOT the first citation in the series, so don't extract case name
-            logger.info(f"[SERIES-CITATION] Skipping case name extraction for non-first citation: {citation}")
-            print(f"[SERIES-CITATION] Skipping case name for: {citation}", flush=True)
-            return None
+            # Found a previous citation - check if there's a semicolon between them
+            # Semicolon = different cases (series citation), extract case name
+            # No semicolon = same case (parallel citation), skip extraction
+            if ';' in look_behind:
+                logger.info(f"[SERIES-CITATION] Found semicolon - this is a DIFFERENT case, extracting name: {citation}")
+                print(f"[SERIES-CITATION] Semicolon found - extracting case name for: {citation}", flush=True)
+                # Continue with extraction - this is a new case after semicolon
+            else:
+                # No semicolon = parallel citation (same case, multiple reporters)
+                logger.info(f"[SERIES-CITATION] No semicolon - parallel citation, skipping: {citation}")
+                print(f"[SERIES-CITATION] Parallel citation - skipping case name for: {citation}", flush=True)
+                return None
 
         # FIX #69 DEBUG: Always log context
         logger.error(f"[FIX #69 CONTEXT] Length: {len(potential_case_name)} chars (window: {context_window})")
@@ -1718,14 +1733,20 @@ import re
         # Define patterns for case names (not anchored to end)
         # IMPORTANT: NO DIGITS in patterns - page numbers would match!
         patterns = [
-            # Pattern 0: "See [Case Name]" - HIGHEST PRIORITY
+            # Pattern 0: Ship/admiralty cases - "The Pizarro" or "The Venus, Rae, Master"
+            # Early Supreme Court cases (Wheat., Cranch, etc.) often involve ships without "v."
+            # HIGHEST PRIORITY for early reporters to prevent matching partial names
+            # Pattern captures: "The [Name]" or "The [Name], [Master Name]" before the citation comma
+            # More flexible pattern to capture multi-word names and titles
+            (r"\b(The\s+[A-Z][a-zA-Z]+(?:\s*,\s*[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)*)\s*,", 0, "ship_case"),
+            # Pattern 1: "See [Case Name]" - HIGH PRIORITY
             (
                 r"(?:See|see|Citing|citing|Compare|compare)\s+([A-Z][a-zA-Z\s\'&\-\.,]{5,}\s+v\.\s+[A-Z][a-zA-Z\s\'&\-\.,]{5,})",
-                0,
+                1,
                 "signal_word",
             ),
-            # Pattern 1: "In re" cases - ENHANCED for better coverage
-            (r"(In\s+re\s+[A-Z][a-zA-Z0-9\s\'&\-\.,]{5,})", 1, "in_re"),
+            # Pattern 2: "In re" cases - ENHANCED for better coverage
+            (r"(In\s+re\s+[A-Z][a-zA-Z0-9\s\'&\-\.,]{5,})", 2, "in_re"),
             # Pattern 1b: FALLBACK "In re" cases - more permissive
             (r"(In\s+re\s+[A-Z][a-zA-Z\s]{3,}(?:\s+[A-Z][a-zA-Z\s]*)*)", 1, "in_re_fallback"),
             # Pattern 2: "Ex parte" cases
@@ -1766,7 +1787,14 @@ import re
                 # PHASE 6 FIX: Add semicolon as boundary - semicolons separate different cases in legal citations
                 # Example: "See Cayuga...; Oneida...; Hamaatsa..." - each case is separated by semicolon
                 text_after_match = context_cleaned[match.end() :]
-                has_semicolon = ";" in text_after_match[:200]
+                
+                # CRITICAL FIX: Check for semicolon BETWEEN case name and citation (not just after case name)
+                # The citation is at the END of context_cleaned, so we need to check the text between
+                # the case name match and the end of the context
+                # Example: "See New Hampshire v. Trump; CASA v. Trump, 763 F. Supp. 3d 723"
+                #          For "New Hampshire", text_after_match includes "; CASA..." - has semicolon = TRUE
+                #          For "CASA", text_after_match is just ", 763 F. Supp..." - has semicolon = FALSE
+                has_semicolon = ";" in text_after_match
                 has_section_header = bool(re.search(r"\n\s*[A-Z][A-Z\s]{3,}\n", text_after_match[:200]))
 
                 # FIX DEC 2025: Check for INTERVENING CITATIONS between this case name and the target citation
@@ -1798,13 +1826,29 @@ import re
                         f"[FIX DEC 2025] INTERVENING CITATION detected after '{case_name[:30]}' - applying boundary penalty"
                     )
 
+                # CRITICAL FIX: Remove signal words BEFORE adding to candidates
+                # This ensures distance scoring is accurate for the actual case name
+                # Example: "See New Hampshire v. Trump" should be scored as "New Hampshire v. Trump"
+                case_name_cleaned = re.sub(
+                    r"^(?:See|see|See also|see also|Citing|citing|Compare|compare|But see|but see|Cf\.|cf\.|quoting|Quoting|accord|Accord)\s+",
+                    "",
+                    case_name,
+                    flags=re.IGNORECASE
+                ).strip()
+                
+                # Recalculate distance based on cleaned name position
+                # If signal word was removed, the actual case name starts later
+                signal_word_length = len(case_name) - len(case_name_cleaned)
+                adjusted_position = match.start() + signal_word_length
+                adjusted_distance = len(potential_case_name) - (adjusted_position - search_start)
+                
                 candidates.append(
                     {
-                        "name": case_name,
-                        "distance": distance_from_end,
+                        "name": case_name_cleaned,  # Use cleaned name for scoring
+                        "distance": adjusted_distance,  # Use adjusted distance
                         "priority": priority,
                         "pattern_type": pattern_type,
-                        "position": match.start(),
+                        "position": adjusted_position,
                         "crosses_boundary": crosses_boundary,
                     }
                 )
@@ -1819,15 +1863,16 @@ import re
 
         # FIX #8: Score and sort candidates
         # Lower score = better match
-        # FIX DEC 2025: Heavily penalize distance to prefer CLOSEST case name
+        # FIX JAN 2026: HEAVILY favor proximity over pattern priority
+        # Ship cases and other special formats need proximity to be the dominant factor
         for cand in candidates:
             # Distance penalty: exponential growth to strongly prefer closest match
-            # A case name 50 chars away scores much better than one 150 chars away
-            distance_penalty = cand["distance"] * 5  # Multiply distance by 5 for stronger penalty
+            # A case name 42 chars away should beat one 97 chars away regardless of pattern
+            distance_penalty = cand["distance"] * 10  # Increased from 5 to 10 for stronger penalty
 
             score = (
-                cand["priority"] * 100  # Pattern priority (0-2) x100 (reduced from x1000)
-                + distance_penalty  # Distance from citation (heavily weighted)
+                cand["priority"] * 20  # Reduced from 100 to 20 - proximity is more important
+                + distance_penalty  # Distance from citation (HEAVILY weighted)
                 + (10000 if cand["crosses_boundary"] else 0)  # Heavy penalty for crossing boundaries
             )
             cand["score"] = score
@@ -2005,7 +2050,7 @@ import re
         print(f"[PHASE6-VALIDATION-START] Checking: '{text}'", flush=True)
 
         # USER FIX: Allow special case types in addition to " v. " cases
-        # Support: "In re", "In the matter of", "Matter of", "Ex parte", "Estate of"
+        # Support: "In re", "In the matter of", "Matter of", "Ex parte", "Estate of", Ship cases
         text_lower = text.lower() if text else ""
         has_v_pattern = " v. " in text_lower
         is_special_case = (
@@ -2015,10 +2060,13 @@ import re
             or text_lower.startswith("ex parte ")
             or text_lower.startswith("estate of ")
         )
+        # FIX JAN 2026: Ship/admiralty cases - "The Pizarro", "The Venus, Rae, Master"
+        # Early Supreme Court cases often involve ships and don't have "v."
+        is_ship_case = bool(re.match(r"^The\s+[A-Z][a-zA-Z]+(?:\s*,\s*[A-Z][a-zA-Z\s,]+)?$", text.strip()))
 
-        if not text or (not has_v_pattern and not is_special_case):
-            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ' or special case pattern in text")
-            print(f"[PHASE6-VALIDATION-FAIL] No v. or special case pattern", flush=True)
+        if not text or (not has_v_pattern and not is_special_case and not is_ship_case):
+            logger.error(f"[FIX #69 VALIDATE] FAIL: No ' v. ', special case, or ship case pattern in text")
+            print(f"[PHASE6-VALIDATION-FAIL] No v., special case, or ship pattern", flush=True)
             return False
 
         if len(text) < 10:
@@ -2966,8 +3014,35 @@ import re
             return True  # Don't validate empty names
 
         # Check for false extractions from complex case names
-        case_name.lower()
+        case_name_lower = case_name.lower()
         context_lower = context.lower()
+        
+        # USER FIX 2026-01-12: Reject statute/act names (not case names)
+        # Examples: "Administrative Procedure Act", "Freedom of Information Act"
+        # These are statutes, not cases - they lack "v." and end with "Act" or "Code"
+        if " v. " not in case_name_lower:
+            statute_endings = [" act", " code", " statute", " regulation", " rule"]
+            if any(case_name_lower.endswith(ending) for ending in statute_endings):
+                if debug:
+                    logger.warning(f"🚫 STATUTE NAME REJECTED: '{case_name}' (ends with Act/Code/etc., no 'v.')")
+                return False
+        
+        # USER FIX 2026-01-12: Reject judge attribution text
+        # Examples: "TRANSUNION LLC v. RAMIREZ THOMAS, J., dissenting"
+        # These contain judge markers that shouldn't be in case names
+        judge_markers = [
+            r"\bJ\.,\s*(dissenting|concurring|concurring in part|concurring in judgment)",
+            r"\bJustice\s+\w+,\s*(dissenting|concurring)",
+            r",\s*dissenting$",
+            r",\s*concurring$",
+            r"\bC\.J\.,",  # Chief Justice
+            r"\bJ\.J\.,",  # Justices (plural)
+        ]
+        for marker in judge_markers:
+            if re.search(marker, case_name, re.IGNORECASE):
+                if debug:
+                    logger.warning(f"🚫 JUDGE ATTRIBUTION REJECTED: '{case_name}' (contains judge marker)")
+                return False
 
         # Pattern 1: Check if we extracted a simple "Last v. Last" from a complex estate case
         # Example: "Long v. Fowler" from "ESTATE OF MELVIN JOSEPH LONG...v. JAMES D. FOWLER"
@@ -3038,6 +3113,11 @@ import re
         """
         if not context:
             return None
+        
+        # CRITICAL FIX: Remove "Cite as:" header patterns BEFORE searching for years
+        # Headers like "Cite as: 594 U. S. ____ (2021)" can contaminate date extraction
+        cite_as_pattern = r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*"
+        context = re.sub(cite_as_pattern, "", context, flags=re.IGNORECASE)
         
         # USER FIX 2026-01-09: PRIORITY CHECK - Look for parenthetical year at the very start
         # Pattern: ", 702 (1979)" or " (1979)" at beginning of context
@@ -3112,6 +3192,7 @@ import re
 
                     # Check if year appears in header-like patterns
                     header_patterns = [
+                        r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))",  # "Cite as: 594 U. S. ____ (2021)"
                         r"[A-Z]{3,}\s+\d{1,2},\s*\d{4}",  # "JUNE 12, 2025"
                         r"FILED[:\s]+\d{4}",  # "FILED: 2025"
                         r"CLERK.*\d{4}",  # "CLERK'S OFFICE...2025"
@@ -3741,11 +3822,41 @@ def extract_citations_unified(
                 # Get citation text
                 citation_text = str(eyecite_cit)
                 
+                # USER FIX 2026-01-12: Normalize reporter abbreviations per Bluebook R6.1(a)
+                # Rule: No spaces between single capitals (U.S., F.3d) but DO use spaces for multi-letter abbreviations (F. Supp. 2d, S. Ct.)
+                import re
+                # Single-letter abbreviations - remove spaces
+                citation_text = re.sub(r'U\.\s+S\.', 'U.S.', citation_text)
+                citation_text = re.sub(r'F\.\s+(\d+)(d|th)', r'F.\1\2', citation_text)
+                citation_text = re.sub(r'A\.\s+(\d+)d', r'A.\1d', citation_text)
+                citation_text = re.sub(r'P\.\s+(\d+)d', r'P.\1d', citation_text)
+                citation_text = re.sub(r'N\.\s+D\.', 'N.D.', citation_text)
+                citation_text = re.sub(r'S\.\s+D\.', 'S.D.', citation_text)
+                citation_text = re.sub(r'N\.\s+W\.', 'N.W.', citation_text)
+                citation_text = re.sub(r'S\.\s+W\.', 'S.W.', citation_text)
+                citation_text = re.sub(r'N\.\s+E\.', 'N.E.', citation_text)
+                citation_text = re.sub(r'S\.\s+E\.', 'S.E.', citation_text)
+                citation_text = re.sub(r'So\.\s+(\d+)d', r'So.\1d', citation_text)
+                # Multi-letter abbreviations - normalize to single space (Bluebook requires spaces)
+                citation_text = re.sub(r'S\.\s*Ct\.', 'S. Ct.', citation_text)  # Supreme Court
+                citation_text = re.sub(r'L\.\s*Ed\.', 'L. Ed.', citation_text)  # Lawyers' Edition
+                citation_text = re.sub(r'F\.\s*Supp\.', 'F. Supp.', citation_text)  # Federal Supplement
+                citation_text = re.sub(r'Cal\.\s*Rptr\.', 'Cal. Rptr.', citation_text)  # California Reporter
+                citation_text = re.sub(r'Cal\.\s*App\.', 'Cal. App.', citation_text)  # California Appellate
+                
                 # USER FIX 2026-01-09: Filter by text patterns for statutes, regulations, and short-form citations
                 if any(pattern in citation_text for pattern in ['Stat.', 'U.S.C.', 'C.F.R.', 'Fed. Reg.', 'Pub. L.', 'Op. O.L.C.']):
                     continue
                 
+                # USER FIX 2026-01-12: Filter law review citations (academic articles, not cases)
+                # Examples: "17 Suffolk U. L. Rev. 881", "120 Harv. L. Rev. 1234"
+                from src.citation_extractor import is_law_review_citation
+                if is_law_review_citation(citation_text):
+                    logger.info(f"[LAW-REVIEW-FILTER] Filtered out law review: {citation_text}")
+                    continue
+                
                 # USER FIX 2026-01-09: Filter short-form citations with " at " (pin cites)
+                # These are like "16 Wall. at 71" or "169 U.S. at 693" - page-specific references
                 if ' at ' in citation_text:
                     continue
                 
@@ -3810,19 +3921,23 @@ def extract_citations_unified(
                             logger.error(f"[EYECITE-TOA-SKIP] Skipping eyecite year for TOA citation {citation_text}: eyecite_year={year}, keeping extracted_year={extracted_year}")
                         extraction_method = "eyecite_metadata"
                 
-                # USER FIX 2026-01-09: For TOA citations, extract year DIRECTLY from text after citation
-                # Pattern: "442 U.S. 682, 702 (1979)" - year is in parentheses immediately after citation
-                if in_toa_section and not extracted_year and end_index is not None:
+                # USER FIX 2026-01-12: Extract year DIRECTLY from text after citation for ALL citations
+                # Pattern: "467 U.S. 526 (1984)" - year is in parentheses immediately after citation
+                # This applies to both TOA and body citations
+                if not extracted_year and end_index is not None:
                     # Look at text immediately after citation (next 50 chars)
                     after_citation = text[end_index:end_index+50] if end_index < len(text) else ""
-                    # Pattern: ", 702 (1979)" or " (1979)" - parenthetical year right after citation
+                    # Pattern: " (1984)" or ", 702 (1979)" - parenthetical year right after citation
                     import re
-                    immediate_year_match = re.search(r'^[,\s]*(?:\d+\s+)?\((\d{4})\)', after_citation)
+                    immediate_year_match = re.search(r'^[,\s]*(?:\d+\s+)?\((?:[^)]*?\s)?(\d{4})\)', after_citation)
                     if immediate_year_match:
                         extracted_year = immediate_year_match.group(1)
-                        logger.error(f"[TOA-YEAR-DIRECT] Extracted year DIRECTLY after citation {citation_text}: {extracted_year} from '{after_citation[:30]}'")
+                        location = "TOA" if in_toa_section else "BODY"
+                        logger.info(f"[{location}-YEAR-DIRECT] Extracted year DIRECTLY after citation {citation_text}: {extracted_year} from '{after_citation[:30]}'")
                     else:
-                        logger.error(f"[TOA-YEAR-DIRECT] No immediate parenthetical year found after {citation_text}, text: '{after_citation[:30]}'")
+                        if debug or in_toa_section:
+                            location = "TOA" if in_toa_section else "BODY"
+                            logger.debug(f"[{location}-YEAR-DIRECT] No immediate parenthetical year found after {citation_text}, text: '{after_citation[:30]}'")
                 
                 # Priority 3: Fallback to context extraction
                 # USER FIX 2026-01-09: For TOA citations, ALWAYS extract year from context
