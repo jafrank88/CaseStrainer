@@ -1086,21 +1086,42 @@ class UnifiedCaseNameExtractorV2:
             search_end = min(len(text), citation_end + 100)  # Look 100 chars after citation
             context_after = text[search_start:search_end]
 
+            # CRITICAL FIX: Remove "Cite as:" header patterns BEFORE searching for years
+            # Headers like "Cite as: 594 U. S. ____ (2021)" can contaminate date extraction
+            cite_as_pattern = r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*"
+            context_after = re.sub(cite_as_pattern, "", context_after, flags=re.IGNORECASE)
+
             # Step 2: Look for (YYYY) pattern immediately after citation (highest priority)
+            # CRITICAL: Check for year in parentheses FIRST, before any boundary detection
+            # This handles cases like "554 U. S. 724, 733 (2008)" where year is right after citation
             year_in_parens = re.search(r"\((\d{4})\)", context_after)
             if year_in_parens:
                 year = year_in_parens.group(1)
                 if 1900 <= int(year) <= 2030:
-                    # Check it's close to citation (within 20 chars)
-                    if year_in_parens.start() < 20:
+                    # Check it's close to citation (within 30 chars to handle cases with page numbers)
+                    if year_in_parens.start() < 30:
                         return {"date": year, "year": year}
 
-            # Step 3: If no year found after citation, look in broader context
-            # But stop at citation boundaries (semicolon, period)
-            boundary_match = re.search(r"[;.\n]", context_after)
-            if boundary_match:
-                # Only search up to the boundary
-                context_after = context_after[: boundary_match.start()]
+            # Step 3: If no year found immediately, look in broader context
+            # But stop at citation boundaries (semicolon, "; see also", period, etc.)
+            # CRITICAL FIX: Add more boundary patterns to prevent picking up years from subsequent citations
+            boundary_patterns = [
+                r";\s*see\s+also\b",  # "; see also" - most common separator
+                r";\s*see\s+e\.g\.",  # "; see e.g."
+                r";\s*accord\b",      # "; accord"
+                r";\s*cf\.\b",        # "; cf."
+                r"[;.\n]",            # Semicolon, period, newline
+            ]
+            
+            earliest_boundary = len(context_after)
+            for boundary_pattern in boundary_patterns:
+                match = re.search(boundary_pattern, context_after, re.IGNORECASE)
+                if match and match.start() < earliest_boundary:
+                    earliest_boundary = match.start()
+            
+            # Only search up to the earliest boundary
+            if earliest_boundary < len(context_after):
+                context_after = context_after[:earliest_boundary]
 
             # Look for any year in this bounded context
             year_pattern = r"\((\d{4})\)"

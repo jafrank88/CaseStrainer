@@ -811,10 +811,63 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 cluster_date = cluster.get("extracted_date")
                                 if not cluster_date or cluster_date in ("N/A", "Unknown Year", "unknown"):
                                     continue
+                                
+                                # CRITICAL FIX: Filter out cluster dates that are likely from headers
+                                # Before overwriting citation dates, validate the cluster date
+                                cluster_date_str = str(cluster_date)
+                                cluster_date_year = None
+                                try:
+                                    # Extract year from cluster_date (might be "2020" or "2020-01-01")
+                                    import re
+                                    year_match = re.search(r"(19|20)\d{2}", cluster_date_str)
+                                    if year_match:
+                                        cluster_date_year = int(year_match.group(0))
+                                except:
+                                    pass
+                                
                                 # Get the citations array (might be nested in different ways)
                                 cluster_cits = cluster.get("citations", [])
                                 if not cluster_cits:
                                     continue
+                                
+                                # Check if cluster_date is suspicious (likely from header)
+                                should_filter_cluster_date = False
+                                if cluster_date_year:
+                                    for cit in cluster_cits:
+                                        if isinstance(cit, dict):
+                                            citation_text = cit.get("citation", "")
+                                            # Reject 2015+ for U.S. volumes 400-600
+                                            if " U.S. " in citation_text:
+                                                volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation_text)
+                                                if volume_match:
+                                                    volume = int(volume_match.group(1))
+                                                    if 400 <= volume <= 600 and cluster_date_year >= 2015:
+                                                        should_filter_cluster_date = True
+                                                        logger.warning(
+                                                            f"[DATE-SYNC] Rejected cluster_date {cluster_date} for cluster with {citation_text} "
+                                                            f"(U.S. volume {volume}) - year 2015+ likely from header"
+                                                        )
+                                                        break
+                                            # Reject 2020+ for F.3d volumes 800-900
+                                            elif " F.3d " in citation_text:
+                                                volume_match = re.search(r"(\d+)\s+F\.\s*3d", citation_text)
+                                                if volume_match:
+                                                    volume = int(volume_match.group(1))
+                                                    if 800 <= volume <= 900 and cluster_date_year >= 2020:
+                                                        should_filter_cluster_date = True
+                                                        logger.warning(
+                                                            f"[DATE-SYNC] Rejected cluster_date {cluster_date} for cluster with {citation_text} "
+                                                            f"(F.3d volume {volume}) - year 2020+ likely from header"
+                                                        )
+                                                        break
+                                
+                                # Skip synchronization if cluster_date is from a header
+                                if should_filter_cluster_date:
+                                    logger.info(
+                                        f"[DATE-SYNC] Skipping date sync for cluster - cluster_date {cluster_date} is from header"
+                                    )
+                                    continue
+                                
                                 # Update all citation's extracted_date to match the cluster's
                                 for cit in cluster_cits:
                                     if isinstance(cit, dict):
@@ -1400,7 +1453,32 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                         # USER FIX: Merge unverified clusters with same extracted name
                         # This handles cases like Horvath appearing twice with different citations
+                        # CRITICAL FIX: Only merge if ALL citations have the same extracted name
                         if clusters_list and len(clusters_list) > 1:
+                            def get_citation_names(cluster):
+                                """Get all unique extracted_case_names from citations in a cluster."""
+                                names = set()
+                                for cit in cluster.get("citations", []):
+                                    if isinstance(cit, dict):
+                                        name = cit.get("extracted_case_name", "")
+                                        if name and name != "N/A":
+                                            # Normalize for comparison
+                                            norm = name.lower().strip()
+                                            names.add(norm)
+                                return names
+                            
+                            def clusters_have_same_citations(cluster1, cluster2):
+                                """Check if two clusters have citations with the same extracted names."""
+                                names1 = get_citation_names(cluster1)
+                                names2 = get_citation_names(cluster2)
+                                # If either has multiple different names, don't merge
+                                if len(names1) > 1 or len(names2) > 1:
+                                    return False
+                                # If both have one name and they match, merge
+                                if names1 and names2:
+                                    return names1 == names2
+                                return True  # Fallback to original behavior if no citation-level names
+                            
                             name_groups = {}  # extracted_name -> list of cluster indices
                             for i, cluster in enumerate(clusters_list):
                                 if not isinstance(cluster, dict):
@@ -1416,40 +1494,53 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                         name_groups[norm_name] = []
                                     name_groups[norm_name].append(i)
 
-                            # Merge clusters with same name
+                            # Merge clusters with same name AND same citation-level names
                             to_remove = set()
                             for name, indices in name_groups.items():
                                 if len(indices) > 1:
-                                    logger.info(
-                                        f"[TASK:{task_id}] Merging {len(indices)} unverified clusters for '{name}'"
-                                    )
-                                    leader = clusters_list[indices[0]]
+                                    # Check if all clusters in this group have compatible citation names
+                                    leader_idx = indices[0]
+                                    leader = clusters_list[leader_idx]
+                                    mergeable = []
                                     for idx in indices[1:]:
                                         other = clusters_list[idx]
-                                        # Merge members
-                                        leader_members = leader.get("cluster_members", [])
-                                        other_members = other.get("cluster_members", [])
-                                        for m in other_members:
-                                            if m not in leader_members:
-                                                leader_members.append(m)
-                                        leader["cluster_members"] = leader_members
-                                        leader["cluster_size"] = len(leader_members)
+                                        if clusters_have_same_citations(leader, other):
+                                            mergeable.append(idx)
+                                        else:
+                                            logger.info(
+                                                f"[TASK:{task_id}] NOT merging cluster {idx} - citations have different extracted names"
+                                            )
+                                    
+                                    if mergeable:
+                                        logger.info(
+                                            f"[TASK:{task_id}] Merging {len(mergeable)+1} unverified clusters for '{name}'"
+                                        )
+                                        for idx in mergeable:
+                                            other = clusters_list[idx]
+                                            # Merge members
+                                            leader_members = leader.get("cluster_members", [])
+                                            other_members = other.get("cluster_members", [])
+                                            for m in other_members:
+                                                if m not in leader_members:
+                                                    leader_members.append(m)
+                                            leader["cluster_members"] = leader_members
+                                            leader["cluster_size"] = len(leader_members)
 
-                                        # CRITICAL FIX: Also merge the citations list
-                                        leader_citations = leader.get("citations", [])
-                                        other_citations = other.get("citations", [])
-                                        for cit in other_citations:
-                                            cit_str = cit.get("citation", "") if isinstance(cit, dict) else str(cit)
-                                            existing_cits = [
-                                                c.get("citation", "") if isinstance(c, dict) else str(c)
-                                                for c in leader_citations
-                                            ]
-                                            if cit_str not in existing_cits:
-                                                leader_citations.append(cit)
-                                        leader["citations"] = leader_citations
-                                        leader["size"] = len(leader_citations)
+                                            # CRITICAL FIX: Also merge the citations list
+                                            leader_citations = leader.get("citations", [])
+                                            other_citations = other.get("citations", [])
+                                            for cit in other_citations:
+                                                cit_str = cit.get("citation", "") if isinstance(cit, dict) else str(cit)
+                                                existing_cits = [
+                                                    c.get("citation", "") if isinstance(c, dict) else str(c)
+                                                    for c in leader_citations
+                                                ]
+                                                if cit_str not in existing_cits:
+                                                    leader_citations.append(cit)
+                                            leader["citations"] = leader_citations
+                                            leader["size"] = len(leader_citations)
 
-                                        to_remove.add(idx)
+                                            to_remove.add(idx)
 
                             if to_remove:
                                 clusters_list = [c for i, c in enumerate(clusters_list) if i not in to_remove]
@@ -1538,6 +1629,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     new_clusters.append(cluster)
                                 else:
                                     # Split the cluster at the identified points
+                                    import uuid
                                     split_points = [0] + split_points + [len(cits_with_pos)]
                                     for j in range(len(split_points) - 1):
                                         start_idx = split_points[j]
@@ -1549,6 +1641,9 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                             new_cluster["size"] = len(sub_cits)
                                             new_cluster["cluster_size"] = len(sub_cits)
                                             new_cluster["cluster_members"] = sub_cits
+                                            # CRITICAL FIX: Generate unique ID for each split cluster
+                                            orig_id = cluster.get("cluster_id", "unknown")
+                                            new_cluster["cluster_id"] = f"{orig_id}_history_{uuid.uuid4().hex[:8]}"
                                             # Mark as split for debugging
                                             new_cluster["split_from_case_history"] = True
                                             new_clusters.append(new_cluster)
@@ -2070,6 +2165,188 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                     # Recompute verified count after fallback
                     verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get("verified", False))
+
+                    # CRITICAL FIX: Strip signal phrases from all case names before final output
+                    import re
+                    signal_patterns = [
+                        r"^See,?\s+e\.?g\.?\s*,?\s*",
+                        r"^See\s+also\s+",
+                        r"^See\s+generally\s+",
+                        r"^But\s+see\s+",
+                        r"^See\s+",
+                        r"^Accord\s+",
+                        r"^Compare\s+",
+                        r"^Cf\.?\s*",
+                        r"^E\.?g\.?\s*,?\s*",
+                        r"^I\.?e\.?\s*,?\s*",
+                    ]
+                    def strip_signal_phrases(name):
+                        if not name or name == "N/A":
+                            return name
+                        for pattern in signal_patterns:
+                            name = re.sub(pattern, "", name, flags=re.IGNORECASE).strip()
+                        return name
+                    
+                    # Strip from clusters
+                    for cluster in clusters_list:
+                        if isinstance(cluster, dict):
+                            for key in ["cluster_case_name", "canonical_name", "case_name", "extracted_case_name"]:
+                                if key in cluster and cluster[key]:
+                                    cluster[key] = strip_signal_phrases(cluster[key])
+                            # Also strip from citations within clusters
+                            for cit in cluster.get("citations", []):
+                                if isinstance(cit, dict):
+                                    for key in ["cluster_case_name", "canonical_name", "extracted_case_name"]:
+                                        if key in cit and cit[key]:
+                                            cit[key] = strip_signal_phrases(cit[key])
+                    
+                    # Strip from top-level citations
+                    for cit in citations_list:
+                        if isinstance(cit, dict):
+                            for key in ["cluster_case_name", "canonical_name", "extracted_case_name"]:
+                                if key in cit and cit[key]:
+                                    cit[key] = strip_signal_phrases(cit[key])
+                    
+                    logger.info(f"[TASK:{task_id}] Signal phrases stripped from all case names")
+
+                    # BACKEND DISPLAY PROCESSING: Prepare all display-ready fields
+                    # This moves all processing from frontend to backend for easier debugging
+                    def get_cluster_citations(cluster):
+                        """Get citations from cluster, checking both 'citations' and 'citation_objects'."""
+                        return cluster.get("citations", []) or cluster.get("citation_objects", [])
+                    
+                    def get_citation_value(cit, key, default=None):
+                        """Get a value from a citation, handling both dict and object formats."""
+                        if isinstance(cit, dict):
+                            return cit.get(key, default)
+                        else:
+                            return getattr(cit, key, default)
+                    
+                    def is_citation_verified(cit):
+                        """Check if a citation is verified, handling both dict and object formats."""
+                        if isinstance(cit, dict):
+                            return cit.get("verified", False) or cit.get("is_verified", False)
+                        else:
+                            return getattr(cit, "verified", False) or getattr(cit, "is_verified", False)
+                    
+                    def get_best_extracted_name(cluster):
+                        """Get the longest/best extracted name from citations in cluster."""
+                        citations = get_cluster_citations(cluster)
+                        valid_names = []
+                        for cit in citations:
+                            if not cit:
+                                continue
+                            name = get_citation_value(cit, "extracted_case_name", "")
+                            if name and name != "N/A" and not name.startswith(("Co.", "Inc.", "LLC", "Ltd.", "Corp.")):
+                                valid_names.append(strip_signal_phrases(name))
+                        if valid_names:
+                            # Return longest name (most complete)
+                            return max(valid_names, key=len)
+                        return cluster.get("submitted_display_name") or cluster.get("extracted_case_name") or "N/A"
+                    
+                    def get_verifying_name(cluster):
+                        """Get canonical/verifying name from verified citation."""
+                        citations = get_cluster_citations(cluster)
+                        for cit in citations:
+                            if not cit:
+                                continue
+                            if is_citation_verified(cit):
+                                name = get_citation_value(cit, "canonical_name")
+                                if name and name != "N/A":
+                                    return strip_signal_phrases(name)
+                        # Fallback to extracted name
+                        return get_best_extracted_name(cluster)
+                    
+                    def get_verifying_date(cluster):
+                        """Get canonical date from verified citation."""
+                        citations = get_cluster_citations(cluster)
+                        for cit in citations:
+                            if not cit:
+                                continue
+                            if is_citation_verified(cit):
+                                date = get_citation_value(cit, "canonical_date")
+                                if date and date != "N/A":
+                                    return date
+                        # Fallback to extracted date
+                        return cluster.get("extracted_date") or "N/A"
+                    
+                    def get_submitted_date(cluster):
+                        """Get extracted date from document."""
+                        citations = get_cluster_citations(cluster)
+                        for cit in citations:
+                            if not cit:
+                                continue
+                            date = get_citation_value(cit, "extracted_date")
+                            if date and date != "N/A":
+                                return date
+                        return cluster.get("extracted_date") or "N/A"
+                    
+                    def get_canonical_url(cluster):
+                        """Get canonical URL from verified citation."""
+                        citations = get_cluster_citations(cluster)
+                        for cit in citations:
+                            if not cit:
+                                continue
+                            if is_citation_verified(cit):
+                                url = get_citation_value(cit, "canonical_url")
+                                if url:
+                                    return url
+                        return None
+                    
+                    # Apply display processing to each cluster
+                    for cluster in clusters_list:
+                        if isinstance(cluster, dict):
+                            # CRITICAL FIX: Ensure citations in cluster are dicts, not objects
+                            citations = get_cluster_citations(cluster)
+                            citations_as_dicts = []
+                            for cit in citations:
+                                if isinstance(cit, dict):
+                                    citations_as_dicts.append(cit)
+                                elif hasattr(cit, "to_dict"):
+                                    citations_as_dicts.append(cit.to_dict())
+                                else:
+                                    # Fallback: convert object to dict manually
+                                    cit_dict = {
+                                        "citation": getattr(cit, "citation", ""),
+                                        "extracted_case_name": getattr(cit, "extracted_case_name", None),
+                                        "extracted_date": getattr(cit, "extracted_date", None),
+                                        "canonical_name": getattr(cit, "canonical_name", None),
+                                        "canonical_date": getattr(cit, "canonical_date", None),
+                                        "canonical_url": getattr(cit, "canonical_url", None),
+                                        "verified": getattr(cit, "verified", False),
+                                        "is_verified": getattr(cit, "is_verified", False) or getattr(cit, "verified", False),
+                                        "true_by_parallel": getattr(cit, "true_by_parallel", False),
+                                        "possible_match": getattr(cit, "possible_match", False),
+                                        "source": getattr(cit, "source", None),
+                                    }
+                                    citations_as_dicts.append(cit_dict)
+                            
+                            # Update cluster with dict citations
+                            if citations_as_dicts:
+                                cluster["citations"] = citations_as_dicts
+                                cluster["citation_objects"] = citations_as_dicts  # Keep for backward compatibility
+                            
+                            # CRITICAL FIX: Ensure cluster's verified flag is set correctly
+                            # Check if any citation in the cluster is verified (now using dict citations)
+                            cluster_verified = any(is_citation_verified(cit) for cit in citations_as_dicts if cit)
+                            cluster["verified"] = cluster_verified
+                            
+                            # DEBUG: Log verified status for troubleshooting
+                            if cluster.get("cluster_id"):
+                                verified_citations_count = sum(1 for cit in citations_as_dicts if cit and is_citation_verified(cit))
+                                logger.info(
+                                    f"[TASK:{task_id}] Cluster {cluster.get('cluster_id')}: "
+                                    f"verified={cluster_verified}, verified_citations={verified_citations_count}/{len(citations_as_dicts)}"
+                                )
+                            
+                            # Set all display-ready fields for frontend (using updated citations)
+                            cluster["verifying_display_name"] = get_verifying_name(cluster)
+                            cluster["verifying_display_date"] = get_verifying_date(cluster)
+                            cluster["submitted_display_name"] = get_best_extracted_name(cluster)
+                            cluster["submitted_display_date"] = get_submitted_date(cluster)
+                            cluster["display_canonical_url"] = get_canonical_url(cluster)
+                    
+                    logger.info(f"[TASK:{task_id}] Display fields prepared for all clusters")
 
                     # Create final result with complete verification data
                     result = {

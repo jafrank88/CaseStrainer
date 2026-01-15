@@ -2755,6 +2755,18 @@ class UnifiedCitationProcessorV2:
         # Look for year AFTER the citation (most reliable)
         context_after = text[citation_pos + len(citation) : citation_pos + len(citation) + 100]
 
+        # CRITICAL FIX: Remove "Cite as:" header patterns BEFORE searching for years
+        # Headers like "Cite as: 594 U. S. ____ (2021)" can contaminate date extraction
+        # Also check BEFORE the citation in case the header is nearby
+        context_before_citation = text[max(0, citation_pos - 200):citation_pos]
+        cite_as_pattern = r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*"
+        context_after = re.sub(cite_as_pattern, "", context_after, flags=re.IGNORECASE)
+        
+        # Also check if there's a "Cite as:" header nearby that might contaminate
+        if re.search(cite_as_pattern, context_before_citation, re.IGNORECASE):
+            # If "Cite as:" header is nearby, be more aggressive - only look for years very close to citation
+            context_after = context_after[:50]  # Reduce search window to 50 chars
+
         # USER FIX: Truncate context at citation boundaries BEFORE searching for years
         # This prevents picking up years from subsequent citations like "aff'd, ... (2001)"
         boundary_patterns = [
@@ -2800,6 +2812,24 @@ class UnifiedCitationProcessorV2:
             for match in re.finditer(pattern, context_after):
                 year = match.group(1)
                 if 1900 <= int(year) <= 2030:
+                    # CRITICAL FIX: Check if this year appears in a "Cite as:" header pattern
+                    # Look at broader context (200 chars before and after) to catch headers
+                    match_start = match.start()
+                    match_end = match.end()
+                    broader_start = max(0, citation_pos - 200)
+                    broader_end = min(len(text), citation_pos + len(citation) + match_end + 200)
+                    broader_context = text[broader_start:broader_end]
+                    
+                    # Check if year is part of a "Cite as:" header
+                    cite_as_check = re.search(
+                        rf"Cite\s+as:?\s*[^\n]*{re.escape(year)}[^\n]*",
+                        broader_context,
+                        re.IGNORECASE
+                    )
+                    if cite_as_check:
+                        logger.debug(f"[DATE-EXTRACT] Rejecting year {year} - appears in 'Cite as:' header")
+                        continue  # Skip this year - it's from a header
+                    
                     distance = match.start()
                     if distance < best_distance:
                         best_year = year
@@ -3821,7 +3851,10 @@ class UnifiedCitationProcessorV2:
                 # Extract data for entire set
                 citation_strings = [c.citation for c in citations_to_verify]
                 case_names = [c.extracted_case_name for c in citations_to_verify]
-                dates = [c.extracted_date for c in citations_to_verify]
+                # CRITICAL FIX: Prioritize cluster_year over extracted_date
+                # cluster_year is set by clustering and is more reliable than extracted_date
+                # extracted_date can be contaminated with document metadata dates
+                dates = [getattr(c, 'cluster_year', None) or c.extracted_date for c in citations_to_verify]
                 # USER FIX 2026-01-09: Extract in_toa_section metadata for TOA year validation skip
                 toa_flags = [
                     bool(c.metadata.get("in_toa_section", False)) if hasattr(c, "metadata") and c.metadata else False
@@ -4029,6 +4062,68 @@ class UnifiedCitationProcessorV2:
                         logger.debug(f"[BATCH-NOT-VERIFIED] {citation.citation}: {error_msg}")
 
                 logger.info(f"[BATCH-VERIFY] Completed master batch verification: verified {verified_count}/{total}")
+
+            # USER FIX 2026-01-12: Post-verification fix for obvious CourtListener mismatches
+            # CourtListener often returns wrong cases for citations (e.g., 139 S. Ct. 1112 → Zagorski instead of Bucklew)
+            # This fix detects obvious mismatches and prefers the extracted name which is usually correct
+            logger.info("[POST-VERIFY-FIX] Checking for obvious CourtListener name mismatches...")
+            mismatches_fixed = 0
+            
+            for citation in citations:
+                if not hasattr(citation, 'canonical_name') or not hasattr(citation, 'extracted_case_name'):
+                    continue
+                    
+                canonical_name = getattr(citation, 'canonical_name', None)
+                extracted_name = getattr(citation, 'extracted_case_name', None)
+                
+                # Skip if either is missing or generic
+                if not canonical_name or not extracted_name:
+                    continue
+                if canonical_name.strip().upper() == "N/A" or extracted_name.strip().upper() == "N/A":
+                    continue
+                    
+                # Check for obvious mismatch - completely different case names
+                canonical_clean = canonical_name.lower().replace(".", "").replace(",", "").strip()
+                extracted_clean = extracted_name.lower().replace(".", "").replace(",", "").strip()
+                
+                # Calculate word overlap similarity
+                canonical_words = set(canonical_clean.split())
+                extracted_words = set(extracted_clean.split())
+                
+                if canonical_words and extracted_words:
+                    overlap = len(canonical_words & extracted_words)
+                    similarity = overlap / min(len(canonical_words), len(extracted_words))
+                    
+                    # Log similarity for debugging
+                    logger.info(f"[POST-VERIFY-FIX] Citation '{citation.citation}': similarity={similarity:.2f} (canonical='{canonical_name}', extracted='{extracted_name}')")
+                    
+                    # If very low similarity (< 40%), it's likely a wrong verification from CourtListener
+                    if similarity < 0.4:
+                        logger.warning(f"[POST-VERIFY-FIX] Correcting obvious CourtListener mismatch:")
+                        logger.warning(f"  Canonical (wrong): '{canonical_name}'")
+                        logger.warning(f"  Extracted (correct): '{extracted_name}'")
+                        logger.warning(f"  Similarity: {similarity:.2f}")
+                        
+                        # Fix the mismatch by using extracted name as canonical
+                        citation.canonical_name = extracted_name
+                        citation.name_mismatch = False
+
+                        # CRITICAL FIX: DO NOT overwrite canonical_date with extracted_date!
+                        # extracted_date is often wrong (contains recent years from document metadata)
+                        # canonical_date from verification is more accurate (from CourtListener API + our fixes)
+                        # The unified_verification_master.py extract_canonical_date() function handles date correction
+                        # if hasattr(citation, 'extracted_date') and citation.extracted_date:
+                        #     citation.canonical_date = citation.extracted_date
+
+                        # Keep verification status but note it was corrected
+                        citation.verification_status = "corrected_mismatch"
+                        
+                        mismatches_fixed += 1
+            
+            if mismatches_fixed > 0:
+                logger.info(f"[POST-VERIFY-FIX] ✅ Fixed {mismatches_fixed} obvious CourtListener name mismatches")
+            else:
+                logger.info("[POST-VERIFY-FIX] No obvious mismatches found")
 
         except Exception as e:
             logger.error(f"[VERIFICATION] Error in unified master verification: {str(e)}")
@@ -5221,12 +5316,62 @@ class UnifiedCitationProcessorV2:
                         {"citation": cit, "canonical_date": date} for cit, date in canonical_dates
                     ]
 
-                # Use the most common extracted date
+                # Use the most common extracted date, but filter out dates from headers
                 if extracted_dates:
                     from collections import Counter
+                    import re
 
-                    date_counts = Counter(extracted_dates)
-                    cluster_extracted_date = date_counts.most_common(1)[0][0]
+                    # CRITICAL FIX: Filter out dates that are likely from headers before counting
+                    filtered_dates = []
+                    for date in extracted_dates:
+                        date_str = str(date)
+                        # Skip dates that are 2015+ for U.S. volumes 400-600 (1970s-2000s cases)
+                        # Skip dates that are 2020+ for F.3d volumes 800-900 (2010s cases)
+                        should_filter = False
+                        for cit_dict in cluster_citations:
+                            if isinstance(cit_dict, dict):
+                                citation_text = cit_dict.get("citation", "")
+                                if " U.S. " in citation_text:
+                                    volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation_text)
+                                    if volume_match:
+                                        volume = int(volume_match.group(1))
+                                        year_int = int(date_str) if date_str.isdigit() else None
+                                        if year_int and 400 <= volume <= 600 and year_int >= 2015:
+                                            should_filter = True
+                                            logger.warning(
+                                                f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
+                                                f"(U.S. volume {volume}) - year 2015+ likely from header"
+                                            )
+                                            break
+                                elif " F.3d " in citation_text:
+                                    volume_match = re.search(r"(\d+)\s+F\.\s*3d", citation_text)
+                                    if volume_match:
+                                        volume = int(volume_match.group(1))
+                                        year_int = int(date_str) if date_str.isdigit() else None
+                                        if year_int and 800 <= volume <= 900 and year_int >= 2020:
+                                            should_filter = True
+                                            logger.warning(
+                                                f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
+                                                f"(F.3d volume {volume}) - year 2020+ likely from header"
+                                            )
+                                            break
+                        if not should_filter:
+                            filtered_dates.append(date)
+                    
+                    if filtered_dates:
+                        date_counts = Counter(filtered_dates)
+                        cluster_extracted_date = date_counts.most_common(1)[0][0]
+                        logger.info(
+                            f"[CLUSTER-DATE] Cluster {cluster_id}: Using filtered date {cluster_extracted_date} "
+                            f"(filtered {len(extracted_dates) - len(filtered_dates)} header dates)"
+                        )
+                    else:
+                        # If all dates were filtered, use the first non-filtered date from original list
+                        # This shouldn't happen, but fallback just in case
+                        cluster_extracted_date = extracted_dates[0] if extracted_dates else None
+                        logger.warning(
+                            f"[CLUSTER-DATE] Cluster {cluster_id}: All dates filtered, using fallback: {cluster_extracted_date}"
+                        )
                     # Performance optimization: Disable verbose debug logging
                     # logger.error(f"🔍 [PHASE-5.5-DEBUG] Cluster {cluster_id}: Extracted dates={extracted_dates}, using={cluster_extracted_date}")
 

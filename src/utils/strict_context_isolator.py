@@ -57,6 +57,11 @@ def _filter_headers_and_footnotes_from_context(context: str) -> str:
     # This catches headers that span multiple lines or are embedded in text
     # ENHANCED: More aggressive pattern removal to catch all header variations
     header_patterns_to_remove = [
+        # CRITICAL: Remove "Cite as:" headers that contain dates (can contaminate date extraction)
+        # Pattern: "Cite as: 594 U. S. ____ (2021)" or "Cite as: 594 U.S. ____ (2021)"
+        r"Cite\s+as:?\s*[^\n]*(?:\([^)]*\d{4}[^)]*\)|____\s*\(\d{4}\)|\(\d{4}\))[^\n]*",
+        # Pattern: "Cite as:" with citation format (even without explicit date, still a header)
+        r"Cite\s+as:?\s*[^\n]*(?:U\.?\s*S\.|F\.|P\.|S\.\s*Ct\.|L\.\s*Ed\.)[^\n]*",
         # Pattern: "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO" (exact match)
         r"ERICKSON\s+ET\s+AL\.?\s*,?\s*Petitioners?[^,]*v\.\s+PHARMACIA[^,]*Respondent\.?\s*NO\.?",
         # Pattern: "ET AL., Petitioners, v. ... Respondent. NO" (full header format)
@@ -838,6 +843,11 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
 
     # Patterns to extract case names (IMPROVED - GREEDY patterns for full legal names)
     patterns = [
+        # PRIORITY 0: Ship/admiralty cases - "The Pizarro" or "The Venus, Rae, Master"
+        # Early Supreme Court cases (Wheat., Cranch, etc.) often involve ships without "v."
+        # HIGHEST PRIORITY to prevent matching partial names or wrong cases
+        # Pattern matches "The [Name]" or "The [Name], [Master]" at end of context (before citation)
+        r"(The\s+[A-Z][a-zA-Z]+(?:\s*,\s*[A-Z][a-zA-Z]+(?:\s+[A-Z][a-zA-Z]+)*)?)(?:\s*,?\s*$)",
         # PRIORITY 1: Complex legal names with full party descriptions (NEW - HIGHEST PRIORITY)
         # Matches: "Chance Gresser, individually and as parent, natural guardian, next of friendand on behalf of his daughter, C.G., and Erin Gresser, individually and asparent, natural guardian, next of friend and on behalf of her daughter, C.G. v. Banner Health, d/b/a North Colorado Medical Center"
         # Matches: "Francis Rudnicki and Pamela Rudnicki, as parents, guardians and next friends of Alexander Rudnicki, a minor v. Bianco"
@@ -1055,7 +1065,9 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
             except Exception as e:
                 logger.error(f"[REPORTER-DEBUG] Exception in reporter family validation: {e}")
 
-            if pattern_idx in [1, 2, 3]:  # Patterns with 2 groups (plaintiff v. defendant)
+            if pattern_idx in [2, 3, 4]:  # Patterns with 2 groups (plaintiff v. defendant)
+                # Pattern 1 (index 0) is ship cases with 1 group
+                # Patterns 2, 3, 4 (indices 1, 2, 3) have 2 groups (plaintiff v. defendant)
                 logger.error(f"[PATTERN-GROUP-DEBUG] Pattern {pattern_idx}: Processing 2-group pattern")
                 plaintiff = match.group(1).strip()
                 defendant = match.group(2).strip()
@@ -1395,9 +1407,11 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 continue
 
             # Reject if starts with common sentence starters
+            # EXCEPTION: Ship/admiralty cases legitimately start with "The" (e.g., "The Pizarro")
+            is_ship_case = case_name.startswith("The ") and not " v. " in case_name
+            
             sentence_starters = [
                 "at ",
-                "the ",
                 "this ",
                 "that ",
                 "these ",
@@ -1412,6 +1426,10 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 "establishing ",
                 "calculating ",
             ]
+            # Only add "the " to reject list if it's NOT a ship case
+            if not is_ship_case:
+                sentence_starters.append("the ")
+            
             case_lower = case_name.lower()
             if any(case_lower.startswith(starter) for starter in sentence_starters):
                 # Unless it's a valid case name pattern (has "v.")
@@ -1466,9 +1484,11 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     else:
                         logger.error(f"[VALIDATION-DEBUG] ACCEPTED: Found known abbreviation in combined name")
 
-            # If we reach here and there is no 'v.' and not an accepted prefix (In re, Ex parte, Estate of, Matter of), reject to avoid narrative fragments
+            # If we reach here and there is no 'v.' and not an accepted prefix (In re, Ex parte, Estate of, Matter of, The [Ship]), reject to avoid narrative fragments
             if " v. " not in case_name.lower():
-                if not re.search(r"^(In\s+re|Ex\s+parte|Estate\s+of|Matter\s+of)\b", case_name, re.IGNORECASE):
+                # Ship/admiralty cases start with "The" (e.g., "The Pizarro", "The Venus")
+                is_ship_case_pattern = re.match(r"^The\s+[A-Z][a-zA-Z]+", case_name)
+                if not re.search(r"^(In\s+re|Ex\s+parte|Estate\s+of|Matter\s+of)\b", case_name, re.IGNORECASE) and not is_ship_case_pattern:
                     logger.debug(f"[STRICT-EXTRACT] Rejecting non-case-like fragment: '{case_name}'")
                     continue
 
