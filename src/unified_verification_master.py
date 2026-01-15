@@ -83,6 +83,342 @@ def build_default_headers(api_key: Optional[str] = None) -> Dict:
 logger = logging.getLogger(__name__)
 
 
+def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracted_year: Optional[int] = None) -> Optional[str]:
+    """
+    Extract canonical date from CourtListener cluster with correct priority.
+
+    CourtListener Date Field Priority (from best to worst):
+    1. date_reargued / dateReargued - When case was reargued (most specific, if applicable)
+    2. Extracted year from document - Year from citation context (reliable for verification)
+    3. date_filed / dateFiled - Decision/filing date (generally correct, but can be DB update for old cases)
+    4. date_argued / dateArgued - Argument date (fallback only)
+
+    CRITICAL NOTES:
+    - date_modified / dateModified is IGNORED - it's the DB record update timestamp, not decision date
+    - date_filed is often WRONG for older cases - it can be:
+      * Database update date (when CourtListener added/modified the record)
+      * For SCOTUS cases from 1970s-2000s, date_filed often shows 2020-2021 (DB updates)
+    - extracted_year from document context is often more reliable than date_filed for verification
+    """
+    from datetime import datetime
+
+    # Get all available date fields from CourtListener (try both camelCase and snake_case)
+    # CRITICAL: date_modified is the DB record update timestamp, NOT the decision amendment date!
+    # It's useless for our purposes - ignore it.
+    decided = cluster.get("date_filed") or cluster.get("dateFiled")
+    argued = cluster.get("date_argued") or cluster.get("dateArgued")
+    date_reargued = cluster.get("date_reargued") or cluster.get("dateReargued")
+
+    # Log all available dates for debugging
+    logger.debug(
+        f"[DATE] {citation}: Available dates - "
+        f"filed:{decided}, reargued:{date_reargued}, argued:{argued}, extracted_year:{extracted_year}"
+    )
+
+    # PRIORITY 1: If case was reargued, use reargument date (more specific than original filing)
+    if date_reargued:
+        logger.info(f"[DATE] {citation}: Using reargument date (date_reargued): {date_reargued}")
+        return date_reargued
+
+    # PRIORITY 2: For Supreme Court cases, prioritize date_filed if it looks reasonable
+    # BUT: If extracted_year differs significantly, trust the document (user's document is authoritative)
+
+    # Check if this is a Supreme Court case by looking at:
+    # 1. Court field (if available)
+    # 2. Citation reporter (U.S. reporter = Supreme Court)
+    is_supreme_court = False
+
+    # Method 1: Check court field
+    court_str = str(cluster.get("court", "")).lower()
+    if any(court in court_str for court in ["supreme", "scotus", "u.s. supreme"]):
+        is_supreme_court = True
+
+    # Method 2: Check citation reporter (more reliable!)
+    if not is_supreme_court and citation:
+        citation_str = str(citation)
+        # All Supreme Court reporters: U.S., S. Ct., L. Ed., L. Ed. 2d
+        scotus_reporters = [
+            " U.S. ",           # United States Reports (official)
+            " S. Ct. ",         # Supreme Court Reporter
+            " S.Ct. ",          # Supreme Court Reporter (no space)
+            " L. Ed. ",         # Lawyers' Edition
+            " L.Ed. ",          # Lawyers' Edition (no space)
+            " L. Ed. 2d ",      # Lawyers' Edition, Second Series
+            " L.Ed.2d ",        # Lawyers' Edition, Second Series (no space)
+        ]
+        # Check if citation starts with these reporters (for cases like "123 U.S. 456")
+        scotus_start_reporters = ["U.S. ", "S. Ct. ", "S.Ct. ", "L. Ed. ", "L.Ed. ", "L. Ed. 2d ", "L.Ed.2d "]
+
+        if any(reporter in citation_str for reporter in scotus_reporters) or \
+           any(citation_str.startswith(reporter) for reporter in scotus_start_reporters):
+            is_supreme_court = True
+
+    # SUPREME COURT HANDLING: Only use extracted_year when date_filed is clearly a DB update date
+    if is_supreme_court and decided and extracted_year is not None:
+        try:
+            decided_dt = datetime.strptime(decided, "%Y-%m-%d")
+            decided_year = decided_dt.year
+            year_diff = abs(decided_year - extracted_year)
+
+            # If date_filed is before 2019, it's probably correct (not a DB update)
+            # CourtListener started bulk updates around 2019-2021
+            if decided_year < 2019:
+                logger.info(f"[DATE] {citation}: Supreme Court - using date_filed {decided} (year {decided_year} < 2019, likely correct)")
+                return decided
+
+            # If date_filed is 2019+, it MIGHT be a DB update timestamp
+            # But only use extracted_year if:
+            # 1. extracted_year is pre-2015 (old case)
+            # 2. Difference is > 5 years (clearly a DB update, not a real date)
+            # 3. This prevents using wrong extracted_year from headers
+            if decided_year >= 2019 and extracted_year < 2015 and year_diff > 5:
+                logger.warning(
+                    f"[DATE] {citation}: Supreme Court - date_filed ({decided_year}) is from bulk update period "
+                    f"but extracted_year ({extracted_year}) is much older ({year_diff} years). "
+                    f"Using extracted year - date_filed is likely DB update date."
+                )
+                return f"{extracted_year}-01-01"
+
+            # If both date_filed and extracted_year are recent (2015+), trust date_filed if they're close
+            if decided_year >= 2015 and extracted_year >= 2015:
+                if abs(decided_year - extracted_year) <= 1:
+                    logger.info(f"[DATE] {citation}: Supreme Court - both dates recent and close, using date_filed {decided}")
+                    return decided
+                # If they differ by more than 1 year, trust date_filed (it's from CourtListener)
+                logger.info(f"[DATE] {citation}: Supreme Court - using date_filed {decided} (both recent but differ, trusting CourtListener)")
+                return decided
+
+            # If date_filed is 2019+ but extracted_year is also recent (2015-2018), trust date_filed
+            if decided_year >= 2019 and extracted_year >= 2015:
+                logger.info(f"[DATE] {citation}: Supreme Court - using date_filed {decided} (both recent, trusting CourtListener)")
+                return decided
+
+            # Fallback: use date_filed (more reliable than potentially contaminated extracted_year)
+            logger.info(f"[DATE] {citation}: Supreme Court - using date_filed {decided} (no clear DB update pattern)")
+            return decided
+
+        except Exception as e:
+            logger.warning(f"[DATE] {citation}: Error parsing date_filed: {e}")
+
+    # If we have an extracted year for Supreme Court but no date_filed
+    if extracted_year is not None and is_supreme_court:
+        logger.info(f"[DATE] {citation}: Supreme Court - no date_filed, using extracted year {extracted_year}")
+        return f"{extracted_year}-01-01"
+
+    # NON-SUPREME COURT HANDLING: Use extracted_year when available
+    if extracted_year is not None:
+            
+        # For non-Supreme Court cases, use the existing logic but be more aggressive
+        if decided:
+            try:
+                decided_dt = datetime.strptime(decided, "%Y-%m-%d")
+                decided_year = decided_dt.year
+                year_diff = abs(decided_year - extracted_year)
+                current_year = datetime.now().year
+                
+                # CRITICAL FIX: If date_filed is very recent (2015+) but extracted_year is much older,
+                # this is almost certainly a database update date, not the decision date
+                # CourtListener bulk-updated many old cases around 2015-2016
+                if decided_year >= 2015 and extracted_year < 2015 and year_diff > 5:
+                    logger.warning(
+                        f"[DATE] {citation}: date_filed ({decided_year}) is recent but extracted_year ({extracted_year}) "
+                        f"is much older ({year_diff} years difference). Likely DB update date - using extracted year."
+                    )
+                    return str(extracted_year)
+                
+                # CRITICAL: Only use extracted_year when date_filed is clearly a DB update date
+                # Don't blindly trust extracted_year - it might be contaminated from headers
+                # Only use it when:
+                # 1. date_filed is 2015+ (bulk update period)
+                # 2. extracted_year is pre-2015 (old case)
+                # 3. Difference is > 5 years (clearly a DB update)
+                if decided_year >= 2015 and extracted_year < 2015 and year_diff > 5:
+                    logger.warning(
+                        f"[DATE] {citation}: date_filed ({decided_year}) is from bulk update period "
+                        f"but extracted_year ({extracted_year}) is much older ({year_diff} years). "
+                        f"Using extracted year - date_filed is likely DB update date."
+                    )
+                    return str(extracted_year)
+                
+                # For other cases, trust date_filed (it's from CourtListener, more reliable)
+                if year_diff > 1:
+                    logger.warning(f"[DATE] {citation}: Year mismatch - date_filed:{decided_year} vs extracted:{extracted_year}, trusting date_filed")
+                    return decided
+                        
+                    # For 1-2 year differences, try to find the decision date in the snippet
+                    opinions = cluster.get("opinions", [])
+                    if opinions and isinstance(opinions, list):
+                        for opinion in opinions:
+                            snippet = opinion.get("snippet", "").lower()
+                            if "decided" in snippet:
+                                # Look for patterns like "Decided January 23, 1967"
+                                import re
+                                for pattern in [
+                                    r"decided\s+([a-z]+\s+\d{1,2},\s*\d{4})",
+                                    r"decided\s+on\s+([a-z]+\s+\d{1,2},\s*\d{4})",
+                                    r"opinion\s+delivered\s+([a-z]+\s+\d{1,2},\s*\d{4})"
+                                ]:
+                                    match = re.search(pattern, snippet)
+                                    if match:
+                                        date_str = match.group(1)
+                                        for fmt in ["%B %d, %Y", "%b %d, %Y", "%b. %d, %Y"]:
+                                            try:
+                                                parsed_date = datetime.strptime(date_str, fmt)
+                                                if parsed_date.year == extracted_year:
+                                                    formatted = parsed_date.strftime("%Y-%m-%d")
+                                                    logger.info(f"[DATE] {citation}: Found matching decision date in snippet: {formatted}")
+                                                    return formatted
+                                            except:
+                                                continue
+                    
+                    # If we get here, use the extracted year with date_filed month/day if possible
+                    try:
+                        corrected_date = decided_dt.replace(year=extracted_year)
+                        formatted_date = corrected_date.strftime("%Y-%m-%d")
+                        logger.info(f"[DATE] {citation}: Using extracted year with date_filed month/day: {formatted_date}")
+                        return formatted_date
+                    except:
+                        return str(extracted_year)
+                        
+            except Exception as e:
+                logger.warning(f"[DATE] {citation}: Error processing dates: {e}")
+    
+    # If we get here, use the best available date
+    if decided:
+        return decided
+    if argued:
+        logger.debug(f"[DATE] {citation}: Using argued date: {argued}")
+        return argued
+        
+    # Try docket as last resort
+    try:
+        docket = cluster.get("docket", {})
+        if isinstance(docket, dict):
+            docket_date = docket.get("date_filed") or docket.get("dateFiled")
+            if docket_date:
+                logger.debug(f"[DATE] {citation}: Using docket date: {docket_date}")
+                return docket_date
+    except:
+        pass
+    
+    # If we have an extracted year but no special handling above, only use it if date_filed is clearly wrong
+    if extracted_year is not None and decided:
+        try:
+            decided_dt = datetime.strptime(decided, "%Y-%m-%d")
+            decided_year = decided_dt.year
+            year_diff = abs(decided_year - extracted_year)
+
+            # Only use extracted_year if date_filed is clearly a DB update date
+            # (2015+ bulk update period AND extracted_year is pre-2015 AND difference > 5 years)
+            if decided_year >= 2015 and extracted_year < 2015 and year_diff > 5:
+                logger.warning(
+                    f"[DATE] {citation}: Year mismatch - CourtListener date_filed: {decided_year}, "
+                    f"Extracted from document: {extracted_year}, Difference: {year_diff} years. "
+                    f"Using extracted year - date_filed is likely DB update date."
+                )
+                return str(extracted_year)
+            # Otherwise, trust date_filed (it's from CourtListener, more reliable)
+            if year_diff > 1:
+                logger.info(
+                    f"[DATE] {citation}: Year mismatch - CourtListener date_filed: {decided_year}, "
+                    f"Extracted from document: {extracted_year}, Difference: {year_diff} years. "
+                    f"Trusting date_filed (CourtListener is authoritative)."
+                )
+        except Exception as e:
+            logger.debug(f"[DATE] {citation}: Error comparing dates: {e}")
+            pass
+
+    # Normal case: dateFiled year matches or no extracted year to compare
+    if decided:
+        # CRITICAL FIX: CourtListener's date_filed is often wrong for older cases
+        # CourtListener bulk-updated many old cases around 2015-2016, so date_filed from that period
+        # is often the database update date, not the actual decision date
+        try:
+            import re
+            decided_dt = datetime.strptime(decided, "%Y-%m-%d")
+            decided_year = decided_dt.year
+            current_year = datetime.now().year
+
+            # CRITICAL: Only use extracted_year when date_filed is clearly a DB update date
+            # Don't blindly trust extracted_year - it might be contaminated from headers
+            # Only use it when:
+            # 1. date_filed is 2015+ (bulk update period)
+            # 2. extracted_year is pre-2015 (old case)
+            # 3. Difference is > 5 years (clearly a DB update, not a real date)
+            if decided_year >= 2015 and extracted_year is not None and extracted_year < 2015:
+                year_diff = abs(decided_year - extracted_year)
+                if year_diff > 5:  # More than 5 years difference
+                    logger.warning(
+                        f"[DATE] {citation}: date_filed ({decided_year}) is from CourtListener bulk update period "
+                        f"but extracted_year ({extracted_year}) is much older ({year_diff} years difference). "
+                        f"Using extracted year - date_filed is likely DB update date."
+                    )
+                    return str(extracted_year)
+                # If difference is <= 5 years, trust date_filed (it's from CourtListener)
+                logger.info(f"[DATE] {citation}: date_filed ({decided_year}) and extracted_year ({extracted_year}) differ by {year_diff} years, but trusting date_filed")
+                return decided
+
+            # If date_filed is very recent (last 5 years) and we have no extracted year to validate it,
+            # this is suspicious for older reporter volumes
+            if decided_year >= current_year - 5:
+                # Check if this looks like an older case based on reporter volume
+                # U.S. volumes 400-550 are from 1970s-2000s, not 2020s
+                # F.3d volumes 800-1000 are from 2010s-2020s
+                # State reporters (Va., S.E., etc.) from 1920s-1930s are definitely not from 2015+
+                volume_match = re.search(r"(\d+)\s+(?:U\.S\.|F\.\s*3d|F\.\s*2d|F\.\s*Supp|Va\.|S\.E\.|N\.E\.|N\.W\.|S\.W\.|So\.|P\.|P\.2d|A\.|A\.2d)", citation)
+                if volume_match:
+                    volume = int(volume_match.group(1))
+                    # U.S. Reports: volume 497 (Milkovich) is from 1990, not 2021
+                    if "U.S." in citation and 400 <= volume <= 550:
+                        expected_year = 1970 + ((volume - 400) // 10)  # Rough estimate
+                        logger.warning(
+                            f"[DATE] {citation}: CourtListener date_filed ({decided_year}) is recent but "
+                            f"U.S. volume {volume} suggests {expected_year}s. Likely a DB update date."
+                        )
+                        # Return just the year so it shows as needing correction
+                        if extracted_year:
+                            logger.info(f"[DATE] {citation}: Using extracted year {extracted_year} instead")
+                            return str(extracted_year)
+                        # If no extracted year, return the decided date but log the issue
+                        logger.warning(f"[DATE] {citation}: No extracted year to correct with, using date_filed anyway")
+                    # State reporters: volumes like 150 Va. or 143 S.E. from 1920s-1930s
+                    elif any(reporter in citation for reporter in ["Va.", "S.E.", "N.E.", "N.W.", "S.W.", "So.", "P.", "A."]):
+                        # If date_filed is 2015+ but we have a state reporter citation, it's likely old
+                        if extracted_year and extracted_year < 2015:
+                            logger.warning(
+                                f"[DATE] {citation}: date_filed ({decided_year}) is from bulk update period but "
+                                f"state reporter with extracted_year ({extracted_year}) suggests old case. "
+                                f"Using extracted year."
+                            )
+                            return str(extracted_year)
+        except Exception as e:
+            logger.debug(f"[DATE] {citation}: Error in volume-based date check: {e}")
+            pass
+
+        return decided
+
+    # If we have extracted year but no date_filed, use it
+    if extracted_year is not None:
+        logger.info(f"[DATE] {citation}: No date_filed available, using extracted year: {extracted_year}")
+        return str(extracted_year)
+
+    # Priority 3: Argument date
+    if argued:
+        logger.debug(f"[DATE] {citation}: Using ARGUED date: {argued}")
+        return argued
+    
+    # Try docket object as fallback
+    docket = cluster.get("docket", {})
+    if isinstance(docket, dict):
+        docket_date = docket.get("date_filed") or docket.get("dateFiled")
+        if docket_date:
+            logger.debug(f"[DATE] {citation}: Using DOCKET date: {docket_date}")
+            return docket_date
+    
+    logger.warning(f"[DATE] {citation}: No date found in cluster")
+    return None
+
+
 class VerificationSource(Enum):
     """Enumeration of verification sources in priority order."""
 
@@ -261,14 +597,17 @@ def is_citation_likely_valid(citation: str) -> bool:
         logger.warning(f"Suspicious U.S. reporter number in {citation}: {us_match.group(1)}")
         return False
 
-    # Must contain a reporter (U.S., F., F.2d, F.3d, F.4th, S. Ct., L. Ed., etc.)
-    reporter_pattern = r"(?:U\.?S\.?|F\.?(?:2d|3d|4th)?|S\.?Ct\.?|L\.?Ed\.?(?:\s*2d)?|[A-Z]{2,}\.?\s*(?:App\.?\s*Ct\.?|Sup\.?\s*Ct\.?|Ct\.?\s*App\.?))"
+    # Must contain a reporter (U.S., F., F.2d, F.3d, F.4th, F. Supp., S. Ct., L. Ed., early reporters, etc.)
+    # Early Supreme Court reporters: Wheat. (Wheaton), Cranch, Pet. (Peters), How. (Howard), Wall. (Wallace), Black.
+    # Federal reporters: F., F.2d, F.3d, F.4th, F. Supp., F. Supp. 2d, F. Supp. 3d
+    reporter_pattern = r"(?:U\.?S\.?|F\.?\s*(?:Supp\.?\s*(?:2d|3d)?|2d|3d|4th)?|S\.?Ct\.?|L\.?Ed\.?(?:\s*2d)?|Wheat\.?|Cranch|Pet\.?|How\.?|Wall\.?|Black\.?|[A-Z]{2,}\.?\s*(?:App\.?\s*Ct\.?|Sup\.?\s*Ct\.?|Ct\.?\s*App\.?))"
     if not re.search(reporter_pattern, citation, re.IGNORECASE):
         logger.debug(f"No recognized reporter in citation: {citation}")
         return False
 
     # Must contain a volume and page number
-    if not re.search(r"\d+\s+[A-Za-z\.]+\s*\d+", citation):
+    # Pattern must handle multi-word reporters like "F. Supp. 3d", "S. Ct.", etc.
+    if not re.search(r"\d+\s+[A-Za-z\.\s]+?\d+", citation):
         logger.debug(f"No volume/page pattern in citation: {citation}")
         return False
 
@@ -1027,8 +1366,8 @@ class UnifiedVerificationMaster:
                                 verifier=self,
                                 citations=citations,
                                 results=placeholder_results,
-                                case_names=extracted_case_names,
-                                dates=extracted_dates,
+                                case_names=case_names,
+                                dates=dates,
                                 max_fallback_citations=len(citations),
                                 timeout_per_citation=5.0,
                             )
@@ -1082,9 +1421,8 @@ class UnifiedVerificationMaster:
                                     if extracted_case_names and i < len(extracted_case_names)
                                     else None
                                 )
-                                extracted_date = (
-                                    extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
-                                )
+                                extracted_date = extracted_dates[i] if extracted_dates and i < len(extracted_dates) else None
+
                                 fallback_result = await fallback.verify_citation_async(
                                     citation, extracted_name, extracted_date, timeout=5.0
                                 )
@@ -1224,7 +1562,12 @@ class UnifiedVerificationMaster:
                     logger.warning(f"⚠️  No clusters found with exact citation match for {citation}")
 
                     # TARGETED FALLBACK: Try Law Resource.org for federal citations not found in batch lookup
-                    if re.search(r"\bF\.?(?:2d|3d)\b", citation):  # Federal Reporter citations
+                    # Include Federal Reporter (F.2d, F.3d, F.4th) AND Federal Supplement (F. Supp., F. Supp. 2d, F. Supp. 3d)
+                    is_federal_citation = (
+                        re.search(r"\bF\.?(?:2d|3d|4th)\b", citation) or  # Federal Reporter
+                        re.search(r"\bF\.\s*Supp\.?\s*(?:2d|3d)?\b", citation)  # Federal Supplement
+                    )
+                    if is_federal_citation:
                         logger.info(f"🎯 [TARGETED-FALLBACK] Trying Law Resource.org for federal citation: {citation}")
                         try:
                             # Get extracted_name and extracted_date for this citation
@@ -1284,7 +1627,15 @@ class UnifiedVerificationMaster:
                     # This preserves canonical data for clustering while marking as unverified
                     if matched_cluster.get("_year_mismatch"):
                         canonical_name = matched_cluster.get("caseName") or matched_cluster.get("case_name")
-                        canonical_date = matched_cluster.get("dateFiled") or matched_cluster.get("date_filed")
+                        # Extract year from extracted_date for snippet parsing
+                        extracted_year = None
+                        if extracted_date:
+                            import re
+                            year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                            if year_match:
+                                extracted_year = int(year_match.group(0))
+                        # Use date extraction with correct priority: Amended > Decided > Argued
+                        canonical_date = extract_canonical_date(matched_cluster, citation, extracted_year)
                         canonical_url = f"https://www.courtlistener.com{matched_cluster.get('absolute_url', '')}"
                         year_mismatch_info = matched_cluster.get("_year_mismatch_info", "year mismatch")
                         logger.warning(
@@ -1306,15 +1657,22 @@ class UnifiedVerificationMaster:
                     # CRITICAL FIX: Try both camelCase and snake_case field names
                     # CourtListener v4 API uses different formats: batch lookup may use snake_case, search uses camelCase
                     canonical_name = matched_cluster.get("caseName") or matched_cluster.get("case_name")
-                    canonical_date = matched_cluster.get("dateFiled") or matched_cluster.get("date_filed")
+                    # Extract year from extracted_date for snippet parsing
+                    extracted_year = None
+                    if extracted_date:
+                        import re
+                        year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                        if year_match:
+                            extracted_year = int(year_match.group(0))
+                    # Use date extraction with correct priority: Amended > Decided > Argued
+                    canonical_date = extract_canonical_date(matched_cluster, citation, extracted_year)
 
                     # If not at top level, try to extract from docket object (try both formats)
                     if not canonical_name:
                         docket = matched_cluster.get("docket", {})
                         if isinstance(docket, dict):
                             canonical_name = docket.get("caseName") or docket.get("case_name")
-                            if not canonical_date:
-                                canonical_date = docket.get("dateFiled") or docket.get("date_filed")
+                            # Date already extracted with priority logic above
                             logger.error(
                                 f"🔍 [DOCKET-EXTRACT] {citation}: Extracted from docket - case_name={canonical_name}"
                             )
@@ -1527,15 +1885,23 @@ class UnifiedVerificationMaster:
                 # CRITICAL FIX: Use camelCase field names for search API responses
                 # CourtListener v4 Search API returns caseName/dateFiled (camelCase), not case_name/date_filed
                 canonical_name = cluster.get("caseName") or cluster.get("case_name")
-                canonical_date = cluster.get("dateFiled") or cluster.get("date_filed")
+                
+                # Extract year from extracted_date if available
+                extracted_year = None
+                if extracted_date and extracted_date != "N/A":
+                    year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                    if year_match:
+                        extracted_year = int(year_match.group(0))
+                
+                # Use date extraction with correct priority: Amended > Decided > Argued
+                canonical_date = extract_canonical_date(cluster, citation, extracted_year)
 
                 # If not found, try docket object (might have either format)
                 if not canonical_name:
                     docket = cluster.get("docket", {})
                     if isinstance(docket, dict):
                         canonical_name = docket.get("caseName") or docket.get("case_name")
-                        if not canonical_date:
-                            canonical_date = docket.get("dateFiled") or docket.get("date_filed")
+                        # Date already extracted with priority logic above
                         logger.error(
                             f"🔍 [DOCKET-EXTRACT-ASYNC] {citation}: Extracted from docket - case_name={canonical_name}"
                         )
@@ -1735,7 +2101,9 @@ class UnifiedVerificationMaster:
 
             # Otherwise, keep the safety check
             logger.warning(f"❌ CANNOT VERIFY {target_citation}: No extracted name available")
-            logger.warning(f"   API returned {len(clusters)} possible clusters, but we can't pick the right one")
+            logger.warning(
+                f"   API returned {len(clusters)} possible clusters, but we can't pick the right one"
+            )
             logger.warning(f"   Leaving citation unverified (better than wrong verification)")
             return None
 
@@ -1836,8 +2204,13 @@ class UnifiedVerificationMaster:
 
             # FIX #26: Validate date if available
             if extracted_date and extracted_date != "N/A":
-                # Try both camelCase and snake_case field names
-                canonical_date = single_cluster.get("dateFiled") or single_cluster.get("date_filed", "")
+                # Extract year from extracted_date for snippet parsing
+                extracted_year = None
+                year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                if year_match:
+                    extracted_year = int(year_match.group(0))
+                # Use date extraction with correct priority: Amended > Decided > Argued
+                canonical_date = extract_canonical_date(single_cluster, target_citation, extracted_year)
                 if canonical_date:
                     extracted_year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
                     canonical_year_match = re.search(r"(19|20)\d{2}", str(canonical_date))
@@ -1847,8 +2220,12 @@ class UnifiedVerificationMaster:
                         canonical_year = int(canonical_year_match.group(0))
                         year_diff = abs(extracted_year - canonical_year)
 
-                        if year_diff > 0:
-                            logger.warning(f"❌ REJECTED single cluster: year mismatch for {target_citation}")
+                        # USER FIX: Allow ±1 year tolerance for legal citations
+                        # Citations are often cited with a year that's 1 off from the official filing date
+                        if year_diff > 1:
+                            logger.warning(
+                                f"❌ REJECTED single cluster: year mismatch for {target_citation}"
+                            )
                             logger.warning(
                                 f"   Extracted year: {extracted_year} vs Canonical year: {canonical_year} (diff: {year_diff} years)"
                             )
@@ -1885,8 +2262,13 @@ class UnifiedVerificationMaster:
 
         # FIX #26: Validate date of best match
         if best_cluster and extracted_date and extracted_date != "N/A":
-            # Try both camelCase and snake_case field names
-            canonical_date = best_cluster.get("dateFiled") or best_cluster.get("date_filed", "")
+            # Extract year from extracted_date for snippet parsing
+            extracted_year = None
+            year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+            if year_match:
+                extracted_year = int(year_match.group(0))
+            # Use date extraction with correct priority: Amended > Decided > Argued
+            canonical_date = extract_canonical_date(best_cluster, target_citation, extracted_year)
             if canonical_date:
                 extracted_year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
                 canonical_year_match = re.search(r"(19|20)\d{2}", str(canonical_date))
@@ -2079,8 +2461,13 @@ class UnifiedVerificationMaster:
                     f"[TOA-YEAR-SKIP] {target_citation}: TOA citation - skipping year validation (extracted year unreliable)"
                 )
             elif extracted_date and extracted_date != "N/A":
-                # Try both camelCase and snake_case field names
-                canonical_date = single_cluster.get("dateFiled") or single_cluster.get("date_filed", "")
+                # Extract year from extracted_date for snippet parsing
+                extracted_year = None
+                year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                if year_match:
+                    extracted_year = int(year_match.group(0))
+                # Use date extraction with correct priority: Amended > Decided > Argued
+                canonical_date = extract_canonical_date(single_cluster, target_citation, extracted_year)
                 if canonical_date:
                     extracted_year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
                     canonical_year_match = re.search(r"(19|20)\d{2}", str(canonical_date))
@@ -2153,7 +2540,15 @@ class UnifiedVerificationMaster:
 
         for cluster in matching_clusters:
             canonical_name = cluster.get("case_name", "")
-            canonical_date = cluster.get("date_filed", "")
+            
+            # Extract year from extracted_date if available
+            extracted_year = None
+            if extracted_date and extracted_date != "N/A":
+                year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                if year_match:
+                    extracted_year = int(year_match.group(0))
+            
+            canonical_date = extract_canonical_date(cluster, target_citation, extracted_year) or ""
             canonical_court = cluster.get("court_citation_string", "")
 
             # Component 1: Name similarity (60% weight)
@@ -2222,8 +2617,13 @@ class UnifiedVerificationMaster:
                 f"[TOA-YEAR-SKIP-MULTI] {target_citation}: TOA citation - skipping year validation in multiple clusters path"
             )
         elif best_cluster and extracted_date and extracted_date != "N/A":
-            # Try both camelCase and snake_case field names
-            canonical_date = best_cluster.get("dateFiled") or best_cluster.get("date_filed", "")
+            # Extract year from extracted_date for snippet parsing
+            extracted_year = None
+            year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+            if year_match:
+                extracted_year = int(year_match.group(0))
+            # Use date extraction with correct priority: Amended > Decided > Argued
+            canonical_date = extract_canonical_date(best_cluster, target_citation, extracted_year)
             if canonical_date:
                 # Extract years from both dates
                 extracted_year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
@@ -2307,32 +2707,28 @@ class UnifiedVerificationMaster:
         cluster_citations = cluster.get("citations", [])
 
         if expected_jurisdiction == "washington":
-            # FIX #60C: Skip cluster_citations check if empty (Search API path)
-            if cluster_citations:
-                # For Washington citations, require at least one WA reporter in the cluster
-                has_wa_citation = any(re.search(r"\bwn\b|\bwash\b", str(cit).lower()) for cit in cluster_citations)
-                if not has_wa_citation:
-                    logger.warning(
-                        f"🚫 [FIX #50] JURISDICTION MISMATCH: {citation} expects Washington, but cluster has no WA reporters"
-                    )
-                    logger.warning(f"   Cluster citations: {cluster_citations}")
-                    logger.warning(f"   Case: {cluster.get('case_name', 'Unknown')}")
-                    return False
+            # For Washington citations, require at least one WA reporter in the cluster
+            has_wa_citation = any(re.search(r"\bwn\b|\bwash\b", str(cit).lower()) for cit in cluster_citations)
+            if not has_wa_citation:
+                logger.warning(
+                    f"🚫 [FIX #50] JURISDICTION MISMATCH: {citation} expects Washington, but cluster has no WA reporters"
+                )
+                logger.warning(f"   Cluster citations: {cluster_citations}")
+                logger.warning(f"   Case: {cluster.get('case_name', 'Unknown')}")
+                return False
 
         elif expected_jurisdiction == "federal":
-            # FIX #60C: Skip cluster_citations check if empty (Search API path)
-            if cluster_citations:
-                # For federal citations, require at least one federal reporter in the cluster
-                has_federal_citation = any(
-                    re.search(r"\bu\.?s\.?\b|\bs\.?\s*ct\.?\b|\bl\.?\s*ed\.?\b|\bf\.?\s*(2d|3d)?\b", str(cit).lower())
-                    for cit in cluster_citations
+            # For federal citations, require at least one federal reporter in the cluster
+            has_federal_citation = any(
+                re.search(r"\bu\.?s\.?\b|\bs\.?\s*ct\.?\b|\bl\.?\s*ed\.?\b|\bf\.?\s*(2d|3d)?\b", str(cit).lower())
+                for cit in cluster_citations
+            )
+            if not has_federal_citation:
+                logger.warning(
+                    f"🚫 [FIX #50] JURISDICTION MISMATCH: {citation} expects Federal, but cluster has no federal reporters"
                 )
-                if not has_federal_citation:
-                    logger.warning(
-                        f"🚫 [FIX #50] JURISDICTION MISMATCH: {citation} expects Federal, but cluster has no federal reporters"
-                    )
-                    logger.warning(f"   Cluster citations: {cluster_citations}")
-                    return False
+                logger.warning(f"   Cluster citations: {cluster_citations}")
+                return False
 
         elif expected_jurisdiction == "pacific":
             # FIX #60: Pacific Reporter covers 14 western states
@@ -2559,15 +2955,22 @@ class UnifiedVerificationMaster:
                 if best_result:
                     # CRITICAL FIX: Extract from docket if not at top level (same as batch lookup)
                     canonical_name = best_result.get("caseName")  # Search API uses camelCase
-                    canonical_date = best_result.get("dateFiled")
+                    
+                    # Extract year from extracted_date if available
+                    extracted_year = None
+                    if extracted_date and extracted_date != "N/A":
+                        year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
+                        if year_match:
+                            extracted_year = int(year_match.group(0))
+                    
+                    canonical_date = extract_canonical_date(best_result, citation, extracted_year)
 
                     # If not at top level, try docket object
                     if not canonical_name:
                         docket = best_result.get("docket", {})
                         if isinstance(docket, dict):
                             canonical_name = docket.get("case_name") or docket.get("caseName")
-                            if not canonical_date:
-                                canonical_date = docket.get("date_filed") or docket.get("dateFiled")
+                            # Date already extracted with priority logic above
                             logger.error(
                                 f"🔍 [DOCKET-EXTRACT-SEARCH] {citation}: Extracted from docket - case_name={canonical_name}"
                             )
@@ -2775,6 +3178,15 @@ class UnifiedVerificationMaster:
                 (VerificationSource.BING, self._verify_with_bing),  # Bing search (open web)
                 (VerificationSource.GOOGLE_SCHOLAR, self._verify_with_google_scholar),  # Google Scholar
             ]
+            # Add Law Resource and OpenJurist for Federal citations even in fast mode (F.2d, F.3d, F.4th)
+            is_federal_citation = (
+                any(x in citation for x in ["F.2d", "F.3d", "F.4th"]) or
+                re.search(r"\bF\.\s*Supp\.?\s*(?:2d|3d)?\b", citation, re.IGNORECASE)
+            )
+            if is_federal_citation:
+                fallback_sources.append((VerificationSource.LAW_RESOURCE, self._verify_with_law_resource))
+                # OpenJurist supports F.2d, F.3d, F.4th via direct URL construction
+                fallback_sources.append(("OpenJurist", self._verify_with_openjurist))
             logger.info(
                 f"[FAST_VERIFICATION] Using {len(fallback_sources)} fast sources (CourtListener already tried in batch)"
             )
@@ -4928,10 +5340,17 @@ class UnifiedVerificationMaster:
                                 confidence=0.9,
                                 method="law_resource_direct",
                             )
-                    except:
+                        elif response.status_code == 451:
+                            # HTTP 451: Unavailable For Legal Reasons
+                            # This means the document exists but is not available due to legal restrictions
+                            logger.warning(f"⚠️ [LAW_RESOURCE] Citation {citation} returns 451 (Unavailable For Legal Reasons) from {url}")
+                            # Continue to next URL pattern
+                            continue
+                    except Exception as e:
+                        logger.debug(f"[LAW_RESOURCE] Error accessing {url}: {e}")
                         continue
                 
-                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org (may be unavailable due to legal restrictions - HTTP 451)")
             
             # Try F.2d
             citation_pattern = r"(\d+)\s+F\.?2d\s+(\d+)"
@@ -4950,6 +5369,102 @@ class UnifiedVerificationMaster:
                         if response.status_code == 200:
                             content = response.text
                             # Extract case name
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+            
+            # Try F. Supp. 3d - Federal Supplement, Third Series
+            citation_pattern = r"(\d+)\s+F\.?\s*Supp\.?\s*3d\s+(\d+)"
+            match = re.search(citation_pattern, citation, re.IGNORECASE)
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Law Resource.org pattern for F. Supp. 3d
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/FSupp3/{volume}/{page}"
+                full_url = f"https://law.resource.org/pub/us/case/reporter/FSupp3/{volume}/{volume}.FSupp3.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
+                        if response.status_code == 200:
+                            content = response.text
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+            
+            # Try F. Supp. 2d - Federal Supplement, Second Series
+            citation_pattern = r"(\d+)\s+F\.?\s*Supp\.?\s*2d\s+(\d+)"
+            match = re.search(citation_pattern, citation, re.IGNORECASE)
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Law Resource.org pattern for F. Supp. 2d
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/FSupp2/{volume}/{page}"
+                full_url = f"https://law.resource.org/pub/us/case/reporter/FSupp2/{volume}/{volume}.FSupp2.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
+                        if response.status_code == 200:
+                            content = response.text
+                            title_match = re.search(r'<title>([^<]+)</title>', content)
+                            case_name = title_match.group(1) if title_match else None
+                            
+                            return VerificationResult(
+                                citation=citation,
+                                verified=True,
+                                canonical_name=case_name,
+                                canonical_url=url,
+                                source="Law Resource.org",
+                                confidence=0.9,
+                                method="law_resource_direct",
+                            )
+                    except:
+                        continue
+                
+                return VerificationResult(citation=citation, error="Case not found on Law Resource.org")
+            
+            # Try F. Supp. - Federal Supplement (first series)
+            citation_pattern = r"(\d+)\s+F\.?\s*Supp\.?\s+(\d+)"
+            match = re.search(citation_pattern, citation, re.IGNORECASE)
+            if match:
+                volume = match.group(1)
+                page = match.group(2)
+                # Law Resource.org pattern for F. Supp.
+                direct_url = f"https://law.resource.org/pub/us/case/reporter/FSupp/{volume}/{page}"
+                full_url = f"https://law.resource.org/pub/us/case/reporter/FSupp/{volume}/{volume}.FSupp.{page}.html"
+                
+                for url in [direct_url, full_url]:
+                    try:
+                        response = self.session.get(url, timeout=min(timeout, 5))
+                        if response.status_code == 200:
+                            content = response.text
                             title_match = re.search(r'<title>([^<]+)</title>', content)
                             case_name = title_match.group(1) if title_match else None
                             
