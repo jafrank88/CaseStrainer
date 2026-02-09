@@ -12,12 +12,12 @@ def search_pdf(pdf_path, search_terms):
                 text = reader.pages[page_num].extract_text()
                 
                 for term in search_terms:
-                    if term in text:
+                    if term.lower() in text.lower():
                         print(f"\nFound '{term}' on page {page_num + 1}")
                         print("-" * 80)
                         
                         # Show some context around the match
-                        pos = text.find(term)
+                        pos = text.lower().find(term.lower())
                         start = max(0, pos - 100)
                         end = min(len(text), pos + len(term) + 100)
                         
