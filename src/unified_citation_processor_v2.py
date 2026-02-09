@@ -2117,6 +2117,42 @@ class UnifiedCitationProcessorV2:
 
         return ""
 
+    def _extract_context(self, text: str, start: int, end: int, window: int = 200) -> str:
+        """Extract surrounding context for a citation."""
+        ctx_start = max(0, start - window)
+        ctx_end = min(len(text), end + window)
+        return text[ctx_start:ctx_end]
+
+    def _extract_case_name_from_context(self, text: str, citation, all_citations=None) -> str:
+        """Extract case name from text context around a citation."""
+        try:
+            start = citation.start_index or 0
+            ctx_start = max(0, start - 300)
+            context = text[ctx_start:start]
+            # Look for "Name v. Name" pattern before the citation
+            match = re.search(r'([A-Z][A-Za-z\.\',&\s]+\s+v\.\s+[A-Z][A-Za-z\.\',&\s]+)', context)
+            if match:
+                name = match.group(1).strip()
+                # Clean trailing punctuation
+                name = re.sub(r'[,;:\s]+$', '', name)
+                if len(name) > 5 and ' v. ' in name:
+                    return name
+        except Exception:
+            pass
+        return "N/A"
+
+    def _extract_date_from_context(self, text: str, citation) -> Optional[str]:
+        """Extract date/year from text context around a citation."""
+        try:
+            end = citation.end_index or 0
+            context = text[end:min(len(text), end + 50)]
+            match = re.search(r'\((\d{4})\)', context)
+            if match:
+                return match.group(1)
+        except Exception:
+            pass
+        return None
+
     def _extract_citation_components(self, citation: str) -> Dict[str, str]:
         """Extract volume, reporter, and page from citation string."""
         pattern = r"(\d+)\s+([A-Za-z\.\s]+?)\s+(\d+)"
@@ -2124,6 +2160,219 @@ class UnifiedCitationProcessorV2:
         if match:
             return {"volume": match.group(1), "reporter": match.group(2).strip(), "page": match.group(3)}
         return {"volume": "", "reporter": "", "page": ""}
+
+    def _parse_citation_components(self, citation_text: str) -> Optional[Dict[str, str]]:
+        """Parse citation into volume, reporter, page components."""
+        pattern = r"(\d+)\s+([A-Za-z\.\s]+?)\s+(\d+)"
+        match = re.search(pattern, citation_text)
+        if match:
+            return {"volume": match.group(1), "reporter": match.group(2).strip(), "page": match.group(3)}
+        return None
+
+    def _remove_citation_contamination_from_case_name(self, name: str) -> str:
+        """Remove citation text that leaked into case names."""
+        if not name:
+            return name
+        # Remove common citation patterns from case names
+        cleaned = re.sub(r'\d+\s+(?:U\.S\.|S\.Ct\.|L\.Ed\.|F\.\d*d?|P\.\d*d?)\s+\d+', '', name)
+        cleaned = re.sub(r'\(\d{4}\)', '', cleaned)
+        cleaned = cleaned.strip(' ,;.')
+        return cleaned if cleaned else name
+
+    def _extract_with_eyecite(self, text: str) -> List[CitationResult]:
+        """Extract citations using eyecite library."""
+        if not EYECITE_AVAILABLE:
+            return []
+        citations = []
+        seen_citations = set()
+        try:
+            tokenizer = AhocorasickTokenizer()
+            eyecite_citations = get_citations(text, tokenizer=tokenizer)
+            for citation_obj in eyecite_citations:
+                try:
+                    citation_str = self._extract_citation_text_from_eyecite(citation_obj)
+                    if not citation_str or citation_str in seen_citations:
+                        continue
+                    seen_citations.add(citation_str)
+                    start_index = None
+                    end_index = None
+                    # Try span() as method first (newer eyecite), then as property
+                    try:
+                        span = citation_obj.span() if callable(getattr(citation_obj, 'span', None)) else getattr(citation_obj, 'span', None)
+                        if span and len(span) == 2:
+                            start_index = span[0]
+                            end_index = span[1]
+                    except Exception:
+                        pass
+                    if start_index is None:
+                        try:
+                            start_index = text.find(citation_str)
+                            if start_index != -1:
+                                end_index = start_index + len(citation_str)
+                        except Exception:
+                            start_index = 0
+                            end_index = len(citation_str)
+                    context = self._extract_context(text, start_index or 0, end_index or len(citation_str))
+                    citation = CitationResult(
+                        citation=citation_str,
+                        start_index=start_index,
+                        end_index=end_index,
+                        method="eyecite",
+                        pattern="eyecite",
+                        context=context
+                    )
+                    self._extract_eyecite_metadata(citation, citation_obj)
+                    citations.append(citation)
+                except Exception as e:
+                    logger.warning(f"Error processing eyecite citation: {e}")
+                    continue
+        except Exception as e:
+            logger.warning(f"Error in eyecite extraction: {e}")
+        return citations
+
+    def _extract_citation_text_from_eyecite(self, citation_obj) -> str:
+        """Extract citation text from eyecite object."""
+        if isinstance(citation_obj, str):
+            return citation_obj
+
+        # Get type name to filter non-case citations
+        type_name = type(citation_obj).__name__
+        if type_name in ('IdCitation', 'ShortCaseCitation', 'UnknownCitation', 'SupraCitation', 'InfraCitation'):
+            return ""
+
+        # Try corrected_citation_full() first (newer eyecite API)
+        try:
+            if hasattr(citation_obj, 'corrected_citation_full'):
+                full = citation_obj.corrected_citation_full()
+                if full and isinstance(full, str):
+                    # Filter statutes
+                    if any(p in full for p in ["U.S.C.", "USC", "C.F.R.", "CFR", "Rev. Code", "Gen. Stat."]):
+                        return ""
+                    if full.lower().startswith(('id.', 'ibid.')) or ' at ' in full.lower():
+                        return ""
+                    return full
+        except Exception:
+            pass
+
+        # Try corrected_citation() (another eyecite API)
+        try:
+            if hasattr(citation_obj, 'corrected_citation'):
+                corr = citation_obj.corrected_citation()
+                if corr and isinstance(corr, str):
+                    if any(p in corr for p in ["U.S.C.", "USC", "C.F.R.", "CFR"]):
+                        return ""
+                    if corr.lower().startswith(('id.', 'ibid.')) or ' at ' in corr.lower():
+                        return ""
+                    return corr
+        except Exception:
+            pass
+
+        # Try volume/reporter/page attributes
+        try:
+            volume = getattr(citation_obj, 'groups', {}).get('volume', '') if hasattr(citation_obj, 'groups') else ''
+            if not volume:
+                volume = getattr(citation_obj, 'volume', '')
+            reporter = getattr(citation_obj, 'groups', {}).get('reporter', '') if hasattr(citation_obj, 'groups') else ''
+            if not reporter:
+                reporter = getattr(citation_obj, 'reporter', '')
+            page = getattr(citation_obj, 'groups', {}).get('page', '') if hasattr(citation_obj, 'groups') else ''
+            if not page:
+                page = getattr(citation_obj, 'page', '')
+            if volume and reporter and page:
+                reporter_str = str(reporter)
+                return f"{volume} {reporter_str} {page}"
+        except Exception:
+            pass
+
+        # Last resort: try str()
+        try:
+            citation_str = str(citation_obj)
+            if any(p in citation_str for p in ["U.S.C.", "USC", "C.F.R.", "CFR", "LawCitation"]):
+                return ""
+            # Try to extract from repr
+            full_case_match = re.search(r"FullCaseCitation\('([^']+)'", citation_str)
+            if full_case_match:
+                extracted = full_case_match.group(1)
+                if extracted.lower().startswith(('id.', 'ibid.')) or ' at ' in extracted.lower():
+                    return ""
+                return extracted
+            return ""
+        except Exception:
+            return ""
+
+    def _extract_eyecite_metadata(self, citation: CitationResult, citation_obj):
+        """Extract metadata from eyecite citation object."""
+        try:
+            if not isinstance(citation.metadata, dict):
+                citation.metadata = {}
+            meta = {}
+            for key in ['volume', 'reporter', 'page', 'year', 'court']:
+                val = getattr(citation_obj, key, None)
+                if val is not None and not callable(val):
+                    meta[key] = val
+            citation.metadata.update(meta)
+        except Exception as e:
+            logger.debug(f"Error extracting eyecite metadata: {e}")
+
+    def _deduplicate_citations(self, citations: List[CitationResult]) -> List[CitationResult]:
+        """Remove duplicate citations while preserving parallel citations."""
+        if not citations:
+            return citations
+
+        logger.info(f"[DEDUP] Starting deduplication with {len(citations)} citations")
+
+        sorted_citations = sorted(citations, key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
+
+        # Phase 1: Remove overlapping citations
+        non_overlapping = []
+        for citation in sorted_citations:
+            if not citation.start_index or not citation.end_index:
+                non_overlapping.append(citation)
+                continue
+
+            overlaps = False
+            for existing in non_overlapping:
+                if not existing.start_index or not existing.end_index:
+                    continue
+                if (citation.start_index < existing.end_index and
+                    citation.end_index > existing.start_index):
+                    if (citation.is_parallel or existing.is_parallel or
+                        ',' in citation.citation or ',' in existing.citation):
+                        continue
+                    overlaps = True
+                    break
+
+            if not overlaps:
+                non_overlapping.append(citation)
+
+        # Phase 2: Remove exact duplicates by normalized citation text
+        seen = {}
+        for citation in non_overlapping:
+            key = citation.citation.strip()
+            if key not in seen:
+                seen[key] = citation
+            else:
+                existing = seen[key]
+                if (citation.confidence > existing.confidence or
+                    len(citation.extracted_case_name or '') > len(existing.extracted_case_name or '')):
+                    seen[key] = citation
+
+        final = list(seen.values())
+        logger.info(f"[DEDUP] Finished: {len(citations)} -> {len(final)} citations ({len(citations) - len(final)} removed)")
+
+        # Filter court-year-only parentheticals
+        try:
+            court_year_pattern = re.compile(r"^\(?\s*[A-Z][A-Za-z\.'\s]{1,40}\s*\(?\d{4}\)?\s*$")
+            is_true_citation = lambda s: bool(re.match(r"^\d+\s+", s))
+            before = len(final)
+            final = [c for c in final if not (court_year_pattern.match(c.citation or '') and not is_true_citation(c.citation or ''))]
+            removed = before - len(final)
+            if removed > 0:
+                logger.info(f"[FILTER] Removed {removed} court-year-only items")
+        except Exception as _e:
+            logger.warning(f"[FILTER] Court-year-only filter failed: {_e}")
+
+        return final
 
     def _extract_with_regex_enhanced(self, text: str) -> List[CitationResult]:
         """
