@@ -192,8 +192,8 @@ class UnifiedClusteringMaster:
                 }
                 
                 # Extract best case name and year
-                cluster_dict["case_name"] = utils._select_best_case_name(group)
-                cluster_dict["year"] = utils._select_best_year(group)
+                cluster_dict["case_name"] = propagation._select_best_case_name(group)
+                cluster_dict["year"] = propagation._select_best_year(group)
                 
                 validated_clusters.append(cluster_dict)
         
