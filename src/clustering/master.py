@@ -164,6 +164,11 @@ class UnifiedClusteringMaster:
         # Step 3: Merge groups
         all_groups = self._merge_groups(parallel_groups, structural_groups)
         
+        # Step 3.5: Split groups by extracted_case_name
+        # Proximity grouping may combine different cases cited near each other
+        # (e.g., "Larimore v. Blaylock, 259 Va. 568 ... Swindle v. State, 10 Tenn. 581")
+        all_groups = self._split_groups_by_extracted_name(all_groups)
+        
         # Step 4: Validate and score clusters
         validated_clusters = []
         for group in all_groups:
@@ -182,18 +187,70 @@ class UnifiedClusteringMaster:
                 # Calculate confidence
                 confidence = validation.calculate_cluster_confidence(group)
                 
+                # Extract best case name and year from group
+                best_case_name = propagation._select_best_case_name(group)
+                best_year = propagation._select_best_year(group)
+                
+                # Extract extracted_name (from document) and canonical_name (from verification)
+                # by scanning citations in the group
+                extracted_name = None
+                extracted_date = None
+                canonical_name = None
+                canonical_date = None
+                canonical_url = None
+                cluster_members = []
+                
+                for cit in group:
+                    cit_text = propagation._get_attr(cit, "citation", "")
+                    if cit_text:
+                        cluster_members.append(cit_text)
+                    
+                    # Get best extracted_case_name from group
+                    if not extracted_name or extracted_name == "N/A":
+                        ecn = propagation._get_attr(cit, "extracted_case_name")
+                        if ecn and ecn != "N/A":
+                            extracted_name = ecn
+                    
+                    # Get best extracted_date from group
+                    if not extracted_date:
+                        ed = propagation._get_attr(cit, "extracted_date")
+                        if ed and ed != "N/A":
+                            extracted_date = ed
+                    
+                    # Get canonical data from verified citations
+                    if not canonical_name or canonical_name == "N/A":
+                        cn = propagation._get_attr(cit, "canonical_name")
+                        if cn and cn != "N/A":
+                            canonical_name = cn
+                    if not canonical_date:
+                        cd = propagation._get_attr(cit, "canonical_date")
+                        if cd:
+                            canonical_date = cd
+                    if not canonical_url:
+                        cu = propagation._get_attr(cit, "canonical_url")
+                        if cu:
+                            canonical_url = cu
+                
                 cluster_dict = {
                     "cluster_id": f"cluster_{len(validated_clusters)}",
                     "citations": group,
                     "size": len(group),
+                    "cluster_size": len(group),
                     "confidence": confidence,
                     "validation": validation_result,
                     "is_validated": validation_result.get("valid", False),
+                    # Fields expected by pipeline and frontend
+                    "case_name": best_case_name,
+                    "cluster_case_name": best_case_name,
+                    "year": best_year,
+                    "cluster_year": best_year,
+                    "extracted_name": extracted_name or best_case_name or "N/A",
+                    "extracted_date": extracted_date or best_year,
+                    "canonical_name": canonical_name,
+                    "canonical_date": canonical_date,
+                    "canonical_url": canonical_url,
+                    "cluster_members": cluster_members,
                 }
-                
-                # Extract best case name and year
-                cluster_dict["case_name"] = propagation._select_best_case_name(group)
-                cluster_dict["year"] = propagation._select_best_year(group)
                 
                 validated_clusters.append(cluster_dict)
         
@@ -226,6 +283,72 @@ class UnifiedClusteringMaster:
                 merged.append(group)
         
         return merged
+
+    def _split_groups_by_extracted_name(self, groups: List[List[Any]]) -> List[List[Any]]:
+        """
+        Split proximity groups where citations have different extracted_case_name values.
+        
+        Proximity detection groups nearby citations together, but citations for
+        different cases may appear close together in text (e.g., "Larimore v. Blaylock,
+        259 Va. 568 ... Swindle v. State, 10 Tenn. 581"). This method splits such
+        groups so each case gets its own cluster.
+        """
+        result = []
+        for group in groups:
+            if len(group) <= 1:
+                result.append(group)
+                continue
+            
+            # Collect extracted_case_name for each citation
+            name_to_cits: Dict[str, List[Any]] = {}
+            no_name_cits: List[Any] = []
+            
+            for cit in group:
+                ecn = propagation._get_attr(cit, "extracted_case_name", "") or ""
+                if ecn and ecn != "N/A" and " v. " in ecn:
+                    # Normalize: lowercase, strip whitespace
+                    norm = re.sub(r"\s+", " ", ecn.strip().lower())
+                    # Extract first party for grouping (handles abbreviation differences)
+                    parts = re.split(r"\s+v\.\s+", norm, maxsplit=1)
+                    first_party = parts[0].strip().split()[-1] if parts else norm
+                    
+                    # Find matching group by first party
+                    matched = False
+                    for key in list(name_to_cits.keys()):
+                        key_parts = re.split(r"\s+v\.\s+", key, maxsplit=1)
+                        key_first = key_parts[0].strip().split()[-1] if key_parts else key
+                        if first_party == key_first:
+                            name_to_cits[key].append(cit)
+                            matched = True
+                            break
+                    if not matched:
+                        name_to_cits[norm] = [cit]
+                else:
+                    no_name_cits.append(cit)
+            
+            # If all citations have the same name (or no names), keep as one group
+            if len(name_to_cits) <= 1:
+                result.append(group)
+                continue
+            
+            # Split into separate groups
+            logger.info(
+                f"[CLUSTER-SPLIT-ECN] Splitting proximity group of {len(group)} citations "
+                f"into {len(name_to_cits)} groups by extracted_case_name: "
+                f"{list(name_to_cits.keys())}"
+            )
+            
+            # Assign no-name citations to the first group (they're likely series citations)
+            first_key = True
+            for name, cits in name_to_cits.items():
+                if first_key and no_name_cits:
+                    cits.extend(no_name_cits)
+                    first_key = False
+                else:
+                    first_key = False
+                result.append(cits)
+        
+        return result
 
     def _select_best_case_name(self, group: List[Any]) -> Optional[str]:
         """Delegate to utils module."""
@@ -363,18 +486,25 @@ class UnifiedClusteringMaster:
         
         # Strategy 2: Look for case name in first few lines
         lines = header.split('\n')
-        for i, line in enumerate(lines[:15]):
+        for i, line in enumerate(lines[:30]):
             line = line.strip()
             if ' v. ' in line and len(line) > 10 and len(line) < 150:
-                # Check if it looks like a case name (not a citation)
-                if not re.search(r'\d+\s+\w+\.\s*\d*\s+\d+', line):
-                    # Clean up common patterns
-                    cleaned = re.sub(r'^\s*(?:IN\s+THE\s+)?(?:MATTER\s+OF\s+)?', '', line, flags=re.IGNORECASE)
-                    cleaned = re.sub(r'\s*,?\s*(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*$', '', cleaned, flags=re.IGNORECASE)
-                    
-                    if ' v. ' in cleaned and len(cleaned) > 10:
-                        logger.info(f"[CONTAMINATION-FILTER] Found primary case: '{cleaned}'")
-                        return cleaned
+                # Skip lines that contain citation patterns (volume reporter page)
+                if re.search(r'\d+\s+\w+\.\s*\d*\s+\d+', line):
+                    continue
+                # Skip lines starting with signal words (e.g., "See United States v. ...")
+                if re.match(r'^(?:See|Cf\.|Compare|But see|Accord)', line, re.IGNORECASE):
+                    continue
+                # Skip syllabus boilerplate text
+                if any(phrase in line.lower() for phrase in ['syllabus', 'reporter of decisions', 'headnote', 'slip opinion']):
+                    continue
+                # Clean up common patterns
+                cleaned = re.sub(r'^\s*(?:IN\s+THE\s+)?(?:MATTER\s+OF\s+)?', '', line, flags=re.IGNORECASE)
+                cleaned = re.sub(r'\s*,?\s*(?:Appellant|Appellee|Plaintiff|Defendant|Petitioner|Respondent)s?\s*$', '', cleaned, flags=re.IGNORECASE)
+                
+                if ' v. ' in cleaned and len(cleaned) > 10:
+                    logger.info(f"[CONTAMINATION-FILTER] Found primary case: '{cleaned}'")
+                    return cleaned
         
         # Strategy 3: Pattern match for common formats
         pattern = r'([A-Z][A-Za-z\s\.,&\-\']{8,80})\s+v\.\s+([A-Za-z][A-Za-z\s\.,&\-\']{8,80})(?:\s*,|\s+No\.)'
