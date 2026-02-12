@@ -297,6 +297,10 @@ class UnifiedCitationProcessorV2:
             "wall": re.compile(r"\b\d+\s+Wall\.?\s+\d+\b", re.IGNORECASE),  # 1863-1875
             # Federal Cases (early federal case reporter)
             "f_cas": re.compile(r"\b\d+\s+F\.\s*Cas\.\s+\d+\b", re.IGNORECASE),
+            # Slip opinion placeholders (e.g., "584 U.S. ___" or "593 U. S. ___, ___")
+            "us_slip": re.compile(r"\b(\d+)\s+U\.?\s*S\.?\s+_{2,}(?:\s*,?\s*_{2,})*", re.IGNORECASE),
+            # State reporters - Tennessee
+            "tenn": re.compile(r"\b(\d+)\s+Tenn\.\s+(\d+)\b", re.IGNORECASE),
             "lexis": re.compile(r"\b(\d{4})\s+[A-Za-z\.\s]+LEXIS\s+(\d{1,12})\b", re.IGNORECASE),
             "lexis_alt": re.compile(r"\b(\d{4})\s+LEXIS\s+(\d{1,12})\b", re.IGNORECASE),
             # Neutral/Public Domain Citations (Year-State-Number format)
@@ -1305,6 +1309,7 @@ class UnifiedCitationProcessorV2:
 
                 logger.error(
                     f"[SUCCESS] [FIX #62] PROCESSING '{citation.citation}': verification_status={verification_status}, verified={getattr(citation, 'verified', None)}"
+                    f" ecn='{getattr(citation, 'extracted_case_name', 'MISSING')}' edate='{getattr(citation, 'extracted_date', 'MISSING')}'"
                 )
 
                 # Store original values before any verification
@@ -1379,10 +1384,8 @@ class UnifiedCitationProcessorV2:
                                     citations=citation_strings,
                                     extracted_case_names=case_names,
                                     extracted_dates=dates,
-                                    in_toa_section=toa_flags,
                                     progress_callback=batch_progress_callback if progress_callback else None,
-                                    enable_fallback=True,  # CRITICAL: Enable fallback verification for unverified citations
-                                    max_fallback_citations=500,  # Verify all unverified citations (timeout guards total time)
+                                    enable_fallback=True,
                                 )
                             )
                             print(f"[BATCH-VERIFY] verify_citations_batch returned {len(results)} results")
@@ -1503,6 +1506,9 @@ class UnifiedCitationProcessorV2:
                                             )
 
                         if not year_match:
+                            logger.warning(
+                                f"[BATCH-YEAR-REJECT] {citation.citation}: extracted={extracted_date} canonical={canonical_date} diff={year_diff}"
+                            )
                             # Year mismatch - reject verification BUT PRESERVE canonical data for clustering
                             citation.verified = False
                             citation.verification_status = "year_mismatch"
@@ -1545,13 +1551,13 @@ class UnifiedCitationProcessorV2:
                             if not citation.extracted_date or citation.extracted_date == "N/A":
                                 citation.extracted_date = original_extracted_date
                             verified_count += 1
-                            logger.info(
+                            logger.warning(
                                 f"[BATCH-VERIFIED] {citation.citation} -> {result.canonical_name} (source: {result.source})"
                             )
                         elif self._na_and_partial_insufficient(citation) and result_canonical and result_canonical != "N/A":
                             # N/A + partial citation (e.g. "592 U.S. ___") - insufficient to verify
                             citation.verified = False
-                            logger.info(
+                            logger.warning(
                                 f"[BATCH-NA-PARTIAL] {citation.citation}: N/A case name + partial citation - not marking verified"
                             )
                         elif result_canonical and result_canonical != "N/A" and not result_url:
@@ -1561,7 +1567,7 @@ class UnifiedCitationProcessorV2:
                             citation.canonical_date = getattr(result, "canonical_date", None)
                             citation.verification_status = "no_canonical_url"
                             citation.source = result.source or "batch_verify"
-                            logger.info(
+                            logger.warning(
                                 f"[BATCH-NO-URL] {citation.citation}: Canonical name returned but no URL - not marking verified"
                             )
                         else:
@@ -1569,11 +1575,17 @@ class UnifiedCitationProcessorV2:
                             citation.verified = False
                             citation.verification_status = "no_canonical_name"
                             citation.source = result.source or "batch_verify"
-                            logger.info(f"[BATCH-UNVERIFIED] {citation.citation}: No canonical name returned")
+                            logger.warning(f"[BATCH-UNVERIFIED] {citation.citation}: No canonical name returned")
                     else:
                         citation.verified = False
                         result_source = result.source if result and getattr(result, "source", None) else "not_found"
                         citation.source = result_source
+                        logger.warning(
+                            f"[BATCH-NOT-VERIFIED] {citation.citation}: result.verified={getattr(result, 'verified', 'N/A')}, "
+                            f"source={result_source}, error={getattr(result, 'error', 'N/A')}, "
+                            f"canonical_name={getattr(result, 'canonical_name', 'N/A')}, "
+                            f"canonical_url={getattr(result, 'canonical_url', 'N/A')}"
+                        )
 
                         # Check if this is a proprietary format citation (WL or Lexis)
                         import re
@@ -2124,31 +2136,152 @@ class UnifiedCitationProcessorV2:
         return text[ctx_start:ctx_end]
 
     def _extract_case_name_from_context(self, text: str, citation, all_citations=None) -> str:
-        """Extract case name from text context around a citation."""
+        """Extract case name from citation string itself or surrounding text context."""
         try:
+            cit_text = citation.citation or ""
+
+            # Strategy 1: Extract case name embedded in the citation string itself
+            # Eyecite returns citations like "Raines v. Byrd, 521 U.S. 811, 819-820 (scotus)"
+            # or "Spokeo, Inc. v. Robins, 578 U.S. 330, 340 (scotus 2016)"
+            if ' v. ' in cit_text:
+                # Match "Name v. Name" before the volume number
+                # Handle corporate names with commas like "Spokeo, Inc. v. Robins"
+                v_match = re.match(
+                    r"(.+?\s+v\.\s+[A-Za-z][A-Za-z\.\',&\s]+?)(?:,\s*)?\d+\s+[A-Z]",
+                    cit_text
+                )
+                if v_match:
+                    name = v_match.group(1).strip()
+                    # Clean trailing comma/semicolon
+                    name = re.sub(r'[,;:\s]+$', '', name)
+                    if len(name) > 5 and ' v. ' in name:
+                        return name
+
+            # Strategy 2: Look in the text BEFORE the citation start_index
             start = citation.start_index or 0
             ctx_start = max(0, start - 300)
-            context = text[ctx_start:start]
+            context_before = text[ctx_start:start]
+
             # Look for "Name v. Name" pattern before the citation
-            match = re.search(r'([A-Z][A-Za-z\.\',&\s]+\s+v\.\s+[A-Z][A-Za-z\.\',&\s]+)', context)
-            if match:
-                name = match.group(1).strip()
-                # Clean trailing punctuation
+            # Search from right to left to get the closest match
+            matches = list(re.finditer(
+                r'([A-Z][A-Za-z\.\',&\s\-]+\s+v\.\s+[A-Z][A-Za-z\.\',&\s\-]+)',
+                context_before
+            ))
+            if matches:
+                # Take the last (closest) match
+                name = matches[-1].group(1).strip()
                 name = re.sub(r'[,;:\s]+$', '', name)
                 if len(name) > 5 and ' v. ' in name:
                     return name
+
+            # Strategy 3: Check for "In re" or "Matter of" patterns
+            for pattern in [r'(In\s+re\s+[A-Z][A-Za-z\s\.\',&]+)', r'((?:Matter|Estate)\s+of\s+[A-Z][A-Za-z\s\.\',&]+)']:
+                in_re_match = re.search(pattern, cit_text) or re.search(pattern, context_before)
+                if in_re_match:
+                    name = in_re_match.group(1).strip()
+                    name = re.sub(r'[,;:\s]+$', '', name)
+                    if len(name) > 5:
+                        return name
+
         except Exception:
             pass
         return "N/A"
 
     def _extract_date_from_context(self, text: str, citation) -> Optional[str]:
-        """Extract date/year from text context around a citation."""
+        """Extract date/year from citation string itself or surrounding text context.
+
+        FIX 2026-02-10: Prioritize the year from the ORIGINAL DOCUMENT TEXT around the
+        citation position over the year in eyecite's reconstructed citation string.
+        Eyecite sometimes picks up a nearby year from a different citation or document
+        header (e.g., "(scotus 2021)" when the document actually says "(2008)").
+        """
         try:
+            cit_text = citation.citation or ""
+
+            # Strategy 1 (HIGHEST PRIORITY): Extract year from the ORIGINAL DOCUMENT TEXT
+            # near the citation position.  The parenthetical year in the actual document
+            # is the most authoritative source.
             end = citation.end_index or 0
-            context = text[end:min(len(text), end + 50)]
-            match = re.search(r'\((\d{4})\)', context)
-            if match:
-                return match.group(1)
+            start = citation.start_index or 0
+            if end > 0:
+                # Look after the citation end for a parenthetical year
+                # Use wider window (150 chars) to handle page breaks in PDFs
+                context_after = text[end:min(len(text), end + 150)]
+                # Find ALL parenthetical years, skip page header years like "Cite as: 594 U. S. ____ (2021)"
+                for m in re.finditer(r'\((?:[A-Za-z0-9.\s]*?)(\d{4})\)', context_after):
+                    year = m.group(1)
+                    if 1700 <= int(year) <= 2030:
+                        # Check if this year is inside a page header pattern
+                        # Page headers look like: "Cite as: NNN U. S. ____ (YYYY)"
+                        preceding = context_after[:m.start()]
+                        if re.search(r'Cite\s+as:', preceding, re.IGNORECASE):
+                            continue  # Skip page header year
+                        return year
+                # If all parenthetical years were in page headers, try bare year after page header
+                # PDF page breaks can split "(CA8 2016)" into "(CA8 ...header... 2016)"
+                # Look for a bare 4-digit year that follows a page header
+                header_match = re.search(r'Cite\s+as:.*?\(\d{4}\)\s*(?:Opinion\s+of\s+the\s+Court\s*)?(\d{4})', context_after, re.IGNORECASE)
+                if header_match:
+                    year = header_match.group(1)
+                    if 1700 <= int(year) <= 2030:
+                        return year
+
+            # Strategy 2: Look in text BEFORE the citation (sometimes year precedes)
+            if start > 0:
+                context_before = text[max(0, start - 30):start]
+                match = re.search(r'\((\d{4})\)', context_before)
+                if match:
+                    year = match.group(1)
+                    if 1700 <= int(year) <= 2030:
+                        return year
+
+            # Strategy 3: Extract year from the eyecite citation string itself
+            # NOTE: This is LOWER priority because eyecite sometimes reconstructs
+            # the wrong year from nearby text (e.g., document header year)
+            year_in_cit = re.search(r'\((?:\w+\s+)?(\d{4})\)', cit_text)
+            if year_in_cit:
+                year = year_in_cit.group(1)
+                if 1700 <= int(year) <= 2030:
+                    return year
+
+            # Strategy 4: Check metadata for year
+            if hasattr(citation, 'metadata') and isinstance(citation.metadata, dict):
+                meta_year = citation.metadata.get('year')
+                if meta_year:
+                    return str(meta_year)
+
+            # Strategy 5: Search the FULL document for another occurrence of the same
+            # base citation that includes a year.  SCOTUS syllabus sections cite cases
+            # without years (e.g., "578 U. S. 330, 340.") but the opinion body later
+            # cites the same case WITH a year (e.g., "578 U. S. 330, 340 (2016)").
+            # Extract volume/reporter/page from the citation string and search globally.
+            base_match = re.search(r'(\d+)\s+([A-Za-z][A-Za-z.\s]+?)\s+(\d+)', cit_text)
+            if base_match:
+                vol, reporter, page = base_match.group(1), base_match.group(2).strip(), base_match.group(3)
+                # Normalize reporter for flexible matching (handle "U.S." vs "U. S.")
+                reporter_pattern = re.escape(reporter).replace(r'\.', r'\.\s*')
+                # Search for: volume reporter page ... (year)
+                global_pattern = re.compile(
+                    rf'{re.escape(vol)}\s+{reporter_pattern}\s+{re.escape(page)}'
+                    rf'[^(]{{0,60}}\((?:[A-Za-z0-9.\s]*?)(\d{{4}})\)',
+                )
+                for gm in global_pattern.finditer(text):
+                    year = gm.group(1)
+                    if 1700 <= int(year) <= 2030:
+                        # Skip if this match is at the same position (we already checked it)
+                        if gm.start() == (start or 0):
+                            continue
+                        # Verify it's not a page header year
+                        preceding_ctx = text[max(0, gm.start() - 30):gm.start()]
+                        if re.search(r'Cite\s+as:', preceding_ctx, re.IGNORECASE):
+                            continue
+                        logger.debug(
+                            f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
+                            f"from another occurrence at pos {gm.start()}"
+                        )
+                        return year
+
         except Exception:
             pass
         return None
@@ -2168,6 +2301,18 @@ class UnifiedCitationProcessorV2:
         if match:
             return {"volume": match.group(1), "reporter": match.group(2).strip(), "page": match.group(3)}
         return None
+
+    def _clean_extracted_case_name(self, name: str) -> str:
+        """Clean an extracted case name by removing common artifacts."""
+        if not name:
+            return name
+        # Remove trailing citation fragments
+        cleaned = re.sub(r",?\s*\d+\s+(?:U\.S\.|F\.\d+d|S\.\s*Ct\.|L\.\s*Ed).*$", "", name).strip()
+        # Remove trailing parentheticals
+        cleaned = re.sub(r"\s*\([^)]*$", "", cleaned).strip()
+        # Remove trailing commas/periods
+        cleaned = re.sub(r"[,\.]+$", "", cleaned).strip()
+        return cleaned if cleaned else name
 
     def _remove_citation_contamination_from_case_name(self, name: str) -> str:
         """Remove citation text that leaked into case names."""
@@ -2193,6 +2338,9 @@ class UnifiedCitationProcessorV2:
                     citation_str = self._extract_citation_text_from_eyecite(citation_obj)
                     if not citation_str or citation_str in seen_citations:
                         continue
+                    # FIX 2026-02-10: Detect concatenated page+pinpoint from PDF artifacts
+                    # e.g. "496 U.S. 310317" should be "496 U.S. 310" (eyecite merges "310, 317")
+                    citation_str = self._fix_concatenated_page_numbers(citation_str)
                     seen_citations.add(citation_str)
                     start_index = None
                     end_index = None
@@ -2229,6 +2377,46 @@ class UnifiedCitationProcessorV2:
         except Exception as e:
             logger.warning(f"Error in eyecite extraction: {e}")
         return citations
+
+    def _fix_concatenated_page_numbers(self, citation_str: str) -> str:
+        """Fix concatenated page+pinpoint numbers from PDF text extraction artifacts.
+
+        PDF extraction sometimes loses the comma/space between page and pinpoint,
+        causing eyecite to produce e.g. '496 U.S. 310317' instead of '496 U.S. 310'.
+        Detect this by checking if the page number is suspiciously long (5+ digits)
+        and splitting it into page + pinpoint where pinpoint >= page.
+        """
+        if not citation_str:
+            return citation_str
+        # Match: reporter followed by a suspiciously long page number (5+ digits)
+        m = re.match(
+            r'^(.*?\d+\s+[A-Za-z][A-Za-z.\s]+\s+)(\d{5,})(.*)',
+            citation_str,
+        )
+        if not m:
+            return citation_str
+        prefix, page_blob, suffix = m.group(1), m.group(2), m.group(3)
+        # Try longest valid page first (4 digits down to 2)
+        for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
+            page = page_blob[:split_pos]
+            pinpoint = page_blob[split_pos:]
+            page_val = int(page)
+            if page_val < 1 or page_val > 9999:
+                continue
+            if not pinpoint or pinpoint[0] == '0':
+                continue
+            pin_val = int(pinpoint)
+            if pin_val < page_val:
+                continue
+            if pin_val > page_val * 10:
+                continue
+            fixed = f"{prefix}{page}{suffix}"
+            logger.info(
+                f"[EYECITE-FIX] Concatenated page numbers: '{citation_str[:60]}' -> '{fixed[:60]}' "
+                f"(split {page_blob} -> page={page}, pinpoint={pinpoint})"
+            )
+            return fixed
+        return citation_str
 
     def _extract_citation_text_from_eyecite(self, citation_obj) -> str:
         """Extract citation text from eyecite object."""
@@ -2416,6 +2604,10 @@ class UnifiedCitationProcessorV2:
             "wall",  # John Wallace (1863-1875)
             # Federal Cases (early federal case reporter)
             "f_cas",  # e.g., "29 F. Cas. 1120"
+            # Slip opinion placeholders (e.g., "584 U.S. ___")
+            "us_slip",
+            # State reporters
+            "tenn",  # Tennessee - e.g., "10 Tenn. 581" (Swindle v. State)
         ]
 
         for pattern_name in priority_patterns:
@@ -2669,12 +2861,33 @@ class UnifiedCitationProcessorV2:
                     end_index = getattr(c, "end_index", None)
                     citation_method = getattr(c, "method", None)
 
+                    # Method 0 (FIRST): Extract case name from citation text itself
+                    # This runs BEFORE the cache check because eyecite citations like
+                    # "Swindle v. State, 10 Tenn. 581" may share position with a regex
+                    # citation "10 Tenn. 581" that cached a contaminated name.
+                    method0_name = None
+                    if citation_text and " v. " in citation_text:
+                        v_match = re.match(
+                            r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z\s\'\.\&\-,]+?)(?:,\s*\d|\s+\d)",
+                            citation_text,
+                        )
+                        if v_match:
+                            embedded_name = v_match.group(1).strip().rstrip(",")
+                            if len(embedded_name) > 5:
+                                method0_name = embedded_name
+
                     # OPTIMIZATION: Check cache first to avoid duplicate extraction
                     cache_key = (start_index, end_index)
                     if cache_key in extraction_cache:
                         cached_name = extraction_cache[cache_key]
                         if cached_name and cached_name != "N/A":
-                            c.extracted_case_name = cached_name
+                            # If Method 0 found a better name from this citation's text,
+                            # prefer it over the cached name (which may be contaminated)
+                            if method0_name and len(method0_name) > 10 and " v. " in method0_name:
+                                c.extracted_case_name = method0_name
+                                extraction_cache[cache_key] = method0_name
+                            else:
+                                c.extracted_case_name = cached_name
                             continue
 
                     # CRITICAL FIX: Do NOT re-extract if clean_extraction_pipeline already provided a valid name
@@ -2699,10 +2912,12 @@ class UnifiedCitationProcessorV2:
                     if current_name and current_name != "N/A" and citation_method == "eyecite":
                         pass  # Don't skip - continue to re-extract
 
-                    final_name = None
+                    final_name = method0_name
 
-                    # Method 1: Master extractor
-                    try:
+                    # Method 1: Master extractor (skip if Method 0 found good name)
+                    _skip_master = final_name and len(final_name) > 10 and " v. " in final_name
+                    if not _skip_master:
+                      try:
                         # SERIES CITATION FIX: Check if this is NOT the first citation in a series
                         # If it's not the first, skip case name extraction to prevent incorrect association
                         if start_index and start_index > 0:
@@ -2750,9 +2965,24 @@ class UnifiedCitationProcessorV2:
                                 flags=re.IGNORECASE,
                             ).strip()
 
-                            if len(master_name.strip()) > 3:
+                            # Reject header/body text contamination from master extractor
+                            _contam_patterns = [
+                                r'syllabus\s+constitutes',
+                                r'opinion\s+of\s+the\s+court',
+                                r'reporter\s+of\s+decisions',
+                                r'convenience\s+of\s+the\s+reader',
+                                r'^Cite\s+as:',
+                                r'Courts?\s+typically',
+                                r'did\s+not\s+require',
+                                r'showing\s+of\s+actual',
+                            ]
+                            _is_contam = any(re.search(cp, master_name, re.IGNORECASE) for cp in _contam_patterns)
+                            # Also reject if it looks like a sentence (>60 chars without "v.")
+                            if not _is_contam and len(master_name) > 60 and ' v. ' not in master_name:
+                                _is_contam = True
+                            if not _is_contam and len(master_name.strip()) > 3:
                                 final_name = master_name
-                    except Exception as e:
+                      except Exception as e:
                         pass
 
                     # Method 2: Context-based extraction (if master failed or returned short name)
@@ -2778,7 +3008,7 @@ class UnifiedCitationProcessorV2:
                             # More restrictive patterns to avoid contamination
                             patterns = [
                                 # Standard case: Name v. Name (limit to reasonable length)
-                                r"([A-Z][A-Za-z\'\.\&\s]{0,50}(?:,\s*(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company))?)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s]{0,50}(?:,\s*(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company))?)",
+                                r"([A-Z][A-Za-z\'\.\.\&\s\-]{0,50}(?:,\s*(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company))?)\s+v\.\s+([A-Z][A-Za-z\'\.\.\&\s\-]{0,50}(?:,\s*(?:Inc\.|LLC|Corp\.|Ltd\.|Co\.|L\.P\.|Company))?)",
                                 # State/People v. Name
                                 r"\b(State|People|United States)\s+v\.\s+([A-Z][A-Za-z\'\.\&\s]{0,40})",
                                 # In re cases
@@ -2830,6 +3060,28 @@ class UnifiedCitationProcessorV2:
 
                     # Final cleaning and validation before setting
                     if final_name:
+                        # Strip leading body text before signal words + case name
+                        # e.g., "Courts typically did not require... See Uzuegbunam v. Preczewski"
+                        # → "Uzuegbunam v. Preczewski"
+                        _sig_match = re.search(
+                            r'\b(?:see|citing|quoting|accord|compare|but see|cf\.?)\s+'
+                            r'([A-Z][A-Za-z\'\.\-\s,&]+\s+v\.\s+[A-Z][A-Za-z\'\.\-\s,&]+)',
+                            final_name, re.IGNORECASE
+                        )
+                        if _sig_match and _sig_match.start() > 10:
+                            # There's significant text before the signal word — extract just the case name
+                            final_name = _sig_match.group(1).strip().rstrip(",.")
+
+                        # Reject body text contamination in final name
+                        _final_contam = any(re.search(cp, final_name, re.IGNORECASE) for cp in [
+                            r'syllabus\s+constitutes', r'opinion\s+of\s+the\s+court',
+                            r'reporter\s+of\s+decisions', r'convenience\s+of\s+the\s+reader',
+                            r'Courts?\s+typically', r'did\s+not\s+require',
+                        ])
+                        if _final_contam or (len(final_name) > 60 and ' v. ' not in final_name):
+                            final_name = None
+
+                    if final_name:
                         # CRITICAL: Remove citation contamination from case names
                         final_name = self._remove_citation_contamination_from_case_name(final_name)
 
@@ -2842,6 +3094,11 @@ class UnifiedCitationProcessorV2:
                             else:
                                 # Can't clean it, mark as N/A
                                 final_name = None
+
+                        # Fix line-break hyphens: "Mar- bury" → "Marbury"
+                        # PDF line breaks can leave "word- word" where the hyphen is a break artifact
+                        if final_name:
+                            final_name = re.sub(r'(\w)- (\w)', r'\1\2', final_name)
 
                         # Remove trailing commas and periods
                         if final_name:
@@ -3464,6 +3721,10 @@ class UnifiedCitationProcessorV2:
                 continue
 
             if self._is_volume_without_reporter(citation_text):
+                continue
+
+            # Skip Statutes at Large and other non-case reporters
+            if re.match(r"^\d+\s+Stat\.\s+\d+", citation_text):
                 continue
 
             if len(citation_text.strip()) < 8:
