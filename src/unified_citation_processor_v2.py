@@ -1730,9 +1730,10 @@ class UnifiedCitationProcessorV2:
         try:
             import threading, traceback, sys as _sys_mp
             def _oom_stack_monitor():
-                import time
+                import time, sys as _sys_inner
                 _main_tid = threading.main_thread().ident
-                for _tick in range(60):  # Monitor for up to 5 minutes
+                _dumped_full = False
+                for _tick in range(180):  # Monitor for up to 15 minutes
                     time.sleep(5)
                     try:
                         with open('/proc/self/status') as _pf:
@@ -1743,18 +1744,21 @@ class UnifiedCitationProcessorV2:
                             else:
                                 _rss = -1
                         # Get stack trace of main thread
-                        _frame = sys._current_frames().get(_main_tid)
+                        _frame = _sys_inner._current_frames().get(_main_tid)
                         if _frame:
-                            _stack = ''.join(traceback.format_stack(_frame, limit=8))
+                            _stack = ''.join(traceback.format_stack(_frame, limit=12))
                         else:
                             _stack = 'N/A'
-                        logger.warning(f"[OOM-STACK] tick={_tick} RSS={_rss}MB\n{_stack}")
-                        if _rss > 2000:
-                            logger.warning(f"[OOM-STACK] CRITICAL: RSS={_rss}MB > 2GB, dumping full stack")
+                        # Log every tick when RSS > 200MB to catch growth
+                        if _rss > 200:
+                            logger.warning(f"[OOM-STACK] tick={_tick} RSS={_rss}MB\n{_stack}")
+                        if _rss > 1000 and not _dumped_full:
+                            logger.warning(f"[OOM-STACK] CRITICAL: RSS={_rss}MB > 1GB, dumping full stack")
                             if _frame:
                                 _full = ''.join(traceback.format_stack(_frame))
                                 logger.warning(f"[OOM-STACK-FULL]\n{_full}")
-                            break  # Stop monitoring after detecting high memory
+                            _dumped_full = True
+                            # Don't break — keep monitoring
                     except Exception as _e:
                         logger.warning(f"[OOM-STACK] Error: {_e}")
             _mon_thread = threading.Thread(target=_oom_stack_monitor, daemon=True, name="oom-stack-monitor")

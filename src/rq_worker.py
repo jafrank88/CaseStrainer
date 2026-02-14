@@ -2105,12 +2105,21 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                         else:
                                             logger.info(f"[TASK:{task_id}] WL-DEDUP: skipping merge - different cases: '{ln}' vs '{on}'")
                                             continue
-                                    # Merge members and citations into leader
+                                    # Merge members and citations into leader (with dedup to prevent OOM)
+                                    _leader_members = leader.setdefault("cluster_members", [])
+                                    _existing_member_texts = {(m.get("citation", "") if isinstance(m, dict) else str(m)) for m in _leader_members}
                                     for m in other.get("cluster_members", []):
-                                        if m not in leader.get("cluster_members", []):
-                                            leader.setdefault("cluster_members", []).append(m)
+                                        mt = m.get("citation", "") if isinstance(m, dict) else str(m)
+                                        if mt and mt not in _existing_member_texts:
+                                            _leader_members.append(m)
+                                            _existing_member_texts.add(mt)
+                                    _leader_cits = leader.setdefault("citations", [])
+                                    _existing_cit_texts = {(c.get("citation", "") if isinstance(c, dict) else str(c)) for c in _leader_cits}
                                     for c in other.get("citations", []):
-                                        leader.setdefault("citations", []).append(c)
+                                        ct = c.get("citation", "") if isinstance(c, dict) else str(c)
+                                        if ct and ct not in _existing_cit_texts:
+                                            _leader_cits.append(c)
+                                            _existing_cit_texts.add(ct)
                                     # Prefer non-empty date
                                     if not leader.get("extracted_date") and other.get("extracted_date"):
                                         leader["extracted_date"] = other["extracted_date"]
