@@ -1725,31 +1725,43 @@ class UnifiedCitationProcessorV2:
                     citation.verified = False
                     citation.verification_status = "error"
 
-        # CRITICAL OOM FIX (Part 1): Monkey-patch __main__ (rq_worker.py) to disable
-        # the expensive case history split for large documents (>100 citations).
-        # The old rq_worker.py code runs find_citation_in_text() with per-citation
-        # regex over the full document text, causing O(n^2) memory growth to 6GB.
-        # Since rq_worker.py changes don't take effect (stale module caching),
-        # we patch it from here which IS picked up by the forked child.
+        # CRITICAL OOM FIX (Part 1): Start a background thread that logs memory + stack trace
+        # every 5 seconds. This will show exactly what code is executing when memory grows.
         try:
-            import sys as _sys_mp
-            _main_mod = _sys_mp.modules.get('__main__')
-            if _main_mod and len(citations) > 100:
-                # Replace _has_case_history_signal_between with a no-op
-                if hasattr(_main_mod, '_has_case_history_signal_between'):
-                    _main_mod._has_case_history_signal_between = lambda text, pos1, pos2: False
-                    logger.warning(f"[OOM-FIX] Monkey-patched _has_case_history_signal_between to no-op for {len(citations)} citations (>100)")
-                # Also replace find_citation_in_text if it exists
-                if hasattr(_main_mod, 'find_citation_in_text'):
-                    def _safe_find(cit_text, search_text):
-                        idx = search_text.lower().find(cit_text.lower())
-                        if idx >= 0:
-                            return idx, idx + len(cit_text)
-                        return -1, -1
-                    _main_mod.find_citation_in_text = _safe_find
-                    logger.warning(f"[OOM-FIX] Monkey-patched find_citation_in_text to use str.find instead of regex")
+            import threading, traceback, sys as _sys_mp
+            def _oom_stack_monitor():
+                import time
+                _main_tid = threading.main_thread().ident
+                for _tick in range(60):  # Monitor for up to 5 minutes
+                    time.sleep(5)
+                    try:
+                        with open('/proc/self/status') as _pf:
+                            for _ln in _pf:
+                                if _ln.startswith('VmRSS:'):
+                                    _rss = int(_ln.split()[1]) // 1024
+                                    break
+                            else:
+                                _rss = -1
+                        # Get stack trace of main thread
+                        _frame = sys._current_frames().get(_main_tid)
+                        if _frame:
+                            _stack = ''.join(traceback.format_stack(_frame, limit=8))
+                        else:
+                            _stack = 'N/A'
+                        logger.warning(f"[OOM-STACK] tick={_tick} RSS={_rss}MB\n{_stack}")
+                        if _rss > 2000:
+                            logger.warning(f"[OOM-STACK] CRITICAL: RSS={_rss}MB > 2GB, dumping full stack")
+                            if _frame:
+                                _full = ''.join(traceback.format_stack(_frame))
+                                logger.warning(f"[OOM-STACK-FULL]\n{_full}")
+                            break  # Stop monitoring after detecting high memory
+                    except Exception as _e:
+                        logger.warning(f"[OOM-STACK] Error: {_e}")
+            _mon_thread = threading.Thread(target=_oom_stack_monitor, daemon=True, name="oom-stack-monitor")
+            _mon_thread.start()
+            logger.warning(f"[OOM-FIX] Started OOM stack monitor thread for {len(citations)} citations")
         except Exception as _mp_err:
-            logger.warning(f"[OOM-FIX] Monkey-patch failed: {_mp_err}")
+            logger.warning(f"[OOM-FIX] Stack monitor failed to start: {_mp_err}")
 
         # CRITICAL OOM FIX (Part 2): Force memory release before returning to pipeline/rq_worker.
         # HTTP response data, JSON parse trees, and intermediate verification objects
