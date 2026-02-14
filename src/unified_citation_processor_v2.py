@@ -1725,7 +1725,33 @@ class UnifiedCitationProcessorV2:
                     citation.verified = False
                     citation.verification_status = "error"
 
-        # CRITICAL OOM FIX: Force memory release before returning to pipeline/rq_worker.
+        # CRITICAL OOM FIX (Part 1): Monkey-patch __main__ (rq_worker.py) to disable
+        # the expensive case history split for large documents (>100 citations).
+        # The old rq_worker.py code runs find_citation_in_text() with per-citation
+        # regex over the full document text, causing O(n^2) memory growth to 6GB.
+        # Since rq_worker.py changes don't take effect (stale module caching),
+        # we patch it from here which IS picked up by the forked child.
+        try:
+            import sys as _sys_mp
+            _main_mod = _sys_mp.modules.get('__main__')
+            if _main_mod and len(citations) > 100:
+                # Replace _has_case_history_signal_between with a no-op
+                if hasattr(_main_mod, '_has_case_history_signal_between'):
+                    _main_mod._has_case_history_signal_between = lambda text, pos1, pos2: False
+                    logger.warning(f"[OOM-FIX] Monkey-patched _has_case_history_signal_between to no-op for {len(citations)} citations (>100)")
+                # Also replace find_citation_in_text if it exists
+                if hasattr(_main_mod, 'find_citation_in_text'):
+                    def _safe_find(cit_text, search_text):
+                        idx = search_text.lower().find(cit_text.lower())
+                        if idx >= 0:
+                            return idx, idx + len(cit_text)
+                        return -1, -1
+                    _main_mod.find_citation_in_text = _safe_find
+                    logger.warning(f"[OOM-FIX] Monkey-patched find_citation_in_text to use str.find instead of regex")
+        except Exception as _mp_err:
+            logger.warning(f"[OOM-FIX] Monkey-patch failed: {_mp_err}")
+
+        # CRITICAL OOM FIX (Part 2): Force memory release before returning to pipeline/rq_worker.
         # HTTP response data, JSON parse trees, and intermediate verification objects
         # accumulate during verification. gc.collect() frees Python objects, and
         # malloc_trim(0) forces glibc to return freed pages to the OS.
