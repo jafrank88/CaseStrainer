@@ -26,20 +26,51 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         resp = session.get(f"{base}/search/", params=params, headers=headers, timeout=min(timeout, 20))
         if resp.status_code == 200:
             results = resp.json().get("results", [])
+            resp.close(); del resp
             if results:
                 best = _pick_best(results, extracted_case_name)
                 if best:
                     return _build_result(best, citation, "opinion-search")
+        else:
+            resp.close(); del resp
+
+        # Strategy 1.5: Keyword free-text search with date filter
+        # Handles abbreviation mismatches (e.g. "DHS" vs "Dep't of Homeland Sec.")
+        # by searching content words from the case name with date bounds
+        stop = {"v", "the", "of", "and", "in", "for", "on", "at", "to", "a", "an", "re"}
+        kw = [w for w in re.findall(r"[A-Za-z]+", extracted_case_name) if w.lower() not in stop and len(w) > 1]
+        if kw:
+            kw_q = " ".join(kw)
+            params15: Dict[str, Any] = {"q": kw_q, "type": "o"}
+            if year:
+                params15["filed_after"] = f"{year-1}-01-01"
+                params15["filed_before"] = f"{year+1}-12-31"
+            try:
+                resp15 = session.get(f"{base}/search/", params=params15, headers=headers, timeout=min(timeout, 20))
+                if resp15.status_code == 200:
+                    results15 = resp15.json().get("results", [])
+                    resp15.close(); del resp15
+                    if results15:
+                        best15 = _pick_best(results15, extracted_case_name)
+                        if best15:
+                            return _build_result(best15, citation, "keyword-search")
+                else:
+                    resp15.close(); del resp15
+            except Exception:
+                pass
 
         # Strategy 2: Free-text search with case name + citation
         params2: Dict[str, Any] = {"q": f"{extracted_case_name} {citation}", "type": "o"}
         resp2 = session.get(f"{base}/search/", params=params2, headers=headers, timeout=min(timeout, 20))
         if resp2.status_code == 200:
             results2 = resp2.json().get("results", [])
+            resp2.close(); del resp2
             if results2:
                 best2 = _pick_best(results2, extracted_case_name)
                 if best2:
                     return _build_result(best2, citation, "freetext-search")
+        else:
+            resp2.close(); del resp2
 
         # Strategy 3: Docket search (finds cases not yet in opinion DB)
         # Use quoted first-party + second-party for targeted search
@@ -54,6 +85,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         resp3 = session.get(f"{base}/search/", params=params3, headers=headers, timeout=min(timeout, 20))
         if resp3.status_code == 200:
             results3 = resp3.json().get("results", [])
+            resp3.close(); del resp3
             if results3:
                 best3 = _pick_best_docket(results3, extracted_case_name)
                 if best3:
@@ -87,6 +119,21 @@ def _build_result(best, citation, method):
     return {"verified": True, "canonical_name": cn, "canonical_date": cd, "canonical_url": cu, "source": "CourtListener-Search", "confidence": 0.85}
 
 
+def _prefix_overlap(set_a, set_b):
+    """Count words in set_a that match a word in set_b exactly or by prefix (min 3 chars)."""
+    hits = 0
+    for wa in set_a:
+        if wa in set_b:
+            hits += 1
+            continue
+        if len(wa) >= 3:
+            for wb in set_b:
+                if len(wb) >= 3 and (wa.startswith(wb) or wb.startswith(wa)):
+                    hits += 1
+                    break
+    return hits
+
+
 def _pick_best(results, ecn):
     ecn_w = set(re.findall(r"[a-z]+", ecn.lower())) - {"v", "the", "of", "and", "inc", "llc", "co"}
     if not ecn_w:
@@ -96,7 +143,7 @@ def _pick_best(results, ecn):
         cn = (r.get("caseName") or r.get("case_name") or "").lower()
         cn_w = set(re.findall(r"[a-z]+", cn)) - {"v", "the", "of", "and", "inc", "llc", "co"}
         if cn_w:
-            s = len(ecn_w & cn_w) / len(ecn_w)
+            s = _prefix_overlap(ecn_w, cn_w) / len(ecn_w)
             if s > best_s:
                 best_s = s
                 best = r

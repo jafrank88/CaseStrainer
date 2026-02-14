@@ -16,6 +16,7 @@ import signal
 import time
 import platform
 import threading
+import re
 from pathlib import Path
 
 # Initialize persistent logging for workers
@@ -40,12 +41,15 @@ except ImportError:
     PSUTIL_AVAILABLE = False
     logging.warning("psutil not available - memory monitoring disabled")
 
-from rq import Worker, Queue
+from rq import Worker, SimpleWorker, Queue
 from src.verification_manager import VerificationManager
 from redis import Redis
 from src.redis_distributed_processor import extract_pdf_pages, extract_pdf_optimized, DockerOptimizedProcessor
 from src.optimized_pdf_processor import extract_pdf_optimized_v2
 import html  # For unescaping HTML entities like &amp;
+
+# Import helper for filtering cluster members (avoid circular imports)
+from src.utils.cluster_filter import filter_cluster_members_by_reporter
 
 # Persistent logger already initialized above
 # logger = logging.getLogger(__name__)
@@ -54,6 +58,70 @@ redis_url = os.environ.get("REDIS_URL", "redis://:caseStrainerRedis123@casestrai
 redis_conn = Redis.from_url(redis_url)
 
 queue = Queue("casestrainer", connection=redis_conn)
+
+
+def _force_release_memory():
+    """Force glibc to return freed pages to the OS via malloc_trim.
+
+    Python's gc.collect() frees Python objects, but glibc's malloc keeps
+    the freed pages mapped (RSS stays high) due to heap fragmentation.
+    malloc_trim(0) tells glibc to release as many pages as possible.
+    This is critical in memory-limited Docker containers.
+    """
+    import gc
+    gc.collect()
+    try:
+        import ctypes
+        libc = ctypes.CDLL("libc.so.6")
+        libc.malloc_trim(0)
+    except Exception:
+        pass  # Not on Linux / glibc not available
+
+
+def _start_memory_monitor(interval=2):
+    """Start a daemon thread that logs TRUE RSS + cgroup memory every N seconds.
+
+    This runs inside the forked child so we see the child's actual memory,
+    plus the container-level cgroup usage that Docker reports.
+    """
+    import threading
+
+    def _monitor():
+        import time as _t
+        _count = 0
+        while True:
+            _t.sleep(interval)
+            _count += 1
+            try:
+                # Child process RSS from kernel
+                _rss = "?"
+                with open('/proc/self/status') as f:
+                    for line in f:
+                        if line.startswith('VmRSS:'):
+                            _rss = f"{int(line.split()[1]) // 1024}MB"
+                            break
+                # Container cgroup memory (what Docker sees)
+                _cgroup = "?"
+                for cg_path in [
+                    '/sys/fs/cgroup/memory/memory.usage_in_bytes',
+                    '/sys/fs/cgroup/memory.current',
+                ]:
+                    try:
+                        with open(cg_path) as f:
+                            _cgroup = f"{int(f.read().strip()) // (1024*1024)}MB"
+                            break
+                    except FileNotFoundError:
+                        continue
+                logger.warning(
+                    f"[MEM-MONITOR] tick={_count} child_rss={_rss} cgroup={_cgroup}"
+                )
+                import sys; sys.stderr.flush()
+            except Exception:
+                break  # Process dying, exit quietly
+
+    t = threading.Thread(target=_monitor, daemon=True)
+    t.start()
+    return t
 
 # State-specific reporters for jurisdiction checking
 STATE_REPORTERS = {
@@ -127,6 +195,12 @@ def _has_case_history_signal_between(text: str, pos1: int, pos2: int) -> bool:
     # Get text between the two positions
     between_text = text[start:end].lower()
     if not between_text:
+        return False
+    # Distance guard: case history signals (aff'd, rev'd) appear immediately
+    # adjacent to citations, not pages apart. If the span is >500 chars, the
+    # citations are in different parts of the document and any matching signal
+    # words belong to other cases' discussions — not a real case history link.
+    if len(between_text) > 500:
         return False
     # Normalize fancy quotes to regular apostrophe for pattern matching
     # Handles: ' (U+2019 right single quote), ' (U+2018 left single quote), ʼ (U+02BC modifier letter)
@@ -248,37 +322,24 @@ __all__ = [
 
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
-    """Direct wrapper function with extensive diagnostic logging."""
+    """Direct wrapper function with diagnostic logging.
+    
+    NOTE: ThreadPoolExecutor wrapper was removed to reduce memory overhead.
+    RQ's own job_timeout handles timeouts. The executor was doubling memory
+    by keeping the main thread's stack alive alongside the worker thread.
+    """
 
     # DIAGNOSTIC LOGGING - Track every step of worker startup
     logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP BEGINS ==========")
     logger.info(f"[DIAGNOSTIC:{task_id}] Step 1: Function entry successful")
 
-    # Add timeout wrapper to prevent infinite hangs
-    import concurrent.futures
-
-    def run_with_timeout():
-        """Inner function that runs the actual processing with timeout."""
-        return _process_citation_task_internal(task_id, input_type, input_data)
+    # Start background memory monitor — logs child RSS + cgroup every 2s
+    _start_memory_monitor(interval=2)
 
     try:
-        # Run with a 5-minute timeout
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as executor:
-            future = executor.submit(run_with_timeout)
-            try:
-                result = future.result(timeout=900)  # 15 minutes timeout for large PDFs
-                logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER COMPLETED SUCCESSFULLY ==========")
-                return result
-            except concurrent.futures.TimeoutError:
-                logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER TIMEOUT AFTER 15 MINUTES ==========")
-                # Cancel the future if it's still running
-                future.cancel()
-                return {
-                    "status": "failed",
-                    "task_id": task_id,
-                    "error": "Job timed out after 15 minutes",
-                    "diagnostic": "timeout_error",
-                }
+        result = _process_citation_task_internal(task_id, input_type, input_data)
+        logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER COMPLETED SUCCESSFULLY ==========")
+        return result
     except Exception as e:
         logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER CRASHED ==========")
         logger.error(f"[DIAGNOSTIC:{task_id}] Error: {str(e)}")
@@ -390,6 +451,49 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
         logger.info(f"[DIAGNOSTIC:{task_id}] ========== MAIN PROCESSING BEGINS ==========")
         logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Starting processing of type: {input_type}")
 
+        # MEMORY CHECK: Check available memory before processing
+        if PSUTIL_AVAILABLE:
+            try:
+                # psutil is already imported at module level, just use it
+                process = psutil.Process()
+                memory_info = process.memory_info()
+                memory_mb = memory_info.rss / 1024 / 1024
+                
+                # Get system memory info
+                system_memory = psutil.virtual_memory()
+                available_mb = system_memory.available / 1024 / 1024
+                total_mb = system_memory.total / 1024 / 1024
+                memory_percent = system_memory.percent
+                
+                logger.info(f"[TASK:{task_id}] Memory check before processing:")
+                logger.info(f"[TASK:{task_id}]   Process memory: {memory_mb:.1f}MB")
+                logger.info(f"[TASK:{task_id}]   System available: {available_mb:.1f}MB / {total_mb:.1f}MB ({memory_percent:.1f}% used)")
+                
+                # Check if memory is critically low
+                min_required_mb = 500  # Minimum 500MB required for processing
+                if available_mb < min_required_mb:
+                    logger.error(
+                        f"[TASK:{task_id}] ⚠️ CRITICAL: Low memory detected! "
+                        f"Available: {available_mb:.1f}MB < Required: {min_required_mb}MB"
+                    )
+                    return {
+                        "status": "failed",
+                        "task_id": task_id,
+                        "error": f"Insufficient memory: {available_mb:.1f}MB available, {min_required_mb}MB required",
+                        "diagnostic": "low_memory",
+                    }
+                
+                # Warn if memory is getting low (less than 1GB available)
+                if available_mb < 1024:
+                    logger.warning(
+                        f"[TASK:{task_id}] ⚠️ WARNING: Low memory warning! "
+                        f"Available: {available_mb:.1f}MB (less than 1GB). Processing may fail."
+                    )
+            except Exception as mem_err:
+                logger.warning(f"[TASK:{task_id}] Could not check memory: {mem_err}")
+        else:
+            logger.warning(f"[TASK:{task_id}] psutil not available - memory check skipped")
+
         # CRITICAL: Add immediate flush to ensure logs appear
         import sys
 
@@ -428,6 +532,9 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             # Handle both text and URL inputs with the full pipeline
             if input_type == "text":
                 text = input_data.get("text", "")
+                # Release the text reference from input_data to free memory
+                # (text local var still holds the string)
+                input_data["text"] = ""
                 logger.info(f"[TASK:{task_id}] Processing text of length {len(text)}")
             elif input_type == "url":
                 url = input_data.get("url", "")
@@ -608,23 +715,62 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 logger.warning(f"[TASK:{task_id}] Failed to update incremental progress: {e}")
 
                         # Single pass: full processing with verification and progress callback
-                        # The progress callback will update as citations are verified
-                        pipeline_result = asyncio.run(
-                            process_citations_unified(
-                                text,
-                                processing_mode="enhanced_sync",
-                                enable_parallel_verification=(
-                                    enable_verification if enable_verification else False
-                                ),  # Only enable parallel if verification is enabled
-                                enable_verification=enable_verification,  # Use the flag from request (defaults to True for end users)
-                                progress_callback=update_verification_progress if enable_verification else None,
+                        # FIX 2026-01-30: Timeout to avoid infinite hang in clustering (e.g. "Creating citation clusters")
+                        pipeline_timeout = int(os.environ.get("PIPELINE_TIMEOUT_SECONDS", "600"))  # 10 min default
+
+                        async def run_pipeline_with_timeout():
+                            return await asyncio.wait_for(
+                                process_citations_unified(
+                                    text,
+                                    processing_mode="enhanced_sync",
+                                    enable_parallel_verification=(
+                                        enable_verification if enable_verification else False
+                                    ),
+                                    enable_verification=enable_verification,
+                                    progress_callback=update_verification_progress if enable_verification else None,
+                                ),
+                                timeout=float(pipeline_timeout),
                             )
-                        )
+
+                        try:
+                            pipeline_result = asyncio.run(run_pipeline_with_timeout())
+                        except asyncio.TimeoutError:
+                            logger.error(
+                                f"[TASK:{task_id}] Pipeline timed out after {pipeline_timeout}s (likely stuck in clustering)"
+                            )
+                            try:
+                                vm.update_progress(
+                                    task_id, processed=0, total=1, message="Pipeline timed out; returning partial result"
+                                )
+                            except Exception:
+                                pass
+                            result = {
+                                "status": "failed",
+                                "task_id": task_id,
+                                "error": f"Processing timed out after {pipeline_timeout} seconds. The document may be too large or clustering may have stalled.",
+                                "citations": [],
+                                "clusters": [],
+                                "success": False,
+                            }
+                            return result
+
                         logger.info(f"[TASK:{task_id}] Full pipeline processing with verification completed")
+                        logger.error(f"[TASK:{task_id}] ⚠️ PIPELINE RESULT: {len(pipeline_result.get('citations', []))} citations, {len(pipeline_result.get('clusters', []))} clusters")
+                        logger.error(f"[TASK:{task_id}] ⚠️ Pipeline result keys: {list(pipeline_result.keys())}")
 
                         # Extract results from completed pipeline
                         citations_raw = pipeline_result.get("citations", []) or []
                         clusters_raw = pipeline_result.get("clusters", []) or []
+                        logger.error(f"[TASK:{task_id}] ⚠️ Extracted {len(citations_raw)} citations_raw, {len(clusters_raw)} clusters_raw")
+                        # DIAGNOSTIC: Track specific citations through post-processing
+                        def _diag_check(label, cit_list, clust_list=None):
+                            for c in cit_list:
+                                ct = c.get('citation','') if isinstance(c, dict) else (getattr(c, 'citation', '') if hasattr(c, 'citation') else '')
+                                if '508 U.S. 520' in ct or '508 U. S. 520' in ct or ('508 U' in ct and 'Cas' not in ct):
+                                    logger.error(f"[DIAG:{task_id}] {label}: LUKUMI FOUND in citations: {ct[:60]}")
+                                    return
+                            logger.error(f"[DIAG:{task_id}] {label}: LUKUMI NOT in {len(cit_list)} citations")
+                        _diag_check("PIPELINE_RAW", citations_raw)
 
                         # CRITICAL FIX: Ensure citations are dicts, not CitationResult objects
                         citations_list = []
@@ -652,6 +798,38 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 citations_list.append(cit_dict)
 
                         clusters_list = list(clusters_raw) if clusters_raw else []
+                        _diag_check("AFTER_DICT_CONVERT", citations_list)
+
+                        # LAST-MILE: Apply known federal citations + clear verified without URL (shared with sync path)
+                        try:
+                            from src.unified_verification_master import (
+                                apply_known_federal_citations_and_clear_verified_without_url,
+                                apply_verification_paradox_fix,
+                            )
+                            apply_known_federal_citations_and_clear_verified_without_url(citations_list, clusters_list)
+                            apply_verification_paradox_fix(citations_list)
+                        except Exception as e:
+                            logger.warning(f"[KNOWN-CITATION] Could not apply known citations / clear verified: {e}")
+
+                        # Free accumulated garbage before heavy post-processing
+                        _force_release_memory()
+                        # Read TRUE RSS from /proc/self/status (kernel value, not psutil)
+                        try:
+                            with open('/proc/self/status') as _pf:
+                                for _line in _pf:
+                                    if _line.startswith('VmRSS:'):
+                                        _true_rss_kb = int(_line.split()[1])
+                                        logger.warning(f"[MEM-CHECKPOINT] TRUE RSS from /proc/self/status: {_true_rss_kb // 1024}MB")
+                                        import sys; sys.stderr.flush()
+                                        break
+                        except Exception:
+                            pass
+                        if PSUTIL_AVAILABLE:
+                            try:
+                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                logger.info(f"[TASK:{task_id}] Memory before post-processing: {_mem:.0f}MB")
+                            except Exception:
+                                pass
 
                         # USER FIX: Post-process clusters to ensure canonical data is populated from citations
                         # This fixes the issue where cluster-level fields are None but citation-level fields are correct
@@ -659,13 +837,32 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                             logger.info(
                                 f"[TASK:{task_id}] Post-processing clusters to populate canonical data from citations"
                             )
-                            # Build citation lookup by citation text
+                            # Build citation lookup by citation text (and normalized form so "426 U. S. 26" matches "426 U.S. 26")
                             citation_lookup = {}
+                            try:
+                                from src.unified_verification_master import _normalize_citation_for_known_lookup as _norm_cit
+                            except Exception:
+                                def _norm_cit(s):
+                                    if not s:
+                                        return ""
+                                    return (s or "").strip().lower().replace("u. s.", "u.s.")
                             for cit in citations_list:
                                 if isinstance(cit, dict):
                                     cit_text = cit.get("citation", "")
                                     if cit_text:
                                         citation_lookup[cit_text] = cit
+                                        norm_key = _norm_cit(cit_text)
+                                        if norm_key and norm_key != cit_text:
+                                            citation_lookup[norm_key] = cit
+                            # Helper: get citation dict by member text (try exact then normalized)
+                            def _lookup_cit(member_text):
+                                if not member_text:
+                                    return {}
+                                out = citation_lookup.get(member_text)
+                                if out is not None:
+                                    return out
+                                n = _norm_cit(member_text)
+                                return citation_lookup.get(n, {}) if n else {}
 
                             # Update each cluster with data from its member citations
                             for cluster in clusters_list:
@@ -680,10 +877,65 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 best_extracted_name = cluster.get("extracted_case_name")
                                 any_verified = cluster.get("verified", False)
 
+                                # FIX: Validate that inherited canonical_name matches cluster's citations
+                                # Prevents split clusters from inheriting parent's canonical_name
+                                # (e.g., Susan B. Anthony List inheriting "Spokeo, Inc. v. Robins")
+                                import re
+
+                                def _extract_meaningful_first_party(name):
+                                    """Extract first meaningful party word, skipping suffixes like Inc., Corp., LLC."""
+                                    if not name or " v. " not in name:
+                                        return ""
+                                    first_half = re.split(r"\s+v\.?\s+", name, maxsplit=1)[0].strip()
+                                    # Remove trailing legal suffixes
+                                    words = first_half.rstrip(".,").split()
+                                    skip = {"inc", "inc.", "corp", "corp.", "llc", "l.l.c.", "ltd", "ltd.", "co", "co.",
+                                            "ass'n", "assn", "assn.", "assoc", "assoc.", "org", "org.", "comm.",
+                                            "commission", "dept", "dept.", "department", "dist", "dist.", "district",
+                                            "service", "services"}
+                                    # Walk backwards to find first non-suffix word
+                                    for w in reversed(words):
+                                        if w.lower().rstrip(".,") not in skip and len(w) > 1:
+                                            return re.sub(r"['\-\.,]", "", w).lower()
+                                    return words[-1].lower() if words else ""
+
+                                if best_canonical_name and " v. " in best_canonical_name:
+                                    cn_first = _extract_meaningful_first_party(best_canonical_name)
+                                    # Check if any citation's ecn matches the canonical first party
+                                    cit_ecns = []
+                                    for _c in (cluster.get("citations") or []):
+                                        if isinstance(_c, dict):
+                                            _ecn = _c.get("extracted_case_name") or ""
+                                            if _ecn and _ecn != "N/A" and " v. " in _ecn:
+                                                cit_ecns.append(_ecn)
+                                    if cit_ecns:
+                                        ecn_firsts = [_extract_meaningful_first_party(e) for e in cit_ecns]
+                                        if cn_first not in ecn_firsts:
+                                            logger.warning(
+                                                f"[TASK:{task_id}] Clearing inherited canonical_name '{best_canonical_name}' "
+                                                f"from cluster '{cluster.get('cluster_id', '?')}' — doesn't match any citation ecn "
+                                                f"(cn_first='{cn_first}', ecn_firsts={ecn_firsts})"
+                                            )
+                                            best_canonical_name = None
+                                            best_canonical_date = None
+                                            best_canonical_url = None
+
                                 for member in members:
                                     # Handle different member formats: dict, stringified dict, or plain string
                                     if isinstance(member, dict):
                                         member_text = member.get("citation", "")
+                                        # USER FIX: Use cluster_member's own canonical/extracted when present (avoids null at cluster level)
+                                        if member.get("canonical_url") and member.get("canonical_name"):
+                                            any_verified = True
+                                            cn = (member.get("canonical_name") or "").strip()
+                                            if cn and cn.upper() != "N/A":
+                                                best_canonical_name = member.get("canonical_name")
+                                                best_canonical_date = member.get("canonical_date") or best_canonical_date
+                                                best_canonical_url = member.get("canonical_url")
+                                        ext_m = member.get("extracted_case_name")
+                                        if ext_m and ext_m != "N/A":
+                                            if not best_extracted_name or len(ext_m) > len(best_extracted_name or ""):
+                                                best_extracted_name = ext_m
                                     elif isinstance(member, str):
                                         # Check if it's a stringified dict like "{'citation': '131 Wn.2d 25', ...}"
                                         if member.startswith("{") and "'citation':" in member:
@@ -693,24 +945,82 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                             member_text = match.group(1) if match else member
                                         else:
                                             member_text = member
+                                        # CRITICAL FIX: For string members, look up citation data immediately
+                                        # and check verification status (just like we do for dict members)
+                                        if member_text:
+                                            cit_data = _lookup_cit(member_text)
+                                            if cit_data:
+                                                # Check if this citation is verified AND has canonical_url
+                                                if cit_data.get("verified", False) and cit_data.get("canonical_url"):
+                                                    any_verified = True
+                                                    cn = cit_data.get("canonical_name")
+                                                    if cn and str(cn).strip() and str(cn).strip().upper() != "N/A":
+                                                        best_canonical_name = cn
+                                                        best_canonical_date = cit_data.get("canonical_date")
+                                                        best_canonical_url = cit_data.get("canonical_url")
+                                                # Get extracted name (prefer longest)
+                                                ext_name = cit_data.get("extracted_case_name")
+                                                if ext_name and ext_name != "N/A":
+                                                    if not best_extracted_name or len(ext_name) > len(best_extracted_name):
+                                                        best_extracted_name = ext_name
                                     else:
                                         member_text = str(member)
 
-                                    cit_data = citation_lookup.get(member_text)
-                                    if cit_data:
-                                        # Check if this citation is verified
-                                        if cit_data.get("verified", False):
-                                            any_verified = True
-                                            # Get canonical data
-                                            if not best_canonical_name and cit_data.get("canonical_name"):
-                                                best_canonical_name = cit_data.get("canonical_name")
-                                                best_canonical_date = cit_data.get("canonical_date")
-                                                best_canonical_url = cit_data.get("canonical_url")
-                                        # Get extracted name (prefer longest)
-                                        ext_name = cit_data.get("extracted_case_name")
-                                        if ext_name and ext_name != "N/A":
-                                            if not best_extracted_name or len(ext_name) > len(best_extracted_name):
-                                                best_extracted_name = ext_name
+                                # FIX 2026-02-10: Correct canonical_date when it's a CourtListener DB update date
+                                # CourtListener's date_filed for old SCOTUS cases often shows 2020-2021 (bulk DB update)
+                                # The year in the citation parenthetical (e.g., "(1990)") is authoritative
+                                if best_canonical_date:
+                                    import re as _re
+                                    can_yr_m = _re.search(r"(19|20)\d{2}", str(best_canonical_date))
+                                    can_yr = int(can_yr_m.group(0)) if can_yr_m else None
+                                    if can_yr and can_yr >= 2015:
+                                        # Check citation text parenthetical years
+                                        cit_text_years = []
+                                        for cit in (cluster.get("citations") or []):
+                                            if isinstance(cit, dict):
+                                                ct = cit.get("citation", "")
+                                                # Extract year from parenthetical like "(1990)" or "(scotus 1990)"
+                                                paren_match = _re.search(r"\((?:[a-zA-Z.\s]*?)(\d{4})\)", ct)
+                                                if paren_match:
+                                                    cit_text_years.append(int(paren_match.group(1)))
+                                                # Also check metadata.year
+                                                meta_year = None
+                                                if isinstance(cit.get("metadata"), dict):
+                                                    meta_year = cit["metadata"].get("year")
+                                                if meta_year and isinstance(meta_year, int):
+                                                    cit_text_years.append(meta_year)
+                                        if cit_text_years:
+                                            # Use the most common citation text year
+                                            from collections import Counter
+                                            most_common_yr = Counter(cit_text_years).most_common(1)[0][0]
+                                            # FIX 2026-02-13: Before overriding, check if extracted_date
+                                            # agrees with canonical. TOA page numbers (e.g. "2001") can
+                                            # be misinterpreted as years, causing false corrections.
+                                            _ext_dates = []
+                                            for cit in (cluster.get("citations") or []):
+                                                if isinstance(cit, dict):
+                                                    _ed = cit.get("extracted_date")
+                                                    if _ed:
+                                                        _ed_m = _re.search(r"(19|20)\d{2}", str(_ed))
+                                                        if _ed_m:
+                                                            _ext_dates.append(int(_ed_m.group(0)))
+                                            _ext_agrees_with_canonical = any(abs(ed - can_yr) <= 1 for ed in _ext_dates)
+                                            if abs(can_yr - most_common_yr) > 5 and most_common_yr < 2015 and not _ext_agrees_with_canonical:
+                                                logger.info(
+                                                    f"[TASK:{task_id}] Correcting canonical_date {best_canonical_date} -> {most_common_yr} "
+                                                    f"(citation text year is authoritative, CourtListener date_filed is DB update)"
+                                                )
+                                                best_canonical_date = str(most_common_yr)
+                                                cluster["verifying_display_date"] = str(most_common_yr)
+                                                # Also fix citation-level canonical_date
+                                                for cit in (cluster.get("citations") or []):
+                                                    if isinstance(cit, dict) and cit.get("canonical_date"):
+                                                        cit["canonical_date"] = str(most_common_yr)
+                                            elif abs(can_yr - most_common_yr) > 5 and _ext_agrees_with_canonical:
+                                                logger.info(
+                                                    f"[TASK:{task_id}] NOT correcting canonical_date {best_canonical_date} "
+                                                    f"(extracted_date agrees with canonical, parenthetical year {most_common_yr} is likely TOA page number)"
+                                                )
 
                                 # Update cluster with best data found
                                 # CRITICAL FIX: Unescape HTML entities (e.g., &amp; -> &)
@@ -720,68 +1030,53 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     cluster["canonical_date"] = best_canonical_date
                                     cluster["canonical_url"] = best_canonical_url
                                     cluster["verifying_display_name"] = best_canonical_name
+                                if best_canonical_url:
+                                    cluster["canonical_url"] = best_canonical_url
+                                    cluster["display_canonical_url"] = best_canonical_url
+                                    if not cluster.get("canonical_name") and best_canonical_name:
+                                        cluster["canonical_name"] = best_canonical_name
+                                        cluster["verifying_display_name"] = best_canonical_name
                                 if best_extracted_name:
                                     best_extracted_name = html.unescape(str(best_extracted_name))
+                                    # FIX 2026-02-01: Apply case name cleaner to fix PDF line-break hyphenation
+                                    # e.g., "Co- hens" → "Cohens", "Vir- ginia" → "Virginia"
+                                    from src.utils.case_name_cleaner import clean_extracted_case_name
+                                    best_extracted_name = clean_extracted_case_name(best_extracted_name)
 
                                 # USER FIX: Apply cascading contamination fix at cluster level
-                                # If extracted name doesn't match canonical (different second party), use canonical
-                                if (
-                                    best_extracted_name
-                                    and best_canonical_name
-                                    and best_extracted_name != "N/A"
-                                    and best_canonical_name != "N/A"
-                                ):
-                                    import re
-
-                                    def get_second_party(name):
-                                        parts = re.split(r"\s+v\.?\s+", str(name), maxsplit=1, flags=re.IGNORECASE)
-                                        if len(parts) > 1:
-                                            second = parts[1].lower().strip()
-                                            words = re.findall(r"\b[a-z]+\b", second)
-                                            # Skip common prefixes but keep the first significant word
-                                            # Don't skip 'state' or 'city' if they're the main defendant
-                                            skip_prefixes = {"the", "of", "and"}
-                                            for w in words:
-                                                if w not in skip_prefixes:
-                                                    return w
-                                            # If all words were skipped, return the first word
-                                            return words[0] if words else None
-                                        return None
-
-                                    ext_second = get_second_party(best_extracted_name)
-                                    can_second = get_second_party(best_canonical_name)
-
-                                    if ext_second and can_second and ext_second != can_second:
-                                        # Different second parties - check word overlap
-                                        ext_words = set(re.findall(r"\b[a-z]+\b", best_extracted_name.lower()))
-                                        can_words = set(re.findall(r"\b[a-z]+\b", best_canonical_name.lower()))
-                                        common = {"v", "the", "of", "and", "in"}
-                                        ext_key = ext_words - common
-                                        can_key = can_words - common
-                                        overlap = len(ext_key & can_key)
-                                        if overlap < 2:
-                                            logger.info(
-                                                f"[TASK:{task_id}] Cascading fix: '{best_extracted_name}' -> '{best_canonical_name}' (second party: '{ext_second}' != '{can_second}')"
+                                # IMPORTANT: We no longer overwrite extracted_case_name from canonical data.
+                                # Extracted names must always reflect the user's document text.
+                                #
+                                # We keep the existing safety guard that detects clusters containing
+                                # multiple distinct canonical names and *only* use that to decide whether
+                                # it is even safe to consider a display-level adjustment.
+                                distinct_canonicals = set()
+                                for m in members:
+                                    if isinstance(m, dict):
+                                        mt = m.get("citation", "")
+                                    else:
+                                        mt = str(m)
+                                    cd = _lookup_cit(mt) if isinstance(mt, str) else {}
+                                    if not cd and cluster.get("citations"):
+                                        for c in cluster.get("citations", []):
+                                            if isinstance(c, dict) and c.get("citation") == mt:
+                                                cd = c
+                                                break
+                                    if cd and (cd.get("verified") or cd.get("canonical_name")):
+                                        cn = (cd.get("canonical_name") or "").strip()
+                                        if cn and cn != "N/A":
+                                            distinct_canonicals.add(
+                                                cn.replace("See, e.g., ", "").replace("See also ", "").strip()
                                             )
-                                            old_name = best_extracted_name
-                                            best_extracted_name = best_canonical_name
-                                            # USER FIX 2024-12-24: Also update individual citation extracted_case_names
-                                            # This ensures the citations inside the cluster also have the corrected name
-                                            cluster_cits = cluster.get("citations", [])
-                                            for cit in cluster_cits:
-                                                if isinstance(cit, dict):
-                                                    cit_ext_name = cit.get("extracted_case_name", "")
-                                                    # Update if it matches the old contaminated name
-                                                    if cit_ext_name and (
-                                                        cit_ext_name == old_name
-                                                        or get_second_party(cit_ext_name) == ext_second
-                                                    ):
-                                                        cit["extracted_case_name"] = best_canonical_name
-                                                        # Recalculate name_mismatch
-                                                        cit["name_mismatch"] = False  # Names now match
-                                                        logger.debug(
-                                                            f"[TASK:{task_id}] Fixed citation extracted_case_name: '{cit_ext_name}' -> '{best_canonical_name}'"
-                                                        )
+                                skip_cascading = len(distinct_canonicals) > 1
+                                if skip_cascading:
+                                    logger.info(
+                                        f"[TASK:{task_id}] Skipping cascading fix: cluster has {len(distinct_canonicals)} distinct canonical names: {distinct_canonicals}"
+                                    )
+
+                                # If we ever want to adjust the cluster-level display name based on canonical
+                                # vs extracted disagreement, it must *not* mutate per-citation extracted_case_name.
+                                # For now, we deliberately disable the old cascading rename behaviour.
 
                                 if best_extracted_name:
                                     cluster["extracted_case_name"] = best_extracted_name
@@ -794,11 +1089,29 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     if isinstance(c, dict)
                                 )
                                 cluster["has_name_mismatch"] = has_name_mismatch
-                                cluster["verified"] = any_verified
+                                # USER RULE: verified only when we have a canonical URL (no Verified without URL)
+                                cluster["verified"] = bool(best_canonical_url) and any_verified
 
                             logger.info(
                                 f"[TASK:{task_id}] Post-processing complete: updated {len(clusters_list)} clusters"
                             )
+                            if PSUTIL_AVAILABLE:
+                                try:
+                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                    logger.warning(f"[MEM-CHECKPOINT] After cluster post-processing loop: {_mem:.0f}MB")
+                                except Exception:
+                                    pass
+
+                        # POST-VERIFY SPLIT: split clusters with mixed canonical names
+                        if clusters_list:
+                            from src.utils.post_verify_split import split_clusters_by_canonical_name
+                            clusters_list = split_clusters_by_canonical_name(clusters_list, task_id=task_id)
+                            if PSUTIL_AVAILABLE:
+                                try:
+                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                    logger.warning(f"[MEM-CHECKPOINT] After post-verify split: {_mem:.0f}MB")
+                                except Exception:
+                                    pass
 
                         # USER FIX 2024-12-24: Synchronize cluster extracted_date with citation extracted_date
                         # This fixes the issue where cluster shows "2000" but citations show "2001"
@@ -836,12 +1149,14 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     for cit in cluster_cits:
                                         if isinstance(cit, dict):
                                             citation_text = cit.get("citation", "")
-                                            # Reject 2015+ for U.S. volumes 400-600
+                                            # Reject 2015+ for U.S. volumes 400-550 (old cases, not 560+ which are from 2020+)
                                             if " U.S. " in citation_text:
                                                 volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation_text)
                                                 if volume_match:
                                                     volume = int(volume_match.group(1))
-                                                    if 400 <= volume <= 600 and cluster_date_year >= 2015:
+                                                    # CRITICAL FIX: Volume 590 is from 2020, so 2020 is correct!
+                                                    # Only reject recent years for volumes 400-550 (1970s-2000s)
+                                                    if 400 <= volume <= 550 and cluster_date_year >= 2015:
                                                         should_filter_cluster_date = True
                                                         logger.warning(
                                                             f"[DATE-SYNC] Rejected cluster_date {cluster_date} for cluster with {citation_text} "
@@ -903,15 +1218,25 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 logger.info(
                                     f"[TASK:{task_id}] Synchronized {date_sync_count} citation extracted_dates with cluster dates"
                                 )
+                            if PSUTIL_AVAILABLE:
+                                try:
+                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                    logger.warning(f"[MEM-CHECKPOINT] After date sync: {_mem:.0f}MB")
+                                except Exception:
+                                    pass
 
                         # USER FIX: Validate extracted case names against actual document text
                         # This catches cases where eyecite extracted wrong names due to PDF parsing issues
+                        # FIX 2026-02-01: Also validate verified clusters - verification might have
+                        # succeeded using a wrong name (e.g., "Trump v. Useche" phantom case).
+                        # The verification searches for the extracted name, so if extraction is wrong,
+                        # verification can still "verify" a completely unrelated case.
                         if clusters_list and text:
                             import re
 
                             for cluster in clusters_list:
-                                if not isinstance(cluster, dict) or cluster.get("verified", False):
-                                    continue  # Only check unverified clusters
+                                if not isinstance(cluster, dict):
+                                    continue
                                 ext_name = cluster.get("extracted_case_name", "")
                                 if not ext_name or ext_name == "N/A":
                                     continue
@@ -977,13 +1302,122 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                         cluster["extracted_case_name"] = correct_name
                                         cluster["submitted_display_name"] = correct_name
                                         cluster["phantom_name_fixed"] = True
+                                        # FIX 2026-02-01: Clear verification if original name was phantom
+                                        # The verification was done using wrong name, so canonical data is invalid
+                                        if cluster.get("verified", False):
+                                            logger.warning(f"[TASK:{task_id}] Clearing verification for phantom-fixed cluster: {ext_name} -> {correct_name}")
+                                            cluster["verified"] = False
+                                            cluster["canonical_name"] = None
+                                            cluster["canonical_date"] = None
+                                            cluster["canonical_url"] = None
+                                            cluster["verifying_display_name"] = correct_name
+                                            cluster["verifying_display_date"] = cluster.get("extracted_date", "N/A")
+                                            # Also clear citation-level verification
+                                            for cit in cluster.get("citations", []):
+                                                if isinstance(cit, dict):
+                                                    cit["verified"] = False
+                                                    cit["canonical_name"] = None
+                                                    cit["canonical_date"] = None
+                                                    cit["canonical_url"] = None
+                                                    cit["extracted_case_name"] = correct_name
                                     else:
                                         cluster["extracted_case_name"] = "N/A"
                                         cluster["submitted_display_name"] = "N/A"
                                         cluster["phantom_name_detected"] = True
+                                        # FIX 2026-02-01: Clear verification if name was phantom and no correct name found
+                                        if cluster.get("verified", False):
+                                            logger.warning(f"[TASK:{task_id}] Clearing verification for phantom cluster with no correctable name: {ext_name}")
+                                            cluster["verified"] = False
+                                            cluster["canonical_name"] = None
+                                            cluster["canonical_date"] = None
+                                            cluster["canonical_url"] = None
+                                            cluster["verifying_display_name"] = "N/A"
+                                            cluster["verifying_display_date"] = "N/A"
+                                            # Also clear citation-level verification
+                                            for cit in cluster.get("citations", []):
+                                                if isinstance(cit, dict):
+                                                    cit["verified"] = False
+                                                    cit["canonical_name"] = None
+                                                    cit["canonical_date"] = None
+                                                    cit["canonical_url"] = None
+                                                    cit["extracted_case_name"] = "N/A"
+
+                        # FIX 2026-02-04: Validate canonical_name against document text
+                        # This catches phantom canonical names from CaseMine when extracted_case_name is N/A
+                        # Example: "Trump v. Useche" returned by CaseMine for "592 U.S. ___" certiorari grant
+                        # If canonical_name party names don't appear in document, clear verification
+                        if clusters_list and text:
+                            import re
+
+                            for cluster in clusters_list:
+                                if not isinstance(cluster, dict):
+                                    continue
+                                ext_name = cluster.get("extracted_case_name", "")
+                                canonical_name = cluster.get("canonical_name", "")
+
+                                # Only check if: verified, has canonical_name, but no extracted_case_name
+                                # (meaning CaseMine provided a name we couldn't extract from context)
+                                if (cluster.get("verified", False) and
+                                    canonical_name and canonical_name != "N/A" and
+                                    (not ext_name or ext_name == "N/A")):
+
+                                    # Extract first party from canonical_name
+                                    parts = re.split(r"\s+v\.?\s+", canonical_name, maxsplit=1, flags=re.IGNORECASE)
+                                    if parts:
+                                        canonical_first = parts[0].strip()
+                                        canonical_first_key = re.sub(
+                                            r"\b(the|of|in|and|inc|corp|llc|ltd|co)\b",
+                                            "",
+                                            canonical_first.lower(),
+                                            flags=re.IGNORECASE,
+                                        ).strip()
+
+                                        if len(canonical_first_key) >= 4:
+                                            # Check if canonical name first party appears ANYWHERE in document
+                                            text_lower = text.lower()
+                                            # Normalize dashes for comparison
+                                            text_normalized = (
+                                                text_lower.replace("–", "-")
+                                                .replace("—", "-")
+                                                .replace("\u2013", "-")
+                                                .replace("\u2014", "-")
+                                            )
+                                            canonical_normalized = (
+                                                canonical_first_key.replace("–", "-")
+                                                .replace("—", "-")
+                                                .replace("\u2013", "-")
+                                                .replace("\u2014", "-")
+                                            )
+
+                                            if canonical_normalized not in text_normalized:
+                                                # Canonical name not in document - this is a phantom from CaseMine
+                                                logger.warning(
+                                                    f"[TASK:{task_id}] 🚫 PHANTOM CANONICAL: '{canonical_name}' not found in document "
+                                                    f"(key='{canonical_first_key}') - clearing verification"
+                                                )
+                                                cluster["verified"] = False
+                                                cluster["canonical_name"] = None
+                                                cluster["canonical_date"] = None
+                                                cluster["canonical_url"] = None
+                                                cluster["verifying_display_name"] = "N/A"
+                                                cluster["verifying_display_date"] = "N/A"
+                                                cluster["phantom_canonical_detected"] = True
+                                                # Also clear citation-level verification
+                                                for cit in cluster.get("citations", []):
+                                                    if isinstance(cit, dict):
+                                                        cit["verified"] = False
+                                                        cit["canonical_name"] = None
+                                                        cit["canonical_date"] = None
+                                                        cit["canonical_url"] = None
+                                            else:
+                                                logger.info(
+                                                    f"[TASK:{task_id}] ✅ Canonical name '{canonical_name}' found in document"
+                                                )
 
                         # USER FIX: Fix fragment extractions in clusters (e.g., "Inc v. Montgomery")
-                        # Set to N/A when extracted name starts with company suffix
+                        # FIX 2026-02-01: Do NOT use canonical for submitted_display_name - that's contamination!
+                        # submitted_display_name should ALWAYS show what was extracted, even if it's a fragment
+                        # The canonical name appears in verifying_display_name (first line), not submitted
                         if clusters_list:
                             import re
 
@@ -996,32 +1430,49 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     continue
                                 ext_name = cluster.get("extracted_case_name", "")
                                 if ext_name and fragment_pattern.match(str(ext_name)):
-                                    # CRITICAL: Do NOT set extracted_case_name from canonical
-                                    # This is contamination - extracted must remain from document only
-                                    # Set submitted_display_name for UI, but keep extracted_case_name honest
-                                    canonical = cluster.get("canonical_name")
-                                    if canonical and canonical != "N/A":
+                                    # FIX 2026-02-10: If canonical_name contains the fragment,
+                                    # use canonical — it's the same case, just more complete
+                                    # e.g. "Inc. v. Robins" → "Spokeo, Inc. v. Robins"
+                                    canonical = (cluster.get("canonical_name") or "").strip()
+                                    if canonical and canonical != "N/A" and ext_name.lower() in canonical.lower():
                                         cluster["submitted_display_name"] = canonical
-                                        logger.info(
-                                            f"[TASK:{task_id}] Fragment '{ext_name}' - using canonical for display only: '{canonical}'"
-                                        )
+                                        cluster["extracted_case_name"] = canonical
+                                        logger.info(f"[TASK:{task_id}] Fragment '{ext_name}' upgraded to canonical '{canonical}'")
                                     else:
-                                        cluster["submitted_display_name"] = ext_name  # Keep original fragment
-                                        logger.info(f"[TASK:{task_id}] Fragment '{ext_name}' kept as-is (no canonical)")
+                                        cluster["submitted_display_name"] = ext_name
+                                        logger.info(f"[TASK:{task_id}] Fragment '{ext_name}' kept as extracted (no matching canonical)")
 
-                        # USER FIX: When extracted_case_name is N/A, use canonical_name for DISPLAY only
-                        # CRITICAL: Do NOT set extracted_case_name from canonical - this is contamination
+                        # FIX 2026-02-09: When extraction fails, use canonical_name as fallback for submitted_display_name
+                        # The user wants to see the case name, not "N/A", when we know it from verification
                         if clusters_list:
                             for cluster in clusters_list:
                                 if not isinstance(cluster, dict):
                                     continue
                                 ext_name = cluster.get("extracted_case_name", "")
-                                canonical = cluster.get("canonical_name", "")
-                                if (not ext_name or ext_name == "N/A") and canonical and canonical != "N/A":
-                                    # Set display name only, keep extracted_case_name as-is
-                                    cluster["submitted_display_name"] = canonical
-                                    logger.info(f"[TASK:{task_id}] Using canonical for display only: '{canonical}'")
+                                if not ext_name or ext_name == "N/A":
+                                    canonical_fallback = (cluster.get("canonical_name") or "").strip()
+                                    if not canonical_fallback or canonical_fallback == "N/A":
+                                        for cit in cluster.get("citations", cluster.get("citation_objects", [])):
+                                            if isinstance(cit, dict):
+                                                cn = (cit.get("canonical_name") or "").strip()
+                                                if cn and cn != "N/A":
+                                                    canonical_fallback = cn
+                                                    break
+                                    if canonical_fallback and canonical_fallback != "N/A":
+                                        cluster["submitted_display_name"] = canonical_fallback
+                                        cluster["extracted_case_name"] = canonical_fallback
+                                        logger.info(f"[TASK:{task_id}] Extraction failed - using canonical '{canonical_fallback}' as submitted_display_name")
+                                    else:
+                                        cluster["submitted_display_name"] = "N/A"
+                                        logger.info(f"[TASK:{task_id}] Extraction failed - no canonical available, keeping N/A")
 
+                        if PSUTIL_AVAILABLE:
+                            try:
+                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                logger.warning(f"[MEM-CHECKPOINT] Before merge dupes: {_mem:.0f}MB")
+                            except Exception:
+                                pass
+                        _diag_check("BEFORE_MERGE_DUPES", citations_list)
                         # USER FIX: Merge duplicate clusters (same case appearing multiple times)
                         # This catches cases like "Clarke v. Tri-Cities" and "Clarke v. TCAC"
                         # Also catches "Hearst Communications" vs "Hearst Corp" with same date
@@ -1195,7 +1646,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                                         other_members = other.get("cluster_members", [])
                                                         for m in other_members:
                                                             if m not in leader_members:
-                                                                leader_members.append(m)
+                                                                # CRITICAL FIX: Filter same-reporter/different-volume
+                                                                first_member = leader_members[0] if leader_members else m
+                                                                filtered = filter_cluster_members_by_reporter(first_member, [m])
+                                                                if filtered:
+                                                                    leader_members.append(m)
                                                         leader["cluster_members"] = leader_members
                                                         leader["cluster_size"] = len(leader_members)
                                                         # Prefer longer canonical name
@@ -1210,6 +1665,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Removed {len(to_remove)} duplicate clusters, now {len(clusters_list)}"
                                 )
 
+                        if PSUTIL_AVAILABLE:
+                            try:
+                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                logger.warning(f"[MEM-CHECKPOINT] After merge-dupes, before parallel-merge: {_mem:.0f}MB")
+                            except Exception:
+                                pass
                         # USER FIX: Merge unverified singleton clusters into verified clusters
                         # when they're parallel citations (close position in text)
                         if clusters_list and citations_list and len(clusters_list) > 1:
@@ -1296,7 +1757,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     from_members = from_cluster.get("cluster_members", [])
                                     for fm in from_members:
                                         if fm not in into_members:
-                                            into_members.append(fm)
+                                            # CRITICAL FIX: Filter same-reporter/different-volume
+                                            first_member = into_members[0] if into_members else fm
+                                            filtered = filter_cluster_members_by_reporter(first_member, [fm])
+                                            if filtered:
+                                                into_members.append(fm)
                                     into_cluster["cluster_members"] = into_members
 
                                     na_merged_indices.add(from_idx)
@@ -1366,6 +1831,19 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                             # If within 100 chars, they're likely parallel citations
                                             distance = abs(member_pos - other_pos)
                                             if distance < 100:
+                                                # FIX: Skip slip opinion placeholders — they are NOT parallel citations
+                                                # "590 U. S. ___, ___" near "578 U.S. 330" does NOT mean they're the same case
+                                                if re.search(r'___|______', member_cit):
+                                                    continue
+                                                # FIX: Use shared same-case check on cluster-level names
+                                                from src.utils.same_case import names_are_same_case as _prox_sc
+                                                singleton_ecn = (cluster.get("extracted_case_name") or "").strip()
+                                                target_ecn = (other.get("extracted_case_name") or "").strip()
+                                                if not _prox_sc(singleton_ecn, target_ecn):
+                                                    logger.warning(
+                                                        f"[TASK:{task_id}] REJECTED parallel: '{member_cit[:50]}' + '{other_cit[:50]}' - different cases ('{singleton_ecn}' vs '{target_ecn}')"
+                                                    )
+                                                    continue
                                                 # CRITICAL FIX: Check jurisdiction compatibility
                                                 # Prevents Ohio + Nebraska cross-state clustering
                                                 if not _citations_compatible_for_parallel(member_cit, other_cit):
@@ -1420,7 +1898,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 singleton_members = singleton.get("cluster_members", [])
                                 for m in singleton_members:
                                     if m not in target_members:
-                                        target_members.append(m)
+                                        # CRITICAL FIX: Filter same-reporter/different-volume
+                                        first_member = target_members[0] if target_members else m
+                                        filtered = filter_cluster_members_by_reporter(first_member, [m])
+                                        if filtered:
+                                            target_members.append(m)
                                 target["cluster_members"] = target_members
                                 target["cluster_size"] = len(target_members)
 
@@ -1451,6 +1933,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Merged {len(merged_indices)} parallel citations, now {len(clusters_list)} clusters"
                                 )
 
+                        if PSUTIL_AVAILABLE:
+                            try:
+                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                logger.warning(f"[MEM-CHECKPOINT] After parallel-merge, before same-name-merge: {_mem:.0f}MB")
+                            except Exception:
+                                pass
                         # USER FIX: Merge unverified clusters with same extracted name
                         # This handles cases like Horvath appearing twice with different citations
                         # CRITICAL FIX: Only merge if ALL citations have the same extracted name
@@ -1477,7 +1965,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 # If both have one name and they match, merge
                                 if names1 and names2:
                                     return names1 == names2
-                                return True  # Fallback to original behavior if no citation-level names
+                                # If neither has citation-level names, use cluster-level name check
+                                from src.utils.same_case import names_are_same_case as _sc
+                                cn1 = (cluster1.get("extracted_case_name") or "").strip()
+                                cn2 = (cluster2.get("extracted_case_name") or "").strip()
+                                return _sc(cn1, cn2)
                             
                             name_groups = {}  # extracted_name -> list of cluster indices
                             for i, cluster in enumerate(clusters_list):
@@ -1522,7 +2014,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                             other_members = other.get("cluster_members", [])
                                             for m in other_members:
                                                 if m not in leader_members:
-                                                    leader_members.append(m)
+                                                    # CRITICAL FIX: Filter same-reporter/different-volume
+                                                    first_member = leader_members[0] if leader_members else m
+                                                    filtered = filter_cluster_members_by_reporter(first_member, [m])
+                                                    if filtered:
+                                                        leader_members.append(m)
                                             leader["cluster_members"] = leader_members
                                             leader["cluster_size"] = len(leader_members)
 
@@ -1548,23 +2044,156 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Merged unverified same-name clusters, now {len(clusters_list)} clusters"
                                 )
 
+                        if PSUTIL_AVAILABLE:
+                            try:
+                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                                logger.warning(f"[MEM-CHECKPOINT] Before WL-DEDUP: {_mem:.0f}MB")
+                            except Exception:
+                                pass
+                        # Merge clusters sharing the same base WL/LEXIS number
+                        # e.g., "2016 WL 6070490" and "2016 WL 6070490, *5 (2016)" are the same case
+                        if clusters_list and len(clusters_list) > 1:
+                            import re as _re_wl
+
+                            def _extract_wl_base(cluster):
+                                """Extract base WL/LEXIS number from cluster members."""
+                                for m in cluster.get("cluster_members", []):
+                                    mt = m.get("citation", "") if isinstance(m, dict) else str(m)
+                                    wl_match = _re_wl.search(r"(\d{4}\s+WL\s+\d+)", mt)
+                                    if wl_match:
+                                        return wl_match.group(1)
+                                    lexis_match = _re_wl.search(r"(\d{4}\s+(?:U\.S\.\s+)?LEXIS\s+\d+)", mt)
+                                    if lexis_match:
+                                        return lexis_match.group(1)
+                                return None
+
+                            wl_groups = {}
+                            for i, cluster in enumerate(clusters_list):
+                                if not isinstance(cluster, dict):
+                                    continue
+                                base = _extract_wl_base(cluster)
+                                if base:
+                                    if base not in wl_groups:
+                                        wl_groups[base] = []
+                                    wl_groups[base].append(i)
+
+                            wl_to_remove = set()
+                            for base, indices in wl_groups.items():
+                                if len(indices) <= 1:
+                                    continue
+                                leader_idx = indices[0]
+                                leader = clusters_list[leader_idx]
+                                for idx in indices[1:]:
+                                    other = clusters_list[idx]
+                                    # Guard: only merge if case names are compatible
+                                    # Uses shared canonical logic from src.utils.same_case
+                                    from src.utils.same_case import names_are_same_case as _wl_same_case
+                                    from src.utils.same_case import has_case_name as _wl_has_name
+                                    ln = (leader.get("extracted_case_name") or "").strip()
+                                    on = (other.get("extracted_case_name") or "").strip()
+                                    # FIX 2026-02-13: Allow merge when one has N/A name — bare WL
+                                    # citations should be absorbed into the verified cluster
+                                    if not _wl_same_case(ln, on):
+                                        # Exception: if one is N/A, absorb into the named cluster
+                                        if _wl_has_name(ln) and not _wl_has_name(on):
+                                            logger.warning(f"[TASK:{task_id}] NEWCODE-V4 WL-DEDUP: absorbing N/A cluster into '{ln}' for '{base}' [TRACE-A t={__import__('time').time()}]")
+                                        elif _wl_has_name(on) and not _wl_has_name(ln):
+                                            # Swap leader to the one with the name
+                                            clusters_list[leader_idx], clusters_list[idx] = clusters_list[idx], clusters_list[leader_idx]
+                                            leader = clusters_list[leader_idx]
+                                            logger.info(f"[TASK:{task_id}] WL-DEDUP: absorbing N/A cluster into '{on}' for '{base}'")
+                                        else:
+                                            logger.info(f"[TASK:{task_id}] WL-DEDUP: skipping merge - different cases: '{ln}' vs '{on}'")
+                                            continue
+                                    # Merge members and citations into leader
+                                    for m in other.get("cluster_members", []):
+                                        if m not in leader.get("cluster_members", []):
+                                            leader.setdefault("cluster_members", []).append(m)
+                                    for c in other.get("citations", []):
+                                        leader.setdefault("citations", []).append(c)
+                                    # Prefer non-empty date
+                                    if not leader.get("extracted_date") and other.get("extracted_date"):
+                                        leader["extracted_date"] = other["extracted_date"]
+                                    if not leader.get("cluster_year") and other.get("cluster_year"):
+                                        leader["cluster_year"] = other["cluster_year"]
+                                    leader["cluster_size"] = len(leader.get("cluster_members", []))
+                                    leader["size"] = leader["cluster_size"]
+                                    wl_to_remove.add(idx)
+                                    logger.info(
+                                        f"[TASK:{task_id}] WL-DEDUP: merged cluster {idx} into {leader_idx} for '{base}'"
+                                    )
+                            logger.warning(f"[TRACE-B] WL-DEDUP inner loop done base='{base}' wl_to_remove={wl_to_remove} t={__import__('time').time()}")
+                            if wl_to_remove:
+                                clusters_list = [c for i, c in enumerate(clusters_list) if i not in wl_to_remove]
+                                logger.info(
+                                    f"[TASK:{task_id}] WL-DEDUP: removed {len(wl_to_remove)} duplicate WL/LEXIS clusters, now {len(clusters_list)}"
+                                )
+                        logger.warning(f"[TRACE-C] WL-DEDUP block exited t={__import__('time').time()}")
+                        # TRUE RSS after WL-DEDUP loop
+                        try:
+                            with open('/proc/self/status') as _pf2:
+                                for _line2 in _pf2:
+                                    if _line2.startswith('VmRSS:'):
+                                        _true_rss2 = int(_line2.split()[1]) // 1024
+                                        logger.warning(f"[MEM-CHECKPOINT] After WL-DEDUP TRUE RSS: {_true_rss2}MB")
+                                        import sys; sys.stderr.flush(); sys.stdout.flush()
+                                        break
+                        except Exception:
+                            pass
+
+                        # TRUE RSS before case history split
+                        try:
+                            with open('/proc/self/status') as _pf3:
+                                for _line3 in _pf3:
+                                    if _line3.startswith('VmRSS:'):
+                                        _true_rss3 = int(_line3.split()[1]) // 1024
+                                        logger.warning(f"[MEM-CHECKPOINT] Before case-history-split TRUE RSS: {_true_rss3}MB")
+                                        import sys; sys.stderr.flush(); sys.stdout.flush()
+                                        break
+                        except Exception:
+                            pass
+                        # Release the full document text early to free memory before final steps
+                        # Nothing after case history splitting needs the raw text
+                        import sys as _sys_flush
+                        logger.info(f"[TASK:{task_id}] Pre-split checkpoint: {len(clusters_list)} clusters, {len(citations_list)} citations, text={len(text) if text else 0} chars")
+                        _sys_flush.stdout.flush()
+                        _sys_flush.stderr.flush()
+
                         # CRITICAL FIX: Split clusters when case history signals (aff'd, rev'd) appear between citations
                         # This handles cases like Meri-Weather where trial and appellate citations are incorrectly merged
                         # NOTE: We search for citations in the text directly since stored positions may be incorrect
-                        if clusters_list and text and citations_list:
-                            import re
+                        # GUARD: Skip for large documents (>100 citations) to prevent OOM kills —
+                        # the 500-char distance guard already prevents false positives
+                        _cit_count = len(citations_list) if citations_list else 0
+                        if clusters_list and text and citations_list and _cit_count <= 100:
+                            # Pre-build position index ONCE using cheap str.find()
+                            # instead of per-citation regex over full doc (caused OOM with large docs)
+                            _text_lower = text.lower()
+                            _pos_cache = {}  # cit_text -> (start, end)
+                            for cluster in clusters_list:
+                                if not isinstance(cluster, dict):
+                                    continue
+                                for cit in cluster.get("citations", []):
+                                    if isinstance(cit, dict):
+                                        ct = cit.get("citation", "")
+                                        if ct and ct not in _pos_cache:
+                                            # Simple string find — no regex compilation
+                                            idx = _text_lower.find(ct.lower())
+                                            if idx >= 0:
+                                                _pos_cache[ct] = (idx, idx + len(ct))
+                                            else:
+                                                # Try with normalized whitespace as fallback
+                                                import re as _re_ws
+                                                ct_norm = _re_ws.sub(r'\s+', ct.strip())
+                                                idx2 = _text_lower.find(ct_norm.lower())
+                                                if idx2 >= 0:
+                                                    _pos_cache[ct] = (idx2, idx2 + len(ct_norm))
+                                                else:
+                                                    _pos_cache[ct] = (-1, -1)
 
-                            # Function to find actual position of citation in text
-                            def find_citation_in_text(cit_text, search_text):
-                                """Find the actual position of a citation in the document text."""
-                                if not cit_text or not search_text:
-                                    return -1, -1
-                                # Escape special regex chars but allow flexible whitespace
-                                pattern = re.escape(cit_text).replace(r"\ ", r"\s+")
-                                match = re.search(pattern, search_text)
-                                if match:
-                                    return match.start(), match.end()
-                                return -1, -1
+                            # Free the lowercased copy — no longer needed
+                            del _text_lower
+                            logger.info(f"[TASK:{task_id}] Built position cache for {len(_pos_cache)} citations")
 
                             new_clusters = []
                             for cluster in clusters_list:
@@ -1577,18 +2206,15 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     new_clusters.append(cluster)
                                     continue
 
-                                # Find ACTUAL positions by searching text directly
+                                # Look up positions from pre-built cache
                                 cits_with_pos = []
                                 for cit in cluster_citations:
                                     if isinstance(cit, dict):
                                         cit_text = cit.get("citation", "")
                                         if cit_text:
-                                            pos, end = find_citation_in_text(cit_text, text)
+                                            pos, end = _pos_cache.get(cit_text, (-1, -1))
                                             if pos >= 0:
                                                 cits_with_pos.append((pos, end, cit))
-                                                logger.debug(
-                                                    f"[TASK:{task_id}] Found '{cit_text}' at actual position {pos}-{end}"
-                                                )
 
                                 if len(cits_with_pos) < 2:
                                     new_clusters.append(cluster)
@@ -1603,23 +2229,18 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     curr_end = cits_with_pos[i][1]
                                     next_start = cits_with_pos[i + 1][0]
                                     if curr_end > 0 and next_start > curr_end:
-                                        text_between = text[curr_end:next_start]
-                                        curr_cit = (
-                                            cits_with_pos[i][2].get("citation", "")
-                                            if isinstance(cits_with_pos[i][2], dict)
-                                            else ""
-                                        )
-                                        next_cit = (
-                                            cits_with_pos[i + 1][2].get("citation", "")
-                                            if isinstance(cits_with_pos[i + 1][2], dict)
-                                            else ""
-                                        )
-                                        logger.info(
-                                            f"[TASK:{task_id}] Checking text between '{curr_cit}' and '{next_cit}': '{text_between[:80]}...'"
-                                        )
-
                                         # Check for case history signals
                                         if _has_case_history_signal_between(text, curr_end, next_start):
+                                            curr_cit = (
+                                                cits_with_pos[i][2].get("citation", "")
+                                                if isinstance(cits_with_pos[i][2], dict)
+                                                else ""
+                                            )
+                                            next_cit = (
+                                                cits_with_pos[i + 1][2].get("citation", "")
+                                                if isinstance(cits_with_pos[i + 1][2], dict)
+                                                else ""
+                                            )
                                             logger.info(
                                                 f"[TASK:{task_id}] Found case history signal between '{curr_cit}' and '{next_cit}': splitting cluster"
                                             )
@@ -1684,10 +2305,26 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                             except Exception as e:
                                 logger.error(f"[TASK:{task_id}] Fallback cluster recompute failed: {e}")
 
+                        # Release the raw document text — nothing after this needs it
+                        text = None
+                        _force_release_memory()
+
+                        logger.warning(f"[TRACE-D] text released t={__import__('time').time()}")
                         logger.info(
                             f"[TASK:{task_id}] Pipeline completed: {len(citations_list)} citations, {len(clusters_list)} clusters"
                         )
 
+                        # TRUE RSS before PARALLEL-CONSISTENCY
+                        try:
+                            with open('/proc/self/status') as _pf4:
+                                for _line4 in _pf4:
+                                    if _line4.startswith('VmRSS:'):
+                                        _true_rss4 = int(_line4.split()[1]) // 1024
+                                        logger.warning(f"[MEM-CHECKPOINT] Before PARALLEL-CONSISTENCY TRUE RSS: {_true_rss4}MB")
+                                        import sys; sys.stderr.flush(); sys.stdout.flush()
+                                        break
+                        except Exception:
+                            pass
                         # CRITICAL FIX DEC 2025: Final consistency pass for true_by_parallel
                         # Ensures no cluster has mixed "Unverified" + "Verified by Parallel" citations
                         logger.info(
@@ -1758,6 +2395,33 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                             # Process proximity groups first
                             for group_cits in proximity_groups:
+                                # CRITICAL FIX: Check for same-reporter/different-volume conflicts
+                                # Skip groups where citations have same reporter but different volumes
+                                has_conflict = False
+                                for i, gc1 in enumerate(group_cits):
+                                    for gc2 in group_cits[i+1:]:
+                                        c1_text = gc1.get('citation', '')
+                                        c2_text = gc2.get('citation', '')
+                                        # Parse citations to check reporter/volume
+                                        import re
+                                        m1 = re.match(r'(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)', c1_text)
+                                        m2 = re.match(r'(\d+)\s+([A-Za-z\.\s]+)\s+(\d+)', c2_text)
+                                        if m1 and m2:
+                                            vol1, rep1 = m1.group(1), m1.group(2).strip()
+                                            vol2, rep2 = m2.group(1), m2.group(2).strip()
+                                            if rep1 == rep2 and vol1 != vol2:
+                                                has_conflict = True
+                                                logger.warning(
+                                                    f"[PARALLEL-CONSISTENCY] SKIPPING group - same reporter '{rep1}' "
+                                                    f"but different volumes ({vol1} vs {vol2}): {c1_text} vs {c2_text}"
+                                                )
+                                                break
+                                    if has_conflict:
+                                        break
+                                
+                                if has_conflict:
+                                    continue  # Skip this group - these are NOT parallels
+                                
                                 # Find source citation: MUST be verified=True with canonical data
                                 source_citation = None
                                 for gc in group_cits:
@@ -1774,8 +2438,17 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                                 if has_verified and has_unverified and source_citation:
                                     groups_found += 1
+                                    from src.utils.same_case import names_are_same_case as _cons_sc
+                                    src_ecn = (source_citation.get("extracted_case_name") or "").strip()
                                     for gc in group_cits:
                                         if gc.get("verified") != True and not gc.get("true_by_parallel", False):
+                                            # Check case name compatibility before propagating
+                                            gc_ecn = (gc.get("extracted_case_name") or "").strip()
+                                            if not _cons_sc(src_ecn, gc_ecn):
+                                                logger.info(
+                                                    f"[TASK:{task_id}] PARALLEL-CONSISTENCY: SKIPPING {gc.get('citation')} - different case: '{gc_ecn}' vs '{src_ecn}'"
+                                                )
+                                                continue
                                             gc["true_by_parallel"] = True
                                             # Also update the original object if this was converted from an object
                                             if "_original_obj" in gc:
@@ -2089,211 +2762,46 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                         f"[TASK:{task_id}] Verification results: {verified_count}/{len(citations_list)} citations verified"
                     )
 
-                    # USER FIX: Run fallback verification for unverified citations (text path)
-                    # This mirrors the fallback logic in the file path (line ~1637)
-                    unverified_count = len(citations_list) - verified_count
-                    if citations_list and unverified_count > 0:
-                        logger.info(
-                            f"[TASK:{task_id}] {unverified_count} citations unverified after pipeline; running enhanced fallback verification"
-                        )
-                        try:
-                            from src.async_verification_worker import verify_citations_enhanced as _verify_enhanced
-                            import os
-
-                            elapsed = time.time() - start_time
-                            if elapsed > 90:
-                                logger.info(f"[TASK:{task_id}] Skipping fallback (elapsed {elapsed:.1f}s > 90s budget)")
-                            else:
-                                max_targets = int(os.environ.get("FALLBACK_VERIFY_MAX", "12"))
-                                priority_tokens = (
-                                    "F.4th",
-                                    "F.3d",
-                                    "U.S.",
-                                    "S. Ct.",
-                                    "L. Ed.",
-                                    "P.3d",
-                                    "P.2d",
-                                    "A.3d",
-                                    "A.2d",
-                                )
-                                unv = [c for c in citations_list if isinstance(c, dict) and not c.get("verified")]
-                                pri = [
-                                    c for c in unv if any(tok in (c.get("citation") or "") for tok in priority_tokens)
-                                ]
-                                non = [c for c in unv if c not in pri]
-                                targets = (pri + non)[:max_targets]
-                                if targets:
-                                    logger.info(
-                                        f"[TASK:{task_id}] Fallback targets: {len(targets)}/{len(unv)} (max {max_targets})"
-                                    )
-                                    enriched = _verify_enhanced(
-                                        targets, text, task_id, "url", {"source": "worker_fallback"}
-                                    )
-                                    if (
-                                        isinstance(enriched, dict)
-                                        and enriched.get("success")
-                                        and enriched.get("citations")
-                                    ):
-                                        enriched_list = enriched["citations"]
-                                        by_citation = {}
-                                        for e in enriched_list:
-                                            key = (e.get("citation") or "").strip()
-                                            if key and key not in by_citation:
-                                                by_citation[key] = e
-                                        for i, orig in enumerate(citations_list):
-                                            if not isinstance(orig, dict):
-                                                continue
-                                            if orig.get("verified"):
-                                                continue
-                                            k = (orig.get("citation") or "").strip()
-                                            if k and k in by_citation:
-                                                cand = by_citation[k]
-                                                if isinstance(cand, dict) and cand.get("verified"):
-                                                    citations_list[i] = cand
-                                        new_verified = sum(
-                                            1 for c in citations_list if isinstance(c, dict) and c.get("verified")
-                                        )
-                                        logger.info(
-                                            f"[TASK:{task_id}] Fallback verification complete: {new_verified}/{len(citations_list)} now verified"
-                                        )
-                                    else:
-                                        logger.warning(
-                                            f"[TASK:{task_id}] Fallback verification returned no enhancements"
-                                        )
-                        except Exception as e:
-                            logger.error(f"[TASK:{task_id}] Fallback verification error: {e}")
+                    # NOTE: Fallback verification already runs inside verify_citations_batch()
+                    # (Phase 4.75 enhanced_batch_fallback). No need for a second fallback here.
 
                     # Recompute verified count after fallback
                     verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get("verified", False))
 
-                    # CRITICAL FIX: Strip signal phrases from all case names before final output
-                    import re
-                    signal_patterns = [
-                        r"^See,?\s+e\.?g\.?\s*,?\s*",
-                        r"^See\s+also\s+",
-                        r"^See\s+generally\s+",
-                        r"^But\s+see\s+",
-                        r"^See\s+",
-                        r"^Accord\s+",
-                        r"^Compare\s+",
-                        r"^Cf\.?\s*",
-                        r"^E\.?g\.?\s*,?\s*",
-                        r"^I\.?e\.?\s*,?\s*",
-                    ]
-                    def strip_signal_phrases(name):
-                        if not name or name == "N/A":
-                            return name
-                        for pattern in signal_patterns:
-                            name = re.sub(pattern, "", name, flags=re.IGNORECASE).strip()
-                        return name
-                    
-                    # Strip from clusters
+                    if PSUTIL_AVAILABLE:
+                        try:
+                            _mem = psutil.Process().memory_info().rss / 1024 / 1024
+                            logger.warning(f"[MEM-CHECKPOINT] Before result-building: {_mem:.0f}MB")
+                            import sys as _sf3; _sf3.stdout.flush(); _sf3.stderr.flush()
+                        except Exception:
+                            pass
+                    # CRITICAL FIX: Strip signal phrases from all case names before final output (shared utils)
+                    from src.utils.cluster_display_utils import (
+                        strip_signal_phrases,
+                        get_cluster_citations,
+                        get_citation_value,
+                        is_citation_verified,
+                        apply_display_fields_to_cluster,
+                    )
+                    # Strip signal phrases from clusters and citations
                     for cluster in clusters_list:
                         if isinstance(cluster, dict):
                             for key in ["cluster_case_name", "canonical_name", "case_name", "extracted_case_name"]:
                                 if key in cluster and cluster[key]:
                                     cluster[key] = strip_signal_phrases(cluster[key])
-                            # Also strip from citations within clusters
                             for cit in cluster.get("citations", []):
                                 if isinstance(cit, dict):
                                     for key in ["cluster_case_name", "canonical_name", "extracted_case_name"]:
                                         if key in cit and cit[key]:
                                             cit[key] = strip_signal_phrases(cit[key])
-                    
-                    # Strip from top-level citations
                     for cit in citations_list:
                         if isinstance(cit, dict):
                             for key in ["cluster_case_name", "canonical_name", "extracted_case_name"]:
                                 if key in cit and cit[key]:
                                     cit[key] = strip_signal_phrases(cit[key])
-                    
                     logger.info(f"[TASK:{task_id}] Signal phrases stripped from all case names")
 
-                    # BACKEND DISPLAY PROCESSING: Prepare all display-ready fields
-                    # This moves all processing from frontend to backend for easier debugging
-                    def get_cluster_citations(cluster):
-                        """Get citations from cluster, checking both 'citations' and 'citation_objects'."""
-                        return cluster.get("citations", []) or cluster.get("citation_objects", [])
-                    
-                    def get_citation_value(cit, key, default=None):
-                        """Get a value from a citation, handling both dict and object formats."""
-                        if isinstance(cit, dict):
-                            return cit.get(key, default)
-                        else:
-                            return getattr(cit, key, default)
-                    
-                    def is_citation_verified(cit):
-                        """Check if a citation is verified, handling both dict and object formats."""
-                        if isinstance(cit, dict):
-                            return cit.get("verified", False) or cit.get("is_verified", False)
-                        else:
-                            return getattr(cit, "verified", False) or getattr(cit, "is_verified", False)
-                    
-                    def get_best_extracted_name(cluster):
-                        """Get the longest/best extracted name from citations in cluster."""
-                        citations = get_cluster_citations(cluster)
-                        valid_names = []
-                        for cit in citations:
-                            if not cit:
-                                continue
-                            name = get_citation_value(cit, "extracted_case_name", "")
-                            if name and name != "N/A" and not name.startswith(("Co.", "Inc.", "LLC", "Ltd.", "Corp.")):
-                                valid_names.append(strip_signal_phrases(name))
-                        if valid_names:
-                            # Return longest name (most complete)
-                            return max(valid_names, key=len)
-                        return cluster.get("submitted_display_name") or cluster.get("extracted_case_name") or "N/A"
-                    
-                    def get_verifying_name(cluster):
-                        """Get canonical/verifying name from verified citation."""
-                        citations = get_cluster_citations(cluster)
-                        for cit in citations:
-                            if not cit:
-                                continue
-                            if is_citation_verified(cit):
-                                name = get_citation_value(cit, "canonical_name")
-                                if name and name != "N/A":
-                                    return strip_signal_phrases(name)
-                        # Fallback to extracted name
-                        return get_best_extracted_name(cluster)
-                    
-                    def get_verifying_date(cluster):
-                        """Get canonical date from verified citation."""
-                        citations = get_cluster_citations(cluster)
-                        for cit in citations:
-                            if not cit:
-                                continue
-                            if is_citation_verified(cit):
-                                date = get_citation_value(cit, "canonical_date")
-                                if date and date != "N/A":
-                                    return date
-                        # Fallback to extracted date
-                        return cluster.get("extracted_date") or "N/A"
-                    
-                    def get_submitted_date(cluster):
-                        """Get extracted date from document."""
-                        citations = get_cluster_citations(cluster)
-                        for cit in citations:
-                            if not cit:
-                                continue
-                            date = get_citation_value(cit, "extracted_date")
-                            if date and date != "N/A":
-                                return date
-                        return cluster.get("extracted_date") or "N/A"
-                    
-                    def get_canonical_url(cluster):
-                        """Get canonical URL from verified citation."""
-                        citations = get_cluster_citations(cluster)
-                        for cit in citations:
-                            if not cit:
-                                continue
-                            if is_citation_verified(cit):
-                                url = get_citation_value(cit, "canonical_url")
-                                if url:
-                                    return url
-                        return None
-                    
-                    # Apply display processing to each cluster
+                    # BACKEND DISPLAY PROCESSING: Prepare all display-ready fields (shared cluster_display_utils)
                     for cluster in clusters_list:
                         if isinstance(cluster, dict):
                             # CRITICAL FIX: Ensure citations in cluster are dicts, not objects
@@ -2339,14 +2847,140 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"verified={cluster_verified}, verified_citations={verified_citations_count}/{len(citations_as_dicts)}"
                                 )
                             
-                            # Set all display-ready fields for frontend (using updated citations)
-                            cluster["verifying_display_name"] = get_verifying_name(cluster)
-                            cluster["verifying_display_date"] = get_verifying_date(cluster)
-                            cluster["submitted_display_name"] = get_best_extracted_name(cluster)
-                            cluster["submitted_display_date"] = get_submitted_date(cluster)
-                            cluster["display_canonical_url"] = get_canonical_url(cluster)
+                            # Set all display-ready fields for frontend (shared cluster_display_utils)
+                            apply_display_fields_to_cluster(cluster)
+                    
+                    # USER FIX: Last-mile sync (sync + async) so UI shows correct "Extracted from Document" and "Verified"
+                    try:
+                        from src.unified_verification_master import apply_last_mile_cluster_display_sync
+                        apply_last_mile_cluster_display_sync(citations_list, clusters_list)
+                    except Exception as sync_err:
+                        logger.warning(f"[TASK:{task_id}] Last-mile cluster display sync failed: {sync_err}")
                     
                     logger.info(f"[TASK:{task_id}] Display fields prepared for all clusters")
+
+                    # FIX 2026-02-10: Final safety split — separate citations whose TEXT name
+                    # differs from the cluster's canonical name.  This catches cases like
+                    # "Trichell v. Midland" stuck inside a "Simon v. Eastern Kentucky" cluster
+                    # after all prior merge passes.
+                    if clusters_list and len(clusters_list) > 0:
+                        import re as _re_split
+
+                        def _norm_party(s):
+                            """Normalize party name: strip apostrophes, hyphens, periods for comparison."""
+                            return _re_split.sub(r"['\-\.\u2018\u2019\u201C\u201D]", "", s).lower().strip()
+
+                        def _parties_match(a, b):
+                            """Check if two normalized party names refer to the same party.
+                            Handles M'culloch vs McCulloch, etc."""
+                            if a == b:
+                                return True
+                            # One starts with the other (handles prefix variations)
+                            if a.startswith(b) or b.startswith(a):
+                                return True
+                            # One-edit-distance (insertion/deletion/substitution) for len >= 4
+                            if len(a) >= 4 and len(b) >= 4 and abs(len(a) - len(b)) <= 1:
+                                shorter, longer = (a, b) if len(a) <= len(b) else (b, a)
+                                i = j = diffs = 0
+                                while i < len(shorter) and j < len(longer):
+                                    if shorter[i] != longer[j]:
+                                        diffs += 1
+                                        if diffs > 1:
+                                            break
+                                        if len(shorter) < len(longer):
+                                            j += 1
+                                            continue
+                                    i += 1
+                                    j += 1
+                                if diffs <= 1:
+                                    return True
+                            return False
+
+                        def _first_party(ct):
+                            pm = _re_split.match(
+                                r'^([A-Z][A-Za-z\'\-]+(?:\.\s*)?(?:\s+[A-Za-z\'\-]+\.?)*)\s+v\.\s+', ct)
+                            return _norm_party(pm.group(1).strip().rstrip(',. ').split()[-1]) if pm else ""
+
+                        new_clusters = []
+                        for cluster in clusters_list:
+                            if not isinstance(cluster, dict):
+                                new_clusters.append(cluster)
+                                continue
+                            cits = cluster.get("citations", [])
+                            if len(cits) <= 1:
+                                new_clusters.append(cluster)
+                                continue
+                            # Determine cluster's canonical first party
+                            cluster_cn = cluster.get("canonical_name", "")
+                            cluster_party = ""
+                            if cluster_cn and " v. " in cluster_cn.lower():
+                                parts = _re_split.split(r'\s+v\.?\s+', cluster_cn, maxsplit=1, flags=_re_split.IGNORECASE)
+                                cluster_party = _norm_party(parts[0].strip().rstrip(',. ').split()[-1]) if parts else ""
+                            if not cluster_party:
+                                new_clusters.append(cluster)
+                                continue
+                            keep = []
+                            eject = []
+                            for cit in cits:
+                                if not isinstance(cit, dict):
+                                    keep.append(cit)
+                                    continue
+                                ct = cit.get("citation", "")
+                                ct_party = _first_party(ct)
+                                # Also check extracted_case_name — citation text may be truncated
+                                # e.g., "Madison, 1 Cranch 137" has ct_party="Madison" but ecn="Marbury v. Madison"
+                                ecn = cit.get("extracted_case_name", "") or ""
+                                ecn_party = _first_party(ecn) if " v. " in ecn else ""
+                                if ct_party and not _parties_match(ct_party, cluster_party) and not _parties_match(ecn_party, cluster_party):
+                                    eject.append(cit)
+                                else:
+                                    keep.append(cit)
+                            if eject and keep:
+                                logger.info(
+                                    f"[TASK:{task_id}] SAFETY-SPLIT: ejecting {len(eject)} citation(s) "
+                                    f"from cluster '{cluster_cn[:50]}' (party mismatch)"
+                                )
+                                # Update original cluster
+                                cluster["citations"] = keep
+                                cluster["cluster_members"] = [
+                                    (m.get("citation","") if isinstance(m,dict) else m)
+                                    for m in keep if isinstance(m, dict)
+                                ]
+                                cluster["cluster_size"] = len(keep)
+                                cluster["size"] = len(keep)
+                                new_clusters.append(cluster)
+                                # Create new cluster for ejected citations
+                                for ej_cit in eject:
+                                    ej_cluster = dict(cluster)
+                                    ej_cn = ej_cit.get("canonical_name", "")
+                                    ej_cluster["cluster_id"] = f"{cluster.get('cluster_id','')}_safety_split"
+                                    ej_cluster["citations"] = [ej_cit]
+                                    ej_cluster["cluster_members"] = [ej_cit.get("citation", "")]
+                                    ej_cluster["cluster_size"] = 1
+                                    ej_cluster["size"] = 1
+                                    ej_cluster["canonical_name"] = ej_cn or cluster_cn
+                                    ej_cluster["canonical_date"] = ej_cit.get("canonical_date", "")
+                                    ej_cluster["extracted_date"] = ej_cit.get("extracted_date", "")
+                                    ej_cluster["extracted_case_name"] = ej_cit.get("extracted_case_name", "")
+                                    ej_cluster["verified"] = ej_cit.get("verified", False)
+                                    new_clusters.append(ej_cluster)
+                            else:
+                                new_clusters.append(cluster)
+                        if len(new_clusters) != len(clusters_list):
+                            logger.info(
+                                f"[TASK:{task_id}] SAFETY-SPLIT: {len(clusters_list)} -> {len(new_clusters)} clusters"
+                            )
+                        clusters_list = new_clusters
+
+                    # FIX 2026-02-09: Re-annotate mismatch flags after all post-processing
+                    # Earlier passes may have set name_mismatch=True before canonical fallback,
+                    # phantom name fixes, or PDF missing-space normalization were applied
+                    try:
+                        from src.utils.mismatch_utils import annotate_mismatch_flags
+                        annotate_mismatch_flags(citations_list, clusters_list, name_threshold=0.4, year_tolerance=0)
+                        logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags after post-processing")
+                    except Exception as mismatch_err:
+                        logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
 
                     # Create final result with complete verification data
                     result = {
@@ -2357,7 +2991,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                         "metadata": {
                             "processing_strategy": "synchronous_full_verification",
                             "processing_path": "worker_unified_pipeline",
-                            "text_length": len(text),
+                            "text_length": len(text) if text else 0,
                             "verification_completed": True,
                             "citation_count": len(citations_list),
                             "verified_count": verified_count,
@@ -2423,6 +3057,25 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 f"[TASK:{task_id}] Failed to save complete result (non-critical): {complete_err}"
                             )
                             # Continue anyway - the result is still valid
+
+                        # CRITICAL FIX 2026-01-30: Also write to rq:job:result and task_result
+                        # so task_status returns result even when RQ hasn't yet marked job finished
+                        try:
+                            result_key = f"rq:job:{task_id}:result"
+                            task_result_key = f"task_result:{task_id}"
+                            redis_conn.setex(result_key, 86400, json.dumps(result))
+                            redis_conn.setex(task_result_key, 86400, json.dumps(result))
+                            progress_data = {
+                                "status": "completed",
+                                "progress": 100,
+                                "message": f"Processing completed! {final_cites} citations in {final_clusters} clusters",
+                                "current_step": "Complete",
+                                "timestamp": time.time(),
+                            }
+                            redis_conn.setex(f"progress:{task_id}", 3600, json.dumps(progress_data))
+                            logger.info(f"[TASK:{task_id}] Result stored in Redis ({result_key}, {task_result_key})")
+                        except Exception as redis_err:
+                            logger.warning(f"[TASK:{task_id}] Redis result write failed (non-critical): {redis_err}")
 
                         # CRITICAL: Always return result even if Redis save failed
                         # This ensures the RQ job finishes and frontend gets the result
@@ -2545,6 +3198,36 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                 logger.info(f"[TASK:{task_id}] Processing with unified pipeline directly (file path)...")
 
+                # CRITICAL: Pass progress_callback so pipeline progress is written to Redis (progress:{task_id}).
+                # Without this, task_status falls back to simulated progress (e.g. 85% "Creating citation clusters...")
+                # and the frontend never sees real progress or completion.
+                def file_progress_callback(progress_pct, step_name, message):
+                    try:
+                        import re as _re
+                        processed = int(progress_pct) if progress_pct is not None else 0
+                        total = 100
+                        # Extract real total from message like "Verifying citations... (5/187 citations)"
+                        m = _re.search(r'\((\d+)/(\d+)\s+citations\)', message or "")
+                        if m:
+                            processed = int(m.group(1))
+                            total = int(m.group(2))
+                        # Also extract total from "Processing N citations..." pattern
+                        elif message:
+                            m2 = _re.search(r'Processing\s+(\d+)\s+citations', message)
+                            if m2:
+                                total = int(m2.group(1))
+                                m3 = _re.search(r'\((\d+)\s+processed\)', message)
+                                if m3:
+                                    processed = int(m3.group(1))
+                        vm.update_progress(
+                            task_id,
+                            processed=processed,
+                            total=total,
+                            message=message or step_name or "Processing...",
+                        )
+                    except Exception as cb_err:
+                        logger.debug(f"[TASK:{task_id}] Progress callback error (non-critical): {cb_err}")
+
                 # Call pipeline directly with asyncio
                 import asyncio
 
@@ -2554,6 +3237,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                         processing_mode="enhanced_sync",
                         enable_parallel_verification=enable_verification,
                         enable_verification=enable_verification,
+                        progress_callback=file_progress_callback,
                     )
                 )
                 logger.info(f"[TASK:{task_id}] Unified pipeline processing completed (file path)")
@@ -2565,78 +3249,22 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             citations = pipeline_result.get("citations", [])
             clusters = pipeline_result.get("clusters", [])
 
-            # If any remain unverified, run enhanced fallback verification and merge
-            try:
-                unverified_count = sum(1 for c in citations if isinstance(c, dict) and not c.get("verified"))
-            except Exception:
-                unverified_count = 0
-            if citations and unverified_count > 0:
-                logger.info(
-                    f"[TASK:{task_id}] {unverified_count} citations unverified after pipeline; running enhanced fallback verification"
-                )
-                try:
-                    vm.update_progress(
-                        task_id, processed=3, total=max(4, len(citations)), message="Running fallback verification"
-                    )
-                except Exception:
-                    pass
-                try:
-                    from src.async_verification_worker import verify_citations_enhanced as _verify_enhanced
-
-                    # Performance guardrails
-                    import os
-
-                    elapsed = time.time() - start_time
-                    if elapsed > 90:
-                        logger.info(f"[TASK:{task_id}] Skipping fallback (elapsed {elapsed:.1f}s > 90s budget)")
-                        enriched = {"success": False, "citations": []}
-                    else:
-                        max_targets = int(os.environ.get("FALLBACK_VERIFY_MAX", "12"))
-                        priority_tokens = ("F.4th", "F.3d", "U.S.", "S. Ct.", "L. Ed.", "P.3d", "P.2d", "A.3d", "A.2d")
-                        unv = [c for c in citations if isinstance(c, dict) and not c.get("verified")]
-                        pri = [c for c in unv if any(tok in (c.get("citation") or "") for tok in priority_tokens)]
-                        non = [c for c in unv if c not in pri]
-                        targets = (pri + non)[:max_targets]
-                        if targets:
-                            logger.info(
-                                f"[TASK:{task_id}] Fallback targets: {len(targets)}/{len(unv)} (max {max_targets})"
-                            )
-                            enriched = _verify_enhanced(targets, text, task_id, "file", {"source": "worker_fallback"})
-                        else:
-                            enriched = {"success": False, "citations": []}
-                    if isinstance(enriched, dict) and enriched.get("success") and enriched.get("citations"):
-                        enriched_list = enriched["citations"]
-                        try:
-                            by_citation = {}
-                            for e in enriched_list:
-                                key = (e.get("citation") or "").strip()
-                                if key and key not in by_citation:
-                                    by_citation[key] = e
-                            for i, orig in enumerate(citations):
-                                if not isinstance(orig, dict):
-                                    continue
-                                if orig.get("verified"):
-                                    continue
-                                k = (orig.get("citation") or "").strip()
-                                if k and k in by_citation:
-                                    cand = by_citation[k]
-                                    if isinstance(cand, dict) and cand.get("verified"):
-                                        citations[i] = cand
-                            logger.info(
-                                f"[TASK:{task_id}] Fallback verification merged; remaining unverified: {sum(1 for c in citations if isinstance(c, dict) and not c.get('verified'))}"
-                            )
-                        except Exception as merge_err:
-                            logger.warning(f"[TASK:{task_id}] Fallback merge warning: {merge_err}")
-                    else:
-                        logger.warning(f"[TASK:{task_id}] Fallback verification returned no enhancements")
-                except Exception as e:
-                    logger.error(f"[TASK:{task_id}] Fallback verification error: {e}")
+            # NOTE: Fallback verification already runs inside verify_citations_batch()
+            # (Phase 4.75 enhanced_batch_fallback). No need for a second fallback here.
 
             try:
                 total = max(4, len(citations) or 4)
                 vm.update_progress(task_id, processed=3, total=total, message="Verifying citations and finalizing")
             except Exception:
                 pass
+
+            # FIX 2026-02-09: Re-annotate mismatch flags after pipeline post-processing
+            try:
+                from src.utils.mismatch_utils import annotate_mismatch_flags
+                annotate_mismatch_flags(citations, clusters, name_threshold=0.4, year_tolerance=0)
+                logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags (file path)")
+            except Exception as mismatch_err:
+                logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
 
             result = {
                 "status": "completed",
@@ -2667,6 +3295,8 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             logger.info(f"[TASK:{task_id}] Result is JSON serializable")
 
             # Log success with metrics if available
+            num_citations = 0
+            num_clusters = 0
             if isinstance(result, dict):
                 status = result.get("status", "unknown")
                 num_citations = len(result.get("citations", []))
@@ -2681,18 +3311,40 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                 import json
 
                 redis_url = os.environ.get("REDIS_URL", "redis://:caseStrainerRedis123@casestrainer-redis-prod:6379/0")
-                redis_conn = Redis.from_url(redis_url)
+                # FIX 2026-01-30: Use different variable name to avoid shadowing global redis_conn
+                # which caused "local variable 'redis_conn' referenced before assignment" error
+                redis_client = Redis.from_url(redis_url)
 
                 # Store the result with a 24-hour TTL
                 result_key = f"rq:job:{task_id}:result"
-                redis_conn.setex(result_key, 86400, json.dumps(result))
+                redis_client.setex(result_key, 86400, json.dumps(result))
                 logger.info(f"[TASK:{task_id}] Result stored in Redis with key: {result_key}")
+
+                # Also store in task_result for task_status fallback (when job not yet marked finished)
+                task_result_key = f"task_result:{task_id}"
+                redis_client.setex(task_result_key, 86400, json.dumps(result))
+                logger.info(f"[TASK:{task_id}] Result stored in {task_result_key}")
 
                 # Also store in the job hash for RQ compatibility
                 job_key = f"rq:job:{task_id}"
-                redis_conn.hset(job_key, "result", json.dumps(result))
-                redis_conn.expire(job_key, 86400)
+                redis_client.hset(job_key, "result", json.dumps(result))
+                redis_client.expire(job_key, 86400)
                 logger.info(f"[TASK:{task_id}] Result stored in job hash")
+
+                # CRITICAL FIX 2026-01-29: Update progress key to "completed" status
+                # The frontend polls progress:{task_id} and needs status="completed" to know the job is done
+                progress_data = {
+                    "status": "completed",
+                    "progress": 100,
+                    "message": f"Processing completed! {num_citations} citations in {num_clusters} clusters",
+                    "current_step": "Complete",
+                    "elapsed_time": processing_time,
+                    "citations_count": num_citations,
+                    "clusters_count": num_clusters,
+                    "timestamp": time.time()
+                }
+                redis_client.setex(f"progress:{task_id}", 3600, json.dumps(progress_data))
+                logger.info(f"[TASK:{task_id}] Progress key updated to 'completed' status")
 
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] Error storing result in Redis: {str(e)}", exc_info=True)

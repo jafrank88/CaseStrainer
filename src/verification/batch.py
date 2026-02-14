@@ -45,7 +45,7 @@ class BatchVerifier:
         citations: List[str],
         case_names: Optional[List[str]] = None,
         dates: Optional[List[str]] = None,
-        batch_size: int = 200,
+        batch_size: int = 250,
         timeout_per_batch: float = 75.0,
         progress_callback: Optional[Callable[[int, str, str], None]] = None
     ) -> List[Dict[str, Any]]:
@@ -87,6 +87,15 @@ class BatchVerifier:
             for idx, result in zip(batch_info["indices"], batch_results):
                 all_results[idx] = result
             
+            # Free HTTP response objects between batches to reduce peak memory
+            import gc
+            gc.collect()
+            try:
+                import ctypes
+                ctypes.CDLL("libc.so.6").malloc_trim(0)
+            except Exception:
+                pass
+
             # Rate limiting between batches (60 citations/min = wait if needed)
             if batch_idx < len(batches) - 1:
                 await asyncio.sleep(2.0)
@@ -173,6 +182,14 @@ class BatchVerifier:
         text = batch_info["text"]
         
         try:
+            # Log memory before API call
+            try:
+                import psutil, os
+                _mem_before = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
+                logger.info(f"[BATCH-MEM] Before API call: {_mem_before}MB, text_len={len(text)}")
+            except Exception:
+                pass
+
             resp = self.session.post(
                 url,
                 json={"text": text},
@@ -203,8 +220,20 @@ class BatchVerifier:
                 ]
             
             api_results = resp.json()
-            logger.info(f"[BATCH] API returned {len(api_results)} parsed citations for {len(batch_info['indices'])} input citations")
-            
+            # Explicitly release HTTP response to free memory
+            resp_size = len(resp.content) if hasattr(resp, 'content') else 0
+            resp.close()
+            del resp
+            logger.info(f"[BATCH] API returned {len(api_results)} parsed citations for {len(batch_info['indices'])} input citations (resp_size={resp_size})")
+
+            # Log memory after API call
+            try:
+                import psutil, os
+                _mem_after = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
+                logger.info(f"[BATCH-MEM] After API call + parse: {_mem_after}MB")
+            except Exception:
+                pass
+
             # Match API results back to input citations
             return self._match_results_to_citations(api_results, batch_info)
             

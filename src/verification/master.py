@@ -22,7 +22,21 @@ from .utils import (
     is_citation_likely_valid,
 )
 from src.config import COURTLISTENER_API_KEY
-from src.verification_cache import get_verification_cache
+
+
+class _SimpleCache:
+    """Simple in-memory verification cache."""
+    def __init__(self):
+        self._data = {}
+    def get(self, key):
+        return self._data.get(key)
+    def set(self, key, value):
+        self._data[key] = value
+
+_verification_cache = _SimpleCache()
+
+def get_verification_cache():
+    return _verification_cache
 
 logger = logging.getLogger(__name__)
 
@@ -231,10 +245,11 @@ class UnifiedVerificationMaster:
         citations: List[str],
         extracted_case_names: Optional[List[str]] = None,
         extracted_dates: Optional[List[str]] = None,
-        batch_size: int = 50,
+        batch_size: int = 250,
         timeout_per_citation: float = 10.0,
         progress_callback: Optional[Callable[[int, str, str], None]] = None,
-        enable_fallback: bool = True
+        enable_fallback: bool = True,
+        max_fallback_citations: int = 100
     ) -> List[VerificationResult]:
         """
         Batch verify citations.
@@ -263,17 +278,50 @@ class UnifiedVerificationMaster:
             progress_callback
         )
         
-        # Convert to VerificationResult
+        # Convert to VerificationResult and run fallback for unverified
         results = []
+        total = len(batch_results)
         unverified_count = 0
         fallback_success_count = 0
-        for result in batch_results:
+        fallback_attempted = 0
+        for result_idx, result in enumerate(batch_results):
+            # Report progress for each citation processed
+            if progress_callback:
+                try:
+                    progress_callback(
+                        result_idx, "Verifying",
+                        f"Verifying citations... ({result_idx}/{total} citations)"
+                    )
+                except Exception:
+                    pass
             verified = result.get("verified", False)
             # Also try fallback when CL returned a name but no URL
             needs_url = verified and result.get("canonical_name") and not result.get("canonical_url")
             
-            if (not verified or needs_url) and enable_fallback:
+            if (not verified or needs_url) and enable_fallback and fallback_attempted < max_fallback_citations:
                 unverified_count += 1
+                fallback_attempted += 1
+                # Aggressive memory cleanup every 5 fallback attempts
+                # to prevent HTTP response data from accumulating (OOM fix)
+                if fallback_attempted % 5 == 0:
+                    try:
+                        import gc as _gc_fb
+                        _gc_fb.collect()
+                        try:
+                            import ctypes
+                            _libc_fb = ctypes.CDLL("libc.so.6")
+                            _libc_fb.malloc_trim(0)
+                        except Exception:
+                            pass
+                    except Exception:
+                        pass
+                if fallback_attempted % 5 == 1:
+                    try:
+                        import psutil, os
+                        _fb_mem = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
+                        logger.warning(f"[BATCH-FALLBACK-MEM] After {fallback_attempted} fallbacks: {_fb_mem}MB")
+                    except Exception:
+                        pass
                 # Try fallback for unverified citations
                 try:
                     idx = citations.index(result["citation"])
@@ -317,7 +365,7 @@ class UnifiedVerificationMaster:
                         result["citation"],
                         case_name,
                         date,
-                        timeout_per_citation
+                        min(timeout_per_citation, 5.0)
                     )
                     if fallback_result.get("verified"):
                         # Preserve CL canonical name when fallback only adds URL
@@ -349,12 +397,52 @@ class UnifiedVerificationMaster:
                 error=result.get("error"),
             ))
         
+        # Final progress update
+        if progress_callback:
+            try:
+                progress_callback(total, "Verifying", f"Verification complete ({total}/{total} citations)")
+            except Exception:
+                pass
+
         if unverified_count > 0:
             logger.info(
                 f"[BATCH-FALLBACK] Summary: {unverified_count} unverified, "
                 f"{fallback_success_count} recovered by fallback"
+                f"{f', {total - fallback_attempted - (total - unverified_count)} skipped (max_fallback={max_fallback_citations})' if fallback_attempted >= max_fallback_citations else ''}"
             )
-        
+
+        # Aggressive memory cleanup after all verification
+        try:
+            import gc
+            gc.collect()
+            try:
+                import ctypes
+                _libc_final = ctypes.CDLL("libc.so.6")
+                _libc_final.malloc_trim(0)
+            except Exception:
+                pass
+            # Close the session to release connection pool memory
+            try:
+                if self.session:
+                    self.session.close()
+                    logger.info("[BATCH-FALLBACK] Closed requests.Session to release connection pool")
+            except Exception:
+                pass
+            gc.collect()
+            try:
+                _libc_final.malloc_trim(0)
+            except Exception:
+                pass
+        except Exception:
+            pass
+        # Log final memory
+        try:
+            import psutil, os
+            _final_mem = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
+            logger.warning(f"[BATCH-FALLBACK-MEM] Final after gc+malloc_trim+session.close: {_final_mem}MB (processed {total} citations, {fallback_attempted} fallbacks)")
+        except Exception:
+            pass
+
         return results
     
     def verify_citation_sync(
