@@ -1412,7 +1412,7 @@ class UnifiedCitationProcessorV2:
                             _libc = ctypes.CDLL("libc.so.6")
                             gc.collect()
                             _libc.malloc_trim(0)
-                            logger.error(f"[BATCH-VERIFY] malloc_trim called after verification")
+                            logger.debug(f"[BATCH-VERIFY] malloc_trim called after verification")
                         except Exception:
                             pass
                 except TimeoutError:
@@ -1725,49 +1725,7 @@ class UnifiedCitationProcessorV2:
                     citation.verified = False
                     citation.verification_status = "error"
 
-        # CRITICAL OOM FIX (Part 1): Start a background thread that logs memory + stack trace
-        # every 5 seconds. This will show exactly what code is executing when memory grows.
-        try:
-            import threading, traceback, sys as _sys_mp
-            def _oom_stack_monitor():
-                import time, sys as _sys_inner
-                _main_tid = threading.main_thread().ident
-                _dumped_full = False
-                for _tick in range(180):  # Monitor for up to 15 minutes
-                    time.sleep(5)
-                    try:
-                        with open('/proc/self/status') as _pf:
-                            for _ln in _pf:
-                                if _ln.startswith('VmRSS:'):
-                                    _rss = int(_ln.split()[1]) // 1024
-                                    break
-                            else:
-                                _rss = -1
-                        # Get stack trace of main thread
-                        _frame = _sys_inner._current_frames().get(_main_tid)
-                        if _frame:
-                            _stack = ''.join(traceback.format_stack(_frame, limit=12))
-                        else:
-                            _stack = 'N/A'
-                        # Log every tick when RSS > 200MB to catch growth
-                        if _rss > 200:
-                            logger.warning(f"[OOM-STACK] tick={_tick} RSS={_rss}MB\n{_stack}")
-                        if _rss > 1000 and not _dumped_full:
-                            logger.warning(f"[OOM-STACK] CRITICAL: RSS={_rss}MB > 1GB, dumping full stack")
-                            if _frame:
-                                _full = ''.join(traceback.format_stack(_frame))
-                                logger.warning(f"[OOM-STACK-FULL]\n{_full}")
-                            _dumped_full = True
-                            # Don't break — keep monitoring
-                    except Exception as _e:
-                        logger.warning(f"[OOM-STACK] Error: {_e}")
-            _mon_thread = threading.Thread(target=_oom_stack_monitor, daemon=True, name="oom-stack-monitor")
-            _mon_thread.start()
-            logger.warning(f"[OOM-FIX] Started OOM stack monitor thread for {len(citations)} citations")
-        except Exception as _mp_err:
-            logger.warning(f"[OOM-FIX] Stack monitor failed to start: {_mp_err}")
-
-        # CRITICAL OOM FIX (Part 2): Force memory release before returning to pipeline/rq_worker.
+        # Force memory release before returning to pipeline/rq_worker.
         # HTTP response data, JSON parse trees, and intermediate verification objects
         # accumulate during verification. gc.collect() frees Python objects, and
         # malloc_trim(0) forces glibc to return freed pages to the OS.
@@ -1782,16 +1740,6 @@ class UnifiedCitationProcessorV2:
             _gc_final.collect()
             try:
                 _ct_final.CDLL("libc.so.6").malloc_trim(0)
-            except Exception:
-                pass
-            # Log memory after cleanup
-            try:
-                with open('/proc/self/status') as _pf:
-                    for _ln in _pf:
-                        if _ln.startswith('VmRSS:'):
-                            _rss_mb = int(_ln.split()[1]) // 1024
-                            logger.warning(f"[OOM-FIX] After final gc+malloc_trim in _verify_citations: {_rss_mb}MB")
-                            break
             except Exception:
                 pass
         except Exception:

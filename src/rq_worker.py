@@ -78,50 +78,6 @@ def _force_release_memory():
         pass  # Not on Linux / glibc not available
 
 
-def _start_memory_monitor(interval=2):
-    """Start a daemon thread that logs TRUE RSS + cgroup memory every N seconds.
-
-    This runs inside the forked child so we see the child's actual memory,
-    plus the container-level cgroup usage that Docker reports.
-    """
-    import threading
-
-    def _monitor():
-        import time as _t
-        _count = 0
-        while True:
-            _t.sleep(interval)
-            _count += 1
-            try:
-                # Child process RSS from kernel
-                _rss = "?"
-                with open('/proc/self/status') as f:
-                    for line in f:
-                        if line.startswith('VmRSS:'):
-                            _rss = f"{int(line.split()[1]) // 1024}MB"
-                            break
-                # Container cgroup memory (what Docker sees)
-                _cgroup = "?"
-                for cg_path in [
-                    '/sys/fs/cgroup/memory/memory.usage_in_bytes',
-                    '/sys/fs/cgroup/memory.current',
-                ]:
-                    try:
-                        with open(cg_path) as f:
-                            _cgroup = f"{int(f.read().strip()) // (1024*1024)}MB"
-                            break
-                    except FileNotFoundError:
-                        continue
-                logger.warning(
-                    f"[MEM-MONITOR] tick={_count} child_rss={_rss} cgroup={_cgroup}"
-                )
-                import sys; sys.stderr.flush()
-            except Exception:
-                break  # Process dying, exit quietly
-
-    t = threading.Thread(target=_monitor, daemon=True)
-    t.start()
-    return t
 
 # State-specific reporters for jurisdiction checking
 STATE_REPORTERS = {
@@ -322,123 +278,80 @@ __all__ = [
 
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):
-    """Direct wrapper function with diagnostic logging.
+    """Direct wrapper function for RQ job execution.
     
     NOTE: ThreadPoolExecutor wrapper was removed to reduce memory overhead.
     RQ's own job_timeout handles timeouts. The executor was doubling memory
     by keeping the main thread's stack alive alongside the worker thread.
     """
 
-    # DIAGNOSTIC LOGGING - Track every step of worker startup
-    logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP BEGINS ==========")
-    logger.info(f"[DIAGNOSTIC:{task_id}] Step 1: Function entry successful")
-
-    # Start background memory monitor — logs child RSS + cgroup every 2s
-    _start_memory_monitor(interval=2)
-
     try:
         result = _process_citation_task_internal(task_id, input_type, input_data)
-        logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER COMPLETED SUCCESSFULLY ==========")
+        logger.info(f"[TASK:{task_id}] Worker completed successfully")
         return result
     except Exception as e:
-        logger.error(f"[DIAGNOSTIC:{task_id}] ========== WORKER CRASHED ==========")
-        logger.error(f"[DIAGNOSTIC:{task_id}] Error: {str(e)}")
+        logger.error(f"[TASK:{task_id}] Worker crashed: {str(e)}")
         import traceback
-
-        logger.error(f"[DIAGNOSTIC:{task_id}] Traceback: {traceback.format_exc()}")
+        logger.error(f"[TASK:{task_id}] Traceback: {traceback.format_exc()}")
         return {
             "status": "failed",
             "task_id": task_id,
             "error": f"Worker crashed: {str(e)}",
-            "diagnostic": "worker_crash",
         }
 
 
 def _process_citation_task_internal(task_id: str, input_type: str, input_data: dict):
 
     try:
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 2: Starting basic imports...")
         import traceback
         import time
         import json
         import os
         import sys
 
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 2: Basic imports SUCCESS")
+        logger.info(f"[TASK:{task_id}] Starting: type={input_type}, keys={list(input_data.keys())}")
 
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 3: Environment info...")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Python version: {sys.version}")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Working directory: {os.getcwd()}")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Input type: {input_type}")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Input data keys: {list(input_data.keys())}")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 3: Environment info SUCCESS")
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis readiness check...")
+        # Wait for Redis to be ready
         try:
             import redis
-
             redis_url = os.environ.get("REDIS_URL", "redis://:caseStrainerRedis123@casestrainer-redis-prod:6379/0")
-            logger.info(f"[DIAGNOSTIC:{task_id}] Redis URL: {redis_url}")
-
-            # Check if Redis is ready (not loading dataset)
             redis_client = redis.from_url(redis_url)
-
-            # Wait for Redis to be ready with timeout
-            max_wait = 30  # 30 seconds max wait
-            wait_interval = 1  # Check every second
-
+            max_wait = 30
             for attempt in range(max_wait):
                 try:
-                    # Test Redis connection
                     redis_client.ping()
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Redis ready after {attempt} seconds")
                     break
                 except redis.exceptions.BusyLoadingError:
-                    if attempt == 0:
-                        logger.info(f"[DIAGNOSTIC:{task_id}] Redis loading dataset, waiting...")
-                    elif attempt % 5 == 0:
-                        logger.info(f"[DIAGNOSTIC:{task_id}] Still waiting for Redis ({attempt}s)...")
-                    time.sleep(wait_interval)
+                    if attempt % 5 == 0:
+                        logger.info(f"[TASK:{task_id}] Waiting for Redis ({attempt}s)...")
+                    time.sleep(1)
                 except Exception as e:
-                    logger.error(f"[DIAGNOSTIC:{task_id}] Redis connection error: {e}")
-                    if attempt < 5:  # Retry connection errors for first 5 seconds
-                        time.sleep(wait_interval)
+                    if attempt < 5:
+                        time.sleep(1)
                     else:
                         raise
             else:
-                # Timeout waiting for Redis
-                logger.error(f"[DIAGNOSTIC:{task_id}] Redis not ready after {max_wait} seconds")
+                logger.error(f"[TASK:{task_id}] Redis not ready after {max_wait} seconds")
                 return {
                     "status": "failed",
                     "task_id": task_id,
                     "error": f"Redis not ready after {max_wait} seconds - dataset still loading",
-                    "diagnostic": "redis_loading_timeout",
                 }
-
         except Exception as e:
-            logger.error(f"[DIAGNOSTIC:{task_id}] Redis readiness error: {str(e)}")
-            # Continue anyway - might be a temporary issue
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 4: Redis readiness SUCCESS")
+            logger.error(f"[TASK:{task_id}] Redis readiness error: {str(e)}")
 
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 5: CitationService import...")
         from src.api.services.citation_service import CitationService
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 5: CitationService import SUCCESS")
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 6: Creating CitationService instance...")
         service = CitationService()
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 6: CitationService creation SUCCESS")
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] ========== WORKER STARTUP COMPLETE ==========")
+        logger.info(f"[TASK:{task_id}] Worker startup complete")
 
     except Exception as e:
-        logger.error(f"[DIAGNOSTIC:{task_id}] STARTUP FAILED at import/initialization: {str(e)}")
-        logger.error(f"[DIAGNOSTIC:{task_id}] Traceback: {traceback.format_exc()}")
+        logger.error(f"[TASK:{task_id}] Startup failed: {str(e)}")
+        import traceback
+        logger.error(f"[TASK:{task_id}] Traceback: {traceback.format_exc()}")
         return {
             "status": "failed",
             "task_id": task_id,
             "error": f"Worker startup failed: {str(e)}",
-            "diagnostic": "startup_failure",
         }
 
     # Setup timeout handler - disabled since we use ThreadPoolExecutor for timeout
@@ -448,8 +361,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
     try:
         start_time = time.time()
-        logger.info(f"[DIAGNOSTIC:{task_id}] ========== MAIN PROCESSING BEGINS ==========")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7: Starting processing of type: {input_type}")
+        logger.info(f"[TASK:{task_id}] Main processing begins: type={input_type}")
 
         # MEMORY CHECK: Check available memory before processing
         if PSUTIL_AVAILABLE:
@@ -501,32 +413,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
         sys.stderr.flush()
 
         # Register verification/progress so the UI can poll immediately
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.1: About to create VerificationManager...")
         try:
             vm = VerificationManager()
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.1: About to register verification")
-            # Do not imply a citation total before extraction; use 0 to avoid 1/100-style messages
             vm.register_verification(task_id, task_id, total_citations=0)
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.2: Verification registered")
             vm.update_progress(task_id, processed=0, total=0, message="Initializing async processing")
-            logger.info(f"[DIAGNOSTIC:{task_id}] Step 7.3: Progress updated - starting PDF processing")
         except Exception as _e:
-            logger.error(f"[DIAGNOSTIC:{task_id}] Step 7.ERROR: VerificationManager failed: {_e}")
-            import traceback
-
-            logger.error(f"[DIAGNOSTIC:{task_id}] VerificationManager traceback: {traceback.format_exc()}")
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Starting PDF download and processing")
-
-        # Log input data (truncated if too large)
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: About to log input data...")
-        input_data_str = str(input_data)
-        if len(input_data_str) > 500:
-            input_data_str = input_data_str[:500] + "... [truncated]"
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 8: Input data logged (length: {len(input_data_str)})")
-
-        logger.info(f"[DIAGNOSTIC:{task_id}] Step 9: About to enter processing logic...")
-        logger.info(f"[DIAGNOSTIC:{task_id}] Using minimal async worker for diagnostic testing")
+            logger.error(f"[TASK:{task_id}] VerificationManager failed: {_e}")
 
         if input_type in ["text", "url"]:
             # Handle both text and URL inputs with the full pipeline
@@ -616,17 +508,8 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
             # Only proceed with full processing if we have text and no errors
             if not locals().get("skip_full_processing", False):
                 # FULL ASYNC WORKER - Use CLEAN PIPELINE (87-93% accuracy)
-                logger.info(
-                    f"[DIAGNOSTIC:{task_id}] Step 9: Using CLEAN PIPELINE for async processing (87-93% accuracy)"
-                )
-
                 try:
-                    logger.info(
-                        f"[DIAGNOSTIC:{task_id}] Step 10: Importing full pipeline (with clustering & verification)..."
-                    )
                     import time
-
-                    logger.info(f"[DIAGNOSTIC:{task_id}] Step 10: Full pipeline import SUCCESS")
 
                     # Verification is enabled by default for end users
                     # Can be disabled for testing/troubleshooting via enable_verification parameter
@@ -755,22 +638,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                             return result
 
                         logger.info(f"[TASK:{task_id}] Full pipeline processing with verification completed")
-                        logger.error(f"[TASK:{task_id}] ⚠️ PIPELINE RESULT: {len(pipeline_result.get('citations', []))} citations, {len(pipeline_result.get('clusters', []))} clusters")
-                        logger.error(f"[TASK:{task_id}] ⚠️ Pipeline result keys: {list(pipeline_result.keys())}")
 
                         # Extract results from completed pipeline
                         citations_raw = pipeline_result.get("citations", []) or []
                         clusters_raw = pipeline_result.get("clusters", []) or []
-                        logger.error(f"[TASK:{task_id}] ⚠️ Extracted {len(citations_raw)} citations_raw, {len(clusters_raw)} clusters_raw")
-                        # DIAGNOSTIC: Track specific citations through post-processing
-                        def _diag_check(label, cit_list, clust_list=None):
-                            for c in cit_list:
-                                ct = c.get('citation','') if isinstance(c, dict) else (getattr(c, 'citation', '') if hasattr(c, 'citation') else '')
-                                if '508 U.S. 520' in ct or '508 U. S. 520' in ct or ('508 U' in ct and 'Cas' not in ct):
-                                    logger.error(f"[DIAG:{task_id}] {label}: LUKUMI FOUND in citations: {ct[:60]}")
-                                    return
-                            logger.error(f"[DIAG:{task_id}] {label}: LUKUMI NOT in {len(cit_list)} citations")
-                        _diag_check("PIPELINE_RAW", citations_raw)
+                        logger.info(f"[TASK:{task_id}] Extracted {len(citations_raw)} citations, {len(clusters_raw)} clusters")
 
                         # CRITICAL FIX: Ensure citations are dicts, not CitationResult objects
                         citations_list = []
@@ -798,7 +670,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 citations_list.append(cit_dict)
 
                         clusters_list = list(clusters_raw) if clusters_raw else []
-                        _diag_check("AFTER_DICT_CONVERT", citations_list)
 
                         # LAST-MILE: Apply known federal citations + clear verified without URL (shared with sync path)
                         try:
@@ -813,23 +684,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
 
                         # Free accumulated garbage before heavy post-processing
                         _force_release_memory()
-                        # Read TRUE RSS from /proc/self/status (kernel value, not psutil)
-                        try:
-                            with open('/proc/self/status') as _pf:
-                                for _line in _pf:
-                                    if _line.startswith('VmRSS:'):
-                                        _true_rss_kb = int(_line.split()[1])
-                                        logger.warning(f"[MEM-CHECKPOINT] TRUE RSS from /proc/self/status: {_true_rss_kb // 1024}MB")
-                                        import sys; sys.stderr.flush()
-                                        break
-                        except Exception:
-                            pass
-                        if PSUTIL_AVAILABLE:
-                            try:
-                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                logger.info(f"[TASK:{task_id}] Memory before post-processing: {_mem:.0f}MB")
-                            except Exception:
-                                pass
 
                         # USER FIX: Post-process clusters to ensure canonical data is populated from citations
                         # This fixes the issue where cluster-level fields are None but citation-level fields are correct
@@ -1095,23 +949,11 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                             logger.info(
                                 f"[TASK:{task_id}] Post-processing complete: updated {len(clusters_list)} clusters"
                             )
-                            if PSUTIL_AVAILABLE:
-                                try:
-                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                    logger.warning(f"[MEM-CHECKPOINT] After cluster post-processing loop: {_mem:.0f}MB")
-                                except Exception:
-                                    pass
 
                         # POST-VERIFY SPLIT: split clusters with mixed canonical names
                         if clusters_list:
                             from src.utils.post_verify_split import split_clusters_by_canonical_name
                             clusters_list = split_clusters_by_canonical_name(clusters_list, task_id=task_id)
-                            if PSUTIL_AVAILABLE:
-                                try:
-                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                    logger.warning(f"[MEM-CHECKPOINT] After post-verify split: {_mem:.0f}MB")
-                                except Exception:
-                                    pass
 
                         # USER FIX 2024-12-24: Synchronize cluster extracted_date with citation extracted_date
                         # This fixes the issue where cluster shows "2000" but citations show "2001"
@@ -1218,12 +1060,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                 logger.info(
                                     f"[TASK:{task_id}] Synchronized {date_sync_count} citation extracted_dates with cluster dates"
                                 )
-                            if PSUTIL_AVAILABLE:
-                                try:
-                                    _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                    logger.warning(f"[MEM-CHECKPOINT] After date sync: {_mem:.0f}MB")
-                                except Exception:
-                                    pass
 
                         # USER FIX: Validate extracted case names against actual document text
                         # This catches cases where eyecite extracted wrong names due to PDF parsing issues
@@ -1466,13 +1302,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                         cluster["submitted_display_name"] = "N/A"
                                         logger.info(f"[TASK:{task_id}] Extraction failed - no canonical available, keeping N/A")
 
-                        if PSUTIL_AVAILABLE:
-                            try:
-                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                logger.warning(f"[MEM-CHECKPOINT] Before merge dupes: {_mem:.0f}MB")
-                            except Exception:
-                                pass
-                        _diag_check("BEFORE_MERGE_DUPES", citations_list)
                         # USER FIX: Merge duplicate clusters (same case appearing multiple times)
                         # This catches cases like "Clarke v. Tri-Cities" and "Clarke v. TCAC"
                         # Also catches "Hearst Communications" vs "Hearst Corp" with same date
@@ -1665,12 +1494,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Removed {len(to_remove)} duplicate clusters, now {len(clusters_list)}"
                                 )
 
-                        if PSUTIL_AVAILABLE:
-                            try:
-                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                logger.warning(f"[MEM-CHECKPOINT] After merge-dupes, before parallel-merge: {_mem:.0f}MB")
-                            except Exception:
-                                pass
                         # USER FIX: Merge unverified singleton clusters into verified clusters
                         # when they're parallel citations (close position in text)
                         if clusters_list and citations_list and len(clusters_list) > 1:
@@ -1933,12 +1756,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Merged {len(merged_indices)} parallel citations, now {len(clusters_list)} clusters"
                                 )
 
-                        if PSUTIL_AVAILABLE:
-                            try:
-                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                logger.warning(f"[MEM-CHECKPOINT] After parallel-merge, before same-name-merge: {_mem:.0f}MB")
-                            except Exception:
-                                pass
                         # USER FIX: Merge unverified clusters with same extracted name
                         # This handles cases like Horvath appearing twice with different citations
                         # CRITICAL FIX: Only merge if ALL citations have the same extracted name
@@ -2044,12 +1861,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     f"[TASK:{task_id}] Merged unverified same-name clusters, now {len(clusters_list)} clusters"
                                 )
 
-                        if PSUTIL_AVAILABLE:
-                            try:
-                                _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                                logger.warning(f"[MEM-CHECKPOINT] Before WL-DEDUP: {_mem:.0f}MB")
-                            except Exception:
-                                pass
                         # Merge clusters sharing the same base WL/LEXIS number
                         # e.g., "2016 WL 6070490" and "2016 WL 6070490, *5 (2016)" are the same case
                         if clusters_list and len(clusters_list) > 1:
@@ -2096,7 +1907,7 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     if not _wl_same_case(ln, on):
                                         # Exception: if one is N/A, absorb into the named cluster
                                         if _wl_has_name(ln) and not _wl_has_name(on):
-                                            logger.warning(f"[TASK:{task_id}] NEWCODE-V4 WL-DEDUP: absorbing N/A cluster into '{ln}' for '{base}' [TRACE-A t={__import__('time').time()}]")
+                                            logger.info(f"[TASK:{task_id}] WL-DEDUP: absorbing N/A cluster into '{ln}' for '{base}'")
                                         elif _wl_has_name(on) and not _wl_has_name(ln):
                                             # Swap leader to the one with the name
                                             clusters_list[leader_idx], clusters_list[idx] = clusters_list[idx], clusters_list[leader_idx]
@@ -2131,42 +1942,12 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                                     logger.info(
                                         f"[TASK:{task_id}] WL-DEDUP: merged cluster {idx} into {leader_idx} for '{base}'"
                                     )
-                            logger.warning(f"[TRACE-B] WL-DEDUP inner loop done base='{base}' wl_to_remove={wl_to_remove} t={__import__('time').time()}")
                             if wl_to_remove:
                                 clusters_list = [c for i, c in enumerate(clusters_list) if i not in wl_to_remove]
                                 logger.info(
                                     f"[TASK:{task_id}] WL-DEDUP: removed {len(wl_to_remove)} duplicate WL/LEXIS clusters, now {len(clusters_list)}"
                                 )
-                        logger.warning(f"[TRACE-C] WL-DEDUP block exited t={__import__('time').time()}")
-                        # TRUE RSS after WL-DEDUP loop
-                        try:
-                            with open('/proc/self/status') as _pf2:
-                                for _line2 in _pf2:
-                                    if _line2.startswith('VmRSS:'):
-                                        _true_rss2 = int(_line2.split()[1]) // 1024
-                                        logger.warning(f"[MEM-CHECKPOINT] After WL-DEDUP TRUE RSS: {_true_rss2}MB")
-                                        import sys; sys.stderr.flush(); sys.stdout.flush()
-                                        break
-                        except Exception:
-                            pass
-
-                        # TRUE RSS before case history split
-                        try:
-                            with open('/proc/self/status') as _pf3:
-                                for _line3 in _pf3:
-                                    if _line3.startswith('VmRSS:'):
-                                        _true_rss3 = int(_line3.split()[1]) // 1024
-                                        logger.warning(f"[MEM-CHECKPOINT] Before case-history-split TRUE RSS: {_true_rss3}MB")
-                                        import sys; sys.stderr.flush(); sys.stdout.flush()
-                                        break
-                        except Exception:
-                            pass
-                        # Release the full document text early to free memory before final steps
-                        # Nothing after case history splitting needs the raw text
-                        import sys as _sys_flush
-                        logger.info(f"[TASK:{task_id}] Pre-split checkpoint: {len(clusters_list)} clusters, {len(citations_list)} citations, text={len(text) if text else 0} chars")
-                        _sys_flush.stdout.flush()
-                        _sys_flush.stderr.flush()
+                        logger.info(f"[TASK:{task_id}] Pre-split: {len(clusters_list)} clusters, {len(citations_list)} citations")
 
                         # CRITICAL FIX: Split clusters when case history signals (aff'd, rev'd) appear between citations
                         # This handles cases like Meri-Weather where trial and appellate citations are incorrectly merged
@@ -2318,22 +2099,10 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                         text = None
                         _force_release_memory()
 
-                        logger.warning(f"[TRACE-D] text released t={__import__('time').time()}")
                         logger.info(
                             f"[TASK:{task_id}] Pipeline completed: {len(citations_list)} citations, {len(clusters_list)} clusters"
                         )
 
-                        # TRUE RSS before PARALLEL-CONSISTENCY
-                        try:
-                            with open('/proc/self/status') as _pf4:
-                                for _line4 in _pf4:
-                                    if _line4.startswith('VmRSS:'):
-                                        _true_rss4 = int(_line4.split()[1]) // 1024
-                                        logger.warning(f"[MEM-CHECKPOINT] Before PARALLEL-CONSISTENCY TRUE RSS: {_true_rss4}MB")
-                                        import sys; sys.stderr.flush(); sys.stdout.flush()
-                                        break
-                        except Exception:
-                            pass
                         # CRITICAL FIX DEC 2025: Final consistency pass for true_by_parallel
                         # Ensures no cluster has mixed "Unverified" + "Verified by Parallel" citations
                         logger.info(
@@ -2777,13 +2546,6 @@ def _process_citation_task_internal(task_id: str, input_type: str, input_data: d
                     # Recompute verified count after fallback
                     verified_count = sum(1 for c in citations_list if isinstance(c, dict) and c.get("verified", False))
 
-                    if PSUTIL_AVAILABLE:
-                        try:
-                            _mem = psutil.Process().memory_info().rss / 1024 / 1024
-                            logger.warning(f"[MEM-CHECKPOINT] Before result-building: {_mem:.0f}MB")
-                            import sys as _sf3; _sf3.stdout.flush(); _sf3.stderr.flush()
-                        except Exception:
-                            pass
                     # CRITICAL FIX: Strip signal phrases from all case names before final output (shared utils)
                     from src.utils.cluster_display_utils import (
                         strip_signal_phrases,
