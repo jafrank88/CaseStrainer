@@ -193,6 +193,18 @@ class URLBuilder:
             reporter = f"F.{reporter_vol}d"
             return f"https://law.justia.com/cases/federal/appellate-courts/{reporter}/{volume}/{page}/"
         
+        # Federal Supplement: 766 F. Supp. 3d 266, 123 F. Supp. 2d 456, 100 F. Supp. 789
+        fsupp_match = re.match(r"(\d+)\s+F\.?\s*Supp\.?\s*(\d+)?d?\s+(\d+)", citation, re.IGNORECASE)
+        if fsupp_match:
+            volume = fsupp_match.group(1)
+            series = fsupp_match.group(2)  # None for plain "F. Supp.", "2" for 2d, "3" for 3d
+            page = fsupp_match.group(3)
+            if series:
+                reporter_slug = f"FSupp{series}"
+            else:
+                reporter_slug = "FSupp"
+            return f"https://law.justia.com/cases/federal/district-courts/{reporter_slug}/{volume}/{page}/"
+        
         return None
     
     @staticmethod

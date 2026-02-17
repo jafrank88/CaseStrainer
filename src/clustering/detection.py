@@ -7,8 +7,8 @@ Detects parallel citations and structural citation groups.
 
 import re
 import logging
-from typing import List, Dict, Any, Optional, Set, Tuple
-from collections import defaultdict
+from typing import List, Dict, Any, Optional
+from src.utils.same_case import has_case_name, names_are_same_case
 
 logger = logging.getLogger(__name__)
 
@@ -19,20 +19,49 @@ def _get_attr(citation: Any, key: str, default: Any = None) -> Any:
         return citation.get(key, default)
     return getattr(citation, key, default)
 
-# Pre-compiled patterns for performance
-PARALLEL_PATTERNS = {
-    "washington": re.compile(r"(\d+)\s+(?:Wn\.|Wash\.)\d*d\s+\d+.*?", re.IGNORECASE),
-    "federal": re.compile(r"(\d+)\s+F\.\d*d\s+\d+.*?", re.IGNORECASE),
-    "supreme": re.compile(r"(\d+)\s+S\.\s*Ct\.\s+\d+.*?", re.IGNORECASE),
-    "generic": re.compile(r"(\d+)\s+[A-Z][a-z]*\.\d*d?\s+\d+.*?", re.IGNORECASE),
-}
-
 SEPARATOR_PATTERN = re.compile(r"[,;]\s*")
+
+
+# Pattern to detect TOA dotted leaders between citations
+_TOA_DOTS_PATTERN = re.compile(r'\.{3,}')
+
+# ECN cleaning pattern for TOA prefixes
+_TOA_PREFIX_RE = re.compile(
+    r'^(?:TABLE\s+OF\s+AUTHORITIES\s+)?(?:(?:I{1,3}V?|V?I{0,3})\s+)?'
+    r'Cases(?:[\u2014\-\u2013]Continued)?(?:\s*:\s*|\s+)(?:Page\s+)?',
+    re.IGNORECASE
+)
+
+def _clean_ecn(raw):
+    """Strip TOA prefixes, docket numbers, and trailing citation text from extracted_case_name."""
+    if not raw:
+        return ""
+    c = _TOA_PREFIX_RE.sub('', raw).strip()
+    c = re.sub(r'^Page\s+(?=[A-Z])', '', c).strip()
+    # Strip trailing citation text (e.g. ", 2 Cranch 64" or ", 765 F. Supp. 3d 102")
+    c = re.sub(r',\s*\d+\s+(?:Cranch|Wheat|Pet|How|Wall|Black|U\.S\.|S\.Ct\.|L\.Ed|F\.\d*|F\.\s*Supp).*$', '', c).strip()
+    # Strip docket numbers: ", No. 2", ", No. CV 25", ", No. 17", ", No. 3", or bare ", No"
+    c = re.sub(r',\s*No\.?\s*(?:[\w\-\.]+(?:\s+[\w\-\.]+)*)?\s*$', '', c, flags=re.IGNORECASE).strip()
+    # Strip trailing commas, numbers, and junk (e.g. ", , 1337, 2020" or ", 2020")
+    c = re.sub(r'(?:,\s*)+(?:\d{1,5}\s*,?\s*)*$', '', c).strip()
+    # Strip trailing comma
+    c = c.rstrip(',').strip()
+    return c
+
+def _same_case_check(cit_a, cit_b):
+    """Return True if two citations plausibly belong to the same case.
+
+    Delegates to the shared canonical implementation in src.utils.same_case.
+    """
+    ecn_a = _clean_ecn(_get_attr(cit_a, "extracted_case_name", "") or "")
+    ecn_b = _clean_ecn(_get_attr(cit_b, "extracted_case_name", "") or "")
+    return names_are_same_case(ecn_a, ecn_b)
 
 
 def detect_parallel_groups(
     citations: List[Dict[str, Any]], 
-    proximity_threshold: int = 150
+    proximity_threshold: int = 150,
+    original_text: str = ""
 ) -> List[List[Dict[str, Any]]]:
     """
     Detect groups of parallel citations based on proximity.
@@ -40,6 +69,7 @@ def detect_parallel_groups(
     Args:
         citations: List of citation dictionaries with position info
         proximity_threshold: Max distance between citations to be considered parallel
+        original_text: Original document text (used to detect TOA sections)
         
     Returns:
         List of citation groups (each group is a list of citations)
@@ -60,7 +90,27 @@ def detect_parallel_groups(
         prev_end = _get_attr(current_group[-1], "end_index") or _get_attr(current_group[-1], "end_pos", 0)
         curr_start = _get_attr(citation, "start_index") or _get_attr(citation, "start_pos", 0)
         
-        if curr_start - prev_end <= proximity_threshold:
+        # Fallback: if end_index is missing, estimate from start_index + citation length
+        if not prev_end:
+            prev_cit_text = _get_attr(current_group[-1], "citation", "")
+            prev_start = _get_attr(current_group[-1], "start_index") or _get_attr(current_group[-1], "start_pos", 0)
+            if prev_start and prev_cit_text:
+                prev_end = prev_start + len(prev_cit_text)
+        
+        is_close = curr_start - prev_end <= proximity_threshold if (prev_end and curr_start) else True
+        
+        # TOA guard: if the text between two close citations contains dotted leaders
+        # (e.g., "............"), they are separate TOA entries, not parallel citations
+        if is_close and original_text and prev_end and curr_start:
+            text_between = original_text[prev_end:curr_start]
+            if _TOA_DOTS_PATTERN.search(text_between):
+                is_close = False
+        
+        # Same-case check: only group if citations plausibly belong to same case
+        if is_close and not _same_case_check(current_group[-1], citation):
+            is_close = False
+        
+        if is_close:
             current_group.append(citation)
         else:
             # Include single citations as standalone groups
@@ -112,12 +162,24 @@ def detect_structural_groups(
         # Check if followed by comma/semicolon and another citation pattern
         if SEPARATOR_PATTERN.match(context):
             # Look for subsequent citations
+            chain_end = end_pos
             for j in range(i + 1, len(citations)):
                 next_cit = citations[j]
                 next_start = _get_attr(next_cit, "start_index") or _get_attr(next_cit, "start_pos", 0)
+                next_end = _get_attr(next_cit, "end_index") or _get_attr(next_cit, "end_pos", 0)
                 
-                if next_start and next_start - end_pos < 300:
+                if next_start and next_start - chain_end < 300:
+                    # TOA guard: check for dotted leaders between citations
+                    if text and chain_end and next_start:
+                        text_between = text[chain_end:next_start]
+                        if _TOA_DOTS_PATTERN.search(text_between):
+                            break
+                    # Same-case check: only chain if same case
+                    if not _same_case_check(citation, next_cit):
+                        continue
                     nearby.append(next_cit)
+                    if next_end:
+                        chain_end = next_end
                 else:
                     break
         

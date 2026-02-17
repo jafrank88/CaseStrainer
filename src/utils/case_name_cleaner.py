@@ -1,5 +1,8 @@
 import re
 
+# Re-export is_valid_case_name for easy access
+from src.extraction.validation import is_valid_case_name  # noqa: F401
+
 
 def expand_abbreviations(case_name: str) -> str:
     """Expand common legal abbreviations that get truncated."""
@@ -51,6 +54,41 @@ def clean_extracted_case_name(case_name: str) -> str:
 
     name = case_name
 
+    # Fix PDF line-break hyphenation (e.g., "Co- hens" → "Cohens", "Vir- ginia" → "Virginia")
+    # Pattern: word fragment + hyphen/dash + whitespace(s) + lowercase continuation
+    # Use \s+ to catch all whitespace types (regular space, non-breaking space \xa0, etc.)
+    # Also handle different hyphen/dash types that may appear in PDFs (-, –, —)
+    name = re.sub(r"(\w)[-–—]\s+([a-z])", r"\1\2", name)
+
+    # FIX 2026-02-04: Handle cases where PDF extraction removed the hyphen entirely
+    # Pattern: "Swin dle" → "Swindle", "Gard ner" → "Gardner", "Labo ratories" → "Laboratories"
+    # Match: Capital letter + word fragment + space + lowercase fragment (looks like split word)
+    # Be conservative to avoid joining "A dog" or "The court"
+    def rejoin_split_words(match):
+        """Rejoin word fragments that were split by PDF line breaks."""
+        part1 = match.group(1)
+        part2 = match.group(2)
+        combined = part1 + part2
+
+        # Don't rejoin common standalone words
+        common_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'has', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'did', 'get', 'let', 'put', 'say', 'she', 'too', 'use'}
+        if part1.lower() in common_words or part2.lower() in common_words:
+            return match.group(0)
+
+        # Rejoin if:
+        # 1. First part is 2+ chars (not just "A" or "I")
+        # 2. Second part is 2+ chars
+        # 3. Combined word looks reasonable (3+ chars)
+        if len(part1) >= 2 and len(part2) >= 2 and len(combined) >= 5:
+            return combined
+
+        return match.group(0)  # Keep original if not confident
+
+    # Match patterns like "Swin dle", "Gard ner", "Labo ratories"
+    # First part: capital + letters, 2-10 chars
+    # Second part: lowercase letters, 2-10 chars
+    name = re.sub(r'\b([A-Z][a-z]{1,9})\s+([a-z]{2,10})\b', rejoin_split_words, name)
+
     # Remove leading punctuation and whitespace
     name = re.sub(r"^[\s\.,;:]+", "", name)
     # Remove trailing punctuation and whitespace
@@ -67,6 +105,44 @@ def clean_extracted_case_name(case_name: str) -> str:
     ]
     for pattern in cleanup_patterns:
         name = re.sub(pattern, "", name, flags=re.IGNORECASE)
+
+    # CRITICAL FIX: Remove trailing years and dates from case names
+    # Patterns like ", 2020", ", 2020-06-26", " (2020)", etc.
+    # This prevents document publication years from contaminating case names
+    # ENHANCED: Also remove years that appear anywhere in the name (not just trailing)
+    # This handles cases where extraction patterns match "Case Name, 2020" as a single match
+    trailing_year_patterns = [
+        r",\s*\d{4}(?:-\d{2}-\d{2})?\s*$",  # ", 2020" or ", 2020-06-26" at end
+        r"\s+\(\d{4}\)\s*$",  # " (2020)" at end
+        r",\s*\d{4}\s*$",  # ", 2020" at end (more specific)
+        r",\s*\d{4}(?:-\d{2}-\d{2})?\s*(?=,|$|;)",  # ", 2020" anywhere before comma/semicolon/end
+        r"\s+\(\d{4}\)\s*(?=,|$|;)",  # " (2020)" anywhere before comma/semicolon/end
+    ]
+    for pattern in trailing_year_patterns:
+        name = re.sub(pattern, "", name, flags=re.IGNORECASE)
+    
+    # ENHANCED: Also remove standalone years (>= 2020) that appear after case names
+    # This catches cases like "Davis v. Federal Election Comm'n, 2020" where year is part of extraction
+    # Only remove recent years (>= 2020) to avoid removing valid case years like "2008"
+    # CRITICAL: Remove years >= 2020 anywhere in the name (not just at end)
+    recent_year_patterns = [
+        r",\s*(20[2-9]\d|2[1-9]\d{2})\s*(?=,|$|;|\.)",  # ", 2020" before comma/semicolon/period/end
+        r",\s*(20[2-9]\d|2[1-9]\d{2})\s*$",  # ", 2020" at end
+        r"\s+(20[2-9]\d|2[1-9]\d{2})\s*(?=,|$|;|\.)",  # " 2020" before punctuation/end
+    ]
+    for pattern in recent_year_patterns:
+        name = re.sub(pattern, "", name, flags=re.IGNORECASE)
+    
+    # FINAL SAFEGUARD: If name still contains "2020" or similar, remove it aggressively
+    # This handles edge cases where patterns didn't catch it (e.g., "Davis v. Federal Election Comm'n, 2020")
+    if re.search(r"20[2-9]\d", name):
+        # Find and remove any occurrence of "2020" or similar years
+        name = re.sub(r",?\s*20[2-9]\d\s*,?\s*", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\s+20[2-9]\d\s*", " ", name, flags=re.IGNORECASE)
+        name = re.sub(r"20[2-9]\d\s*", "", name, flags=re.IGNORECASE)
+        # Clean up any double spaces or trailing commas
+        name = re.sub(r"\s+", " ", name).strip()
+        name = re.sub(r",\s*$", "", name)
 
     # If the core "X v. Y" is present, trim around it to avoid extra prose
     v_match = re.search(r"([A-Z][A-Za-z0-9&\.\'\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\'\s-]+)", name)

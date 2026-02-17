@@ -39,9 +39,8 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 import os
 
-# UNIFIED IMPORTS - Use unified_case_extraction_master instead
-# These imports provide the single source of truth for extraction
-from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+# UNIFIED IMPORTS - Use src.extraction for extraction (single source of truth)
+from src.extraction import extract_case_name_and_date_unified_master
 
 from src.unified_clustering_master_optimized import cluster_citations_optimized as cluster_citations_unified
 import warnings
@@ -49,6 +48,7 @@ import warnings
 # Import helper for filtering cluster members (moved to utils to avoid circular imports)
 from src.utils.cluster_filter import filter_cluster_members_by_reporter
 from src.utils.same_case import has_case_name, names_are_same_case
+from src.utils.date_utils import years_match_for_verification
 
 logger = logging.getLogger(__name__)
 
@@ -66,7 +66,7 @@ except Exception as e:
     logger.warning(f"Eyecite import failed with unexpected error: {e}")
 
 # REMOVED: Unused imports from case_name_extraction_core
-# These functions are not used in this module since we use unified_case_extraction_master
+# These functions are not used in this module since we use src.extraction
 
 try:
     from src.comprehensive_websearch_engine import search_cluster_for_canonical_sources
@@ -676,17 +676,10 @@ class UnifiedCitationProcessorV2:
                         # Provide a coarse confidence: 1.0 when clearly different, else 0.0
                         citation.mismatch_confidence = 1.0 if not names_match else 0.0
 
-                # Date mismatch: compare years if both present
-                def _extract_year(val):
-                    if not val:
-                        return None
-                    import re
-
-                    m = re.search(r"(19|20)\d{2}", str(val))
-                    return m.group(0) if m else None
-
-                ext_year = _extract_year(getattr(citation, "extracted_date", None))
-                can_year = _extract_year(getattr(citation, "canonical_date", None))
+                # Date mismatch: compare years if both present (single source: date_utils)
+                from src.utils.date_utils import extract_year_value
+                ext_year = extract_year_value(getattr(citation, "extracted_date", None))
+                can_year = extract_year_value(getattr(citation, "canonical_date", None))
                 if ext_year and can_year and hasattr(citation, "__dict__"):
                     citation.date_mismatch = ext_year != can_year
             except Exception as e:
@@ -1230,24 +1223,47 @@ class UnifiedCitationProcessorV2:
         return validation_result
 
     def _verify_with_courtlistener(self, citations) -> dict:
-        """Verify citations using existing CourtListener verification services"""
+        """Verify citations using src.verification (UnifiedVerificationMaster batch)."""
         try:
-            # Use the existing verification services
-            from verification_services import CourtListenerService
+            import asyncio
+            from src.verification import get_master_verifier
 
-            service = CourtListenerService()
             citation_strings = [c.citation for c in citations if hasattr(c, "citation")]
-
             if not citation_strings:
                 return {}
 
-            # Use the existing batch verification method
-            results = service.verify_citations_batch(citation_strings)
-
-            return results
-
+            verifier = get_master_verifier()
+            case_names = [getattr(c, "extracted_case_name", None) for c in citations if hasattr(c, "citation")]
+            case_dates = [getattr(c, "extracted_date", None) for c in citations if hasattr(c, "citation")]
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                results_list = loop.run_until_complete(
+                    verifier.verify_citations_batch(
+                        citation_strings,
+                        extracted_case_names=case_names if case_names else None,
+                        extracted_dates=case_dates if case_dates else None,
+                        progress_callback=None,
+                        enable_fallback=False,
+                    )
+                )
+            finally:
+                loop.close()
+            # Convert List[VerificationResult] to dict keyed by citation (old API shape)
+            out = {}
+            for r in results_list:
+                cit = getattr(r, "citation", None) or (r.citation if hasattr(r, "citation") else None)
+                if cit is not None:
+                    out[cit] = {
+                        "verified": getattr(r, "verified", r.verified),
+                        "canonical_name": getattr(r, "canonical_name", r.canonical_name),
+                        "canonical_date": getattr(r, "canonical_date", r.canonical_date),
+                        "canonical_url": getattr(r, "canonical_url", r.canonical_url),
+                        "source": getattr(r, "source", r.source),
+                    }
+            return out
         except Exception as e:
-            logger.warning(f"Error using existing CourtListener verification service: {e}")
+            logger.warning(f"Error using verification (CourtListener batch): {e}")
             return {}
 
     def _verify_citations_sync(
@@ -1268,7 +1284,7 @@ class UnifiedCitationProcessorV2:
 
         # Use the new unified verification master with BATCH processing
         try:
-            from src.unified_verification_master import UnifiedVerificationMaster
+            from src.verification import UnifiedVerificationMaster
             import asyncio
 
             logger.info("[VERIFICATION] Using BATCH VERIFICATION (250 citations per API call)")
@@ -1403,7 +1419,7 @@ class UnifiedCitationProcessorV2:
                         import gc
                         gc.collect()
                         all_results = future.result(timeout=600.0)
-                        # CRITICAL: Force glibc to return freed pages to OS
+                        # OOM-FIX: Force glibc to return freed pages to OS after verification.
                         # After verification, HTTP response data is freed by gc but
                         # glibc malloc keeps pages mapped (RSS stays at 4GB).
                         # malloc_trim(0) forces page release.
@@ -1417,7 +1433,7 @@ class UnifiedCitationProcessorV2:
                             pass
                 except TimeoutError:
                     logger.error(f"[BATCH-TIMEOUT] Master batch verification timed out after 600s")
-                    from src.unified_verification_master import VerificationResult
+                    from src.verification import VerificationResult
 
                     all_results = [
                         VerificationResult(
@@ -1430,7 +1446,7 @@ class UnifiedCitationProcessorV2:
                     logger.error(f"[BATCH-ERROR] Master batch verification failed: {e}")
                     logger.error(f"[BATCH-ERROR] Exception type: {type(e).__name__}")
                     logger.error(f"[BATCH-ERROR] Traceback:\n{traceback.format_exc()}")
-                    from src.unified_verification_master import VerificationResult
+                    from src.verification import VerificationResult
 
                     all_results = [
                         VerificationResult(
@@ -1472,54 +1488,23 @@ class UnifiedCitationProcessorV2:
                                 f"[TOA-YEAR-SKIP] {citation.citation}: TOA citation - skipping year validation (extracted year unreliable)"
                             )
                         elif extracted_date and canonical_date:
-                            ext_year = re_module.search(r"(19|20)\d{2}", str(extracted_date))
-                            can_year = re_module.search(r"(19|20)\d{2}", str(canonical_date))
-                            if ext_year and can_year:
-                                year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                                
-                                # Check if this is a Federal Reporter citation
-                                citation_str = str(getattr(citation, "citation", ""))
-                                is_federal_reporter = bool(re_module.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
-                                
-                                if is_federal_reporter:
-                                    # For Federal Reporter citations, the year in the citation is the decision year
-                                    # CourtListener's dateFiled is when it was added to database, not the decision date
-                                    # Skip year comparison for Federal Reporter citations
-                                    year_match = True
-                                    logger.info(
-                                        f"[FED-YEAR-SKIP] {citation.citation}: Federal Reporter - skipping year comparison (citation year is authoritative)"
+                            citation_str = str(getattr(citation, "citation", ""))
+                            is_federal_reporter = bool(re_module.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                            if is_federal_reporter:
+                                year_match = True
+                                logger.info(
+                                    f"[FED-YEAR-SKIP] {citation.citation}: Federal Reporter - skipping year comparison (citation year is authoritative)"
+                                )
+                            else:
+                                match, year_diff, extracted_clearly_wrong = years_match_for_verification(
+                                    extracted_date, canonical_date, tolerance=0
+                                )
+                                year_match = match or extracted_clearly_wrong
+                                if extracted_clearly_wrong:
+                                    logger.warning(
+                                        f"[BATCH-YEAR-FIX] {citation.citation}: Extracted date {extracted_date} "
+                                        f"treated as clearly wrong vs {canonical_date} (diff={year_diff}) - ignoring mismatch"
                                     )
-                                else:
-                                    # CRITICAL FIX: Detect clearly wrong extracted dates
-                                    # Examples: 2016 for a 1928 case (document publication date)
-                                    ext_year_int = int(ext_year.group(0))
-                                    can_year_int = int(can_year.group(0))
-                                    is_extracted_date_clearly_wrong = False
-                                    
-                                    # Check if extracted year is suspiciously recent for old cases
-                                    if ext_year_int >= 2015 and can_year_int < 1950:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.warning(
-                                            f"[BATCH-YEAR-FIX] {citation.citation}: Extracted date {extracted_date} "
-                                            f"is clearly wrong (recent document date) for old case ({canonical_date}) - ignoring mismatch"
-                                        )
-                                    elif year_diff > 50:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.warning(
-                                            f"[BATCH-YEAR-FIX] {citation.citation}: Extracted date {extracted_date} "
-                                            f"is clearly wrong (diff: {year_diff} years > 50) vs {canonical_date} - ignoring mismatch"
-                                        )
-                                    
-                                    # If extracted date is clearly wrong, accept the verification
-                                    if is_extracted_date_clearly_wrong:
-                                        year_match = True
-                                    else:
-                                        # Standard 1-year tolerance for other citations
-                                        year_match = year_diff <= 1
-                                        if year_diff == 1:
-                                            logger.info(
-                                                f"[BATCH-YEAR-TOLERANCE] {citation.citation}: ±1 year accepted - extracted {ext_year.group(0)} vs canonical {can_year.group(0)}"
-                                            )
 
                         if not year_match:
                             logger.warning(
@@ -1712,7 +1697,7 @@ class UnifiedCitationProcessorV2:
 
             # Apply known federal citations (shared with rq_worker / vue_api path)
             try:
-                from src.unified_verification_master import apply_known_federal_to_citation_objects
+                from src.verification import apply_known_federal_to_citation_objects
                 apply_known_federal_to_citation_objects(citations)
             except Exception as _e:
                 logger.warning(f"[KNOWN-CITATION] Could not apply known citations: {_e}")
@@ -1725,7 +1710,7 @@ class UnifiedCitationProcessorV2:
                     citation.verified = False
                     citation.verification_status = "error"
 
-        # Force memory release before returning to pipeline/rq_worker.
+        # OOM-FIX: Force memory release before returning to pipeline/rq_worker.
         # HTTP response data, JSON parse trees, and intermediate verification objects
         # accumulate during verification. gc.collect() frees Python objects, and
         # malloc_trim(0) forces glibc to return freed pages to the OS.
@@ -2228,6 +2213,31 @@ class UnifiedCitationProcessorV2:
                     if len(name) > 5:
                         return name
 
+            # Strategy 4: Short-form case name from text immediately before the citation
+            # Handles patterns like:
+            #   "see also Gomes, No. 20-CV-453-LM, 2020 WL 2113642"
+            #   "Ouadani, 405 F. Supp. 3d at 163"
+            #   "Gomes, 2020 WL 2113642"
+            # Look in the last 80 chars before the citation for a capitalized name
+            # followed by a comma and then a docket number, volume, or the citation itself.
+            short_ctx = context_before[-80:] if len(context_before) > 80 else context_before
+            # Pattern: optional signal word, then "Name," immediately before docket/citation
+            # The name must start with a capital letter and can include dots, hyphens, apostrophes
+            short_match = re.search(
+                r'(?:^|[;.]\s*|\b(?:see\s+(?:also\s+)?|accord\s+|compare\s+|but\s+see\s+|cf\.?\s+))'
+                r'([A-Z][A-Za-z\'\.\-]+(?:\s+[A-Z][A-Za-z\'\.\-]+)*)'
+                r',\s*(?:No\.\s|at\s+\d|\d{1,3}\s+[A-Z]|\d{4}\s+WL\s)',
+                short_ctx
+            )
+            if short_match:
+                name = short_match.group(1).strip()
+                # Reject if it's a common non-name word (signal words, court names)
+                _reject = {'See', 'Also', 'But', 'Accord', 'Compare', 'Citing',
+                           'The', 'This', 'That', 'Here', 'Where', 'When', 'Because',
+                           'However', 'Moreover', 'Furthermore', 'Although', 'Thus'}
+                if name not in _reject and len(name) >= 3:
+                    return name
+
         except Exception:
             pass
         return "N/A"
@@ -2369,7 +2379,8 @@ class UnifiedCitationProcessorV2:
         # Remove trailing year patterns like ", 1803" or ", 2025"
         cleaned = re.sub(r",\s*(?:19|20)\d{2}\s*$", "", cleaned).strip()
         # Remove trailing docket number fragments like ", No. 24-1287", ", No. 2", ", No. CV 25", bare ", No"
-        cleaned = re.sub(r",?\s*No\.?\s*(?:,?\s*(?:CIV\.?\s+|CV\s+)?[\w\-\.]+(?:\s+[\w\-\.]+)*)?\s*$", "", cleaned, flags=re.IGNORECASE).strip()
+        # CRITICAL: Require comma or whitespace before "No" to avoid matching inside words like "Moreno", "McDonough"
+        cleaned = re.sub(r"(?:,\s*|\s+)No\.?\s*(?:,?\s*(?:CIV\.?\s+|CV\s+)?[\w\-\.]+(?:\s+[\w\-\.]+)*)?\s*$", "", cleaned, flags=re.IGNORECASE).strip()
         # Remove trailing commas, numbers, and junk (e.g. ", , 1337, 2020")
         cleaned = re.sub(r"(?:,\s*)+(?:\d{1,5}\s*,?\s*)*$", "", cleaned).strip()
         # Remove trailing commas/periods
@@ -2947,7 +2958,7 @@ class UnifiedCitationProcessorV2:
         # OPTIMIZATION: Cache extraction results by citation position to avoid duplicate work
         extraction_cache = {}  # Key: (start_index, end_index), Value: extracted_name
         try:
-            from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+            from src.extraction import extract_case_name_and_date_unified_master
 
             for c in citations:
                 try:
@@ -2971,6 +2982,21 @@ class UnifiedCitationProcessorV2:
                             embedded_name = v_match.group(1).strip().rstrip(",")
                             if len(embedded_name) > 5:
                                 method0_name = embedded_name
+
+                    # Method 0b: Short-form case name extraction from citation text
+                    # Handles citations like "Gomes, No. 20-CV-453-LM, 2020 WL 2113642"
+                    # or "Ouadani, 405 F. Supp. 3d at 163" where a party name appears
+                    # before a docket number or reporter without a "v." pattern.
+                    if not method0_name and citation_text:
+                        # Pattern: "Name, No. XX-..." (docket number prefix)
+                        short_docket = re.match(
+                            r'^([A-Z][A-Za-z\'\.\-\s]+?),\s*No\.\s',
+                            citation_text
+                        )
+                        if short_docket:
+                            candidate = short_docket.group(1).strip().rstrip(",")
+                            if len(candidate) >= 3 and candidate[0].isupper():
+                                method0_name = candidate
 
                     # OPTIMIZATION: Check cache first to avoid duplicate extraction
                     cache_key = (start_index, end_index)
@@ -3021,17 +3047,29 @@ class UnifiedCitationProcessorV2:
                         # SERIES CITATION FIX: Check if this is NOT the first citation in a series
                         # If it's not the first, skip case name extraction to prevent incorrect association
                         if start_index and start_index > 0:
-                            # Look backwards to see if there's another citation within 100 characters
-                            look_behind = text[max(0, start_index - 100):start_index]
-                            prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
+                            # Look backwards to see if there's another citation within 300 characters
+                            # (increased from 100 — parenthetical text between citations can be long)
+                            look_behind = text[max(0, start_index - 300):start_index]
+                            prev_citation_pattern = (
+                                r'\d{4}\s+WL\s+\d+'           # WL citations
+                                r'|\d+\s+F\.\s*Supp\.\s*(?:2d|3d)\s+(?:at\s+)?\d+'  # F. Supp. 2d/3d (incl. pinpoint "at")
+                                r'|\d+\s+F\.?(?:2d|3d|4th)\s+(?:at\s+)?\d+'  # F.2d, F.3d, F.4th
+                                r'|\d+\s+U\.\s*S\.\s+(?:at\s+)?\d+'  # U.S.
+                                r'|\d+\s+S\.\s*Ct\.\s+(?:at\s+)?\d+' # S. Ct.
+                                r'|\d+\s+F\.\s*R\.\s*D\.\s+(?:at\s+)?\d+'  # F.R.D.
+                            )
                             
                             if re.search(prev_citation_pattern, look_behind):
                                 # This is NOT the first citation in a series
-                                # Skip case name extraction entirely
-                                logger.info(f"[SERIES-FIX] Skipping case name extraction for non-first citation: {citation_text}")
-                                final_name = "N/A"
-                                # Skip to the end of this extraction attempt
-                                citation.extracted_case_name = final_name
+                                # Skip master/context extraction but keep Method 0/0b name if found
+                                if method0_name:
+                                    logger.info(f"[SERIES-FIX] Non-first citation, using embedded name '{method0_name}': {citation_text[:50]}")
+                                    final_name = method0_name
+                                else:
+                                    logger.info(f"[SERIES-FIX] Skipping case name extraction for non-first citation: {citation_text[:50]}")
+                                    final_name = "N/A"
+                                c.extracted_case_name = self._clean_extracted_case_name(final_name) if final_name != "N/A" else final_name
+                                extraction_cache[cache_key] = c.extracted_case_name
                                 continue
                         
                         # USER DEBUG: Enable debug for U.S. Reports, S.Ct., L.Ed. to diagnose vacatur pattern
@@ -3059,7 +3097,32 @@ class UnifiedCitationProcessorV2:
                         )
                         master_name = (res or {}).get("case_name") or ""
 
-                        # OPTIMIZATION: Changed to debug level to reduce logging overhead
+                        # CONTAMINATION GUARD: If master extractor found a "v." name,
+                        # check if there's an intervening citation between that name
+                        # and the current citation. If so, the name belongs to the
+                        # intervening citation, not ours.
+                        # Example: "Kornberg v. Carnival Cruise Lines, 741 F.2d 1332...
+                        #           Ouadani, 405 F. Supp. 3d at 163... Gomes, 2020 WL 2113642"
+                        # Without this guard, Gomes gets Kornberg's name.
+                        if master_name and master_name != "N/A" and " v. " in master_name:
+                            # Find where the name appears in the context window
+                            name_pos_in_ctx = context_text.find(master_name[:30])
+                            if name_pos_in_ctx >= 0:
+                                # Text between the found name and the citation
+                                cit_pos_in_ctx = (start_index or 0) - ctx_start
+                                between = context_text[name_pos_in_ctx + len(master_name):cit_pos_in_ctx]
+                                # Check for intervening citations
+                                _intervening_pat = (
+                                    r'\d+\s+[A-Z][A-Za-z.]*\.\s*(?:\d+[a-z]{0,2}\s+)?\d+'
+                                    r'|\d{4}\s+WL\s+\d+'
+                                    r'|\d+\s+F\.\s*R\.\s*D\.\s+\d+'
+                                )
+                                if re.search(_intervening_pat, between):
+                                    logger.info(
+                                        f"[CONTAM-GUARD] Rejected master name '{master_name}' for "
+                                        f"'{citation_text[:50]}' — intervening citation found"
+                                    )
+                                    master_name = ""
 
                         # Clean contamination from master extractor result
                         if master_name and master_name != "N/A":
@@ -3331,30 +3394,14 @@ class UnifiedCitationProcessorV2:
                             is_extracted_date_clearly_wrong = False
                             
                             if extracted_date and canonical_date:
-                                ext_year_match = re.search(r"(19|20)\d{2}", str(extracted_date))
-                                can_year_match = re.search(r"(19|20)\d{2}", str(canonical_date))
-                                if ext_year_match and can_year_match:
-                                    ext_year = int(ext_year_match.group(0))
-                                    can_year = int(can_year_match.group(0))
-                                    year_diff = abs(ext_year - can_year)
-                                    
-                                    # CRITICAL FIX: Detect clearly wrong extracted dates
-                                    if ext_year >= 2015 and can_year < 1950:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.warning(
-                                            f"[VERIFICATION-PARADOX-FIX] {citation.get('citation')}: Extracted date {extracted_date} "
-                                            f"is clearly wrong (recent document date) for old case ({canonical_date}) - ignoring mismatch"
-                                        )
-                                    elif year_diff > 50:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.warning(
-                                            f"[VERIFICATION-PARADOX-FIX] {citation.get('citation')}: Extracted date {extracted_date} "
-                                            f"is clearly wrong (diff: {year_diff} years > 50) vs {canonical_date} - ignoring mismatch"
-                                        )
-                                    
-                                    # Only require year match if extracted date is NOT clearly wrong
-                                    if not is_extracted_date_clearly_wrong:
-                                        year_match = ext_year == can_year
+                                match, _year_diff, is_extracted_date_clearly_wrong = years_match_for_verification(
+                                    extracted_date, canonical_date, tolerance=0
+                                )
+                                year_match = match or is_extracted_date_clearly_wrong
+                                if is_extracted_date_clearly_wrong:
+                                    logger.warning(
+                                        f"[VERIFICATION-PARADOX-FIX] {citation.get('citation')}: Extracted date clearly wrong vs {canonical_date} - ignoring mismatch"
+                                    )
 
                             if year_match or is_extracted_date_clearly_wrong:
                                 citation["verified"] = True
@@ -3644,59 +3691,29 @@ class UnifiedCitationProcessorV2:
                 if verified == True:  # Only check truly verified, not "true_by_parallel"
                     extracted_date = getattr(cit, "extracted_date", None)
                     if extracted_date and canonical_date:
-                        ext_year = re.search(r"(19|20)\d{2}", str(extracted_date))
-                        can_year = re.search(r"(19|20)\d{2}", str(canonical_date))
-                        if ext_year and can_year:
-                            year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                            
-                            # Check if this is a Federal Reporter citation
-                            citation_str = str(getattr(cit, "citation", ""))
-                            is_federal_reporter = bool(re.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
-                            
-                            if is_federal_reporter:
-                                # For Federal Reporter citations, skip year comparison
-                                # The year in the citation is the decision year, not database entry date
+                        citation_str = str(getattr(cit, "citation", ""))
+                        is_federal_reporter = bool(re.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                        if is_federal_reporter:
+                            logger.info(
+                                f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: Federal Reporter - year check skipped (citation year is authoritative)"
+                            )
+                        else:
+                            match, year_diff, extracted_clearly_wrong = years_match_for_verification(
+                                extracted_date, canonical_date, tolerance=0
+                            )
+                            if extracted_clearly_wrong:
                                 logger.info(
-                                    f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: Federal Reporter - year check skipped (citation year is authoritative)"
+                                    f"✅ [FINAL-YEAR-CHECK] {cit.citation}: Extracted date clearly wrong vs {canonical_date} - keeping verified"
                                 )
-                            else:
-                                # CRITICAL FIX: Detect clearly wrong extracted dates BEFORE rejecting
-                                # Examples: 2016 for a 1928 case (document publication date contamination)
-                                ext_year_int = int(ext_year.group(0))
-                                can_year_int = int(can_year.group(0))
-                                is_extracted_date_clearly_wrong = False
-
-                                # Check if extracted year is suspiciously recent for old cases
-                                if ext_year_int >= 2015 and can_year_int < 1950:
-                                    is_extracted_date_clearly_wrong = True
-                                    logger.info(
-                                        f"✅ [FINAL-YEAR-CHECK] {cit.citation}: Extracted date {extracted_date} is clearly wrong "
-                                        f"(recent document date) for old case ({canonical_date}) - keeping verified"
-                                    )
-                                elif year_diff > 50:
-                                    is_extracted_date_clearly_wrong = True
-                                    logger.info(
-                                        f"✅ [FINAL-YEAR-CHECK] {cit.citation}: Extracted date {extracted_date} is clearly wrong "
-                                        f"(diff: {year_diff} years > 50) vs {canonical_date} - keeping verified"
-                                    )
-
-                                # Standard 1-year tolerance for other citations
-                                # BUT skip rejection if extracted date is clearly wrong
-                                if not is_extracted_date_clearly_wrong and year_diff > 1:
-                                    # More than 1 year difference - unverify
-                                    cit.verified = False
-                                    cit.verification_error = (
-                                        f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
-                                    )
-                                    logger.warning(
-                                        f"❌ [FINAL-YEAR-CHECK] {cit.citation}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
-                                    )
-                                    year_mismatch_count += 1
-                                elif not is_extracted_date_clearly_wrong and year_diff == 1:
-                                    # 1 year difference - acceptable, just log warning
-                                    logger.info(
-                                        f"⚠️ [FINAL-YEAR-CHECK] {cit.citation}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
-                                    )
+                            elif not match:
+                                cit.verified = False
+                                cit.verification_error = (
+                                    f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                )
+                                logger.warning(
+                                    f"❌ [FINAL-YEAR-CHECK] {cit.citation}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
+                                )
+                                year_mismatch_count += 1
 
         # Also check cluster citations (dicts)
         for cluster in formatted_clusters:
@@ -3713,67 +3730,33 @@ class UnifiedCitationProcessorV2:
                     if verified == True:  # Only check truly verified, not "true_by_parallel"
                         extracted_date = cit.get("extracted_date")
                         if extracted_date and canonical_date:
-                            ext_year = re.search(r"(19|20)\d{2}", str(extracted_date))
-                            can_year = re.search(r"(19|20)\d{2}", str(canonical_date))
-                            if ext_year and can_year:
-                                year_diff = abs(int(ext_year.group(0)) - int(can_year.group(0)))
-                                
-                                # Check if this is a Federal Reporter citation
-                                citation_str = str(cit.get('citation', ''))
-                                is_federal_reporter = bool(re.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
-                                
-                                if is_federal_reporter:
-                                    # For Federal Reporter citations, skip year comparison
-                                    # The year in the citation is the decision year, not database entry date
+                            citation_str = str(cit.get("citation", ""))
+                            is_federal_reporter = bool(re.search(r"\bF(\.(2|3|4)th)?\b", citation_str))
+                            if is_federal_reporter:
+                                logger.info(
+                                    f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Federal Reporter - year check skipped (citation year is authoritative)"
+                                )
+                            else:
+                                match, year_diff, extracted_clearly_wrong = years_match_for_verification(
+                                    extracted_date, canonical_date, tolerance=0
+                                )
+                                if extracted_clearly_wrong:
                                     logger.info(
-                                        f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Federal Reporter - year check skipped (citation year is authoritative)"
+                                        f"✅ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Extracted date clearly wrong vs {canonical_date} - keeping verified"
                                     )
-                                else:
-                                    # CRITICAL FIX: Detect clearly wrong extracted dates BEFORE rejecting
-                                    # Examples: 2016 for a 1928 case (document publication date contamination)
-                                    ext_year_int = int(ext_year.group(0))
-                                    can_year_int = int(can_year.group(0))
-                                    is_extracted_date_clearly_wrong = False
+                                elif not match:
+                                    cit["verified"] = False
+                                    cit["verification_error"] = (
+                                        f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
+                                    )
+                                    logger.warning(
+                                        f"❌ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
+                                    )
+                                    year_mismatch_count += 1
 
-                                    # Check if extracted year is suspiciously recent for old cases
-                                    if ext_year_int >= 2015 and can_year_int < 1950:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.info(
-                                            f"✅ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Extracted date {extracted_date} is clearly wrong "
-                                            f"(recent document date) for old case ({canonical_date}) - keeping verified"
-                                        )
-                                    elif year_diff > 50:
-                                        is_extracted_date_clearly_wrong = True
-                                        logger.info(
-                                            f"✅ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Extracted date {extracted_date} is clearly wrong "
-                                            f"(diff: {year_diff} years > 50) vs {canonical_date} - keeping verified"
-                                        )
-
-                                    # Standard 1-year tolerance for other citations
-                                    # BUT skip rejection if extracted date is clearly wrong
-                                    if not is_extracted_date_clearly_wrong and year_diff > 1:
-                                        # More than 1 year difference - unverify
-                                        cit["verified"] = False
-                                        cit["verification_error"] = (
-                                            f"Year mismatch: extracted {extracted_date} vs canonical {canonical_date}"
-                                        )
-                                        logger.warning(
-                                            f"❌ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: Unverified due to year mismatch (extracted={extracted_date}, canonical={canonical_date}, diff={year_diff})"
-                                        )
-                                        year_mismatch_count += 1
-                                    elif not is_extracted_date_clearly_wrong and year_diff == 1:
-                                        # 1 year difference - acceptable, just log warning
-                                        logger.info(
-                                            f"⚠️ [FINAL-YEAR-CHECK-CLUSTER] {cit.get('citation')}: ±1 year tolerance applied (extracted={extracted_date}, canonical={canonical_date})"
-                                        )
-
-            # FIX: Recompute cluster has_date_mismatch after clearing invalid flags
-            # CRITICAL: Only count date_mismatch for VERIFIED citations
-            cluster["has_date_mismatch"] = any(
-                c.get("date_mismatch", False) and c.get("verified", False)
-                for c in cluster_citations
-                if isinstance(c, dict)
-            )
+            # FIX: Recompute cluster mismatch flags after clearing invalid flags
+            from src.utils.mismatch_utils import compute_cluster_mismatch_flags
+            compute_cluster_mismatch_flags(cluster)
 
         if year_mismatch_count > 0:
             logger.info(f"[FINAL-YEAR-CHECK] Unverified {year_mismatch_count} citations due to year mismatch")

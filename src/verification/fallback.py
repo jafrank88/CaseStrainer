@@ -10,7 +10,7 @@ import logging
 from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
 
-from .sources import JustiaVerifier, CornellLIIVerifier, OpenJuristVerifier, GoogleScholarVerifier
+from .sources import JustiaVerifier, CornellLIIVerifier, OpenJuristVerifier, GoogleScholarVerifier, FindLawVerifier
 from .utils import is_federal_citation, is_supreme_court_citation, validate_year_match
 
 logger = logging.getLogger(__name__)
@@ -47,6 +47,7 @@ class FallbackVerifier:
         """Initialize source verifiers."""
         self.verifiers = {
             "google_scholar": GoogleScholarVerifier(self.session),
+            "findlaw": FindLawVerifier(self.session),
             "justia": JustiaVerifier(self.session),
             "cornell_lii": CornellLIIVerifier(self.session),
             "openjurist": OpenJuristVerifier(self.session),
@@ -99,7 +100,7 @@ class FallbackVerifier:
                         is_valid, year_diff = validate_year_match(
                             extracted_date, 
                             canonical_date, 
-                            tolerance=1
+                            tolerance=0
                         )
                         if not is_valid:
                             logger.warning(
@@ -124,11 +125,11 @@ class FallbackVerifier:
         
         # Supreme Court citations prioritize Cornell LII
         if is_supreme_court_citation(citation):
-            sources.extend(["cornell_lii", "justia", "openjurist"])
+            sources.extend(["findlaw", "cornell_lii", "justia", "openjurist"])
         elif is_federal_citation(citation):
-            sources.extend(["justia", "cornell_lii", "openjurist"])
+            sources.extend(["findlaw", "justia", "cornell_lii", "openjurist"])
         else:
-            sources.extend(["justia", "openjurist"])
+            sources.extend(["findlaw", "justia", "openjurist"])
         
         return sources
 

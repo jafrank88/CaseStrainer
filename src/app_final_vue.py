@@ -72,7 +72,7 @@ if str(src_dir) not in sys.path:
 
 print(f"Python path: {sys.path}", file=sys.stderr)
 
-from src.case_name_extraction_core import extract_case_name_and_date
+from src.extraction import extract_case_name_and_date_unified_master
 
 try:
     from src.rate_limiter import rate_limit, validate_input
@@ -127,13 +127,13 @@ def verify_citation_with_extraction(
     }
     try:
         if document_text and document_text.strip():
-            logger.info(f"🔍 DEBUG: About to call extract_case_name_and_date")
+            logger.info(f"🔍 DEBUG: About to call extract_case_name_and_date_unified_master")
             logger.info(f"  citation_text: '{citation_text}'")
             logger.info(f"  document_text: '{document_text[:100]}...'")
 
-            extraction_result = extract_case_name_and_date(text=document_text, citation=citation_text)
+            extraction_result = extract_case_name_and_date_unified_master(text=document_text, citation=citation_text)
 
-            logger.info(f"🔍 DEBUG: extract_case_name_and_date returned:")
+            logger.info(f"🔍 DEBUG: extract_case_name_and_date_unified_master returned:")
             logger.info(f"  Type: {type(extraction_result)}")
             logger.info(f"  Value: {extraction_result}")
 
@@ -662,22 +662,13 @@ class ApplicationFactory:
                     )
                 return jsonify({"status": "success", "routes": output})
             except Exception as e:
-                return jsonify({"status": "error", "error": str(e), "traceback": traceback.format_exc()}), 500
+                from src.config import IS_PRODUCTION
+                payload = {"status": "error", "error": str(e)}
+                if not IS_PRODUCTION:
+                    payload["traceback"] = traceback.format_exc()
+                return jsonify(payload), 500
 
-        # DISABLED: Progress manager routes conflict with vue_api_endpoints.py
-        # The Vue API endpoints provide the same functionality with better integration
-        # try:
-        #     from src.progress_manager import create_progress_routes, SSEProgressManager, ChunkedCitationProcessor
-        #     self.logger.info("Importing progress manager components...")
-        #
-        #     progress_manager = SSEProgressManager()
-        #     citation_processor = ChunkedCitationProcessor(progress_manager)
-        #
-        #     create_progress_routes(app, progress_manager, citation_processor)
-        #     self.logger.info("✅ Progress manager routes registered successfully")
-        #
-        # except Exception as e:
-        #     self.logger.error(f"❌ Failed to register progress manager routes: {e}", exc_info=True)
+        # Progress routes handled by vue_api_endpoints.py
 
         @app.route("/casestrainer/api/memory")
         def memory_status():
@@ -917,6 +908,9 @@ except Exception as e:
     logger = logging.getLogger(__name__)
     logger.critical(f"Failed to create Flask app: {e}", exc_info=True)
 
+    # Capture error message for error handlers
+    _error_message = str(e)
+
     # Create minimal Flask app for error reporting
     from flask import Flask, jsonify
 
@@ -924,11 +918,11 @@ except Exception as e:
 
     @app.route("/casestrainer/api/health")
     def health_error():
-        return jsonify({"status": "unhealthy", "error": "App creation failed", "details": str(e)}), 500
+        return jsonify({"status": "unhealthy", "error": "App creation failed", "details": _error_message}), 500
 
     @app.route("/casestrainer/")
     def root_error():
-        return jsonify({"status": "unhealthy", "error": "App creation failed", "details": str(e)}), 500
+        return jsonify({"status": "unhealthy", "error": "App creation failed", "details": _error_message}), 500
 
 
 if __name__ == "__main__":

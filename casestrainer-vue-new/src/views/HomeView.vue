@@ -219,7 +219,7 @@
                     <div>{{ fileError }}</div>
                   </div>
                   
-                  <div v-else-if="selectedFile" class="alert alert-success d-flex align-items-center mt-3 py-2">
+                  <div v-else-if="selectedFile && !isAnalyzing" class="alert alert-success d-flex align-items-center mt-3 py-2">
                     <i class="bi bi-check-circle-fill me-2"></i>
                     <div>
                       <strong>Ready for analysis</strong>
@@ -259,7 +259,7 @@
                     <span>{{ urlError }}</span>
                   </div>
                   
-                  <div v-else-if="urlContent && !urlError" class="valid-feedback d-flex align-items-center mt-1">
+                  <div v-else-if="urlContent && !urlError && !isAnalyzing" class="valid-feedback d-flex align-items-center mt-1">
                     <i class="bi bi-check-circle-fill text-success me-2"></i>
                     <span>Valid URL - ready to analyze</span>
                   </div>
@@ -271,7 +271,7 @@
                 </div>
                 
                 <!-- URL Analysis Preview (optional) -->
-                <div v-if="urlContent && !urlError" class="url-preview mt-3 p-3 bg-light rounded">
+                <div v-if="urlContent && !urlError && !isAnalyzing" class="url-preview mt-3 p-3 bg-light rounded">
                   <h6 class="mb-2"><i class="bi bi-link-45deg me-2"></i>Preview:</h6>
                   <div class="d-flex align-items-center">
                     <div class="flex-grow-1 text-truncate">
@@ -291,9 +291,16 @@
               </div>
             </div>
 
-            <!-- Analyze Button -->
+            <!-- Analyze Button / Processing Content -->
             <div class="analyze-button-container mt-4">
-              <div class="d-flex flex-column align-items-center">
+              <!-- Show Processing Content when analyzing -->
+              <SimpleProgress 
+                v-if="isAnalyzing || globalProgress.progressState.isActive"
+                component-id="home"
+              />
+              
+              <!-- Show Analyze Button when not processing -->
+              <div v-else class="d-flex flex-column align-items-center">
                 <button 
                   :class="[
                     'btn', 
@@ -365,7 +372,6 @@
                     </div>
                   </template>
                 </div>
-                
               </div>
             </div>
 
@@ -392,10 +398,8 @@
         />
         -->
 
-        <!-- Real-time Progress Display - Works for both sync and async -->
-        <SimpleProgress 
-          component-id="home"
-        />
+        <!-- Real-time Progress Display - Moved to replace Analyze button when processing -->
+        <!-- SimpleProgress now appears in place of Analyze button when processing starts -->
 
         <!-- Results Section - Replaces input area when results are available -->
         <div v-if="analysisResults || analysisError" class="results-replacement-area">
@@ -1457,17 +1461,20 @@ const analyzeContent = async () => {
       requestData = new FormData();
       requestData.append('file', selectedFile.value);
       requestData.append('type', 'file');
+      requestData.append('enable_verification', 'true'); // Explicitly enable verification
     } else if (activeTab.value === 'url' && urlContent.value) {
       // For URL analysis, use JSON data
       requestData = {
         type: 'url',
-        url: urlContent.value.trim()
+        url: urlContent.value.trim(),
+        enable_verification: true // Explicitly enable verification
       };
     } else if (activeTab.value === 'paste' && textContent.value) {
       // For text analysis, use JSON data
       requestData = {
         type: 'text',
-        text: textContent.value.trim()
+        text: textContent.value.trim(),
+        enable_verification: true // Explicitly enable verification
       };
     } else {
       throw new Error('Invalid input configuration');
@@ -1515,92 +1522,37 @@ const analyzeContent = async () => {
       requestData.client_request_id = clientRequestId;
     }
     
-    // Start polling for progress in parallel with the analyze request
-    let pollingInterval = null;
-    let responseArrived = false;
-    
-    // Start the analyze request (don't await yet)
-    const analyzePromise = analyze(requestData, clientRequestId);
-    
-    // Start polling after a short delay (give backend time to initialize)
-    let pollAttempts = 0;
-    const lastProgressPercent = ref(0);
-    const MAX_POLL_ATTEMPTS = 1200; // 20 minutes max (1200 seconds) - increased to match rate-limited verification times
-    
-    // Always poll server progress as soon as we have a client_request_id
-    const shouldPoll = true;
-    if (shouldPoll) {
-      setTimeout(() => {
-        if (responseArrived) {
-          // Response already received; skip starting polling
-          return;
-        }
-        pollingInterval = setInterval(async () => {
-          if (responseArrived) {
-            clearInterval(pollingInterval);
-            pollingInterval = null;
-            return;
-          }
-          pollAttempts++;
-        
-        // Safety timeout - prevent infinite polling
-        if (pollAttempts > MAX_POLL_ATTEMPTS) {
-          clearInterval(pollingInterval);
-          pollingInterval = null;
-          console.error('Polling timeout after 20 minutes - stopping');
-          if (!globalProgress.progressState.hasResults) {
-            globalProgress.setError('Request timed out after 20 minutes', true);
-          }
-          return;
-        }
-        
-        try {
-          const progressResponse = await api.get(`/analyze/progress/${clientRequestId}`);
-          const pd = progressResponse.data?.progress_data || {};
-          let percent = pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress ?? 0;
-          const message = pd.current_message ?? pd.message ?? pd.currentStep ?? 'Processing...';
-          
-          // If progress is stuck for too long, add small increments to show activity
-          if (percent === lastProgressPercent.value && pollAttempts > 5) {
-            // Add small increment every 10 polls to show activity
-            if (pollAttempts % 10 === 0) {
-              percent = Math.min(95, percent + 1); // Cap at 95% to allow completion
-            }
-          }
-          
-          lastProgressPercent.value = percent;
-          
-          console.log(`[${pollAttempts}] Progress: ${percent}% - ${message}`);
-          globalProgress.updateProgress({
-            step: message,
-            progress: percent,
-            total_progress: percent
-          });
-        } catch (error) {
-          // Ignore polling errors - request might not be ready yet
-          console.debug('Polling attempt (request not ready yet)');
-        }
-      }, 500); // Poll every 500ms for more frequent updates
-    }, 500); // Start polling after 500ms to get updates quickly
-    }
-    
-    // Now await the response
+    // Start the analyze request and await response
+    // Progress callback updates the UI progress bar during polling
     console.log('Waiting for main API response...');
-    const response = await analyzePromise;
-    responseArrived = true;
+    const response = await analyze(requestData, clientRequestId, (progressData) => {
+      // Update progress bar with polling data from api.js
+      if (progressData && typeof progressData.progress === 'number') {
+        globalProgress.updateProgress({
+          step: progressData.message || 'Processing...',
+          progress: progressData.progress,
+          total_progress: progressData.progress
+        });
+      }
+    });
     console.log('Main API response received!');
-    
-    // Stop polling once we have the response
-    if (pollingInterval) {
-      clearInterval(pollingInterval);
-      pollingInterval = null;
-      console.log('Stopped polling - response received');
+    // Handle error/timeout responses so user sees a message instead of no response
+    if (response && response.success === false && response.error) {
+      analysisError.value = response.error;
+      isAnalyzing.value = false;
+      globalProgress.completeProgress(null);
+      return;
     }
-    // Debug alert removed for cleaner interface
-    
     // Enhanced processing mode detection and async polling
+    // FIX: Any response with task_id means the backend used async (queue); show "Async Mode" in UI
+    if (response?.task_id) {
+      globalProgress.progressState.metadata = {
+        ...(globalProgress.progressState.metadata || {}),
+        processing_mode: 'async'
+      };
+    }
     const processingMode = response?.metadata?.processing_mode;
-    const jobId = response?.metadata?.job_id;
+    const jobId = response?.metadata?.job_id ?? response?.task_id;
     
     console.log('Enhanced Processing Analysis:');
     console.log('- Processing mode:', processingMode);
@@ -1629,13 +1581,24 @@ const analyzeContent = async () => {
         jobId,
         async (progressData) => {
           console.log('Task progress:', progressData);
+          // Prefer task_status progress/message (15, 30, 50, 70, 85) over /analyze/progress/ which often returns 0
+          const pct = progressData.progress;
+          const msg = progressData.message;
+          if (typeof pct === 'number' && pct >= 0) {
+            globalProgress.updateProgress({ step: msg || 'Processing...', progress: pct, total_progress: pct });
+            if (asyncTaskProgress.value) {
+              asyncTaskProgress.value.status = progressData.status;
+              asyncTaskProgress.value.message = msg;
+            }
+            return;
+          }
           try {
             const progressResponse = await api.get(`/analyze/progress/${jobId}`);
-            const pd = progressResponse.data?.progress_data || {};
-            const pct = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
-            const msg = pd.current_message || pd.message;
-            if (pct !== undefined) {
-              globalProgress.updateProgress({ step: msg || 'Processing...', progress: pct || 0, total_progress: pct || 0 });
+            const pd = progressResponse.data?.progress_data || progressResponse.data?.progress || {};
+            const fallbackPct = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
+            const fallbackMsg = pd.current_message || pd.message;
+            if (fallbackPct !== undefined && fallbackPct > 0) {
+              globalProgress.updateProgress({ step: fallbackMsg || 'Processing...', progress: fallbackPct, total_progress: fallbackPct });
               return;
             }
           } catch (e) {
@@ -1644,7 +1607,7 @@ const analyzeContent = async () => {
           if (progressData.status === 'queued') {
             globalProgress.updateProgress({ step: 'Task queued...', progress: 20, total_progress: 20 });
           } else if (progressData.status === 'processing') {
-            globalProgress.updateProgress({ step: 'Processing citations...', progress: 50, total_progress: 50 });
+            globalProgress.updateProgress({ step: msg || 'Processing citations...', progress: 50, total_progress: 50 });
           } else if (progressData.status === 'verifying') {
             globalProgress.updateProgress({ step: 'Verifying citations...', progress: 75, total_progress: 75 });
           }
@@ -1722,7 +1685,7 @@ const analyzeContent = async () => {
         // Poll the progress endpoint to show progress animation
         try {
           const progressResponse = await api.get(`/analyze/progress/${taskId}`);
-          const pd = progressResponse.data?.progress_data || {};
+          const pd = progressResponse.data?.progress_data || progressResponse.data?.progress || {};
           const percent = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
           const message = pd.current_message || pd.message;
           if (percent !== undefined) {
@@ -1789,7 +1752,12 @@ const analyzeContent = async () => {
     
     if (response && response.task_id && !hasCompletedResults) {
       console.log('Async task started with task_id:', response.task_id);
-      
+      // Ensure UI shows "Async Mode" when we are polling for results
+      globalProgress.progressState.metadata = {
+        ...(globalProgress.progressState.metadata || {}),
+        processing_mode: 'async'
+      };
+
       // Always initialize progress state for async tasks
       // Don't reset if already initialized from startProgress
       if (!globalProgress.progressState.isActive || !globalProgress.progressState.startTime) {
@@ -1870,7 +1838,7 @@ const analyzeContent = async () => {
           // Also poll the progress endpoint for real progress data
           try {
             const progressResponse = await api.get(`/analyze/progress/${response.task_id}`);
-            const pd = progressResponse.data?.progress_data || {};
+            const pd = progressResponse.data?.progress_data || progressResponse.data?.progress || {};
             const pct = (pd.progress ?? pd.overall_progress ?? pd.total_progress ?? pd.progress_percent ?? 0);
             const msg = pd.current_message || pd.message;
             if (pct !== undefined) {
@@ -1918,6 +1886,7 @@ const analyzeContent = async () => {
         },
         // Complete callback
         (result) => {
+          console.log('=== ANALYSIS COMPLETED (async) ===', { citations: result.citations?.length ?? 0, clusters: result.clusters?.length ?? 0 });
           console.log('Task completed:', result);
           
           // The async task result should now have the same flat structure as sync results
@@ -2176,6 +2145,8 @@ const analyzeContent = async () => {
       }
     } else if (error.code === 'ECONNABORTED') {
       errorMessage = 'Request timed out. Please try again.';
+    } else if (error.code === 'ETIMEDOUT' || error.code === 'EUNKNOWNSTATE') {
+      errorMessage = error.message || 'Analysis took too long. The document may be large or the server is busy. You can try again or use a smaller document.';
     } else if (error.code === 'NETWORK_ERROR') {
       errorMessage = 'Network error. Please check your connection and try again.';
     }
@@ -2189,10 +2160,15 @@ const analyzeContent = async () => {
     // Set error in global progress store
     globalProgress.setError(errorMessage);
   } finally {
-    console.log('=== ANALYSIS COMPLETED ===');
+    // Only run "completion" cleanup when we're NOT in async mode. In async mode we returned
+    // after starting polling, so this finally runs too early - don't log "COMPLETED" or reset
+    // spinner; the polling onComplete callback will handle that.
+    const inAsyncMode = isAsyncProcessing.value || activeAsyncTask.value;
+    if (!inAsyncMode) {
+      console.log('=== ANALYSIS COMPLETED (sync path) ===');
+    }
     
     // CRITICAL: Ensure polling is stopped in all cases (success, error, timeout)
-    // Use try-catch because pollingInterval may not exist in async mode
     try {
       if (typeof pollingInterval !== 'undefined' && pollingInterval) {
         clearInterval(pollingInterval);
@@ -2201,21 +2177,19 @@ const analyzeContent = async () => {
       }
     } catch (e) {
       // pollingInterval doesn't exist in this scope (async mode) - that's ok
-      console.log('No polling interval to clean up (async mode)');
     }
     
-    console.log('isAsyncProcessing:', isAsyncProcessing.value);
-    console.log('activeAsyncTask:', activeAsyncTask.value);
+    if (!inAsyncMode) {
+      console.log('isAsyncProcessing:', isAsyncProcessing.value);
+      console.log('activeAsyncTask:', activeAsyncTask.value);
+    }
     
     // Only reset isAnalyzing if we're NOT in async processing mode
-    // Async mode will reset it in the polling callbacks
     if (!isAsyncProcessing.value && !activeAsyncTask.value) {
       isAnalyzing.value = false;
-      // showProcessing removed - SimpleProgress component handles progress display
-      console.log('Spinner reset (sync mode)');
+      if (!inAsyncMode) console.log('Spinner reset (sync mode)');
     } else {
-      console.log('Spinner still active (async mode - will reset in callback)');
-      console.log('isAnalyzing value:', isAnalyzing.value);
+      if (!inAsyncMode) console.log('Spinner still active (async mode - will reset in callback)');
     }
     
     // Ensure any loading states are reset for non-async cases
@@ -2460,7 +2434,7 @@ const handleAsyncTaskError = (errorMessage) => {
 .input-methods {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
+  gap: 2rem;
   margin-bottom: 2rem;
 }
 
@@ -2743,6 +2717,12 @@ const handleAsyncTaskError = (errorMessage) => {
 .analyze-button-container {
   text-align: center;
   margin-top: 2rem;
+}
+
+/* Ensure SimpleProgress fits nicely when replacing the button */
+.analyze-button-container .simple-progress-container {
+  margin: 0;
+  max-width: 100%;
 }
 
 /* Progress Bar Styles */
@@ -3096,6 +3076,7 @@ const handleAsyncTaskError = (errorMessage) => {
   
   .input-methods {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
   
   .input-method-card {

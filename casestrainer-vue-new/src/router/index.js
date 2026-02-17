@@ -12,6 +12,7 @@ const BrowserExtension = () => import('@/views/BrowserExtension.vue');
 const WordPlugin = () => import('@/views/WordPlugin.vue');
 const ApiDocs = () => import('@/views/ApiDocs.vue');
 const Docs = () => import('@/views/Docs.vue');
+const ProcessingPipeline = () => import('@/views/ProcessingPipeline.vue');
 
 const routes = [
   {
@@ -59,6 +60,17 @@ const routes = [
       title: 'API Documentation | CaseStrainer',
       metaTags: [
         { name: 'description', content: 'API documentation for CaseStrainer.' }
+      ]
+    }
+  },
+  {
+    path: '/docs/pipeline',
+    name: 'ProcessingPipeline',
+    component: ProcessingPipeline,
+    meta: {
+      title: 'Processing Pipeline | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'Learn how CaseStrainer processes and verifies legal citations through its 6-phase pipeline.' }
       ]
     }
   },

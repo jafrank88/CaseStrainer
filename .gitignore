@@ -1,4 +1,4 @@
-﻿# CaseStrainer .gitignore - Optimized for Vue.js migration
+# CaseStrainer .gitignore - Optimized for Vue.js migration
 # Last updated: 2025-11-06
 # --- Security: Prevent accidental commits of secrets and certificates ---
 # SSL/TLS certificates and keys (globally ignored)
@@ -238,6 +238,7 @@ coverage.xml
 # API Keys and Sensitive Configuration
 config.json
 config/config.json
+config.env
 src/config.json
 docker/config.json
 deployment/config.json
@@ -300,14 +301,32 @@ cypress/
 *_old.py
 *_new.py
 *_simple.py
-
-# Temporary PowerShell scripts (keep only essential ones)
-cslaunch_*.ps1
-!cslauncher.ps1
-force_reload_code*.ps1
-fix_*.ps1
-check_*.ps1
-kill_*.ps1
-install_*.sh
-clear_*.ps1
-verify_*.py
+# Temporary Claude workspace directories
+tmpclaude-*/
+.claude/
+# Temporary test and debug files
+test_*.py
+!tests/test_*.py
+!src/tests/test_*.py
+# Temporary markdown documentation files
+*_FIX*.md
+*_DEBUG*.md
+*_GUIDE*.md
+*_COMPARISON*.md
+*_ANALYSIS*.md
+*_STATUS*.md
+*_ISSUES*.md
+# Windows reserved filenames
+nul
+# Temporary output files
+*_output.json
+*_output.txt
+*_debug*.txt
+*_test*.txt
+trump_*.txt
+pdf_*.json
+# Debug/diag output in src
+src/diag*.txt
+src/ecn_debug*.txt
+src/network_response.txt
+src/unverified_citations.txt

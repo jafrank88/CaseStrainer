@@ -1,40 +1,69 @@
 """
 Standalone mismatch annotation utilities.
 
-Extracted from citation_extraction_endpoint.py to avoid circular imports
-when called from rq_worker.py.
+Single source of truth for:
+- Name normalization and name/date equivalence (used by citation_extraction_endpoint,
+  unified_processing_pipeline, and any code that needs to compare case names).
+- Per-citation and cluster-level mismatch flags (has_name_mismatch, has_date_mismatch,
+  mismatch_indices). All pipelines should use annotate_mismatch_flags or
+  compute_cluster_mismatch_flags from here.
 """
 
 import difflib
 import logging
 import re
+from typing import Any, Dict, List
 
 logger = logging.getLogger(__name__)
 
 
 def _normalize_name_tokens(name: str) -> set:
-    """Normalize a case name into a set of meaningful tokens."""
-    s = str(name).lower().replace("'", "'")
+    """Normalize a case name into a set of meaningful tokens.
+    Handles legal abbreviations, departments, and common stop words.
+    """
+    if not name or name == "N/A":
+        return set()
+    s = str(name).lower().replace("'", "'").replace("'", "'")
     repl = {
-        "dept.": "department",
         "dep't": "department",
+        "dep't": "department",
+        "dept": "department",
+        "dept.": "department",
         "dep.": "department",
+        "transp.": "transportation",
+        "transp": "transportation",
+        "admin.": "administration",
+        "admin": "administration",
+        "comm'n": "commission",
         "comm'n": "commission",
         "comm.": "commission",
-        "admin.": "administration",
         "auth.": "authority",
         "ins.": "insurance",
-        "transp.": "transportation",
+        "util.": "utility",
+        "pub.": "public",
         "educ.": "education",
+        "com.": "commerce",
+        "cmty.": "community",
+        "econ.": "economic",
+        "dev.": "development",
+        "prof.": "professional",
+        "lic.": "licensing",
+        "pa.": "pennsylvania",
+        "mich.": "michigan",
+        "fed'n": "federation",
+        "fed'n": "federation",
+        "ass'n": "association",
+        "assn": "association",
+        "indus.": "industries",
         "corp.": "corporation",
         "corp": "corporation",
         "co.": "company",
-        "assn.": "association",
-        "ass'n": "association",
-        "nat'l": "national",
-        "int'l": "international",
+        "emps.": "employees",
+        "nat'l": "natural",
+        "natl": "natural",
         "nat.": "natural",
         "nat": "natural",
+        "int'l": "international",
         "res.": "resources",
         "res": "resources",
         "mut.": "mutual",
@@ -221,11 +250,9 @@ def _names_equivalent(
 
 
 def _extract_year(date_str) -> str | None:
-    """Extract 4-digit year from a date string."""
-    if not date_str:
-        return None
-    match = re.search(r"(19|20)\d{2}", str(date_str))
-    return match.group(0) if match else None
+    """Extract 4-digit year from a date string. Delegates to date_utils."""
+    from src.utils.date_utils import extract_year_value
+    return extract_year_value(date_str)
 
 
 def annotate_mismatch_flags(
@@ -250,15 +277,12 @@ def annotate_mismatch_flags(
                 sim = _name_similarity(extracted, canonical) if (extracted and canonical) else 0.0
                 name_mismatch = bool(extracted and canonical and sim < name_threshold)
 
-            y_ex = _extract_year(cit.get("extracted_date"))
-            y_ca = _extract_year(cit.get("canonical_date"))
-            if not y_ca:
-                date_mismatch = False
-            else:
-                effective_tolerance = year_tolerance
-                if verified and canonical_url:
-                    effective_tolerance = max(year_tolerance, 1)
-                date_mismatch = bool(y_ex and y_ca and abs(int(y_ex) - int(y_ca)) > effective_tolerance)
+            # Single source of truth: date_utils.validate_year_match
+            from src.utils.date_utils import validate_year_match
+            is_valid, _ = validate_year_match(
+                cit.get("extracted_date"), cit.get("canonical_date"), tolerance=year_tolerance
+            )
+            date_mismatch = not is_valid if (cit.get("extracted_date") and cit.get("canonical_date")) else False
 
             cit["name_mismatch"] = name_mismatch
             cit["date_mismatch"] = date_mismatch
@@ -266,27 +290,55 @@ def annotate_mismatch_flags(
                 cit["possible_match"] = True
 
         for cluster in clusters or []:
-            cluster_cits = cluster.get("citations") or []
-            mm_indices = []
-            has_name = False
-            has_date = False
-            for idx, c in enumerate(cluster_cits):
-                if isinstance(c, dict):
-                    nm = bool(c.get("name_mismatch"))
-                    dm = bool(c.get("date_mismatch"))
-                    is_verified = bool(c.get("verified"))
-                else:
-                    nm = bool(getattr(c, "name_mismatch", False))
-                    dm = bool(getattr(c, "date_mismatch", False))
-                    is_verified = bool(getattr(c, "verified", False))
-                if is_verified and (nm or dm):
-                    mm_indices.append(idx)
-                if is_verified:
-                    has_name = has_name or nm
-                    has_date = has_date or dm
-
-            cluster["has_name_mismatch"] = has_name
-            cluster["has_date_mismatch"] = has_date
-            cluster["mismatch_indices"] = mm_indices
+            compute_cluster_mismatch_flags(cluster)
     except Exception as e:
         logger.warning(f"[MISMATCH-ANNOTATE] Failed to annotate mismatch flags: {e}")
+
+
+def compute_cluster_mismatch_flags(cluster: Dict[str, Any]) -> None:
+    """Set cluster-level has_name_mismatch, has_date_mismatch, and mismatch_indices in-place.
+
+    Uses existing per-citation name_mismatch and date_mismatch on the cluster's citations.
+    Only verified citations are counted toward cluster mismatch (unverified citations
+    do not trigger mismatch warnings).
+
+    Call this after updating citation-level mismatch flags (e.g. after post-verify splits
+    or date sync) so cluster flags stay consistent.
+    """
+    if not isinstance(cluster, dict):
+        return
+    cluster_cits = cluster.get("citations") or []
+    mm_indices: List[int] = []
+    has_name = False
+    has_date = False
+    for idx, c in enumerate(cluster_cits):
+        if isinstance(c, dict):
+            nm = bool(c.get("name_mismatch"))
+            dm = bool(c.get("date_mismatch"))
+            is_verified = bool(c.get("verified"))
+        else:
+            nm = bool(getattr(c, "name_mismatch", False))
+            dm = bool(getattr(c, "date_mismatch", False))
+            is_verified = bool(getattr(c, "verified", False))
+        if is_verified and (nm or dm):
+            mm_indices.append(idx)
+        if is_verified:
+            has_name = has_name or nm
+            has_date = has_date or dm
+    cluster["has_name_mismatch"] = has_name
+    cluster["has_date_mismatch"] = has_date
+    cluster["mismatch_indices"] = mm_indices
+
+
+def names_equivalent(
+    extracted: str, canonical: str, *, verified: bool = False, canonical_url: str | None = None
+) -> bool:
+    """Public alias for _names_equivalent. Use for case name equivalence checks."""
+    return _names_equivalent(extracted, canonical, verified=verified, canonical_url=canonical_url)
+
+
+__all__ = [
+    "annotate_mismatch_flags",
+    "compute_cluster_mismatch_flags",
+    "names_equivalent",
+]

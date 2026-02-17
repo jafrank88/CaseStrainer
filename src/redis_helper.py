@@ -12,20 +12,10 @@ from rq import Queue
 
 def get_redis_url():
     """
-    Get the appropriate Redis URL for the current environment.
-
-    Returns:
-        str: Redis URL appropriate for the current environment
+    Get the Redis URL from application config (single source of truth).
     """
-    redis_url = os.environ.get("REDIS_URL")
-    if redis_url:
-        return redis_url
-
-    try:
-        socket.gethostbyname("casestrainer-redis-prod")
-        return "redis://casestrainer-redis-prod:6379/0"  # Inside Docker
-    except socket.gaierror:
-        return "redis://localhost:6380/0"  # Outside Docker, use mapped port
+    from src.config import REDIS_URL
+    return REDIS_URL
 
 
 def get_redis_connection():

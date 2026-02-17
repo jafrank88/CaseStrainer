@@ -21,6 +21,7 @@ from .utils import (
     validate_year_match,
     is_citation_likely_valid,
 )
+from .known_citations import _lookup_known_federal, _lookup_known_slip
 from src.config import COURTLISTENER_API_KEY
 
 
@@ -112,11 +113,15 @@ class UnifiedVerificationMaster:
         """
         Verify a single citation.
         
-        Strategy:
+        Strategy (in order):
         1. Check cache
-        2. CourtListener lookup
-        3. CourtListener search (if lookup fails)
-        4. Fallback sources (if enabled)
+        2. Known federal/slip table (small set of frequently misresolved cites; skip if not found)
+        3. Validate citation format
+        4. CourtListener lookup (main API)
+        5. CourtListener search fallback (by case name)
+        6. Fallback sources (Justia, Cornell LII, OpenJurist) if enabled
+        
+        Citations not in the table are verified via CourtListener and fallbacks only.
         
         Returns:
             VerificationResult
@@ -138,6 +143,36 @@ class UnifiedVerificationMaster:
                 confidence=cached_result.get("confidence", 1.0),
                 method="cache",
             )
+
+        # Known federal citation (exact match) or known slip (volume+year + name match)
+        known_federal = _lookup_known_federal(citation)
+        if known_federal:
+            logger.info(f"[KNOWN-FEDERAL] Resolved '{citation}'")
+            cache.set(citation, known_federal)
+            return VerificationResult(
+                citation=citation,
+                verified=True,
+                canonical_name=known_federal.get("canonical_name"),
+                canonical_date=known_federal.get("canonical_date") or known_federal.get("canonical_year"),
+                canonical_url=known_federal.get("canonical_url"),
+                source="known_federal",
+                confidence=1.0,
+                method="known_federal",
+            )
+        known_slip = _lookup_known_slip(citation, extracted_case_name, extracted_date)
+        if known_slip:
+            logger.info(f"[KNOWN-SLIP] Resolved '{citation}' -> {known_slip.get('canonical_name')}")
+            cache.set(citation, known_slip)
+            return VerificationResult(
+                citation=citation,
+                verified=True,
+                canonical_name=known_slip.get("canonical_name"),
+                canonical_date=known_slip.get("canonical_date"),
+                canonical_url=known_slip.get("canonical_url"),
+                source="known_slip",
+                confidence=1.0,
+                method="known_slip",
+            )
         
         # Validate citation format
         if not is_citation_likely_valid(citation):
@@ -157,7 +192,7 @@ class UnifiedVerificationMaster:
             canonical_date = result.get("canonical_date")
             if extracted_date and canonical_date:
                 is_valid, year_diff = validate_year_match(
-                    extracted_date, canonical_date, tolerance=1
+                    extracted_date, canonical_date, tolerance=0
                 )
                 if not is_valid:
                     logger.warning(
@@ -227,7 +262,7 @@ class UnifiedVerificationMaster:
                     canonical_name=fallback_result.get("canonical_name"),
                     canonical_date=fallback_result.get("canonical_date"),
                     canonical_url=fallback_result.get("canonical_url"),
-                    source=fallback_result.get("source"),
+                    source=fallback_result.get("source") or "",
                     confidence=fallback_result.get("confidence", 0.7),
                     method=fallback_result.get("method", "fallback"),
                 )
@@ -365,7 +400,7 @@ class UnifiedVerificationMaster:
                         result["citation"],
                         case_name,
                         date,
-                        min(timeout_per_citation, 5.0)
+                        min(timeout_per_citation, 15.0)
                     )
                     if fallback_result.get("verified"):
                         # Preserve CL canonical name when fallback only adds URL
@@ -476,3 +511,15 @@ class UnifiedVerificationMaster:
         with ThreadPoolExecutor(max_workers=1) as executor:
             future = executor.submit(run_in_new_loop)
             return future.result(timeout=timeout + 5.0)
+
+
+# Singleton for get_master_verifier()
+_master_instance: Optional[UnifiedVerificationMaster] = None
+
+
+def get_master_verifier() -> UnifiedVerificationMaster:
+    """Return the shared UnifiedVerificationMaster instance (used by citation_extraction_endpoint, etc.)."""
+    global _master_instance
+    if _master_instance is None:
+        _master_instance = UnifiedVerificationMaster()
+    return _master_instance

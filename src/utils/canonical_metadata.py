@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import re
 from typing import Any, Callable, Dict, Mapping, Optional
 
 try:
@@ -42,32 +41,8 @@ def get_canonical_metadata(
     return {}
 
 
-def extract_year_value(value: Optional[Any]) -> Optional[str]:
-    """Extract a 4-digit year from heterogeneous inputs."""
-    if value is None:
-        return None
-
-    if isinstance(value, int):
-        string_value = str(value)
-    elif isinstance(value, float):
-        string_value = f"{value:.0f}"
-    else:
-        string_value = str(value)
-
-    match = re.search(r"(\d{4})", string_value)
-    if not match:
-        return None
-
-    year = match.group(1)
-    try:
-        numeric_year = int(year)
-    except ValueError:
-        return None
-
-    if 1600 <= numeric_year <= 2100:
-        return year
-
-    return None
+# Re-export from canonical location
+from src.utils.date_utils import extract_year_value  # noqa: F401
 
 
 def prefer_canonical_name(
@@ -108,10 +83,54 @@ def prefer_canonical_year(
 
 
 def fetch_canonical_metadata_on_demand(citation: str) -> Dict[str, Any]:
-    """Best-effort lookup for canonical metadata when caches miss."""
+    """Best-effort lookup for canonical metadata when caches miss.
+
+    Supports all citations including slip opinions (e.g. 592 U.S. ___).
+    FastVerificationSystem has slip-opinion paths (CourtListener/Cornell by name;
+    when extracted name is generic, main verification uses volume+year).
+    """
     if not citation or not isinstance(citation, str):
         return {}
 
+    # Try FastVerificationSystem first (the actual working verification)
+    try:
+        from src.fast_verification_system import FastVerificationSystem
+        import asyncio
+
+        verifier = FastVerificationSystem()
+        # Run the async verification synchronously
+        try:
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If we're already in an async context, we can't use asyncio.run
+                # Fall back to sync method if available
+                if hasattr(verifier, 'verify_citation_sync'):
+                    result = verifier.verify_citation_sync(citation)
+                else:
+                    return {}
+            else:
+                result = asyncio.run(verifier.verify_citation(citation))
+        except RuntimeError:
+            # No event loop, create one
+            result = asyncio.run(verifier.verify_citation(citation))
+
+        if result and isinstance(result, dict):
+            canonical_name = result.get("canonical_name")
+            canonical_date = result.get("canonical_date")
+
+            if canonical_name or canonical_date:
+                payload: Dict[str, Any] = {}
+                if canonical_name:
+                    payload["canonical_name"] = canonical_name
+                if canonical_date:
+                    payload["canonical_date"] = canonical_date
+                if result.get("url"):
+                    payload["canonical_url"] = result["url"]
+                return payload
+    except Exception:
+        pass  # Fall through to legacy path
+
+    # Legacy fallback using VerificationManager (may not work)
     if VerificationManager is None:
         return {}
 

@@ -105,9 +105,9 @@ def validate_extracted_date(date_value: Any, source: str = "unknown") -> Optiona
     if not date_value or date_value in ("N/A", "Unknown", "Unknown Year"):
         return None
 
-    date_str = str(date_value)
+    date_str = str(date_value).strip()
 
-    # Check if it's a clean 4-digit year
+    # Check if it's a clean 4-digit year (allow whitespace)
     if re.match(r"^\d{4}$", date_str):
         return date_str
 
@@ -120,12 +120,12 @@ def validate_extracted_date(date_value: Any, source: str = "unknown") -> Optiona
         )
         return year
 
-    # Try to extract any 4-digit year
-    year = extract_year_from_any_date(date_str)
-    if year:
-        logger.warning(
-            f"[DATA-CONTAMINATION] extracted_date contained malformed date '{date_str}' "
-            f"from {source}. Extracted year: '{year}'"
+    # Try to extract any 4-digit year from the start of the string
+    year_match = re.match(r"(\d{4})", date_str)
+    if year_match:
+        year = year_match.group(1)
+        logger.debug(
+            f"[DATE-EXTRACT] Extracted year '{year}' from '{date_str}' for {source}"
         )
         return year
 

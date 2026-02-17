@@ -24,27 +24,8 @@ from typing import Optional, Dict, Any
 logger = logging.getLogger(__name__)
 
 
-def extract_year_from_citation(citation: str) -> Optional[int]:
-    """
-    Extract year from citation text like "572 U.S. 782" or from parenthetical "(2014)"
-
-    Args:
-        citation: Citation text
-
-    Returns:
-        Year as integer or None
-    """
-    # Look for year in parentheses: (2014)
-    paren_match = re.search(r"\((\d{4})\)", citation)
-    if paren_match:
-        return int(paren_match.group(1))
-
-    # Look for year in reporter: 2014 WL 12345
-    reporter_year = re.search(r"\b(19\d{2}|20\d{2})\s+[A-Z]+", citation)
-    if reporter_year:
-        return int(reporter_year.group(1))
-
-    return None
+# Re-export from canonical location
+from src.utils.date_utils import extract_year_from_citation  # noqa: F401
 
 
 def validate_extracted_name_for_citation(

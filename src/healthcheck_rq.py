@@ -17,9 +17,8 @@ from rq import Queue, Worker
 def main():
     """Perform health check for RQ worker."""
     try:
-        # Check Redis connection
-        redis_url = os.environ.get("REDIS_URL", "redis://:caseStrainerRedis123@casestrainer-redis-prod:6379/0")
-        redis_conn = redis.from_url(redis_url)
+        from src.config import REDIS_URL
+        redis_conn = redis.from_url(REDIS_URL)
 
         # Test Redis ping
         redis_conn.ping()

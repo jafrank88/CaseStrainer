@@ -207,38 +207,8 @@ def calculate_case_name_overlap(extracted_name: str, canonical_name: str) -> flo
     return min(jaccard, 1.0)
 
 
-def validate_year_match(
-    extracted_year: Optional[str],
-    canonical_year: Optional[str],
-    tolerance: int = 1
-) -> tuple[bool, int]:
-    """
-    Validate year matching with tolerance.
-    
-    Args:
-        extracted_year: Year from document
-        canonical_year: Year from canonical source
-        tolerance: Allowed year difference (default 1 for Supreme Court cases)
-        
-    Returns:
-        (is_valid, year_difference)
-    """
-    if not extracted_year or not canonical_year:
-        return True, 0  # Can't validate, assume valid
-    
-    # Extract 4-digit years
-    ext_match = re.search(r"(19|20)\d{2}", str(extracted_year))
-    can_match = re.search(r"(19|20)\d{2}", str(canonical_year))
-    
-    if not ext_match or not can_match:
-        return True, 0  # Can't parse, assume valid
-    
-    ext_year = int(ext_match.group(0))
-    can_year = int(can_match.group(0))
-    
-    year_diff = abs(ext_year - can_year)
-    
-    return year_diff <= tolerance, year_diff
+# Year matching: single source of truth in date_utils (no utils -> verification dependency)
+from src.utils.date_utils import validate_year_match, years_match_for_verification
 
 
 def is_federal_citation(citation: str) -> bool:

@@ -18,424 +18,25 @@ Usage:
 """
 
 import logging
-import difflib
 import re
 from typing import Dict, List, Any
-from src.unified_case_extraction_master import extract_citations_unified
+try:
+    from src.unified_citation_processor_v2 import extract_citations_unified
+except ImportError:
+    extract_citations_unified = None
 from src.models import CitationResult
-from src.citation_deduplication import deduplicate_citations
+try:
+    from src.citation_deduplication import deduplicate_citations
+except ImportError:
+    deduplicate_citations = None
+from src.utils.date_utils import extract_year_value
+from src.utils.mismatch_utils import annotate_mismatch_flags, names_equivalent
 
 logger = logging.getLogger(__name__)
 
-
-def _extract_year(value: str) -> str:
-    if not value:
-        return ""
-    m = re.search(r"(19|20)\d{2}", str(value))
-    return m.group(0) if m else ""
-
-
-def _normalize_name_tokens(name: str) -> set:
-    if not name or name == "N/A":
-        return set()
-    s = str(name).lower()
-    s = s.replace("’", "'")
-    repl = {
-        # Departments / agencies
-        "dep't": "department",
-        "dep’t": "department",
-        "dept": "department",
-        "dept.": "department",
-        "transp.": "transportation",
-        "transp": "transportation",
-        "admin.": "administration",
-        "admin": "administration",
-        "comm'n": "commission",
-        "comm’n": "commission",
-        "comm.": "commission",
-        "util.": "utility",
-        "pub.": "public",
-        # Common department abbreviations
-        "com.": "commerce",
-        "cmty.": "community",
-        "econ.": "economic",
-        "dev.": "development",
-        "prof.": "professional",
-        "lic.": "licensing",
-        # States / jurisdictions
-        "pa.": "pennsylvania",
-        "mich.": "michigan",
-        # Organizations
-        "fed'n": "federation",
-        "fed’n": "federation",
-        "ass'n": "association",
-        "assn": "association",
-        "indus.": "industries",
-        "corp.": "corporation",
-        "co.": "company",
-        "emps.": "employees",
-        # Common legal terms
-        "nat'l": "natural",
-        "natl": "natural",
-        "nat.": "natural",
-        "nat": "natural",
-        "res.": "resources",
-        "res": "resources",
-        "mut.": "mutual",
-        "auto": "automobile",
-        "sch.": "school",
-        "dist.": "district",
-        # Punctuation variants
-        "u.s.": "us",
-    }
-    for k, v in repl.items():
-        s = s.replace(k, v)
-    cleaned = re.sub(r"[^a-z0-9\s]", " ", s)
-    raw = [t for t in cleaned.split() if len(t) > 2 and not t.isdigit()]
-    stop = {
-        # Structural / stop words
-        "state",
-        "of",
-        "the",
-        "and",
-        "city",
-        "borough",
-        "board",
-        "united",
-        "states",
-        "et",
-        "al",
-        "v",
-        # Corporate suffixes / generic org words
-        "inc",
-        "llc",
-        "company",
-        "corporation",
-        "association",
-        "foundation",
-        "institute",
-        "services",
-        "service",
-        # Government/agency terms (to reduce false mismatches when one side includes a sub-agency)
-        "department",
-        "commission",
-        "administration",
-        "agency",
-        "authority",
-        "office",
-        "division",
-        "bureau",
-        "public",
-        "utility",
-        "insurance",
-        "motor",
-        "vehicle",
-        "transportation",
-        "education",
-        # Common state department vocabulary
-        "commerce",
-        "community",
-        "economic",
-        "development",
-        "corporations",
-        "business",
-        "professional",
-        "licensing",
-        # Caption/docket role words (strip from names)
-        "petitioners",
-        "respondent",
-        "appellant",
-        "appellee",
-        "plaintiff",
-        "defendant",
-        "aka",
-        "no",
-    }
-    tokens = [t for t in raw if t not in stop]
-    return set(tokens)
-
-
-def _name_similarity(extracted: str, canonical: str) -> float:
-    a = _normalize_name_tokens(extracted)
-    b = _normalize_name_tokens(canonical)
-    if not a or not b:
-        # Fall back to a light normalization without stopword removal
-        def light_tokens(s: str) -> set:
-            s2 = re.sub(r"[^a-z0-9\s]", " ", str(s).lower())
-            return set(t for t in s2.split() if len(t) > 2 and not t.isdigit())
-
-        la = light_tokens(extracted)
-        lb = light_tokens(canonical)
-        if not la or not lb:
-            return 0.0
-        inter = la.intersection(lb)
-        union = la.union(lb)
-        return (len(inter) / len(union)) if union else 0.0
-
-    # Fuzzy token matching for rare/unusual tokens (e.g., ellingson vs ellingston)
-    matched_a = set()
-    matched_b = set()
-    for ta in a:
-        # Exact match first
-        if ta in b:
-            matched_a.add(ta)
-            matched_b.add(ta)
-            continue
-        # Fuzzy match
-        best = None
-        best_r = 0.0
-        for tb in b:
-            r = difflib.SequenceMatcher(None, ta, tb).ratio()
-            if r > best_r:
-                best_r = r
-                best = tb
-        if best_r >= 0.88 and (len(ta) >= 5 or len(best or "") >= 5):
-            matched_a.add(ta)
-            matched_b.add(best)
-
-    inter_size = len(matched_a)
-    union_size = len(a.union(b))
-    j = (inter_size / union_size) if union_size else 0.0
-    cov_a = (inter_size / len(a)) if a else 0.0
-    cov_b = (inter_size / len(b)) if b else 0.0
-    return max(j, cov_a, cov_b)
-
-
-def _names_equivalent(
-    extracted: str, canonical: str, *, verified: bool = False, canonical_url: str | None = None
-) -> bool:
-    """Decide if two case names should be treated as equivalent.
-
-    Tolerates standard legal abbreviations, punctuation, and agency qualifiers.
-    If the citation was verified (or has a canonical URL), apply a more lenient threshold.
-    """
-    if not extracted or not canonical or extracted == "N/A" or canonical == "N/A":
-        return False
-
-    # USER FIX: Strip trailing dates/years from names before comparison
-    # This prevents false mismatches like "Case v. Party, 2014" vs "Case v. Party, 2014-06-12"
-    def strip_trailing_date(name: str) -> str:
-        # Remove trailing date patterns: ", 2014-06-12" or ", 2014" or "(2014)"
-        s = re.sub(r",?\s*\d{4}[-/]\d{1,2}[-/]\d{1,2}\s*$", "", name)  # Full date
-        s = re.sub(r",?\s*\d{4}\s*$", "", s)  # Year only
-        s = re.sub(r"\s*\(\d{4}\)\s*$", "", s)  # Year in parens
-        return s.strip()
-
-    extracted_clean = strip_trailing_date(extracted)
-    canonical_clean = strip_trailing_date(canonical)
-
-    # If names are identical after stripping dates, they're equivalent
-    if extracted_clean.lower() == canonical_clean.lower():
-        return True
-
-    # Primary token-based similarity (on cleaned names)
-    sim = _name_similarity(extracted_clean, canonical_clean)
-    if sim >= 0.6:
-        return True
-
-    # CRITICAL FIX: Reject names with ZERO similarity - completely different cases
-    # This prevents Niemann/Borton and Manufactured Housing/Shavlik type errors
-    if sim < 0.1:
-        return False
-
-    # If already verified by CourtListener, accept with a slightly lower bar
-    if verified or canonical_url:
-        if sim >= 0.5:
-            return True
-
-    # Try a government/agency-stripped comparison to handle "Commonwealth, Ins. Dep't" vs "Commonwealth"
-    def gov_strip_tokens(s: str) -> set:
-        s2 = str(s).lower().replace("’", "'")
-        s2 = re.sub(r"[^a-z0-9\s]", " ", s2)
-        raw = [t for t in s2.split() if len(t) > 2 and not t.isdigit()]
-        gov_words = {
-            "department",
-            "commission",
-            "administration",
-            "agency",
-            "authority",
-            "office",
-            "division",
-            "bureau",
-            "public",
-            "utility",
-            "insurance",
-            "motor",
-            "vehicle",
-            "commonwealth",
-            "state",
-            "pennsylvania",
-            "michigan",
-            # Broader agency/org descriptors to reduce false mismatches
-            "transportation",
-            "education",
-            "commerce",
-            "community",
-            "economic",
-            "development",
-            "corporations",
-            "business",
-            "professional",
-            "licensing",
-            # Caption/docket role tokens we want to ignore in equivalence
-            "petitioners",
-            "respondent",
-            "appellant",
-            "appellee",
-            "plaintiff",
-            "defendant",
-            "aka",
-            "no",
-            "et",
-            "al",
-        }
-        return set(t for t in raw if t not in gov_words)
-
-    ga = gov_strip_tokens(extracted)
-    gb = gov_strip_tokens(canonical)
-    if ga and gb:
-        inter = ga.intersection(gb)
-        union = ga.union(gb)
-        j = (len(inter) / len(union)) if union else 0.0
-        cov = max(len(inter) / len(ga) if ga else 0.0, len(inter) / len(gb) if gb else 0.0)
-        if max(j, cov) >= 0.85:
-            return True
-
-        # Verified subset tolerance: allow truncation/abbreviation when one side's tokens are a subset
-        if verified or canonical_url:
-            if ga.issubset(gb) or gb.issubset(ga):
-                # Require at least one overlapping token to avoid empty/degenerate matches
-                if inter:
-                    return True
-
-    # CRITICAL: Check if both names share the same party name (especially after "v")
-    # This handles cases like "Auto. Ins. Co. v. Campbell" vs "State Farm Mutual Automobile Insurance v. Campbell"
-    def extract_parties(name: str) -> tuple:
-        """Extract first and second party names from a case name."""
-        # Split on "v" to get parties
-        parts = re.split(r"\bv\b", name.lower(), maxsplit=1)
-        if len(parts) == 2:
-            first_party = parts[0].strip()
-            second_party = parts[1].strip()
-            # Extract key words from each party (remove common words)
-            common_words = {"the", "and", "of", "in", "on", "at", "by", "for", "with", "a", "an"}
-            first_words = set(w for w in first_party.split() if len(w) > 2 and w not in common_words)
-            second_words = set(w for w in second_party.split() if len(w) > 2 and w not in common_words)
-            return first_words, second_words
-        return set(), set()
-
-    first1, second1 = extract_parties(extracted)
-    first2, second2 = extract_parties(canonical)
-
-    # If both have the same second party name, and first parties share some words, consider it a match
-    if second1 and second2:
-        second_overlap = second1 & second2
-        if second_overlap:
-            # Both share at least one word in the second party (e.g., "campbell")
-            # Check if first parties have any overlap or if one is an abbreviation of the other
-            first_overlap = first1 & first2
-            if first_overlap:
-                # Both parties have some overlap - strong match
-                return True
-            # Check if one first party is a subset of the other (abbreviation case)
-            if first1.issubset(first2) or first2.issubset(first1):
-                return True
-            # Check if there's significant word overlap in first party (at least 30%)
-            if first1 and first2:
-                first_smaller = min(first1, first2, key=len)
-                first_larger = max(first1, first2, key=len)
-                first_overlap_count = len(first_smaller & first_larger)
-                if first_smaller and first_overlap_count / len(first_smaller) >= 0.3:
-                    return True
-            # For verified citations, if second party matches, be more lenient with first party
-            if verified or canonical_url:
-                # If second party matches, accept even with minimal first party overlap
-                if len(second_overlap) >= 1:
-                    return True
-
-    return False
-
-
-def _annotate_mismatch_flags(
-    citations: list, clusters: list, name_threshold: float = 0.4, year_tolerance: int = 0
-) -> None:
-    """Annotate per-citation mismatch flags and compute cluster-level summaries in-place.
-    - name_mismatch: True when extracted vs canonical name similarity < threshold and both present
-    - date_mismatch: True when both years present and |diff| > year_tolerance
-    - possible_match: mirror name_mismatch for verified citations (soft flag)
-    - cluster.has_name_mismatch / cluster.has_date_mismatch and mismatch_indices
-
-    NOTE: Threshold lowered from 0.6 to 0.4 to reduce false positives on minor variations
-    like "Inc." vs "Incorporated", "Dept." vs "Department", etc.
-    """
-    try:
-        # Per-citation flags
-        for cit in citations or []:
-            if not isinstance(cit, dict):
-                continue
-            extracted = cit.get("extracted_case_name")
-            canonical = cit.get("canonical_name")
-            verified = bool(cit.get("verified"))
-            canonical_url = cit.get("canonical_url")
-
-            # FIX: If extracted name is "N/A" or missing, there's no mismatch - we just use canonical
-            # A mismatch only occurs when BOTH names exist and they differ
-            if not extracted or extracted == "N/A":
-                name_mismatch = False  # No extraction = no mismatch, we use canonical
-            # Use robust equivalence check; fall back to threshold if not comparable
-            elif extracted and canonical:
-                # Check if extracted name is clearly wrong (e.g., document header contamination)
-                # by checking if it's very different from canonical
-                equiv = _names_equivalent(extracted, canonical, verified=verified, canonical_url=canonical_url)
-                name_mismatch = not equiv
-            else:
-                sim = _name_similarity(extracted, canonical) if (extracted and canonical) else 0.0
-                name_mismatch = bool(extracted and canonical and sim < name_threshold)
-
-            y_ex = _extract_year(cit.get("extracted_date"))
-            y_ca = _extract_year(cit.get("canonical_date"))
-            # FIX: date_mismatch should ONLY be True when BOTH years exist and differ
-            # Explicitly set False when canonical_date is None (no comparison possible)
-            if not y_ca:
-                date_mismatch = False
-            else:
-                date_mismatch = bool(y_ex and y_ca and abs(int(y_ex) - int(y_ca)) > year_tolerance)
-
-            cit["name_mismatch"] = name_mismatch
-            cit["date_mismatch"] = date_mismatch
-            # Soft flag to surface questionable verifies without overriding verified
-            if cit.get("verified") and name_mismatch:
-                cit["possible_match"] = True
-
-        # Cluster-level summaries
-        # CRITICAL FIX: Only show mismatch warnings for VERIFIED citations
-        # Unverified citations shouldn't trigger date mismatch warnings
-        for cluster in clusters or []:
-            cluster_cits = cluster.get("citations") or []
-            mm_indices = []
-            has_name = False
-            has_date = False
-            for idx, c in enumerate(cluster_cits):
-                if isinstance(c, dict):
-                    nm = bool(c.get("name_mismatch"))
-                    dm = bool(c.get("date_mismatch"))
-                    is_verified = bool(c.get("verified"))
-                else:
-                    nm = bool(getattr(c, "name_mismatch", False))
-                    dm = bool(getattr(c, "date_mismatch", False))
-                    is_verified = bool(getattr(c, "verified", False))
-                # Only count mismatches for verified citations
-                if is_verified and (nm or dm):
-                    mm_indices.append(idx)
-                if is_verified:
-                    has_name = has_name or nm
-                    has_date = has_date or dm
-
-            cluster["has_name_mismatch"] = has_name
-            cluster["has_date_mismatch"] = has_date
-            cluster["mismatch_indices"] = mm_indices
-    except Exception as e:
-        logger.warning(f"[MISMATCH-ANNOTATE] Failed to annotate mismatch flags: {e}")
+# Re-export for backward compatibility (unified_processing_pipeline imports these)
+_annotate_mismatch_flags = annotate_mismatch_flags
+_names_equivalent = names_equivalent
 
 
 def _organize_clusters_by_verification(clusters: List[Dict]) -> Dict[str, List[Dict]]:
@@ -527,6 +128,19 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
         logger.info(f"[PRODUCTION] About to call extract_citations_unified()...")
         citations = extract_citations_unified(text)
         logger.info(f"[PRODUCTION] extract_citations_unified() returned {len(citations)} citations")
+        
+        # CRITICAL DEBUG: If no citations found, log text sample to help diagnose
+        if len(citations) == 0:
+            logger.warning(f"[PRODUCTION] ⚠️ NO CITATIONS FOUND - Text length: {len(text)} chars")
+            logger.warning(f"[PRODUCTION] ⚠️ Text sample (first 1000 chars): {text[:1000]}")
+            logger.warning(f"[PRODUCTION] ⚠️ Text sample (last 1000 chars): {text[-1000:]}")
+            # Check if text looks like it might have citations
+            citation_indicators = ["U.S.", "F.", "F.2d", "F.3d", "S.Ct.", "L.Ed.", "Wn.", "Wn.2d", "P.", "P.2d", "Cal.", "N.Y.", "v.", "v "]
+            found_indicators = [ind for ind in citation_indicators if ind in text]
+            if found_indicators:
+                logger.warning(f"[PRODUCTION] ⚠️ Found citation indicators in text: {found_indicators[:10]}")
+            else:
+                logger.warning(f"[PRODUCTION] ⚠️ No citation indicators found in text - document may not contain citations")
 
         logger.info(f"[PRODUCTION] Extracted {len(citations)} citations with unified master")
 
@@ -611,8 +225,6 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
                     citation_dicts[i]["parallel_citations"] = getattr(cit, "parallel_citations", [])
 
                     # Log if parallel verification was applied
-                    if getattr(cit, "true_by_parallel", False):
-                        logger.info(f"[PRODUCTION] ✅ Applied parallel verification to {cit.citation}")
 
         except Exception as parallel_error:
             logger.warning(f"[PRODUCTION] Parallel verification failed (non-critical): {parallel_error}")
@@ -624,10 +236,11 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
         # context for each citation. If not, re-extract using strict isolator
         # and overwrite. This prevents cross-clause inheritance (e.g., Hudson → NAM).
         try:
+            from src.extraction import extract_case_name_from_strict_context
             from src.utils.strict_context_isolator import (
                 get_strict_context_for_citation,
-                extract_case_name_from_strict_context,
                 find_all_citation_positions,
+                is_citation_or_part_of_citation,
             )
 
             all_positions = find_all_citation_positions(text)
@@ -661,6 +274,11 @@ def extract_citations_production(text: str) -> Dict[str, Any]:
                     # Not in strict context – re-extract and overwrite if valid
                     re_name = extract_case_name_from_strict_context(strict_ctx, c.get("citation"))
                     if re_name and re_name != "N/A":
+                        # Reject citation fragments (e.g. "(10 Tenn.), 1831") and statute names (e.g. "Administrative Procedure Act, 1970")
+                        cite = c.get("citation") or ""
+                        if is_citation_or_part_of_citation(re_name, cite):
+                            logger.warning(f"[STRICT-REPAIR] REJECTED citation fragment/statute: '{re_name}' - keeping original")
+                            continue
                         # CRITICAL: Filter out header patterns before overwriting
                         # Check if re_name contains header patterns (ET AL + role word, or role word + NO)
                         re_name_upper = re_name.upper()
@@ -780,7 +398,6 @@ def extract_citations_with_clustering(
         # Step 1.5: Pre-cluster batch verification for small inputs or when verification is enabled
         try:
             preverify_threshold = 10  # Only pre-verify small batches to keep latency low
-            logger.error(f"🔥 [PRE-VERIFY-DEBUG] Checking pre-verification condition:")
             logger.error(
                 f"🔥 [PRE-VERIFY-DEBUG] citations exist: {bool(citations)}, count: {len(citations) if citations else 0}"
             )
@@ -795,11 +412,10 @@ def extract_citations_with_clustering(
             )
 
             if citations and (enable_verification or len(citations) <= preverify_threshold):
-                logger.error(f"🔥 [PRE-VERIFY] Running batch verification BEFORE clustering (n={len(citations)})")
                 if progress_callback:
                     progress_callback(30, "Analyzing", "Analyzing citation patterns")
                     progress_callback(40, "Verifying", "Verifying citations with external sources")
-                from src.unified_verification_master import get_master_verifier
+                from src.verification import get_master_verifier
 
                 verifier = get_master_verifier()
 
@@ -820,9 +436,10 @@ def extract_citations_with_clustering(
                             asyncio.set_event_loop(new_loop)
                             try:
                                 return new_loop.run_until_complete(
-                                    verifier.verify_citations_batch(
-                                        citation_texts, case_names, case_dates, progress_callback=progress_callback
-                                    )
+verifier.verify_citations_batch(
+                            citation_texts, case_names, case_dates, progress_callback=progress_callback,
+                            enable_fallback=True, max_fallback_citations=100
+                        )
                                 )
                             finally:
                                 new_loop.close()
@@ -831,18 +448,20 @@ def extract_citations_with_clustering(
                             results = ex.submit(run_batch).result(timeout=300.0)
                     else:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(
-                                citation_texts, case_names, case_dates, progress_callback=progress_callback
-                            )
+verifier.verify_citations_batch(
+                            citation_texts, case_names, case_dates, progress_callback=progress_callback,
+                            enable_fallback=True, max_fallback_citations=100
+                        )
                         )
                 except RuntimeError:
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
                     try:
                         results = loop.run_until_complete(
-                            verifier.verify_citations_batch(
-                                citation_texts, case_names, case_dates, progress_callback=progress_callback
-                            )
+verifier.verify_citations_batch(
+                            citation_texts, case_names, case_dates, progress_callback=progress_callback,
+                            enable_fallback=True, max_fallback_citations=100
+                        )
                         )
                     finally:
                         loop.close()
@@ -875,12 +494,9 @@ def extract_citations_with_clustering(
                         citations[i]["verification_source"] = getattr(r, "source", None)
                         citations[i]["verification_error"] = getattr(r, "error", None)
 
-                logger.error(f"🔥 [PRE-VERIFY] Completed pre-verification: {pre_verified}/{len(citations)} verified")
-                logger.error(f"🔥 [CHECKPOINT-1] About to exit verification try block")
         except Exception as e:
             logger.error(f"[PRE-VERIFY] Error during pre-cluster verification: {e}")
 
-        logger.error(f"🔥 [CHECKPOINT-2] Verification complete, starting clustering prep")
         # Step 2: Cluster parallel citations
         logger.info(f"[PRODUCTION] Step 2: Clustering {len(citations)} citations")
         if progress_callback:
@@ -924,7 +540,6 @@ def extract_citations_with_clustering(
                 original_text=text,
                 enable_verification=False,  # FIX: Disabled - pre-verification already completed above
             )
-            logger.error(f"🔥 [VERIFY-DIAGNOSTIC] cluster_citations_unified_master returned {len(clusters)} clusters")
             logger.info(f"[PRODUCTION] Step 2 complete: {len(clusters)} clusters created")
 
             # CRITICAL: Extract updated citations from clusters (they have verification data!)
@@ -997,92 +612,7 @@ def extract_citations_with_clustering(
             f"[PRODUCTION] Step 3: Verification status after clustering - {verified_count}/{len(citations)} verified"
         )
 
-        # FIX DEC 2025: DISABLED - This fallback was running a THIRD verification after pre-verification
-        # already completed. The issue is verification data loss during clustering, not missing verification.
-        # TODO: Fix verification data preservation through clustering instead of re-running verification.
-        if False and verified_count == 0 and citations:  # DISABLED - was causing worker timeouts
-            try:
-                logger.error(
-                    "🔥 [VERIFY-FALLBACK] No verified citations after clustering. Running direct batch verification."
-                )
-                from src.unified_verification_master import get_master_verifier
-
-                verifier = get_master_verifier()
-                # Prepare inputs
-                citation_texts = [c.get("citation") for c in citations]
-                case_names = [c.get("extracted_case_name") for c in citations]
-                case_dates = [c.get("extracted_date") for c in citations]
-                # Run async batch from sync context (new event loop)
-                import asyncio
-
-                loop = None
-                try:
-                    loop = asyncio.get_event_loop()
-                    if loop.is_running():
-                        from concurrent.futures import ThreadPoolExecutor
-
-                        def run_batch():
-                            new_loop = asyncio.new_event_loop()
-                            asyncio.set_event_loop(new_loop)
-                            try:
-                                return new_loop.run_until_complete(
-                                    verifier.verify_citations_batch(
-                                        citation_texts, case_names, case_dates, progress_callback=progress_callback
-                                    )
-                                )
-                            finally:
-                                new_loop.close()
-
-                        with ThreadPoolExecutor(max_workers=1) as ex:
-                            results = ex.submit(run_batch).result(timeout=300.0)
-                    else:
-                        results = loop.run_until_complete(
-                            verifier.verify_citations_batch(
-                                citation_texts, case_names, case_dates, progress_callback=progress_callback
-                            )
-                        )
-                except RuntimeError:
-                    loop = asyncio.new_event_loop()
-                    asyncio.set_event_loop(loop)
-                    try:
-                        results = loop.run_until_complete(
-                            verifier.verify_citations_batch(
-                                citation_texts, case_names, case_dates, progress_callback=progress_callback
-                            )
-                        )
-                    finally:
-                        loop.close()
-                # Apply results back to citations (by index order)
-                for i, r in enumerate(results or []):
-                    if not isinstance(citations[i], dict):
-                        continue
-                    if getattr(r, "verified", False):
-                        citations[i]["verified"] = True
-                        citations[i]["possible_match"] = False
-                        citations[i]["canonical_name"] = getattr(r, "canonical_name", None)
-                        citations[i]["canonical_date"] = getattr(r, "canonical_date", None)
-                        citations[i]["canonical_url"] = getattr(r, "canonical_url", None)
-                        citations[i]["verification_source"] = getattr(r, "source", None)
-                        citations[i]["verification_error"] = None
-                    elif getattr(r, "possible_match", False):
-                        citations[i]["verified"] = False
-                        citations[i]["possible_match"] = True
-                        citations[i]["canonical_name"] = getattr(r, "canonical_name", None)
-                        citations[i]["canonical_date"] = getattr(r, "canonical_date", None)
-                        citations[i]["canonical_url"] = getattr(r, "canonical_url", None)
-                        citations[i]["verification_source"] = getattr(r, "source", None)
-                        citations[i]["verification_error"] = getattr(r, "error", None)
-                    else:
-                        citations[i]["verified"] = False
-                        citations[i]["possible_match"] = False
-                        citations[i]["verification_source"] = getattr(r, "source", None)
-                        citations[i]["verification_error"] = getattr(r, "error", None)
-                verified_count = sum(1 for c in citations if c.get("verified", False))
-                logger.error(
-                    f"🔥 [VERIFY-FALLBACK] Direct batch verification done - {verified_count}/{len(citations)} verified"
-                )
-            except Exception as vf_err:
-                logger.error(f"[VERIFY-FALLBACK] Direct verification failed: {vf_err}")
+        # Fallback re-verification removed — was causing 6+ min hangs (Dec 2025)
 
         # Step 3.5: Annotate mismatch flags and cluster summaries (backend-driven)
         try:
