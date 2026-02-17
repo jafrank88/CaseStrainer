@@ -13,12 +13,13 @@ COPY src/ src/
 COPY index.html .
 COPY vite.config.js .
 
-# Set environment to production
+# Set environment to production (pass VITE_COURTLISTENER_API_KEY at build time if needed; do not commit secrets)
+ARG VITE_COURTLISTENER_API_KEY
 ENV NODE_ENV=production
 ENV VITE_APP_ENV=production
 ENV VITE_API_BASE_URL=/casestrainer/api/
 ENV VITE_APP_TITLE=CaseStrainer
-ENV VITE_COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+ENV VITE_COURTLISTENER_API_KEY=${VITE_COURTLISTENER_API_KEY}
 
 # Build the app with production settings
 RUN npm run build

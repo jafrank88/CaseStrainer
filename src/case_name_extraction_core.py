@@ -1,12 +1,11 @@
 """
-Case Name Extraction Core - Now Powered by Master Extraction Function
+Case Name Extraction Core - Compatibility Layer over src.extraction
 ====================================================================
 
-This module now serves as a compatibility layer that redirects all extraction calls
-to the master extraction function (extract_case_name_and_date_master), which provides
-the single source of truth for case name extraction.
+This module serves as a compatibility layer that redirects all extraction calls
+to the modular extraction package (src.extraction).
 
-IMPORTANT: All extraction now goes through extract_case_name_and_date_master()
+IMPORTANT: All extraction goes through extract_case_name_and_date_unified_master()
 
 DEPRECATION NOTICE:
 ==================
@@ -22,21 +21,16 @@ from typing import Dict, Optional, Any, List, Tuple
 
 
 import warnings
-from src.unified_case_name_extractor_v2 import (
-    get_unified_extractor,
-    extract_case_name_and_date_master,
-    extract_case_name_only_unified,
+from src.extraction import (
+    extract_case_name_and_date_unified_master,
+    get_master_extractor,
+    validate_case_name as _validate_case_name,
 )
-
-_unified_extractor = None
 
 
 def get_extractor():
-    """Get the unified extractor instance"""
-    global _unified_extractor
-    if _unified_extractor is None:
-        _unified_extractor = get_unified_extractor()
-    return _unified_extractor
+    """Get the unified extractor instance (UnifiedCaseExtractionMaster from src.extraction)."""
+    return get_master_extractor()
 
 
 def extract_case_name_and_date(
@@ -47,41 +41,25 @@ def extract_case_name_and_date(
     debug: bool = False,
 ) -> Dict[str, Any]:
     """
-    PRIMARY EXTRACTION FUNCTION - Now uses UnifiedCaseNameExtractorV2
-
-    This function now delegates to the unified extractor which provides:
-    - Consistent case name extraction (no more truncation!)
-    - Multiple extraction strategies
-    - Comprehensive validation
-    - Performance optimizations
-    - Detailed debugging
-
-    Args:
-        text: Full document text
-        citation: Citation text to search for
-        citation_start: Start index of citation in text
-        citation_end: End index of citation in text
-        debug: Enable detailed debugging output
+    PRIMARY EXTRACTION FUNCTION - Delegates to src.extraction.
 
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_master(text, citation, citation_start, citation_end, debug)
+    return extract_case_name_and_date_unified_master(
+        text, citation, citation_start, citation_end, debug
+    )
 
 
 def extract_case_name_only(text: str, citation: Optional[str] = None, debug: bool = False) -> str:
     """
-    Extract only the case name - Now uses UnifiedCaseNameExtractorV2
-
-    Args:
-        text: Full document text
-        citation: Citation text to search for
-        debug: Enable detailed debugging output
+    Extract only the case name - Delegates to src.extraction.
 
     Returns:
         Extracted case name string
     """
-    return extract_case_name_only_unified(text, citation, debug)
+    result = extract_case_name_and_date_unified_master(text, citation, debug=debug)
+    return (result.get("case_name") or result.get("extracted_case_name") or "N/A").strip() or "N/A"
 
 
 def extract_case_name_from_citation(text: str, citation: str, debug: bool = False) -> Dict[str, Any]:
@@ -96,7 +74,7 @@ def extract_case_name_from_citation(text: str, citation: str, debug: bool = Fals
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_master(text, citation, debug=debug)
+    return extract_case_name_and_date_unified_master(text, citation, debug=debug)
 
 
 def extract_case_name_with_context(
@@ -114,7 +92,7 @@ def extract_case_name_with_context(
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_master(text, citation, debug=debug)
+    return extract_case_name_and_date_unified_master(text, citation, debug=debug)
 
 
 def extract_case_name_volume_based(text: str, citation: str, debug: bool = False) -> Dict[str, Any]:
@@ -129,7 +107,7 @@ def extract_case_name_volume_based(text: str, citation: str, debug: bool = False
     Returns:
         Dict with case_name, date, year, confidence, method, and debug_info
     """
-    return extract_case_name_and_date_master(text, citation, debug=debug)
+    return extract_case_name_and_date_unified_master(text, citation, debug=debug)
 
 
 def extract_case_names_batch(text: str, citations: List[str], debug: bool = False) -> List[Dict[str, Any]]:
@@ -146,7 +124,7 @@ def extract_case_names_batch(text: str, citations: List[str], debug: bool = Fals
     """
     results = []
     for citation in citations:
-        result = extract_case_name_and_date_master(text, citation, debug=debug)
+        result = extract_case_name_and_date_unified_master(text, citation, debug=debug)
         results.append(result)
     return results
 
@@ -172,29 +150,20 @@ def extract_case_names_from_paragraph(text: str, debug: bool = False) -> List[Di
 
 def validate_case_name(case_name: str) -> Dict[str, Any]:
     """
-    Validate a case name using the unified extractor's validation rules
-
-    Args:
-        case_name: Case name to validate
+    Validate a case name using src.extraction validation.
 
     Returns:
-        Dict with validation results
+        Dict with valid, issues, quality_score, and is_valid (for backward compat).
     """
-    extractor = get_extractor()
-    return extractor._validate_case_name(case_name, "", "")
+    r = _validate_case_name(case_name)
+    r["is_valid"] = r.get("valid", False)
+    return r
 
 
 def clean_case_name(case_name: str) -> str:
-    """
-    Clean a case name using the unified extractor's cleaning logic
-
-    Args:
-        case_name: Case name to clean
-
-    Returns:
-        Cleaned case name
-    """
-    return case_name.strip()
+    """Clean a case name; delegates to src.utils.case_name_utils for single source of truth."""
+    from src.utils.case_name_utils import clean_case_name as _clean
+    return _clean(case_name)
 
 
 def _show_deprecation_warning(old_function_name: str):
@@ -227,7 +196,7 @@ def extract_case_name_triple_comprehensive(text: str, citation: Optional[str] = 
     """
     _show_deprecation_warning("extract_case_name_triple_comprehensive")
 
-    result = extract_case_name_and_date_master(text, citation)
+    result = extract_case_name_and_date_unified_master(text, citation)
 
     return (result.get("case_name", ""), result.get("year", ""), str(result.get("confidence", 0.0)))
 
@@ -318,24 +287,10 @@ def extract_case_name_from_text(text: str, citation: Optional[str] = None) -> st
 
 
 def is_valid_case_name(case_name: str) -> bool:
-    """
-    DEPRECATED: Use validate_case_name() instead.
-
-    This function was an intermediate version that has been replaced by
-    the unified extractor's validation system.
-
-    Args:
-        case_name: Case name to validate
-
-    Returns:
-        True if case name is valid
-
-    Deprecated since: v2.0.0
-    Will be removed in: v3.0.0
-    """
+    """Re-export from single source of truth (src.utils.case_name_utils). Deprecated: use validate_case_name() for full result."""
     _show_deprecation_warning("is_valid_case_name")
-    validation_result = validate_case_name(case_name)
-    return validation_result.get("is_valid", False)
+    from src.utils.case_name_utils import is_valid_case_name as _is_valid
+    return _is_valid(case_name)
 
 
 def clean_case_name_enhanced(case_name: str) -> str:
@@ -398,7 +353,7 @@ def extract_case_name_triple(text: str, citation: Optional[str] = None) -> Tuple
     """
     _show_deprecation_warning("extract_case_name_triple")
 
-    result = extract_case_name_and_date_master(text, citation)
+    result = extract_case_name_and_date_unified_master(text, citation)
 
     return (result.get("case_name", ""), result.get("year", ""), str(result.get("confidence", 0.0)))
 
@@ -483,11 +438,11 @@ def extract_case_name_heuristic(text: str, citation: str) -> str:
 
 
 def initialize_extractor():
-    """Initialize the unified extractor (called automatically)"""
+    """Initialize the unified extractor (src.extraction) when this module loads."""
     try:
         get_extractor()
-        print("UnifiedCaseNameExtractorV2 initialized successfully")
-        print("All extraction now goes through the unified extractor")
+        print("Case name extraction initialized (src.extraction)")
+        print("All extraction goes through extract_case_name_and_date_unified_master")
         print("WARNING: Many functions are deprecated and will be removed in v3.0.0")
         print("INFO: Use extract_case_name_and_date() or extract_case_name_only() for new code")
         return True

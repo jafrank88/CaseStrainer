@@ -48,8 +48,8 @@ function Restart-DockerIfNeeded {
         Get-Process "Docker Desktop" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
         Start-Sleep -Seconds 5
         
-        # Start Docker Desktop
-        Start-Process "`${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe" -WindowStyle Minimized
+        # Start Docker Desktop with GPU disabled (prevents crashes in VM environments)
+        Start-Process "`${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe" -ArgumentList "--disable-gpu" -WindowStyle Minimized
         
         `$lastRestart = `$now
         Write-ServiceLog "Docker restart initiated"

@@ -58,7 +58,17 @@ def get_bool_config_value(key: str, default: bool = False) -> bool:
     return bool(value)
 
 
-SECRET_KEY: str = get_config_value("SECRET_KEY", "devkey")
+# Environment: production requires explicit SECRET_KEY and REDIS_URL
+ENVIRONMENT: str = get_config_value("ENVIRONMENT") or get_config_value("FLASK_ENV") or "development"
+IS_PRODUCTION: bool = ENVIRONMENT.lower() == "production"
+
+_SECRET_KEY_RAW: str = get_config_value("SECRET_KEY", "devkey")
+if IS_PRODUCTION and (not _SECRET_KEY_RAW or _SECRET_KEY_RAW == "devkey" or len(_SECRET_KEY_RAW) < 16):
+    raise SystemExit(
+        "Production requires a strong SECRET_KEY (set env SECRET_KEY to a random string of 32+ characters)."
+    )
+SECRET_KEY: str = _SECRET_KEY_RAW
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -102,6 +112,9 @@ MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
 CONTACT_EMAIL: str = "jafrank@uw.edu"
 CONTACT_SUBJECT_PREFIX: str = "[CaseStrainer Feedback]"
+
+# When True, requests with force_mode=sync are run as async (enqueue, return task_id). Saves server memory and avoids long-blocking connections.
+SYNC_REQUESTS_AS_ASYNC: bool = get_bool_config_value("SYNC_REQUESTS_AS_ASYNC", False)
 
 # Admin email for monitoring notifications (can be overridden via CASESTRAINER_ADMIN_EMAIL env var)
 ADMIN_EMAIL: str = get_config_value("CASESTRAINER_ADMIN_EMAIL", "jafrank@uw.edu")
@@ -154,7 +167,23 @@ JOB_TIMEOUT_MINUTES: int = int(get_config_value("JOB_TIMEOUT_MINUTES", "15"))
 VERIFICATION_TIMEOUT_MINUTES: int = int(get_config_value("VERIFICATION_TIMEOUT_MINUTES", "12"))
 FILE_PROCESSING_TIMEOUT_MINUTES: int = int(get_config_value("FILE_PROCESSING_TIMEOUT_MINUTES", "15"))
 
-REDIS_URL: str = get_config_value("REDIS_URL", "redis://localhost:6379/0")
+# Dynamic Job Timeout Configuration (for large documents)
+BASE_JOB_TIMEOUT_SECONDS: int = int(get_config_value("BASE_JOB_TIMEOUT_SECONDS", "900"))  # 15 minutes
+MAX_JOB_TIMEOUT_SECONDS: int = int(get_config_value("MAX_JOB_TIMEOUT_SECONDS", "2700"))  # 45 minutes
+LARGE_DOCUMENT_CITATION_THRESHOLD: int = int(get_config_value("LARGE_DOCUMENT_CITATION_THRESHOLD", "50"))
+TIMEOUT_PER_EXTRA_CITATION: int = int(get_config_value("TIMEOUT_PER_EXTRA_CITATION", "10"))  # seconds
+
+# Circuit Breaker Configuration (for CourtListener)
+CIRCUIT_BREAKER_THRESHOLD: int = int(get_config_value("CIRCUIT_BREAKER_THRESHOLD", "5"))  # failures before open
+CIRCUIT_BREAKER_RESET_SECONDS: int = int(get_config_value("CIRCUIT_BREAKER_RESET_SECONDS", "300"))  # 5 minutes
+
+# Global Fallback Timeout
+GLOBAL_FALLBACK_TIMEOUT_SECONDS: int = int(get_config_value("GLOBAL_FALLBACK_TIMEOUT_SECONDS", "180"))  # 3 minutes for full fallback
+
+_REDIS_URL_RAW = get_config_value("REDIS_URL")
+if IS_PRODUCTION and (not _REDIS_URL_RAW or not _REDIS_URL_RAW.strip()):
+    raise SystemExit("Production requires REDIS_URL to be set (e.g. redis://:password@host:6379/0).")
+REDIS_URL: str = ((_REDIS_URL_RAW or "").strip() or "redis://localhost:6379/0")
 
 USE_ENHANCED_EXTRACTION: bool = get_bool_config_value("USE_ENHANCED_EXTRACTION", True)
 EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))

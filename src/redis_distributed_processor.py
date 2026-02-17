@@ -72,12 +72,13 @@ class RedisDistributedPDFSystem:
 
     def __init__(
         self,
-        redis_url: str = "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0",
+        redis_url: Optional[str] = None,
         cache_ttl: int = 3600,  # 1 hour cache
         max_workers: int = 4,
         chunk_size: int = 50000,
     ):
-
+        from src.config import REDIS_URL
+        redis_url = redis_url or REDIS_URL
         self.cache_ttl = cache_ttl
         self.max_workers = max_workers
         self.chunk_size = chunk_size
@@ -407,8 +408,8 @@ class DockerOptimizedProcessor:
     """
 
     def __init__(self, redis_url: Optional[str] = None):
-        default_redis_url = "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0"
-        redis_url = redis_url or os.getenv("REDIS_URL", default_redis_url)
+        from src.config import REDIS_URL
+        redis_url = redis_url or REDIS_URL
         self.system = RedisDistributedPDFSystem(redis_url=redis_url)
 
     async def extract_text_from_file(self, file_path: str) -> str:

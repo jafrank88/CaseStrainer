@@ -17,8 +17,43 @@ from werkzeug.datastructures import FileStorage
 from src.robust_pdf_extractor import extract_text_from_pdf_smart
 from src.progress_manager import fetch_url_content, SSEProgressManager, ProgressTracker, estimate_citations_cheap
 from src.api.services.citation_service import CitationService
+from src.config import (
+    BASE_JOB_TIMEOUT_SECONDS,
+    MAX_JOB_TIMEOUT_SECONDS,
+    LARGE_DOCUMENT_CITATION_THRESHOLD,
+    TIMEOUT_PER_EXTRA_CITATION,
+)
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_dynamic_job_timeout(text: str) -> int:
+    """
+    Calculate job timeout based on estimated citation count.
+
+    For documents with many citations, we need more time for verification,
+    especially when external APIs like CourtListener are slow or unresponsive.
+
+    Args:
+        text: The document text to analyze
+
+    Returns:
+        Timeout in seconds (between BASE_JOB_TIMEOUT_SECONDS and MAX_JOB_TIMEOUT_SECONDS)
+    """
+    estimated_citations = estimate_citations_cheap(text)
+
+    if estimated_citations <= LARGE_DOCUMENT_CITATION_THRESHOLD:
+        timeout = BASE_JOB_TIMEOUT_SECONDS
+    else:
+        extra_citations = estimated_citations - LARGE_DOCUMENT_CITATION_THRESHOLD
+        extra_timeout = extra_citations * TIMEOUT_PER_EXTRA_CITATION
+        timeout = BASE_JOB_TIMEOUT_SECONDS + extra_timeout
+
+    # Clamp to maximum
+    timeout = min(timeout, MAX_JOB_TIMEOUT_SECONDS)
+
+    logger.info(f"[DYNAMIC-TIMEOUT] Estimated {estimated_citations} citations, timeout: {timeout}s ({timeout // 60}m)")
+    return timeout
 
 # Global progress manager instance
 _progress_manager = None
@@ -68,19 +103,18 @@ class UnifiedInputProcessor:
             Dictionary with citation processing results
         """
         print(f"[DEBUG] process_any_input CALLED with input_type={input_type}, request_id={request_id}")
-        logger.error(f"[Unified Processor {request_id}] [DEBUG] process_any_input CALLED!")
-        logger.error(f"[Unified Processor {request_id}] Processing {input_type} input")
-        logger.error(f"[Unified Processor {request_id}] Input data type: {type(input_data)}")
-        logger.error(
+        logger.info(f"[Unified Processor {request_id}] process_any_input called, processing {input_type} input")
+        logger.info(f"[Unified Processor {request_id}] Input data type: {type(input_data)}")
+        logger.info(
             f"[Unified Processor {request_id}] Input data length: {len(input_data) if isinstance(input_data, str) else 'N/A'}"
         )
-        logger.error(f"[Unified Processor {request_id}] Source name: {source_name}, Force mode: {force_mode}")
+        logger.info(f"[Unified Processor {request_id}] Source name: {source_name}, Force mode: {force_mode}")
 
         try:
-            logger.error(f"[Unified Processor {request_id}] [INFO] Calling _extract_text_from_input...")
+            logger.info(f"[Unified Processor {request_id}] Calling _extract_text_from_input...")
             text_result = self._extract_text_from_input(input_data, input_type, request_id)
-            logger.error(
-                f"[Unified Processor {request_id}] [SUCCESS] _extract_text_from_input returned: success={text_result.get('success')}"
+            logger.info(
+                f"[Unified Processor {request_id}] _extract_text_from_input returned: success={text_result.get('success')}"
             )
 
             if not text_result["success"]:
@@ -89,11 +123,11 @@ class UnifiedInputProcessor:
             text = text_result["text"]
             metadata = text_result.get("metadata", {})
 
-            logger.error(
-                f"[Unified Processor {request_id}] [INFO] enable_verification={enable_verification} passed through"
+            logger.info(
+                f"[Unified Processor {request_id}] enable_verification={enable_verification} passed through"
             )
-            logger.error(
-                f"[Unified Processor {request_id}] [DEBUG] About to call _process_citations_unified with verification flag"
+            logger.info(
+                f"[Unified Processor {request_id}] About to call _process_citations_unified with verification flag"
             )
 
             return self._process_citations_unified(
@@ -417,6 +451,24 @@ class UnifiedInputProcessor:
 
                 logger.info(f"[Unified Processor {request_id}] Extracted {len(text):,} chars using {method}")
 
+                # CRITICAL FIX: Apply text normalization to fix broken citations
+                # This fixes line breaks in citations like "200\nU. S. 321" -> "200 U. S. 321"
+                if text and len(text.strip()) > 0:
+                    from src.utils.text_normalizer import normalize_text
+                    original_sample = text[:200].replace('\n', '\\n').replace('\r', '\\r')
+                    logger.info(f"[Unified Processor {request_id}] Original text sample: '{original_sample}...'")
+                    
+                    text = normalize_text(text)
+                    
+                    normalized_sample = text[:200].replace('\n', '\\n').replace('\r', '\\r')
+                    logger.info(f"[Unified Processor {request_id}] Normalized text sample: '{normalized_sample}...'")
+                    
+                    # Check if we fixed the broken citation
+                    if "200 U. S. 321" in text:
+                        logger.info(f"✅ [Unified Processor {request_id}] FIXED: Found '200 U. S. 321' in normalized text")
+                    else:
+                        logger.warning(f"⚠️ [Unified Processor {request_id}] Still no '200 U. S. 321' in normalized text")
+
                 if not text or len(text.strip()) < 10:
                     return {
                         "success": False,
@@ -482,33 +534,38 @@ class UnifiedInputProcessor:
             enable_verification: Whether to enable citation verification
         """
         print(f"[DEBUG] _process_citations_unified CALLED with {len(text)} chars, request_id={request_id}")
-        logger.error(f"[Unified Processor {request_id}] [DEBUG] _process_citations_unified CALLED!")
-        logger.error(f"[Unified Processor {request_id}] Processing citations from {source_name}")
-        logger.error(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
-        logger.error(f"[Unified Processor {request_id}] Text preview: {text[:200]}...")
-        logger.error(f"[Unified Processor {request_id}] Input metadata: {input_metadata}")
+        logger.info(f"[Unified Processor {request_id}] _process_citations_unified called")
+        logger.info(f"[Unified Processor {request_id}] Processing citations from {source_name}")
+        logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
+        logger.info(f"[Unified Processor {request_id}] Input metadata: {input_metadata}")
         if force_mode:
-            logger.error(f"[Unified Processor {request_id}] [INFO] force_mode='{force_mode}' passed through")
+            logger.info(f"[Unified Processor {request_id}] force_mode='{force_mode}' passed through")
 
-        logger.error(
-            f"[Unified Processor {request_id}] [INFO] enable_verification={enable_verification} passed through"
+        logger.info(
+            f"[Unified Processor {request_id}] enable_verification={enable_verification} passed through"
         )
 
         try:
             input_data = {"type": "text", "text": text}
-            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: Checking if should process immediately...")
-            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: force_mode parameter = '{force_mode}'")
-            logger.error(f"[Unified Processor {request_id}] 🔍 DEBUG: Text length = {len(text)} chars")
+            logger.info(f"[Unified Processor {request_id}] Checking if should process immediately...")
+            logger.info(f"[Unified Processor {request_id}] force_mode parameter = '{force_mode}'")
+            logger.info(f"[Unified Processor {request_id}] Text length = {len(text)} chars")
 
-            # Pass force_mode to honor user override
-            should_process_immediately = self.citation_service.should_process_immediately(
-                input_data, force_mode=force_mode
+            # Honor explicit user override: if caller asked for sync, always run sync (no size-based override)
+            if force_mode and str(force_mode).lower() == "sync":
+                should_process_immediately = True
+                logger.info(
+                    f"[Unified Processor {request_id}] force_mode='sync' requested → using sync path (no override)"
+                )
+            else:
+                should_process_immediately = self.citation_service.should_process_immediately(
+                    input_data, force_mode=force_mode
+                )
+            logger.info(
+                f"[Unified Processor {request_id}] should_process_immediately = {should_process_immediately}"
             )
-            logger.error(
-                f"[Unified Processor {request_id}] 🔍 DEBUG: should_process_immediately = {should_process_immediately}"
-            )
-            logger.error(
-                f"[Unified Processor {request_id}] 🔍 DEBUG: force_mode was '{force_mode}', result is {should_process_immediately}"
+            logger.info(
+                f"[Unified Processor {request_id}] force_mode was '{force_mode}', result is {should_process_immediately}"
             )
 
             if should_process_immediately:
@@ -545,7 +602,7 @@ class UnifiedInputProcessor:
                         expected_seconds = max(base_time, base_time + citation_time + size_time)
                         # Cap at 3 minutes for sync processing
                         expected_seconds = min(expected_seconds, 180.0)
-                        logger.error(f"[Unified Processor {request_id}] ETA: {expected_seconds:.1f}s (sync, citations: {qn}, size: {text_size//1024}KB)")
+                        logger.info(f"[Unified Processor {request_id}] ETA: {expected_seconds:.1f}s (sync, citations: {qn}, size: {text_size//1024}KB)")
                         self.progress_manager.start_eta_heartbeat(
                             request_id,
                             start_pct=10,
@@ -557,28 +614,86 @@ class UnifiedInputProcessor:
                     except Exception:
                         pass
 
-                    logger.error(
-                        f"[Unified Processor {request_id}] 🔧 DEBUG: About to call process_citations_unified with enable_verification={enable_verification}"
+                    logger.info(
+                        f"[Unified Processor {request_id}] About to call process_citations_unified with enable_verification={enable_verification}"
                     )
                     # Run unified pipeline (includes extraction, verification, and parallel propagation)
                     from src.unified_processing_pipeline import process_citations_unified
 
                     text = input_data.get("text", "")
-                    logger.error(
-                        f"[Unified Processor {request_id}] >>>>>>> ABOUT TO CALL process_citations_unified with enable_verification={enable_verification}"
+                    logger.info(
+                        f"[Unified Processor {request_id}] Calling process_citations_unified with enable_verification={enable_verification}"
                     )
-                    pipeline_result = asyncio.run(
-                        process_citations_unified(
-                            text,
-                            processing_mode="enhanced_sync",
-                            enable_parallel_verification=enable_verification,
-                            enable_verification=enable_verification,
+                    # Overall timeout so sync request cannot hang forever (frontend gets a response)
+                    SYNC_PIPELINE_TIMEOUT = 180  # 3 minutes max for sync pipeline
+                    try:
+                        pipeline_result = asyncio.run(
+                            asyncio.wait_for(
+                                process_citations_unified(
+                                    text,
+                                    processing_mode="enhanced_sync",
+                                    enable_parallel_verification=enable_verification,
+                                    enable_verification=enable_verification,
+                                ),
+                                timeout=SYNC_PIPELINE_TIMEOUT,
+                            )
                         )
-                    )
+                    except asyncio.TimeoutError:
+                        logger.error(
+                            f"[Unified Processor {request_id}] Sync pipeline timed out after {SYNC_PIPELINE_TIMEOUT}s - returning partial/error response"
+                        )
+                        progress_callback(95, "Timeout", "Processing took too long; returning partial results.")
+                        return {
+                            "success": False,
+                            "error": "Processing timed out. The document may be large or verification is slow. Please try again or use a shorter excerpt.",
+                            "citations": [],
+                            "clusters": [],
+                            "request_id": request_id,
+                            "metadata": {
+                                **input_metadata,
+                                "processing_mode": "immediate",
+                                "source": source_name,
+                                "error_type": "timeout",
+                                "timeout_seconds": SYNC_PIPELINE_TIMEOUT,
+                            },
+                        }
 
                     # Prepare response
                     citations_list = pipeline_result.get("citations", [])
                     clusters = pipeline_result.get("clusters", [])
+                    # Diagnostic: compare sync vs async pipeline output (see docs/PIPELINE_ENTRY_POINTS.md)
+                    logger.info(
+                        f"[SYNC-ASYNC-DIAG] SYNC pipeline out: len(text)={len(text)}, "
+                        f"len(citations)={len(citations_list)}, len(clusters)={len(clusters)}"
+                    )
+
+                    # CRITICAL: Apply same last-mile fix as rq_worker (sync path was missing this)
+                    # - Known federal citations (e.g. 426 U.S. 26 -> Simon)
+                    # - Clear verified when no canonical_url (no Verified without URL)
+                    try:
+                        # Ensure citations are dicts so shared function can mutate
+                        citations_list = [
+                            c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c)
+                            for c in citations_list
+                        ]
+                        for cl in clusters or []:
+                            if isinstance(cl, dict) and cl.get("citations"):
+                                cl["citations"] = [
+                                    c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c)
+                                    for c in cl["citations"]
+                                ]
+                        from src.verification import (
+                            apply_known_federal_citations_and_clear_verified_without_url,
+                            apply_last_mile_cluster_display_sync,
+                            apply_verification_paradox_fix,
+                        )
+                        apply_known_federal_citations_and_clear_verified_without_url(citations_list, clusters)
+                        apply_last_mile_cluster_display_sync(citations_list, clusters)
+                        apply_verification_paradox_fix(citations_list)
+                    except Exception as e:
+                        logger.warning(
+                            f"[Unified Processor {request_id}] Last-mile known-citation/clear pass failed: {e}"
+                        )
 
                     progress_callback(
                         100, "Complete", f"Unified pipeline: {len(citations_list)} citations, {len(clusters)} clusters"
@@ -623,45 +738,41 @@ class UnifiedInputProcessor:
                     should_process_immediately = False
 
             if not should_process_immediately:
-                logger.error(
-                    f"[Unified Processor {request_id}] 🚀 ASYNC PATH TRIGGERED - Queuing for async processing (large content)"
+                logger.info(
+                    f"[Unified Processor {request_id}] ASYNC PATH - Queuing for async processing (large content)"
                 )
-                logger.error(f"[Unified Processor {request_id}] 📝 Text length: {len(text)} chars")
-                logger.error(
-                    f"[Unified Processor {request_id}] 📋 Source: {source_name}, Input type from metadata: {input_metadata.get('input_type')}"
+                logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} chars")
+                logger.info(
+                    f"[Unified Processor {request_id}] Source: {source_name}, Input type from metadata: {input_metadata.get('input_type')}"
                 )
 
                 try:
                     from rq import Queue
                     from redis import Redis
 
-                    logger.error(f"[Unified Processor {request_id}] ✅ Imported RQ and Redis modules")
+                    logger.info(f"[Unified Processor {request_id}] Imported RQ and Redis modules")
 
                     # CRITICAL FIX: Use string path, not imported function object
                     # RQ needs the module path as a string to properly serialize the job
 
-                    # Try multiple Redis configurations for better connectivity
-                    redis_configs = [
-                        os.environ.get("REDIS_URL", "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0"),
-                        "redis://localhost:6379/0",  # Local Redis fallback
-                        "redis://127.0.0.1:6379/0",  # Alternative local Redis
-                    ]
+                    from src.config import REDIS_URL
+                    redis_configs = [REDIS_URL]
 
-                    logger.error(
-                        f"[Unified Processor {request_id}] 🔍 Trying {len(redis_configs)} Redis configurations..."
+                    logger.info(
+                        f"[Unified Processor {request_id}] Trying {len(redis_configs)} Redis configurations..."
                     )
 
                     redis_conn = None
                     for i, redis_url in enumerate(redis_configs, 1):
                         try:
-                            logger.error(f"[Unified Processor {request_id}] 🔗 Attempt {i}: Connecting to {redis_url}")
+                            logger.info(f"[Unified Processor {request_id}] Attempt {i}: Connecting to {redis_url}")
                             redis_conn = Redis.from_url(redis_url, socket_connect_timeout=2, socket_timeout=2)
                             redis_conn.ping()  # Test connection
-                            logger.error(f"[Unified Processor {request_id}] ✅ Connected to Redis: {redis_url}")
+                            logger.info(f"[Unified Processor {request_id}] Connected to Redis: {redis_url}")
                             break
                         except Exception as e:
-                            logger.error(
-                                f"[Unified Processor {request_id}] ❌ Redis connection failed for {redis_url}: {e}"
+                            logger.warning(
+                                f"[Unified Processor {request_id}] Redis connection failed for {redis_url}: {e}"
                             )
                             continue
 
@@ -680,15 +791,20 @@ class UnifiedInputProcessor:
                         f"[Unified Processor {request_id}]    Function: src.rq_worker.process_citation_task_direct"
                     )
                     logger.error(
-                        f"[Unified Processor {request_id}]    Args: ({request_id}, 'text', {{text: {len(text)} chars}})"
+                        f"[Unified Processor {request_id}]    Args: ({request_id}, 'text', {{text: {len(text)} chars, enable_verification: {enable_verification}}})"
                     )
                     logger.error(f"[Unified Processor {request_id}]    Job ID: {request_id}")
 
+                    # CRITICAL FIX: Pass enable_verification through to the worker
+                    # FIX 2026-01-30: Use dynamic timeout based on citation count
+                    dynamic_timeout = calculate_dynamic_job_timeout(text)
+                    logger.error(f"[Unified Processor {request_id}] Using dynamic timeout: {dynamic_timeout}s ({dynamic_timeout // 60}m)")
+
                     job = queue.enqueue(
                         "src.rq_worker.process_citation_task_direct",  # Use RQ worker that reports VM progress
-                        args=(request_id, "text", {"text": text}),
+                        args=(request_id, "text", {"text": text, "enable_verification": enable_verification}),
                         job_id=request_id,  # Use request_id as the job ID
-                        job_timeout=900,  # 15 minutes timeout (matches FILE_PROCESSING_TIMEOUT_MINUTES)
+                        job_timeout=dynamic_timeout,  # Dynamic timeout based on document size
                         result_ttl=86400,
                         failure_ttl=86400,
                     )

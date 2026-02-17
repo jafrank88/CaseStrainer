@@ -4,7 +4,12 @@ Main API routes for the CaseStrainer application
 """
 
 import os
-from src.config import WEBSEARCH_TIMEOUT, FILE_PROCESSING_TIMEOUT_MINUTES
+from src.config import (
+    WEBSEARCH_TIMEOUT,
+    FILE_PROCESSING_TIMEOUT_MINUTES,
+    REDIS_URL,
+    SYNC_REQUESTS_AS_ASYNC,
+)
 
 import sys
 import uuid
@@ -21,10 +26,10 @@ from flask import Blueprint, request, jsonify, current_app, Response
 from werkzeug.utils import secure_filename
 from src.api.services.citation_service import CitationService
 from src.database_manager import get_database_manager
+from src.extraction import extract_case_name_from_strict_context
 from src.utils.strict_context_isolator import (
     find_all_citation_positions,
     get_strict_context_for_citation,
-    extract_case_name_from_strict_context,
 )
 import threading
 from src.schemas import normalize_citation_dict, normalize_cluster_dict
@@ -46,309 +51,16 @@ vue_api = Blueprint("vue_api", __name__)
 
 citation_service = CitationService()
 
+from src.api.routes import register_all_routes
 
-@vue_api.route("/health", methods=["GET"])
-def health_check():
-    """Enhanced health check endpoint with detailed diagnostics"""
-    health_data = {
-        "status": "healthy",
-        "timestamp": datetime.utcnow().isoformat(),
-        "version": "unknown",
-        "components": {},
-        "database_stats": {},
-        "environment": {"python_version": sys.version.split()[0], "platform": sys.platform},
-        "endpoints": {"current": "/casestrainer/api/health", "alias": "/health", "base_url": request.base_url},
-    }
-
-    try:
-        try:
-            version_path = os.path.join("/app", "VERSION")
-            if os.path.exists(version_path):
-                with open(version_path, "r", encoding="utf-8") as vf:
-                    health_data["version"] = vf.read().strip()
-            else:
-                health_data["version"] = "development"
-                logger.warning("VERSION file not found, using 'development'")
-        except Exception as e:
-            health_data["version"] = "error"
-            health_data["components"]["version_check"] = f"error: {str(e)}"
-            logger.warning(f"Could not read VERSION file: {e}")
-
-        try:
-            db_manager = get_database_manager()
-            db_stats = db_manager.get_database_stats()
-            health_data["components"]["database"] = "healthy"
-            health_data["database_stats"] = {
-                "tables": len(db_stats.get("tables", {})),
-                "size_mb": round(db_stats.get("database_size_mb", 0), 2),
-                "path": os.path.abspath(db_manager.db_path) if hasattr(db_manager, "db_path") else "unknown",
-            }
-        except Exception as e:
-            health_data["status"] = "degraded"
-            health_data["components"]["database"] = f"error: {str(e)}"
-            logger.error(f"Database check failed: {e}")
-
-        try:
-            upload_dir = os.path.join(current_app.root_path, "uploads")
-            if os.path.isdir(upload_dir) and os.access(upload_dir, os.W_OK):
-                health_data["components"]["upload_directory"] = "healthy"
-            else:
-                health_data["status"] = "degraded"
-                health_data["components"]["upload_directory"] = "unwritable"
-        except Exception as e:
-            health_data["status"] = "degraded"
-            health_data["components"]["upload_directory"] = f"error: {str(e)}"
-
-        try:
-            health_data["components"]["citation_processor"] = "healthy"
-        except Exception as e:
-            health_data["status"] = "degraded"
-            health_data["components"]["citation_processor"] = f"error: {str(e)}"
-            logger.error(f"Citation processor check failed: {e}")
-
-        status_code = 200 if health_data["status"] == "healthy" else 207  # 207 for partial content
-
-        return jsonify(health_data), status_code
-
-    except Exception as e:
-        logger.error(f"Health check failed completely: {e}", exc_info=True)
-        health_data.update(
-            {
-                "status": "unhealthy",
-                "error": str(e),
-                "traceback": str(traceback.format_exc()) if "traceback" in locals() else "Not available",
-            }
-        )
-        return jsonify(health_data), 500
+register_all_routes(vue_api)
 
 
-@vue_api.route("/casestrainer/api/health", methods=["GET"])
-def health_check_alias():
-    return health_check()
-
-
-@vue_api.route("/db_stats", methods=["GET"])
-def db_stats():
-    """Database statistics endpoint"""
-    try:
-        db_manager = get_database_manager()
-        stats = db_manager.get_database_stats()
-        return jsonify(stats)
-    except Exception as e:
-        logger.error(f"Database stats error: {e}")
-        return jsonify({"error": "Database stats unavailable"}), 503
-
-
-@vue_api.route("/metrics/summary", methods=["GET"])
-def metrics_summary():
-    """Public: totals and today's counts (UTC)."""
-    try:
-        day = request.args.get("date")
-        daily = get_daily_counts(day)
-        totals = get_totals()
-        payload = {"daily": daily, "totals": totals}
-        resp = jsonify(payload)
-        resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Cache-Control"] = "public, max-age=60"
-        return resp
-    except Exception as e:
-        logger.warning(f"metrics_summary error: {e}")
-        return jsonify({"error": "metrics unavailable"}), 503
-
-
-@vue_api.route("/metrics", methods=["GET"])
-def metrics_dashboard():
-    try:
-        html = """<!doctype html>
-<html lang=\"en\">
-<head>
-  <meta charset=\"utf-8\">
-  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">
-  <title>CaseStrainer Usage Metrics</title>
-  <link rel=\"preconnect\" href=\"https://cdn.jsdelivr.net\">
-  <script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>
-  <style>
-    :root { --bg:#0b1120; --panel:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#60a5fa; --accent2:#34d399; }
-    body { margin:0; background:var(--bg); color:var(--text); font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
-    .wrap { max-width:1100px; margin:0 auto; padding:24px; }
-    .header { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:16px; }
-    .title { font-size:20px; font-weight:600; }
-    .controls { display:flex; gap:8px; align-items:center; }
-    .controls input { background:#0f172a; border:1px solid #1f2937; color:var(--text); padding:8px 10px; border-radius:8px; width:90px; }
-    .controls button { background:var(--accent); color:#001; border:none; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
-    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
-    .panel { background:var(--panel); border:1px solid #1f2937; border-radius:12px; padding:16px; }
-    .panel h2 { margin:0 0 8px 0; font-size:14px; color:var(--muted); font-weight:600; letter-spacing:.02em; text-transform:uppercase; }
-    .cards { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:16px; }
-    .card { background:#0b1220; border:1px solid #1f2937; border-radius:12px; padding:12px; }
-    .card .label { font-size:12px; color:var(--muted); }
-    .card .value { font-size:24px; font-weight:700; margin-top:4px; }
-    a.link { color:var(--accent); text-decoration:none; }
-  </style>
-  <meta http-equiv=\"Cache-Control\" content=\"no-cache, no-store, must-revalidate\" />
-  <meta http-equiv=\"Pragma\" content=\"no-cache\" />
-  <meta http-equiv=\"Expires\" content=\"0\" />
-  <meta name=\"robots\" content=\"noindex\" />
-  <script>
-    async function fetchJSON(url) {
-      const res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      return await res.json();
-    }
-    function formatNum(n) { return (n||0).toLocaleString(); }
-    function makeChart(ctx, label, labels, data, color) {
-      return new Chart(ctx, {
-        type: 'line',
-        data: { labels, datasets: [{ label, data, borderColor: color, backgroundColor: color + '33', fill: true, tension: 0.25, pointRadius: 0 }] },
-        options: { plugins: { legend: { labels: { color: '#e5e7eb' } } }, scales: { x: { ticks:{ color:'#9ca3af' } }, y: { ticks:{ color:'#9ca3af' }, beginAtZero:true } } }
-      });
-    }
-    async function loadMetrics() {
-      const days = parseInt(document.getElementById('days').value || '30', 10);
-      const seriesUrl = new URL(window.location.origin + window.location.pathname.replace(/\\/metrics$/, '/metrics/series'));
-      seriesUrl.searchParams.set('days', days);
-      const summaryUrl = new URL(window.location.origin + window.location.pathname.replace(/\\/metrics$/, '/metrics/summary'));
-      const [series, summary] = await Promise.all([
-        fetchJSON(seriesUrl.toString()),
-        fetchJSON(summaryUrl.toString())
-      ]);
-      const labels = series.series.map(p => p.date);
-      const docs = series.series.map(p => p.documents);
-      const cites = series.series.map(p => p.citations);
-      document.getElementById('docsToday').textContent = formatNum(summary.daily.documents);
-      document.getElementById('citesToday').textContent = formatNum(summary.daily.citations);
-      document.getElementById('docsTotal').textContent = formatNum(summary.totals.documents);
-      document.getElementById('citesTotal').textContent = formatNum(summary.totals.citations);
-      window._docsChart && window._docsChart.destroy();
-      window._citesChart && window._citesChart.destroy();
-      window._docsChart = makeChart(document.getElementById('docsChart'), 'Documents / day', labels, docs, '#60a5fa');
-      window._citesChart = makeChart(document.getElementById('citesChart'), 'Citations / day', labels, cites, '#34d399');
-    }
-    window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('refresh').addEventListener('click', (e) => { e.preventDefault(); loadMetrics().catch(()=>{}); });
-      loadMetrics().catch(()=>{});
-    });
-  </script>
-  <link rel=\"icon\" href=\"data:,\">
-</head>
-<body>
-  <div class=\"wrap\">
-    <div class=\"header\">
-      <div class=\"title\">CaseStrainer Usage Metrics</div>
-      <div class=\"controls\">
-        <input id=\"days\" type=\"number\" min=\"1\" max=\"365\" value=\"30\" />
-        <button id=\"refresh\">Refresh</button>
-      </div>
-    </div>
-    <div class=\"cards\">
-      <div class=\"card\">
-        <div class=\"label\">Documents today</div>
-        <div id=\"docsToday\" class=\"value\">-</div>
-      </div>
-      <div class=\"card\">
-        <div class=\"label\">Citations today</div>
-        <div id=\"citesToday\" class=\"value\">-</div>
-      </div>
-      <div class=\"card\">
-        <div class=\"label\">Documents total</div>
-        <div id=\"docsTotal\" class=\"value\">-</div>
-      </div>
-      <div class=\"card\">
-        <div class=\"label\">Citations total</div>
-        <div id=\"citesTotal\" class=\"value\">-</div>
-      </div>
-    </div>
-    <div class=\"grid\">
-      <div class=\"panel\">
-        <h2>Documents</h2>
-        <canvas id=\"docsChart\" height=\"120\"></canvas>
-      </div>
-      <div class=\"panel\">
-        <h2>Citations</h2>
-        <canvas id=\"citesChart\" height=\"120\"></canvas>
-      </div>
-    </div>
-    <div style=\"margin-top:16px;color:#9ca3af;\">API: <a class=\"link\" href=\"./metrics/summary\">/metrics/summary</a> · <a class=\"link\" href=\"./metrics/series\">/metrics/series</a></div>
-  </div>
-</body>
-</html>
-"""
-        return Response(html, mimetype="text/html")
-    except Exception as e:
-        return jsonify({"error": "metrics dashboard unavailable", "detail": str(e)}), 503
-
-
-@vue_api.route("/metrics/daily", methods=["GET"])
-def metrics_daily():
-    """Public: single day's counts (UTC)."""
-    try:
-        day = request.args.get("date")
-        payload = get_daily_counts(day)
-        resp = jsonify(payload)
-        resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Cache-Control"] = "public, max-age=60"
-        return resp
-    except Exception as e:
-        logger.warning(f"metrics_daily error: {e}")
-        return jsonify({"error": "metrics unavailable"}), 503
-
-
-@vue_api.route("/metrics/series", methods=["GET"])
-def metrics_series():
-    """Public: per-day counts for the last N days (UTC)."""
-    try:
-        try:
-            days = int(request.args.get("days", 30))
-        except Exception:
-            days = 30
-        end_date = request.args.get("end")  # YYYY-MM-DD
-        series = get_counts_last_n_days(days=days, end_date=end_date)
-        payload = {"days": days, "end": end_date, "series": series}
-        resp = jsonify(payload)
-        resp.headers["Access-Control-Allow-Origin"] = "*"
-        resp.headers["Cache-Control"] = "public, max-age=60"
-        return resp
-    except Exception as e:
-        logger.warning(f"metrics_series error: {e}")
-        return jsonify({"error": "metrics unavailable"}), 503
-
-
-@vue_api.route("/analyze/progress/<request_id>", methods=["GET"])
-def analyze_progress(request_id):
-    try:
-        from src.unified_input_processor import get_progress_manager
-
-        pm = get_progress_manager()
-        data = pm.get_progress(request_id) if hasattr(pm, "get_progress") else pm.progress_store.get(request_id, {})
-        return jsonify({"request_id": request_id, "status": "ok", "progress_data": data or {}})
-    except Exception as e:
-        return jsonify({"request_id": request_id, "status": "error", "error": str(e)}), 500
-
-
-@vue_api.route("/analyze/progress-stream/<request_id>", methods=["GET"])
-def analyze_progress_stream(request_id):
-    def _stream():
-        try:
-            from time import sleep
-            from src.unified_input_processor import get_progress_manager
-
-            pm = get_progress_manager()
-            for _ in range(60):
-                data = (
-                    pm.get_progress(request_id)
-                    if hasattr(pm, "get_progress")
-                    else pm.progress_store.get(request_id, {})
-                )
-                payload = json.dumps({"request_id": request_id, "progress_data": data or {}})
-                yield f"data: {payload}\n\n"
-                sleep(1)
-        except Exception:
-            yield f"data: {json.dumps({'request_id': request_id, 'progress_data': {}})}\n\n"
-
-    return Response(_stream(), mimetype="text/event-stream")
+from src.rate_limiter import rate_limit
 
 
 @vue_api.route("/analyze", methods=["POST"])
+@rate_limit(max_calls=30, window=60)
 def analyze():
     """
     Main analysis endpoint that handles all types of input (file, JSON, form, URL).
@@ -501,8 +213,11 @@ def analyze():
 
             # Extract force_mode parameter for file uploads
             force_mode = request.form.get("force_mode")
-            logger.error(f"[Request {request_id}] DEBUG: force_mode from file form: '{force_mode}'")
-            logger.error(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
+            if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                force_mode = "async"
+                logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async (enqueue, return task_id)")
+            logger.info(f"[Request {request_id}] DEBUG: force_mode from file form: '{force_mode}'")
+            logger.info(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
                 logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for file upload")
 
@@ -546,12 +261,10 @@ def analyze():
 
                     uip = UnifiedInputProcessor()
 
-                    # Read file content for immediate processing
-                    file_content = file_obj.read()
-                    file_obj.seek(0)  # Reset file pointer
-
+                    # Pass file object and filename so processor can validate extension and extract (do not pass raw bytes)
+                    file_input = {"file": file_obj, "filename": file_obj.filename or "unknown"}
                     result = uip.process_any_input(
-                        file_content,
+                        file_input,
                         "file",
                         request_id,
                         source_name="file_upload",
@@ -566,7 +279,7 @@ def analyze():
                             "processing_mode": "immediate",
                             "input_type": "file",
                             "filename": file_obj.filename,
-                            "file_size": len(file_content),
+                            "file_size": getattr(file_obj, "content_length", 0) or 0,
                         }
                     )
                     precomputed_result = result
@@ -660,14 +373,17 @@ def analyze():
                     # Extract force_mode/processing_mode parameter for URL inputs
                     # Check both 'force_mode' and 'processing_mode' for compatibility
                     requested_mode = data.get("force_mode") or data.get("processing_mode")
-                    logger.error(
-                        f"[Request {request_id}] 🔍 DEBUG: URL detected, checking processing_mode. force_mode={data.get('force_mode')}, processing_mode={data.get('processing_mode')}, requested_mode={requested_mode}"
+                    logger.info(
+                        f"[Request {request_id}] URL detected, checking processing_mode. force_mode={data.get('force_mode')}, processing_mode={data.get('processing_mode')}, requested_mode={requested_mode}"
                     )
                     if requested_mode:
                         # Map 'sync' to force_mode='sync', 'async' to force_mode='async'
                         if requested_mode.lower() == "sync":
-                            force_mode = "sync"
-                            logger.info(f"[Request {request_id}] User requested sync mode for URL")
+                            force_mode = "async" if SYNC_REQUESTS_AS_ASYNC else "sync"
+                            if SYNC_REQUESTS_AS_ASYNC:
+                                logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating URL sync as async")
+                            else:
+                                logger.info(f"[Request {request_id}] User requested sync mode for URL")
                         elif requested_mode.lower() == "async":
                             force_mode = "async"
                             logger.info(f"[Request {request_id}] User requested async mode for URL")
@@ -692,6 +408,9 @@ def analyze():
 
                     # Extract force_mode parameter
                     force_mode = data.get("force_mode")
+                    if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                        force_mode = "async"
+                        logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating JSON text sync as async")
                     if force_mode:
                         logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for JSON text")
 
@@ -743,6 +462,9 @@ def analyze():
 
                     # Extract force_mode parameter
                     force_mode = data.get("force_mode")
+                    if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                        force_mode = "async"
+                        logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating legacy JSON sync as async")
                     if force_mode:
                         logger.info(
                             f"[Request {request_id}] User requested force_mode='{force_mode}' for legacy JSON text"
@@ -800,8 +522,11 @@ def analyze():
 
             # Extract force_mode parameter for sync/async override
             force_mode = request.form.get("force_mode")
-            logger.error(f"[Request {request_id}] DEBUG: force_mode from form: '{force_mode}'")
-            logger.error(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
+            if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                force_mode = "async"
+                logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async")
+            logger.info(f"[Request {request_id}] DEBUG: force_mode from form: '{force_mode}'")
+            logger.info(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
                 logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}'")
 
@@ -939,8 +664,8 @@ def analyze():
                         f"[Request {request_id}] Input data length: {len(str(input_data)) if input_data else 0}"
                     )
                     logger.info(f"[Request {request_id}] Force mode: {force_mode}")
-                    logger.error(
-                        f"[Request {request_id}] 🔍 DEBUG: About to call process_any_input with force_mode='{force_mode}'"
+                    logger.info(
+                        f"[Request {request_id}] About to call process_any_input with force_mode='{force_mode}'"
                     )
 
                     # Log before processing to track async behavior
@@ -952,8 +677,8 @@ def analyze():
                         force_mode=force_mode,
                         enable_verification=enable_verification,  # Pass enable_verification parameter
                     )
-                    logger.error(
-                        f"[Request {request_id}] 🔍 DEBUG: process_any_input returned, processing_mode={result.get('metadata', {}).get('processing_mode', 'unknown') if result else 'None'}"
+                    logger.info(
+                        f"[Request {request_id}] process_any_input returned, processing_mode={result.get('metadata', {}).get('processing_mode', 'unknown') if result else 'None'}"
                     )
                     logger.info(f"[Request {request_id}] process_any_input completed")
                     logger.info(f"[Request {request_id}] Result keys: {list(result.keys()) if result else 'None'}")
@@ -1312,6 +1037,19 @@ def analyze():
         )
 
 
+def _validate_api_response_data(response_data):
+    """Validate API response structure; return list of error strings or empty list."""
+    errors = []
+    if not isinstance(response_data, dict):
+        errors.append("response_data must be a dict")
+        return errors
+    if "citations" in response_data and not isinstance(response_data["citations"], list):
+        errors.append("citations must be a list")
+    if "clusters" in response_data and not isinstance(response_data["clusters"], list):
+        errors.append("clusters must be a list")
+    return errors
+
+
 def _format_response(result, request_id, metadata, start_time):
     """Format a successful response with consistent structure"""
     processing_time_ms = int((time.time() - start_time) * 1000)
@@ -1522,9 +1260,9 @@ def _format_response(result, request_id, metadata, start_time):
 
     # USER FIX 2024-10-21: Convert CitationResult objects to dicts BEFORE building response
     citations_raw = result.get("citations", [])
-    logger.error(f"[DEBUG] Processor returned {len(citations_raw)} citations")
+    logger.info(f"[DEBUG] Processor returned {len(citations_raw)} citations")
     if citations_raw:
-        logger.error(f"[DEBUG] First citation: {citations_raw[0]}")
+        logger.info(f"[DEBUG] First citation: {citations_raw[0]}")
 
     citations_serialized = []
     for cit in citations_raw:
@@ -1569,20 +1307,38 @@ def _format_response(result, request_id, metadata, start_time):
         import re
 
         def _is_court_year_only(cit_text: str) -> bool:
+            """Filter only short court-year-only strings (e.g. 'N.J. 1997'), not full citations that contain a year."""
             if not cit_text:
                 return False
             t = str(cit_text).strip()
+            # Reporter citation starts with volume (e.g. "123 F.3d 456") – keep those
             looks_like_reporter = re.match(r"^\d+\s+[A-Za-z\.]", t) is not None
+            if looks_like_reporter:
+                return False
             has_year = re.search(r"(17|18|19|20)\d{2}\b", t) is not None
-            # If it doesn't start like a reporter citation but contains a year, treat as court-year-only
-            return (not looks_like_reporter) and has_year
+            if not has_year:
+                return False
+            # Only treat as court-year-only if string is short (no full case name + citation)
+            # so we don't drop e.g. "Milkovich v. Lorain Journal Co., 497 U.S. 1 (1990)"
+            if len(t) > 40:
+                return False
+            return True
 
-        # Filter individual citations
+        # Filter individual citations (sync-only; async task_status returns pipeline output unfiltered)
         before_c = len(citations_serialized)
+        removed = [c for c in citations_serialized if _is_court_year_only(c.get("citation"))]
         citations_serialized = [c for c in citations_serialized if not _is_court_year_only(c.get("citation"))]
         after_c = len(citations_serialized)
-        if before_c != after_c:
-            logger.info(f"[FILTER] Removed {before_c - after_c} court-year-only items from citations")
+        if removed:
+            logger.info(
+                f"[FILTER] Removed {len(removed)} court-year-only items from citations (sync); "
+                f"remaining {after_c} (async may have {before_c} before this filter)"
+            )
+            for i, c in enumerate(removed[:10]):
+                cit_text = (c.get("citation") or c.get("text") or "")[:80]
+                logger.debug(f"[FILTER] court-year-only removed [{i+1}]: {repr(cit_text)}")
+            if len(removed) > 10:
+                logger.debug(f"[FILTER] ... and {len(removed) - 10} more court-year-only citations")
     except Exception as _e:
         logger.warning(f"[FILTER] Failed filtering court-year-only citations: {_e}")
 
@@ -1741,12 +1497,37 @@ def _format_response(result, request_id, metadata, start_time):
                             enriched.append({"text": key, "citation": key, "verified": False})
                 cl["citations"] = enriched
 
+                # CRITICAL FIX: Calculate cluster verified status from child citations
+                # Cluster is verified if any citation is verified and has canonical_url
+                any_verified = False
+                best_canonical_name = None
+                best_canonical_date = None
+                best_canonical_url = None
+                for cit in enriched:
+                    if isinstance(cit, dict):
+                        if cit.get("verified") and cit.get("canonical_url"):
+                            any_verified = True
+                            if cit.get("canonical_name"):
+                                best_canonical_name = cit.get("canonical_name")
+                                best_canonical_date = cit.get("canonical_date")
+                                best_canonical_url = cit.get("canonical_url")
+                # Set cluster verified flag based on child citations
+                cl["verified"] = any_verified
+                if best_canonical_url:
+                    cl["canonical_url"] = best_canonical_url
+                if best_canonical_name:
+                    cl["canonical_name"] = best_canonical_name
+                    cl["verifying_display_name"] = best_canonical_name
+                if best_canonical_date:
+                    cl["canonical_date"] = best_canonical_date
+
                 # propagate cluster canonical fields to children that are missing them
                 cl_can_name = cl.get("canonical_name") or cl.get("canonical_case_name")
                 cl_can_date = cl.get("canonical_date")
-                cl_case_name = cl.get("cluster_case_name")  # NEW: Get cluster case name
+                cl_can_url = cl.get("canonical_url") or cl.get("url")
+                cl_case_name = cl.get("cluster_case_name")
 
-                if cl_can_name or cl_can_date or cl_case_name:
+                if cl_can_name or cl_can_date or cl_can_url or cl_case_name:
                     for cit in cl["citations"]:
                         if not isinstance(cit, dict):
                             continue
@@ -1754,8 +1535,14 @@ def _format_response(result, request_id, metadata, start_time):
                             cit["canonical_name"] = cl_can_name
                         if cl_can_date and not cit.get("canonical_date"):
                             cit["canonical_date"] = cl_can_date
-                        # NEW: Propagate cluster_case_name to citations
-                        if cl_case_name and not cit.get("cluster_case_name"):
+                        if cl_can_url and not (cit.get("canonical_url") or cit.get("url")):
+                            cit["canonical_url"] = cl_can_url
+                            cit["url"] = cl_can_url
+                        # When citation is verified and has canonical_name, use that for cluster_case_name
+                        # so we never display the wrong case (e.g. Simon under TransUnion).
+                        if cit.get("verified") and cit.get("canonical_name") and cit.get("canonical_name") != "N/A":
+                            cit["cluster_case_name"] = cit["canonical_name"]
+                        elif cl_case_name and not cit.get("cluster_case_name"):
                             cit["cluster_case_name"] = cl_case_name
 
         # annotate mismatch flags on clusters using representative citation
@@ -1862,15 +1649,86 @@ def _format_response(result, request_id, metadata, start_time):
             j = _jaccard(exn, can) if (exn and can) else 0.0
             names_eq = _names_equivalent(exn, can) if (exn and can) else False
             name_mm = False if names_eq else (exn not in can and can not in exn and j < 0.4) if (exn and can) else False
-            # Display strings (un-normalized originals)
-            cl["submitted_display_name"] = (rep.get("extracted_case_name") if rep else "") or ""
-            cl["submitted_display_date"] = (rep.get("extracted_date") if rep else "") or _year_only(
-                rep.get("extracted_date") if rep else ""
-            )
-            cl["verifying_display_name"] = (rep.get("canonical_name") or rep.get("canonical_case_name")) if rep else ""
-            cl["verifying_display_date"] = (rep.get("canonical_date") if rep else "") or _year_only(
-                rep.get("canonical_date") if rep else ""
-            )
+            
+            # USER FIX 2026-01-12: Use canonical name for display when extracted name is N/A or contaminated
+            # This prevents frontend from showing "N/A, N/A" when we have valid verification data
+            extracted_name = (rep.get("extracted_case_name") if rep else "") or ""
+            canonical_name = (rep.get("canonical_name") or rep.get("canonical_case_name")) if rep else ""
+            
+            # USER FIX 2026-01-12: Additional contamination check for canonical_name too
+            # Both extracted and canonical names can be contaminated, need clean fallback
+            clean_display_name = None
+            
+            # Try extracted_name first if it's clean
+            if extracted_name and extracted_name != "N/A" and "\n" not in extracted_name and len(extracted_name) <= 200:
+                clean_display_name = extracted_name
+            # Try canonical_name if extracted is contaminated
+            elif canonical_name and canonical_name != "N/A" and "\n" not in canonical_name and len(canonical_name) <= 200:
+                clean_display_name = canonical_name
+            # Fallback: get clean name from cluster's citations
+            else:
+                cluster_citations = cl.get("citations", [])
+                for cit in cluster_citations:
+                    if isinstance(cit, dict):
+                        name = cit.get("canonical_name") or cit.get("extracted_case_name")
+                        if name and "\n" not in name and len(name) <= 200:
+                            clean_display_name = name
+                            break
+            
+            cl["submitted_display_name"] = clean_display_name or "N/A"
+            
+            # USER FIX 2026-01-12: Use canonical date for display when extracted date is N/A or empty
+            extracted_date = (rep.get("extracted_date") if rep else "") or ""
+            canonical_date = (rep.get("canonical_date") if rep else "") or ""
+            
+            if not extracted_date or extracted_date == "N/A":
+                # Extract year from canonical_date (format: "2018-10-11" -> "2018")
+                cl["submitted_display_date"] = _year_only(canonical_date) if canonical_date else "N/A"
+            else:
+                cl["submitted_display_date"] = _year_only(extracted_date)
+            # USER FIX 2026-01-12: Apply contamination cleanup to verifying_display_name too
+            verifying_name = (rep.get("canonical_name") or rep.get("canonical_case_name")) if rep else ""
+            if verifying_name and ("\n" in verifying_name or len(verifying_name) > 200):
+                # Get clean name from cluster's citations
+                cluster_citations = cl.get("citations", [])
+                clean_verifying_name = None
+                for cit in cluster_citations:
+                    if isinstance(cit, dict):
+                        name = cit.get("canonical_name") or cit.get("extracted_case_name")
+                        if name and "\n" not in name and len(name) <= 200:
+                            clean_verifying_name = name
+                            break
+                cl["verifying_display_name"] = clean_verifying_name or "N/A"
+            else:
+                cl["verifying_display_name"] = verifying_name
+            # Sanitize verifying_display_date when canonical is clearly wrong (e.g. 2026-01-27 for Thole 2020, 1917 for TransUnion 2016)
+            cand_raw = (rep.get("canonical_date") if rep else "") or ""
+            exd_raw = (rep.get("extracted_date") if rep else "") or ""
+            vd = cand_raw or _year_only(cand_raw) or ""
+            exy_m = re.search(r"(19|20)\d{2}", str(exd_raw)) if exd_raw else None
+            cay_m = re.search(r"(19|20)\d{2}", str(cand_raw)) if cand_raw else None
+            ex_yr = int(exy_m.group(0)) if exy_m else None
+            ca_yr = int(cay_m.group(0)) if cay_m else None
+            if ex_yr is not None and ca_yr is not None:
+                try:
+                    today = datetime.utcnow().date()
+                    if "-" in str(cand_raw) and len(str(cand_raw)) >= 10:
+                        parsed = datetime.strptime(str(cand_raw)[:10], "%Y-%m-%d").date()
+                        if parsed >= today and ex_yr < today.year:
+                            vd = str(ex_yr)
+                            cl["has_date_mismatch"] = False
+                            for cit in (cl.get("citations") or []):
+                                if isinstance(cit, dict) and cit.get("canonical_date"):
+                                    cit["canonical_date"] = vd
+                    elif abs(ca_yr - ex_yr) > 15 or (ca_yr < 1950 and ex_yr >= 1990):
+                        vd = str(ex_yr)
+                        cl["has_date_mismatch"] = False
+                        for cit in (cl.get("citations") or []):
+                            if isinstance(cit, dict) and cit.get("canonical_date"):
+                                cit["canonical_date"] = vd
+                except Exception:
+                    pass
+            cl["verifying_display_date"] = vd
             # Lenient flags for UI
             cl["names_equivalent"] = names_eq
             cl["name_mismatch"] = name_mm
@@ -2017,599 +1875,6 @@ def _format_error(message, details=None, status_code=400, request_id=None, metad
     return jsonify(error_data), status_code
 
 
-@vue_api.route("/task_status/<task_id>", methods=["GET"])
-def task_status(task_id):
-    """Check the status of a queued task"""
-    logger.info(f"Checking status for task_id: {task_id}")
-
-    try:
-        from rq import Queue
-        from redis import Redis
-
-        redis_url = os.environ.get("REDIS_URL")
-        if not redis_url:
-            logger.error("REDIS_URL environment variable not set")
-            return (
-                jsonify(
-                    {
-                        "error": "Server configuration error",
-                        "details": "Redis URL not configured",
-                        "task_id": task_id,
-                        "citations": [],
-                        "clusters": [],
-                    }
-                ),
-                500,
-            )
-
-        logger.info(f"Connecting to Redis at: {redis_url}")
-
-        redis_conn = Redis.from_url(
-            redis_url, socket_connect_timeout=WEBSEARCH_TIMEOUT, socket_timeout=WEBSEARCH_TIMEOUT
-        )
-
-        try:
-            redis_conn.ping()
-            logger.info("Successfully connected to Redis")
-        except Exception as e:
-            logger.error(f"Failed to connect to Redis: {e}")
-            return (
-                jsonify(
-                    {
-                        "error": "Failed to connect to task queue",
-                        "details": str(e),
-                        "task_id": task_id,
-                        "citations": [],
-                        "clusters": [],
-                    }
-                ),
-                500,
-            )
-
-        queue = Queue("casestrainer", connection=redis_conn)
-
-        job_ids = queue.job_ids
-        logger.info(f"Found {len(job_ids)} jobs in queue. Job IDs: {job_ids}")
-
-        # FIX REDIS BUG: Try to fetch job from multiple sources
-        job = queue.fetch_job(task_id)
-
-        if not job:
-            # Job not in queue - try to fetch directly from Redis using Job.fetch()
-            # This works for completed jobs that have been removed from the queue
-            try:
-                from rq.job import Job
-
-                job = Job.fetch(task_id, connection=redis_conn)
-                logger.info(f"FIX: Found completed job {task_id} outside queue using Job.fetch()")
-            except Exception as fetch_error:
-                logger.warning(f"Job {task_id} not found in queue or Redis: {fetch_error}")
-
-                # Last resort: Check if result is stored as verification result
-                try:
-                    result_key = f"verification:result:{task_id}"
-                    result_data = redis_conn.get(result_key)
-                    if result_data:
-                        import json
-
-                        result = json.loads(result_data)
-                        logger.info(f"FIX: Found result in verification Redis key: {result_key}")
-                        return jsonify(
-                            {
-                                "status": "completed",
-                                "task_id": task_id,
-                                "is_finished": True,
-                                "citations": result.get("citations", []),
-                                "clusters": result.get("clusters", []),
-                                "statistics": result.get("statistics", {}),
-                                "metadata": result.get("metadata", {}),
-                                "success": True,
-                            }
-                        )
-                except Exception as redis_error:
-                    logger.error(f"Could not retrieve verification result from Redis: {redis_error}")
-
-                # Last resort: Check if result is stored as Redis stream (RQ's actual storage method)
-                try:
-                    result_stream_key = f"rq:results:{task_id}"
-                    stream_type = redis_conn.type(result_stream_key)
-
-                    if stream_type == b"stream":
-                        logger.info(f"Found Redis stream for task {task_id}")
-                        # Read from the stream
-                        stream_data = redis_conn.xread({result_stream_key: "0"}, count=1)
-
-                        if stream_data:
-                            # Extract the result from the stream
-                            for stream_name, messages in stream_data:
-                                for message_id, fields in messages:
-                                    # The result is typically in the 'return_value' field
-                                    if b"return_value" in fields:
-                                        result_data = fields[b"return_value"]
-                                        try:
-                                            # Try to unpickle the result
-                                            import pickle
-
-                                            result = pickle.loads(result_data)
-                                            logger.info(f"FIX: Found result in Redis stream: {result_stream_key}")
-                                            return jsonify(
-                                                {
-                                                    "status": "completed",
-                                                    "task_id": task_id,
-                                                    "is_finished": True,
-                                                    "citations": result.get("citations", []),
-                                                    "clusters": result.get("clusters", []),
-                                                    "statistics": result.get("statistics", {}),
-                                                    "metadata": result.get("metadata", {}),
-                                                    "success": True,
-                                                }
-                                            )
-                                        except Exception as pickle_error:
-                                            logger.debug(f"Failed to unpickle stream result: {pickle_error}")
-                                            # Try JSON as fallback
-                                            try:
-                                                import json
-
-                                                result = json.loads(result_data.decode("utf-8"))
-                                                logger.info(
-                                                    f"FIX: Found result in Redis stream (JSON): {result_stream_key}"
-                                                )
-                                                return jsonify(
-                                                    {
-                                                        "status": "completed",
-                                                        "task_id": task_id,
-                                                        "is_finished": True,
-                                                        "citations": result.get("citations", []),
-                                                        "clusters": result.get("clusters", []),
-                                                        "statistics": result.get("statistics", {}),
-                                                        "metadata": result.get("metadata", {}),
-                                                        "success": True,
-                                                    }
-                                                )
-                                            except Exception as json_error:
-                                                logger.debug(f"Failed to parse stream result as JSON: {json_error}")
-
-                    # Fallback to old method for compatibility
-                    result_key = f"rq:job:{task_id}:result"
-                    result_data = redis_conn.get(result_key)
-                    if result_data:
-                        import json
-
-                        result = json.loads(result_data)
-                        logger.info(f"FIX: Found result in Redis key: {result_key}")
-                        return jsonify(
-                            {
-                                "status": "completed",
-                                "task_id": task_id,
-                                "is_finished": True,
-                                "citations": result.get("citations", []),
-                                "clusters": result.get("clusters", []),
-                                "statistics": result.get("statistics", {}),
-                                "metadata": result.get("metadata", {}),
-                                "success": True,
-                            }
-                        )
-                except Exception as redis_error:
-                    logger.error(f"Could not retrieve result from Redis: {redis_error}")
-
-                return jsonify({"error": "Task not found", "task_id": task_id, "citations": [], "clusters": []}), 404
-
-        logger.info(f"Job {task_id} status: {job.get_status()}")
-        logger.info(f"Job {task_id} meta: {job.meta}")
-        logger.info(f"Job {task_id} is_finished: {job.is_finished}")
-        logger.info(f"Job {task_id} is_failed: {job.is_failed}")
-        logger.info(f"Job {task_id} is_started: {job.is_started}")
-        logger.info(f"Job {task_id} is_queued: {job.is_queued}")
-
-        result = None
-        if job.is_finished:
-            try:
-                result = job.result
-                logger.info(f"Job {task_id} result type: {type(result)}")
-                if result:
-                    logger.info(
-                        f"Job {task_id} result keys: {result.keys() if isinstance(result, dict) else 'not a dict'}"
-                    )
-                    if isinstance(result, dict):
-                        logger.info(f"Job {task_id} citations count: {len(result.get('citations', []))}")
-                        logger.info(f"Job {task_id} clusters count: {len(result.get('clusters', []))}")
-                        logger.info(f"Job {task_id} success: {result.get('success')}")
-                        logger.info(f"Job {task_id} status: {result.get('status')}")
-            except Exception as e:
-                logger.error(f"Error getting job result: {e}")
-
-        if job.is_finished:
-            # ALWAYS check verification Redis key first, as it's the authoritative source
-            # RQ's job.result can be unreliable or have inconsistent structure
-            verification_result = None
-            try:
-                result_key = f"verification:result:{task_id}"
-                result_data = redis_conn.get(result_key)
-                if result_data:
-                    import json
-
-                    # Decode bytes if necessary
-                    if isinstance(result_data, bytes):
-                        result_data = result_data.decode("utf-8")
-                    verification_result = json.loads(result_data)
-                    logger.info(
-                        f"[TASK_STATUS] Found result in verification Redis key: {result_key} with {len(verification_result.get('citations', []))} citations, {len(verification_result.get('clusters', []))} clusters"
-                    )
-            except Exception as redis_fallback_err:
-                logger.warning(f"[TASK_STATUS] Failed to retrieve verification result from Redis: {redis_fallback_err}")
-
-            # Use verification_result if available, otherwise fall back to job.result
-            if verification_result:
-                result = verification_result
-                logger.info(f"[TASK_STATUS] Using verification_result from Redis for task {task_id}")
-            elif result is None:
-                logger.warning(
-                    f"[TASK_STATUS] Job {task_id} is finished but job.result is None and no verification result found"
-                )
-
-            # Extract citations and clusters from result, handling nested structures
-            citations = []
-            clusters = []
-            actual_result = result if result and isinstance(result, dict) else {}
-
-            if result and isinstance(result, dict):
-                # Handle nested result structure from worker
-                # Worker may return: {'success': True, 'result': {'citations': [...], 'clusters': [...]}}
-                # Or: {'success': True, 'citations': [...], 'clusters': [...]}
-                actual_result = result.get(
-                    "result", result
-                )  # Use nested result if exists, otherwise use result directly
-
-                citations = actual_result.get("citations", []) or []
-                clusters = actual_result.get("clusters", []) or []
-
-                logger.info(
-                    f"[TASK_STATUS] Extracted from result: {len(citations)} citations, {len(clusters)} clusters"
-                )
-
-            # If still no citations/clusters, try one more time with verification_result
-            if (not citations and not clusters) and verification_result:
-                citations = verification_result.get("citations", []) or []
-                clusters = verification_result.get("clusters", []) or []
-                logger.info(
-                    f"[TASK_STATUS] Using verification_result directly: {len(citations)} citations, {len(clusters)} clusters"
-                )
-
-            # Check if we have a successful result (either from job.result or verification_result)
-            is_success = (
-                (
-                    result
-                    and isinstance(result, dict)
-                    and (result.get("status") in ["success", "completed"] or result.get("success") is True)
-                )
-                or (
-                    verification_result
-                    and isinstance(verification_result, dict)
-                    and (
-                        verification_result.get("status") in ["success", "completed"]
-                        or verification_result.get("success") is True
-                    )
-                )
-                or (citations or clusters)  # If we have citations/clusters, consider it successful
-            )
-
-            if is_success:
-                logger.info(
-                    f"[TASK_STATUS] Returning successful result for task {task_id}: {len(citations)} citations, {len(clusters)} clusters"
-                )
-
-                # Merge metadata from both sources if available
-                metadata = actual_result.get("metadata", {})
-                if verification_result and "metadata" in verification_result:
-                    metadata = {**metadata, **verification_result.get("metadata", {})}
-
-                return jsonify(
-                    {
-                        "status": "completed",
-                        "task_id": task_id,
-                        "is_finished": True,
-                        "citations": citations,
-                        "clusters": clusters,
-                        "statistics": actual_result.get("statistics", {}),
-                        "metadata": metadata,
-                        "success": True,
-                    }
-                )
-            else:
-                error_msg = "Unknown error"
-                if result and isinstance(result, dict):
-                    error_msg = result.get("error", "Processing failed")
-                elif job.exc_info:
-                    error_msg = f"Job failed with exception: {job.exc_info}"
-
-                logger.error(f"[TASK_STATUS] Job {task_id} failed: {error_msg}")
-                logger.error(
-                    f"[TASK_STATUS] Result structure: {type(result)}, verification_result: {type(verification_result)}"
-                )
-                logger.error(f"[TASK_STATUS] Citations: {len(citations)}, Clusters: {len(clusters)}")
-
-                return jsonify(
-                    {
-                        "status": "failed",
-                        "task_id": task_id,
-                        "error": error_msg,
-                        "success": False,
-                        "citations": [],
-                        "clusters": [],
-                    }
-                )
-
-        elif job.is_failed:
-            error_msg = str(job.exc_info) if job.exc_info else "Job failed without exception info"
-            logger.error(f"Job {task_id} failed: {error_msg}")
-            return jsonify(
-                {
-                    "status": "failed",
-                    "task_id": task_id,
-                    "error": error_msg,
-                    "success": False,
-                    "citations": [],
-                    "clusters": [],
-                }
-            )
-
-        elif job.is_started:
-            try:
-                from src.verification_manager import VerificationManager
-
-                vm = VerificationManager()
-                vstatus = vm.get_verification_status(task_id)
-            except Exception:
-                vstatus = None
-
-            # Get job metadata for better progress info
-            job.meta or {}
-            started_at = job.started_at
-            elapsed_time = None
-            if started_at:
-                from datetime import datetime
-
-                if isinstance(started_at, str):
-                    started_at = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
-                elapsed_seconds = (
-                    (datetime.now(started_at.tzinfo) - started_at).total_seconds()
-                    if started_at.tzinfo
-                    else (datetime.now() - started_at.replace(tzinfo=None)).total_seconds()
-                )
-                elapsed_minutes = int(elapsed_seconds // 60)
-                elapsed_seconds = int(elapsed_seconds % 60)
-                elapsed_time = f"{elapsed_minutes}m {elapsed_seconds}s"
-
-            # Build response with better progress info
-            response = {
-                "status": "processing",
-                "task_id": task_id,
-                "message": "Task is currently being processed",
-                "success": True,
-                "citations": [],
-                "clusters": [],
-            }
-
-            if isinstance(vstatus, dict):
-                response["verification_status"] = vstatus
-                total_cites = vstatus.get("total_citations", 0)
-                processed_cites = vstatus.get("citations_processed", 0)
-                current_message = vstatus.get("current_message", "Processing...")
-
-                # Show better progress message based on verification status
-                if total_cites > 0:
-                    # Citations have been extracted - show real progress
-                    progress_pct = vstatus.get("progress_percent", 0)
-                    response["progress_percent"] = progress_pct
-                    # CRITICAL FIX: Don't append citation count if current_message already contains it
-                    # The current_message from vstatus already has the count (e.g., "Verifying citations... (50/140 citations)")
-                    # Only append if the message doesn't already contain a citation count pattern
-                    import re
-
-                    if not re.search(r"\(\d+/\d+\s+citations\)", current_message):
-                        response["current_message"] = f"{current_message} ({processed_cites}/{total_cites} citations)"
-                    else:
-                        response["current_message"] = current_message
-                    response["message"] = f"Processing {total_cites} citations... ({processed_cites} processed)"
-                elif elapsed_time:
-                    # Citations not extracted yet, but show elapsed time to indicate activity
-                    response["current_message"] = f"Extracting citations... (processing for {elapsed_time})"
-                    response["message"] = f"Processing document... (started {elapsed_time} ago)"
-                else:
-                    response["current_message"] = current_message
-                    response["progress_percent"] = vstatus.get("progress_percent", 0)
-            elif elapsed_time:
-                # No verification status but job is running - show elapsed time
-                response["current_message"] = f"Processing document... (started {elapsed_time} ago)"
-                response["message"] = f"Task is processing... (elapsed: {elapsed_time})"
-
-            return jsonify(response)
-
-        else:
-            try:
-                position = queue.get_job_position(task_id)
-            except Exception as e:
-                logger.warning(f"Could not get job position: {e}")
-                position = -1
-            try:
-                from src.verification_manager import VerificationManager
-
-                vm = VerificationManager()
-                vstatus = vm.get_verification_status(task_id)
-            except Exception:
-                vstatus = None
-            response = {
-                "status": "queued",
-                "task_id": task_id,
-                "message": f"Task is queued and waiting to be processed (position: {position})",
-                "position": position,
-                "success": True,
-                "citations": [],
-                "clusters": [],
-            }
-            if isinstance(vstatus, dict):
-                response["verification_status"] = vstatus
-                if "progress_percent" in vstatus:
-                    response["progress_percent"] = vstatus.get("progress_percent")
-                if "current_message" in vstatus:
-                    response["current_message"] = vstatus.get("current_message")
-            return jsonify(response)
-
-    except Exception as e:
-        error_msg = f"Error checking task status for {task_id}: {str(e)}"
-        logger.error(error_msg, exc_info=True)
-        return (
-            jsonify(
-                {
-                    "error": "Failed to check task status",
-                    "details": str(e),
-                    "task_id": task_id,
-                    "citations": [],
-                    "clusters": [],
-                }
-            ),
-            500,
-        )
-
-
-@vue_api.route("/processing_progress", methods=["GET"])
-def processing_progress():
-    """Get current processing progress from ProgressTracker or global progress manager."""
-    request_id = request.args.get("request_id") or request.args.get("task_id")
-
-    if not request_id:
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": "Missing request_id or task_id parameter",
-                    "processed_citations": 0,
-                    "total_citations": 0,
-                    "is_complete": False,
-                }
-            ),
-            400,
-        )
-
-    try:
-        # First try the global progress manager (for sync processing)
-        from src.unified_input_processor import get_progress_manager
-
-        global_progress_mgr = get_progress_manager()
-
-        if request_id in global_progress_mgr.active_tasks:
-            progress_data = global_progress_mgr.get_progress(request_id)
-            logger.debug(f"[Progress API] Found progress in global manager: {progress_data}")
-
-            if progress_data and "error" not in progress_data:
-                pct = progress_data.get("progress", 0)
-                status_str = str(progress_data.get("status", "processing"))
-                is_complete = status_str.lower() in ("complete", "completed", "done", "success") or pct >= 100
-                return jsonify(
-                    {
-                        "status": "success",
-                        "request_id": request_id,
-                        "progress_percent": pct,
-                        "current_step": int(pct),
-                        "total_steps": 100,
-                        "current_message": progress_data.get("message", "Processing..."),
-                        "status_detail": status_str,
-                        "is_complete": is_complete,
-                        "processed_citations": int(pct),
-                        "total_citations": 100,
-                    }
-                )
-        # Not found in SSE manager; report pending
-        return jsonify(
-            {
-                "status": "pending",
-                "request_id": request_id,
-                "progress_percent": 0,
-                "current_step": 0,
-                "total_steps": 100,
-                "current_message": "Waiting for processing to start...",
-                "status_detail": "pending",
-                "is_complete": False,
-                "processed_citations": 0,
-                "total_citations": 100,
-            }
-        )
-
-    except Exception as e:
-        logger.error(f"Error getting progress for {request_id}: {e}")
-        return (
-            jsonify(
-                {
-                    "status": "error",
-                    "error": f"Failed to get progress: {str(e)}",
-                    "request_id": request_id,
-                    "processed_citations": 0,
-                    "total_citations": 0,
-                    "is_complete": False,
-                }
-            ),
-            500,
-        )
-
-
-@vue_api.route("/analyze/progress-stream/<request_id>", methods=["GET"])
-def progress_stream(request_id):
-    """
-    Server-Sent Events endpoint for real-time progress updates.
-    This provides a streaming connection for progress updates during processing.
-    """
-
-    def generate_progress_stream():
-        try:
-            yield 'data: {"type": "connected", "message": "Progress stream connected"}\n\n'
-            from src.unified_input_processor import get_progress_manager
-
-            sse_mgr = get_progress_manager()
-            start_time = time.time()
-            last_pct = -1
-            while True:
-                time.sleep(0.5)
-                pdata = sse_mgr.get_progress(request_id)
-                if not pdata or "error" in pdata:
-                    if time.time() - start_time > 30:
-                        yield 'data: {"type": "timeout", "message": "No progress available"}\n\n'
-                        break
-                    continue
-                pct = int(pdata.get("progress", 0))
-                if pct != last_pct:
-                    last_pct = pct
-                    progress_event = {
-                        "type": "progress",
-                        "data": {
-                            "step": pdata.get("status", "processing"),
-                            "progress": pct,
-                            "message": pdata.get("message", "Processing..."),
-                            "total_steps": 100,
-                            "current_step": pct,
-                        },
-                    }
-                    yield f"data: {json.dumps(progress_event)}\n\n"
-                if pct >= 100 or str(pdata.get("status", "")).lower() in ("complete", "completed", "done", "success"):
-                    yield 'data: {"type": "complete", "message": "Processing completed successfully!"}\n\n'
-                    break
-            try:
-                sse_mgr.cleanup_task(request_id)
-            except Exception:
-                pass
-        except Exception as e:
-            logger.error(f"Error in progress stream for {request_id}: {e}")
-            yield f'data: {{"type": "error", "message": "Progress stream error: {str(e)}"}}\n\n'
-
-    return Response(
-        generate_progress_stream(),
-        mimetype="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Cache-Control",
-        },
-    )
-
 
 def _handle_file_upload(service, request_id):
     """
@@ -2701,6 +1966,8 @@ def _handle_file_upload(service, request_id):
 
             logger.info(f"[File Upload {request_id}] File saved successfully")
 
+            file_size = os.path.getsize(file_path)
+
             options = {}
             if "options" in request.form:
                 try:
@@ -2720,6 +1987,9 @@ def _handle_file_upload(service, request_id):
             # Create input data for the service
             input_data = {"type": "file", "file_path": file_path, "filename": filename, "file_size": file_size}
             force_mode = request.form.get("force_mode")
+            if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                force_mode = "async"
+                logger.info(f"[File Upload {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async")
             if force_mode:
                 logger.info(f"[File Upload {request_id}] Force mode requested: {force_mode}")
 
@@ -2752,8 +2022,7 @@ def _handle_file_upload(service, request_id):
                 from redis import Redis
                 from src.rq_worker import process_citation_task_direct
 
-                redis_url = os.environ.get("REDIS_URL", "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0")
-                redis_conn = Redis.from_url(redis_url)
+                redis_conn = Redis.from_url(REDIS_URL)
                 queue = Queue("casestrainer", connection=redis_conn)
 
                 job = queue.enqueue(
@@ -3076,6 +2345,10 @@ def _handle_json_input(service, request_id, data=None):
         logger.info(f"[JSON Input {request_id}] Processing data with keys: {list(data.keys())}")
 
         input_type = data.get("type", "text")
+        force_mode = data.get("force_mode")
+        if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+            force_mode = "async"
+            logger.info(f"[JSON Input {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async")
         logger.info(f"[JSON Input {request_id}] Input type: {input_type}")
 
         if input_type == "text":
@@ -3211,6 +2484,10 @@ async def _handle_form_input(service, request_id):
                     "metadata": {"rejected_reason": "url_validation_failed", "url": url},
                 }
 
+            force_mode = request.form.get("force_mode")
+            if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
+                force_mode = "async"
+                logger.info(f"[Form Input {request_id}] SYNC_REQUESTS_AS_ASYNC: treating URL sync as async")
             result = await _process_url_input(url, force_mode=force_mode)
             return result
 
@@ -3270,6 +2547,7 @@ def _process_text_input(service, request_id, text, source_name="form-input"):
             )
 
             try:
+                import asyncio
                 # Use async processing with progress tracking
                 from src.progress_manager import SSEProgressManager, ChunkedCitationProcessor
 
@@ -3336,22 +2614,31 @@ def _process_text_input(service, request_id, text, source_name="form-input"):
 
             result["metadata"] = metadata
 
-            # CRITICAL FIX: Apply verification paradox fix to unified pipeline results
-            # The verification system IS working and finding canonical data, but verified=False despite having canonical data
+            # CRITICAL: Apply same last-mile fix as rq_worker (known federal citations + clear verified without URL)
             citations = result.get("citations", [])
-            fixed_count = 0
-            for citation in citations:
-                has_canonical_data = (
-                    citation.get("canonical_name") and citation.get("canonical_date") and citation.get("canonical_url")
+            clusters = result.get("clusters", [])
+            try:
+                citations = [c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c) for c in citations]
+                for cl in clusters or []:
+                    if isinstance(cl, dict) and cl.get("citations"):
+                        cl["citations"] = [
+                            c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c)
+                            for c in cl["citations"]
+                        ]
+                from src.verification import (
+                    apply_known_federal_citations_and_clear_verified_without_url,
+                    apply_last_mile_cluster_display_sync,
+                    apply_verification_paradox_fix,
                 )
-                if has_canonical_data and not citation.get("verified", False):
-                    citation["verified"] = True
-                    citation["verification_status"] = "verified"
-                    fixed_count += 1
-                    logger.info(
-                        f"[VERIFICATION-PARADOX-FIX] Fixed verification paradox for {citation.get('citation')}: verified=False → True"
-                    )
+                apply_known_federal_citations_and_clear_verified_without_url(citations, clusters)
+                apply_last_mile_cluster_display_sync(citations, clusters)
+                result["citations"] = citations
+                result["clusters"] = clusters
+            except Exception as e:
+                logger.warning(f"[Text Input {request_id}] Last-mile known-citation/clear pass failed: {e}")
 
+            # Apply verification paradox fix (shared with async path)
+            fixed_count = apply_verification_paradox_fix(citations)
             if fixed_count > 0:
                 logger.info(f"[VERIFICATION-PARADOX-FIX] Fixed verification paradox for {fixed_count} citations")
 
@@ -3372,14 +2659,14 @@ def _process_text_input(service, request_id, text, source_name="form-input"):
 
             citations = result.get("citations", [])
             # DEBUG: Log citation data before processing
-            logger.error(f"[DEBUG] Processing {len(citations)} citations from unified pipeline")
+            logger.info(f"[DEBUG] Processing {len(citations)} citations from unified pipeline")
             for i, citation in enumerate(citations[:3]):  # Log first 3 citations
-                logger.error(f"[DEBUG] Citation {i+1}: {citation.citation}")
-                logger.error(f"[DEBUG]   verified: {getattr(citation, 'verified', 'MISSING')}")
-                logger.error(f"[DEBUG]   canonical_name: {getattr(citation, 'canonical_name', 'MISSING')}")
-                logger.error(f"[DEBUG]   canonical_date: {getattr(citation, 'canonical_date', 'MISSING')}")
-                logger.error(f"[DEBUG]   canonical_url: {getattr(citation, 'canonical_url', 'MISSING')}")
-                logger.error(f"[DEBUG]   verification_status: {getattr(citation, 'verification_status', 'MISSING')}")
+                logger.info(f"[DEBUG] Citation {i+1}: {citation.citation}")
+                logger.info(f"[DEBUG]   verified: {getattr(citation, 'verified', 'MISSING')}")
+                logger.info(f"[DEBUG]   canonical_name: {getattr(citation, 'canonical_name', 'MISSING')}")
+                logger.info(f"[DEBUG]   canonical_date: {getattr(citation, 'canonical_date', 'MISSING')}")
+                logger.info(f"[DEBUG]   canonical_url: {getattr(citation, 'canonical_url', 'MISSING')}")
+                logger.info(f"[DEBUG]   verification_status: {getattr(citation, 'verification_status', 'MISSING')}")
 
             for citation in citations:
                 citation.setdefault("extracted_case_name", None)
@@ -3638,8 +2925,7 @@ def _process_url_input(url, request_id=None, force_mode=None):
             from rq import Queue
             from redis import Redis
 
-            redis_url = os.environ.get("REDIS_URL", "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0")
-            redis_conn = Redis.from_url(redis_url)
+            redis_conn = Redis.from_url(REDIS_URL)
             queue = Queue("casestrainer", connection=redis_conn)
 
             job = queue.enqueue(
@@ -3673,200 +2959,6 @@ def _process_url_input(url, request_id=None, force_mode=None):
         raise
 
 
-@vue_api.route("/analyze/verification-stream/<request_id>")
-def verification_stream(request_id):
-    """
-    Stream verification progress and results in real-time using Server-Sent Events (SSE)
-
-    Args:
-        request_id: The request ID to stream verification progress for
-
-    Returns:
-        Server-Sent Events stream with verification updates
-    """
-    try:
-        from src.verification_manager import VerificationManager
-
-        verification_manager = VerificationManager()
-
-        def generate():
-            """Generate SSE events for verification progress"""
-            try:
-                # Connection established event
-                connection_data = {
-                    "type": "connection_established",
-                    "request_id": request_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }
-                yield f"data: {json.dumps(connection_data)}\n\n"
-
-                last_status = None
-                last_progress = 0
-
-                while True:
-                    try:
-                        status = verification_manager.get_verification_status(request_id)
-
-                        if not status:
-                            error_data = {
-                                "type": "error",
-                                "message": "Verification not found or not started",
-                                "request_id": request_id,
-                                "timestamp": datetime.utcnow().isoformat(),
-                            }
-                            yield f"data: {json.dumps(error_data)}\n\n"
-                            break
-
-                        status_changed = last_status != status.get("status") or last_progress != status.get(
-                            "progress", 0
-                        )
-
-                        if status_changed:
-                            event_data = {
-                                "type": "verification_status",
-                                "request_id": request_id,
-                                "status": status.get("status"),
-                                "progress": status.get("progress", 0),
-                                "citations_processed": status.get("citations_processed", 0),
-                                "citations_count": status.get("citations_count", 0),
-                                "current_method": status.get("current_method"),
-                                "timestamp": datetime.utcnow().isoformat(),
-                            }
-
-                            yield f"data: {json.dumps(event_data)}\n\n"
-
-                            last_status = status.get("status")
-                            last_progress = status.get("progress", 0)
-
-                        if status.get("status") in ["completed", "failed"]:
-                            if status.get("status") == "completed":
-                                results = verification_manager.get_verification_results(request_id)
-                                if results:
-                                    event_data = {
-                                        "type": "verification_complete",
-                                        "request_id": request_id,
-                                        "results": results,
-                                        "timestamp": datetime.utcnow().isoformat(),
-                                    }
-                                else:
-                                    event_data = {
-                                        "type": "verification_complete",
-                                        "request_id": request_id,
-                                        "message": "Verification completed but results not available",
-                                        "timestamp": datetime.utcnow().isoformat(),
-                                    }
-                            else:
-                                event_data = {
-                                    "type": "verification_failed",
-                                    "request_id": request_id,
-                                    "error_message": status.get("error_message", "Unknown error"),
-                                    "timestamp": datetime.utcnow().isoformat(),
-                                }
-
-                            yield f"data: {json.dumps(event_data)}\n\n"
-                            break
-
-                        time.sleep(1)
-
-                    except Exception as e:
-                        logger.error(f"Error in verification stream for {request_id}: {e}")
-                        stream_error_data = {
-                            "type": "error",
-                            "message": f"Stream error: {str(e)}",
-                            "request_id": request_id,
-                            "timestamp": datetime.utcnow().isoformat(),
-                        }
-                        yield f"data: {json.dumps(stream_error_data)}\n\n"
-                        break
-
-                stream_end_data = {
-                    "type": "stream_end",
-                    "request_id": request_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }
-                yield f"data: {json.dumps(stream_end_data)}\n\n"
-
-            except Exception as e:
-                logger.error(f"Fatal error in verification stream for {request_id}: {e}")
-                fatal_error_data = {
-                    "type": "fatal_error",
-                    "message": f"Fatal stream error: {str(e)}",
-                    "request_id": request_id,
-                    "timestamp": datetime.utcnow().isoformat(),
-                }
-                yield f"data: {json.dumps(fatal_error_data)}\n\n"
-
-        return Response(
-            generate(),
-            mimetype="text/event-stream",
-            headers={
-                "Cache-Control": "no-cache",
-                "Connection": "keep-alive",
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Headers": "Cache-Control",
-            },
-        )
-
-    except Exception as e:
-        logger.error(f"Failed to start verification stream for {request_id}: {e}")
-        return jsonify({"error": f"Failed to start verification stream: {str(e)}", "request_id": request_id}), 500
-
-
-@vue_api.route("/analyze/verification-status/<request_id>")
-def verification_status(request_id):
-    """
-    Get current verification status for a request
-
-    Args:
-        request_id: The request ID to check
-
-    Returns:
-        Current verification status and progress
-    """
-    try:
-        from src.verification_manager import VerificationManager
-
-        verification_manager = VerificationManager()
-        status = verification_manager.get_verification_status(request_id)
-
-        if not status:
-            return jsonify({"error": "Verification not found", "request_id": request_id}), 404
-
-        return jsonify({"request_id": request_id, "status": status, "timestamp": datetime.utcnow().isoformat()})
-
-    except Exception as e:
-        logger.error(f"Failed to get verification status for {request_id}: {e}")
-        return jsonify({"error": f"Failed to get verification status: {str(e)}", "request_id": request_id}), 500
-
-
-@vue_api.route("/analyze/verification-results/<request_id>")
-def verification_results(request_id):
-    """
-    Get verification results for a completed request
-
-    Args:
-        request_id: The request ID to get results for
-
-    Returns:
-        Verification results if available
-    """
-    try:
-        from src.verification_manager import VerificationManager
-
-        verification_manager = VerificationManager()
-        results = verification_manager.get_verification_results(request_id)
-
-        if not results:
-            return jsonify({"error": "Verification results not available", "request_id": request_id}), 404
-
-        return jsonify({"request_id": request_id, "results": results, "timestamp": datetime.utcnow().isoformat()})
-
-    except Exception as e:
-        logger.error(f"Failed to get verification results for {request_id}: {e}")
-        return jsonify({"error": f"Failed to get verification results: {str(e)}", "request_id": request_id}), 500
-
-
-def _validate_api_response_data(response_data):
     """
     Validate API response data for integrity issues.
 

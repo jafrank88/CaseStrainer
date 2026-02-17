@@ -62,6 +62,9 @@ def normalize_cluster_dict(d: Dict[str, Any]) -> Dict[str, Any]:
         "submitted_display_date",
         "verifying_display_name",
         "verifying_display_date",
+        "verified",  # CRITICAL: Preserve verified flag
+        "canonical_url",  # CRITICAL: Preserve canonical URL
+        "display_canonical_url",
     ]
 
     for field in important_fields:

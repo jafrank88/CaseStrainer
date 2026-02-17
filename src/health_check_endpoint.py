@@ -27,7 +27,7 @@ def get_health_status() -> Dict[str, Any]:
 
     # Check unified extraction master
     try:
-        from src.unified_case_extraction_master import get_master_extractor
+        from src.extraction import get_master_extractor
 
         get_master_extractor()
         health["components"]["unified_master"] = {"status": "healthy", "version": "v1.0.0", "accuracy": "90-93%"}
@@ -35,15 +35,6 @@ def get_health_status() -> Dict[str, Any]:
         health["components"]["unified_master"] = {"status": "unhealthy", "error": str(e)}
         health["status"] = "degraded"
     
-    # Check clean extraction pipeline (deprecated)
-    try:
-        from src.clean_extraction_pipeline import CleanExtractionPipeline
-
-        CleanExtractionPipeline()
-        health["components"]["clean_pipeline"] = {"status": "healthy", "version": "v1.0.0 (deprecated)", "accuracy": "87-93%"}
-    except Exception as e:
-        health["components"]["clean_pipeline"] = {"status": "unhealthy", "error": str(e)}
-
     # Check strict context isolator
     try:
         pass

@@ -1,197 +1,96 @@
-#!/usr/bin/env python3
 """
-Test CourtListener Batch API Usage
-
-This script verifies that the optimized processor is correctly using
-the CourtListener batch citation-lookup API for verification.
+Test script to debug CourtListener batch lookup API behavior
 """
-
-import sys
+import requests
+import json
 import os
-import time
 
-# Add src to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+API_KEY = os.environ.get("COURTLISTENER_API_KEY", "***REDACTED_COURTLISTENER_KEY***")
 
-from src.optimized_verification_master import get_optimized_verifier
+# Test citations from user's document
+test_citations = [
+    "521 U.S. 811",
+    "504 U.S. 555",
+    "578 U.S. 330",
+    "426 U.S. 26",
+    "467 U.S. 1027",
+    "481 U. S. 465",  # Note: with spaces
+    "159 Wn.2d 700",  # Washington state
+]
 
+print("=" * 80)
+print("COURTLISTENER BATCH LOOKUP API TEST")
+print("=" * 80)
 
-def test_courtlistener_batch_usage():
-    """Test that CourtListener batch API is being used correctly."""
-    print("\n" + "="*70)
-    print("TESTING COURTLISTENER BATCH API USAGE")
-    print("="*70)
+# Normalize citations
+def normalize_citation(cit):
+    # Remove extra spaces
+    cit = ' '.join(cit.split())
+    return cit
+
+normalized = [normalize_citation(c) for c in test_citations]
+combined_text = " ".join(normalized)
+
+print(f"\nSending {len(test_citations)} citations to CourtListener batch API...")
+print(f"Combined text: {combined_text[:100]}...")
+
+url = "https://www.courtlistener.com/api/rest/v4/citation-lookup/"
+payload = {"text": combined_text}
+headers = {
+    "Authorization": f"Token {API_KEY}",
+    "Content-Type": "application/json"
+}
+
+try:
+    response = requests.post(url, json=payload, headers=headers, timeout=30)
+    print(f"\nStatus Code: {response.status_code}")
     
-    # Test citations that should definitely be in CourtListener
-    test_citations = [
-        "Brown v. Board of Education, 347 U.S. 483 (1954)",
-        "Miranda v. Arizona, 384 U.S. 436 (1966)",
-        "Roe v. Wade, 410 U.S. 113 (1973)",
-        "Marbury v. Madison, 5 U.S. (1 Cranch) 137 (1803)",
-        "United States v. Nixon, 418 U.S. 683 (1974)"
-    ]
-    
-    print(f"\nTesting {len(test_citations)} Supreme Court citations...")
-    print("These should all be verified via CourtListener batch API.")
-    
-    verifier = get_optimized_verifier()
-    
-    # Test batch verification
-    print(f"\n1. Testing BATCH verification (should use CourtListener batch API)...")
-    start_time = time.time()
-    
-    try:
-        import asyncio
+    if response.status_code == 200:
+        data = response.json()
+        print(f"Response type: {type(data)}")
         
-        async def run_batch_test():
-            results = await verifier.verify_citations_batch_optimized(
-                test_citations,
-                batch_size=50,  # Use optimal batch size
-                timeout_per_citation=10.0,
-                enable_parallel=True
-            )
-            return results
-        
-        # Run the async test
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            results = loop.run_until_complete(run_batch_test())
-        finally:
-            loop.close()
-        
-        batch_time = time.time() - start_time
-        
-        print(f"   Batch verification completed in {batch_time:.2f}s")
-        
-        # Analyze results
-        verified_count = sum(1 for r in results if r.verified)
-        possible_count = sum(1 for r in results if r.possible_match)
-        courtlistener_count = sum(1 for r in results if r.source == 'courtlistener')
-        
-        print(f"\n   Results:")
-        print(f"   Total citations: {len(results)}")
-        print(f"   Verified: {verified_count}")
-        print(f"   Possible matches: {possible_count}")
-        print(f"   From CourtListener: {courtlistener_count}")
-        print(f"   Success rate: {(verified_count + possible_count) / len(results):.1%}")
-        
-        # Check if CourtListener was used
-        if courtlistener_count >= len(test_citations) * 0.8:
-            print(f"   ✅ CourtListener batch API is being used correctly!")
+        if isinstance(data, list):
+            print(f"\nGot {len(data)} results:")
+            
+            verified_count = 0
+            for i, item in enumerate(data):
+                cit = item.get("citation", "N/A")
+                status = item.get("status", "unknown")
+                error = item.get("error_message", "")
+                clusters = item.get("clusters", [])
+                
+                print(f"\n{i+1}. Citation: {cit}")
+                print(f"   Status: {status}")
+                if error:
+                    print(f"   Error: {error}")
+                
+                if clusters:
+                    print(f"   Clusters: {len(clusters)}")
+                    for j, cluster in enumerate(clusters[:1]):  # Show first cluster
+                        case_name = cluster.get("caseName") or cluster.get("case_name", "N/A")
+                        date_filed = cluster.get("dateFiled") or cluster.get("date_filed", "N/A")
+                        absolute_url = cluster.get("absolute_url") or cluster.get("absoluteUrl", "N/A")
+                        
+                        print(f"   - Case: {case_name}")
+                        print(f"   - Date Filed: {date_filed}")
+                        print(f"   - URL: {absolute_url}")
+                        
+                        if case_name != "N/A" and absolute_url:
+                            verified_count += 1
+                else:
+                    print(f"   No clusters found")
+            
+            print(f"\n{'='*80}")
+            print(f"SUMMARY: {verified_count}/{len(data)} citations have cluster data with URL")
+            print(f"{'='*80}")
         else:
-            print(f"   ⚠️  CourtListener usage lower than expected")
-        
-        # Show detailed results
-        print(f"\n   Detailed results:")
-        for i, (citation, result) in enumerate(zip(test_citations, results)):
-            status = "✅ Verified" if result.verified else "⚠️ Possible" if result.possible_match else "❌ Not found"
-            print(f"   {i+1}. {status} via {result.source}")
-            if result.verified and result.canonical_name:
-                print(f"      → {result.canonical_name}")
-        
-    except Exception as e:
-        print(f"   ❌ Batch verification failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-    
-    # Test individual verification for comparison
-    print(f"\n2. Testing INDIVIDUAL verification (for comparison)...")
-    start_time = time.time()
-    
-    individual_results = []
-    individual_time = 0
-    
-    for citation in test_citations:
-        try:
-            result = verifier.verify_citation_sync_optimized(
-                citation,
-                timeout=15,
-                enable_parallel=True
-            )
-            individual_results.append(result)
-        except Exception as e:
-            print(f"   ❌ Individual verification failed for {citation}: {str(e)}")
-            individual_results.append(None)
-    
-    individual_time = time.time() - start_time
-    
-    print(f"   Individual verification completed in {individual_time:.2f}s")
-    
-    # Compare performance
-    if batch_time > 0 and individual_time > 0:
-        improvement = (individual_time - batch_time) / individual_time * 100
-        print(f"\n📊 PERFORMANCE COMPARISON:")
-        print(f"   Batch API: {batch_time:.2f}s")
-        print(f"   Individual: {individual_time:.2f}s")
-        print(f"   Improvement: {improvement:.1f}% faster with batch")
-    
-    # Test cache effectiveness
-    print(f"\n3. Testing CACHE effectiveness...")
-    verifier.clear_cache()
-    print(f"   Cache cleared")
-    
-    # First run
-    start_time = time.time()
-    result1 = verifier.verify_citation_sync_optimized(
-        "Brown v. Board of Education, 347 U.S. 483 (1954)",
-        timeout=15
-    )
-    first_time = time.time() - start_time
-    
-    # Second run (should use cache)
-    start_time = time.time()
-    result2 = verifier.verify_citation_sync_optimized(
-        "Brown v. Board of Education, 347 U.S. 483 (1954)",
-        timeout=15
-    )
-    second_time = time.time() - start_time
-    
-    cache_stats = verifier.get_cache_stats()
-    
-    print(f"   First run: {first_time:.2f}s")
-    print(f"   Second run: {second_time:.2f}s")
-    print(f"   Cache size: {cache_stats['cache_size']}")
-    
-    if second_time < first_time * 0.5:
-        print(f"   ✅ Caching is working effectively!")
+            print(f"Unexpected response format: {type(data)}")
+            print(json.dumps(data, indent=2)[:500])
     else:
-        print(f"   ⚠️  Caching may not be optimal")
-    
-    return True
-
-
-def main():
-    """Run CourtListener batch API tests."""
-    print("CaseStrainer CourtListener Batch API Test")
-    print("="*70)
-    print("Verifying that the optimized processor correctly uses")
-    print("the CourtListener batch citation-lookup API.")
-    
-    try:
-        test_courtlistener_batch_usage()
+        print(f"API Error: {response.status_code}")
+        print(response.text[:500])
         
-        print("\n" + "="*70)
-        print("✅ COURTLISTENER BATCH API TEST COMPLETED")
-        print("="*70)
-        print("\nKey findings:")
-        print("  • Batch API should be used for multiple citations")
-        print("  • CourtListener should be the primary source")
-        print("  • Fallback sources used only when CourtListener fails")
-        print("  • Caching should improve repeat performance")
-        
-        return 0
-        
-    except KeyboardInterrupt:
-        print("\n\n⚠️  Test interrupted by user")
-        return 1
-    except Exception as e:
-        print(f"\n\n❌ Test failed: {str(e)}")
-        import traceback
-        traceback.print_exc()
-        return 1
-
-
-if __name__ == '__main__':
-    exit_code = main()
-    sys.exit(exit_code)
+except Exception as e:
+    print(f"Error: {e}")
+    import traceback
+    traceback.print_exc()

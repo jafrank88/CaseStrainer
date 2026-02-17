@@ -26,6 +26,7 @@ from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 
 # Import helper for filtering cluster members
 from src.utils.cluster_filter import filter_cluster_members_by_reporter
+from src.utils.date_utils import extract_year_value, extract_year_from_citation
 
 # Import placeholder resolver
 from src.utils.placeholder_resolver import resolve_placeholder_citations, is_placeholder_citation
@@ -267,6 +268,7 @@ class UnifiedProcessingPipeline:
             return result
 
         except Exception as e:
+            logger.error(f"[PIPELINE-{context.trace_id}] PIPELINE EXCEPTION: {e}", exc_info=True)
             context.add_error(str(e), "pipeline_error")
             return self._format_error_response(context, str(e))
 
@@ -274,11 +276,14 @@ class UnifiedProcessingPipeline:
         """Stage 1: Extract citations using the clean pipeline"""
         try:
             # Use the proven UnifiedCitationProcessorV2
+            logger.error(f"[PIPELINE-{context.trace_id}] _extract_citations: calling process_text with {len(text)} chars")
             result = await self.processor.process_text(text)
             citations_count = len(result.get("citations", []))
+            logger.error(f"[PIPELINE-{context.trace_id}] _extract_citations: process_text returned {citations_count} citations")
             context.metadata["extraction_count"] = citations_count
             return result
         except Exception as e:
+            logger.error(f"[PIPELINE-{context.trace_id}] _extract_citations FAILED: {e}", exc_info=True)
             context.add_error(str(e), "extraction")
             raise
 
@@ -402,6 +407,19 @@ class UnifiedProcessingPipeline:
         ]
 
         cleaned = extracted_name
+
+        # Strip TOA header prefixes (e.g. "Cases-Continued: Page Murray v. ...")
+        cleaned = re.sub(
+            r'^(?:TABLE\s+OF\s+AUTHORITIES\s+)?(?:(?:I{1,3}V?|V?I{0,3})\s+)?'
+            r'Cases(?:[—\-–]Continued)?(?:\s*:\s*|\s+)(?:Page\s+)?',
+            '', cleaned, flags=re.IGNORECASE
+        ).strip()
+        cleaned = re.sub(r'^Page\s+(?=[A-Z])', '', cleaned).strip()
+        # Strip docket numbers: ", No. 2", ", No. CV 25", bare ", No"
+        cleaned = re.sub(r',\s*No\.?\s*(?:[\w\-\.]+(?:\s+[\w\-\.]+)*)?\s*$', '', cleaned, flags=re.IGNORECASE).strip()
+        # Strip trailing commas, numbers, junk (e.g. ", , 1337, 2020")
+        cleaned = re.sub(r'(?:,\s*)+(?:\d{1,5}\s*,?\s*)*$', '', cleaned).strip()
+        cleaned = cleaned.rstrip(',').strip()
 
         # First pass: detect if the entire name is procedural text (return N/A)
         for pattern in procedural_contamination_patterns[:3]:  # First 3 patterns indicate total rejection
@@ -592,8 +610,8 @@ class UnifiedProcessingPipeline:
                     # Instead, just flag the mismatch - the comparison logic will handle it properly
                     # The extracted_case_name must ONLY come from document extraction
                     if cleaned_name and cleaned_name != "N/A" and canonical_name and canonical_name != "N/A":
-                        from src.citation_extraction_endpoint import _names_equivalent
-                        equiv = _names_equivalent(
+                        from src.utils.mismatch_utils import names_equivalent
+                        equiv = names_equivalent(
                             cleaned_name, canonical_name,
                             verified=bool(cit_dict.get("verified")),
                             canonical_url=cit_dict.get("canonical_url"),
@@ -691,11 +709,11 @@ class UnifiedProcessingPipeline:
             # CRITICAL FIX: Annotate mismatch flags BEFORE clustering
             # This ensures name_mismatch and date_mismatch are properly set for all citations
             try:
-                from src.citation_extraction_endpoint import _annotate_mismatch_flags
+                from src.utils.mismatch_utils import annotate_mismatch_flags
 
                 # Create empty clusters list for now - will be populated by clustering master
                 # NOTE: Threshold lowered from 0.6 to 0.4 to reduce false positives
-                _annotate_mismatch_flags(citation_dicts, [], name_threshold=0.4, year_tolerance=0)
+                annotate_mismatch_flags(citation_dicts, [], name_threshold=0.4, year_tolerance=0)
                 logger.info(
                     f"[PIPELINE-{context.trace_id}] Annotated mismatch flags for {len(citation_dicts)} citations"
                 )
@@ -818,10 +836,10 @@ class UnifiedProcessingPipeline:
             # CRITICAL FIX: Annotate mismatch flags AGAIN after clustering
             # This updates cluster-level mismatch flags (has_name_mismatch, has_date_mismatch, mismatch_indices)
             try:
-                from src.citation_extraction_endpoint import _annotate_mismatch_flags
+                from src.utils.mismatch_utils import annotate_mismatch_flags
 
                 # NOTE: Threshold lowered from 0.6 to 0.4 to reduce false positives
-                _annotate_mismatch_flags(citation_dicts, clusters, name_threshold=0.4, year_tolerance=0)
+                annotate_mismatch_flags(citation_dicts, clusters, name_threshold=0.4, year_tolerance=0)
                 logger.info(
                     f"[PIPELINE-{context.trace_id}] Updated cluster-level mismatch flags for {len(clusters)} clusters"
                 )
@@ -1075,13 +1093,14 @@ class UnifiedProcessingPipeline:
                             common_canonical_url = None
                             break
                 # USER FIX 2026-02-03: DO NOT overwrite cluster_case_name with common canonical_name
-                # This prevents contamination when verification APIs return wrong cases
-                # Keep the original cluster_case_name from spatial clustering or extracted data
+                # This prevents contamination when verification APIs return wrong cases.
+                # ECN contamination is now fixed at the source (BATCH-ECN-FIX in
+                # unified_citation_processor_v2.py), so this block only needs to update URLs.
                 if common_canonical:
-                    logger.warning(
-                        f"🚫 [CLUSTER-CONTAMINATION-BLOCK] cluster_id={cluster.get('cluster_id')} "
-                        f"would have set cluster_case_name to '{common_canonical[:50]}...' "
-                        f"but keeping original '{cluster_case_name[:50] if cluster_case_name else None}...'"
+                    logger.info(
+                        f"[CLUSTER-CONTAMINATION-BLOCK] cluster_id={cluster.get('cluster_id')} "
+                        f"keeping cluster_case_name='{cluster_case_name[:50] if cluster_case_name else None}', "
+                        f"canonical='{common_canonical[:50]}'"
                     )
                     # Only update URLs, not names
                     if common_canonical_url:
@@ -1344,36 +1363,13 @@ class UnifiedProcessingPipeline:
             if citation_text in citation_map:
                 clusters_dict[cluster_id].append(citation_map[citation_text])
 
-        # Helper function to extract year from date string
-        def _extract_year(date_str):
-            """Extract 4-digit year from date string"""
-            if not date_str:
-                return None
-            import re
+        # Year extraction from date strings and citation text (single source: date_utils)
+        def _year_from_date(date_str):
+            return extract_year_value(date_str)
 
-            match = re.search(r"(19|20)\d{2}", str(date_str))
-            return match.group(0) if match else None
-
-        # Helper function to extract year from citation text (for year-in-format citations)
-        def _extract_year_from_citation(citation_text):
-            """Extract year from citation text for year-in-format citations like '2002 WY 183'"""
-            if not citation_text:
-                return None
-            import re
-
-            # Match year-in-format patterns: "2002 WY 183", "2020 ND 123", etc.
-            year_in_format_match = re.match(
-                r"^(\d{4})\s+(?:WY|ND|OK|SD|UT|WI|MT|AL|AK|AR|AZ|CA|CO|CT|DE|FL|GA|HI|ID|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|NE|NV|NH|NJ|NM|NY|NC|OH|OR|PA|RI|SC|TN|TX|VT|VA|WA|WV|DC)\s+\d+",
-                citation_text,
-                re.IGNORECASE,
-            )
-            if year_in_format_match:
-                return year_in_format_match.group(1)
-            # Match WL citations: "2006 WL 3801910"
-            wl_match = re.match(r"^(\d{4})\s+WL\s+\d+", citation_text)
-            if wl_match:
-                return wl_match.group(1)
-            return None
+        def _year_from_citation_text(citation_text):
+            y = extract_year_from_citation(citation_text or "")
+            return str(y) if y is not None else None
 
         # Create cluster dictionaries with required fields
         final_clusters = []
@@ -1526,11 +1522,11 @@ class UnifiedProcessingPipeline:
                 # and compare with canonical date year to determine if there's a real mismatch
                 if not cit_date_mismatch and cit.get("verified", False):
                     citation_text = cit.get("citation", "")
-                    citation_year = _extract_year_from_citation(citation_text)
+                    citation_year = _year_from_citation_text(citation_text)
                     if citation_year:
                         # Citation has year in format - use it for comparison
                         canonical_date = cit.get("canonical_date")
-                        canonical_year = _extract_year(canonical_date)
+                        canonical_year = _year_from_date(canonical_date)
                         if canonical_year and citation_year != canonical_year:
                             cit_date_mismatch = True
                         elif canonical_year and citation_year == canonical_year:
@@ -1539,10 +1535,10 @@ class UnifiedProcessingPipeline:
                 elif cit_date_mismatch:
                     # Check if we should override based on citation text year
                     citation_text = cit.get("citation", "")
-                    citation_year = _extract_year_from_citation(citation_text)
+                    citation_year = _year_from_citation_text(citation_text)
                     if citation_year:
                         canonical_date = cit.get("canonical_date")
-                        canonical_year = _extract_year(canonical_date)
+                        canonical_year = _year_from_date(canonical_date)
                         if canonical_year and citation_year == canonical_year:
                             # Citation text year matches canonical - override the mismatch
                             cit_date_mismatch = False
@@ -1643,13 +1639,31 @@ class UnifiedProcessingPipeline:
                     f"using canonical_name '{best_canonical_name}' for submitted_display_name"
                 )
                 clean_submitted_name = best_canonical_name
-            elif clean_submitted_name and ("\n" in clean_submitted_name or len(clean_submitted_name) > 200):
+            # Strip TOA header prefixes
+            if clean_submitted_name:
+                clean_submitted_name = re.sub(
+                    r'^(?:TABLE\s+OF\s+AUTHORITIES\s+)?(?:(?:I{1,3}V?|V?I{0,3})\s+)?Cases(?:[—\-–]Continued)?(?:\s*:\s*|\s+)(?:Page\s+)?',
+                    '', clean_submitted_name, flags=re.IGNORECASE
+                ).strip() or clean_submitted_name
+                clean_submitted_name = re.sub(r'^Page\s+(?=[A-Z])', '', clean_submitted_name).strip() or clean_submitted_name
+            # Strip trailing citation fragments from extracted names
+            if clean_submitted_name:
+                clean_submitted_name = re.sub(r',?\s*\d+\s+(?:U\.S\.|F\.\d*d?|S\.\s*Ct\.|L\.\s*Ed|Tex\.|Pet\.|Cranch|Wall\.|Wheat\.|How\.|Barb\.|A\.).*$', '', clean_submitted_name).strip() or clean_submitted_name
+                clean_submitted_name = re.sub(r',\s*(?:19|20)\d{2}\s*$', '', clean_submitted_name).strip() or clean_submitted_name
+                clean_submitted_name = re.sub(r',?\s*,?\s*No\.?\s*,?\s*(?:CIV\.?\s+|CV\s+)?(?:\d[\d\-]*)?\s*$', '', clean_submitted_name).strip() or clean_submitted_name
+            # Truncate at real sentence boundaries only.
+            # Require 2+ lowercase letters before period AND a common sentence-starting word after.
+            if clean_submitted_name:
+                sentence_end = re.search(r'(?<=[a-z]{2})\.\s+(?:From|The|This|That|These|Those|It|In|On|At|By|For|And|But|Or|An|As|If|So|No|To|We|He|She|Such|Under|After|Before|During|However|Moreover|Furthermore|Indeed|Rather|Thus|Therefore|Accordingly|Here|There|Where|When|While|Although|Because|Since|Until|Unless|Whether)\b', clean_submitted_name)
+                if sentence_end:
+                    clean_submitted_name = clean_submitted_name[:sentence_end.start()].strip()
+            if clean_submitted_name and ("\n" in clean_submitted_name or len(clean_submitted_name) > 120):
                 # Get clean name from citations
                 clean_submitted_name = None
                 for c in citations:
                     if isinstance(c, dict):
                         name = c.get("canonical_name") or c.get("extracted_case_name")
-                        if name and "\n" not in name and len(name) <= 200:
+                        if name and "\n" not in name and len(name) <= 120:
                             clean_submitted_name = name
                             break
                 clean_submitted_name = clean_submitted_name or "N/A"

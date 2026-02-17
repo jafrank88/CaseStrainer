@@ -8,10 +8,11 @@ import App from './App.vue';
 import router from './router';
 import AppErrorHandler from '@/components/AppErrorHandler.vue';
 import { createLoader } from '@/utils/loading.js';
+import { API_BASE_URL } from '@/config/api';
 
 // Configure axios defaults
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
+axios.defaults.baseURL = API_BASE_URL;
 axios.defaults.timeout = 30000;
 
 // Simplified error handler

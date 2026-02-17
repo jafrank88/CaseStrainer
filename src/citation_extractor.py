@@ -15,6 +15,21 @@ from src.citation_types import CitationList
 logger = logging.getLogger(__name__)
 
 
+# Pre-compiled law review patterns for performance
+# PERF FIX 2026-01-21: Replaced nested quantifiers (?:...+)+ with simpler patterns
+# to avoid catastrophic backtracking
+_LAW_REVIEW_PATTERNS = [
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}L\.\s*Rev\.\s+\d+", re.IGNORECASE),
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}Law\s+Rev(?:iew)?\.?\s+\d+", re.IGNORECASE),
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}L\.J\.\s+\d+", re.IGNORECASE),
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}J\.L\.\s+\d+", re.IGNORECASE),
+    # REMOVED: Generic J. pattern was too broad - matched state reporters like N.J., A.D.2d
+    # re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}J\.\s+\d+", re.IGNORECASE),
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}Legal\s+Stud\.\s+\d+", re.IGNORECASE),
+    re.compile(r"\b\d+\s+[A-Za-z\.\-'&\s]{2,50}Int'l\s+L\.\s+\d+", re.IGNORECASE),
+]
+
+
 def is_law_review_citation(citation: str) -> bool:
     """Check if citation is a law review/academic article, not a case.
 
@@ -26,17 +41,9 @@ def is_law_review_citation(citation: str) -> bool:
     Returns:
         True if this is a law review citation, False if it's a case citation
     """
-    law_review_patterns = [
-        r"\b\d+\s+[A-Za-z\.]+\s+L\.\s*Rev\.\s+\d+",  # 33 Stetson L. Rev. 181
-        r"\b\d+\s+[A-Za-z\.]+\s+Law\s+Rev(?:iew)?\.?\s+\d+",  # Full "Law Review"
-        r"\b\d+\s+[A-Za-z\.]+\s+L\.J\.\s+\d+",  # Law Journal
-        r"\b\d+\s+[A-Za-z\.]+\s+J\.\s+\d+",  # Journal
-        r"\b\d+\s+[A-Za-z\.]+\s+Legal\s+Stud\.\s+\d+",  # Legal Studies
-    ]
-
-    for pattern in law_review_patterns:
-        if re.search(pattern, citation, re.IGNORECASE):
-            logger.info(f"🚫 Filtered out law review citation: {citation}")
+    for pattern in _LAW_REVIEW_PATTERNS:
+        if pattern.search(citation):
+            logger.info(f"Filtered out law review citation: {citation}")
             return True
 
     return False

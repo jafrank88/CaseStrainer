@@ -870,6 +870,10 @@ class UnifiedCaseNameExtractorV2:
 
         return validation_result
 
+    def _clean_case_name(self, name: str) -> str:
+        """Clean a case name string; delegates to module-level clean_case_name (case_name_utils)."""
+        return clean_case_name(name)
+
     def _clean_case_name_result(self, match) -> str:
         """Clean and format case name result to remove extra text while preserving name structure"""
         if not match or len(match.groups()) < 2:
@@ -1009,22 +1013,12 @@ class UnifiedCaseNameExtractorV2:
         return cleaned
 
     def _is_valid_case_name(self, case_name: str) -> bool:
-        """Validate that a potential case name meets our criteria
-
-        Args:
-            case_name: The case name to validate
-
-        Returns:
-            bool: True if the case name appears valid, False otherwise
-        """
-        if not case_name or len(case_name) < 5:
+        """Validate that a potential case name meets our criteria. Uses case_name_utils plus extra truncation/contamination checks."""
+        from src.utils.case_name_utils import is_valid_case_name as _core_valid
+        if not _core_valid(case_name):
             return False
 
-        # Must contain a 'v.' or 'vs.' or 'versus' to separate parties
-        if not any(separator in case_name.lower() for separator in [" v. ", " vs. ", " versus "]):
-            return False
-
-        # Split into plaintiff and defendant
+        # Split into plaintiff and defendant for truncation/contamination checks
         parts = re.split(r"\s+v\.?\s+|\s+vs\.?\s+|\s+versus\s+", case_name, flags=re.IGNORECASE)
         if len(parts) < 2:
             return False
@@ -1082,8 +1076,9 @@ class UnifiedCaseNameExtractorV2:
 
             # Step 1: Find the end of the current citation cluster
             # Look from citation_end forward until we hit a citation boundary (semicolon, period, newline)
+            # CRITICAL FIX: Reduce search window to 50 chars to avoid next citation's year
             search_start = citation_end
-            search_end = min(len(text), citation_end + 100)  # Look 100 chars after citation
+            search_end = min(len(text), citation_end + 50)  # Reduced from 100 to 50 to avoid next citation
             context_after = text[search_start:search_end]
 
             # CRITICAL FIX: Remove "Cite as:" header patterns BEFORE searching for years
@@ -1132,11 +1127,28 @@ class UnifiedCaseNameExtractorV2:
                     return {"date": year, "year": year}
 
             # Step 4: Last resort - look for bare year (no parens) but very close to citation
+            # CRITICAL FIX: Reject years >= 2020 for old U.S. Supreme Court citations (volumes 400-600)
+            # This prevents document publication years from being used as case dates
             bare_year = re.search(r"\b(\d{4})\b", context_after[:30])  # Only first 30 chars
             if bare_year:
                 year = bare_year.group(1)
-                if 1900 <= int(year) <= 2030:
-                    return {"date": year, "year": year}
+                year_int = int(year)
+                if 1900 <= year_int <= 2030:
+                    # Check if this is a U.S. Supreme Court citation with an old volume
+                    # U.S. volumes 400-600 are from 1970s-2000s, not 2020s
+                    us_match = re.search(r"(\d+)\s+U\.S\.", context_after[:200], re.IGNORECASE)
+                    if us_match:
+                        volume = int(us_match.group(1))
+                        if 400 <= volume <= 600 and year_int >= 2020:
+                            # Old Supreme Court case but recent year - likely document publication date
+                            logger.debug(
+                                f"[DATE-EXTRACT] Rejected bare year {year} for U.S. volume {volume} - "
+                                f"recent year for old case (likely document publication date)"
+                            )
+                        elif 1900 <= year_int <= 2030:
+                            return {"date": year, "year": year}
+                    elif 1900 <= year_int <= 2030:
+                        return {"date": year, "year": year}
 
             return {"date": "", "year": ""}
 
@@ -1447,195 +1459,9 @@ def _deprecation_warning(old_function_name: str, new_function_name: str):
 
 @lru_cache(maxsize=128)
 def clean_case_name(case_name: str) -> str:
-    """
-    Clean up common prefixes and suffixes from case names.
-
-    Args:
-        case_name: The raw extracted case name
-
-    Returns:
-        Cleaned case name with common prefixes/suffixes removed
-    """
-    if not case_name or case_name == "N/A":
-        return case_name
-
-    # Common prefixes to remove (in order of priority)
-    prefixes = [
-        r"^case of ",
-        r"^matter of ",
-        r"^in re ",
-        r"^in the matter of ",
-        r"^in the case of ",
-        r"^the case of ",
-        r"^matter ",
-        r"^case ",
-        r"^the ",
-        r"^a ",
-        r"^an ",
-        r"^this ",
-        r"^that ",
-        r"^these ",
-        r"^those ",
-        r"^regarding ",
-        r"^concerning ",
-        r"^as to ",
-        r"^with respect to ",
-        r"^as in ",
-        r"^as per ",
-        r"^per ",
-        r"^re:? ",
-        r"^re:\s*",
-        r"^fwd:? ",
-        r"^see ",
-        r"^citing ",
-        r"^accord ",
-        r"^but see ",
-        r"^see also ",
-        r"^e\.g\.",
-        r"^i\.e\.",
-        r"^cf\.",
-        r"^id\.",
-        r"^supra",
-        r"^infra",
-        r"^as stated in ",
-        r"^as explained in ",
-        r"^as held in ",
-        r"^as the court held in ",
-        r"^according to ",
-        r"^pursuant to ",
-        r"^under ",
-        r"^under the ",
-        r"^in ",
-        r"^on ",
-        r"^at ",
-        r"^by ",
-        r"^for ",
-        r"^with ",
-        r"^from ",
-        r"^to ",
-        r"^and ",
-        r"^or ",
-        r"^but ",
-        r"^yet ",
-        r"^so ",
-        r"^nor ",
-        r"^for ",
-        r"^as ",
-        r"^since ",
-        r"^because ",
-        r"^if ",
-        r"^when ",
-        r"^while ",
-        r"^although ",
-        r"^though ",
-        r"^even if ",
-        r"^even though ",
-        r"^whereas ",
-        r"^given that ",
-        r"^provided that ",
-        r"^unless ",
-        r"^until ",
-        r"^before ",
-        r"^after ",
-        r"^once ",
-        r"^since ",
-        r"^till ",
-        r"^until ",
-        r"^whenever ",
-        r"^wherever ",
-        r"^where ",
-        r"^whereas ",
-        r"^whereby ",
-        r"^wherein ",
-        r"^whereupon ",
-        r"^whether ",
-        r"^which ",
-        r"^whichever ",
-        r"^while ",
-        r"^who ",
-        r"^whoever ",
-        r"^whom ",
-        r"^whomever ",
-        r"^whose ",
-    ]
-
-    # Common suffixes to remove (in order of priority)
-    suffixes = [
-        r",?\s*et\s+al\.?$",
-        r",?\s*and\s+others$",
-        r",?\s*&\s+others$",
-        r",?\s*et\s+seq\.?$",
-        r",?\s*and\s+related\s+cases$",
-        r",?\s*and\s+companion\s+cases$",
-        r",?\s*et\s+ux\.?$",
-        r",?\s*et\s+vir\.?$",
-        r",?\s*et\s+uxor\.?$",
-        r",?\s*et\s+conj\.?$",
-        r",?\s*et\s+soc\.?$",
-        r",?\s*et\s+alii\s+consimilibus$",
-        r",?\s*and\s+partners$",
-        r",?\s*&\s+partners$",
-        r",?\s*and\s+associates$",
-        r",?\s*&\s+associates$",
-        r",?\s*and\s+company$",
-        r",?\s*&\s+company$",
-        r",?\s*and\s+co\.?$",
-        r",?\s*&\s+co\.?$",
-        r",?\s*and\s+brothers$",
-        r",?\s*&\s+brothers$",
-        r",?\s*and\s+sons$",
-        r",?\s*&\s+sons$",
-        r",?\s*and\s+daughters$",
-        r",?\s*&\s+daughters$",
-        r",?\s*and\s+siblings$",
-        r",?\s*&\s+siblings$",
-        r",?\s*and\s+family$",
-        r",?\s*&\s+family$",
-        r",?\s*and\s+heirs$",
-        r",?\s*&\s+heirs$",
-        r",?\s*and\s+successors$",
-        r",?\s*&\s+successors$",
-        r",?\s*and\s+assigns$",
-        r",?\s*&\s+assigns$",
-        r",?\s*and\s+trustees$",
-        r",?\s*&\s+trustees$",
-        r",?\s*and\s+executors$",
-        r",?\s*&\s+executors$",
-        r",?\s*and\s+administrators$",
-        r",?\s*&\s+administrators$",
-        r",?\s*and\s+personal\s+representatives$",
-        r",?\s*&\s+personal\s+representatives$",
-        r"\s*\(.*\)$",  # Remove anything in parentheses at the end
-        r"\s*\[.*\]$",  # Remove anything in brackets at the end
-        r"\s*\{.*\}$",  # Remove anything in braces at the end
-        r"\s*<.*>$",  # Remove anything in angle brackets at the end
-        r"\s*\|.*$",  # Remove anything after a pipe character
-        r"\s*:.*$",  # Remove anything after a colon
-        r"\s*;.*$",  # Remove anything after a semicolon
-        r"\s*,.*$",  # Remove anything after a comma (but be careful with corporate names)
-        r"\s*\.{3,}$",  # Remove trailing ellipsis
-        r"\s+$",  # Remove trailing whitespace
-    ]
-
-    # Apply prefix removal
-    cleaned = case_name.strip()
-    for prefix in prefixes:
-        cleaned = re.sub(prefix, "", cleaned, flags=re.IGNORECASE)
-
-    # Apply suffix removal
-    for suffix in suffixes:
-        cleaned = re.sub(suffix, "", cleaned, flags=re.IGNORECASE)
-
-    # Clean up any remaining punctuation or spaces
-    cleaned = re.sub(r"^[\s\.,;:]+", "", cleaned)  # Leading punctuation/whitespace
-    cleaned = re.sub(r"[\s\.,;:]+$", "", cleaned)  # Trailing punctuation/whitespace
-    cleaned = re.sub(r"\s+", " ", cleaned)  # Multiple spaces to single space
-
-    # If we've removed everything, return the original
-    if not cleaned.strip():
-        return case_name.strip()
-
-    return cleaned.strip()
+    """Re-export from single source of truth (src.utils.case_name_utils)."""
+    from src.utils.case_name_utils import clean_case_name as _clean
+    return _clean(case_name)
 
 
 def extract_case_name_and_date_master(
@@ -1655,7 +1481,7 @@ def extract_case_name_and_date_master(
     that consolidates all 120+ duplicate extraction functions.
 
     MIGRATION: Replace calls with:
-    from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+    from src.extraction import extract_case_name_and_date_unified_master
     """
     import warnings
 
@@ -1666,7 +1492,7 @@ def extract_case_name_and_date_master(
     )
 
     # Delegate to the new master implementation
-    from src.unified_case_extraction_master import extract_case_name_and_date_unified_master
+    from src.extraction import extract_case_name_and_date_unified_master
 
     return extract_case_name_and_date_unified_master(
         text=text,

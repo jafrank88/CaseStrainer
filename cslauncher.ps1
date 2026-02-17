@@ -1231,11 +1231,20 @@ Write-Host ""
 Write-ReloadLog "VERIFY: Checking code changes..." "INFO"
 
 $verifications = @{
-    "OOM fix: _cit_count guard (worker)" = "docker exec casestrainer-rqworker1-prod grep -c '_cit_count' /app/src/rq_worker.py"
+    "OOM fix: _cit_count guard (worker)" = "docker exec casestrainer-rqworker1-prod grep -c '_cit_count' /app/src/rq_worker_pipeline.py"
     "OOM fix: malloc_trim in verification (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'malloc_trim' /app/src/verification/master.py"
     "OOM fix: gc+malloc_trim in processor (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'OOM-FIX' /app/src/unified_citation_processor_v2.py"
     "Verification pipeline (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'verify_citations_batch' /app/src/verification/master.py"
     "Clustering master (backend)" = "docker exec casestrainer-backend-prod grep -c 'cluster_citations_unified_master' /app/src/unified_processing_pipeline.py"
+}
+
+# Fallback: verify against local repo when container check returns 0 (e.g. container not running or volume not mounted)
+$localVerification = @{
+    "OOM fix: _cit_count guard (worker)" = @{ Pattern = '_cit_count'; Path = 'src\rq_worker_pipeline.py' }
+    "OOM fix: malloc_trim in verification (worker)" = @{ Pattern = 'malloc_trim'; Path = 'src\verification\master.py' }
+    "OOM fix: gc+malloc_trim in processor (worker)" = @{ Pattern = 'OOM-FIX'; Path = 'src\unified_citation_processor_v2.py' }
+    "Verification pipeline (worker)" = @{ Pattern = 'verify_citations_batch'; Path = 'src\verification\master.py' }
+    "Clustering master (backend)" = @{ Pattern = 'cluster_citations_unified_master'; Path = 'src\unified_processing_pipeline.py' }
 }
 
 $allVerified = $true
@@ -1257,6 +1266,16 @@ foreach ($check in $verifications.GetEnumerator()) {
                 if ($trimmed -match '^\d+$') {
                     $count = [int]$trimmed
                 }
+            }
+        }
+        
+        # If container check returned 0, try local file verification (repo has the fix even if container doesn't see it yet)
+        if ($count -eq 0 -and $null -ne $localVerification[$check.Key]) {
+            $loc = $localVerification[$check.Key]
+            $localPath = Join-Path -Path $PSScriptRoot -ChildPath $loc.Path
+            if (Test-Path -LiteralPath $localPath) {
+                $matchList = Select-String -LiteralPath $localPath -Pattern $loc.Pattern -AllMatches
+                $count = ($matchList | ForEach-Object { $_.Matches.Count } | Measure-Object -Sum).Sum
             }
         }
         

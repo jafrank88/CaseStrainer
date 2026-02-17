@@ -297,26 +297,9 @@ def extract_from_table_of_authorities(toa_text: str) -> List[Dict[str, Any]]:
 
 
 def _is_valid_case_name(case_name: str) -> bool:
-    """
-    Validate if a case name is reasonable.
-    Extracted from legal_case_extractor_enhanced.py.
-    """
-    import re
-
-    if not case_name or len(case_name) < 5:
-        return False
-
-    if not re.search(r"[a-zA-Z]", case_name):
-        return False
-
-    if re.match(r"^[A-Z\s]+$", case_name):
-        return False
-
-    case_indicators = [" v. ", " vs. ", " versus ", "In re ", "State v. ", "People v. "]
-    if not any(indicator.lower() in case_name.lower() for indicator in case_indicators):
-        return False
-
-    return True
+    """Delegate to single source of truth (src.utils.case_name_utils)."""
+    from src.utils.case_name_utils import is_valid_case_name
+    return is_valid_case_name(case_name)
 
 
 def _get_context(text: str, start: int, end: int, window: int = 200) -> str:

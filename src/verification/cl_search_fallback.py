@@ -135,14 +135,24 @@ def _prefix_overlap(set_a, set_b):
 
 
 def _pick_best(results, ecn):
-    ecn_w = set(re.findall(r"[a-z]+", ecn.lower())) - {"v", "the", "of", "and", "inc", "llc", "co"}
+    stop = {"v", "the", "of", "and", "inc", "llc", "co", "corp", "ltd"}
+    ecn_w = set(re.findall(r"[a-z]+", ecn.lower())) - stop
     if not ecn_w:
         return results[0] if results else None
+    # Extract first-party words for stricter matching
+    ecn_parts = re.split(r"\s+v\.?\s+", ecn.lower(), maxsplit=1)
+    ecn_first = set(re.findall(r"[a-z]+", ecn_parts[0])) - stop
     best, best_s = None, 0
     for r in results[:10]:
         cn = (r.get("caseName") or r.get("case_name") or "").lower()
-        cn_w = set(re.findall(r"[a-z]+", cn)) - {"v", "the", "of", "and", "inc", "llc", "co"}
+        cn_w = set(re.findall(r"[a-z]+", cn)) - stop
         if cn_w:
+            # Require at least one first-party word to match (prevents e.g. "Trump v. Trump" for "Doe v. Trump")
+            if ecn_first:
+                cn_parts = re.split(r"\s+v\.?\s+", cn, maxsplit=1)
+                cn_all_parties = set(re.findall(r"[a-z]+", cn)) - stop
+                if not _prefix_overlap(ecn_first, cn_all_parties):
+                    continue
             s = _prefix_overlap(ecn_w, cn_w) / len(ecn_w)
             if s > best_s:
                 best_s = s

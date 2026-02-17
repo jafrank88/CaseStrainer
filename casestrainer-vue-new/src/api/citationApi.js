@@ -4,9 +4,8 @@
  */
 
 import axios from 'axios';
+import { API_BASE_URL } from '@/config/api';
 
-// API Configuration
-const API_BASE_URL = process.env.VUE_APP_API_BASE_URL || 'http://localhost:5000/api';
 const API_VERSION = 'v1';
 
 class CitationApi {

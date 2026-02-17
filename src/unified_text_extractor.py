@@ -127,6 +127,47 @@ class UnifiedTextExtractor:
         try:
             # Step 1: Remove problematic control characters
             normalized = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+
+            # Step 1.5: Remove soft hyphens with their line breaks BEFORE collapsing whitespace
+            normalized = re.sub(r'\s*\xad\s*[\n\r]+\s*', '', normalized)
+            normalized = normalized.replace('\xad', '')
+
+            # Step 1.6: CRITICAL - Remove page headers/footers BEFORE collapsing newlines
+            # Supreme Court slip opinions have headers like:
+            #   \n10\nTRANSUNION LLC v. RAMIREZ\nOpinion of the Court\n
+            # These break citations that span page boundaries (e.g., "508\n[HEADER]\nU. S. 520")
+            # Collapse multiple whitespace/newline sequences first
+            normalized = re.sub(r'(?:\s*\n)+', '\n', normalized)
+            # Remove page headers: \nPageNum\nCASE v. NAME\nOpinion of...\n
+            normalized = re.sub(
+                r'\n(\d{1,2})\n([A-Z][A-Z\s]+(?:v\.|VS\.?)\s+[A-Z][A-Z\s]+)\n(Opinion of (?:the Court|THOMAS|KAGAN|[A-Z]+),?\s*J\.?|Syllabus|Cite as:)[^\n]*\n',
+                '\n',
+                normalized,
+                flags=re.IGNORECASE
+            )
+            # Remove standalone page number + case name headers
+            normalized = re.sub(
+                r'\n(\d{1,2})\n([A-Z][A-Z\s]+(?:v\.|VS\.?)\s+[A-Z][A-Z\s]+)\n',
+                '\n',
+                normalized,
+                flags=re.IGNORECASE
+            )
+            # Remove standalone "Cite as:" headers
+            normalized = re.sub(r'\nCite as:\s*\d+\s+U\.?\s*S\.?\s*____[^\n]*\n', '\n', normalized, flags=re.IGNORECASE)
+
+            # Step 1.7: Fix citation line breaks BEFORE collapsing (from normalize_text)
+            # "508\nU. S. 520" -> "508 U. S. 520"
+            normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Uu]\.?\s*[Ss]\.?)\s+(\d+)", r"\1 \2 \3", normalized)
+            normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Uu]\.?\s*[Ss]\.?)[\n\r]+\s*(\d+)", r"\1 \2 \3", normalized)
+            # F.3d/F.2d line breaks
+            normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Ff])\.?\s*(\d+)\s*[a-z]?\s+(\d+)", r"\1 \2.\3d \4", normalized)
+            normalized = re.sub(r"(\d+)\s+([Ff])\.?\s*(\d+)[a-z]?\s*[\n\r]+\s*(\d+)", r"\1 \2.\3d \4", normalized)
+            normalized = re.sub(r"([Ff])\.?\s*[\n\r]+\s*(\d+[a-z])", r"\1.\2", normalized)
+            # S. Ct., L. Ed. line breaks
+            normalized = re.sub(r"(\d+)\s+[Ss]\.?\s*[\n\r]+\s*[Cc]t\.?", r"\1 S. Ct.", normalized)
+            normalized = re.sub(r"(\d+)\s+[Ll]\.?\s*[\n\r]+\s*[Ee]d\.?", r"\1 L. Ed.", normalized)
+            # State reporters with line breaks
+            normalized = re.sub(r"(\d+)\s+([A-Z][a-z]{1,4})\.?\s*[\n\r]+\s*(\d+)", r"\1 \2. \3", normalized)
             
             # Step 2: Collapse ALL whitespace (including newlines, tabs) to single spaces
             # This is critical for position alignment - eyecite will extract citations

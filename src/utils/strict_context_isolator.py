@@ -361,6 +361,13 @@ def find_all_citation_positions(text: str) -> List[Tuple[int, int, str]]:
         compiled_patterns["cal_2d"],
         compiled_patterns["cal_3d"],
         compiled_patterns["cal_4th"],
+        # State reporters - Virginia (e.g. "259 Va. 568") and Tennessee (e.g. "10 Tenn. 581")
+        # Needed so "Larimore v. Blaylock, 259 Va. 568; but see Swindle v. State, 10 Tenn. 581" gets correct boundary
+        compiled_patterns["va_general"],
+        compiled_patterns["va_2d"],
+        compiled_patterns["va_3d"],
+        compiled_patterns["tn_general"],
+        compiled_patterns["tn_app_general"],
         # Neutral citations
         compiled_patterns["neutral_nm"],
         compiled_patterns["neutral_nd"],
@@ -417,38 +424,57 @@ def get_adaptive_context_for_citation(
     Returns:
         Adaptive context string containing a case name
     """
-    logger.error(f"[BACKWARDS-EXTRACT] Starting backwards extraction for citation at {citation_start}")
+    logger.debug(f"[BACKWARDS-EXTRACT] Starting backwards extraction for citation at {citation_start}")
     
     # SERIES CITATION FIX: Check if this is NOT the first citation in a series
     # If it's not the first, don't extract case name to prevent incorrect association
     # But only for clear series citations, not all nearby citations
+    #
+    # CRITICAL FIX 2026-01-29: Don't return empty if there's a case name AFTER the semicolon!
+    # Example: "; but see Swindle v. State, 10 Tenn. 581" - should extract "Swindle v. State"
     if citation_start and citation_start > 0:
         # Look backwards to see if there's another citation within 100 characters
         look_behind = text[max(0, citation_start - 100):citation_start]
-        prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.S\.\s+\d+'
-        
+        prev_citation_pattern = r'\d{4}\s+WL\s+\d+|\d+\s+F\.?(?:2d|3d|Supp\.?)\s+\d+|\d+\s+U\.?\s*S\.?\s+\d+'
+
         # Only treat as series if there are clear indicators
         is_series_citation = False
-        
+
         # Check for semicolon (clear series indicator)
         if ';' in look_behind:
-            is_series_citation = True
-            logger.info(f"[SERIES-DEBUG] Semicolon detected - treating as series citation")
-        
+            # CRITICAL FIX: Check if there's a case name ("v.") AFTER the last semicolon
+            # If so, this citation HAS its own case name and we should extract it
+            last_semicolon_pos = look_behind.rfind(';')
+            text_after_semicolon = look_behind[last_semicolon_pos + 1:]
+
+            # Check for "v." pattern (indicates a case name) after the semicolon
+            if re.search(r'\bv\.\s', text_after_semicolon, re.IGNORECASE):
+                # There's a case name after the semicolon - DON'T skip extraction
+                logger.info(f"[SERIES-DEBUG] Semicolon detected but case name found after it: '{text_after_semicolon.strip()[:50]}...'")
+                is_series_citation = False
+            else:
+                # No case name after semicolon - this is truly a series citation
+                is_series_citation = True
+                logger.info(f"[SERIES-DEBUG] Semicolon detected, no case name after - treating as series citation")
+
         # Check if citations are comma-separated without periods between them
         elif re.search(prev_citation_pattern, look_behind):
             # Check if there's no period between the citations
             last_period = look_behind.rfind('.')
             last_citation = re.search(prev_citation_pattern, look_behind)
             if last_citation and (last_period < 0 or last_period < last_citation.start()):
-                is_series_citation = True
-                logger.info(f"[SERIES-DEBUG] Comma-separated citations without period - treating as series")
-        
+                # ALSO check for "v." pattern - if present, don't treat as series
+                if re.search(r'\bv\.\s', look_behind[last_citation.end():], re.IGNORECASE):
+                    logger.info(f"[SERIES-DEBUG] Comma-separated but case name found after citation")
+                    is_series_citation = False
+                else:
+                    is_series_citation = True
+                    logger.info(f"[SERIES-DEBUG] Comma-separated citations without period - treating as series")
+
         if is_series_citation and re.search(prev_citation_pattern, look_behind):
             # This is NOT the first citation in a series
             # Return empty context to prevent case name extraction
-            logger.info(f"[SERIES-FIX-ISOLATOR] Skipping case name extraction for non-first citation at position {citation_start}")
-            print(f"!!![SERIES-FIX-ISOLATOR] Non-first citation detected - returning empty context", flush=True)
+            logger.debug(f"[SERIES-FIX-ISOLATOR] Skipping case name extraction for non-first citation at position {citation_start}")
             return ""
 
     # USER FIX: Progressive window sizes - start small and expand only if needed
@@ -465,18 +491,18 @@ def get_adaptive_context_for_citation(
             text, citation_start, citation_end, all_citation_positions, window_size
         )
 
-        logger.error(f"[BACKWARDS-EXTRACT] Window {window_size}: context='{context[-60:] if context else 'EMPTY'}'")
+        logger.debug(f"[BACKWARDS-EXTRACT] Window {window_size}: context='{context[-60:] if context else 'EMPTY'}'")
 
         # Check if this context contains a case name
         if _contains_case_name(context):
-            logger.error(f"[BACKWARDS-EXTRACT] Found case name in {window_size} char window")
+            logger.debug(f"[BACKWARDS-EXTRACT] Found case name in {window_size} char window")
             return context
         else:
-            logger.error(f"[BACKWARDS-EXTRACT] No case name in {window_size} char window, expanding...")
+            logger.debug(f"[BACKWARDS-EXTRACT] No case name in {window_size} char window, expanding...")
 
     # If no case name found in any window, return the largest context
     # The caller will handle the N/A case and use canonical fallback
-    logger.error(f"[BACKWARDS-EXTRACT] No case name found after all expansions, returning max context")
+    logger.debug(f"[BACKWARDS-EXTRACT] No case name found after all expansions, returning max context")
     return get_strict_context_for_citation(text, citation_start, citation_end, all_citation_positions, max_lookback)
 
 
@@ -493,9 +519,9 @@ def _contains_case_name(context: str) -> bool:
     if not context or len(context.strip()) < 10:
         return False
 
-    # Common case name patterns
+    # Common case name patterns (allow spaces in party names for "X v. Y")
     case_patterns = [
-        r"\b[A-Z][a-zA-Z\'\.\&]*\s+v\.?\s+[A-Z][a-zA-Z\'\.\&]*",  # X v. Y
+        r"\b[A-Z][a-zA-Z\'\.\&\-\s]*\s+v\.?\s+[A-Z][a-zA-Z\'\.\&\-\s]*",  # X v. Y (e.g. Association of Data Processing... v. Camp)
         r"\bIn\s+re\s+[A-Z][a-zA-Z\'\.\&]*",  # In re X
         r"\bState(?:\s+of\s+[A-Z][a-zA-Z\'\.\&]*)?\s+v\.?\s+[A-Z][a-zA-Z\'\.\&]*",  # State v. Y
         r"\bCity\s+of\s+[A-Z][a-zA-Z\'\.\&]*\s+v\.?\s+[A-Z][a-zA-Z\'\.\&]*",  # City of X v. Y
@@ -503,13 +529,19 @@ def _contains_case_name(context: str) -> bool:
 
     context_lower = context.lower()
 
-    # Skip if context looks like it's from a different citation
+    # Skip if context looks like it's from a different citation (id./supra only for "see")
+    # Do NOT skip just because "see" appears: "See Association of Data Processing... v. Camp"
+    # is a valid case name and must be recognized so we use the right window.
     skip_patterns = [
         r"\b\d+\s+[a-z\.]+\s+\d+",  # Contains another citation
-        r"\bid\.?\b",  # Contains "id." or "id"
-        r"\bsupra\b",  # Contains "supra"
-        r"\bsee\b",  # Contains "see"
+        r"\bsee\s+id\.?",  # "see id." or "see id"
+        r"\bsee\s+supra\b",  # "see supra"
+        r"\bsupra\b",  # "supra" without case name
     ]
+    if re.search(r"\bid\.?\b", context_lower) and not re.search(r"\b[A-Z][a-zA-Z\'\.\&\-\s]*\s+v\.?\s+[A-Z]", context):
+        # "id." with no "X v. Y" pattern → skip
+        logger.debug("[ADAPTIVE-CONTEXT] Skipping context with id. and no case name")
+        return False
 
     for skip_pattern in skip_patterns:
         if re.search(skip_pattern, context_lower):
@@ -523,6 +555,67 @@ def _contains_case_name(context: str) -> bool:
             return True
 
     return False
+
+
+def get_context_before_citation_in_text(
+    text: str,
+    citation_text: str,
+    lookback: int = 120,
+) -> Optional[str]:
+    """
+    Find the citation string in the document and return text immediately before it.
+    Use when position-based context may be wrong (e.g. PDF/eyecite offset errors).
+    Example: 'Simon v. Eastern Ky. Welfare Rights Organization, 426 U. S. 26' ->
+    we find '426 U. S. 26' in text and return text before it for extraction.
+    """
+    if not text or not citation_text or len(citation_text.strip()) < 5:
+        return None
+    normalized = re.sub(r"\s+", " ", citation_text.strip()).strip()
+    # For "VOL U.S. PAGE" / "VOL U. S. PAGE" use a flexible pattern that allows space in "U. S."
+    us_match = re.match(r"^(\d+)\s+U\.?\s*S\.?\s*(\d+)(?:\s*,?\s*\d+)*\s*$", normalized, re.IGNORECASE)
+    if us_match:
+        vol, page = us_match.group(1), us_match.group(2)
+        # Match "426 U.S. 26" or "426 U. S. 26" or "426 U. S. 26, 41"
+        pattern_str = r"(?<!\d)" + re.escape(vol) + r"\s+U\.?\s*S\.?\s*" + re.escape(page) + r"(?:\s*,\s*\d+)*(?!\d)"
+    else:
+        # For "VOL F.3d PAGE" / "VOL F. 3d PAGE" (federal reporters) use flexible pattern
+        fed_match = re.match(r"^(\d+)\s+F\.?\s*(2d|3d|4th)\s+(\d+)(?:\s*,?\s*\d+)*\s*$", normalized, re.IGNORECASE)
+        if fed_match:
+            vol, series, page = fed_match.group(1), fed_match.group(2), fed_match.group(3)
+            # Match "199 F.3d 263" or "199 F. 3d 263" or "199 F.3d 263, 267"
+            pattern_str = (
+                r"(?<!\d)" + re.escape(vol) + r"\s+F\.?\s*" + re.escape(series) + r"\s+"
+                + re.escape(page) + r"(?:\s*,\s*\d+)*(?!\d)"
+            )
+        else:
+            escaped = re.escape(normalized)
+            escaped = re.sub(r"\\\\\.", r".?", escaped)
+            escaped = re.sub(r"\\\\ ", r"\\s+", escaped)
+            pattern_str = r"(?<!\d)" + escaped + r"(?!\d)"
+    try:
+        pattern = re.compile(pattern_str, re.IGNORECASE)
+    except re.error:
+        return None
+    matches = list(pattern.finditer(text))
+    if not matches:
+        return None
+    # Prefer match that has " v. " in the lookback before it (case name immediately before citation)
+    best = None
+    best_has_v = False
+    for m in matches:
+        start = max(0, m.start() - lookback)
+        before = text[start : m.start()].strip()
+        has_v = " v. " in before or " v " in before
+        if best is None or (has_v and not best_has_v) or (has_v == best_has_v and m.start() > (best.start() if best else 0)):
+            best = m
+            best_has_v = has_v
+    if best is None:
+        best = matches[-1]
+    start = max(0, best.start() - lookback)
+    context = text[start : best.start()].strip()
+    if ";" in context:
+        context = context[context.rfind(";") + 1 :].strip()
+    return context if len(context) >= 10 else None
 
 
 def get_strict_context_for_citation(
@@ -585,13 +678,29 @@ def get_strict_context_for_citation(
     # If no previous citation, use 0
     #
     # This may result in more N/A extractions, but the canonical fallback handles those
-    logger.error(f"[HARD-BOUNDARY] Previous citation ends at {closest_citation_end}, using as HARD boundary")
-    logger.error(f"[HARD-BOUNDARY] Distance to previous citation: {closest_citation_distance} chars")
+    logger.debug(f"[HARD-BOUNDARY] Previous citation ends at {closest_citation_end}, using as HARD boundary")
+    logger.debug(f"[HARD-BOUNDARY] Distance to previous citation: {closest_citation_distance} chars")
 
     # The boundary is the END of the closest previous citation - NO EXCEPTIONS
     if closest_citation_end > 0:
         previous_boundary = closest_citation_end
-        logger.error(f"[HARD-BOUNDARY] Set boundary to {previous_boundary}")
+        logger.debug(f"[HARD-BOUNDARY] Set boundary to {previous_boundary}")
+        
+        # CRITICAL FIX: Check if there's a semicolon after the previous citation
+        # If so, the semicolon is a stronger boundary than the citation end
+        # Example: "Case1, 497 U.S. 1; Case2, 418 U.S. 323"
+        # For "418 U.S. 323", we should stop at the semicolon, not at "497 U.S. 1"
+        if closest_citation_end < len(text):
+            text_after_prev_citation = text[closest_citation_end:citation_start]
+            semicolon_pos = text_after_prev_citation.find(";")
+            if semicolon_pos != -1:
+                # Found semicolon - use it as the boundary instead
+                semicolon_absolute_pos = closest_citation_end + semicolon_pos + 1  # +1 to skip the semicolon
+                logger.debug(
+                    f"[SEMICOLON-BOUNDARY] Found semicolon at {semicolon_absolute_pos} "
+                    f"(after previous citation at {closest_citation_end}), using as boundary"
+                )
+                previous_boundary = semicolon_absolute_pos
 
     # Calculate context start (don't go further back than max_lookback from the citation)
     context_start = max(previous_boundary, citation_start - max_lookback)
@@ -639,16 +748,57 @@ def get_strict_context_for_citation(
     # and footnotes like "24" should be removed from context so case names split across them can be found
     strict_context = _filter_headers_and_footnotes_from_context(strict_context)
 
-    # Additional boundary trimming to prefer the nearest case segment
+    # CRITICAL FIX: Additional boundary trimming to prefer the nearest case segment
     # If there's a semicolon-separated series, keep only the segment AFTER the last semicolon
     # within a reasonable proximity window to the citation (prevents pulling prior cases).
+    # SEMICOLON IS A STRONGER BOUNDARY THAN CITATION END - always respect it!
     if strict_context:
         # Always keep only the segment AFTER the last semicolon to avoid pulling
         # case names from earlier clauses in multi-citation sentences.
+        # Example: "Milkovich v. X, 497 U.S. 1; Gertz v. Y, 418 U.S. 323"
+        # For "418 U.S. 323", we MUST only look at text after the semicolon
         last_sc = strict_context.rfind(";")
         if last_sc != -1:
-            strict_context = strict_context[last_sc + 1 :].strip()
+            text_after_semicolon = strict_context[last_sc + 1 :].strip()
+            # Only use semicolon boundary if there's actual text after it (not just whitespace)
+            if text_after_semicolon:
+                logger.debug(
+                    f"[SEMICOLON-BOUNDARY] Found semicolon at position {last_sc}, "
+                    f"trimming context to: '{text_after_semicolon[:100]}...'"
+                )
+                strict_context = text_after_semicolon
 
+        # CRITICAL FIX: Also trim after signal phrases that indicate different cases
+        # "but see", "; see also", etc. introduce different cases and should be boundaries
+        # Example: "Larimore v. Blaylock, 259 Va. 568; but see Swindle v. State, 10 Tenn. 581"
+        # For "10 Tenn. 581", we should only look at text after "but see"
+        # BUT: Only trim if there's still meaningful context left (at least 20 chars)
+        signal_phrase_patterns = [
+            r";\s*but\s+see\b",  # "; but see" - introduces contrasting case
+            r",\s*but\s+see\b",  # ", but see" - introduces contrasting case
+            r"\bbut\s+see\b",  # "but see" anywhere (fallback)
+        ]
+        for pattern in signal_phrase_patterns:
+            match = re.search(pattern, strict_context, re.IGNORECASE)
+            if match:
+                text_after_signal = strict_context[match.end() :].strip()
+                # Only trim if there's enough context left (at least 20 chars)
+                # This prevents removing ALL context when signal phrase appears early
+                if text_after_signal and len(text_after_signal) >= 20:
+                    logger.debug(
+                        f"[SIGNAL-BOUNDARY] Found '{match.group(0)}' at position {match.start()}, "
+                        f"trimming context to: '{text_after_signal[:100]}...' "
+                        f"(kept {len(text_after_signal)} chars)"
+                    )
+                    strict_context = text_after_signal
+                    break  # Use first signal phrase found
+                else:
+                    # Not enough context left - keep original context but log warning
+                    logger.debug(
+                        f"[SIGNAL-BOUNDARY-SKIP] Found '{match.group(0)}' but not enough context left "
+                        f"({len(text_after_signal) if text_after_signal else 0} chars), keeping full context"
+                    )
+        
         # Also trim after the last em-dash or long dash which often separates cites
         # FIX DEC 2025 v10: Don't trim if dash is part of a case name (followed by corporate suffix)
         for dash in ("—", "–", "--"):
@@ -659,7 +809,7 @@ def get_strict_context_for_citation(
                     s in after_dash for s in ["llc", "inc", "corp", "ltd", "co.", " tv ", "radio", "broadcast"]
                 )
                 if is_part_of_name:
-                    logger.error(f"[DASH-TRIM-SKIP] Dash part of case name: '{strict_context}'")
+                    logger.debug(f"[DASH-TRIM-SKIP] Dash part of case name: '{strict_context}'")
                 else:
                     strict_context = strict_context[last_dash + 1 :].strip()
 
@@ -705,6 +855,100 @@ def get_strict_context_for_citation(
     return strict_context
 
 
+def _is_citation_fragment_not_case_name(name: str) -> bool:
+    """
+    Return True if the string looks like a citation fragment (e.g. "(10 Tenn.), 1831")
+    rather than a case name like "Swindle v. State". Such fragments must be rejected.
+    """
+    if not name or len(name) < 8:
+        return False
+    s = name.strip()
+    # Reporter abbreviations that indicate citation fragment (not case name)
+    reporter_abbrev = r"(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|S\.\s*Ct\.|Wn\.|Ill\.|Ohio|Cal\.|N\.\s*Y\.|Mass\.|Tex\.)"
+    # Parenthetical citation fragment: "(10 Tenn.), 1831", "(10 Tenn.)", "(259 Va.) 2010"
+    if s.startswith("("):
+        if re.search(r"[),]\s*\d{4}\s*$", s) and re.search(reporter_abbrev, s, re.IGNORECASE):
+            return True
+        # Entire string is parenthetical reporter ref + year: "(10 Tenn.), 1831"
+        if re.search(r"\(\s*\d+\s*" + reporter_abbrev + r".*\d{4}\s*$", s, re.IGNORECASE):
+            return True
+        # Parenthetical reporter ref without year (e.g. "(10 Tenn.)" after year strip): still a fragment
+        if re.search(r"\(\s*\d+\s*" + reporter_abbrev, s, re.IGNORECASE):
+            return True
+    # Starts with digit + reporter (e.g. "10 Tenn. 581" mistaken as name)
+    if re.match(r"^\d+\s+(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|Wn\.)", s, re.IGNORECASE):
+        return True
+    return False
+
+
+def _is_statute_name_not_case_name(name: str) -> bool:
+    """
+    Return True if the string looks like a statute/title name (e.g. "Administrative Procedure Act, 1970")
+    rather than a case name. Such strings must be rejected.
+    """
+    if not name or len(name) < 6:
+        return False
+    s = name.strip()
+    low = s.lower()
+    # Strip trailing ", YYYY" or ", YYYY." so "Administrative Procedure Act, 1970" -> "Administrative Procedure Act"
+    base = re.sub(r",\s*(19|20)\d{2}\s*\.?\s*$", "", low).strip()
+    statute_endings = (" act", " code", " statute", " regulation", " rule")
+    if base.endswith(statute_endings):
+        return True
+    # Known statute patterns (even with "v." in them, e.g. "Administrative Procedure v. Act, 1970")
+    statute_patterns = [
+        r"\badministrative procedure\b.*\bact\b",
+        r"\bfreedom of information\b.*\bact\b",
+        r"\bcivil rights\b.*\bact\b",
+        r"\bunited states code\b",
+    ]
+    for pat in statute_patterns:
+        if re.search(pat, low):
+            return True
+    return False
+
+
+def _is_citation_or_part_of_citation(extracted_name: str, citation_text: str) -> bool:
+    """
+    Return True if the extracted string is the citation itself or part of it.
+    Such strings must be rejected at extraction time so the case name is never
+    the citation or a citation fragment.
+
+    Checks:
+    - Exact match (normalized)
+    - Citation fragment patterns (e.g. "(10 Tenn.), 1831")
+    - Statute names (e.g. "Administrative Procedure Act, 1970")
+    - Extracted name contains the citation (e.g. "Unknown Case, 506 U.S. 139")
+    - Extracted name is contained in citation (e.g. "506 U.S. 139" when citation is "506 U.S. 139 (2006)")
+    """
+    if not extracted_name or not citation_text:
+        return False
+    name = extracted_name.strip()
+    cite = citation_text.strip()
+    if not name or not cite:
+        return False
+    # Reject statute names (e.g. "Administrative Procedure Act, 1970")
+    if _is_statute_name_not_case_name(name):
+        return True
+    # Already reject citation fragments (parenthetical + year, digit + reporter)
+    if _is_citation_fragment_not_case_name(name):
+        return True
+    # Normalize for comparison: lowercase, collapse spaces
+    norm_name = re.sub(r"\s+", " ", name.lower()).strip()
+    norm_cite = re.sub(r"\s+", " ", cite.lower()).strip()
+    if norm_name == norm_cite:
+        return True
+    # Extracted name contains the full citation (e.g. "Something, 506 U.S. 139" or "506 U.S. 139")
+    if norm_cite in norm_name:
+        return True
+    # Extracted name is a significant substring of citation (e.g. "506 U.S. 139" vs "506 U.S. 139 (2006)")
+    if norm_name in norm_cite and len(norm_name) >= 8:
+        # Only treat as citation-part if the substring looks like a citation (digits, reporter abbrev)
+        if re.search(r"\d+\s*(?:u\.\s*s\.|f\.|f\.\d|p\.|wn\.|tenn\.|va\.|ill\.|ohio)", norm_name, re.IGNORECASE):
+            return True
+    return False
+
+
 def extract_case_name_from_strict_context(context: str, citation_text: str) -> Optional[str]:
     """
     Extract case name from strictly isolated context.
@@ -718,21 +962,17 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     Returns:
         Extracted case name or None
     """
-    # DEBUG: Log every call to track if this function is being used
-    logger.error(
-        f"[DEBUG] [STRICT-CONTEXT-ISOLATOR-CALLED] extract_case_name_from_strict_context() invoked for {citation_text}"
+    logger.debug(
+        f"[STRICT-CONTEXT-ISOLATOR] extract_case_name_from_strict_context() invoked for {citation_text}"
     )
-    logger.error(f"[DEBUG] [STRICT-CONTEXT-ISOLATOR-CALLED] Context: '{context}'")
 
     if not context or len(context) < 10:
-        logger.error(
-            f"[STRICT-EXTRACT-DEBUG] Context too short for {citation_text}: {len(context) if context else 0} chars"
+        logger.debug(
+            f"[STRICT-EXTRACT] Context too short for {citation_text}: {len(context) if context else 0} chars"
         )
         return None
 
-    # DEBUG: Log the context being analyzed (ENABLED FOR DEBUGGING FIX #13)
-    logger.error(f"[STRICT-EXTRACT-DEBUG] Citation: {citation_text}")
-    logger.error(f"[STRICT-EXTRACT-DEBUG] Context ({len(context)} chars): '{context[-200:]}'")  # Last 200 chars
+    logger.debug(f"[STRICT-EXTRACT] Citation: {citation_text}, context ({len(context)} chars)")
 
     # First unescape any HTML entities (e.g., &#039;, &amp;)
     try:
@@ -760,6 +1000,32 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     # Collapse whitespace (normalize newlines to spaces)
     context = re.sub(r"\s+", " ", context).strip()
 
+    # CRITICAL: Strip citation fragment from END of context BEFORE pattern matching
+    # e.g. "...Swindle v. State, (10 Tenn.), 1831" -> "...Swindle v. State" so we match the case name, not the fragment
+    fragment_at_end = re.compile(
+        r",\s*\(\d+\s*(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|Wn\.|Ill\.|Ohio)\b[^)]*\),\s*\d{4}\s*$",
+        re.IGNORECASE,
+    )
+    if context and fragment_at_end.search(context):
+        context = fragment_at_end.sub("", context).strip().rstrip(",").strip()
+        logger.debug(
+            f"[STRICT-EXTRACT] Stripped citation fragment from end of context for {citation_text} (before pattern matching)"
+        )
+
+    # CRITICAL: Strip leading "Under the X Act. See" / "X Act. See" so the case name is first
+    # e.g. "Under the Administrative Procedure Act. See Association of Data Processing... v. Camp"
+    # -> "Association of Data Processing... v. Camp" so we match the case, not the statute
+    statute_see_prefix = re.compile(
+        r"^(?:Under\s+(?:the\s+)?(?:Administrative\s+Procedure\s+Act|.*?\s+Act)\.?\s*\.?\s*)?"
+        r"(?:See\s+(?:also\s+)?(?:e\.g\.\s*,?\s*)?)\s*",
+        re.IGNORECASE,
+    )
+    if context and statute_see_prefix.match(context):
+        context = statute_see_prefix.sub("", context).strip()
+        logger.debug(
+            f"[STRICT-EXTRACT] Stripped leading statute/See prefix from context for {citation_text}"
+        )
+
     # CRITICAL: Remove signal words and case history notations BEFORE pattern matching
     # IMPROVED: Only remove signal words at START of context to avoid truncating case names
 
@@ -768,6 +1034,51 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     doctrine_lines_pattern = r"[^\n]*\b(doctrine|rule|test|standard|principle|holding)\b[^\n]*\n+"
     context = re.sub(doctrine_lines_pattern, "", context, flags=re.IGNORECASE)
 
+    # CRITICAL FIX (context-bleeding): Judge attribution = header/attribution, not case for THIS citation.
+    # Example: "... TRANSUNION LLC v. RAMIREZ THOMAS, J., dissenting ... Simon v. Eastern Ky., 426 U.S. 26"
+    # We must DROP the segment containing ", J., dissenting" and use only text AFTER it, so we extract
+    # "Simon v. Eastern Ky." not "TRANSUNION LLC v. RAMIREZ THOMAS".
+    judge_attribution_patterns = [
+        r",\s*[A-Z]+\s*,\s*J\.\s*,\s*(?:dissenting|concurring)(?:\s+in\s+(?:part|judgment))?",
+        r",\s*Justice\s+[A-Z]+\s*,\s*(?:dissenting|concurring)",
+        r"\b[A-Z]+\s*,\s*J\.\s*,\s*(?:dissenting|concurring)",
+    ]
+    for pattern in judge_attribution_patterns:
+        match = re.search(pattern, context, re.IGNORECASE)
+        if match:
+            # Use text AFTER the marker so we don't keep "X v. Y" that belongs to the attribution
+            context_after_judge = context[match.end() :].strip()
+            if len(context_after_judge) >= 15:
+                context = context_after_judge
+                logger.debug(
+                    f"[JUDGE-DROP] Dropped segment containing judge attribution '{match.group(0)}'; "
+                    f"using {len(context)} chars after it to avoid header bleed"
+                )
+                break
+            else:
+                logger.debug(
+                    f"[JUDGE-DROP-SKIP] Judge marker found but too little text after ({len(context_after_judge)} chars)"
+                )
+    
+    # CRITICAL FIX: Remove header text like "Opinion of the Court" that contaminates case names
+    # Examples: "Opinion of the Court Sprint Communications Co. v. APCC Services"
+    # Should extract "Sprint Communications Co. v. APCC Services" not "Opinion of the Court Sprint..."
+    # USER FIX 2026-01-27: Enhanced to catch more variations and be more aggressive
+    header_text_patterns = [
+        r"^Opinion\s+of\s+the\s+Court\s+",  # "Opinion of the Court" at start
+        r"^Opinion\s+of\s+the\s+",  # "Opinion of the" at start
+        r"\bOpinion\s+of\s+the\s+Court\s+",  # "Opinion of the Court" anywhere
+        r"\bOpinion\s+of\s+the\s+Court\b",  # "Opinion of the Court" (no trailing space needed)
+        r"Opinion\s+of\s+the\s+Court\s+TransUnion",  # Specific pattern for TransUnion case
+    ]
+    for pattern in header_text_patterns:
+        context = re.sub(pattern, "", context, flags=re.IGNORECASE)
+    
+    # USER FIX 2026-01-27: Also remove "Opinion of the Court" from the middle of case names
+    # This handles cases where it wasn't caught by the above patterns
+    context = re.sub(r"Opinion\s+of\s+the\s+Court\s+", " ", context, flags=re.IGNORECASE)
+    context = re.sub(r"\s+", " ", context).strip()  # Clean up extra spaces
+    
     # CRITICAL FIX: Remove legal analysis phrases that contaminate case names
     # Examples: "Frye rulings de novo", "WPLA claim", "ER 702", "We review choice of law", etc.
     legal_analysis_patterns = [
@@ -826,11 +1137,9 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     context_before_clean = context
     context = re.sub(r"\s+No\.\s+[\d\-\s]+(?=\s+v\.)", " ", context, flags=re.IGNORECASE)
     if context != context_before_clean:
-        logger.error(f"[FIX #13] Cleaned case numbers from context")
-        logger.error(f"[FIX #13] Before: '{context_before_clean[-100:]}'")
-        logger.error(f"[FIX #13] After:  '{context[-100:]}'")
+        logger.debug(f"[STRICT-EXTRACT] Cleaned case numbers from context")
     else:
-        logger.error(f"[FIX #13] No case numbers found to clean in context")
+        logger.debug(f"[STRICT-EXTRACT] No case numbers found to clean in context")
 
     # Look for paragraph/sentence boundaries but be less aggressive
     # Only split if we have very long context (>150 chars) to avoid losing too much
@@ -857,14 +1166,11 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
         r"In\s+re:\s+([A-Z][A-Z\s\'&\-\.,]+)\s+v\.\s+([A-Z][A-Z\s\'&\-\.,]+)(?:\s*[;\(]|,\s*\d|$)",
         # PRIORITY 3: Standard "v." pattern - ENHANCED to handle complex corporate names
         # Stop at semicolon or opening paren to prevent cross-citation contamination
-        # ENHANCED: Better handling of corporate suffixes (LLC, Inc., Corp., Co., etc.)
-        # and abbreviations (N., Ry., etc.) in case names
-        # Pattern now explicitly allows:
+        # ENHANCED: Allow optional ", Inc." / ", Corp." etc. so "Association... Organizations, Inc. v. Camp" matches
         # - Single letter abbreviations followed by period (N., W., etc.)
         # - Corporate suffixes (LLC, Inc., Corp., Co., Ltd., etc.)
-        # - Common legal abbreviations (Ry., Auto, Supply, etc.)
         # FIX JAN 2026: Improved pattern to better handle signal words and docket numbers
-        r"([A-Z][a-zA-Z\'\.\&\-\s]*?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\-\s]*?)(?=\s*,\s*(?:No\.|\d+)|\s*[;\(,]|$)",
+        r"([A-Z][a-zA-Z\'\.\&\-\s]*(?:,\s*(?:Inc\.|Corp\.|Co\.|LLC|Ltd\.))?)\s+v\.\s+([A-Z][a-zA-Z\'\.\&\-\s]*(?:,\s*(?:Inc\.|Corp\.|Co\.|LLC|Ltd\.))?)(?=\s*,\s*(?:No\.|\d+)|\s*[;\(,]|$)",
         # PRIORITY 4: In re/Matter of/Estate of patterns
         r"(?:In\s+re|Matter\s+of|Estate\s+of)\s+([A-Z][A-Za-z\'\.\&,\s\n\-]{2,200})(?:\s*[,;\(]|$)",
         # PRIORITY 5: Ex parte pattern
@@ -876,13 +1182,11 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
             # Look for matches - find ALL matches
             matches = list(re.finditer(pattern, context, re.IGNORECASE))
             if matches:
-                logger.error(
-                    f"[PATTERN-DEBUG] Pattern {pattern_idx} found {len(matches)} matches in context: '{context}'"
+                logger.debug(
+                    f"[PATTERN-DEBUG] Pattern {pattern_idx} found {len(matches)} matches"
                 )
-                for match in matches:
-                    logger.error(f"[PATTERN-DEBUG] Match: '{match.group()}'")
             else:
-                logger.error(f"[PATTERN-DEBUG] Pattern {pattern_idx} found no matches in context: '{context}'")
+                logger.debug(f"[PATTERN-DEBUG] Pattern {pattern_idx} found no matches")
 
             if not matches:
                 continue
@@ -913,19 +1217,132 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     or (has_role_word_match and has_no_match)
                     or header_pattern_match
                 ):
-                    logger.error(f"[PATTERN-REJECT] IMMEDIATELY REJECTED header pattern in match: '{match.group(0)}'")
+                    logger.debug(f"[PATTERN-REJECT] Rejected header pattern in match: '{match.group(0)}'")
                     continue  # Skip this match
                 filtered_matches.append(match)
 
             # If all matches were headers, try next pattern
             if not filtered_matches:
-                logger.error(
+                logger.debug(
                     f"[PATTERN-REJECT] All matches for pattern {pattern_idx} were headers, trying next pattern"
                 )
                 continue
 
             matches = filtered_matches  # Use filtered matches
 
+            # CRITICAL FIX: Prioritize matches with "v." over statute names and reject judge attribution
+            # Statute names like "Administrative Procedure Act" should be rejected
+            # Judge attribution like "THOMAS, J., dissenting" should be rejected
+            # in favor of actual case names like "Association v. Camp"
+            matches_with_v = []
+            matches_without_v = []
+            
+            for match in matches:
+                match_text = match.group(0)
+                match_lower = match_text.lower()
+                
+                # CRITICAL FIX: Reject judge attribution text early
+                # Examples: "TRANSUNION LLC v. RAMIREZ THOMAS, J., dissenting"
+                # Judge markers should stop extraction, not be included
+                judge_markers = [
+                    r"\bJ\.,\s*(dissenting|concurring|concurring in part|concurring in judgment)",
+                    r"\bJustice\s+\w+,\s*(dissenting|concurring)",
+                    r",\s*dissenting$",
+                    r",\s*concurring$",
+                    r"\bC\.J\.,",  # Chief Justice
+                    r"\bJ\.J\.,",  # Justices (plural)
+                ]
+                for marker in judge_markers:
+                    if re.search(marker, match_text, re.IGNORECASE):
+                        logger.debug(
+                            f"[JUDGE-REJECT] Rejecting match with judge attribution '{match_text}' "
+                            f"(contains judge marker: {marker})"
+                        )
+                        # If match contains judge attribution, try to extract just the case name part
+                        # Stop at the judge marker
+                        case_name_part = re.split(
+                            r",\s*(?:THOMAS|JUSTICE|J\.|C\.J\.|J\.J\.).*?(?:dissenting|concurring)",
+                            match_text,
+                            flags=re.IGNORECASE
+                        )[0].strip()
+                        # Only use the cleaned part if it still has "v." and is valid
+                        if " v. " in case_name_part and len(case_name_part) > 5:
+                            # Create a new match with just the case name part
+                            logger.debug(
+                                f"[JUDGE-CLEAN] Extracted case name '{case_name_part}' "
+                                f"from '{match_text}' (removed judge attribution)"
+                            )
+                            # We'll process this as a match with "v." below
+                            match_text = case_name_part
+                        else:
+                            # Can't salvage, skip this match entirely
+                            continue
+                
+                # USER FIX 2026-01-27: Check for intervening citations between match and target citation
+                # If there's a citation between this match and the target, this match belongs to that citation
+                # Example: "Meese v. Keene, 481 U.S. 465; Davis v. Federal Election Comm'n, 554 U.S. 724"
+                #          For "554 U.S. 724", "Meese v. Keene" has intervening "481 U.S. 465", so reject it
+                match_end_pos = match.end()
+                text_after_match = context[match_end_pos:]
+                
+                # USER FIX 2026-01-27: Also check for semicolons - they separate different cases
+                # If there's a semicolon between the match and target citation, this match is for a different case
+                if ";" in text_after_match[:100]:  # Check first 100 chars after match
+                    logger.debug(
+                        f"[SEMICOLON-BOUNDARY] Found semicolon between '{match_text}' and target '{citation_text}' - rejecting match"
+                    )
+                    continue  # Skip this match - semicolon indicates different case
+                
+                # Check for citation patterns in text after match (before target citation)
+                # Enhanced pattern to catch U.S. citations: "481 U.S. 465", "554 U.S. 724", etc.
+                citation_pattern = r"\d+\s+(?:U\.?\s*S\.?|S\.\s*Ct\.|L\.\s*Ed\.|F\.(?:2d|3d|4th|Supp\.?)?|Wn\.(?:2d|App\.?\s*2d)?|P\.(?:2d|3d)?)\s+\d+"
+                intervening_citations = re.findall(citation_pattern, text_after_match[:200], re.IGNORECASE)
+                
+                # Check if any intervening citation is NOT the target citation
+                citation_norm = re.sub(r"\s+", " ", citation_text.strip().lower())
+                has_intervening_citation = False
+                for interv_cit in intervening_citations:
+                    interv_norm = re.sub(r"\s+", " ", interv_cit.strip().lower())
+                    if interv_norm != citation_norm:
+                        has_intervening_citation = True
+                        logger.debug(
+                            f"[INTERVENING-CIT] Found intervening citation '{interv_cit}' "
+                            f"between '{match_text}' and target '{citation_text}'"
+                        )
+                        break
+                
+                if has_intervening_citation:
+                    continue  # Skip this match - it belongs to a different citation
+                
+                # Check if this is a statute name (ends with Act/Code/Statute, no "v.")
+                # Also check with trailing ", YYYY" stripped so "Administrative Procedure Act, 1970" is rejected
+                if " v. " not in match_lower and " v " not in match_lower:
+                    match_base = re.sub(r",\s*(19|20)\d{2}\s*\.?\s*$", "", match_lower).strip()
+                    statute_endings = [" act", " code", " statute", " regulation", " rule"]
+                    if any(match_base.endswith(ending) for ending in statute_endings):
+                        logger.debug(
+                            f"[STATUTE-REJECT] Rejecting statute name '{match_text}' "
+                            f"(ends with Act/Code/etc., no 'v.')"
+                        )
+                        continue  # Skip statute names
+                
+                # Categorize by whether it has "v."
+                if " v. " in match_text or " v " in match_text:
+                    matches_with_v.append(match)
+                else:
+                    matches_without_v.append(match)
+            
+            # Prioritize matches with "v." - these are actual case names
+            if matches_with_v:
+                matches = matches_with_v
+                logger.debug(f"[PRIORITY] Found {len(matches)} matches with 'v.', prioritizing over {len(matches_without_v)} without")
+            elif matches_without_v:
+                matches = matches_without_v
+                logger.debug(f"[FALLBACK] No matches with 'v.', using {len(matches)} matches without")
+            else:
+                # All matches were rejected (statutes, etc.)
+                continue
+            
             # USER FIX 2024-10-26: Take the match CLOSEST to the end of context (closest to citation)
             # Calculate distance from end of context for each match
             context_length = len(context)
@@ -933,6 +1350,43 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
             best_distance = float("inf")
 
             for match in matches:
+                # USER FIX 2026-01-27: Validate each match before considering it as best
+                match_text_check = match.group(0)
+                match_lower_check = match_text_check.lower()
+                
+                # Reject if it contains "Opinion of the Court"
+                if "opinion of the court" in match_lower_check:
+                    logger.debug(f"[BEST-MATCH-REJECT] Rejecting match with 'Opinion of the Court': '{match_text_check}'")
+                    continue
+                
+                # Reject if it's a statute (even with "v."); strip trailing ", YYYY" first
+                match_base_check = re.sub(r",\s*(19|20)\d{2}\s*\.?\s*$", "", match_lower_check).strip()
+                if match_base_check.endswith((" act", " code", " statute")):
+                    logger.debug(f"[BEST-MATCH-REJECT] Rejecting statute: '{match_text_check}'")
+                    continue
+                
+                # Reject if it contains judge attribution
+                if re.search(r"\b(dissenting|concurring|J\.\s*,)", match_text_check, re.IGNORECASE):
+                    logger.debug(f"[BEST-MATCH-REJECT] Rejecting judge attribution: '{match_text_check}'")
+                    continue
+                
+                # Context-bleeding: reject all-caps header-style match when defendant ends with justice surname
+                # e.g. "TRANSUNION LLC v. RAMIREZ THOMAS" (THOMAS, J., dissenting) should not attach to "426 U.S. 26"
+                if match_text_check.isupper() and (" v. " in match_text_check or " v " in match_text_check):
+                    after_v = re.split(r"\s+v\.?\s+", match_text_check, maxsplit=1, flags=re.IGNORECASE)[-1].strip()
+                    # Defendant may have ", Inc." etc.; take first part and last word
+                    defendant_clean = re.sub(r",\s*(?:Inc\.|Corp\.|LLC|Ltd\.).*$", "", after_v, flags=re.IGNORECASE).strip()
+                    last_word = defendant_clean.split()[-1] if defendant_clean.split() else ""
+                    justice_surnames = {
+                        "THOMAS", "ALITO", "ROBERTS", "KAVANAUGH", "BARRETT", "GORSUCH", "SOTOMAYOR", "KAGAN",
+                        "JACKSON", "KENNEDY", "SCALIA", "GINSBURG", "BREYER", "O'CONNOR", "REHNQUIST", "STEVENS",
+                    }
+                    if last_word in justice_surnames:
+                        logger.debug(
+                            f"[BEST-MATCH-REJECT] Rejecting all-caps match with justice surname defendant: '{match_text_check}'"
+                        )
+                        continue
+                
                 # Distance from end of context = how far from the citation
                 match_end = match.end()
                 distance_from_end = context_length - match_end
@@ -945,21 +1399,60 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 continue
 
             match = best_match  # Use the closest match to citation
+            
+            # CRITICAL FIX: Check if the extracted match contains judge attribution
+            # If so, try to extract just the case name part, or reject and continue searching
+            match_text = match.group(0)
+            judge_markers = [
+                r"\bJ\.,\s*(dissenting|concurring|concurring in part|concurring in judgment)",
+                r"\bJustice\s+\w+,\s*(dissenting|concurring)",
+                r",\s*dissenting$",
+                r",\s*concurring$",
+            ]
+            has_judge_attribution = any(re.search(marker, match_text, re.IGNORECASE) for marker in judge_markers)
+            
+            if has_judge_attribution:
+                # Try to extract just the case name part (before the judge attribution)
+                # Pattern: "Case Name THOMAS, J., dissenting" -> extract "Case Name"
+                cleaned_match = re.split(
+                    r",?\s*(?:THOMAS|JUSTICE|J\.|C\.J\.|J\.J\.).*?(?:dissenting|concurring)",
+                    match_text,
+                    flags=re.IGNORECASE
+                )[0].strip()
+                
+                # Only use cleaned match if it still has "v." and is valid
+                if " v. " in cleaned_match and len(cleaned_match) > 5:
+                    logger.debug(
+                        f"[JUDGE-CLEAN] Extracted '{cleaned_match}' from '{match_text}' "
+                        f"(removed judge attribution)"
+                    )
+                    # Update the match to use cleaned text
+                    # We'll process this below, but first check if there's a better match
+                    # (a case name closer to the citation without judge attribution)
+                    # Continue to see if there are other matches without judge attribution
+                    # that are closer to the citation
+                    continue  # Skip this match, look for better ones
+                else:
+                    # Can't salvage, skip this match entirely
+                    logger.debug(
+                        f"[JUDGE-REJECT] Cannot salvage '{match_text}' "
+                        f"(no valid case name after removing judge attribution)"
+                    )
+                    continue
             # USER FIX: Since we now use expanding windows that start small,
             # we can be more lenient here - the small starting window already ensures proximity
             # The distance threshold should match the context length (which is controlled by the window)
-            logger.error(
+            logger.debug(
                 f"[DISTANCE-DEBUG] Pattern {pattern_idx}: best_distance={best_distance}, context_length={context_length}"
             )
             # Accept if the case name ends within the context (distance from end < context length)
-            # This ensures we're getting case names that are actually in our bounded context
             if best_distance > context_length:
-                logger.error(
+                logger.debug(
                     f"[DISTANCE-DEBUG] REJECTED: Match outside context bounds ({best_distance} > {context_length})"
                 )
                 continue
             else:
-                logger.error(f"[DISTANCE-DEBUG] ACCEPTED: Match within context bounds")
+                logger.debug(f"[DISTANCE-DEBUG] ACCEPTED: Match within context bounds")
 
             # NEARBY FRAGMENT GUARD: If the last ~120 chars contain a recent comma
             # followed by a capitalized fragment WITHOUT 'v.', prefer that fragment
@@ -1029,8 +1522,8 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 between_seg = context[match.end() :]
                 between_fam = _detect_family(between_seg)
 
-                logger.error(
-                    f"[REPORTER-DEBUG] Pattern {pattern_idx}: target_fam='{target_fam}', between_fam='{between_fam}', between_seg='{between_seg[:50]}...'"
+                logger.debug(
+                    f"[REPORTER-DEBUG] Pattern {pattern_idx}: target_fam='{target_fam}', between_fam='{between_fam}'"
                 )
 
                 # ENHANCED: Only reject if the match is IMMEDIATELY followed by a different citation
@@ -1045,33 +1538,31 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     # Look for parallel citation patterns like "120 Wn. App. 175, 188," or "140 Wn.2d 19, 32,"
                     # Handle multi-word reporter names (Wn. App., Wn.2d, etc.)
                     parallel_pattern = r"^\s*\d{1,3}\s+(?:[A-Za-z\.]+\s*)*[A-Za-z\.0-9]+\s+\d+(?:\s*,\s*\d+)?\s*,?"
-                    logger.error(f"[PARALLEL-DEBUG] Testing pattern against: '{between_clean}'")
                     if re.match(parallel_pattern, between_clean):
-                        logger.error(f"[REPORTER-DEBUG] ACCEPTED: Detected parallel citation cluster pattern")
+                        logger.debug(f"[REPORTER-DEBUG] ACCEPTED: Detected parallel citation cluster pattern")
                     else:
-                        logger.error(f"[PARALLEL-DEBUG] Pattern did not match")
                         # Check if the different citation is immediately after the match
                         distance_to_next_citation = len(between_seg) - len(between_seg.lstrip()[:20])
                         if distance_to_next_citation < 20:
-                            logger.error(
-                                f"[REPORTER-DEBUG] REJECTED: Different citation immediately follows match (not parallel cluster)"
+                            logger.debug(
+                                f"[REPORTER-DEBUG] REJECTED: Different citation immediately follows match"
                             )
                             continue
                         else:
-                            logger.error(f"[REPORTER-DEBUG] ACCEPTED: Different citation is far enough away")
+                            logger.debug(f"[REPORTER-DEBUG] ACCEPTED: Different citation is far enough away")
                 elif between_fam == "unknown":
-                    logger.error(f"[REPORTER-DEBUG] ACCEPTED: No citation detected after match (between_fam=unknown)")
+                    logger.debug(f"[REPORTER-DEBUG] ACCEPTED: No citation detected after match (between_fam=unknown)")
 
             except Exception as e:
-                logger.error(f"[REPORTER-DEBUG] Exception in reporter family validation: {e}")
+                logger.debug(f"[REPORTER-DEBUG] Exception in reporter family validation: {e}")
 
             if pattern_idx in [2, 3, 4]:  # Patterns with 2 groups (plaintiff v. defendant)
                 # Pattern 1 (index 0) is ship cases with 1 group
                 # Patterns 2, 3, 4 (indices 1, 2, 3) have 2 groups (plaintiff v. defendant)
-                logger.error(f"[PATTERN-GROUP-DEBUG] Pattern {pattern_idx}: Processing 2-group pattern")
+                logger.debug(f"[PATTERN-GROUP-DEBUG] Pattern {pattern_idx}: Processing 2-group pattern")
                 plaintiff = match.group(1).strip()
                 defendant = match.group(2).strip()
-                logger.error(f"[PATTERN-GROUP-DEBUG] Raw groups: plaintiff='{plaintiff}', defendant='{defendant}'")
+                logger.debug(f"[PATTERN-GROUP-DEBUG] Raw groups: plaintiff='{plaintiff}', defendant='{defendant}'")
 
                 # Clean up whitespace and newlines
                 plaintiff = re.sub(r"\s+", " ", plaintiff).strip(" ,;\n")
@@ -1152,7 +1643,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                             gov_word = mgov.group(1).capitalize()
                             loc_word = loc[0].upper() + loc[1:]
                             plaintiff = f"{gov_word} of {loc_word}"
-                            logger.error(f"[GOV-PREFIX-FIX] Restored prefix: '{plaintiff}'")
+                            logger.debug(f"[GOV-PREFIX-FIX] Restored prefix: '{plaintiff}'")
                 except Exception:
                     pass
 
@@ -1273,7 +1764,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                             f"[STRICT-EXTRACT] REJECTED document header pattern: '{case_name}' (matched pattern: {pattern})"
                         )
                         return None  # CRITICAL FIX: Return None immediately, don't try next pattern
-                logger.error(
+                logger.debug(
                     f"[EXTRACTION-DEBUG] Built case name: '{case_name}' from plaintiff='{plaintiff}', defendant='{defendant}'"
                 )
 
@@ -1330,13 +1821,13 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
             # ULTRA-AGGRESSIVE CHECK: If the extracted name contains BOTH "ET AL" AND a role word, it's DEFINITELY a header
             # This catches "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO" and all variations
             if has_et_al and has_role_word:
-                logger.error(f"[STRICT-EXTRACT] REJECTED header (ET AL + role word): '{case_name}'")
+                logger.debug(f"[STRICT-EXTRACT] REJECTED header (ET AL + role word): '{case_name}'")
                 return None
 
             # If it has a role word and NO, it's almost certainly a header
             if has_role_word and has_no:
-                logger.error(
-                    f"[STRICT-EXTRACT] REJECTED header (role word + NO): '{case_name}' (has_role_word={has_role_word}, has_no={has_no})"
+                logger.debug(
+                    f"[STRICT-EXTRACT] REJECTED header (role word + NO): '{case_name}'"
                 )
                 return None
 
@@ -1348,11 +1839,27 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 if role in case_name_upper
             )
             if role_word_count >= 2:
-                logger.error(
+                logger.debug(
                     f"[STRICT-EXTRACT] REJECTED header (multiple role words: {role_word_count}): '{case_name}'"
                 )
                 return None
 
+            # CRITICAL FIX: Reject case names that start with "Opinion of the Court" or similar header text
+            # Examples: "Opinion of the Court Sprint Communications Co. v. APCC Services"
+            # These are header text contamination, not actual case names
+            header_text_patterns = [
+                r"^Opinion\s+of\s+the\s+Court\s+",
+                r"^Opinion\s+of\s+the\s+",
+                r"\bOpinion\s+of\s+the\s+Court\s+",
+            ]
+            for pattern in header_text_patterns:
+                if re.search(pattern, case_name, re.IGNORECASE):
+                    logger.warning(
+                        f"[STRICT-EXTRACT] REJECTED header text contamination: '{case_name}' "
+                        f"(contains 'Opinion of the Court')"
+                    )
+                    return None  # Reject immediately
+            
             # THEN: Check detailed patterns
             for pattern in header_patterns:
                 if re.search(pattern, case_name, re.IGNORECASE):
@@ -1454,7 +1961,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 # ENHANCED: Allow trailing commas for valid case names (common in legal citations)
                 if plaintiff_part.endswith((".", ",")) or defendant_part.endswith((".", ",")):
                     combined = plaintiff_part + defendant_part
-                    logger.error(
+                    logger.debug(
                         f"[VALIDATION-DEBUG] Checking trailing punctuation: '{plaintiff_part}' + '{defendant_part}' = '{combined}'"
                     )
 
@@ -1477,12 +1984,12 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                         plaintiff = plaintiff_part.rstrip(".,")
                         defendant = defendant_part.rstrip(".,")
                     elif not re.search(r"(Inc|LLC|Corp|Co|Ltd|Cmty|Ass'n|Dep't|Dept|Bd|Dist|Comm|Div)", combined):
-                        logger.error(
+                        logger.debug(
                             f"[VALIDATION-DEBUG] REJECTED: Trailing punctuation without known abbreviation or valid structure"
                         )
                         continue  # Suspicious punctuation unless it's corporate or known abbreviation
                     else:
-                        logger.error(f"[VALIDATION-DEBUG] ACCEPTED: Found known abbreviation in combined name")
+                        logger.debug(f"[VALIDATION-DEBUG] ACCEPTED: Found known abbreviation in combined name")
 
             # If we reach here and there is no 'v.' and not an accepted prefix (In re, Ex parte, Estate of, Matter of, The [Ship]), reject to avoid narrative fragments
             if " v. " not in case_name.lower():
@@ -1543,34 +2050,135 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 )
 
                 if is_header:
-                    logger.error(f"[STRICT-EXTRACT-FINAL-REJECT] REJECTED header pattern in final check: '{case_name}'")
-                    logger.error(
-                        f"[STRICT-EXTRACT-FINAL-REJECT]   has_et_al={has_et_al_final}, has_role={has_role_word_final}, has_no={has_no_final}"
-                    )
-                    logger.error(
-                        f"[STRICT-EXTRACT-FINAL-REJECT]   header_pattern_match={header_pattern_match is not None}, role_no_pattern={role_no_pattern is not None}"
-                    )
+                    logger.debug(f"[STRICT-EXTRACT-FINAL-REJECT] REJECTED header pattern in final check: '{case_name}'")
                     return None  # CRITICAL FIX: Return None immediately, don't try next pattern
 
+                # USER FIX 2026-01-27: Final validation - reject statutes, dissenting opinions, and header text
+                case_name_lower = case_name.lower()
+                
+                # CRITICAL: Reject "Opinion of the Court" contamination
+                if "opinion of the court" in case_name_lower:
+                    logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED 'Opinion of the Court' contamination: '{case_name}'")
+                    continue
+                
+                # Reject statute names (even if they somehow contain "v.")
+                # CRITICAL FIX 2026-01-29: Use a flag to properly skip to next match
+                should_skip_match = False
+
+                if " v. " not in case_name_lower:
+                    statute_endings = [" act", " code", " statute", " regulation", " rule"]
+                    if any(case_name_lower.endswith(ending) for ending in statute_endings):
+                        logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED statute name: '{case_name}'")
+                        should_skip_match = True
+
+                    if not should_skip_match:
+                        # Check for common statute patterns
+                        statute_patterns = [
+                            r"\b(administrative procedure|freedom of information|civil rights|voting rights|fair housing)\s+act\b",
+                            r"\bunited states code\b",
+                            r"\bfederal\s+code\s+of\s+regulations\b",
+                        ]
+                        for pattern in statute_patterns:
+                            if re.search(pattern, case_name_lower):
+                                logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED statute pattern: '{case_name}'")
+                                should_skip_match = True
+                                break  # Exit the inner loop
+                else:
+                    # Even if it has "v.", check if it's a statute name incorrectly matched
+                    # Example: "Administrative Procedure Act" might match as "Administrative Procedure v. Act"
+                    statute_patterns_in_name = [
+                        r"administrative procedure",
+                        r"freedom of information",
+                    ]
+                    for pattern in statute_patterns_in_name:
+                        if re.search(pattern, case_name_lower) and ("act" in case_name_lower or "code" in case_name_lower):
+                            logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED statute (even with 'v.'): '{case_name}'")
+                            should_skip_match = True
+                            break  # Exit the inner loop
+
+                    # Also check if the name ends with "Act" or "Code" even with "v."
+                    if not should_skip_match and case_name_lower.endswith((" act", " code", " statute")):
+                        logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED statute ending: '{case_name}'")
+                        should_skip_match = True
+
+                if should_skip_match:
+                    continue  # Skip to next match
+
+                # Reject judge attribution/dissenting opinions
+                judge_markers = [
+                    r"\bJ\.,\s*(dissenting|concurring|concurring in part|concurring in judgment)",
+                    r"\bJustice\s+\w+,\s*(dissenting|concurring)",
+                    r",\s*dissenting$",
+                    r",\s*concurring$",
+                    r"\bdissenting\b",  # Anywhere in the name
+                    r"\bconcurring\b",  # Anywhere in the name
+                    r",\s*J\.\s*,",  # "THOMAS, J.," pattern
+                ]
+                for marker in judge_markers:
+                    if re.search(marker, case_name, re.IGNORECASE):
+                        logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED judge attribution: '{case_name}' (marker: {marker})")
+                        should_skip_match = True
+                        break  # Exit the inner loop
+
+                if should_skip_match:
+                    continue  # Skip to next match
+                
+                # USER FIX 2026-01-27: Final cleanup - remove any remaining "Opinion of the Court" text
+                # This is a last-ditch check in case it wasn't caught earlier
+                case_name_cleaned = re.sub(r"\s*Opinion\s+of\s+the\s+Court\s+", " ", case_name, flags=re.IGNORECASE)
+                case_name_cleaned = re.sub(r"\s+", " ", case_name_cleaned).strip()
+                
+                # If cleaning removed significant content, use cleaned version
+                if case_name_cleaned != case_name and len(case_name_cleaned) >= 5:
+                    logger.warning(f"[STRICT-EXTRACT-CLEANUP] Cleaned 'Opinion of the Court' from '{case_name}' → '{case_name_cleaned}'")
+                    case_name = case_name_cleaned
+                
+                # Final check - reject if it still contains "Opinion of the Court"
+                if "opinion of the court" in case_name.lower():
+                    logger.warning(f"[STRICT-EXTRACT-FINAL] REJECTED - still contains 'Opinion of the Court': '{case_name}'")
+                    continue
+                
                 logger.info(
                     f"[STRICT-EXTRACT] Extracted '{case_name}' for {citation_text} " f"using pattern {pattern_idx}"
                 )
-                logger.error(f"[FINAL-DEBUG] RETURNING case name: '{case_name}' for {citation_text}")
+                # Reject if extracted name is the citation or part of it (not a case name)
+                if _is_citation_or_part_of_citation(case_name, citation_text):
+                    logger.warning(
+                        f"[STRICT-EXTRACT] REJECTED (citation or part of citation): '{case_name}' for {citation_text}"
+                    )
+                    continue
+                logger.debug(f"[FINAL-DEBUG] RETURNING case name: '{case_name}' for {citation_text}")
                 return case_name
             else:
-                logger.error(
+                logger.debug(
                     f"[FINAL-DEBUG] REJECTED case name too short: '{case_name}' ({len(case_name)} chars) for {citation_text}"
                 )
 
         except Exception as e:
             logger.debug(f"[STRICT-EXTRACT] Pattern {pattern_idx} failed: {e}")
 
-    logger.warning(f"[STRICT-EXTRACT] No case name found for {citation_text}")
+    logger.debug(f"[STRICT-EXTRACT] No case name found for {citation_text}")
+    # CRITICAL FIX 2026-01-29: If context ends with citation fragment like ", (10 Tenn.), 1831",
+    # strip it and use the remaining context for fallback so we get "Swindle v. State".
+    fragment_at_end = re.compile(
+        r",\s*\(\d+\s*(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|Wn\.|Ill\.|Ohio)\b[^)]*\),\s*\d{4}\s*$",
+        re.IGNORECASE,
+    )
+    if context and fragment_at_end.search(context):
+        context = fragment_at_end.sub("", context).strip().rstrip(",").strip()
+        logger.info(
+            f"[STRICT-EXTRACT-FRAGMENT-STRIP] Stripped citation fragment from context for {citation_text}, "
+            f"trying fallback on remaining context"
+        )
     # Fallback: capture '... v. ...,' immediately before the citation (common formatting)
+    # FIX 2026-01-29: Allow comma + "(" (parenthetical citation) so "Swindle v. State, (10 Tenn.), 1831" matches
     try:
         recent = context[-160:]
-        # Stop defendant at ', No.' or comma-before-reporter; non-greedy capture of defendant
-        m = re.search(r"([A-Z][^,;()]{2,120})\s+v\.\s+([^,;()]{2,120}?)(?=,\s*(?:\d|No\b|$))\s*,?\s*$", recent)
+        # Stop defendant at ', No.' or comma-before-reporter or comma-before-parenthetical or end; non-greedy capture
+        m = re.search(
+            r"([A-Z][^,;()]{2,120})\s+v\.\s+([^,;()]{2,120}?)(?=,\s*(?:\d|No\b|\(|$)|\s*$)\s*,?\s*$",
+            recent,
+        )
         if m:
             plaintiff = re.sub(r"\s+", " ", m.group(1)).strip(" ,;\n")
             defendant = re.sub(r"\s+", " ", m.group(2)).strip(" ,;\n")
@@ -1594,7 +2202,38 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 # Apply accuracy improvements to fallback as well
                 # VERBATIM MODE: do not alter fallback_name beyond boundary trims
 
-                logger.info(f"[STRICT-EXTRACT:FALLBACK] Extracted '{fallback_name}' for {citation_text}")
+                # USER FIX 2026-01-27: Validate fallback name too
+                fallback_lower = fallback_name.lower()
+
+                # Reject statutes (including "X Act, 1970" by normalizing trailing year)
+                if _is_statute_name_not_case_name(fallback_name):
+                    logger.warning(f"[STRICT-EXTRACT-FALLBACK] REJECTED statute: '{fallback_name}'")
+                    return None
+                if " v. " not in fallback_lower:
+                    statute_endings = [" act", " code", " statute", " regulation", " rule"]
+                    if any(fallback_lower.endswith(ending) for ending in statute_endings):
+                        logger.warning(f"[STRICT-EXTRACT-FALLBACK] REJECTED statute: '{fallback_name}'")
+                        return None
+                
+                # Reject dissenting opinions
+                judge_markers = [
+                    r"\bJ\.,\s*(dissenting|concurring)",
+                    r",\s*dissenting$",
+                    r"\bdissenting\b",
+                ]
+                for marker in judge_markers:
+                    if re.search(marker, fallback_name, re.IGNORECASE):
+                        logger.warning(f"[STRICT-EXTRACT-FALLBACK] REJECTED judge attribution: '{fallback_name}'")
+                        return None
+                
+                # Reject if fallback name is the citation or part of it
+                if _is_citation_or_part_of_citation(fallback_name, citation_text):
+                    logger.warning(
+                        f"[STRICT-EXTRACT-FALLBACK] REJECTED (citation or part of citation): '{fallback_name}' for {citation_text}"
+                    )
+                    return None
+                
+                logger.debug(f"[STRICT-EXTRACT:FALLBACK] Extracted '{fallback_name}' for {citation_text}")
                 return fallback_name
     except Exception:
         pass
@@ -1657,6 +2296,19 @@ __all__ = [
     "find_all_citation_positions",
     "get_strict_context_for_citation",
     "get_adaptive_context_for_citation",
+    "get_context_before_citation_in_text",
     "extract_case_name_from_strict_context",
     "extract_with_strict_isolation",
+    "is_citation_fragment_not_case_name",
+    "is_citation_or_part_of_citation",
 ]
+
+
+def is_citation_fragment_not_case_name(name: str) -> bool:
+    """Public wrapper for _is_citation_fragment_not_case_name. Use when building/displaying extracted names."""
+    return _is_citation_fragment_not_case_name(name)
+
+
+def is_citation_or_part_of_citation(extracted_name: str, citation_text: str) -> bool:
+    """Public wrapper. Returns True if extracted_name is the citation or part of it; use at extraction to reject."""
+    return _is_citation_or_part_of_citation(extracted_name, citation_text)

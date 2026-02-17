@@ -98,7 +98,7 @@ def verify_citations_enhanced(
 def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) -> List[Dict[str, Any]]:
     """Verify citations using the enhanced fallback verifier with async methods."""
     try:
-        from src.unified_verification_master import UnifiedVerificationMaster
+        from src.verification import UnifiedVerificationMaster
 
         verifier = UnifiedVerificationMaster()
         verification_results = []
@@ -117,7 +117,10 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
             for citation in citations:
                 citation_texts.append(citation.get("citation", str(citation)))
                 extracted_names.append(citation.get("extracted_case_name"))
-                extracted_years.append(citation.get("extracted_year") or citation.get("extracted_date"))
+                # CRITICAL FIX: Prioritize cluster_year over extracted_date
+                # cluster_year is set by clustering and is more reliable than extracted_date
+                # extracted_date can be contaminated with document metadata dates
+                extracted_years.append(citation.get("cluster_year") or citation.get("extracted_year") or citation.get("extracted_date"))
 
             # Call batch verification
             batch_results = await verifier.verify_citations_batch(
@@ -207,7 +210,7 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
 def _verify_with_enhanced_fallback_sync_fallback(citations: List, text: str, request_id: str) -> List[Dict[str, Any]]:
     """Fallback to sync verification if async fails."""
     try:
-        from src.unified_verification_master import UnifiedVerificationMaster
+        from src.verification import UnifiedVerificationMaster
 
         verifier = UnifiedVerificationMaster()
 

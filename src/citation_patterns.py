@@ -29,6 +29,7 @@ class CitationPatterns:
     # ============================================================================
 
     US_SUPREME = r"\b\d+\s+U\.S\.\s+\d+\b"
+    US_SUPREME_UNDERSCORE = r"\b\d+\s+U\.S\.\s+_{3,4}\b"  # FIX: Handle unreported cases like "578 U.S. ____"
     US_SUPREME_ALT = r"\b\d+\s+U\.\s*S\.\s+\d+\b"  # Alternate spacing
     S_CT = r"\b\d+\s+S\.\s*Ct\.\s+\d+\b"
     L_ED = r"\b\d+\s+L\.\s*Ed\.\s+\d+\b"
@@ -40,6 +41,34 @@ class CitationPatterns:
     F_SUPP = r"\b\d+\s+F\.\s*Supp\.\s+\d+\b"
     F_SUPP_2D = r"\b\d+\s+F\.\s*Supp\.\s*2d\s+\d+\b"
     F_SUPP_3D = r"\b\d+\s+F\.\s*Supp\.\s*3d\s+\d+\b"
+
+    # ============================================================================
+    # EARLY AMERICAN SUPREME COURT REPORTERS (Pre-U.S. Reports)
+    # ============================================================================
+
+    # Early Supreme Court reporters (used before U.S. Reports started in 1875)
+    # These are named after the Reporters of Decisions:
+    # - Dallas (1790-1800): Not included (rarely cited)
+    # - Cranch (1801-1815): e.g., "1 Cranch 137" (Marbury v. Madison)
+    # - Wheaton (1816-1827): e.g., "6 Wheat. 264" (Cohens v. Virginia)
+    # - Peters (1828-1842): e.g., "Pet."
+    # - Howard (1843-1860): e.g., "10 How. 477" (Gayler v. Wilder)
+    # - Black (1861-1862): e.g., "Black"
+    # - Wallace (1863-1875): e.g., "16 Wall." (not included - ambiguous)
+    CRANCH = r"\b\d+\s+Cranch\s+\d+\b"  # William Cranch (1801-1815)
+    WHEAT = r"\b\d+\s+Wheat\.?\s+\d+\b"  # Henry Wheaton (1816-1827)
+    PET = r"\b\d+\s+Pet\.?\s+\d+\b"  # Richard Peters (1828-1842)
+    HOW = r"\b\d+\s+How\.?\s+\d+\b"  # Benjamin Howard (1843-1860)
+    BLACK = r"\b\d+\s+Black\s+\d+\b"  # Jeremiah Black (1861-1862)
+    WALL = r"\b\d+\s+Wall\.?\s+\d+\b"  # John Wallace (1863-1875)
+
+    # ============================================================================
+    # FEDERAL CASES (Early Federal Cases before F. reporter series)
+    # ============================================================================
+
+    # Federal Cases - used for early federal court decisions
+    # Format: "29 F. Cas. 1120 (No. 17,600) (C.C. Mass. 1813)"
+    F_CAS = r"\b\d+\s+F\.\s*Cas\.\s+\d+\b"
 
     # ============================================================================
     # STATE REPORTERS - PACIFIC
@@ -504,6 +533,7 @@ class CitationPatterns:
         return {
             # Federal reporters
             "us_supreme": re.compile(cls.US_SUPREME, re.IGNORECASE),
+            "us_supreme_underscore": re.compile(cls.US_SUPREME_UNDERSCORE, re.IGNORECASE),  # FIX: Handle unreported cases like "578 U.S. ____"
             "us_supreme_alt": re.compile(cls.US_SUPREME_ALT, re.IGNORECASE),
             "s_ct": re.compile(cls.S_CT, re.IGNORECASE),
             "l_ed": re.compile(cls.L_ED, re.IGNORECASE),
@@ -514,6 +544,15 @@ class CitationPatterns:
             "f_supp": re.compile(cls.F_SUPP, re.IGNORECASE),
             "f_supp_2d": re.compile(cls.F_SUPP_2D, re.IGNORECASE),
             "f_supp_3d": re.compile(cls.F_SUPP_3D, re.IGNORECASE),
+            # Early American Supreme Court reporters
+            "cranch": re.compile(cls.CRANCH, re.IGNORECASE),
+            "wheat": re.compile(cls.WHEAT, re.IGNORECASE),
+            "pet": re.compile(cls.PET, re.IGNORECASE),
+            "how": re.compile(cls.HOW, re.IGNORECASE),
+            "black": re.compile(cls.BLACK, re.IGNORECASE),
+            "wall": re.compile(cls.WALL, re.IGNORECASE),
+            # Federal Cases
+            "f_cas": re.compile(cls.F_CAS, re.IGNORECASE),
             # State reporters - Pacific
             "p_general": re.compile(cls.P_GENERAL, re.IGNORECASE),
             "p_2d": re.compile(cls.P_2D, re.IGNORECASE),

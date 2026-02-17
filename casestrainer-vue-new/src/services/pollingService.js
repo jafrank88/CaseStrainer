@@ -3,8 +3,7 @@
  * Handles polling the task_status endpoint until tasks complete
  */
 
-// Get base URL from environment variables (same as api.js)
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
+import { API_BASE_URL } from '@/config/api';
 
 class PollingService {
   constructor() {
@@ -68,15 +67,82 @@ class PollingService {
         console.log(`Task ${taskId} status:`, result);
 
         // Check if task is complete
-        if (result.status === 'completed' && result.success) {
-          console.log(`Task ${taskId} completed successfully`);
-          this.stopPolling(taskId);
-          onComplete(result);
-          return;
+        // Backend may return status at top level OR nested in progress object
+        // Also check for citations/clusters presence as completion indicator
+        const status = result.status || result.progress?.status;
+        const hasResults = (result.citations && result.citations.length > 0) ||
+                          (result.clusters && result.clusters.length > 0);
+        const isCompleted = status === 'completed' || 
+                           hasResults ||
+                           (result.progress?.status === 'completed');
+        
+        if (isCompleted) {
+          console.log(`Task ${taskId} completion detected`, {
+            status: status,
+            progressStatus: result.progress?.status,
+            citationsCount: result.citations?.length || 0,
+            clustersCount: result.clusters?.length || 0,
+            hasProgress: !!result.progress,
+            hasResults: hasResults
+          });
+          
+          // CRITICAL: If we detected completion via progress.status but don't have citations/clusters yet,
+          // we MUST fetch the full result from task_status endpoint
+          // The progress endpoint only returns progress data, not actual results
+          if ((result.progress?.status === 'completed' || status === 'completed') && !hasResults) {
+            console.log(`Task marked as completed but no results in response - fetching full result from task_status endpoint...`);
+            try {
+              const resultResponse = await fetch(`${API_BASE_URL}/task_status/${taskId}?t=${Date.now()}`);
+              if (resultResponse.ok) {
+                const fullResult = await resultResponse.json();
+                console.log(`Fetched full result from task_status:`, {
+                  status: fullResult.status,
+                  citationsCount: fullResult.citations?.length || 0,
+                  clustersCount: fullResult.clusters?.length || 0,
+                  hasResults: !!(fullResult.citations?.length || fullResult.clusters?.length)
+                });
+                
+                // Only complete if we actually have results (even if empty arrays - that's a valid result)
+                // Backend should always return citations/clusters arrays when status is 'completed'
+                const hasCitationsArray = Array.isArray(fullResult.citations);
+                const hasClustersArray = Array.isArray(fullResult.clusters);
+                const hasResults = hasCitationsArray || hasClustersArray;
+                
+                if (hasResults && fullResult.status === 'completed') {
+                  // Results are ready (even if empty) - complete the task
+                  console.log(`Task completed with results: ${fullResult.citations?.length || 0} citations, ${fullResult.clusters?.length || 0} clusters`);
+                  this.stopPolling(taskId);
+                  onComplete(fullResult);
+                  return;
+                } else {
+                  console.log(`Task_status returned status '${fullResult.status}' but results not ready yet (citations: ${hasCitationsArray}, clusters: ${hasClustersArray}) - continuing to poll...`);
+                  // Continue polling - results not ready yet
+                  return;
+                }
+              } else if (resultResponse.status === 404) {
+                console.log(`Task_status returned 404 - task may still be processing, continuing to poll...`);
+                // Continue polling - task not found in RQ yet
+                return;
+              }
+            } catch (error) {
+              console.warn(`Failed to fetch full result from task_status, continuing to poll:`, error);
+              // Continue polling on error
+              return;
+            }
+          }
+          
+          // If we have results, complete immediately
+          if (hasResults) {
+            this.stopPolling(taskId);
+            onComplete(result);
+            return;
+          }
         }
 
         // Check if task failed
-        if (result.status === 'failed' || !result.success) {
+        // Only treat as failed if explicitly marked as failed, not just missing success field
+        const failureStatus = result.status || result.progress?.status;
+        if (failureStatus === 'failed' || (result.success === false && result.error)) {
           console.error(`Task ${taskId} failed:`, result.error || 'Unknown error');
           this.stopPolling(taskId);
           onError(result.error || 'Task failed');
@@ -84,14 +150,30 @@ class PollingService {
         }
 
         // Task is still processing
-        if (result.status === 'processing' || result.status === 'queued') {
-          // Call progress callback
+        // Check status at top level or in progress object
+        const currentStatus = result.status || result.progress?.status || 'processing';
+        if (currentStatus === 'processing' || currentStatus === 'queued') {
+          // Extract progress information from various possible locations
+          const progressData = result.progress_data || result.progress || {};
+          const progressPercent = result.progress_percent || progressData.progress || 0;
+          const message = result.message || 
+                         result.progress?.current_message || 
+                         progressData.message || 
+                         result.current_step || 
+                         'Processing...';
+          
+          // Call progress callback with comprehensive progress data
           onProgress({
             taskId,
-            status: result.status,
-            message: result.message || 'Processing...',
+            status: currentStatus,
+            message: message,
+            progress: progressPercent,
+            current_step: result.current_step || progressData.phase,
             position: result.position,
-            pollCount
+            pollCount,
+            // Include full progress data for frontend use
+            progress_data: progressData,
+            elapsed_time: result.elapsed_time || result.elapsedTime || progressData.elapsed_time
           });
 
           // Check if we've exceeded max poll time

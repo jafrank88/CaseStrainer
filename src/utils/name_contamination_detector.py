@@ -47,6 +47,32 @@ def is_contaminated_case_name(case_name: str) -> bool:
     if not case_name or case_name == "N/A":
         return False
 
+    # USER FIX 2026-01-27: Reject "Opinion of the Court" contamination
+    case_name_lower = case_name.lower()
+    if "opinion of the court" in case_name_lower:
+        logger.warning(f"[CONTAMINATION-DETECTED] Contains 'Opinion of the Court': '{case_name}'")
+        return True
+    
+    # USER FIX 2026-01-27: Reject statute names
+    if " v. " not in case_name_lower:
+        if case_name_lower.endswith((" act", " code", " statute")):
+            logger.warning(f"[CONTAMINATION-DETECTED] Statute name: '{case_name}'")
+            return True
+        if "administrative procedure" in case_name_lower and "act" in case_name_lower:
+            logger.warning(f"[CONTAMINATION-DETECTED] Statute pattern: '{case_name}'")
+            return True
+
+    # USER FIX 2026-01-12: Pattern 0: Newlines indicate contamination (text spans multiple paragraphs)
+    # Example: "Ibid.\n\nThese statements now ring hollow..."
+    if "\n" in case_name:
+        logger.warning(f"[CONTAMINATION-DETECTED] Pattern 0: '{case_name[:50]}...' contains newlines")
+        return True
+    
+    # USER FIX 2026-01-12: Excessive length indicates contamination (>200 chars is not a case name)
+    if len(case_name) > 200:
+        logger.warning(f"[CONTAMINATION-DETECTED] Excessive length: '{case_name[:50]}...' is {len(case_name)} chars")
+        return True
+
     # Check for the specific contamination pattern: "Name v. Defendant, OtherDefendant"
     # where the comma is NOT part of a corporate entity
 

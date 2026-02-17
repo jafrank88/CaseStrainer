@@ -8,37 +8,16 @@ Maintains backward compatibility while using the new modular implementation.
 
 import re
 import logging
-import time
-from typing import Dict, Any, Optional, List, Set, Tuple, Callable
+from typing import Dict, Any, Optional, List, Callable
 from dataclasses import dataclass
 from enum import Enum
-from collections import defaultdict
-
-from src.utils.reporter_utils import extract_reporter_type
-from src.utils.cluster_filter import filter_cluster_members_by_reporter
 
 # Import modular clustering components
 from . import detection, propagation, validation, utils
+from .detection import _clean_ecn
 
 logger = logging.getLogger(__name__)
 
-# Import cross-document deduplication
-try:
-    from src.cross_document_deduplication import deduplicate_clusters_cross_document
-    CROSS_DEDUP_AVAILABLE = True
-    logger.info("Cross-document deduplication successfully imported")
-except ImportError:
-    CROSS_DEDUP_AVAILABLE = False
-    deduplicate_clusters_cross_document = None
-
-# Import spatial clustering
-try:
-    from src.spatial_clustering import cluster_citations_spatial
-    SPATIAL_CLUSTERING_AVAILABLE = True
-    logger.info("Spatial clustering successfully imported")
-except ImportError:
-    SPATIAL_CLUSTERING_AVAILABLE = False
-    cluster_citations_spatial = None
 
 
 class ClusterType(Enum):
@@ -86,39 +65,8 @@ class UnifiedClusteringMaster:
         )
         self.proximity_threshold = self.config.get("proximity_threshold", 150)
         self.enable_verification = self.config.get("enable_verification", True)
-        self.use_spatial_clustering = self.config.get("use_spatial_clustering", True)
 
-        self._setup_patterns()
-        logger.info(f"UnifiedClusteringMaster initialized - modular version")
-
-    def _setup_patterns(self):
-        """Setup regex patterns for clustering."""
-        self.patterns = {
-            "washington_parallel": re.compile(
-                r"(\d+)\s+(?:Wn\.|Wash\.)\d*d\s+\d+.*?(\d+)\s+(?:P\.|A\.)\d*d\s+\d+"
-            ),
-            "federal_parallel": re.compile(
-                r"(\d+)\s+F\.\d*d\s+\d+.*?(\d+)\s+U\.S\.\s+\d+"
-            ),
-            "supreme_parallel": re.compile(
-                r"(\d+)\s+S\.\s*Ct\.\s+\d+.*?(\d+)\s+L\.\s*Ed\.\d*d\s+\d+"
-            ),
-            "generic_parallel": re.compile(
-                r"(\d+)\s+[A-Z][a-z]*\.\d*d?\s+\d+.*?(\d+)\s+[A-Z][a-z]*\.\d*d?\s+\d+"
-            ),
-            "separator_patterns": re.compile(r"[;,]\s*(?:see\s+)?(?:also\s+)?"),
-            "case_name_v": re.compile(
-                r"([A-Z][A-Za-z0-9&\'\\s-]+)\\s+v\.\\s+([A-Z][A-Za-z0-9&\'\\s-]+)"
-            ),
-            "case_name_in_re": re.compile(
-                r"(In\\s+re\\s+[A-Z][a-zA-Z\\s\'&\\-\\.]{2,80})", re.IGNORECASE
-            ),
-            "case_name_state": re.compile(
-                r"(State|People|Commonwealth)\\s+v\.\\s+([A-Z][a-zA-Z\\s\'&\\-\\.]{2,80})",
-                re.IGNORECASE
-            ),
-            "year_patterns": re.compile(r"\((\d{4})\)|\b(19|20)\d{2}\b"),
-        }
+        logger.info("UnifiedClusteringMaster initialized - modular version")
 
     def cluster_citations(
         self, 
@@ -152,7 +100,8 @@ class UnifiedClusteringMaster:
         # Step 1: Detect parallel groups using modular detection
         parallel_groups = detection.detect_parallel_groups(
             citations, 
-            proximity_threshold=self.proximity_threshold
+            proximity_threshold=self.proximity_threshold,
+            original_text=original_text
         )
         
         # Step 2: Detect structural groups
@@ -209,7 +158,9 @@ class UnifiedClusteringMaster:
                     if not extracted_name or extracted_name == "N/A":
                         ecn = propagation._get_attr(cit, "extracted_case_name")
                         if ecn and ecn != "N/A":
-                            extracted_name = ecn
+                            ecn = _clean_ecn(ecn)
+                            if ecn and ecn != "N/A":
+                                extracted_name = ecn
                     
                     # Get best extracted_date from group
                     if not extracted_date:
@@ -305,6 +256,9 @@ class UnifiedClusteringMaster:
             
             for cit in group:
                 ecn = propagation._get_attr(cit, "extracted_case_name", "") or ""
+                ecn = _clean_ecn(ecn)
+                cit_text = propagation._get_attr(cit, "citation", "")
+                logger.debug(f"[SPLIT-DEBUG] Citation '{cit_text}' ecn='{ecn}'")
                 if ecn and ecn != "N/A" and " v. " in ecn:
                     # Normalize: lowercase, strip whitespace
                     norm = re.sub(r"\s+", " ", ecn.strip().lower())
@@ -328,93 +282,43 @@ class UnifiedClusteringMaster:
             
             # If all citations have the same name (or no names), keep as one group
             if len(name_to_cits) <= 1:
+                logger.debug(f"[SPLIT-DEBUG] Group of {len(group)}: {len(name_to_cits)} named, {len(no_name_cits)} no-name -> keeping as one")
                 result.append(group)
                 continue
             
             # Split into separate groups
             logger.info(
-                f"[CLUSTER-SPLIT-ECN] Splitting proximity group of {len(group)} citations "
-                f"into {len(name_to_cits)} groups by extracted_case_name: "
-                f"{list(name_to_cits.keys())}"
+                f"[CLUSTER-SPLIT-ECN] Splitting group of {len(group)} into "
+                f"{len(name_to_cits)} groups: {list(name_to_cits.keys())}"
             )
             
-            # Assign no-name citations to the first group (they're likely series citations)
-            first_key = True
+            # Try to assign no-name citations to a matching named group
+            # by checking if the bare citation text appears in any named citation's full text
+            remaining_no_name = []
+            for nn_cit in no_name_cits:
+                nn_text = propagation._get_attr(nn_cit, "citation", "")
+                matched_to_group = False
+                if nn_text:
+                    for name, cits in name_to_cits.items():
+                        for named_cit in cits:
+                            named_text = propagation._get_attr(named_cit, "citation", "")
+                            if nn_text and named_text and nn_text in named_text:
+                                cits.append(nn_cit)
+                                matched_to_group = True
+                                break
+                        if matched_to_group:
+                            break
+                if not matched_to_group:
+                    remaining_no_name.append(nn_cit)
+            
             for name, cits in name_to_cits.items():
-                if first_key and no_name_cits:
-                    cits.extend(no_name_cits)
-                    first_key = False
-                else:
-                    first_key = False
                 result.append(cits)
+            
+            # Unmatched no-name citations become standalone groups
+            for nn_cit in remaining_no_name:
+                result.append([nn_cit])
         
         return result
-
-    def _select_best_case_name(self, group: List[Any]) -> Optional[str]:
-        """Delegate to utils module."""
-        return utils._select_best_case_name(group)
-
-    def _score_case_name(self, name: str) -> float:
-        """Score a case name for quality."""
-        score = 0.0
-        
-        # Prefer longer names (more complete)
-        score += min(len(name) / 50.0, 1.0)
-        
-        # Check for "v." or "v" (proper case name format)
-        if " v." in name or " v " in name.lower():
-            score += 1.0
-        
-        # Penalize truncated names
-        if utils.is_truncated_name(name):
-            score -= 0.5
-        
-        # Check for proper nouns (capitalized words)
-        words = name.split()
-        capitalized = sum(1 for w in words if w and w[0].isupper())
-        score += capitalized / max(len(words), 1)
-        
-        return max(0.0, min(1.0, score))
-
-    def _clean_case_name_from_extraction(self, name: str) -> str:
-        """Clean case name extracted from text."""
-        if not name:
-            return ""
-        
-        # Remove common sentence fragments
-        fragments = [
-            "see ", "see, ", "see also ", "cf. ", "e.g., ", "i.e., ",
-            "accord ", "contra ", "but see ", "compare ", "citing ",
-        ]
-        
-        name_lower = name.lower()
-        for fragment in fragments:
-            if name_lower.startswith(fragment):
-                name = name[len(fragment):]
-                break
-        
-        # Clean up
-        name = name.strip()
-        name = re.sub(r"\s+", " ", name)
-        
-        return name
-
-    def _is_truncated_name(self, name: str) -> bool:
-        """Delegate to utils module."""
-        return utils.is_truncated_name(name)
-
-    def _calculate_name_similarity(self, name1: str, name2: str) -> float:
-        """Calculate similarity between two case names."""
-        from difflib import SequenceMatcher
-        
-        if not name1 or not name2:
-            return 0.0
-        
-        # Normalize
-        n1 = name1.lower().strip()
-        n2 = name2.lower().strip()
-        
-        return SequenceMatcher(None, n1, n2).ratio()
 
     def _extract_document_primary_case_name(self, text: str) -> Optional[str]:
         """

@@ -87,6 +87,7 @@ import axios from 'axios';
 import UnifiedInput from '@/components/UnifiedInput.vue';
 import CitationResults from '@/components/CitationResults.vue';
 import { globalProgress } from '@/stores/progressStore';
+import { API_BASE_URL } from '@/config/api';
 
 export default {
   name: 'EnhancedValidator',
@@ -142,7 +143,7 @@ export default {
         const startProgressPolling = () => {
           progressPollingInterval = setInterval(async () => {
             try {
-              const progressResponse = await axios.get('/casestrainer/api/processing_progress');
+              const progressResponse = await axios.get(`${API_BASE_URL}/processing_progress`);
               if (progressResponse.data) {
                 const progressData = progressResponse.data;
                 console.log('Progress update:', progressData);
@@ -189,7 +190,7 @@ export default {
               attempts++;
               console.log(`📊 Polling attempt ${attempts}/${maxAttempts} for job ${jobId}`);
               
-              const statusResponse = await axios.get(`/casestrainer/api/task_status/${jobId}`);
+              const statusResponse = await axios.get(`${API_BASE_URL}/task_status/${jobId}`);
               const jobData = statusResponse.data;
               
               console.log('📋 Job status:', jobData.status);
@@ -241,8 +242,8 @@ export default {
         let formData = new FormData();
         let endpoint = '';
 
-        // All requests go to the same analyze endpoint with the /casestrainer prefix
-        endpoint = '/casestrainer/api/analyze';
+        // All requests go to the same analyze endpoint (base URL from config)
+        endpoint = `${API_BASE_URL}/analyze`;
 
         // Prepare request based on input type
         if (data instanceof FormData) {

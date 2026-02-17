@@ -81,7 +81,7 @@ jobs:
         # Install requests if not already installed
         pip install requests
         # Run the health check script with the test API URL
-        HEALTH_CHECK_BASE_URL="http://localhost:5000" python check_health.py
+        HEALTH_CHECK_BASE_URL="http://localhost:5000" python scripts/adhoc/check_health.py
         # Verify the exit code (0 means success)
         if [ $? -ne 0 ]; then
           echo "Health check failed!"

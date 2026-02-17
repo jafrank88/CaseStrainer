@@ -17,6 +17,7 @@ from src.utils.strict_context_isolator import (
     find_all_citation_positions,
     get_adaptive_context_for_citation,
     extract_case_name_from_strict_context,
+    is_citation_or_part_of_citation,
 )
 
 logger = logging.getLogger(__name__)
@@ -57,13 +58,44 @@ def extract_case_name_with_strict_isolation(
         'P.R. Aqueduct v. Metcalf'  # Correctly isolates, not "Will v. Hallock"
     """
     try:
+        # USER FIX 2026-01-27: Enhanced logging for problematic citations
+        # FIX 2026-02-01: Added "524 u.s." for semicolon-separated citation debugging
+        # FIX 2026-01-30: Added "199 f.3d 263" for But see / federal reporter extraction
+        is_problematic_citation = any(
+            pattern in citation_text.lower()
+            for pattern in ["554 u.s. 724", "418 u.s. 323", "397 u.s. 150", "590 u.s. ___", "wl 6070490", "524 u.s.", "491 u.s.", "199 f.3d 263", "523 u.s. 83"]
+        )
+        
         logger.info(
             f"[UNIFIED-EXTRACT] Starting strict extraction for {citation_text} at pos {citation_start}-{citation_end}"
         )
+        
+        if is_problematic_citation:
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] PROBLEMATIC CITATION: {citation_text} at pos {citation_start}-{citation_end}"
+            )
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Text before citation: '{text[max(0, citation_start-100):citation_start]}'"
+            )
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Text after citation: '{text[citation_end:citation_end+100]}'"
+            )
 
         # Get all citation positions for proper boundary detection
         all_positions = find_all_citation_positions(text)
         logger.debug(f"[UNIFIED-EXTRACT] Found {len(all_positions)} total citation positions in document")
+        
+        if is_problematic_citation:
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Found {len(all_positions)} citation positions"
+            )
+            nearby_positions = [
+                pos for pos in all_positions
+                if abs(pos["start"] - citation_start) < 200
+            ]
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Found {len(nearby_positions)} citations within 200 chars"
+            )
 
         # Get adaptive context (starts small and expands until case name found)
         # USER FIX: Reduced from 300 to 100 chars to prevent cascading contamination
@@ -71,11 +103,146 @@ def extract_case_name_with_strict_isolation(
         adaptive_context = get_adaptive_context_for_citation(
             text, citation_start, citation_end, all_positions, max_lookback=100
         )
+        
+        if is_problematic_citation:
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Initial adaptive_context ({len(adaptive_context)} chars)"
+            )
+
+        # Defensive trim: semicolons separate different cases. Use ONLY text after last semicolon so we get
+        # "Davis v. Federal Election Comm'n" not "Meese v. Keene" for "554 U.S. 724" in series.
+        if adaptive_context and ";" in adaptive_context:
+            last_semicolon = adaptive_context.rfind(";")
+            after_semicolon = adaptive_context[last_semicolon + 1 :].strip()
+            if len(after_semicolon) >= 5:  # Any meaningful text after semicolon
+                if is_problematic_citation:
+                    logger.debug(
+                        f"[UNIFIED-EXTRACT-TRACE] Found semicolon at position {last_semicolon}, trimming context"
+                    )
+                logger.debug(
+                    f"[UNIFIED-EXTRACT] Trimming context at semicolon for {citation_text} (kept {len(after_semicolon)} chars)"
+                )
+                adaptive_context = after_semicolon
+
+        # If context contains an INTERVENING citation (a different citation before our target),
+        # use only text after the rightmost such citation so we get "Davis v. FEC" not "Meese v. Keene".
+        # Do NOT trim when the only match IS the target citation — then the case name is to the left.
+        if adaptive_context and citation_text:
+            def _norm_cite(t: str) -> str:
+                t = re.sub(r"\s+", " ", t.lower()).strip()
+                t = re.sub(r"u\.\s*s\.?", "u.s.", t, flags=re.IGNORECASE)
+                t = re.sub(r"f\.\s*3d", "f.3d", t, flags=re.IGNORECASE)
+                t = re.sub(r"f\.\s*2d", "f.2d", t, flags=re.IGNORECASE)
+                t = re.sub(r"f\.\s*4th", "f.4th", t, flags=re.IGNORECASE)
+                return re.sub(r"\s+", " ", t).strip()
+
+            norm_target = _norm_cite(citation_text)
+            base_target = norm_target.split(",")[0].strip() if "," in norm_target else norm_target
+
+            # Build pattern that matches either U.S. or federal reporters (F.2d/F.3d/F.4th) so we find target in context
+            is_us = bool(re.match(r"^\d+\s+u\.?\s*s\.?\s*\d+", norm_target))
+            is_federal_reporter = bool(re.match(r"^\d+\s+f\.?\s*(?:2d|3d|4th)?\s+\d+", norm_target))
+
+            pattern = None
+            if is_us:
+                pattern = re.compile(
+                    r"\d+\s+U\.?\s*S\.?\s+\d+(?:\s*,\s*\d+)?",
+                    re.IGNORECASE,
+                )
+            elif is_federal_reporter:
+                pattern = re.compile(
+                    r"\d+\s+F\.?\s*(?:2d|3d|4th)\s+\d+(?:\s*,\s*\d+)?",
+                    re.IGNORECASE,
+                )
+
+            last_match = None
+            if pattern:
+                for m in pattern.finditer(adaptive_context):
+                    last_match = m
+            if last_match:
+                matched_citation = adaptive_context[last_match.start() : last_match.end()]
+                norm_matched = _norm_cite(matched_citation)
+                base_matched = norm_matched.split(",")[0].strip() if "," in norm_matched else norm_matched
+                is_target_citation = (
+                    norm_matched == norm_target
+                    or norm_matched.startswith(norm_target + ",")
+                    or norm_matched.startswith(norm_target + " ")
+                    or (base_matched == base_target and base_target)
+                )
+                if not is_target_citation:
+                    after_citation = adaptive_context[last_match.end() :].strip()
+                    after_citation = re.sub(r"^[;,]\s*", "", after_citation).strip()
+                    if len(after_citation) >= 5:
+                        if is_problematic_citation:
+                            logger.debug(
+                                f"[UNIFIED-EXTRACT-TRACE] Trimming at intervening citation"
+                            )
+                        logger.info(
+                            f"[UNIFIED-EXTRACT] Trimming at intervening citation for {citation_text} "
+                            f"(kept {len(after_citation)} chars after citation)"
+                        )
+                        adaptive_context = after_citation
+                    else:
+                        adaptive_context = ""
+                    logger.debug(
+                        f"[UNIFIED-EXTRACT] Intervening citation with no case name after; cleared context for {citation_text}"
+                    )
+                else:
+                    # Last match IS the target citation. Use ONLY text immediately before it.
+                    before_target = adaptive_context[: last_match.start()].strip()
+                    before_target = re.sub(r",\s*$", "", before_target).strip()
+                    if len(before_target) >= 5:
+                        adaptive_context = before_target
+                        logger.debug(
+                            f"[UNIFIED-EXTRACT] Using only text before target citation for {citation_text} ({len(adaptive_context)} chars)"
+                        )
 
         logger.debug(f"[UNIFIED-EXTRACT] Adaptive context for {citation_text}: {len(adaptive_context)} chars")
 
         # Extract case name from adaptive context
+        if is_problematic_citation:
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] Calling extract_case_name_from_strict_context"
+            )
+        
         case_name = extract_case_name_from_strict_context(adaptive_context, citation_text)
+
+        # Strip trailing ", YYYY" (citation year) so "Thole v. U. S. Bank N. A, 2020" -> "Thole v. U. S. Bank N. A"
+        if case_name and re.search(r",\s*(19|20)\d{2}\s*\.?\s*$", case_name):
+            case_name = re.sub(r",\s*(19|20)\d{2}\s*\.?\s*$", "", case_name).strip().rstrip(",").strip()
+            logger.debug(f"[UNIFIED-EXTRACT] Stripped trailing year from case name for {citation_text}")
+
+        # Reject at extraction layer if result is citation/fragment/statute (after year strip)
+        if case_name and is_citation_or_part_of_citation(case_name, citation_text):
+            logger.debug(
+                f"[UNIFIED-EXTRACT-REJECT] {citation_text} → '{case_name}' REJECTED (citation/fragment/statute)"
+            )
+            case_name = None
+
+        # USER FIX 2026-01-27: Remove signal phrases immediately after extraction
+        if case_name:
+            original_case_name = case_name
+            signal_phrase_patterns = [
+                r"^See,?\s+e\.?g\.?\s*,?\s*",  # "See, e.g.," or "See e.g.," or "See, e.g"
+                r"^See\s+also\s+",  # "See also"
+                r"^See\s+generally\s+",  # "See generally"
+                r"^But\s+see\s+",  # "But see"
+                r"^Cf\.?\s+",  # "Cf."
+                r"^E\.?g\.?\s*,?\s*",  # "E.g.,"
+                r"^I\.?e\.?\s*,?\s*",  # "I.e.,"
+            ]
+            for pattern in signal_phrase_patterns:
+                case_name = re.sub(pattern, "", case_name, flags=re.IGNORECASE).strip()
+            
+            if case_name != original_case_name:
+                logger.debug(
+                    f"[UNIFIED-EXTRACT-SIGNAL] Removed signal phrase: '{original_case_name}' → '{case_name}' for {citation_text}"
+                )
+        
+        if is_problematic_citation:
+            logger.debug(
+                f"[UNIFIED-EXTRACT-TRACE] extract_case_name_from_strict_context returned: '{case_name}'"
+            )
 
         # NOTE: Removed strict boundary validation that was causing performance issues
         # The extraction already uses isolated context, so additional validation was redundant
@@ -99,11 +266,28 @@ def extract_case_name_with_strict_isolation(
                 )
                 case_name = None
 
+            # Context-bleeding: reject all-caps match when defendant ends with justice surname (header/attribution)
+            # e.g. "TRANSUNION LLC v. RAMIREZ THOMAS" from "THOMAS, J., dissenting" should not attach to "426 U.S. 26"
+            if case_name and case_name.isupper() and (" v. " in case_name or " v " in case_name):
+                parts = re.split(r"\s+v\.?\s+", case_name, maxsplit=1, flags=re.IGNORECASE)
+                if len(parts) == 2:
+                    defendant = re.sub(r",\s*(?:Inc\.|Corp\.|LLC|Ltd\.).*$", "", parts[1].strip(), flags=re.IGNORECASE).strip()
+                    last_word = defendant.split()[-1] if defendant.split() else ""
+                    justice_surnames = {
+                        "THOMAS", "ALITO", "ROBERTS", "KAVANAUGH", "BARRETT", "GORSUCH", "SOTOMAYOR", "KAGAN",
+                        "JACKSON", "KENNEDY", "SCALIA", "GINSBURG", "BREYER", "O'CONNOR", "REHNQUIST", "STEVENS",
+                    }
+                    if last_word in justice_surnames:
+                        logger.warning(
+                            f"[UNIFIED-EXTRACT-FINAL-REJECT] {citation_text} → '{case_name}' REJECTED (all-caps + justice surname defendant)"
+                        )
+                        case_name = None
+
         # Apply contamination filtering if document primary case name is provided
         if case_name and document_primary_case_name:
             if _is_document_case_contamination(case_name, document_primary_case_name):
-                logger.warning(
-                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} → '{case_name}' REJECTED (matches document primary case '{document_primary_case_name}')"
+                logger.debug(
+                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} → '{case_name}' REJECTED (matches primary)"
                 )
                 return None
             else:
@@ -114,17 +298,30 @@ def extract_case_name_with_strict_isolation(
         # CRITICAL FIX: Validate extracted case name before returning
         # This prevents contaminated names like "WPLA claim. Call v. Heard" from being returned
         if case_name:
-            from src.case_name_validator import is_valid_case_name
+            from src.extraction.validation import is_valid_case_name
 
             if not is_valid_case_name(case_name):
-                logger.warning(
-                    f"[UNIFIED-EXTRACT-REJECT] {citation_text} → '{case_name}' REJECTED by validator (contamination detected)"
+                if is_problematic_citation:
+                    logger.debug(
+                        f"[UNIFIED-EXTRACT-TRACE] REJECTED by is_valid_case_name: '{case_name}'"
+                    )
+                logger.debug(
+                    f"[UNIFIED-EXTRACT-REJECT] {citation_text} → '{case_name}' REJECTED by validator"
                 )
                 return None
-            logger.info(f"[UNIFIED-EXTRACT-SUCCESS] {citation_text} → '{case_name}'")
+            
+            if is_problematic_citation:
+                logger.debug(
+                    f"[UNIFIED-EXTRACT-TRACE] FINAL RESULT for {citation_text}: '{case_name}'"
+                )
+            logger.debug(f"[UNIFIED-EXTRACT-SUCCESS] {citation_text} → '{case_name}'")
             return case_name
         else:
-            logger.warning(f"[UNIFIED-EXTRACT-FAIL] No case name found for {citation_text}")
+            if is_problematic_citation:
+                logger.debug(
+                    f"[UNIFIED-EXTRACT-TRACE] FINAL RESULT: No case name found for {citation_text}"
+                )
+            logger.debug(f"[UNIFIED-EXTRACT-FAIL] No case name found for {citation_text}")
             return None
 
     except Exception as e:
@@ -234,6 +431,12 @@ def _is_document_case_contamination(
     )
     has_no = "NO." in extracted_upper or " NO " in extracted_upper or extracted_upper.endswith(" NO")
 
+    # CRITICAL FIX: Check for "Opinion of the Court" contamination
+    # This happens when citation context includes header text like "Opinion of the Court CASE v. NAME"
+    if "OPINION OF THE COURT" in extracted_upper:
+        logger.warning(f"[CONTAMINATION-FILTER] REJECTED 'Opinion of the Court' header: '{extracted_name}'")
+        return True
+
     # ENHANCED: If the case name contains "ET AL" WITH a role word, it's almost certainly a header
     # BUT: "ET AL" alone can be legitimate (e.g., "Smith et al. v. Jones")
     # Only reject if it's clearly a header pattern (ET AL + role word, or role word + NO)
@@ -267,6 +470,12 @@ def _is_document_case_contamination(
         r"ET\s+AL\.?\s*,?\s*(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*,?\s*v\.\s+.*\b(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO",  # "ET AL., Petitioners, v. ... Respondent. NO"
         # Pattern 5: Case names that END with "Respondent. NO" or similar
         r"\b(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?\s*$",  # Ends with "Respondent. NO" or "Petitioners, NO"
+        # Pattern 6: FIX 2026-02-04 - Supreme Court header with Justice name appended
+        # Pattern: "CASE v. NAME JUSTICE_NAME" like "TRANSUNION LLC v. RAMIREZ THOMAS J"
+        # Justice names: Roberts, Thomas, Alito, Sotomayor, Kagan, Gorsuch, Kavanaugh, Barrett, Jackson
+        r"\bv\.\s+[A-Z][A-Za-z]+\s+(?:ROBERTS|THOMAS|ALITO|SOTOMAYOR|KAGAN|GORSUCH|KAVANAUGH|BARRETT|JACKSON)\s*,?\s*(?:C\.?\s*J\.?|J\.?)?\s*$",
+        # Pattern 7: Any case name ending with "JUSTICE_LASTNAME J" or "JUSTICE_LASTNAME, J."
+        r"\s+(?:ROBERTS|THOMAS|ALITO|SOTOMAYOR|KAGAN|GORSUCH|KAVANAUGH|BARRETT|JACKSON|BREYER|GINSBURG|SCALIA|KENNEDY|SOUTER|STEVENS|O['']?CONNOR|REHNQUIST)\s*,?\s*(?:C\.?\s*J\.?|J\.?)?\s*$",
     ]
     for pattern in header_patterns:
         if re.search(pattern, extracted_name, re.IGNORECASE):

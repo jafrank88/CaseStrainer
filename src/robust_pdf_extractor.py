@@ -56,40 +56,35 @@ class RobustPDFExtractor:
 
         # Test PyMuPDF (best performer) - FASTEST
         try:
-            pass
-
+            import fitz
             libraries.append("fitz")
         except ImportError:
             pass
 
         # Test PDFPlumber (fast and accurate) - SECOND FASTEST
         try:
-            pass
-
+            import pdfplumber
             libraries.append("pdfplumber")
         except ImportError:
             pass
 
         # Test PyPDF (basic, fast)
         try:
-            pass
-
+            import pypdf
             libraries.append("pypdf")
         except ImportError:
             pass
 
         # Test PyPDF2 (legacy, slower)
         try:
-            pass
-
+            import PyPDF2
             libraries.append("PyPDF2")
         except ImportError:
             pass
 
         # Test PDFMiner (SLOWEST but thorough) - LAST RESORT
         try:
-            pass
-
+            from pdfminer.high_level import extract_text
             libraries.append("pdfminer")
         except ImportError:
             pass
@@ -376,8 +371,12 @@ def extract_pdf_text_robust(
     Returns:
         Tuple of (extracted_text, library_used)
     """
+    logger.info(f"🔍 [PDF-EXTRACT] Starting extraction: {pdf_path}")
     extractor = RobustPDFExtractor(convert_footnotes=convert_footnotes, verbose=verbose)
-    return extractor.extract_text(pdf_path, max_pages)
+    logger.info(f"🔍 [PDF-EXTRACT] Available libraries: {extractor.available_libraries}")
+    result = extractor.extract_text(pdf_path, max_pages)
+    logger.info(f"🔍 [PDF-EXTRACT] Extraction complete: {len(result[0])} chars using {result[1]}")
+    return result
 
 
 # Compatibility aliases for old function names

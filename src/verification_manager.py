@@ -39,9 +39,8 @@ class VerificationManager:
         self._result_cache: Dict[str, Any] = {}
         # Prefer Redis so status survives across requests
         try:
-            self.redis_conn = redis_conn or redis.Redis.from_url(
-                os.environ.get("REDIS_URL", "redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0")
-            )
+            from src.config import REDIS_URL
+            self.redis_conn = redis_conn or redis.Redis.from_url(REDIS_URL)
         except Exception:
             self.redis_conn = None
 
@@ -56,7 +55,8 @@ class VerificationManager:
                     raw = self.redis_conn.get(key)
                     if raw:
                         try:
-                            return json.loads(raw)
+                            payload = raw.decode("utf-8") if isinstance(raw, bytes) else str(raw)
+                            return json.loads(payload)
                         except Exception:
                             pass
         except Exception:
@@ -130,6 +130,20 @@ class VerificationManager:
                 req_id = status.get("request_id")
                 if req_id:
                     self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
+
+                # FIX 2026-01-30: Also sync to progress:{task_id} for frontend polling
+                # The frontend/API polls progress:{task_id} but we were only storing under verification:status:*
+                progress_payload = json.dumps({
+                    "task_id": id_or_job,
+                    "status": "processing",
+                    "progress": percent,
+                    "message": message or "Verifying citations...",
+                    "current_step": "verification",
+                    "citations_processed": citations_processed,
+                    "total_citations": total_citations,
+                    "timestamp": time.time()
+                })
+                self.redis_conn.setex(f"progress:{id_or_job}", 3600, progress_payload)
         except Exception:
             pass
 
@@ -158,6 +172,23 @@ class VerificationManager:
                 req_id = status.get("request_id")
                 if req_id:
                     self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
+
+                # FIX 2026-01-30: Also sync to progress:{task_id} for frontend polling
+                # Set status to "completed" so polling service detects completion
+                total_citations = status.get("total_citations", 0)
+                citations_processed = status.get("citations_processed", total_citations)
+                progress_payload = json.dumps({
+                    "task_id": id_or_job,
+                    "status": "completed",  # Critical: frontend polls for this status
+                    "progress": 100,
+                    "message": "Verification completed",
+                    "current_step": "complete",
+                    "citations_processed": citations_processed,
+                    "total_citations": total_citations,
+                    "timestamp": time.time()
+                })
+                self.redis_conn.setex(f"progress:{id_or_job}", 3600, progress_payload)
+                logger.info(f"[VERIFICATION-MANAGER] Synced progress key with completed status for {id_or_job}")
 
                 # CRITICAL FIX: Also save the actual result data to Redis
                 # PERFORMANCE FIX: Add size check and make Redis save non-blocking to prevent hangs
@@ -331,14 +362,37 @@ class SmartVerificationStrategy:
                 "canonical_year": "2016",
                 "source": "known_citation",
             },
+            # Susan B. Anthony List v. Driehaus - Not in CourtListener, added manually
+            "573 U.S. 149": {
+                "canonical_name": "Susan B. Anthony List v. Driehaus",
+                "canonical_year": "2014",
+                "source": "known_citation",
+            },
+            # NOTE: Removed incorrect "199 F.3d 263" -> "Spokeo v. Robins" entry.
+            # Spokeo v. Robins is 578 U.S. 330 (2016); Spokeo company founded 2006.
+            # 199 F.3d 263 is actually "Washington v. CSC Credit Services" (5th Cir. 2000)
         }
 
         self.method_configs = {
             "known_citations": {"timeout": 1, "max_retries": 0, "batch_size": 1000},
-            "citation_lookup_v4": {"timeout": 30, "max_retries": 2, "batch_size": 60},
+            "citation_lookup_v4": {"timeout": 30, "max_retries": 2, "batch_size": 250},
             "courtlistener_search": {"timeout": 45, "max_retries": 1, "batch_size": 20},
             "web_search": {"timeout": 60, "max_retries": 1, "batch_size": 10},
         }
+        # Queue and state (used by start_verification, get_verification_status, etc.)
+        try:
+            from src.config import REDIS_URL
+            from rq import Queue
+            self.redis_conn = redis.Redis.from_url(REDIS_URL)
+            self.verification_queue = Queue("casestrainer", connection=self.redis_conn)
+        except Exception:
+            self.redis_conn = None
+            self.verification_queue = None
+        self.active_verifications: Dict[str, Any] = {}
+        self.result_cache: Dict[str, Any] = {}
+        self.cache_ttl = 3600
+        self.cleanup_interval = 300.0
+        self.verification_strategy = self
 
     def get_method_config(self, method: str) -> Dict[str, Any]:
         """Get configuration for a specific verification method"""
@@ -375,21 +429,7 @@ class SmartVerificationStrategy:
 
             config = self.get_method_config(method)
             method_citations = list(remaining_citations)[: config["batch_size"]]
-        redis_url = os.environ.get("REDIS_URL", "redis://localhost:6379/0")
-        self.redis_conn = redis_conn or redis.Redis.from_url(redis_url)
-        self.verification_queue = Queue("casestrainer", connection=self.redis_conn)
-
-        self.active_verifications: Dict[str, VerificationMetadata] = {}
-
-        self.result_cache: Dict[str, Dict[str, Any]] = {}
-        self.cache_ttl = 3600  # 1 hour
-
-        self.verification_strategy = SmartVerificationStrategy()
-
-        self.last_cleanup = time.time()
-        self.cleanup_interval = 300  # 5 minutes
-
-        logger.info("VerificationManager initialized")
+        return True
 
     def start_verification(self, request_id: str, citations: List[str], clusters: List[Dict[str, Any]]) -> str:
         """
@@ -403,6 +443,8 @@ class SmartVerificationStrategy:
         Returns:
             Job ID for tracking
         """
+        if not self.verification_queue:
+            raise RuntimeError("Verification queue not available (Redis connection failed)")
         try:
             job = self.verification_queue.enqueue(
                 self._verify_citations_async,
@@ -1043,15 +1085,28 @@ class SmartVerificationStrategy:
                     # REMOVED:     result['canonical_name'] = extracted_name
                     # This was causing cross-contamination between extracted and canonical fields
 
+                    # CRITICAL FIX: Unverified citations CANNOT have canonical data
+                    # Only set canonical_name/canonical_date if citation is actually verified
+                    is_verified = result.get("verified", False)
+                    canonical_name = None
+                    canonical_date = None
+                    
+                    if is_verified:
+                        # Verified citation - use canonical data from result
+                        canonical_name = result.get("canonical_name")
+                        canonical_date = result.get("canonical_date")
+                    # DO NOT inherit canonical data from cluster for unverified citations
+                    # This was causing contamination where unverified citations showed wrong canonical names
+                    
                     citation_detail.update(
                         {
-                            "verified": result.get("verified", False),
-                            "canonical_name": result.get("canonical_name") or updated_cluster["canonical_name"],
+                            "verified": is_verified,
+                            "canonical_name": canonical_name,  # None for unverified citations
                             "extracted_case_name": extracted_name or result.get("extracted_case_name"),
-                            "canonical_date": result.get("canonical_date") or updated_cluster["canonical_date"],
-                            "canonical_url": result.get("canonical_url"),
-                            "source": result.get("source", "cluster_inherited"),
-                            "validation_method": result.get("validation_method", "inherited_from_cluster"),
+                            "canonical_date": canonical_date,  # None for unverified citations
+                            "canonical_url": result.get("canonical_url") if is_verified else None,
+                            "source": result.get("source") if is_verified else None,
+                            "validation_method": result.get("validation_method", "unverified"),
                             "confidence": result.get("confidence", best_metadata.get("confidence", 0.0)),
                         }
                     )
@@ -1104,6 +1159,6 @@ class SmartVerificationStrategy:
                 status.value: sum(1 for v in self.active_verifications.values() if v.status == status)
                 for status in VerificationStatus
             },
-            "queue_size": len(self.verification_queue),
+            "queue_size": len(self.verification_queue) if self.verification_queue else 0,
             "cache_ttl": self.cache_ttl,
         }

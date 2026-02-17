@@ -31,11 +31,13 @@ warnings.warn(
     stacklevel=2
 )
 
-# Re-export from modular package
+# Re-export from modular package (prefer importing from src.extraction directly)
 from src.extraction import (
     UnifiedCaseExtractionMaster,
     MasterExtractionResult,
     extract_case_name_and_date_unified_master,
+    get_master_extractor,
+    extract_case_name_from_strict_context,
     ProximityStrategy,
     PatternStrategy,
     MLStrategy,
@@ -60,6 +62,8 @@ __all__ = [
     "UnifiedCaseExtractionMaster",
     "MasterExtractionResult",
     "extract_case_name_and_date_unified_master",
+    "get_master_extractor",
+    "extract_case_name_from_strict_context",
     # Strategies
     "ExtractionStrategy",
     "ProximityStrategy",

@@ -1,4 +1,5 @@
 import { ref, computed, reactive, watch } from 'vue';
+import { API_BASE_URL } from '@/config/api';
 
 // Global progress state that persists across components and navigation
 const progressState = reactive({
@@ -55,7 +56,9 @@ const progressState = reactive({
   pollCount: 0,
   heuristicTimerId: null,
   lastSseUpdateMs: 0,
-  sseThrottleMs: 1000
+  sseThrottleMs: 1000,
+  // Cap for heuristic: bar must reflect backend progress, not polling/time
+  maxProgressFromBackend: null
 });
 
 export function useUnifiedProgress() {
@@ -87,23 +90,16 @@ export function useUnifiedProgress() {
   });
 
   const progressPercent = computed(() => {
-    // Use real progress data from backend if available
+    // Use real progress from backend/heuristic; never use polling/time as the bar value.
     if (progressState.totalProgress !== undefined && progressState.totalProgress !== null && progressState.totalProgress >= 0) {
       const progress = Math.min(100, Math.max(0, Math.floor(progressState.totalProgress)));
       return isNaN(progress) ? 0 : progress;
     }
-    
-    // Fallback to time-based estimation if no real progress available
-    if (!progressState.isActive || !progressState.startTime || !progressState.estimatedTotalTime || progressState.estimatedTotalTime <= 0) {
-      return 0;
+    // Only before any progress has been set: show minimal activity (heuristic will soon set totalProgress)
+    if (progressState.isActive) {
+      return Math.min(5, progressState.totalProgress ?? 0);
     }
-    
-    const elapsed = elapsedTime.value;
-    if (elapsed <= 0 || isNaN(elapsed)) return 0;
-    
-    const percent = (elapsed / progressState.estimatedTotalTime) * 100;
-    const result = Math.min(100, Math.max(0, Math.floor(percent)));
-    return isNaN(result) ? 0 : result;
+    return 0;
   });
 
   const currentStepProgress = computed(() => {
@@ -179,11 +175,13 @@ export function useUnifiedProgress() {
       return Math.min(12000, Math.max(3000, ms));
     };
 
-    // Step the progress deterministically: +2% each interval, interval tied to ETA
+    // Step the progress deterministically: +2% each interval, but NEVER above last backend progress.
+    // Bar must reflect backend job progress, not polling/time.
     const stepMs = getHeuristicStepMs();
     progressState.heuristicTimerId = setInterval(() => {
       if (!progressState.isActive) return;
-      const cap = progressState.hasResults ? 100 : 98;
+      const backendCap = progressState.maxProgressFromBackend;
+      const cap = progressState.hasResults ? 100 : (backendCap != null ? Math.min(98, backendCap) : 98);
       const next = Math.min(cap, (progressState.totalProgress || 0) + 2);
       if (next > progressState.totalProgress) {
         progressState.totalProgress = next;
@@ -231,6 +229,7 @@ export function useUnifiedProgress() {
       pollCount: 0,  // CRITICAL FIX: Reset poll count when starting new progress
       stepProgress: 0,
       totalProgress: 5, // Start with 5% to show immediate progress
+      maxProgressFromBackend: null, // Bar reflects backend progress, not polling
       processingSteps: [],
       actualTimes: {},
       citationInfo: null,
@@ -311,28 +310,36 @@ export function useUnifiedProgress() {
       }
     }
     
+    // Max increase per update so the bar doesn't jump (e.g. 70% -> 98% in one step)
+    const MAX_PROGRESS_STEP = 12;
+
     if (update.total_progress !== undefined && update.total_progress !== null) {
       // CRITICAL FIX: Ensure progress is monotonic - never allow it to decrease
       let newProgress = Math.max(0, Math.min(100, update.total_progress));
-      // NEW: Clamp to <100 until we actually have final results
+      // Clamp to <100 until we actually have final results
       const cap = progressState.hasResults ? 100 : 98;
       newProgress = Math.min(newProgress, cap);
-      // Ignore non-terminal overall updates; heuristic owns mid-run movement
-      if (!progressState.hasResults && newProgress < 100) {
-        // no-op
-      } else if (newProgress > progressState.totalProgress) {
-        progressState.totalProgress = newProgress;
+      // Store backend cap so heuristic doesn't exceed it
+      progressState.maxProgressFromBackend = newProgress;
+      if (newProgress > progressState.totalProgress) {
+        // Smooth: don't jump more than MAX_PROGRESS_STEP per update (unless completing with results)
+        const current = progressState.totalProgress ?? 0;
+        const allowed = progressState.hasResults
+          ? newProgress
+          : Math.min(current + MAX_PROGRESS_STEP, newProgress);
+        progressState.totalProgress = Math.max(current, allowed);
       }
     } else if (update.overall_progress !== undefined && update.overall_progress !== null) {
-      // CRITICAL FIX: Ensure progress is monotonic - never allow it to decrease
       let newProgress = Math.max(0, Math.min(100, update.overall_progress));
-      // NEW: Clamp to <100 until we actually have final results
       const cap = progressState.hasResults ? 100 : 98;
       newProgress = Math.min(newProgress, cap);
-      if (!progressState.hasResults && newProgress < 100) {
-        // no-op mid-run
-      } else if (newProgress > progressState.totalProgress) {
-        progressState.totalProgress = newProgress;
+      progressState.maxProgressFromBackend = newProgress;
+      if (newProgress > progressState.totalProgress) {
+        const current = progressState.totalProgress ?? 0;
+        const allowed = progressState.hasResults
+          ? newProgress
+          : Math.min(current + MAX_PROGRESS_STEP, newProgress);
+        progressState.totalProgress = Math.max(current, allowed);
       }
     }
     
@@ -403,13 +410,15 @@ export function useUnifiedProgress() {
       progressState.verificationStream = null;
     }
     
+    // CRITICAL: Stop heuristic timer FIRST before updating state
+    stopHeuristicTimer();
+    
     // Clear any previous error on success
     progressState.processingError = null;
     progressState.canRetry = false;
     progressState.isActive = false;
     progressState.currentStep = 'Completed';
     progressState.totalProgress = 100;
-    stopHeuristicTimer();
     
     // Scope results by route if provided
     if (route) {
@@ -450,6 +459,7 @@ export function useUnifiedProgress() {
       currentStep: '',
       stepProgress: 0,
       totalProgress: 0,
+      maxProgressFromBackend: null,
       processingSteps: [],
       actualTimes: {},
       citationInfo: null,
@@ -564,7 +574,7 @@ export function useUnifiedProgress() {
     }
 
     try {
-      const apiBase = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
+      const apiBase = API_BASE_URL;
       const eventSource = new EventSource(`${apiBase}/analyze/progress-stream/${requestId}`);
 
       eventSource.onopen = () => {

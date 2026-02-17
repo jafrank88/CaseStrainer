@@ -8,6 +8,8 @@ from typing import List, Dict, Any, Optional
 from eyecite import get_citations
 from eyecite.tokenizers import AhocorasickTokenizer
 
+from src.utils.similarity_utils import calculate_name_similarity
+
 
 def normalize_citation(citation: str) -> str:
     """
@@ -949,22 +951,7 @@ class ConfidenceScorer:
 
     def _calculate_name_similarity(self, name1: str, name2: str) -> float:
         """Calculate similarity between two case names."""
-        if not name1 or not name2:
-            return 0.0
-
-        name1_clean = re.sub(r"[^\w\s]", "", name1.lower())
-        name2_clean = re.sub(r"[^\w\s]", "", name2.lower())
-
-        words1 = set(name1_clean.split())
-        words2 = set(name2_clean.split())
-
-        if not words1 or not words2:
-            return 0.0
-
-        intersection = words1.intersection(words2)
-        union = words1.union(words2)
-
-        return len(intersection) / len(union) if union else 0.0
+        return calculate_name_similarity(name1, name2)
 
 
 def safe_set_extracted_date(citation, new_date, source="unknown"):

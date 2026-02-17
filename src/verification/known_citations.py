@@ -90,6 +90,18 @@ KNOWN_FEDERAL_CITATIONS = {
         "canonical_year": "2009",
         "canonical_url": "https://supreme.justia.com/cases/federal/us/555/460/",
     },
+    "591 u.s. 1": {
+        "canonical_name": "Department of Homeland Security v. Regents of the University of California",
+        "canonical_date": "2020-06-18",
+        "canonical_year": "2020",
+        "canonical_url": "https://supreme.justia.com/cases/federal/us/591/1/",
+    },
+    "145 s. ct. 13": {
+        "canonical_name": "A.A.R.P. v. Trump",
+        "canonical_date": "2025-05-16",
+        "canonical_year": "2025",
+        "canonical_url": "https://supreme.justia.com/cases/federal/us/605/24a1007/",
+    },
 }
 
 # Slip opinions (e.g. 588 U.S. ___): key = "volume year", value = list of { canonical_name, canonical_date, canonical_url }
@@ -108,6 +120,13 @@ KNOWN_SLIP_CITATIONS = {
             "canonical_name": "Uzuegbunam v. Preczewski",
             "canonical_date": "2021-03-08",
             "canonical_url": "https://supreme.justia.com/cases/federal/us/592/19-968/",
+        },
+    ],
+    "593 2021": [
+        {
+            "canonical_name": "Niz-Chavez v. Garland",
+            "canonical_date": "2021-04-29",
+            "canonical_url": "https://supreme.justia.com/cases/federal/us/593/155/",
         },
     ],
 }

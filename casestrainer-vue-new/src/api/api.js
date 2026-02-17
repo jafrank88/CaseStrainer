@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import { API_BASE_URL } from '@/config/api';
 
-// Get base URL from environment variables
-// For production, use relative path to work with any domain
-const baseURL = import.meta.env.VITE_API_BASE_URL || '/casestrainer/api';
+const baseURL = API_BASE_URL;
 
 // Create axios instance with default config
 const api = axios.create({
@@ -17,7 +16,6 @@ if (import.meta.env.DEV) {
   console.log('API Configuration:', {
     baseURL,
     environment: import.meta.env.MODE,
-    apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
     fullUrl: `${baseURL}/analyze`
   });
 }
@@ -198,9 +196,11 @@ const MAX_RETRIES = 3;
 const activeRequests = new Map();
 
 // Helper function to poll for results
-async function pollForResults(requestId, clientRequestId = null, startTime = Date.now()) {
+async function pollForResults(requestId, clientRequestId = null, startTime = Date.now(), onProgress = null) {
   if (Date.now() - startTime > MAX_POLLING_TIME) {
-    throw new Error('Request timed out after 10 minutes');
+    const err = new Error(`Request timed out after ${Math.round(MAX_POLLING_TIME / 60000)} minutes`);
+    err.code = 'ETIMEDOUT';
+    throw err;
   }
   
   try {
@@ -263,7 +263,7 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       }
       
       await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-      return pollForResults(requestId, clientRequestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime, onProgress);
     }
     
     // Check for completion - CRITICAL: Check status first, then data presence
@@ -332,9 +332,23 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
 
       console.log('Processing status:', progressInfo);
 
-      // If we've been processing for too long, consider it a timeout
-      if (Date.now() - startTime > 300000) { // 5 minutes
-        const timeoutError = new Error('Analysis timed out after 5 minutes');
+      // Call progress callback if provided
+      if (onProgress && typeof onProgress === 'function') {
+        try {
+          onProgress({
+            progress: responseData.progress || 0,
+            message: responseData.message || message || 'Processing...',
+            status: status,
+            elapsed: Date.now() - startTime
+          });
+        } catch (e) {
+          console.warn('Progress callback error:', e);
+        }
+      }
+
+      // If we've been processing for too long, consider it a timeout (match MAX_POLLING_TIME = 20 min)
+      if (Date.now() - startTime > MAX_POLLING_TIME) {
+        const timeoutError = new Error(`Analysis timed out after ${Math.round(MAX_POLLING_TIME / 60000)} minutes`);
         timeoutError.code = 'ETIMEDOUT';
         timeoutError.taskId = requestId;
         throw timeoutError;
@@ -347,7 +361,7 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       console.log(`🔄 POLLING: Status=${status}, Elapsed=${Math.round(elapsed / 1000)}s, Next check in ${delay}ms`);
 
       await new Promise(resolve => setTimeout(resolve, delay));
-      return pollForResults(requestId, clientRequestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime, onProgress);
 
     } else {
       // Unknown status, log and continue polling with backoff
@@ -363,9 +377,9 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
         nextCheckIn: backoffTime
       });
 
-      // If we've been in an unknown state for too long, fail
-      if (elapsed > 300000) { // 5 minutes
-        const error = new Error('Analysis stuck in unknown state');
+      // If we've been in an unknown state for too long, fail (match MAX_POLLING_TIME)
+      if (elapsed > MAX_POLLING_TIME) {
+        const error = new Error(`Analysis stuck after ${Math.round(MAX_POLLING_TIME / 60000)} minutes`);
         error.code = 'EUNKNOWNSTATE';
         error.taskId = requestId;
         error.elapsed = elapsed;
@@ -373,7 +387,7 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       }
 
       await new Promise(resolve => setTimeout(resolve, backoffTime));
-      return pollForResults(requestId, clientRequestId, startTime);
+      return pollForResults(requestId, clientRequestId, startTime, onProgress);
     }
   } catch (error) {
     // Enhanced error handling with detailed logging
@@ -388,7 +402,7 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
           response: error.response.data
         });
         await new Promise(resolve => setTimeout(resolve, POLLING_INTERVAL));
-        return pollForResults(requestId, clientRequestId, startTime);
+        return pollForResults(requestId, clientRequestId, startTime, onProgress);
       } else {
         console.error('Status check failed:', {
           taskId: requestId,
@@ -550,7 +564,7 @@ const validateUrl = (url) => {
 };
 
 // Update the analyze function to use the consolidated /analyze endpoint
-export const analyze = async (requestData, requestId = null) => {
+export const analyze = async (requestData, requestId = null, onProgress = null) => {
     // NUCLEAR OPTION: Global route check to prevent HomeView from calling analyze on EnhancedValidator page
     const currentPath = window.location.pathname;
     const isEnhancedValidatorPage = currentPath.includes('enhanced-validator');
@@ -709,7 +723,7 @@ export const analyze = async (requestData, requestId = null) => {
             });
             
             try {
-                const polledResults = await pollForResults(taskId, requestId);
+                const polledResults = await pollForResults(taskId, requestId, Date.now(), onProgress);
                 console.log('Polling completed with results:', {
                     hasCitations: !!polledResults.citations,
                     citationsCount: polledResults.citations?.length,

@@ -32,6 +32,8 @@ class CitationService:
         self.processor = DockerOptimizedProcessor()
         self.cache_ttl = 3600  # 1 hour cache
         self._cache = {}  # Initialize cache
+        # Progress data store for async processing UI polling
+        self._progress_data: Dict[str, Any] = {}
         self._last_cache_cleanup = time.time()
         self._cache_cleanup_interval = 300  # Clean cache every 5 minutes
 
@@ -146,7 +148,25 @@ class CitationService:
                     text = result[0]
                 else:
                     text = result
-                return text
+                
+                # CRITICAL FIX: Apply text normalization to fix broken citations
+                # This fixes line breaks in citations like "200\nU. S. 321" -> "200 U. S. 321"
+                if text and len(text.strip()) > 0:
+                    from src.utils.text_normalizer import normalize_text
+                    original_sample = text[:200].replace('\n', '\\n').replace('\r', '\\r')
+                    logger.info(f"[CitationService] Original text sample: '{original_sample}...'")
+                    
+                    text = normalize_text(text)
+                    
+                    normalized_sample = text[:200].replace('\n', '\\n').replace('\r', '\\r')
+                    logger.info(f"[CitationService] Normalized text sample: '{normalized_sample}...'")
+                    
+                    # Check if we fixed the broken citation
+                    if "200 U. S. 321" in text:
+                        logger.info(f"✅ [CitationService] FIXED: Found '200 U. S. 321' in normalized text")
+                    else:
+                        logger.warning(f"⚠️ [CitationService] Still no '200 U. S. 321' in normalized text")
+                
                 logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
                 return text
             except Exception as e:
@@ -301,10 +321,14 @@ class CitationService:
                     # Remove specific navigation elements by ID/class patterns
                     nav_patterns = ["navigation", "menu", "breadcrumb", "pagination", "social", "share"]
                     for pattern in nav_patterns:
-                        for element in soup.find_all(attrs={"class": lambda x: x and pattern in str(x).lower()}):
+                        for element in soup.find_all(
+                            attrs={"class": lambda x, p=pattern: bool(x and p in str(x).lower())}
+                        ):
                             element.decompose()
                             removed_elements += 1
-                        for element in soup.find_all(attrs={"id": lambda x: x and pattern in str(x).lower()}):
+                        for element in soup.find_all(
+                            attrs={"id": lambda x, p=pattern: bool(x and p in str(x).lower())}
+                        ):
                             element.decompose()
                             removed_elements += 1
 

@@ -160,39 +160,16 @@ def are_citations_adjacent(
 def extract_year_from_citation(citation_text: str) -> Optional[int]:
     """
     Extract 4-digit year from citation text.
-    
-    Returns:
-        Year as integer, or None if not found
+    Delegates to src.utils.date_utils (single source of truth).
     """
-    match = re.search(r"\b(19|20)\d{2}\b", citation_text)
-    if match:
-        return int(match.group(0))
-    return None
+    from src.utils.date_utils import extract_year_from_citation as _extract
+    return _extract(citation_text)
 
 
 def clean_case_name(name: str) -> str:
-    """
-    Clean and normalize a case name.
-    
-    Removes:
-    - Leading/trailing whitespace
-    - Extra spaces
-    - Common truncation indicators
-    """
-    if not name:
-        return ""
-    
-    # Basic cleaning
-    name = name.strip()
-    name = re.sub(r"\s+", " ", name)
-    
-    # Remove truncation indicators
-    if name.endswith("...") or name.endswith("."):
-        # Check if it's a real truncation
-        if len(name) < 20 or " v." not in name.lower():
-            name = name.rstrip(".")
-    
-    return name
+    """Re-export from single source of truth (src.utils.case_name_utils)."""
+    from src.utils.case_name_utils import clean_case_name as _clean
+    return _clean(name)
 
 
 def is_truncated_name(name: str) -> bool:

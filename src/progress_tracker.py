@@ -241,19 +241,10 @@ def get_progress_data(task_id: str) -> Optional[Dict[str, Any]]:
     except Exception as e:
         logger.error(f"Failed to get progress from Redis: {e}")
 
-    # FIX #23: If task not found anywhere, it might be a completed sync task
-    # Return a default "completed" status so frontend knows to stop polling
-    logger.debug(f"Task {task_id} not found in memory or Redis, assuming completed sync task")
-    return {
-        "task_id": task_id,
-        "status": "completed",
-        "overall_progress": 100,
-        "current_step": 6,
-        "total_steps": 6,
-        "elapsed_time": 0,
-        "current_message": "Processing completed",
-        "steps": [],
-    }
+    # FIX 2026-02-01: Don't assume "completed" when task not found - this causes false positives
+    # for async tasks that haven't written progress yet. Return None so caller can check RQ job state.
+    logger.debug(f"Task {task_id} not found in memory or Redis - returning None to let caller check RQ state")
+    return None
 
 
 # Cleanup old trackers periodically
