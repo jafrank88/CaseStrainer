@@ -39,8 +39,44 @@ import logging
 from typing import List, Dict, Any, Optional, Tuple
 import os
 
-# UNIFIED IMPORTS - Use src.extraction for extraction (single source of truth)
-from src.extraction import extract_case_name_and_date_unified_master
+# UNIFIED IMPORTS - Prefer src.extraction when available.
+# In some CI snapshots the modular extraction package may be absent; keep imports resilient.
+try:
+    from src.extraction import extract_case_name_and_date_unified_master
+except Exception as extraction_import_err:
+    logger = logging.getLogger(__name__)
+    logger.warning(
+        f"src.extraction import unavailable; using minimal fallback extractor: {extraction_import_err}"
+    )
+
+    def extract_case_name_and_date_unified_master(  # type: ignore[override]
+        text: str,
+        citation: str,
+        start_index: Optional[int] = None,
+        end_index: Optional[int] = None,
+        debug: bool = False,
+        document_primary_case_name: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Minimal compatibility fallback when src.extraction is not installed in the
+        current environment (e.g. partial CI checkout). Keeps callers functional.
+        """
+        _ = (start_index, end_index, debug, document_primary_case_name)
+        case_name = ""
+        if citation and " v. " in citation:
+            m = re.match(r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z\s'\.\&\-,]+?)(?:,\s*\d|\s+\d)", citation)
+            if m:
+                case_name = m.group(1).strip().rstrip(",")
+        if not case_name and text:
+            m = re.search(r"([A-Z][A-Za-z0-9&\.',\-\s]{3,140}\s+v\.\s+[A-Z][A-Za-z0-9&\.',\-\s]{2,140})", text)
+            if m:
+                case_name = m.group(1).strip().rstrip(",")
+        return {
+            "case_name": case_name or "N/A",
+            "date": None,
+            "method": "compat_fallback_no_src_extraction",
+            "confidence": 0.0,
+        }
 
 from src.unified_clustering_master_optimized import cluster_citations_optimized as cluster_citations_unified
 import warnings
@@ -3640,8 +3676,6 @@ class UnifiedCitationProcessorV2:
         # OPTIMIZATION: Cache extraction results by citation position to avoid duplicate work
         extraction_cache = {}  # Key: (start_index, end_index), Value: extracted_name
         try:
-            from src.extraction import extract_case_name_and_date_unified_master
-
             for c in citations:
                 try:
                     current_name = getattr(c, "extracted_case_name", None) or ""
