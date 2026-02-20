@@ -83,8 +83,9 @@ class UnifiedVerificationMaster:
         session=None,
         fast_verification: bool = True
     ):
-        """Initialize the master verification engine."""
-        self.api_key = api_key or COURTLISTENER_API_KEY
+        """Initialize the master verification engine. API key comes from env via config (COURTLISTENER_API_KEY)."""
+        # Single source: env -> config. Used for both citation-lookup and search APIs.
+        self.api_key = (api_key or COURTLISTENER_API_KEY) or ""
         # CRITICAL FIX: Create a requests.Session when none is provided
         # Without this, all verifiers get session=None and every HTTP call
         # fails with AttributeError: 'NoneType' object has no attribute 'post'
@@ -95,12 +96,15 @@ class UnifiedVerificationMaster:
         self.session = session
         self.fast_verification = fast_verification
         
-        # Initialize components
+        # Citation-lookup (batch + single) and search API all use the same key from config/env
         self.courtlistener = CourtListenerVerifier(self.api_key, self.session)
         self.fallback = FallbackVerifier(self.session, fast_verification)
         self.batch_verifier = BatchVerifier(self.api_key, self.session)
         
-        logger.info(f"UnifiedVerificationMaster initialized (modular version)")
+        if self.api_key:
+            logger.info("[VERIFICATION-MASTER] Using COURTLISTENER_API_KEY from config (env) for citation-lookup and search APIs")
+        else:
+            logger.warning("[VERIFICATION-MASTER] COURTLISTENER_API_KEY not set (check env/config); citation-lookup and search will return unverified")
     
     async def verify_citation(
         self,
@@ -224,7 +228,7 @@ class UnifiedVerificationMaster:
             )
         
         # Step 2: CourtListener search API fallback (by case name)
-        if extracted_case_name and time.time() - start_time < timeout:
+        if time.time() - start_time < timeout:
             logger.debug(f"[VERIFY] Trying CL search fallback for '{citation}'")
             search_result = await cl_search_fallback(
                 self.session, self.api_key, citation,
@@ -284,7 +288,8 @@ class UnifiedVerificationMaster:
         timeout_per_citation: float = 10.0,
         progress_callback: Optional[Callable[[int, str, str], None]] = None,
         enable_fallback: bool = True,
-        max_fallback_citations: int = 100
+        max_fallback_citations: int = 100,
+        fallback_time_budget_seconds: float = 300.0,
     ) -> List[VerificationResult]:
         """
         Batch verify citations.
@@ -297,6 +302,7 @@ class UnifiedVerificationMaster:
             timeout_per_citation: Timeout per citation
             progress_callback: Progress callback
             enable_fallback: Enable fallback verification
+            fallback_time_budget_seconds: Total wall-clock budget for all fallback attempts
             
         Returns:
             List of VerificationResult
@@ -319,6 +325,32 @@ class UnifiedVerificationMaster:
         unverified_count = 0
         fallback_success_count = 0
         fallback_attempted = 0
+        fallback_start_time = time.time()
+        fallback_deadline = fallback_start_time + max(0.0, float(fallback_time_budget_seconds or 0.0))
+        skipped_due_time_budget = 0
+        skipped_due_count_cap = 0
+        skipped_due_noisy_citation = 0
+
+        def _is_noisy_for_fallback(cit: str) -> bool:
+            """Skip expensive fallback calls for malformed/prose-like citation strings."""
+            txt = (cit or "").strip()
+            if not txt:
+                return True
+            if len(txt) > 180:
+                return True
+            markers = (
+                "...",
+                "TABLE OF AUTHORITIES",
+                "Cases-Continued",
+                "VIII Miscellaneous",
+                "Resp't",
+                "Resp’t",
+                "Obj.",
+            )
+            if any(m in txt for m in markers):
+                return True
+            return False
+
         for result_idx, result in enumerate(batch_results):
             # Report progress for each citation processed
             if progress_callback:
@@ -332,8 +364,45 @@ class UnifiedVerificationMaster:
             verified = result.get("verified", False)
             # Also try fallback when CL returned a name but no URL
             needs_url = verified and result.get("canonical_name") and not result.get("canonical_url")
+
+            # Deterministic rescue: known federal citation table (works even when CL lookup/search misses).
+            # This is intentionally applied in batch mode too, not only single-citation verification.
+            if not verified:
+                known_federal = _lookup_known_federal(str(result.get("citation", "")))
+                if known_federal:
+                    result["verified"] = True
+                    result["canonical_name"] = known_federal.get("canonical_name")
+                    result["canonical_date"] = known_federal.get("canonical_date") or known_federal.get("canonical_year")
+                    result["canonical_url"] = known_federal.get("canonical_url")
+                    result["source"] = "known_federal"
+                    result["confidence"] = 1.0
+                    result["method"] = "known_federal"
+                    result["error"] = None
+                    verified = True
+                    needs_url = False
+                    logger.info(
+                        f"[BATCH-KNOWN-FEDERAL] Resolved '{result.get('citation')}' -> "
+                        f"'{result.get('canonical_name')}'"
+                    )
             
-            if (not verified or needs_url) and enable_fallback and fallback_attempted < max_fallback_citations:
+            should_try_fallback = (not verified or needs_url) and enable_fallback
+            if should_try_fallback and _is_noisy_for_fallback(str(result.get("citation", ""))):
+                should_try_fallback = False
+                skipped_due_noisy_citation += 1
+                logger.info(
+                    f"[BATCH-FALLBACK] Skipping noisy citation: "
+                    f"'{str(result.get('citation', ''))[:80]}'"
+                )
+            if should_try_fallback and fallback_attempted >= max_fallback_citations:
+                skipped_due_count_cap += 1
+            if should_try_fallback and time.time() >= fallback_deadline:
+                skipped_due_time_budget += 1
+
+            if (
+                should_try_fallback
+                and fallback_attempted < max_fallback_citations
+                and time.time() < fallback_deadline
+            ):
                 unverified_count += 1
                 fallback_attempted += 1
                 # Aggressive memory cleanup every 5 fallback attempts
@@ -357,14 +426,12 @@ class UnifiedVerificationMaster:
                         logger.warning(f"[BATCH-FALLBACK-MEM] After {fallback_attempted} fallbacks: {_fb_mem}MB")
                     except Exception:
                         pass
-                # Try fallback for unverified citations
-                try:
-                    idx = citations.index(result["citation"])
-                except ValueError:
-                    logger.warning(f"[BATCH-FALLBACK] Citation not found in list: '{result['citation']}'")
-                    idx = None
-                case_name = extracted_case_names[idx] if (extracted_case_names and idx is not None) else None
-                date = extracted_dates[idx] if (extracted_dates and idx is not None) else None
+                # Use position-based metadata mapping. citations.index(...) breaks on duplicates.
+                idx = result_idx if result_idx < len(citations) else None
+                if idx is None:
+                    logger.warning(f"[BATCH-FALLBACK] Citation index out of range at result_idx={result_idx}")
+                case_name = extracted_case_names[idx] if (extracted_case_names and idx is not None and idx < len(extracted_case_names)) else None
+                date = extracted_dates[idx] if (extracted_dates and idx is not None and idx < len(extracted_dates)) else None
 
                 cl_canonical_name = result.get("canonical_name") if needs_url else None
                 logger.warning(
@@ -372,11 +439,14 @@ class UnifiedVerificationMaster:
                     f"case_name='{case_name}' cl_canonical='{cl_canonical_name}' - trying fallbacks..."
                 )
 
-                # Step A: CL search API fallback (by case name)
-                if case_name and case_name != "N/A":
+                # Step A: CL search API fallback (citation-first; case name optional)
+                remaining_time = max(0.0, fallback_deadline - time.time())
+                if remaining_time <= 0.0:
+                    skipped_due_time_budget += 1
+                else:
                     search_result = await cl_search_fallback(
                         self.session, self.api_key, result["citation"],
-                        case_name, date, timeout_per_citation
+                        case_name, date, min(timeout_per_citation, remaining_time, 8.0)
                     )
                     if search_result.get("verified"):
                         result.update(search_result)
@@ -396,30 +466,70 @@ class UnifiedVerificationMaster:
 
                 # Step B: Web fallback (Google Scholar, Justia, Cornell LII, OpenJurist)
                 if not verified or needs_url:
-                    fallback_result = await self.fallback.verify(
-                        result["citation"],
-                        case_name,
-                        date,
-                        min(timeout_per_citation, 15.0)
-                    )
-                    if fallback_result.get("verified"):
-                        # Preserve CL canonical name when fallback only adds URL
-                        if cl_canonical_name:
-                            fallback_result.setdefault("canonical_name", cl_canonical_name)
-                        result.update(fallback_result)
-                        verified = True
-                        needs_url = False
-                        fallback_success_count += 1
-                        logger.warning(
-                            f"[BATCH-FALLBACK] Web fallback succeeded: '{result['citation'][:60]}' -> "
-                            f"'{fallback_result.get('canonical_name')}' via {fallback_result.get('source')}"
+                    skip_web_fallback = False
+                    # Avoid weak-name web matches that cause cross-case contamination.
+                    _name_txt = str(case_name or "").strip()
+                    _name_tokens = [t for t in _name_txt.replace(".", " ").split() if t]
+                    _has_v = (" v" in _name_txt.lower()) or (" v." in _name_txt.lower())
+                    _strong_name = bool(_name_txt and _name_txt.upper() != "N/A" and len(_name_tokens) >= 3 and _has_v)
+                    _cit_txt = str(result.get("citation", "") or "")
+                    _is_proprietary = (" WL " in _cit_txt) or (" Lexis " in _cit_txt) or (" U.S. Lexis " in _cit_txt)
+                    if not _strong_name:
+                        # WL/Lexis focus: allow citation-first Scholar fallback even with weak names.
+                        # FallbackVerifier limits this lane to Scholar-only for weak-name WL/LEXIS.
+                        if _is_proprietary:
+                            logger.info(
+                                f"[BATCH-FALLBACK] Weak-name proprietary cite; trying citation-first Scholar lane: "
+                                f"'{result['citation'][:60]}'"
+                            )
+                        else:
+                            logger.info(
+                                f"[BATCH-FALLBACK] Skipping web fallback for weak/no case name: "
+                                f"'{result['citation'][:60]}' case_name='{case_name}'"
+                            )
+                            skip_web_fallback = True
+                    # Proprietary WL/Lexis citations with weak/no case name are very
+                    # expensive in web fallback and rarely yield usable URLs.
+                    # Keep citation-first CL search (Step A), then skip web fallback.
+                    _weak_name = (not _name_txt) or (_name_txt.upper() == "N/A") or (len(_name_tokens) <= 1) or (" v" not in _name_txt.lower())
+                    if _is_proprietary and _weak_name and skip_web_fallback:
+                        logger.info(
+                            f"[BATCH-FALLBACK] Skipping proprietary web fallback due to weak/no case name: "
+                            f"'{result['citation'][:60]}'"
                         )
-                    else:
-                        logger.warning(
-                            f"[BATCH-FALLBACK] All fallbacks failed for '{result['citation'][:60]}': "
-                            f"{fallback_result.get('error', 'unknown')}"
-                        )
+                    if not skip_web_fallback:
+                        remaining_time = max(0.0, fallback_deadline - time.time())
+                        if remaining_time <= 0.0:
+                            skipped_due_time_budget += 1
+                        else:
+                            fallback_result = await self.fallback.verify(
+                                result["citation"],
+                                case_name,
+                                date,
+                                min(timeout_per_citation, remaining_time, 8.0)
+                            )
+                            if fallback_result.get("verified"):
+                                # Preserve CL canonical name when fallback only adds URL
+                                if cl_canonical_name:
+                                    fallback_result.setdefault("canonical_name", cl_canonical_name)
+                                result.update(fallback_result)
+                                verified = True
+                                needs_url = False
+                                fallback_success_count += 1
+                                logger.warning(
+                                    f"[BATCH-FALLBACK] Web fallback succeeded: '{result['citation'][:60]}' -> "
+                                    f"'{fallback_result.get('canonical_name')}' via {fallback_result.get('source')}"
+                                )
+                            else:
+                                logger.warning(
+                                    f"[BATCH-FALLBACK] All fallbacks failed for '{result['citation'][:60]}': "
+                                    f"{fallback_result.get('error', 'unknown')}"
+                                )
 
+            # Ensure unverified citations always have an error reason for UI/API
+            err = result.get("error")
+            if not verified and not err:
+                err = "No results"
             results.append(VerificationResult(
                 citation=result["citation"],
                 verified=verified,
@@ -429,7 +539,7 @@ class UnifiedVerificationMaster:
                 source=result.get("source", "unknown"),
                 confidence=result.get("confidence", 0.0),
                 method=result.get("method", "unknown"),
-                error=result.get("error"),
+                error=err,
             ))
         
         # Final progress update
@@ -443,7 +553,9 @@ class UnifiedVerificationMaster:
             logger.info(
                 f"[BATCH-FALLBACK] Summary: {unverified_count} unverified, "
                 f"{fallback_success_count} recovered by fallback"
-                f"{f', {total - fallback_attempted - (total - unverified_count)} skipped (max_fallback={max_fallback_citations})' if fallback_attempted >= max_fallback_citations else ''}"
+                f"{f', {skipped_due_count_cap} skipped (max_fallback={max_fallback_citations})' if skipped_due_count_cap else ''}"
+                f"{f', {skipped_due_time_budget} skipped (time_budget={fallback_time_budget_seconds}s)' if skipped_due_time_budget else ''}"
+                f"{f', {skipped_due_noisy_citation} skipped (noisy-citation gate)' if skipped_due_noisy_citation else ''}"
             )
 
         # Aggressive memory cleanup after all verification

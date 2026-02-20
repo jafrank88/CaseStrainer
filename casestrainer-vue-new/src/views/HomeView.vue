@@ -17,6 +17,11 @@
               <p class="hero-subtitle">
                 Extract and verify U.S. legal case citations from documents, text, or URLs against authoritative databases.
               </p>
+              <div class="hero-badges">
+                <span class="hero-badge"><i class="bi bi-lightning-charge-fill me-1"></i>Fast Processing</span>
+                <span class="hero-badge"><i class="bi bi-diagram-3-fill me-1"></i>Clustered Results</span>
+                <span class="hero-badge"><i class="bi bi-shield-lock-fill me-1"></i>No Gen AI</span>
+              </div>
             </div>
 
             <!-- Experimental Use Banner -->
@@ -79,7 +84,7 @@
             </div>
 
             <!-- Input Content Area -->
-            <div class="input-content-area">
+            <div class="input-content-area panel-surface">
               <!-- Text Input Tab -->
               <div v-if="activeTab === 'paste'" class="input-tab-content">
                 <div class="form-group">
@@ -219,9 +224,9 @@
                     <div>{{ fileError }}</div>
                   </div>
                   
-                  <div v-else-if="selectedFile && !isAnalyzing" class="alert alert-success d-flex align-items-center mt-3 py-2">
+                  <div v-else-if="selectedFile && !isAnalyzing" class="alert alert-success d-flex align-items-center justify-content-center mt-3 py-2">
                     <i class="bi bi-check-circle-fill me-2"></i>
-                    <div>
+                    <div class="text-center">
                       <strong>Ready for analysis</strong>
                       <div class="small">Click "Analyze Content" to process your document</div>
                     </div>
@@ -404,11 +409,34 @@
         <!-- Results Section - Replaces input area when results are available -->
         <div v-if="analysisResults || analysisError" class="results-replacement-area">
           <div class="results-header">
-            <h2 class="results-title">
-              <i class="bi bi-shield-check me-2"></i>
-              <!-- 🚨 NUCLEAR OPTION: Disabled Citation Analysis Results header -->
-              <!-- Citation Analysis Results -->
-            </h2>
+            <div class="results-heading">
+              <h2 class="results-title">
+                <i class="bi bi-shield-check me-2"></i>
+                Citation Analysis Results
+              </h2>
+              <div class="results-meta">
+                <span class="result-chip">
+                  <i class="bi bi-journal-text me-1"></i>
+                  {{ resultClusterCount }} case{{ resultClusterCount === 1 ? '' : 's' }}
+                </span>
+                <span class="result-chip">
+                  <i class="bi bi-link-45deg me-1"></i>
+                  {{ resultCitationCount }} citation{{ resultCitationCount === 1 ? '' : 's' }}
+                </span>
+                <span class="result-chip" v-if="resultClusterCount > 0">
+                  <i class="bi bi-check2-circle me-1"></i>
+                  {{ resultFoundClusterCount }} case{{ resultFoundClusterCount === 1 ? '' : 's' }} found
+                </span>
+                <span class="result-chip chip-warning" v-if="resultUnverifiedClusterCount > 0">
+                  <i class="bi bi-exclamation-circle me-1"></i>
+                  {{ resultUnverifiedClusterCount }} case{{ resultUnverifiedClusterCount === 1 ? '' : 's' }} not found
+                </span>
+                <span v-if="analysisError" class="result-chip chip-error">
+                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  Partial/Error State
+                </span>
+              </div>
+            </div>
             <button 
               @click="handleNewAnalysis" 
               class="btn btn-primary new-analysis-btn"
@@ -471,6 +499,17 @@ const isDragOver = ref(false);
 const dragOver = ref(false);
 const analysisResults = ref(null);
 const analysisError = ref('');
+const progressCompletedDisplayCount = ref(0);
+const resultClusterCount = computed(() => analysisResults.value?.clusters?.length || 0);
+const resultCitationCount = computed(() => analysisResults.value?.citations?.length || 0);
+const resultUnverifiedClusterCount = computed(() => {
+  const sections = analysisResults.value?.cluster_sections || {};
+  if (Array.isArray(sections.unverified)) return sections.unverified.length;
+  return 0;
+});
+const resultFoundClusterCount = computed(() =>
+  Math.max(0, resultClusterCount.value - resultUnverifiedClusterCount.value)
+);
 
 // Async task state
 const activeAsyncTask = ref(null);
@@ -495,7 +534,50 @@ watch(activeTab, () => {
   }
   
   console.log('Tab changed - results cleared and async tasks stopped');
+  progressCompletedDisplayCount.value = 0;
 });
+
+const scrollToPageTop = async () => {
+  await nextTick();
+  try {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    window.scrollTo(0, 0);
+  }
+};
+
+// When new results arrive, bring the results header into view at the top.
+watch(analysisResults, async (nextValue, prevValue) => {
+  if (!nextValue) return;
+  if (nextValue === prevValue) return;
+  await scrollToPageTop();
+});
+
+const normalizeProgressMessage = (rawStep, jobData) => {
+  const text = (rawStep || '').toString().trim();
+  if (!text) return 'Processing...';
+
+  const m = text.match(/\b(\d+)\s+completed\b/i);
+  if (!m) return text;
+
+  const processed = Number(m[1]) || 0;
+  const vs = jobData?.verification_status || {};
+  const total = Number(vs.total_citations || jobData?.progress_data?.total_citations || 0) || 0;
+
+  // Keep user-visible completion count monotonic even if backend phases reset counters.
+  progressCompletedDisplayCount.value = Math.max(progressCompletedDisplayCount.value, processed);
+  const shown = progressCompletedDisplayCount.value;
+
+  if (shown > 0 && processed === 0 && (vs.state === 'running' || vs.state === 'verifying')) {
+    return total > 0
+      ? `Verifying citations... ${shown}/${total} completed (moving to next phase)`
+      : `Verifying citations... ${shown} completed (moving to next phase)`;
+  }
+
+  return total > 0
+    ? `Verifying citations... ${shown}/${total} completed`
+    : `Verifying citations... ${shown} completed`;
+};
 
 // Initialize with URL parameters if present
 onMounted(() => {
@@ -1109,6 +1191,7 @@ const pollAsyncJob = async (jobId) => {
                            jobData.verification_status?.current_message ||
                            jobData.status || 
                            'Initializing...'; // Better default
+          currentStep = normalizeProgressMessage(currentStep, jobData);
           
           // If no explicit progress, try to calculate from steps
           if (!progressPercent && jobData.progress_data?.steps) {
@@ -1429,6 +1512,7 @@ const analyzeContent = async () => {
   }
   
   isAnalyzing.value = true;
+  progressCompletedDisplayCount.value = 0;
   // showProcessing removed - SimpleProgress component handles progress display
   console.log('isAnalyzing set to:', isAnalyzing.value);
   
@@ -1454,7 +1538,8 @@ const analyzeContent = async () => {
   
   try {
     let requestData;
-    
+    let pollingInterval = null; // declared here so both sync and async paths can clear it safely
+
     // Prepare request data based on active tab
     if (activeTab.value === 'file' && selectedFile.value) {
       // For file uploads, use FormData
@@ -1666,8 +1751,14 @@ const analyzeContent = async () => {
     console.log('- Success:', response?.success);
 
     // Check if we have immediate results vs. async task
-    if (response && response.status === 'completed' && response.result) {
-      console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', response.result?.citations?.length || 0);
+    // Sync response: top-level citations/clusters, no task_id. Async completion: status completed + result.
+    const hasImmediateData = response && (
+      (response.status === 'completed' && response.result) ||
+      ((response.citations?.length > 0 || response.clusters?.length > 0) && !response.task_id)
+    );
+    if (hasImmediateData) {
+      const citationCount = response.citations?.length ?? response.result?.citations?.length ?? 0;
+      console.log('🎉 IMMEDIATE RESULTS RECEIVED! Citations:', citationCount);
       
       // CRITICAL: Stop polling immediately before processing results to prevent errors
       if (pollingInterval) {
@@ -2170,13 +2261,13 @@ const analyzeContent = async () => {
     
     // CRITICAL: Ensure polling is stopped in all cases (success, error, timeout)
     try {
-      if (typeof pollingInterval !== 'undefined' && pollingInterval) {
+      if (pollingInterval) {
         clearInterval(pollingInterval);
         pollingInterval = null;
         console.log('Cleanup: Stopped polling in finally block');
       }
     } catch (e) {
-      // pollingInterval doesn't exist in this scope (async mode) - that's ok
+      // ignore
     }
     
     if (!inAsyncMode) {
@@ -2336,9 +2427,9 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .spinning-loader {
-  width: 3rem !important;
-  height: 3rem !important;
-  border: 0.4rem solid #e9ecef !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  border: 0.15rem solid #e9ecef !important;
   border-top-color: #0d6efd !important;
   border-radius: 50% !important;
   animation: spin 0.75s linear infinite !important;
@@ -2364,19 +2455,56 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 /* Main Layout */
+.home {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(circle at top right, rgba(75, 46, 131, 0.08), transparent 45%),
+              radial-gradient(circle at bottom left, rgba(13, 110, 253, 0.06), transparent 40%),
+              #f6f8fc;
+}
+
+.background-pattern {
+  position: absolute;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.2;
+  pointer-events: none;
+}
+
+.background-pattern:nth-of-type(1) {
+  top: -140px;
+  right: -120px;
+  background: #6a4c93;
+}
+
+.background-pattern:nth-of-type(2) {
+  bottom: -160px;
+  left: -120px;
+  background: #0d6efd;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
 .main-content-wrapper {
   display: block;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem 0;
+  padding: 2.5rem 0 3rem;
 }
 
 .main-input-area {
-  background: rgba(255, 255, 255, 0.98);
-  border-radius: 16px;
-  padding: 2rem;
-  box-shadow: var(--shadow-medium);
-  border: 1px solid rgba(75, 46, 131, 0.1);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 2.2rem;
+  box-shadow: 0 10px 30px rgba(31, 38, 135, 0.08);
+  border: 1px solid rgba(75, 46, 131, 0.14);
+  backdrop-filter: blur(6px);
 }
 
 .recent-inputs-sidebar-container {
@@ -2411,6 +2539,26 @@ const handleAsyncTaskError = (errorMessage) => {
   margin: 0 auto;
 }
 
+.hero-badges {
+  margin-top: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.55rem;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3e2a69;
+  background: #f1ecfb;
+  border: 1px solid #dfd3f4;
+}
+
 .experimental-banner {
   background: linear-gradient(135deg, #fff3cd, #ffeaa7);
   border: 1px solid #ffeaa7;
@@ -2433,9 +2581,10 @@ const handleAsyncTaskError = (errorMessage) => {
 /* Input Methods */
 .input-methods {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
   margin-bottom: 2rem;
+  align-items: stretch;
 }
 
 .input-method-card {
@@ -2449,6 +2598,8 @@ const handleAsyncTaskError = (errorMessage) => {
   display: flex;
   align-items: center;
   gap: 1rem;
+  min-height: 108px;
+  overflow: hidden;
 }
 
 .input-method-card:hover:not(.disabled) {
@@ -2476,6 +2627,7 @@ const handleAsyncTaskError = (errorMessage) => {
 .method-content {
   flex: 1;
   min-width: 0;
+  padding-right: 1.75rem; /* Reserve room for active check icon */
 }
 
 .method-content h4 {
@@ -2490,6 +2642,7 @@ const handleAsyncTaskError = (errorMessage) => {
   font-size: 0.9rem;
   color: var(--text-secondary);
   line-height: 1.3;
+  overflow-wrap: anywhere;
 }
 
 .active-indicator {
@@ -2510,6 +2663,13 @@ const handleAsyncTaskError = (errorMessage) => {
 /* Input Content Area */
 .input-content-area {
   margin-bottom: 2rem;
+}
+
+.panel-surface {
+  background: #fcfcff;
+  border: 1px solid #ebe7f5;
+  border-radius: 14px;
+  padding: 1.2rem;
 }
 
 .input-tab-content {
@@ -3061,6 +3221,12 @@ const handleAsyncTaskError = (errorMessage) => {
   }
 }
 
+@media (max-width: 1024px) {
+  .input-methods {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 768px) {
   .main-input-area {
     padding: 1.5rem;
@@ -3076,7 +3242,7 @@ const handleAsyncTaskError = (errorMessage) => {
   
   .input-methods {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem;
   }
   
   .input-method-card {
@@ -3105,6 +3271,15 @@ const handleAsyncTaskError = (errorMessage) => {
   .hero-title {
     font-size: 1.8rem;
   }
+
+  .input-methods {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+  }
+
+  .input-method-card {
+    min-height: 96px;
+  }
   
   .file-drop-zone {
     padding: 1.5rem;
@@ -3117,25 +3292,56 @@ const handleAsyncTaskError = (errorMessage) => {
 
 /* Results Replacement Area Styles */
 .results-replacement-area {
-  margin-top: 2rem;
+  margin-top: 1.5rem;
 }
 
 .results-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 2rem;
-  padding: 1.5rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  border-radius: 12px;
-  border: 1px solid #dee2e6;
+  padding: 1.25rem 1.4rem;
+  background: linear-gradient(135deg, #f8f9ff 0%, #eef2f9 100%);
+  border-radius: 14px;
+  border: 1px solid #dce3f0;
+  box-shadow: 0 4px 14px rgba(37, 56, 88, 0.08);
+}
+
+.results-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
 }
 
 .results-title {
   margin: 0;
-  color: #2c3e50;
-  font-size: 1.5rem;
+  color: #253858;
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.results-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.result-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.62rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
   font-weight: 600;
+  color: #334e74;
+  background: #edf4ff;
+  border: 1px solid #cfe1ff;
+}
+
+.result-chip.chip-error {
+  color: #8b1e2d;
+  background: #fdecef;
+  border-color: #f5c2c8;
 }
 
 .new-analysis-btn {
@@ -3156,10 +3362,18 @@ const handleAsyncTaskError = (errorMessage) => {
 
 /* Mobile responsive for results header */
 @media (max-width: 768px) {
+  .hero-badges {
+    justify-content: flex-start;
+  }
+
+  .panel-surface {
+    padding: 0.9rem;
+  }
+
   .results-header {
     flex-direction: column;
     gap: 1rem;
-    text-align: center;
+    text-align: left;
   }
   
   .results-title {

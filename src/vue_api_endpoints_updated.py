@@ -33,6 +33,18 @@ from src.utils.strict_context_isolator import (
 )
 import threading
 from src.schemas import normalize_citation_dict, normalize_cluster_dict
+from src.utils.response_enrichment import (
+    extract_display_base_citation,
+    compute_citation_score_and_similarity,
+    build_fallback_clusters,
+    deduplicate_cluster_citations,
+    deduplicate_clusters_for_response,
+    apply_proprietary_display_fallback,
+    compute_cluster_sections,
+)
+from src.utils.verification_display_utils import is_effectively_verified_citation
+from src.utils.cluster_display_utils import finalize_cluster_for_response
+from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
 from src.metrics import (
     record_document,
     record_citations,
@@ -59,24 +71,9 @@ register_all_routes(vue_api)
 from src.rate_limiter import rate_limit
 
 
-@vue_api.route("/analyze", methods=["POST"])
-@rate_limit(max_calls=30, window=60)
-def analyze():
+def _analyze_impl(request):
     """
-    Main analysis endpoint that handles all types of input (file, JSON, form, URL).
-
-    This endpoint routes requests to the appropriate handler based on the input type:
-    - File uploads (multipart/form-data with file)
-    - JSON payloads (application/json)
-    - Form data (application/x-www-form-urlencoded or multipart/form-data)
-    - URL parameters (for backward compatibility)
-
-    Optional Parameters:
-    - enable_verification: Boolean or string ("true"/"false") to control citation verification
-    - force_mode: Override sync/async processing ("sync", "async", or None for auto)
-
-    Returns:
-        Response with analysis results or task status
+    Main analysis implementation: file, JSON, form, URL. Called by api.routes.analyze via analyze_service.
     """
     # Generate initial request_id (will be replaced if client provides one)
     request_id = str(uuid.uuid4())
@@ -127,16 +124,15 @@ def analyze():
 
     try:
         if True:
-
-            pass  # Empty block
-
-            pass  # Empty block
+            # Keep placeholder branch for historical diff stability.
+            # Intentionally no-op.
+            logger.debug(f"[Request {request_id}] Placeholder bootstrap branch executed")
 
         # Best-effort: record one document submission for this request
         try:
             record_document()
-        except Exception:
-            pass
+        except Exception as record_err:
+            logger.debug(f"[Request {request_id}] record_document skipped: {record_err}")
 
         if request.files:
             logger.info(f"[Request {request_id}] Files received: {[f.filename for f in request.files.values()]}")
@@ -159,7 +155,8 @@ def analyze():
             # Use the correct method name and store the task ID for later use
             # For sync processing, create tracker directly with request_id to avoid mapping issues
             # Use 100 steps for percentage-based tracking (0-100%)
-            task_id = progress_tracker.start_task(100, task_id_override=request_id)
+            if progress_tracker is not None:
+                task_id = progress_tracker.start_task(100, task_id_override=request_id)
         except Exception as _e:
             logger.warning(f"[Request {request_id}] Progress manager initialization failed: {_e}")
             progress_tracker = None
@@ -178,7 +175,7 @@ def analyze():
                             # Start progress under the client-provided ID (in addition to any earlier default)
                             try:
                                 # Ensure progress is started for the client-provided ID
-                                if request_id not in progress_tracker.active_tasks:
+                                if progress_tracker is not None and request_id not in progress_tracker.active_tasks:
                                     task_id = progress_tracker.start_task(100, task_id_override=request_id)
                             except Exception as __e:
                                 logger.warning(f"[Request {request_id}] Progress start failed: {__e}")
@@ -293,7 +290,7 @@ def analyze():
             logger.info(
                 f"[Request {request_id}] request.is_json: {request.is_json}, json_data exists: {json_data is not None}"
             )
-            # Be tolerant to malformed JSON – don't raise BadRequest here
+            # Be tolerant to malformed JSON - don't raise BadRequest here
             data = json_data or request.get_json(silent=True)
             logger.info(
                 f"[Request {request_id}] Initial data from get_json: {type(data)}, keys: {list(data.keys()) if isinstance(data, dict) else 'N/A'}"
@@ -691,35 +688,50 @@ def analyze():
                         logger.warning(f"[Request {request_id}] No metadata or result found")
 
                 try:
-                    progress_tracker.update_progress(request_id, 1, 40, "Citations extracted successfully")
+                    if progress_tracker is not None:
+                        progress_tracker.update_progress(
+                            request_id, 40, "running", "Citations extracted successfully"
+                        )
                     logger.info(f"[Request {request_id}] Progress update 1: Citations extracted")
                 except Exception as progress_error:
                     logger.warning(f"[Request {request_id}] Progress update 1 failed: {progress_error}")
 
                 try:
-                    progress_tracker.update_progress(request_id, 2, 60, "Citations normalized locally")
+                    if progress_tracker is not None:
+                        progress_tracker.update_progress(
+                            request_id, 60, "running", "Citations normalized locally"
+                        )
                     logger.info(f"[Request {request_id}] Progress update 2: Citations normalized")
                 except Exception as progress_error:
                     logger.warning(f"[Request {request_id}] Progress update 2 failed: {progress_error}")
 
                 try:
-                    progress_tracker.update_progress(request_id, 3, 80, "Case names and years extracted")
+                    if progress_tracker is not None:
+                        progress_tracker.update_progress(
+                            request_id, 80, "running", "Case names and years extracted"
+                        )
                     logger.info(f"[Request {request_id}] Progress update 3: Case names extracted")
                 except Exception as progress_error:
                     logger.warning(f"[Request {request_id}] Progress update 3 failed: {progress_error}")
                 time.sleep(0.1)  # Small delay for frontend to see progress
 
                 try:
-                    progress_tracker.update_progress(request_id, 4, 90, "Citations clustered successfully")
+                    if progress_tracker is not None:
+                        progress_tracker.update_progress(
+                            request_id, 90, "running", "Citations clustered successfully"
+                        )
                     logger.info(f"[Request {request_id}] Progress update 4: Citations clustered")
                 except Exception as progress_error:
                     logger.warning(f"[Request {request_id}] Progress update 4 failed: {progress_error}")
                 time.sleep(0.1)  # Small delay for frontend to see progress
 
                 try:
-                    progress_tracker.complete_progress(request_id)
-                except Exception:
-                    pass
+                    if progress_tracker is not None:
+                        progress_tracker.update_progress(
+                            request_id, 100, "completed", "Processing complete"
+                        )
+                except Exception as progress_error:
+                    logger.debug(f"[Request {request_id}] Progress completion update skipped: {progress_error}")
 
                 # === Strict context repair (Vue path) ===
                 # For text inputs, ensure extracted_case_name appears in the strict pre-citation context; otherwise re-extract.
@@ -764,8 +776,10 @@ def analyze():
                                     mx = re.search(rx, input_data, flags=re.IGNORECASE)
                                     if mx:
                                         pos = (mx.start(), mx.end())
-                                except Exception:
-                                    pass
+                                except Exception as regex_error:
+                                    logger.debug(
+                                        f"[STRICT-REPAIR] Regex position fallback skipped for '{cit_text}': {regex_error}"
+                                    )
                             if pos is None:
                                 continue
                             s_idx, e_idx = pos
@@ -792,8 +806,10 @@ def analyze():
                                         try:
                                             setattr(_ci, "extracted_case_name", re_name)
                                             setattr(_ci, "method", "clean_pipeline_v1_strict_repair")
-                                        except Exception:
-                                            pass
+                                        except Exception as set_err:
+                                            logger.debug(
+                                                f"[STRICT-REPAIR] Object update skipped for '{cit_text}': {set_err}"
+                                            )
                                     logger.info(
                                         f"[STRICT-REPAIR] Overwrote extracted name for {cit_text}: '{cur_name}' -> '{re_name}'"
                                     )
@@ -804,8 +820,10 @@ def analyze():
                                 else:
                                     try:
                                         setattr(_ci, "strict_context_tail", tail)
-                                    except Exception:
-                                        pass
+                                    except Exception as tail_err:
+                                        logger.debug(
+                                            f"[STRICT-REPAIR] strict_context_tail attach skipped for '{cit_text}': {tail_err}"
+                                        )
                 except Exception as _e:
                     logger.warning(f"[STRICT-REPAIR] Skipped due to error: {_e}")
 
@@ -1311,7 +1329,7 @@ def _format_response(result, request_id, metadata, start_time):
             if not cit_text:
                 return False
             t = str(cit_text).strip()
-            # Reporter citation starts with volume (e.g. "123 F.3d 456") – keep those
+            # Reporter citation starts with volume (e.g. "123 F.3d 456") - keep those
             looks_like_reporter = re.match(r"^\d+\s+[A-Za-z\.]", t) is not None
             if looks_like_reporter:
                 return False
@@ -1383,8 +1401,8 @@ def _format_response(result, request_id, metadata, start_time):
             if ncan and ("captcha" in ncan or ncan == "capcha"):
                 try:
                     c["verified"] = False
-                except Exception:
-                    pass
+                except Exception as captcha_err:
+                    logger.debug(f"[RESPONSE] CAPTCHA masking verify reset skipped: {captcha_err}")
                 # Clear canonical fields so UI won't display placeholder
                 if "canonical_name" in c:
                     c["canonical_name"] = None
@@ -1405,12 +1423,32 @@ def _format_response(result, request_id, metadata, start_time):
     except Exception as _e:
         logger.warning(f"[RESPONSE] Failed to add name normalization fields: {_e}")
 
+    # Add display_base_citation, citation_score, name_similarity (backend single source of truth)
+    try:
+        for c in citations_serialized:
+            raw = c.get("citation") or c.get("text") or ""
+            c["display_base_citation"] = extract_display_base_citation(raw)
+            score, name_sim = compute_citation_score_and_similarity(c)
+            c["citation_score"] = score
+            c["name_similarity"] = name_sim
+            c["score_color"] = "text-success" if score >= 4 else ("text-warning" if score >= 2 else "text-danger")
+    except Exception as _e:
+        logger.warning(f"[RESPONSE] Failed to add citation display/score fields: {_e}")
+
     # Add progress endpoints for UI polling/streaming
     result["progress_endpoint"] = f"/casestrainer/api/analyze/progress/{request_id}"
     result["progress_stream"] = f"/casestrainer/api/analyze/progress-stream/{request_id}"
 
     # Prepare clusters with filtered inner citations if present (preserve objects and verified flags)
     clusters_data = result.get("clusters", [])
+    # When pipeline returns citations but no clusters, build fallback clusters on backend (single source of truth)
+    if not clusters_data and citations_serialized:
+        try:
+            clusters_data = build_fallback_clusters(citations_serialized)
+            logger.info(f"[RESPONSE] Built {len(clusters_data)} fallback clusters from {len(citations_serialized)} citations")
+        except Exception as _e:
+            logger.warning(f"[RESPONSE] Fallback cluster build failed: {_e}")
+
     try:
 
         def _filter_cluster_citations(citations_list):
@@ -1440,17 +1478,20 @@ def _format_response(result, request_id, metadata, start_time):
                 m = re.search(r"\b\d+\s+[A-Za-z][A-Za-z\.\d]*\s+\d+\b", s)
                 if m:
                     return m.group(0).strip()
-            except Exception:
-                pass
+            except Exception as key_err:
+                logger.debug(f"[RESPONSE] Citation key extraction fallback used: {key_err}")
             # as-is fallback
             return s
 
-        # build lookup from individual citations for enrichment
+        # build lookup from individual citations for enrichment (full and short key so cluster enrichment finds)
         _cit_lut = {}
         for c in citations_serialized:
             key = _norm_cit(c.get("citation"))
             if key:
                 _cit_lut[key] = c
+            short = _extract_cit_key((c.get("citation") or c.get("text")) or "")
+            if short and short not in _cit_lut:
+                _cit_lut[short] = c
 
         for cl in clusters_data:
             if isinstance(cl, dict) and "citations" in cl:
@@ -1458,7 +1499,7 @@ def _format_response(result, request_id, metadata, start_time):
                 enriched = []
                 for it in items:
                     if isinstance(it, dict):
-                        key = _extract_cit_key(it.get("citation") or it.get("text"))
+                        key = _extract_cit_key((it.get("citation") or it.get("text")) or "")
                         match = _cit_lut.get(key)
                         if match:
                             merged = dict(match)
@@ -1505,7 +1546,7 @@ def _format_response(result, request_id, metadata, start_time):
                 best_canonical_url = None
                 for cit in enriched:
                     if isinstance(cit, dict):
-                        if cit.get("verified") and cit.get("canonical_url"):
+                        if is_effectively_verified_citation(cit):
                             any_verified = True
                             if cit.get("canonical_name"):
                                 best_canonical_name = cit.get("canonical_name")
@@ -1521,96 +1562,29 @@ def _format_response(result, request_id, metadata, start_time):
                 if best_canonical_date:
                     cl["canonical_date"] = best_canonical_date
 
-                # propagate cluster canonical fields to children that are missing them
-                cl_can_name = cl.get("canonical_name") or cl.get("canonical_case_name")
-                cl_can_date = cl.get("canonical_date")
-                cl_can_url = cl.get("canonical_url") or cl.get("url")
-                cl_case_name = cl.get("cluster_case_name")
+                # Do NOT propagate cluster canonical fields onto child citations.
+                # That can contaminate mixed-tier clusters (e.g., F. Supp. inheriting U.S. canonical URL/name).
+                # Only set citation-local display alias when the citation itself is verified with its own canonical name.
+                for cit in cl["citations"]:
+                    if not isinstance(cit, dict):
+                        continue
+                    if cit.get("verified") and cit.get("canonical_name") and cit.get("canonical_name") != "N/A":
+                        cit["cluster_case_name"] = cit["canonical_name"]
 
-                if cl_can_name or cl_can_date or cl_can_url or cl_case_name:
-                    for cit in cl["citations"]:
-                        if not isinstance(cit, dict):
-                            continue
-                        if cl_can_name and not (cit.get("canonical_name") or cit.get("canonical_case_name")):
-                            cit["canonical_name"] = cl_can_name
-                        if cl_can_date and not cit.get("canonical_date"):
-                            cit["canonical_date"] = cl_can_date
-                        if cl_can_url and not (cit.get("canonical_url") or cit.get("url")):
-                            cit["canonical_url"] = cl_can_url
-                            cit["url"] = cl_can_url
-                        # When citation is verified and has canonical_name, use that for cluster_case_name
-                        # so we never display the wrong case (e.g. Simon under TransUnion).
-                        if cit.get("verified") and cit.get("canonical_name") and cit.get("canonical_name") != "N/A":
-                            cit["cluster_case_name"] = cit["canonical_name"]
-                        elif cl_case_name and not cit.get("cluster_case_name"):
-                            cit["cluster_case_name"] = cl_case_name
+        # Safety pass: enforce canonical post-cluster split rules here too, so fallback
+        # clusters or response-enriched clusters cannot ship mixed court tiers.
+        clusters_data = apply_post_verify_cluster_splits(
+            clusters_data,
+            run_id=request_id,
+        )
 
-        # annotate mismatch flags on clusters using representative citation
-        import re
-
-        def _nname(s):
-            return _normalize_legal_name(s)
-
-        for cl in clusters_data:
-            if not isinstance(cl, dict):
-                continue
-            cits = cl.get("citations") or []
-            rep = None
-            for it in cits:
-                if isinstance(it, dict) and it.get("extracted_case_name"):
-                    rep = it
-                    if it.get("verified"):
-                        break
-            if rep is None and cits:
-                rep = cits[0] if isinstance(cits[0], dict) else None
-
-            has_nm = False
-            has_dm = False
-            if rep:
-                exn = _nname(rep.get("extracted_case_name"))
-                can = _nname(rep.get("canonical_name") or rep.get("canonical_case_name"))
-                if can and exn:
-                    # Reuse lenient rule; flag mismatch only on strong disagreement
-                    if not _names_equivalent(exn, can) and _jaccard(exn, can) < 0.4:
-                        has_nm = True
-                exd = str(rep.get("extracted_date") or "")
-                cand = str(rep.get("canonical_date") or "")
-                try:
-                    exy = re.search(r"(17|18|19|20)\d{2}", exd)
-                    cay = re.search(r"(17|18|19|20)\d{2}", cand)
-                    if exy and cay and exy.group(0) != cay.group(0):
-                        has_dm = True
-                except Exception:
-                    pass
-            # scan all citations to detect any mismatches within cluster
-            # optional indices for UI
-            idxs = []
-            d_idxs = []
-            any_equiv = False
-            for i, it in enumerate(cits):
-                if not isinstance(it, dict):
-                    continue
-                exn = _nname(it.get("extracted_case_name"))
-                can = _nname(it.get("canonical_name") or it.get("canonical_case_name"))
-                if can and exn:
-                    if _names_equivalent(exn, can):
-                        any_equiv = True
-                    elif exn != can:
-                        idxs.append(i)
-                exd = str(it.get("extracted_date") or "")
-                cand = str(it.get("canonical_date") or "")
-                try:
-                    exy = re.search(r"(17|18|19|20)\d{2}", exd)
-                    cay = re.search(r"(17|18|19|20)\d{2}", cand)
-                    if exy and cay and exy.group(0) != cay.group(0):
-                        d_idxs.append(i)
-                except Exception:
-                    pass
-            # set cluster-level flags if any mismatches exist
-            cl["has_name_mismatch"] = False if any_equiv else bool(has_nm or idxs)
-            cl["has_date_mismatch"] = bool(has_dm or d_idxs)
-            if idxs:
-                cl["mismatch_indices"] = idxs
+        # Annotate mismatch flags using centralized mismatch_utils (single source of truth)
+        try:
+            from src.utils.mismatch_utils import annotate_mismatch_flags
+            citations_flat = [c for cl in clusters_data for c in (cl.get("citations") or []) if isinstance(c, dict)]
+            annotate_mismatch_flags(citations_flat, clusters_data, name_threshold=0.4, year_tolerance=0)
+        except Exception as _ann:
+            logger.warning(f"[FILTER] annotate_mismatch_flags failed: {_ann}")
     except Exception as _e:
         logger.warning(f"[FILTER] Failed filtering/annotating clusters: {_e}")
 
@@ -1619,6 +1593,17 @@ def _format_response(result, request_id, metadata, start_time):
         clusters_data = [normalize_cluster_dict(cl) if isinstance(cl, dict) else cl for cl in clusters_data]
     except Exception as _e:
         logger.warning(f"[SCHEMAS] Cluster normalization failed, using raw dicts: {_e}")
+
+    # Last-mile response hygiene: normalize proprietary messages and remove duplicate cluster cards.
+    try:
+        apply_proprietary_display_fallback(citations_serialized)
+        for _cl in clusters_data:
+            if not isinstance(_cl, dict):
+                continue
+            apply_proprietary_display_fallback(_cl.get("citations") or [])
+        clusters_data = deduplicate_clusters_for_response(clusters_data)
+    except Exception as _e:
+        logger.warning(f"[RESPONSE] Final response hygiene failed: {_e}")
 
     # Add cluster-level display fields and lenient equivalence for UI
     try:
@@ -1650,91 +1635,33 @@ def _format_response(result, request_id, metadata, start_time):
             names_eq = _names_equivalent(exn, can) if (exn and can) else False
             name_mm = False if names_eq else (exn not in can and can not in exn and j < 0.4) if (exn and can) else False
             
-            # USER FIX 2026-01-12: Use canonical name for display when extracted name is N/A or contaminated
-            # This prevents frontend from showing "N/A, N/A" when we have valid verification data
-            extracted_name = (rep.get("extracted_case_name") if rep else "") or ""
-            canonical_name = (rep.get("canonical_name") or rep.get("canonical_case_name")) if rep else ""
-            
-            # USER FIX 2026-01-12: Additional contamination check for canonical_name too
-            # Both extracted and canonical names can be contaminated, need clean fallback
-            clean_display_name = None
-            
-            # Try extracted_name first if it's clean
-            if extracted_name and extracted_name != "N/A" and "\n" not in extracted_name and len(extracted_name) <= 200:
-                clean_display_name = extracted_name
-            # Try canonical_name if extracted is contaminated
-            elif canonical_name and canonical_name != "N/A" and "\n" not in canonical_name and len(canonical_name) <= 200:
-                clean_display_name = canonical_name
-            # Fallback: get clean name from cluster's citations
-            else:
-                cluster_citations = cl.get("citations", [])
-                for cit in cluster_citations:
-                    if isinstance(cit, dict):
-                        name = cit.get("canonical_name") or cit.get("extracted_case_name")
-                        if name and "\n" not in name and len(name) <= 200:
-                            clean_display_name = name
-                            break
-            
-            cl["submitted_display_name"] = clean_display_name or "N/A"
-            
-            # USER FIX 2026-01-12: Use canonical date for display when extracted date is N/A or empty
-            extracted_date = (rep.get("extracted_date") if rep else "") or ""
-            canonical_date = (rep.get("canonical_date") if rep else "") or ""
-            
-            if not extracted_date or extracted_date == "N/A":
-                # Extract year from canonical_date (format: "2018-10-11" -> "2018")
-                cl["submitted_display_date"] = _year_only(canonical_date) if canonical_date else "N/A"
-            else:
-                cl["submitted_display_date"] = _year_only(extracted_date)
-            # USER FIX 2026-01-12: Apply contamination cleanup to verifying_display_name too
-            verifying_name = (rep.get("canonical_name") or rep.get("canonical_case_name")) if rep else ""
-            if verifying_name and ("\n" in verifying_name or len(verifying_name) > 200):
-                # Get clean name from cluster's citations
-                cluster_citations = cl.get("citations", [])
-                clean_verifying_name = None
-                for cit in cluster_citations:
-                    if isinstance(cit, dict):
-                        name = cit.get("canonical_name") or cit.get("extracted_case_name")
-                        if name and "\n" not in name and len(name) <= 200:
-                            clean_verifying_name = name
-                            break
-                cl["verifying_display_name"] = clean_verifying_name or "N/A"
-            else:
-                cl["verifying_display_name"] = verifying_name
-            # Sanitize verifying_display_date when canonical is clearly wrong (e.g. 2026-01-27 for Thole 2020, 1917 for TransUnion 2016)
-            cand_raw = (rep.get("canonical_date") if rep else "") or ""
-            exd_raw = (rep.get("extracted_date") if rep else "") or ""
-            vd = cand_raw or _year_only(cand_raw) or ""
-            exy_m = re.search(r"(19|20)\d{2}", str(exd_raw)) if exd_raw else None
-            cay_m = re.search(r"(19|20)\d{2}", str(cand_raw)) if cand_raw else None
-            ex_yr = int(exy_m.group(0)) if exy_m else None
-            ca_yr = int(cay_m.group(0)) if cay_m else None
-            if ex_yr is not None and ca_yr is not None:
-                try:
-                    today = datetime.utcnow().date()
-                    if "-" in str(cand_raw) and len(str(cand_raw)) >= 10:
-                        parsed = datetime.strptime(str(cand_raw)[:10], "%Y-%m-%d").date()
-                        if parsed >= today and ex_yr < today.year:
-                            vd = str(ex_yr)
-                            cl["has_date_mismatch"] = False
-                            for cit in (cl.get("citations") or []):
-                                if isinstance(cit, dict) and cit.get("canonical_date"):
-                                    cit["canonical_date"] = vd
-                    elif abs(ca_yr - ex_yr) > 15 or (ca_yr < 1950 and ex_yr >= 1990):
-                        vd = str(ex_yr)
-                        cl["has_date_mismatch"] = False
-                        for cit in (cl.get("citations") or []):
-                            if isinstance(cit, dict) and cit.get("canonical_date"):
-                                cit["canonical_date"] = vd
-                except Exception:
-                    pass
-            cl["verifying_display_date"] = vd
+            # Use shared backend finalizer as single source of truth for
+            # submitted/verifying display fields and unverified canonical clearing.
+            finalize_cluster_for_response(
+                cl,
+                clean_names=False,
+                clear_unverified_canonical=True,
+                clear_unverified_citations=True,
+            )
             # Lenient flags for UI
             cl["names_equivalent"] = names_eq
             cl["name_mismatch"] = name_mm
             cl["name_similarity"] = j
+
+            # Backend-provided deduplicated list for display (by display_base_citation, prefer verified)
+            try:
+                cl["display_citations"] = deduplicate_cluster_citations(cl.get("citations") or [])
+            except Exception:
+                cl["display_citations"] = cl.get("citations") or []
     except Exception as _e:
         logger.warning(f"[RESPONSE] Failed to add cluster display fields: {_e}")
+
+    # Pre-categorized cluster sections for frontend (optional: frontend can use cluster_sections or compute locally)
+    cluster_sections = {}
+    try:
+        cluster_sections = compute_cluster_sections(clusters_data)
+    except Exception as _e:
+        logger.warning(f"[RESPONSE] Failed to compute cluster_sections: {_e}")
 
     # Best-effort: record citations count when returning a completed, successful response
     try:
@@ -1743,12 +1670,13 @@ def _format_response(result, request_id, metadata, start_time):
             success_flag = bool(result.get("success", True))
             if success_flag and status_flag == "completed" and len(citations_serialized) > 0:
                 record_citations(len(citations_serialized))
-    except Exception:
-        pass
+    except Exception as record_err:
+        logger.debug(f"[RESPONSE] record_citations skipped: {record_err}")
 
     response_data = {
         "citations": citations_serialized,  # Move to top level
         "clusters": clusters_data,  # Move to top level
+        "cluster_sections": cluster_sections,  # Pre-categorized: unverified, case_mismatch, date_mismatch, etc.
         "result": {
             "statistics": result.get("statistics", {}),
         },
@@ -2082,14 +2010,12 @@ def _handle_file_upload(service, request_id):
                                 if hb < 60:
                                     hb = min(60, hb + 2)
                                     sse_mgr.update_progress(request_id, hb, "processing", "Processing in background...")
-                                else:
-                                    pass
-                        except Exception:
-                            pass
+                        except Exception as hb_err:
+                            logger.debug(f"[ASYNC-HB] Heartbeat update skipped: {hb_err}")
 
                     threading.Thread(target=_file_async_hb_and_watch, daemon=True).start()
-                except Exception:
-                    pass
+                except Exception as hb_thread_err:
+                    logger.debug(f"[ASYNC-HB] Failed to start heartbeat watcher thread: {hb_thread_err}")
 
                 # Register verification immediately so polling endpoints return 200
                 try:
@@ -2201,18 +2127,24 @@ def _handle_file_upload(service, request_id):
                 logger.info(f"[File Upload {request_id}] Text preview: {text[:300]}...")
                 # Progress heartbeat handled centrally in UnifiedInputProcessor where applicable
 
-                # Use the same clean extraction pipeline used by the async worker
-                from src.citation_extraction_endpoint import extract_citations_production
+                # Use unified pipeline (same as async worker and main analyze sync path)
+                import asyncio
 
-                clean_result = extract_citations_production(text)
+                from src.unified_processing_pipeline import process_citations_unified
 
-                citations_list = []
-                if isinstance(clean_result, dict) and clean_result.get("status") == "success":
-                    citations_list = list(clean_result.get("citations", []))
+                clean_result = asyncio.run(
+                    process_citations_unified(
+                        text,
+                        enable_verification=True,
+                        enable_parallel_verification=True,
+                    )
+                )
+                citations_list = list(clean_result.get("citations", []))
+                clusters_list = list(clean_result.get("clusters", []))
 
                 result = {
                     "citations": citations_list,
-                    "clusters": [],  # Clustering will be handled by full async pipeline if needed
+                    "clusters": clusters_list,
                     "statistics": {"total_citations": len(citations_list)},
                 }
 
@@ -2248,8 +2180,8 @@ def _handle_file_upload(service, request_id):
 
                     sse_mgr = get_progress_manager()
                     sse_mgr.update_progress(request_id, 100, "completed", "Processing completed successfully")
-                except Exception:
-                    pass
+                except Exception as completion_err:
+                    logger.debug(f"[Request {request_id}] Completion progress update skipped: {completion_err}")
 
                 return formatted_result
 
@@ -3046,7 +2978,9 @@ def _process_url_input(url, request_id=None, force_mode=None):
                                     )
                         except Exception:
                             # Non-fatal: skip mismatch calc
-                            pass
+                            logger.debug(
+                                f"[VALIDATION] Name mismatch calc skipped for '{citation.get('citation','unknown')}'"
+                            )
                     elif extracted and canonical_name and extracted.lower() in ["n/a", "none", "null", ""]:
                         # Skip similarity check for failed extractions - this is expected when verification succeeds
                         logger.info(
@@ -3118,7 +3052,9 @@ def _process_url_input(url, request_id=None, force_mode=None):
                                     try:
                                         years.append(int(str(year)[:4]))  # Extract year
                                     except ValueError:
-                                        pass
+                                        logger.debug(
+                                            f"[VALIDATION] Year parse skipped for citation '{citation.get('citation','unknown')}'"
+                                        )
 
                     if len(years) > 1:
                         year_range = max(years) - min(years)

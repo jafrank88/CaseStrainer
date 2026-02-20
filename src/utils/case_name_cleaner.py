@@ -54,14 +54,17 @@ def clean_extracted_case_name(case_name: str) -> str:
 
     name = case_name
 
-    # Fix PDF line-break hyphenation (e.g., "Co- hens" → "Cohens", "Vir- ginia" → "Virginia")
+    # Fix PDF line-break hyphenation (e.g., "Co- hens" -> "Cohens", "Vir- ginia" -> "Virginia")
     # Pattern: word fragment + hyphen/dash + whitespace(s) + lowercase continuation
     # Use \s+ to catch all whitespace types (regular space, non-breaking space \xa0, etc.)
-    # Also handle different hyphen/dash types that may appear in PDFs (-, –, —)
-    name = re.sub(r"(\w)[-–—]\s+([a-z])", r"\1\2", name)
+    # Normalize unicode dashes to ASCII hyphen, then fix explicit hyphen line-wrap
+    # artifacts only (e.g. "Mar- bury" -> "Marbury"). Do NOT collapse plain spaces,
+    # otherwise valid names become "Doev." / "Cityof".
+    name = name.replace("\u2013", "-").replace("\u2014", "-")
+    name = re.sub(r"(\w)-\s+([a-z])", r"\1\2", name)
 
     # FIX 2026-02-04: Handle cases where PDF extraction removed the hyphen entirely
-    # Pattern: "Swin dle" → "Swindle", "Gard ner" → "Gardner", "Labo ratories" → "Laboratories"
+    # Pattern: "Swin dle" -> "Swindle", "Gard ner" -> "Gardner", "Labo ratories" -> "Laboratories"
     # Match: Capital letter + word fragment + space + lowercase fragment (looks like split word)
     # Be conservative to avoid joining "A dog" or "The court"
     def rejoin_split_words(match):
@@ -71,7 +74,12 @@ def clean_extracted_case_name(case_name: str) -> str:
         combined = part1 + part2
 
         # Don't rejoin common standalone words
-        common_words = {'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was', 'one', 'our', 'out', 'has', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'did', 'get', 'let', 'put', 'say', 'she', 'too', 'use'}
+        common_words = {
+            'the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'her', 'was',
+            'one', 'our', 'out', 'has', 'his', 'how', 'its', 'may', 'new', 'now', 'old',
+            'see', 'two', 'way', 'who', 'did', 'get', 'let', 'put', 'say', 'she', 'too',
+            'use', 'of', 'in', 'on', 'at', 'to', 'by', 'from', 'with', 'vs', 'v'
+        }
         if part1.lower() in common_words or part2.lower() in common_words:
             return match.group(0)
 
@@ -145,14 +153,27 @@ def clean_extracted_case_name(case_name: str) -> str:
         name = re.sub(r",\s*$", "", name)
 
     # If the core "X v. Y" is present, trim around it to avoid extra prose
-    v_match = re.search(r"([A-Z][A-Za-z0-9&\.\'\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\'\s-]+)", name)
+    v_match = re.search(r"([A-Z][A-Za-z0-9&\.\',\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\',\s-]+)", name)
     if v_match:
         name = f"{v_match.group(1).strip()} v. {v_match.group(2).strip()}"
 
     # Normalize whitespace
     name = re.sub(r"\s+", " ", name).strip()
 
-    # Expand abbreviations (Commc' → Communications)
+    # Repair commonly joined legal tokens from PDF/OCR artifacts.
+    # Examples: "Hawkinsexrel." -> "Hawkins ex rel.", "Rapuanoetal." -> "Rapuano et al."
+    name = re.sub(r"\b([A-Za-z]{3,})\s*exrel\.?\b", r"\1 ex rel.", name, flags=re.IGNORECASE)
+    name = re.sub(r"\bexrel\.?\b", "ex rel.", name, flags=re.IGNORECASE)
+    name = re.sub(r"\b([A-Za-z]{3,})\s*etal\.?\b", r"\1 et al.", name, flags=re.IGNORECASE)
+    name = re.sub(r"\betal\.?\b", "et al.", name, flags=re.IGNORECASE)
+    name = re.sub(r"\bet\s+al\s*\b", "et al.", name, flags=re.IGNORECASE)
+    # Clean punctuation artifacts from OCR/token-join repairs, e.g. "ex rel. ."
+    name = re.sub(r"\bex\s+rel\.\s*\.\s*", "ex rel. ", name, flags=re.IGNORECASE)
+    name = re.sub(r"\bet\s+al\.\s*\.\s*", "et al. ", name, flags=re.IGNORECASE)
+    name = re.sub(r"\.\s+\.", ".", name)
+    name = re.sub(r"\s+([,.;:])", r"\1", name)
+
+    # Expand abbreviations (Commc' -> Communications)
     name = expand_abbreviations(name)
 
     # Remove context phrases ("The dissent, quoting")
