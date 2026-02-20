@@ -9,6 +9,8 @@ from src.config import (
     FILE_PROCESSING_TIMEOUT_MINUTES,
     REDIS_URL,
     SYNC_REQUESTS_AS_ASYNC,
+    ANALYZE_ASYNC_ONLY,
+    ANALYZE_ALLOW_SYNC_OVERRIDE,
 )
 
 import sys
@@ -69,6 +71,28 @@ register_all_routes(vue_api)
 
 
 from src.rate_limiter import rate_limit
+
+
+def _enforce_async_only_mode(force_mode, request_id: str, source: str):
+    """
+    Enforce async-only analyze mode when configured.
+    Keeps an optional sync override for controlled debugging.
+    """
+    requested = (str(force_mode).strip().lower() if force_mode is not None else None) or None
+    if not ANALYZE_ASYNC_ONLY:
+        return requested
+    if requested == "sync":
+        if ANALYZE_ALLOW_SYNC_OVERRIDE:
+            logger.warning(
+                f"[Request {request_id}] Async-only enabled but allowing sync override for {source} (debug mode)"
+            )
+            return "sync"
+        logger.info(f"[Request {request_id}] Async-only mode: overriding sync request to async for {source}")
+        return "async"
+    if requested in (None, "", "auto"):
+        return "async"
+    # Keep explicit async; normalize unknown values to async for safety.
+    return "async" if requested not in ("async",) else requested
 
 
 def _analyze_impl(request):
@@ -213,6 +237,7 @@ def _analyze_impl(request):
             if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
                 force_mode = "async"
                 logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async (enqueue, return task_id)")
+            force_mode = _enforce_async_only_mode(force_mode, request_id, "file_upload")
             logger.info(f"[Request {request_id}] DEBUG: force_mode from file form: '{force_mode}'")
             logger.info(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
@@ -251,7 +276,9 @@ def _analyze_impl(request):
             )
 
             # Check if file should be processed immediately (sync mode)
-            if force_mode == "sync" or service.should_process_immediately(input_data, force_mode=force_mode):
+            if force_mode == "sync" or (
+                force_mode != "async" and service.should_process_immediately(input_data, force_mode=force_mode)
+            ):
                 logger.info(f"[Request {request_id}] Processing file immediately via UnifiedInputProcessor")
                 try:
                     from src.unified_input_processor import UnifiedInputProcessor
@@ -388,6 +415,7 @@ def _analyze_impl(request):
                             logger.info(
                                 f"[Request {request_id}] User requested processing_mode='{requested_mode}' for URL (will use auto-routing)"
                             )
+                    force_mode = _enforce_async_only_mode(force_mode, request_id, "json_url")
                 elif data.get("type") == "text" and data.get("text"):
                     text_data = data["text"]
                     input_dict = {"type": "text", "text": text_data}
@@ -408,10 +436,11 @@ def _analyze_impl(request):
                     if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
                         force_mode = "async"
                         logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating JSON text sync as async")
+                    force_mode = _enforce_async_only_mode(force_mode, request_id, "json_text")
                     if force_mode:
                         logger.info(f"[Request {request_id}] User requested force_mode='{force_mode}' for JSON text")
 
-                    if service.should_process_immediately(input_dict, force_mode=force_mode):
+                    if force_mode != "async" and service.should_process_immediately(input_dict, force_mode=force_mode):
                         logger.info(
                             f"[Request {request_id}] Processing JSON text immediately via UnifiedInputProcessor"
                         )
@@ -462,12 +491,13 @@ def _analyze_impl(request):
                     if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
                         force_mode = "async"
                         logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating legacy JSON sync as async")
+                    force_mode = _enforce_async_only_mode(force_mode, request_id, "json_text_legacy")
                     if force_mode:
                         logger.info(
                             f"[Request {request_id}] User requested force_mode='{force_mode}' for legacy JSON text"
                         )
 
-                    if service.should_process_immediately(input_dict, force_mode=force_mode):
+                    if force_mode != "async" and service.should_process_immediately(input_dict, force_mode=force_mode):
                         logger.info(
                             f"[Request {request_id}] Processing legacy JSON text immediately via UnifiedInputProcessor"
                         )
@@ -522,6 +552,7 @@ def _analyze_impl(request):
             if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
                 force_mode = "async"
                 logger.info(f"[Request {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async")
+            force_mode = _enforce_async_only_mode(force_mode, request_id, "form")
             logger.info(f"[Request {request_id}] DEBUG: force_mode from form: '{force_mode}'")
             logger.info(f"[Request {request_id}] DEBUG: form keys: {list(request.form.keys())}")
             if force_mode:
@@ -560,6 +591,7 @@ def _analyze_impl(request):
 
         if input_data is not None and input_type is not None:
             logger.info(f"[Request {request_id}] Processing {input_type} input")
+            force_mode = _enforce_async_only_mode(force_mode, request_id, "final_routing")
 
             # Normalize URL input to text before processing to avoid URL-stage stalls
             if input_type == "url":
@@ -1099,6 +1131,9 @@ def _format_response(result, request_id, metadata, start_time):
                         canonical_url=cit.get("canonical_url", ""),
                         verified=cit.get("verified", False),
                         true_by_parallel=cit.get("true_by_parallel", False),
+                        possible_match=cit.get("possible_match", False),
+                        error=cit.get("error"),
+                        source=cit.get("source", "Unknown"),
                         start_index=cit.get("start_index"),
                         end_index=cit.get("end_index"),
                         method=cit.get("method", ""),
@@ -1123,6 +1158,7 @@ def _format_response(result, request_id, metadata, start_time):
                     citations[i]["canonical_name"] = getattr(cit_obj, "canonical_name", "")
                     citations[i]["canonical_date"] = getattr(cit_obj, "canonical_date", "")
                     citations[i]["canonical_url"] = getattr(cit_obj, "canonical_url", "")
+                    citations[i]["possible_match"] = getattr(cit_obj, "possible_match", False)
 
                     # Preserve existing metadata and merge with verification metadata
                     existing_metadata = citations[i].get("metadata", {})
@@ -2227,165 +2263,10 @@ def _handle_json_input(service, request_id, data=None):
     Returns:
         Dictionary with analysis results or error information
     """
-    logger.info(f"[JSON Input {request_id}] Starting JSON input processing")
-
-    try:
-        logger.info(f"[JSON Input {request_id}] Request URL: {request.url}")
-        logger.info(f"[JSON Input {request_id}] Request method: {request.method}")
-        logger.info(f"[JSON Input {request_id}] Content-Type: {request.content_type}")
-
-        if data is None:
-            try:
-                raw_data = request.get_data(as_text=True)
-                logger.info(f"[JSON Input {request_id}] Raw request data (first 1000 chars): {raw_data[:1000]}")
-            except Exception as e:
-                logger.warning(f"[JSON Input {request_id}] Could not read raw request data: {e}")
-
-            try:
-                data = request.get_json(force=True, silent=True)
-                if data is None:
-                    error_msg = "Failed to parse JSON data"
-                    logger.error(f"[JSON Input {request_id}] {error_msg}")
-                    return {
-                        "error": error_msg,
-                        "citations": [],
-                        "clusters": [],
-                        "request_id": request_id,
-                        "success": False,
-                        "metadata": {},
-                    }
-            except Exception as e:
-                error_msg = f"Error parsing JSON: {str(e)}"
-                logger.error(f"[JSON Input {request_id}] {error_msg}", exc_info=True)
-                return {
-                    "error": "Invalid JSON data",
-                    "details": str(e),
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {},
-                }
-
-        sanitized_data = {}
-        for k, v in data.items():
-            if isinstance(v, str):
-                sanitized_data[k] = v[:100] + "..." if len(v) > 100 else v
-            else:
-                sanitized_data[k] = str(v)[:200] + "..." if len(str(v)) > 200 else v
-
-        logger.info(f"[JSON Input {request_id}] Processing data with keys: {list(data.keys())}")
-
-        input_type = data.get("type", "text")
-        force_mode = data.get("force_mode")
-        if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
-            force_mode = "async"
-            logger.info(f"[JSON Input {request_id}] SYNC_REQUESTS_AS_ASYNC: treating sync as async")
-        logger.info(f"[JSON Input {request_id}] Input type: {input_type}")
-
-        if input_type == "text":
-            text = data.get("text", "")
-            logger.info(f"[JSON Input {request_id}] Text input received. Length: {len(text)}")
-
-            if not text:
-                error_msg = "No text provided in JSON data"
-                logger.error(f"[JSON Input {request_id}] {error_msg}")
-                return {
-                    "error": error_msg,
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {},
-                }
-
-            if _is_test_citation_text(text):
-                error_msg = "Test citation detected. Please provide actual document content."
-                logger.warning(f"[JSON Input {request_id}] Test citation detected and rejected: {text[:100]}...")
-                return {
-                    "error": error_msg,
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {
-                        "rejected_reason": "test_citation_detected",
-                        "test_pattern_found": _extract_test_pattern(text),
-                    },
-                }
-
-            logger.info(f"[JSON Input {request_id}] Processing text input...")
-            try:
-                result = _process_text_input(service=service, request_id=request_id, text=text, source_name="api-input")
-                logger.info(f"[_handle_json_input] [Request {request_id}] Text processing completed successfully")
-                return result
-            except Exception as e:
-                logger.error(
-                    f"[_handle_json_input] [Request {request_id}] Error in _process_text_input: {str(e)}", exc_info=True
-                )
-                raise
-
-        elif input_type == "url":
-            url = data.get("url", "")
-            logger.info(f"[_handle_json_input] [Request {request_id}] URL input received: {url}")
-
-            if not url:
-                logger.error(f"[_handle_json_input] [Request {request_id}] No URL provided")
-                return {
-                    "error": "No URL provided",
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                }
-
-            if not _validate_url(url):
-                error_msg = "Invalid or unsafe URL provided"
-                logger.warning(f"[_handle_json_input] [Request {request_id}] URL validation failed: {url}")
-                return {
-                    "error": error_msg,
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {"rejected_reason": "url_validation_failed", "url": url},
-                }
-
-            logger.info(f"[_handle_json_input] [Request {request_id}] Processing URL input...")
-            try:
-                result = _process_url_input(url, request_id, force_mode)
-                logger.info(f"[_handle_json_input] [Request {request_id}] URL processing completed successfully")
-                return result
-            except Exception as e:
-                logger.error(
-                    f"[_handle_json_input] [Request {request_id}] Error in _process_url_input: {str(e)}", exc_info=True
-                )
-                raise
-
-        else:
-            error_msg = f"Invalid input type: {input_type}"
-            logger.error(f"[_handle_json_input] [Request {request_id}] {error_msg}")
-            return {"error": error_msg, "citations": [], "clusters": [], "request_id": request_id, "success": False}
-
-    except Exception as e:
-        error_msg = f"Error processing JSON input: {str(e)}"
-        logger.error(f"[_handle_json_input] [Request {request_id}] {error_msg}", exc_info=True)
-
-        error_details = {
-            "error": "Internal server error",
-            "type": type(e).__name__,
-            "message": str(e),
-            "request_id": request_id,
-            "citations": [],
-            "clusters": [],
-        }
-
-        if current_app.config.get("DEBUG", False):
-            import traceback
-
-            error_details["traceback"] = traceback.format_exc()
-
-        return jsonify(error_details), 500
+    logger.warning(
+        f"[JSON Input {request_id}] Deprecated legacy handler invoked; routing to canonical _analyze_impl"
+    )
+    return _analyze_impl(request)
 
 
 async def _handle_form_input(service, request_id):
@@ -2396,265 +2277,10 @@ async def _handle_form_input(service, request_id):
         service: Instance of CitationService
         request_id: Unique ID for request tracking
     """
-    try:
-        form_data = request.form.to_dict()
-        text = form_data.get("text", "")
-        url = form_data.get("url", "")
-
-        if url:
-            logger.info(f"[Form Input {request_id}] Processing URL from form: {url}")
-
-            if not _validate_url(url):
-                error_msg = "Invalid or unsafe URL provided"
-                logger.warning(f"[Form Input {request_id}] URL validation failed: {url}")
-                return {
-                    "error": error_msg,
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {"rejected_reason": "url_validation_failed", "url": url},
-                }
-
-            force_mode = request.form.get("force_mode")
-            if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
-                force_mode = "async"
-                logger.info(f"[Form Input {request_id}] SYNC_REQUESTS_AS_ASYNC: treating URL sync as async")
-            result = await _process_url_input(url, force_mode=force_mode)
-            return result
-
-        if not text:
-            return {
-                "error": "No text or URL provided in form data",
-                "citations": [],
-                "clusters": [],
-                "request_id": request_id,
-                "success": False,
-            }
-
-        result = await _process_text_input(service, request_id, text)
-        return result
-
-    except Exception as e:
-        logger.error(f"[Form Input {request_id}] Error: {str(e)}", exc_info=True)
-        return {
-            "error": f"Error processing form input: {str(e)}",
-            "citations": [],
-            "clusters": [],
-            "request_id": request_id,
-            "success": False,
-        }
-
-
-def _process_text_input(service, request_id, text, source_name="form-input"):
-    """Process text input using the unified processing pipeline for predictable results."""
-    try:
-        logger.info(f"[Text Input {request_id}] Processing text of length: {len(text)}")
-
-        if _is_test_citation_text(text):
-            error_msg = "Test citation detected. Please provide actual document content."
-            logger.warning(f"[Text Input {request_id}] Test citation detected and rejected: {text[:100]}...")
-            return {
-                "error": error_msg,
-                "citations": [],
-                "clusters": [],
-                "request_id": request_id,
-                "success": False,
-                "metadata": {
-                    "source": source_name,
-                    "rejected_reason": "test_citation_detected",
-                    "test_pattern_found": _extract_test_pattern(text),
-                    "text_length": len(text),
-                },
-            }
-
-        logger.info(f"[Text Input {request_id}] Using UNIFIED PROCESSING PIPELINE")
-
-        # Determine if we should use async processing for large texts
-        TEXT_ASYNC_THRESHOLD = 50000  # 50KB threshold for async processing
-
-        if len(text) > TEXT_ASYNC_THRESHOLD:
-            logger.info(
-                f"[Text Input {request_id}] Text length {len(text)} exceeds async threshold {TEXT_ASYNC_THRESHOLD} - using async processing"
-            )
-
-            try:
-                import asyncio
-                # Use async processing with progress tracking
-                from src.progress_manager import SSEProgressManager, ChunkedCitationProcessor
-
-                # Initialize progress manager
-                progress_manager = SSEProgressManager()
-                processor = ChunkedCitationProcessor(progress_manager)
-
-                # Submit async task
-                task_id = asyncio.run(processor.process_document_with_progress(text, "legal_brief"))
-
-                logger.info(f"[Text Input {request_id}] Async task submitted with task_id: {task_id}")
-
-                # Return immediate response with task ID for progress tracking
-                return {
-                    "task_id": task_id,
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": True,
-                    "metadata": {
-                        "source": source_name,
-                        "processing_mode": "async",
-                        "processing_path": "async_progress_pipeline",
-                        "request_id": request_id,
-                        "text_length": len(text),
-                        "message": "Large document submitted for async processing",
-                        "progress_url": f"/api/analyze/progress/{task_id}",
-                    },
-                }
-
-            except Exception as async_error:
-                logger.error(f"[Text Input {request_id}] Async processing failed, falling back to sync: {async_error}")
-                # Fall through to synchronous processing
-
-        # Use the unified processing pipeline for predictable, traceable processing
-        try:
-            # Import here to avoid circular imports
-            import asyncio
-            from src.unified_processing_pipeline import UnifiedProcessingPipeline
-
-            # Create pipeline instance and process synchronously
-            pipeline = UnifiedProcessingPipeline()
-            logger.info(f"[Text Input {request_id}] Created unified pipeline instance")
-
-            # Process the text using the unified pipeline
-            result = asyncio.run(pipeline.process_citations(text, enable_parallel_verification=True))
-
-            logger.info(f"[Text Input {request_id}] Unified pipeline completed successfully")
-            logger.info(
-                f"[Text Input {request_id}] Found {len(result.get('citations', []))} citations, {len(result.get('clusters', []))} clusters"
-            )
-
-            # Ensure metadata includes processing path info
-            metadata = result.get("metadata", {})
-            logger.info(f"[Text Input {request_id}] Unified pipeline metadata: {metadata}")
-            metadata.update(
-                {
-                    "source": source_name,
-                    "processing_path": "unified_pipeline",
-                    "request_id": request_id,
-                    "text_length": len(text),
-                }
-            )
-
-            result["metadata"] = metadata
-
-            # CRITICAL: Apply same last-mile fix as rq_worker (known federal citations + clear verified without URL)
-            citations = result.get("citations", [])
-            clusters = result.get("clusters", [])
-            try:
-                citations = [c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c) for c in citations]
-                for cl in clusters or []:
-                    if isinstance(cl, dict) and cl.get("citations"):
-                        cl["citations"] = [
-                            c if isinstance(c, dict) else (c.to_dict() if hasattr(c, "to_dict") else c)
-                            for c in cl["citations"]
-                        ]
-                from src.verification import (
-                    apply_known_federal_citations_and_clear_verified_without_url,
-                    apply_last_mile_cluster_display_sync,
-                    apply_verification_paradox_fix,
-                )
-                apply_known_federal_citations_and_clear_verified_without_url(citations, clusters)
-                apply_last_mile_cluster_display_sync(citations, clusters)
-                result["citations"] = citations
-                result["clusters"] = clusters
-            except Exception as e:
-                logger.warning(f"[Text Input {request_id}] Last-mile known-citation/clear pass failed: {e}")
-
-            # Apply verification paradox fix (shared with async path)
-            fixed_count = apply_verification_paradox_fix(citations)
-            if fixed_count > 0:
-                logger.info(f"[VERIFICATION-PARADOX-FIX] Fixed verification paradox for {fixed_count} citations")
-
-            logger.info(
-                f"[Text Input {request_id}] Final processing path: {result.get('metadata', {}).get('processing_path')}"
-            )
-            return result
-
-        except Exception as pipeline_error:
-            logger.warning(
-                f"[Text Input {request_id}] Unified pipeline failed, falling back to service: {pipeline_error}"
-            )
-            logger.warning(f"[Text Input {request_id}] Pipeline error traceback: {traceback.format_exc()}")
-
-            # Fallback to the original service method
-            input_data = {"type": "text", "text": text}
-            result = service.process_immediately(input_data)
-
-            citations = result.get("citations", [])
-            # DEBUG: Log citation data before processing
-            logger.info(f"[DEBUG] Processing {len(citations)} citations from unified pipeline")
-            for i, citation in enumerate(citations[:3]):  # Log first 3 citations
-                logger.info(f"[DEBUG] Citation {i+1}: {citation.citation}")
-                logger.info(f"[DEBUG]   verified: {getattr(citation, 'verified', 'MISSING')}")
-                logger.info(f"[DEBUG]   canonical_name: {getattr(citation, 'canonical_name', 'MISSING')}")
-                logger.info(f"[DEBUG]   canonical_date: {getattr(citation, 'canonical_date', 'MISSING')}")
-                logger.info(f"[DEBUG]   canonical_url: {getattr(citation, 'canonical_url', 'MISSING')}")
-                logger.info(f"[DEBUG]   verification_status: {getattr(citation, 'verification_status', 'MISSING')}")
-
-            for citation in citations:
-                citation.setdefault("extracted_case_name", None)
-                citation.setdefault("extracted_date", None)
-                citation.setdefault("canonical_name", None)
-                citation.setdefault("canonical_date", None)
-                citation.setdefault("canonical_url", None)
-
-                # CRITICAL FIX: Don't override verified status if canonical data exists
-                # Only set verified=False if there's no canonical data at all
-                if "verified" not in citation:
-                    has_canonical_data = (
-                        citation.get("canonical_name")
-                        and citation.get("canonical_date")
-                        and citation.get("canonical_url")
-                    )
-                    citation["verified"] = bool(has_canonical_data)
-
-            if "case_name" not in citation and citation.get("extracted_case_name"):
-                citation["case_name"] = citation["extracted_case_name"]
-
-            if "year" not in citation and citation.get("extracted_date"):
-                citation["year"] = citation["extracted_date"]
-
-        return {
-            "citations": citations,
-            "clusters": result.get("clusters", []),
-            "request_id": request_id,
-            "success": True,
-            "metadata": {
-                "source": source_name,
-                "text_length": len(text),
-                "processing_time": time.time(),
-                "processing_mode": "immediate",
-                "citation_count": len(citations),
-                "cluster_count": len(result.get("clusters", [])),
-                "has_verified_citations": any(c.get("verified", False) for c in citations),
-            },
-        }
-
-    except Exception as e:
-        logger.error(f"[Text Input {request_id}] Error: {str(e)}", exc_info=True)
-        return {
-            "error": f"Error processing text: {str(e)}",
-            "citations": [],
-            "clusters": [],
-            "request_id": request_id,
-            "success": False,
-            "metadata": {
-                "source": source_name,
-                "text_length": len(text) if "text" in locals() else 0,
-                "error_type": type(e).__name__,
-                "processing_mode": "failed",
-            },
-        }
-        raise
+    logger.warning(
+        f"[Form Input {request_id}] Deprecated legacy handler invoked; routing to canonical _analyze_impl"
+    )
+    return _analyze_impl(request)
 
 
 def _is_test_citation_text(text: str) -> bool:
@@ -2763,308 +2389,3 @@ def _validate_url(url: str) -> bool:
         return False
 
 
-def _process_url_input(url, request_id=None, force_mode=None):
-    """Process URL input by fetching content and processing it with citation service."""
-    try:
-        if request_id is None:
-            request_id = f"url_{int(time.time())}"
-
-        logger.info(f"[URL Input {request_id}] Processing URL: {url}")
-        logger.info(f"[URL Input {request_id}] Force mode: {force_mode}")
-
-        if not _validate_url(url):
-            error_msg = "Invalid or unsafe URL provided"
-            logger.warning(f"[URL Input {request_id}] URL validation failed: {url}")
-            return {
-                "citations": [],
-                "clusters": [],
-                "success": False,
-                "error": error_msg,
-                "metadata": {"source": "url-input", "url": url, "rejected_reason": "url_validation_failed"},
-            }
-
-        from src.api.services.citation_service import CitationService
-        from src.progress_manager import fetch_url_content
-        from src.utils.text_normalizer import normalize_text
-
-        service = CitationService()
-
-        logger.info(f"[URL Input {request_id}] Fetching content from URL: {url}")
-        try:
-            content = fetch_url_content(url)
-            logger.info(f"[URL Input {request_id}] Successfully fetched {len(content)} characters from URL")
-        except Exception as fetch_error:
-            error_msg = f"Failed to fetch content from URL: {str(fetch_error)}"
-            logger.error(f"[URL Input {request_id}] {error_msg}", exc_info=True)
-            return {
-                "citations": [],
-                "clusters": [],
-                "success": False,
-                "error": error_msg,
-                "metadata": {
-                    "source": "url-input",
-                    "url": url,
-                    "rejected_reason": "url_fetch_failed",
-                    "fetch_error": str(fetch_error),
-                },
-            }
-
-        # Normalize text content (same as file uploads)
-        if content:
-            content = normalize_text(content)
-            logger.info(f"[URL Input {request_id}] Text normalized for processing")
-
-        if not content or len(content.strip()) < 10:
-            error_msg = "URL returned empty or insufficient content for analysis"
-            logger.warning(f"[URL Input {request_id}] {error_msg} - Content length: {len(content)}")
-            return {
-                "citations": [],
-                "clusters": [],
-                "success": False,
-                "error": error_msg,
-                "metadata": {
-                    "source": "url-input",
-                    "url": url,
-                    "rejected_reason": "insufficient_content",
-                    "content_length": len(content),
-                },
-            }
-
-        logger.info(f"[URL Input {request_id}] Processing fetched content with citation service")
-
-        input_data = {"type": "text", "text": content}
-        if service.should_process_immediately(input_data, force_mode=force_mode):
-            logger.info(f"[URL Input {request_id}] Processing URL content immediately (short content)")
-            result = service.process_immediately(input_data)
-
-            return {
-                "citations": result.get("citations", []),
-                "clusters": result.get("clusters", []),
-                "request_id": request_id,
-                "success": True,
-                "metadata": {
-                    "source": "url-input",
-                    "url": url,
-                    "url_domain": urlparse(url).netloc,
-                    "content_length": len(content),
-                    "processing_time": time.time(),
-                    "processing_mode": "immediate",
-                },
-            }
-        else:
-            logger.info(f"[URL Input {request_id}] Queuing URL content for async processing")
-
-            from rq import Queue
-            from redis import Redis
-
-            redis_conn = Redis.from_url(REDIS_URL)
-            queue = Queue("casestrainer", connection=redis_conn)
-
-            job = queue.enqueue(
-                process_citation_task_direct,
-                args=(request_id, "url", {"url": url, "content": content}),
-                job_id=request_id,  # FIX: Use request_id as job_id to prevent caching duplicate requests
-                job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 6 minutes timeout (optimized)
-                result_ttl=86400,
-                failure_ttl=86400,
-            )
-
-            logger.info(f"[URL Input {request_id}] URL processing task enqueued with job_id: {job.id}")
-
-            return {
-                "task_id": request_id,
-                "status": "processing",
-                "message": "URL processing started",
-                "request_id": request_id,
-                "success": True,
-                "metadata": {
-                    "source": "url-input",
-                    "url": url,
-                    "url_domain": urlparse(url).netloc,
-                    "content_length": len(content),
-                    "processing_mode": "queued",
-                },
-            }
-
-    except Exception as e:
-        logger.error(f"[URL Input {request_id}] Error: {str(e)}", exc_info=True)
-        raise
-
-
-    """
-    Validate API response data for integrity issues.
-
-    Args:
-        response_data: The complete API response dictionary
-
-    Returns:
-        List of validation error messages (empty if all valid)
-    """
-    errors = []
-
-    try:
-        # Look for citations at top level (new structure) or under result (fallback)
-        citations = response_data.get("citations", [])
-        clusters = response_data.get("clusters", [])
-
-        # Fallback to old nested structure if top level is empty
-        if not citations:
-            result = response_data.get("result", {})
-            citations = result.get("citations", [])
-            clusters = result.get("clusters", [])
-
-        # 1. Check for data separation violations (DISABLED - too strict for verified cases)
-        # if citations:
-        #     # Validate data separation for citations
-        #     separation_report = validate_data_separation(citations, similarity_threshold=DATA_SEPARATION_SIMILARITY_THRESHOLD)
-        #     if not separation_report.get('is_valid', True):
-        #         errors.append(f"Data separation violations: {len(separation_report.get('warnings', []))} issues detected")
-        #         errors.extend(separation_report.get('warnings', [])[:3])  # Include first 3 warnings
-
-        # 2. Check for verification status contradictions and name mismatches
-        verified_count = 0
-        error_count = 0
-        mismatch_count = 0
-
-        for citation in citations:
-            if isinstance(citation, dict):
-                if citation.get("verified") is True:
-                    verified_count += 1
-
-                    # Use the correct canonical field name
-                    canonical_name = citation.get("canonical_name") or citation.get("canonical_case_name")
-                    canonical_date = citation.get("canonical_date")
-
-                    # Check if verified citation has canonical data
-                    if canonical_name is None and canonical_date in [None, "", ""]:
-                        errors.append(
-                            f"Verified citation '{citation.get('citation', 'unknown')}' missing canonical data"
-                        )
-
-                    # Check for verification errors
-                    if citation.get("error") and "not be verified" in str(citation.get("error", "")):
-                        error_count += 1
-                        errors.append(
-                            f"Verified citation '{citation.get('citation', 'unknown')}' has verification error: {citation.get('error')}"
-                        )
-
-                    # Flag extracted vs canonical name mismatches (major and minor)
-                    extracted = citation.get("extracted_case_name")
-                    if extracted and canonical_name and extracted.lower() not in ["n/a", "none", "null", ""]:
-                        try:
-                            import re
-                            from difflib import SequenceMatcher
-
-                            def _clean(n: str) -> str:
-                                n = re.sub(r"[\s\-\.,'\(\)]+", " ", n.lower()).strip()
-                                # remove common corporate suffixes for comparison
-                                n = re.sub(r"\b(inc|llc|ltd|corp|co|company|limited|plc|s\.a\.|gmbh|ag)\b\.?", "", n)
-                                return re.sub(r"\s+", " ", n).strip()
-
-                            sim = SequenceMatcher(None, _clean(extracted), _clean(canonical_name)).ratio()
-                            if sim < 0.65:
-                                mismatch_count += 1
-                                errors.append(
-                                    f"Name mismatch for '{citation.get('citation','unknown')}': extracted='{extracted}' vs canonical='{canonical_name}' (similarity {sim:.2f})"
-                                )
-                            else:
-                                # Even when similarity is high, flag minor diffs when cleaned strings differ (e.g., Dept. vs Dep't)
-                                cleaned_ex = _clean(extracted)
-                                cleaned_ca = _clean(canonical_name)
-                                if cleaned_ex != cleaned_ca:
-                                    # classify as minor difference
-                                    errors.append(
-                                        f"Minor name difference for '{citation.get('citation','unknown')}': extracted='{extracted}' vs canonical='{canonical_name}'"
-                                    )
-                        except Exception:
-                            # Non-fatal: skip mismatch calc
-                            logger.debug(
-                                f"[VALIDATION] Name mismatch calc skipped for '{citation.get('citation','unknown')}'"
-                            )
-                    elif extracted and canonical_name and extracted.lower() in ["n/a", "none", "null", ""]:
-                        # Skip similarity check for failed extractions - this is expected when verification succeeds
-                        logger.info(
-                            f"[VALIDATION] Skipping similarity check for failed extraction: '{citation.get('citation')}' (extracted='{extracted}', canonical='{canonical_name}')"
-                        )
-
-        if verified_count > 0 and error_count > 0:
-            errors.append(
-                f"Verification contradiction: {verified_count} verified citations but {error_count} have verification errors"
-            )
-
-        # 3. Check for missing extracted data
-        missing_extracted = 0
-        for citation in citations:
-            if isinstance(citation, dict):
-                if citation.get("extracted_case_name") is None and citation.get("extracted_date") is None:
-                    missing_extracted += 1
-
-        if missing_extracted > 0:
-            errors.append(f"{missing_extracted} citations missing extracted case names and dates")
-
-        # 4. Check cluster consistency
-        cluster_ids = set()
-        citations_with_clusters = 0
-
-        for citation in citations:
-            if isinstance(citation, dict):
-                cluster_id = citation.get("cluster_id")
-                is_in_cluster = citation.get("is_in_cluster")
-
-                if cluster_id:
-                    cluster_ids.add(cluster_id)
-                    citations_with_clusters += 1
-                elif is_in_cluster:
-                    errors.append(
-                        f"Citation '{citation.get('citation', 'unknown')}' marked as in cluster but has no cluster_id"
-                    )
-
-        # Check if clusters array matches cluster_ids from citations
-        cluster_ids_from_clusters = {cluster.get("id") for cluster in clusters if isinstance(cluster, dict)}
-        missing_clusters = cluster_ids - cluster_ids_from_clusters
-        if missing_clusters:
-            errors.append(f"Missing cluster definitions for IDs: {list(missing_clusters)[:3]}")
-
-        # 5. Check for malformed citations
-        malformed_count = 0
-        for citation in citations:
-            if isinstance(citation, dict):
-                cit_text = citation.get("citation", "")
-                if not cit_text or len(str(cit_text)) < 3:
-                    malformed_count += 1
-
-        if malformed_count > 0:
-            errors.append(f"{malformed_count} citations have malformed or missing citation text")
-
-        # 6. Check temporal consistency (citations from same cluster shouldn't be decades apart)
-        if len(clusters) > 0:
-            for cluster in clusters:
-                if isinstance(cluster, dict):
-                    cluster_citations = cluster.get("citations", [])
-                    years = []
-
-                    for cit_text in cluster_citations:
-                        # Find the citation object
-                        for citation in citations:
-                            if isinstance(citation, dict) and citation.get("citation") == cit_text:
-                                year = citation.get("extracted_date") or citation.get("canonical_date")
-                                if year and isinstance(year, (int, str)):
-                                    try:
-                                        years.append(int(str(year)[:4]))  # Extract year
-                                    except ValueError:
-                                        logger.debug(
-                                            f"[VALIDATION] Year parse skipped for citation '{citation.get('citation','unknown')}'"
-                                        )
-
-                    if len(years) > 1:
-                        year_range = max(years) - min(years)
-                        if year_range > 50:  # More than 50 years apart
-                            errors.append(
-                                f"Cluster '{cluster.get('case_name', 'unknown')}' spans {year_range} years ({min(years)}-{max(years)})"
-                            )
-
-    except Exception as e:
-        errors.append(f"Validation error: {str(e)}")
-        logger.error(f"Error during API response validation: {e}", exc_info=True)
-
-    return errors

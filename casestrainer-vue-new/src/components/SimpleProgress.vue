@@ -2,33 +2,19 @@
   <transition name="fade">
     <div v-if="isProcessing" class="simple-progress-container">
       <div class="progress-card">
-        <!-- Header with Icon -->
-        <div class="progress-header">
-          <div class="icon-wrapper">
-            <div v-if="isComplete" class="success-icon">
-              <i class="bi bi-check-circle-fill"></i>
-            </div>
-            <div v-else-if="hasError" class="error-icon">
-              <i class="bi bi-exclamation-triangle-fill"></i>
-            </div>
-            <div v-else class="loading-spinner">
-              <i class="bi bi-hourglass-split text-primary"></i>
-            </div>
-          </div>
-          
-          <div class="header-content">
-            <h4 class="title">
-              <span v-if="isComplete">Processing Complete</span>
-              <span v-else-if="hasError && isTimeout">Processing Timed Out</span>
-              <span v-else-if="hasError">Processing Failed</span>
-              <span v-else>Processing Content</span>
-            </h4>
-            <p class="subtitle">{{ currentMessage }}</p>
-          </div>
-        </div>
-
         <!-- Main Progress Bar -->
         <div v-if="!hasError" class="progress-section">
+          <div class="progress-center-text">
+            <p class="subtitle centered-message">{{ currentMessage }}</p>
+          </div>
+          <div class="processing-indicator" v-if="isActive">
+            <i class="bi bi-arrow-repeat spinning me-1"></i>
+            <span>Still processing</span>
+            <span class="dot-sep">•</span>
+            <span>{{ elapsedTimeFormatted }} elapsed</span>
+            <span class="dot-sep">•</span>
+            <span>{{ pollCount }} updates</span>
+          </div>
           <div class="progress-bar-wrapper">
             <div class="progress" style="height: 32px; border-radius: 8px; overflow: hidden;">
               <div 
@@ -50,14 +36,10 @@
           </div>
 
           <!-- Processing Stats -->
-          <div class="stats-row">
+          <div class="stats-row centered-stats">
             <div class="stat-item">
               <i class="bi bi-clock me-1"></i>
               <span>{{ elapsedTimeFormatted }}</span>
-            </div>
-            <div v-if="processingMode" class="stat-item">
-              <i class="bi bi-cpu me-1"></i>
-              <span class="text-capitalize">{{ processingMode }} Mode</span>
             </div>
             <div v-if="pollCount > 0" class="stat-item text-muted">
               <small>Updates: {{ pollCount }}</small>
@@ -94,7 +76,6 @@ const displayPercent = ref(0)
 const currentMessage = ref('Initializing...')
 const elapsedTime = ref(0)
 const pollCount = ref(0)
-const processingMode = ref('')
 const hasError = ref(false)
 const errorMessage = ref('')
 const isComplete = ref(false)
@@ -264,9 +245,6 @@ watch(
       timerStartTime = null
     }
     
-    // Detect processing mode
-    const metadata = newState.metadata || {}
-    processingMode.value = metadata.processing_mode || ''
   },
   { deep: true, immediate: true }
 )
@@ -379,8 +357,41 @@ onUnmounted(() => {
   gap: 1rem;
 }
 
+.progress-center-text {
+  text-align: center;
+}
+
+.centered-message {
+  white-space: normal;
+  overflow: visible;
+  text-overflow: unset;
+}
+
 .progress-bar-wrapper {
   position: relative;
+}
+
+.processing-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.spinning {
+  display: inline-block;
+  animation: progress-spin 1s linear infinite;
+}
+
+.dot-sep {
+  color: #9ca3af;
+}
+
+@keyframes progress-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 .progress {
@@ -408,6 +419,10 @@ onUnmounted(() => {
   gap: 1rem;
   padding-top: 0.5rem;
   flex-wrap: wrap;
+}
+
+.centered-stats {
+  justify-content: center;
 }
 
 .stat-item {

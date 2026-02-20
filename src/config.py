@@ -115,6 +115,10 @@ CONTACT_SUBJECT_PREFIX: str = "[CaseStrainer Feedback]"
 
 # When True, requests with force_mode=sync are run as async (enqueue, return task_id). Saves server memory and avoids long-blocking connections.
 SYNC_REQUESTS_AS_ASYNC: bool = get_bool_config_value("SYNC_REQUESTS_AS_ASYNC", False)
+# When True, analyze requests default to async-only routing (recommended for production throughput/stability).
+ANALYZE_ASYNC_ONLY: bool = get_bool_config_value("ANALYZE_ASYNC_ONLY", IS_PRODUCTION)
+# Optional escape hatch for debugging: allow explicit force_mode=sync when async-only is enabled.
+ANALYZE_ALLOW_SYNC_OVERRIDE: bool = get_bool_config_value("ANALYZE_ALLOW_SYNC_OVERRIDE", False)
 
 # Admin email for monitoring notifications (can be overridden via CASESTRAINER_ADMIN_EMAIL env var)
 ADMIN_EMAIL: str = get_config_value("CASESTRAINER_ADMIN_EMAIL", "jafrank@uw.edu")
@@ -147,8 +151,9 @@ IMMEDIATE_PROCESSING_MAX_WORDS: int = int(get_config_value("IMMEDIATE_PROCESSING
 CITATION_EXTRACTION_TIMEOUT: int = int(get_config_value("CITATION_EXTRACTION_TIMEOUT", "120"))
 
 
+# CourtListener: loaded from env (or config.json). Used for citation-lookup and search APIs.
 COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
-COURTLISTENER_API_URL: str = get_config_value("COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/")
+COURTLISTENER_API_URL: str = get_config_value("COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/").rstrip("/")
 CASELAW_API_KEY: str = get_config_value("CASELAW_API_KEY", "")
 WESTLAW_API_KEY: str = get_config_value("WESTLAW_API_KEY", "")
 
@@ -306,7 +311,7 @@ def test_config_additions():
     logger.info(f"Context window: {CITATION_CONTEXT_WINDOW}")
     logger.info(f"Chunk size: {CITATION_CHUNK_SIZE}")
     logger.info(f"Immediate max length: {IMMEDIATE_PROCESSING_MAX_LENGTH}")
-    logger.info(f"CourtListener API key: {'✓ Set' if COURTLISTENER_API_KEY else '✗ Not set'}")
+    logger.info(f"CourtListener API key: {'[OK] Set' if COURTLISTENER_API_KEY else '[X] Not set'}")
 
     logger.info("Config test complete!")
 
