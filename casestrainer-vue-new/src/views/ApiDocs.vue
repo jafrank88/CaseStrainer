@@ -5,78 +5,31 @@
     <p>
       Here you will find information about available API endpoints, request/response formats, and usage examples.
     </p>
+    <p class="alert alert-info">
+      <strong>Production API base:</strong> <code>https://wolf.law.uw.edu/casestrainer/api</code> — use this base URL for all endpoints when integrating with the live application.
+    </p>
     <hr />
     
     <div class="mb-5">
       <h2>Available Endpoints</h2>
       <ul>
-        <li><code>/casestrainer/api/analyze</code> &mdash; Analyze and validate citations (async)</li>
-        <li><code>/casestrainer/api/analyze_enhanced</code> &mdash; Enhanced citation analysis (sync)</li>
-        <li><code>/casestrainer/api/task_status/{task_id}</code> &mdash; Check processing status</li>
-        <li><code>/casestrainer/api/health</code> &mdash; Health check endpoint</li>
-        <li><code>/casestrainer/api/version</code> &mdash; Application version info</li>
-        <li><code>/casestrainer/api/server_stats</code> &mdash; Server statistics</li>
-        <li><code>/casestrainer/api/db_stats</code> &mdash; Database statistics</li>
+        <li><code>POST /casestrainer/api/analyze</code> &mdash; Analyze and validate citations (file, URL, or text; async returns task_id)</li>
+        <li><code>GET /casestrainer/api/task_status/{task_id}</code> &mdash; Check async processing status and get results</li>
+        <li><code>GET /casestrainer/api/health</code> &mdash; Health check endpoint</li>
+        <li><code>GET /casestrainer/api/db_stats</code> &mdash; Database statistics</li>
+        <li><code>GET /casestrainer/api/metrics/summary</code> &mdash; Metrics summary</li>
+        <li><code>GET /casestrainer/api/metrics</code> &mdash; Metrics dashboard</li>
+        <li><code>GET /casestrainer/api/analyze/progress/{request_id}</code> &mdash; Progress for a request</li>
       </ul>
     </div>
 
     <div class="mb-5">
-      <h2>Endpoint Comparison</h2>
-      <p>Choose the right endpoint based on your needs:</p>
-      
-      <div class="table-responsive">
-        <table class="table table-striped">
-          <thead>
-            <tr>
-              <th>Feature</th>
-              <th><code>/analyze</code></th>
-              <th><code>/analyze_enhanced</code></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><strong>Processing Type</strong></td>
-              <td><span class="badge bg-success">Async</span> (RQ/Redis)</td>
-              <td><span class="badge bg-warning">Sync</span> (Direct)</td>
-            </tr>
-            <tr>
-              <td><strong>File Uploads</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-danger">❌ No</span> (501 error)</td>
-            </tr>
-            <tr>
-              <td><strong>URL Processing</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-danger">❌ No</span></td>
-            </tr>
-            <tr>
-              <td><strong>Task ID Response</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-danger">❌ No</span> (immediate results)</td>
-            </tr>
-            <tr>
-              <td><strong>Progress Tracking</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-danger">❌ No</span></td>
-            </tr>
-            <tr>
-              <td><strong>Citation Clustering</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-            </tr>
-            <tr>
-              <td><strong>Enhanced Extraction</strong></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-              <td><span class="badge bg-success">✅ Yes</span></td>
-            </tr>
-            <tr>
-              <td><strong>Best For</strong></td>
-              <td>Production use, large files, progress tracking</td>
-              <td>Quick testing, simple text analysis</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <h2>Single Analyze Endpoint</h2>
+      <p>
+        <code>POST /casestrainer/api/analyze</code> supports file uploads, URL input, and pasted text.
+        Processing is async-first and returns <code>task_id</code>; poll <code>/task_status/{task_id}</code> for status and results.
+        The same endpoint supports file upload, URL input, and pasted text.
+      </p>
     </div>
 
     <div class="mb-5">
@@ -462,7 +415,7 @@
         </div>
         <div class="card-body">
           <h5>Request:</h5>
-          <pre><code>curl -X POST /casestrainer/api/analyze_enhanced \
+          <pre><code>curl -X POST https://wolf.law.uw.edu/casestrainer/api/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "type": "text",
@@ -511,28 +464,15 @@
     </div>
 
     <div class="mb-5">
-      <h2>Version Endpoint</h2>
-      <p class="text-muted">GET <code>/casestrainer/api/version</code></p>
-      <p>Returns application version information and uptime statistics.</p>
-      
-      <h5>Response:</h5>
-      <pre><code>{
-  "version": "2.0.0",
-  "name": "CaseStrainer",
-  "description": "Legal Citation Analysis Tool",
-  "uptime": {
-    "seconds": 3600,
-    "formatted": "1 hour"
-  },
-  "environment": "production",
-  "timestamp": "2024-01-15T10:30:00Z"
-}</code></pre>
+      <h2>Metrics &amp; Statistics</h2>
+      <p class="text-muted">GET <code>/casestrainer/api/metrics/summary</code>, <code>/casestrainer/api/metrics</code>, <code>/casestrainer/api/db_stats</code></p>
+      <p>Returns metrics summaries, dashboard data, and database statistics. See the Available Endpoints list above for full URLs.</p>
     </div>
 
     <div class="mb-5">
-      <h2>Server Statistics Endpoint</h2>
-      <p class="text-muted">GET <code>/casestrainer/api/server_stats</code></p>
-      <p>Returns detailed server statistics including queue length and worker health.</p>
+      <h2>Database Statistics Endpoint</h2>
+      <p class="text-muted">GET <code>/casestrainer/api/db_stats</code></p>
+      <p>Returns database and service statistics.</p>
       
       <h5>Response:</h5>
       <pre><code>{
@@ -549,33 +489,8 @@
     </div>
 
     <div class="mb-5">
-      <h2>Database Statistics Endpoint</h2>
-      <p class="text-muted">GET <code>/casestrainer/api/db_stats</code></p>
-      <p>Returns database statistics including citation counts and cache information.</p>
-      
-      <h5>Response:</h5>
-      <pre><code>{
-  "database": {
-    "path": "/path/to/citations.db",
-    "exists": true,
-    "size": 1048576
-  },
-  "citations": {
-    "total": 1500,
-    "verified": 1200,
-    "unverified": 300
-  },
-  "cache": {
-    "redis_available": true,
-    "active_requests": 3
-  },
-  "timestamp": "2024-01-15T10:30:00Z"
-}</code></pre>
-    </div>
-
-    <div class="mb-5">
       <h2>Additional Resources</h2>
-      <p>For more detailed information, see the <a href="https://github.com/jafrank88/casestrainer" target="_blank">GitHub repository</a>.</p>
+      <p>For more detailed information, see the <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener">live application</a> and the <a href="https://github.com/jafrank88/casestrainer" target="_blank" rel="noopener">GitHub repository</a>.</p>
     </div>
   </div>
 </template>

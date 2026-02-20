@@ -417,25 +417,20 @@
               <div class="results-meta">
                 <span class="result-chip">
                   <i class="bi bi-journal-text me-1"></i>
-                  {{ resultClusterCount }} case{{ resultClusterCount === 1 ? '' : 's' }}
+                  {{ resultClusterCount }} case mention{{ resultClusterCount === 1 ? '' : 's' }} detected
                 </span>
                 <span class="result-chip">
                   <i class="bi bi-link-45deg me-1"></i>
-                  {{ resultCitationCount }} citation{{ resultCitationCount === 1 ? '' : 's' }}
-                </span>
-                <span class="result-chip" v-if="resultClusterCount > 0">
-                  <i class="bi bi-check2-circle me-1"></i>
-                  {{ resultFoundClusterCount }} case{{ resultFoundClusterCount === 1 ? '' : 's' }} found
-                </span>
-                <span class="result-chip chip-warning" v-if="resultUnverifiedClusterCount > 0">
-                  <i class="bi bi-exclamation-circle me-1"></i>
-                  {{ resultUnverifiedClusterCount }} case{{ resultUnverifiedClusterCount === 1 ? '' : 's' }} not found
+                  {{ resultCitationCount }} citation mention{{ resultCitationCount === 1 ? '' : 's' }} detected
                 </span>
                 <span v-if="analysisError" class="result-chip chip-error">
                   <i class="bi bi-exclamation-triangle-fill me-1"></i>
                   Partial/Error State
                 </span>
               </div>
+              <p class="results-meta-note" v-if="resultClusterCount > 0 || resultCitationCount > 0">
+                Counts above are everything detected in the document. The case cards below merge duplicates and group related citations for easier review.
+              </p>
             </div>
             <button 
               @click="handleNewAnalysis" 
@@ -502,14 +497,6 @@ const analysisError = ref('');
 const progressCompletedDisplayCount = ref(0);
 const resultClusterCount = computed(() => analysisResults.value?.clusters?.length || 0);
 const resultCitationCount = computed(() => analysisResults.value?.citations?.length || 0);
-const resultUnverifiedClusterCount = computed(() => {
-  const sections = analysisResults.value?.cluster_sections || {};
-  if (Array.isArray(sections.unverified)) return sections.unverified.length;
-  return 0;
-});
-const resultFoundClusterCount = computed(() =>
-  Math.max(0, resultClusterCount.value - resultUnverifiedClusterCount.value)
-);
 
 // Async task state
 const activeAsyncTask = ref(null);
@@ -1529,7 +1516,7 @@ const analyzeContent = async () => {
     });
     // Set initial metadata (will be refined after request starts)
     globalProgress.progressState.metadata = {
-      processing_mode: 'sync',
+      processing_mode: 'async',
       input_type: activeTab.value
     };
   } catch (e) {
@@ -1546,12 +1533,14 @@ const analyzeContent = async () => {
       requestData = new FormData();
       requestData.append('file', selectedFile.value);
       requestData.append('type', 'file');
+      requestData.append('force_mode', 'async');
       requestData.append('enable_verification', 'true'); // Explicitly enable verification
     } else if (activeTab.value === 'url' && urlContent.value) {
       // For URL analysis, use JSON data
       requestData = {
         type: 'url',
         url: urlContent.value.trim(),
+        force_mode: 'async',
         enable_verification: true // Explicitly enable verification
       };
     } else if (activeTab.value === 'paste' && textContent.value) {
@@ -1559,6 +1548,7 @@ const analyzeContent = async () => {
       requestData = {
         type: 'text',
         text: textContent.value.trim(),
+        force_mode: 'async',
         enable_verification: true // Explicitly enable verification
       };
     } else {
@@ -3324,6 +3314,12 @@ const handleAsyncTaskError = (errorMessage) => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+.results-meta-note {
+  margin: 0;
+  color: #4b5d78;
+  font-size: 0.88rem;
 }
 
 .result-chip {
