@@ -32,11 +32,37 @@ def _reporter_tier(citation_text):
     return "other"
 
 
+def reporter_tier(citation_text):
+    """Public wrapper for citation reporter tier classification."""
+    return _reporter_tier(citation_text)
+
+
+def reporter_court_label(citation_text):
+    """
+    Human-readable court label from reporter family.
+    - district: F. Supp.
+    - circuit: F.2d/F.3d/F.4th
+    - supreme: U.S./S. Ct./L. Ed.
+    """
+    tier = _reporter_tier(citation_text)
+    if tier == "district":
+        return "District Court"
+    if tier == "circuit":
+        return "Appellate Court"
+    if tier == "supreme":
+        return "United States Supreme Court"
+    return "Other Court"
+
+
 def split_clusters_by_reporter_tier(clusters, task_id=""):
     """
-    Split clusters that mix Supreme Court (U.S., S.Ct.) and District Court (F. Supp.)
-    citations into separate clusters. They are different courts and cannot be the same case.
-    E.g. 606 U.S. 831 (Supreme) and 763 F. Supp. 3d 723 (District) must not be in one cluster.
+    Split clusters that mix different federal court tiers into separate clusters.
+    Tiers are:
+      - supreme: U.S., S. Ct., L. Ed.
+      - circuit: F.2d, F.3d, F.4th
+      - district: F. Supp. (all series)
+    These tiers must not be in the same cluster.
+    WL citations are treated as "other" and, when Supreme is present, stay with Supreme.
     """
     if not clusters:
         return clusters
@@ -56,16 +82,53 @@ def split_clusters_by_reporter_tier(clusters, task_id=""):
             by_tier[tier].append(c)
         has_supreme = len(by_tier["supreme"]) > 0
         has_district = len(by_tier["district"]) > 0
-        if not (has_supreme and has_district):
+        has_circuit = len(by_tier["circuit"]) > 0
+        tier_count = sum([1 if has_supreme else 0, 1 if has_district else 0, 1 if has_circuit else 0])
+        if tier_count <= 1:
             result.append(cl)
             continue
-        # Only split out District. Keep Supreme + WL/other together (same case, e.g. "606 U.S. ----, 2025 WL 1773631").
+
+        # Court-tier split required. Keep WL/other with Supreme when available
+        # (e.g., "606 U.S. 831" + "2025 WL 1773631" same case/opinion family).
+        other = by_tier["other"]
+        wl_other = []
+        non_wl_other = []
+        for c in other:
+            if not isinstance(c, dict):
+                non_wl_other.append(c)
+                continue
+            if _is_wl_citation((c.get("citation") or "").strip()):
+                wl_other.append(c)
+            else:
+                non_wl_other.append(c)
+
+        tier_groups = {
+            "supreme": list(by_tier["supreme"]),
+            "circuit": list(by_tier["circuit"]),
+            "district": list(by_tier["district"]),
+        }
+        if has_supreme:
+            tier_groups["supreme"].extend(wl_other)
+            # Attach remaining ambiguous citations to supreme so we don't leak
+            # lower-court opinions back into Supreme clusters.
+            tier_groups["supreme"].extend(non_wl_other)
+        else:
+            # No Supreme in cluster: keep "other" with the largest lower-court tier.
+            # A later WL/lower-federal split pass can still separate WL when needed.
+            dominant = "circuit" if len(tier_groups["circuit"]) >= len(tier_groups["district"]) else "district"
+            tier_groups[dominant].extend(wl_other + non_wl_other)
+
         bid = cl.get("cluster_id", "c0")
         logger.info(
-            f"[TASK:{task_id}] POST-VERIFY-SPLIT-TIER: '{bid}' mixes Supreme and District; splitting out District only (Supreme+WL stay together)"
+            f"[TASK:{task_id}] POST-VERIFY-SPLIT-TIER: '{bid}' mixes court tiers "
+            f"(supreme={len(by_tier['supreme'])}, circuit={len(by_tier['circuit'])}, district={len(by_tier['district'])}); splitting"
         )
-        non_district = by_tier["supreme"] + by_tier["circuit"] + by_tier["other"]
-        for label, tier_cits in [("non_district", non_district), ("district", by_tier["district"])]:
+
+        for label, tier_cits in [
+            ("supreme", tier_groups["supreme"]),
+            ("circuit", tier_groups["circuit"]),
+            ("district", tier_groups["district"]),
+        ]:
             if not tier_cits:
                 continue
             nc = dict(cl)
@@ -98,7 +161,7 @@ def split_clusters_wl_from_lower_federal(clusters, task_id=""):
     """
     Split clusters that mix a WL citation (e.g. cert. denied order) with a circuit/district
     citation (F.3d, F. Supp.) into two clusters. They are different documents: e.g.
-    "939 F.3d 310 (1st Cir. 2019), cert. denied, 2020 WL 129919" — the circuit opinion
+    "939 F.3d 310 (1st Cir. 2019), cert. denied, 2020 WL 129919" - the circuit opinion
     and the cert. denial are not the same document, so the WL should not be "Verified by Parallel".
     Only applies when there is no Supreme (U.S.) citation in the cluster; Supreme+WL stay together.
     """
@@ -240,6 +303,21 @@ def split_clusters_by_distinct_wl(clusters, task_id=""):
 def split_clusters_by_canonical_name(clusters, task_id=""):
     if not clusters:
         return clusters
+
+    def _year_from_text(v):
+        m = re.search(r"(19|20)\d{2}", str(v or ""))
+        return int(m.group(0)) if m else 0
+
+    def _first_party(name):
+        s = str(name or "").strip()
+        if not s or " v" not in s.lower():
+            return ""
+        parts = re.split(r"\s+v\.?\s+", s, maxsplit=1, flags=re.IGNORECASE)
+        if not parts:
+            return ""
+        left = parts[0].strip()
+        return left.split()[-1].lower() if left else ""
+
     result = []
     for cl in clusters:
         if not isinstance(cl, dict):
@@ -259,6 +337,45 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             result.append(cl); continue
         bid = cl.get("cluster_id", "c0")
         logger.info(f"[TASK:{task_id}] POST-VERIFY-SPLIT: '{bid}' -> {list(cn_map.keys())}")
+
+        # Keep WL with its matching verified canonical cluster when name+year align.
+        # This preserves intended groupings like U.S. + WL for the same case/year.
+        if unv:
+            still_unv = []
+            for c in unv:
+                if not isinstance(c, dict):
+                    still_unv.append(c)
+                    continue
+                ct = (c.get("citation") or "").strip()
+                is_wl = bool(re.search(r"\b\d{4}\s+WL\s+\d+\b", ct, re.IGNORECASE))
+                if not is_wl:
+                    still_unv.append(c)
+                    continue
+                ext_name = (c.get("extracted_case_name") or "").strip()
+                ext_year = _year_from_text(c.get("extracted_date")) or _year_from_text(ct)
+                ext_party = _first_party(ext_name)
+                placed = False
+                for cn, cl_list in cn_map.items():
+                    grp_year = 0
+                    for gc in cl_list:
+                        grp_year = _year_from_text(gc.get("canonical_date")) or _year_from_text(gc.get("extracted_date"))
+                        if grp_year:
+                            break
+                    grp_party = _first_party(cn)
+                    party_ok = bool(ext_party and grp_party and ext_party == grp_party)
+                    year_ok = bool(ext_year and grp_year and ext_year == grp_year)
+                    if party_ok and year_ok:
+                        cl_list.append(c)
+                        placed = True
+                        logger.info(
+                            f"[TASK:{task_id}] POST-VERIFY-SPLIT: Kept WL '{ct}' with canonical '{cn}' "
+                            f"(party/year aligned: {ext_party}/{ext_year})"
+                        )
+                        break
+                if not placed:
+                    still_unv.append(c)
+            unv = still_unv
+
         for si, (cn, cl_list) in enumerate(cn_map.items()):
             nc = dict(cl)
             nc["cluster_id"] = f"{bid}_cnsplit_{si}"

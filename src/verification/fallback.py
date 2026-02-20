@@ -7,6 +7,8 @@ Fallback verification using multiple external sources.
 
 import asyncio
 import logging
+import time
+import re
 from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
 
@@ -41,7 +43,37 @@ class FallbackVerifier:
             session = get_retrying_session()
         self.session = session
         self.fast_mode = fast_mode
+        # Cool down sources that are actively rate-limiting/captcha blocking.
+        self._source_cooldowns: Dict[str, float] = {}
         self._init_verifiers()
+
+    def _is_source_cooled_down(self, source_name: str) -> bool:
+        cooldown_until = self._source_cooldowns.get(source_name, 0.0)
+        return cooldown_until > time.time()
+
+    def _mark_source_rate_limited(self, source_name: str, error: str):
+        err = (error or "").lower()
+        # Detect anti-automation / rate-limit signals and back off that source.
+        rate_limit_signals = (
+            "rate limit",
+            "rate-limited",
+            "captcha",
+            "unusual traffic",
+            "too many requests",
+            "http 429",
+            "forbidden",
+            "access denied",
+            "blocked",
+            "automated",
+        )
+        if any(sig in err for sig in rate_limit_signals):
+            cooldown_seconds = 600.0  # 10 minutes
+            until = time.time() + cooldown_seconds
+            self._source_cooldowns[source_name] = until
+            logger.warning(
+                f"[FALLBACK-COOLDOWN] Source '{source_name}' cooled down for "
+                f"{int(cooldown_seconds)}s after error: {error}"
+            )
     
     def _init_verifiers(self):
         """Initialize source verifiers."""
@@ -73,7 +105,7 @@ class FallbackVerifier:
             Verification result dict
         """
         # Determine which sources to try based on citation type
-        sources = self._select_sources(citation)
+        sources = self._select_sources(citation, extracted_case_name)
         
         # Calculate time per source
         time_per_source = timeout / len(sources) if sources else 0
@@ -81,11 +113,15 @@ class FallbackVerifier:
             time_per_source = 0.5
         
         # Try each source
+        attempted_any_source = False
         for source_name in sources:
             try:
+                if self._is_source_cooled_down(source_name):
+                    continue
                 verifier = self.verifiers.get(source_name)
                 if not verifier:
                     continue
+                attempted_any_source = True
                 
                 result = await verifier.verify(
                     citation, 
@@ -111,15 +147,31 @@ class FallbackVerifier:
                     
                     result["method"] = f"fallback_{source_name}"
                     return result
+                self._mark_source_rate_limited(source_name, str(result.get("error", "")))
                 
             except Exception as e:
                 logger.debug(f"Fallback source {source_name} failed: {e}")
+                self._mark_source_rate_limited(source_name, str(e))
                 continue
-        
+
+        if not attempted_any_source:
+            return {"verified": False, "error": "All fallback sources temporarily rate-limited"}
         return {"verified": False, "error": "All fallback sources failed"}
     
-    def _select_sources(self, citation: str) -> List[str]:
+    def _select_sources(self, citation: str, extracted_case_name: Optional[str] = None) -> List[str]:
         """Select appropriate sources based on citation type."""
+        citation_text = str(citation or "")
+        name_text = str(extracted_case_name or "").strip()
+        name_tokens = [t for t in name_text.replace(".", " ").split() if t]
+        has_v = (" v" in name_text.lower()) or (" v." in name_text.lower())
+        weak_name = (not name_text) or (name_text.upper() == "N/A") or (len(name_tokens) < 3) or (not has_v)
+        is_wl = bool(re.search(r"\b\d{4}\s+WL\s+\d+\b", citation_text, re.IGNORECASE))
+
+        # WL-only citation-first lane: when case name is weak, avoid broad multi-source
+        # crawling that can contaminate matches. Scholar can still resolve by citation text.
+        if is_wl and weak_name:
+            return ["google_scholar"]
+
         # Google Scholar first - best hit rate across all citation types
         sources = ["google_scholar"]
         

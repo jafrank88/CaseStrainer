@@ -1169,9 +1169,17 @@ class UnifiedCitationProcessorV2:
                 "compare_source": compare_source,
             }
 
-        match, year_diff, extracted_clearly_wrong = years_match_for_verification(
+        # Defensive year handling: keep behavior correct even if an older helper path
+        # fails to parse pre-1900 years.
+        year_diff = abs(int(ext_year) - int(compare_year))
+        match, helper_year_diff, extracted_clearly_wrong = years_match_for_verification(
             ext_year, compare_year, tolerance=0
         )
+        if isinstance(helper_year_diff, int) and helper_year_diff > 0:
+            year_diff = helper_year_diff
+        # If helper accepted with diff=0 but we parsed distinct years, trust direct parse.
+        if match and year_diff > 0:
+            match = False
         if extracted_clearly_wrong or match:
             return {
                 "accept": True,
