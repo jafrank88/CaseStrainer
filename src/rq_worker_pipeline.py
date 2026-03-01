@@ -34,26 +34,17 @@ from src.rq_worker_helpers import (
 )
 from src.utils.cluster_filter import filter_cluster_members_by_reporter
 from src.utils.mismatch_utils import compute_cluster_mismatch_flags
+from src.utils.same_case import names_are_same_case
 from src.utils.date_utils import validate_year_match
 from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
 
 __all__ = ["run_citation_task"]
 
 
-def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=None):
-    if logger is None:
-        logger = logging.getLogger(__name__)
-
+def _ensure_redis_and_service(task_id: str, input_type: str, input_data: dict, logger):
+    """Wait for Redis and create CitationService. Returns (service, None) or (None, error_result)."""
     try:
-        import traceback
-        import time
-        import json
-        import os
-        import sys
-
         logger.info(f"[TASK:{task_id}] Starting: type={input_type}, keys={list(input_data.keys())}")
-
-        # Wait for Redis to be ready
         try:
             import redis
             from src.config import REDIS_URL
@@ -63,18 +54,18 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 try:
                     redis_client.ping()
                     break
-                except redis.exceptions.BusyLoadingError:
+                except redis.exceptions.BusyLoadingError:  # pyright: ignore
                     if attempt % 5 == 0:
                         logger.info(f"[TASK:{task_id}] Waiting for Redis ({attempt}s)...")
                     time.sleep(1)
-                except Exception as e:
+                except Exception:
                     if attempt < 5:
                         time.sleep(1)
                     else:
                         raise
             else:
                 logger.error(f"[TASK:{task_id}] Redis not ready after {max_wait} seconds")
-                return {
+                return None, {
                     "status": "failed",
                     "task_id": task_id,
                     "error": f"Redis not ready after {max_wait} seconds - dataset still loading",
@@ -85,16 +76,24 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
         from src.api.services.citation_service import CitationService
         service = CitationService()
         logger.info(f"[TASK:{task_id}] Worker startup complete")
-
+        return service, None
     except Exception as e:
         logger.error(f"[TASK:{task_id}] Startup failed: {str(e)}")
-        import traceback
         logger.error(f"[TASK:{task_id}] Traceback: {traceback.format_exc()}")
-        return {
+        return None, {
             "status": "failed",
             "task_id": task_id,
             "error": f"Worker startup failed: {str(e)}",
         }
+
+
+def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=None):  # pyright: ignore
+    if logger is None:
+        logger = logging.getLogger(__name__)
+
+    service, error_result = _ensure_redis_and_service(task_id, input_type, input_data, logger)
+    if error_result is not None:
+        return error_result
 
     # Setup timeout handler - disabled since we use ThreadPoolExecutor for timeout
     # Note: signal only works in main thread, so we rely on ThreadPoolExecutor timeout instead
@@ -251,14 +250,23 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             if not locals().get("skip_full_processing", False):
                 # FULL ASYNC WORKER - Use CLEAN PIPELINE (87-93% accuracy)
                 try:
-                    import time
-
                     # Verification is enabled by default for end users
                     # Can be disabled for testing/troubleshooting via enable_verification parameter
-                    enable_verification = input_data.get("enable_verification", True)  # Default to True for end users
+                    raw_ev = input_data.get("enable_verification", True)
+                    if isinstance(raw_ev, str):
+                        enable_verification = raw_ev.strip().lower() in ("true", "1", "yes", "on")
+                    else:
+                        enable_verification = bool(raw_ev)
                     # Note: URLs can have many citations, but verification is still the default behavior
 
-                    logger.info(f"[TASK:{task_id}] Running full pipeline with verification={enable_verification}")
+                    logger.info(f"[TASK:{task_id}] Running full pipeline with verification={enable_verification} (raw from input_data: {raw_ev!r})")
+                    if enable_verification:
+                        try:
+                            from src.config import COURTLISTENER_API_KEY
+                            cl_set = bool(COURTLISTENER_API_KEY and COURTLISTENER_API_KEY.strip())
+                            logger.info(f"[TASK:{task_id}] COURTLISTENER_API_KEY is {'set' if cl_set else 'NOT SET'}; verification will {'run' if cl_set else 'return unverified (set env in worker to fix)'}")
+                        except Exception as _e:
+                            logger.warning(f"[TASK:{task_id}] Could not check COURTLISTENER_API_KEY: {_e}")
 
                     # Create progress callback for worker
 
@@ -269,18 +277,19 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     from src.unified_processing_pipeline import process_citations_unified
 
                     # Worker stability: Monitor memory usage before processing
-                    try:
-                        import psutil
+                    if PSUTIL_AVAILABLE:
+                        try:
+                            process = psutil.Process()
+                            memory_mb = process.memory_info().rss / 1024 / 1024
+                            logger.info(f"[TASK:{task_id}] Worker memory usage: {memory_mb:.1f}MB before processing")
 
-                        process = psutil.Process()
-                        memory_mb = process.memory_info().rss / 1024 / 1024
-                        logger.info(f"[TASK:{task_id}] Worker memory usage: {memory_mb:.1f}MB before processing")
-
-                        # If memory usage is high, force garbage collection
-                        if memory_mb > 500:  # 500MB threshold
-                            logger.warning(f"[TASK:{task_id}] High memory usage detected, forcing garbage collection")
-                            gc.collect()
-                    except ImportError:
+                            # If memory usage is high, force garbage collection
+                            if memory_mb > 500:  # 500MB threshold
+                                logger.warning(f"[TASK:{task_id}] High memory usage detected, forcing garbage collection")
+                                gc.collect()
+                        except Exception as mem_err:
+                            logger.debug(f"[TASK:{task_id}] Memory check failed: {mem_err}")
+                    else:
                         logger.info(f"[TASK:{task_id}] psutil not available for memory monitoring")
 
                     # Run full pipeline with verification and wait for completion
@@ -532,7 +541,21 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                             cn = (member.get("canonical_name") or "").strip()
                                             if cn and cn.upper() != "N/A":
                                                 best_canonical_name = member.get("canonical_name")
-                                                best_canonical_date = member.get("canonical_date") or best_canonical_date
+                                                _m_date = member.get("canonical_date")
+                                                # FIX: When same canonical_url, prefer date from opinion (date_filed).
+                                                # E.g. Chalkley: one member may have 2016 (context bleed), another 1928
+                                                # from CourtListener. Prefer 1928 when citation is old reporter.
+                                                if best_canonical_url and member.get("canonical_url") == best_canonical_url and _m_date and best_canonical_date:
+                                                    _m_yr = re.search(r"(19|20)\d{2}", str(_m_date))
+                                                    _b_yr = re.search(r"(19|20)\d{2}", str(best_canonical_date))
+                                                    if _m_yr and _b_yr:
+                                                        _m_i, _b_i = int(_m_yr.group(0)), int(_b_yr.group(0))
+                                                        if _m_i != _b_i and "/opinion/" in str(best_canonical_url):
+                                                            _old_reporter = bool(re.search(r"\b(?:Va\.|S\.\s*E\.\s*\d+|Tenn\.|N\.\s*E\.\s*\d+)\b", member_text))
+                                                            if _old_reporter and min(_m_i, _b_i) < 1950:
+                                                                best_canonical_date = str(min(_m_i, _b_i))
+                                                                continue
+                                                best_canonical_date = _m_date or best_canonical_date
                                                 best_canonical_url = member.get("canonical_url")
                                         ext_m = member.get("extracted_case_name")
                                         if ext_m and ext_m != "N/A":
@@ -630,11 +653,22 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     best_canonical_name = html.unescape(str(best_canonical_name))
                                     cluster["canonical_name"] = best_canonical_name
                                     cluster["canonical_date"] = best_canonical_date
-                                    cluster["canonical_url"] = best_canonical_url
+                                    # Sync citation-level canonical_date when we picked opinion date over context-bleed
+                                    if best_canonical_url and "/opinion/" in str(best_canonical_url):
+                                        for _c in (cluster.get("citations") or []):
+                                            if isinstance(_c, dict) and _c.get("canonical_url") == best_canonical_url:
+                                                if _c.get("canonical_date") != best_canonical_date:
+                                                    _c["canonical_date"] = best_canonical_date
+                                                    _c["date_mismatch"] = False
+                                        compute_cluster_mismatch_flags(cluster)
+                                    # canonical_url set only in best_canonical_url block (never use Google as canonical)
                                     cluster["verifying_display_name"] = best_canonical_name
                                 if best_canonical_url:
-                                    cluster["canonical_url"] = best_canonical_url
-                                    cluster["display_canonical_url"] = best_canonical_url
+                                    _url = str(best_canonical_url).strip()
+                                    _is_google = _url.startswith("https://www.google.com/search") or _url.startswith("http://www.google.com/search")
+                                    if not _is_google:
+                                        cluster["canonical_url"] = best_canonical_url
+                                        cluster["display_canonical_url"] = best_canonical_url
                                     if not cluster.get("canonical_name") and best_canonical_name:
                                         cluster["canonical_name"] = best_canonical_name
                                         cluster["verifying_display_name"] = best_canonical_name
@@ -687,9 +721,24 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 compute_cluster_mismatch_flags(cluster)
                                 # USER RULE: verified only when we have a canonical URL (no Verified without URL)
                                 cluster["verified"] = bool(best_canonical_url) and any_verified
-                                # Display guard: do not present canonical/verifying identity for unverified clusters.
-                                # This avoids wrong headers like "Doe v. Carson City" on unverified WL cites.
-                                if not cluster.get("verified", False):
+                                # Display guard: do not present canonical/verifying identity for plain unverified clusters.
+                                # Keep canonical context for diagnostic states (date mismatch / possible match),
+                                # otherwise users lose the "why" (e.g., Gomes 2020 extracted vs 2021 canonical).
+                                cluster_has_diagnostic_context = bool(cluster.get("has_date_mismatch") or cluster.get("has_name_mismatch"))
+                                for _dc in (cluster.get("citations") or []):
+                                    if not isinstance(_dc, dict):
+                                        continue
+                                    if _dc.get("date_mismatch") is True:
+                                        cluster_has_diagnostic_context = True
+                                        break
+                                    if _dc.get("possible_match") is True or _dc.get("possible_match") == "true":
+                                        cluster_has_diagnostic_context = True
+                                        break
+                                    _vstat = str(_dc.get("verification_status") or "").strip().lower()
+                                    if _vstat in ("year_mismatch", "possible_match_with_url", "possible_match_gate_reject", "possible_match_no_canonical_url"):
+                                        cluster_has_diagnostic_context = True
+                                        break
+                                if not cluster.get("verified", False) and not cluster_has_diagnostic_context:
                                     sub_name = (
                                         cluster.get("submitted_display_name")
                                         or cluster.get("extracted_case_name")
@@ -700,11 +749,22 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                         or cluster.get("extracted_date")
                                         or "N/A"
                                     )
+                                    # FIX 2026-02-24: Preserve canonical date for display even when not verified
+                                    # This allows frontend to show "Different date" information (e.g., 1831 vs 2023)
+                                    found_canonical_date = best_canonical_date or cluster.get("canonical_date")
                                     cluster["canonical_url"] = None
                                     cluster["display_canonical_url"] = None
                                     cluster["canonical_name"] = sub_name
                                     cluster["verifying_display_name"] = sub_name
+                                    # Use extracted date for verifying_display_date, but preserve canonical for comparison
                                     cluster["verifying_display_date"] = sub_date
+                                    # Preserve found canonical date so frontend can show date mismatch info
+                                    if found_canonical_date and found_canonical_date != sub_date:
+                                        cluster["found_canonical_date"] = found_canonical_date
+                                        logger.info(
+                                            f"[TASK:{task_id}] Preserved found_canonical_date '{found_canonical_date}' "
+                                            f"for unverified cluster (extracted_date='{sub_date}')"
+                                        )
                                     for _cit in (cluster.get("citations") or []):
                                         if not isinstance(_cit, dict):
                                             continue
@@ -716,7 +776,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                             or _cit.get("verified") == "true"
                                             or _cit.get("is_verified") is True
                                         )
-                                        if not (_has_url and _is_verified):
+                                        _has_diagnostic = bool(
+                                            _cit.get("date_mismatch") is True
+                                            or _cit.get("possible_match") is True
+                                            or _cit.get("possible_match") == "true"
+                                            or str(_cit.get("verification_status") or "").strip().lower()
+                                            in ("year_mismatch", "possible_match_with_url", "possible_match_gate_reject", "possible_match_no_canonical_url")
+                                        )
+                                        if not (_has_url and _is_verified) and not _has_diagnostic:
                                             _cit["canonical_url"] = None
                                             _cit["url"] = None
                                             _cit["canonical_name"] = None
@@ -802,22 +869,27 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     )
                                     continue
                                 
-                                # Update all citation's extracted_date to match the cluster's
+                                # Backfill only missing citation extracted_date values from cluster_date.
+                                # Do NOT overwrite citation-specific extracted years, because mixed
+                                # same-name clusters can legitimately contain different years
+                                # (e.g., Gomes 2020 and Gomes 2021 lanes).
                                 for cit in cluster_cits:
                                     if isinstance(cit, dict):
                                         old_date = cit.get("extracted_date")
-                                        if old_date != cluster_date:
-                                            cit["extracted_date"] = cluster_date
-                                            date_sync_count += 1
-                                            # Recalculate date_mismatch now that extracted_date is updated
-                                            canonical_date = cit.get("canonical_date")
-                                            if canonical_date:
-                                                is_valid, _ = validate_year_match(
-                                                    str(cluster_date), str(canonical_date), tolerance=0
-                                                )
-                                                cit["date_mismatch"] = not is_valid
-                                            else:
-                                                cit["date_mismatch"] = False
+                                        old_date_text = str(old_date or "").strip()
+                                        if old_date_text and old_date_text not in ("N/A", "Unknown Year", "unknown"):
+                                            continue
+                                        cit["extracted_date"] = cluster_date
+                                        date_sync_count += 1
+                                        # Recalculate date_mismatch now that extracted_date is updated
+                                        canonical_date = cit.get("canonical_date")
+                                        if canonical_date:
+                                            is_valid, _ = validate_year_match(
+                                                str(cluster_date), str(canonical_date), tolerance=0
+                                            )
+                                            cit["date_mismatch"] = not is_valid
+                                        else:
+                                            cit["date_mismatch"] = False
                                 # Recalculate cluster mismatch flags after date sync
                                 compute_cluster_mismatch_flags(cluster)
                             if date_sync_count > 0:
@@ -1104,8 +1176,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     continue
                                 leader_idx = idxs[0]
                                 leader = clusters_list[leader_idx]
+                                merged_this_id = 0
                                 for idx in idxs[1:]:
                                     other = clusters_list[idx]
+                                    # Do not merge clusters that were split by extracted name (e.g. Soo Line vs In re Southwest)
+                                    leader_ecn = (leader.get("extracted_case_name") or "").strip() or None
+                                    other_ecn = (other.get("extracted_case_name") or "").strip() or None
+                                    if not names_are_same_case(leader_ecn, other_ecn):
+                                        continue
                                     leader_members = leader.get("cluster_members", [])
                                     for m in other.get("cluster_members", []):
                                         if m not in leader_members:
@@ -1126,9 +1204,11 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     leader["citations"] = lc
                                     leader["size"] = len(lc)
                                     to_remove.add(idx)
-                                logger.info(
-                                    f"[TASK:{task_id}] Identity-merged {len(idxs)} clusters for {_id}"
-                                )
+                                    merged_this_id += 1
+                                if merged_this_id:
+                                    logger.info(
+                                        f"[TASK:{task_id}] Identity-merged {merged_this_id + 1} clusters for {_id}"
+                                    )
 
                             if to_remove:
                                 clusters_list = [c for i, c in enumerate(clusters_list) if i not in to_remove]
@@ -1584,6 +1664,20 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 logger.info(
                                     f"[TASK:{task_id}] WL-DEDUP: removed {len(wl_to_remove)} duplicate WL/LEXIS clusters, now {len(clusters_list)}"
                                 )
+
+                        # Merge clusters that are the same case: same normalized name, same year, ≥1 citation in common
+                        if clusters_list and len(clusters_list) > 1:
+                            try:
+                                from src.utils.response_enrichment import merge_clusters_by_same_case_identity
+                                before_same_case = len(clusters_list)
+                                clusters_list = merge_clusters_by_same_case_identity(clusters_list)
+                                if len(clusters_list) < before_same_case:
+                                    logger.info(
+                                        f"[TASK:{task_id}] Same-case merge: {before_same_case} -> {len(clusters_list)} clusters"
+                                    )
+                            except Exception as _merge_err:
+                                logger.warning(f"[TASK:{task_id}] Same-case merge skipped: {_merge_err}")
+
                         logger.info(f"[TASK:{task_id}] Pre-split: {len(clusters_list)} clusters, {len(citations_list)} citations")
 
                         # CRITICAL FIX: Split clusters when case history signals (aff'd, rev'd) appear between citations
@@ -1611,7 +1705,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                             else:
                                                 # Try with normalized whitespace as fallback
                                                 import re as _re_ws
-                                                ct_norm = _re_ws.sub(r'\s+', ct.strip())
+                                                ct_norm = _re_ws.sub(r'\s+', ' ', ct.strip())
                                                 idx2 = _text_lower.find(ct_norm.lower())
                                                 if idx2 >= 0:
                                                     _pos_cache[ct] = (idx2, idx2 + len(ct_norm))
@@ -2250,6 +2344,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
 
                                 return False
 
+                            def _is_real_canonical_url(url):
+                                """Check if URL is a real canonical URL (not Google search)."""
+                                if not url:
+                                    return False
+                                url_str = str(url).lower()
+                                return not (url_str.startswith('https://www.google.com') or 
+                                           url_str.startswith('http://www.google.com'))
+
                             # STEP 3: CRITICAL FIX - Clear true_by_parallel when NO verified citation exists
                             # This handles the case where:
                             # 1. Citation A was verified, Citation B marked as true_by_parallel
@@ -2270,15 +2372,22 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                 continue
                                             gc["true_by_parallel"] = False
                                             # Also clear canonical data since source is gone
+                                            # PRESERVE real canonical URLs - only clear if Google search URL
+                                            existing_url = gc.get("canonical_url")
                                             gc["canonical_name"] = None
                                             gc["canonical_date"] = None
-                                            gc["canonical_url"] = None
+                                            if not _is_real_canonical_url(existing_url):
+                                                gc["canonical_url"] = None
+                                            else:
+                                                logger.info(f"[TASK:{task_id}] PRESERVED real URL during orphan cleanup: {existing_url[:80]}...")
                                             if "_original_obj" in gc:
                                                 orig = gc["_original_obj"]
                                                 orig.true_by_parallel = False
                                                 orig.canonical_name = None
                                                 orig.canonical_date = None
-                                                orig.canonical_url = None
+                                                # Only clear URL if not real
+                                                if not _is_real_canonical_url(getattr(orig, 'canonical_url', None)):
+                                                    orig.canonical_url = None
                                             orphan_cleared += 1
                                             logger.info(
                                                 f"[TASK:{task_id}] PARALLEL-ORPHAN: Cleared true_by_parallel from {gc.get('citation')} (no verified source)"
@@ -2324,9 +2433,12 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     ):
                                                         # CLEAR true_by_parallel if source was cleared
                                                         cit["true_by_parallel"] = False
+                                                        # PRESERVE real canonical URLs
+                                                        existing_url = cit.get("canonical_url")
                                                         cit["canonical_name"] = None
                                                         cit["canonical_date"] = None
-                                                        cit["canonical_url"] = None
+                                                        if not _is_real_canonical_url(existing_url):
+                                                            cit["canonical_url"] = None
                                                         cluster_updates += 1
                                 logger.info(
                                     f"[TASK:{task_id}] PARALLEL-CONSISTENCY: Updated {cluster_updates} citations in clusters"
@@ -2363,9 +2475,12 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                 )
                                                 continue
                                             cit["true_by_parallel"] = False
+                                            # PRESERVE real canonical URLs
+                                            existing_url = cit.get("canonical_url")
                                             cit["canonical_name"] = None
                                             cit["canonical_date"] = None
-                                            cit["canonical_url"] = None
+                                            if not _is_real_canonical_url(existing_url):
+                                                cit["canonical_url"] = None
                                             orphaned_citations.add(cit.get("citation", ""))
                                             final_orphan_cleared += 1
                                             logger.info(
@@ -2381,16 +2496,21 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                         lookup_cit = citation_lookup[cite_text]
                                         if lookup_cit.get("true_by_parallel", False):
                                             lookup_cit["true_by_parallel"] = False
+                                            # PRESERVE real canonical URLs
+                                            existing_url = lookup_cit.get("canonical_url")
                                             lookup_cit["canonical_name"] = None
                                             lookup_cit["canonical_date"] = None
-                                            lookup_cit["canonical_url"] = None
+                                            if not _is_real_canonical_url(existing_url):
+                                                lookup_cit["canonical_url"] = None
                                             # Also update original object if present
                                             if "_original_obj" in lookup_cit:
                                                 orig = lookup_cit["_original_obj"]
                                                 orig.true_by_parallel = False
                                                 orig.canonical_name = None
                                                 orig.canonical_date = None
-                                                orig.canonical_url = None
+                                                # PRESERVE real canonical URLs on original object
+                                                if not _is_real_canonical_url(getattr(orig, 'canonical_url', None)):
+                                                    orig.canonical_url = None
                                             top_level_cleared += 1
                                 if top_level_cleared > 0:
                                     logger.info(
@@ -2742,7 +2862,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     # phantom name fixes, or PDF missing-space normalization were applied
                     try:
                         from src.utils.mismatch_utils import annotate_mismatch_flags
-                        annotate_mismatch_flags(citations_list, clusters_list, name_threshold=0.4, year_tolerance=0)
+                        annotate_mismatch_flags(citations_list, clusters_list, name_threshold=0.4, year_tolerance=1)
                         logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags after post-processing")
                     except Exception as mismatch_err:
                         logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
@@ -2782,22 +2902,33 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     except Exception as _final_guard_err:
                         logger.warning(f"[TASK:{task_id}] Final display guard failed: {_final_guard_err}")
 
-                    # Create final result with complete verification data
+                    # Create final result with complete verification data (include cluster_sections for frontend)
+                    try:
+                        from src.utils.response_enrichment import compute_cluster_sections
+                        cluster_sections = compute_cluster_sections(clusters_list)
+                    except Exception as _cs_err:
+                        logger.debug(f"[TASK:{task_id}] cluster_sections computation skipped: {_cs_err}")
+                        cluster_sections = {}
+                    meta = {
+                        "processing_strategy": "synchronous_full_verification",
+                        "processing_path": "worker_unified_pipeline",
+                        "text_length": len(text) if text else 0,
+                        "verification_completed": enable_verification,
+                        "citation_count": len(citations_list),
+                        "verified_count": verified_count,
+                        "cluster_count": len(clusters_list),
+                        "pipeline_metadata": pipeline_result.get("metadata", {}),
+                    }
+                    if enable_verification and len(citations_list) > 0 and verified_count == 0:
+                        meta["verification_requested_but_none_matched"] = True
+                        meta["verification_hint"] = "No citations were matched. Ensure COURTLISTENER_API_KEY is set in the worker environment (see worker logs)."
                     result = {
                         "success": True,
                         "citations": citations_list,
                         "clusters": clusters_list,
+                        "cluster_sections": cluster_sections,
                         "task_id": task_id,
-                        "metadata": {
-                            "processing_strategy": "synchronous_full_verification",
-                            "processing_path": "worker_unified_pipeline",
-                            "text_length": len(text) if text else 0,
-                            "verification_completed": True,
-                            "citation_count": len(citations_list),
-                            "verified_count": verified_count,
-                            "cluster_count": len(clusters_list),
-                            "pipeline_metadata": pipeline_result.get("metadata", {}),
-                        },
+                        "metadata": meta,
                     }
 
                     # CRITICAL DEBUG: Log what we're returning
@@ -2990,11 +3121,13 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
 
             try:
 
-                # Extract enable_verification flag from input_data
-                enable_verification = input_data.get(
-                    "enable_verification", True
-                )  # Default to True for fast verification
-                logger.info(f"[TASK:{task_id}] enable_verification flag (file): {enable_verification}")
+                # Extract enable_verification flag from input_data (same normalization as text path)
+                raw_ev = input_data.get("enable_verification", True)
+                if isinstance(raw_ev, str):
+                    enable_verification = raw_ev.strip().lower() in ("true", "1", "yes", "on")
+                else:
+                    enable_verification = bool(raw_ev)
+                logger.info(f"[TASK:{task_id}] enable_verification flag (file): {enable_verification} (raw: {raw_ev!r})")
 
                 # Use unified pipeline directly - bypass sync/async decision to avoid recursion
                 from src.unified_processing_pipeline import process_citations_unified
@@ -3049,13 +3182,59 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 result = {"status": "failed", "task_id": task_id, "error": f"Pipeline failed: {str(e)}"}
                 return result
 
-            citations = pipeline_result.get("citations", [])
+            citations_raw = pipeline_result.get("citations", [])
             clusters = pipeline_result.get("clusters", [])
+            # Normalize citations to dicts and ensure extracted_case_name/extracted_date are always set (for "from document" display)
+            citations = []
+            for c in citations_raw:
+                if isinstance(c, dict):
+                    cit = dict(c)
+                else:
+                    cit = (c.to_dict() if hasattr(c, "to_dict") and callable(getattr(c, "to_dict")) else {})
+                cit.setdefault("extracted_case_name", cit.get("extracted_case_name") or "N/A")
+                cit.setdefault("extracted_date", cit.get("extracted_date") or "N/A")
+                citations.append(cit)
+            names_from_doc = sum(1 for c in citations if (c.get("extracted_case_name") or "").strip() not in ("", "N/A"))
+            if len(citations) > 0 and names_from_doc == 0:
+                logger.warning(
+                    f"[TASK:{task_id}] No case names from document (all N/A). "
+                    "Check pipeline extraction: _extract_citations_unified may be failing (regex fallback has no names) or enhancement loop not finding names."
+                )
             # Diagnostic: compare sync vs async pipeline output (see docs/PIPELINE_ENTRY_POINTS.md)
             logger.info(
                 f"[SYNC-ASYNC-DIAG] ASYNC (file) pipeline out: len(text)={len(text)}, "
                 f"len(citations)={len(citations)}, len(clusters)={len(clusters)}"
             )
+            # Safety net: pipeline sometimes returns citations but 0 clusters (e.g. clustering filter removes all).
+            # Build one cluster per citation so the frontend shows "X Cases Found" and cards instead of empty sections.
+            if citations and not clusters:
+                logger.warning(
+                    f"[TASK:{task_id}] Pipeline returned {len(citations)} citations but 0 clusters - building one cluster per citation"
+                )
+                clusters = []
+                for i, c in enumerate(citations, 1):
+                    if isinstance(c, dict):
+                        cit = c
+                    else:
+                        cit = (c.to_dict() if hasattr(c, "to_dict") and callable(getattr(c, "to_dict")) else {})
+                    ct = cit.get("citation", "") or getattr(c, "citation", "")
+                    ecn = cit.get("extracted_case_name") or cit.get("canonical_name") or "N/A"
+                    clusters.append({
+                        "cluster_id": f"cluster_file_{i}",
+                        "cluster_key": ct[:200] if ct else f"c_{i}",
+                        "citations": [cit],
+                        "cluster_members": [ct] if ct else [],
+                        "cluster_size": 1,
+                        "size": 1,
+                        "cluster_case_name": ecn,
+                        "submitted_display_name": ecn,
+                        "extracted_case_name": ecn,
+                        "canonical_name": cit.get("canonical_name"),
+                        "canonical_url": cit.get("canonical_url"),
+                        "verified": bool(cit.get("verified", False)),
+                        "verification_status": "verified" if cit.get("verified") else "unverified",
+                        "metadata": {},
+                    })
 
             # NOTE: Fallback verification already runs inside verify_citations_batch()
             # (Phase 4.75 enhanced_batch_fallback). No need for a second fallback here.
@@ -3069,17 +3248,38 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             # FIX 2026-02-09: Re-annotate mismatch flags after pipeline post-processing
             try:
                 from src.utils.mismatch_utils import annotate_mismatch_flags
-                annotate_mismatch_flags(citations, clusters, name_threshold=0.4, year_tolerance=0)
+                annotate_mismatch_flags(citations, clusters, name_threshold=0.4, year_tolerance=1)
                 logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags (file path)")
             except Exception as mismatch_err:
                 logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
 
+            # FIX 2026-02-24: Add cluster_sections for frontend display categorization
+            from src.utils.response_enrichment import compute_cluster_sections
+            
+            verified_count_file = sum(
+                1 for c in citations
+                if isinstance(c, dict) and c.get("verified", False)
+            )
+            meta_file = {
+                "processing_strategy": "full_async_with_verification",
+                "text_length": len(text),
+                "citation_count": len(citations),
+                "verified_count": verified_count_file,
+                "cluster_count": len(clusters),
+                "verification_completed": enable_verification,
+            }
+            if enable_verification and len(citations) > 0 and verified_count_file == 0:
+                meta_file["verification_requested_but_none_matched"] = True
+                meta_file["verification_hint"] = (
+                    "No citations were matched. Ensure COURTLISTENER_API_KEY is set in the worker environment (see worker logs)."
+                )
             result = {
                 "status": "completed",
                 "task_id": task_id,
                 "citations": citations,
                 "clusters": clusters,
-                "metadata": {"processing_strategy": "full_async_with_verification", "text_length": len(text)},
+                "cluster_sections": compute_cluster_sections(clusters),
+                "metadata": meta_file,
             }
 
             try:
@@ -3116,7 +3316,6 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             # Ensure the result is properly stored in Redis
             try:
                 from redis import Redis
-                import json
 
                 from src.config import REDIS_URL
                 redis_client = Redis.from_url(REDIS_URL)
