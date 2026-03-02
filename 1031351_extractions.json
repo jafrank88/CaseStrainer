@@ -1,982 +1,1318 @@
 [
   {
-    "citation": "87 Wn.2d 577",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 1617,
-    "end_index": 1629
-  },
-  {
-    "citation": "555 P.2d 997",
-    "extracted_case_name": "Johnson v. Spider Staging Corp.",
+    "citation": "87 Wn.2d 577, 555 P.2d 997",
+    "extracted_case_name": "Johnson v. Spider Staging Corporation",
     "extracted_date": "1976",
-    "start_index": 1631,
-    "end_index": 1643
+    "start_index": 1499,
+    "end_index": 1525
   },
   {
-    "citation": "54 App. D.C. 46",
+    "citation": "Johnson v. Spider Staging Corp., 87 Wash. 2d 577555 P.2d 997 (1976)",
+    "extracted_case_name": "Johnson v. Spider Staging Corporation",
+    "extracted_date": "1976",
+    "start_index": 1499,
+    "end_index": 1511
+  },
+  {
+    "citation": "Johnson v. Spider Staging Corp., 555 P.2d 997 (1976)",
+    "extracted_case_name": "Johnson v. Spider Staging Corporation",
+    "extracted_date": "1976",
+    "start_index": 1513,
+    "end_index": 1525
+  },
+  {
+    "citation": "Frye v. United States, 54 App. D.C. 46 F. 1013 (1923)",
     "extracted_case_name": "Frye v. United States",
     "extracted_date": "1923",
-    "start_index": 2596,
-    "end_index": 2611
+    "start_index": 2471,
+    "end_index": 2486
   },
   {
-    "citation": "293 F. 1013",
+    "citation": "Frye v. United States, 293 F. 1013 (1923)",
     "extracted_case_name": "Frye v. United States",
     "extracted_date": "1923",
-    "start_index": 2613,
-    "end_index": 2624
+    "start_index": 2488,
+    "end_index": 2499
   },
   {
-    "citation": "205 U.S. App. D.C. 139",
-    "extracted_case_name": "N/A",
+    "citation": "Env' Def. Fund, Inc. v. Env't Prot. Agency, 205 U.S. App. D.C. 139 F.2d 1267, 1270 (1980)",
+    "extracted_case_name": "Env't Prot. Agency Env' Def. Fund, Inc. v. Env't Prot. Agency",
     "extracted_date": "1980",
-    "start_index": 5144,
-    "end_index": 5166
+    "start_index": 4929,
+    "end_index": 4951
   },
   {
-    "citation": "636 F.2d 1267",
-    "extracted_case_name": "N/A",
+    "citation": "Env' Def. Fund, Inc. v. Env't Prot. Agency, 636 F.2d 1267, 1270 (1980)",
+    "extracted_case_name": "Environmental Defense Fund, Inc. v. Environmental Protection Agency",
     "extracted_date": "1980",
-    "start_index": 5168,
-    "end_index": 5181
+    "start_index": 4953,
+    "end_index": 4966
   },
   {
-    "citation": "548 P.3d 226",
-    "extracted_case_name": "Erickson v. Pharmacia, No.",
+    "citation": "31 Wn. App. 2d 100, 110",
+    "extracted_case_name": "N/A",
     "extracted_date": "2024",
-    "start_index": 11845,
-    "end_index": 11857
+    "start_index": 11390,
+    "end_index": 11413
+  },
+  {
+    "citation": "Erickson v. Pharmacia, LLC, 31 Wn. App. 2d 100, 110-11, 548 P.3d 226review granted, 3 Wn.3d 1018 (2024)",
+    "extracted_case_name": "Erickson v. Pharmacia, LLC",
+    "extracted_date": "2024",
+    "start_index": 11418,
+    "end_index": 11430
+  },
+  {
+    "citation": "3 Wn.3d 1018",
+    "extracted_case_name": "N/A",
+    "extracted_date": "2024",
+    "start_index": 11448,
+    "end_index": 11460
   },
   {
     "citation": "161 Wn.2d 676",
-    "extracted_case_name": "We review choice of law questions de novo. Erwin v. Cotter Health Ctrs ., Inc.",
+    "extracted_case_name": "Erwin v. Cotter Health Centers, Inc",
     "extracted_date": "2007",
-    "start_index": 16749,
-    "end_index": 16762
+    "start_index": 16184,
+    "end_index": 16197
+  },
+  {
+    "citation": "Erwin v. Cotter Health Ctrs., Inc., 161 Wash. 2d 676, 691167 P.3d 1112 (2007)",
+    "extracted_case_name": "Erwin v. Cotter Health Ctrs., Inc",
+    "extracted_date": "2007",
+    "start_index": 16184,
+    "end_index": 16197
   },
   {
     "citation": "167 P.3d 1112",
-    "extracted_case_name": "We review choice of law questions de novo. Erwin v. Cotter Health Ctrs ., Inc.",
+    "extracted_case_name": "Erwin v. Cotter Health Centers",
     "extracted_date": "2007",
-    "start_index": 16769,
-    "end_index": 16782
+    "start_index": 16204,
+    "end_index": 16217
+  },
+  {
+    "citation": "Erwin v. Cotter Health Ctrs., Inc., 167 P.3d 1112 (2007)",
+    "extracted_case_name": "Erwin v. Cotter Health Ctrs., Inc",
+    "extracted_date": "2007",
+    "start_index": 16204,
+    "end_index": 16217
   },
   {
     "citation": "11 Wn.2d 288",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 17503,
-    "end_index": 17515
+    "extracted_case_name": "Richardson v. Pac",
+    "extracted_date": "1941",
+    "start_index": 16930,
+    "end_index": 16942
+  },
+  {
+    "citation": "Richardson v. Pac. Power & Light Co., 11 Wash. 2d 288, 299118 P.2d 985 (1934)",
+    "extracted_case_name": "Richardson v. Pac. Power & Light Co",
+    "extracted_date": "1941",
+    "start_index": 16930,
+    "end_index": 16942
   },
   {
     "citation": "118 P.2d 985",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Richardson v. Pac. Power & Light Co., 11 Wn. 2d 288",
     "extracted_date": "1941",
-    "start_index": 17522,
-    "end_index": 17534
+    "start_index": 16949,
+    "end_index": 16961
+  },
+  {
+    "citation": "Richardson v. Pac. Power & Light Co., 118 P.2d 985 (1934)",
+    "extracted_case_name": "Richardson v. Pac. Power & Light Co",
+    "extracted_date": "1941",
+    "start_index": 16949,
+    "end_index": 16961
   },
   {
     "citation": "70 Wn.2d 893",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Baffin Land Corporation. v. MONTICELLO MOT. INN., INC",
     "extracted_date": "1967",
-    "start_index": 20679,
-    "end_index": 20691
+    "start_index": 19995,
+    "end_index": 20007
+  },
+  {
+    "citation": "Baffin Land Corp. v. Monticello Motor Inn, Inc., 70 Wash. 2d 893, 898425 P.2d 623 (1967) (finding the draft of Restatement (Second) to be more rational and \"consistent with the standards of equity, fair play and justice\" in a contract choice of law issue)",
+    "extracted_case_name": "Baffin Land Corporation. v. MONTICELLO MOT. INN., INC",
+    "extracted_date": "1967",
+    "start_index": 19995,
+    "end_index": 20007
   },
   {
     "citation": "425 P.2d 623",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Baffin Land Corporation. v. MONTICELLO MOT. INN., INC",
     "extracted_date": "1967",
-    "start_index": 20698,
-    "end_index": 20710
+    "start_index": 20014,
+    "end_index": 20026
   },
   {
-    "citation": "11 Cal. 3d 574",
-    "extracted_case_name": "Hurtado v. Superior C t.",
+    "citation": "Baffin Land Corp. v. Monticello Motor Inn, Inc., 425 P.2d 623 (1967) (finding the draft of Restatement (Second) to be more rational and \"consistent with the standards of equity, fair play and justice\" in a contract choice of law issue)",
+    "extracted_case_name": "Baffin Land Corporation. v. MONTICELLO MOT. INN., INC",
+    "extracted_date": "1967",
+    "start_index": 20014,
+    "end_index": 20026
+  },
+  {
+    "citation": "Hurtado v. Superior Ct., 11 Cal. 3d 574, 583-84522 P.2d 666, 114 Cal. Rptr. 106 (1974)",
+    "extracted_case_name": "Hurtado v. Superior Ct",
     "extracted_date": "1974",
-    "start_index": 23464,
-    "end_index": 23478
+    "start_index": 22683,
+    "end_index": 22697
   },
   {
     "citation": "522 P.2d 666",
-    "extracted_case_name": "Hurtado v. Superior C t.",
+    "extracted_case_name": "Hurtado v. Superior Ct., 11 Cal. 3d 574",
     "extracted_date": "1974",
-    "start_index": 23488,
-    "end_index": 23500
+    "start_index": 22707,
+    "end_index": 22719
   },
   {
-    "citation": "114 Cal. Rptr. 106",
-    "extracted_case_name": "Hurtado v. Superior C t.",
+    "citation": "Hurtado v. Superior Ct., 522 P.2d 666114 Cal. Rptr. 106 (1974)",
+    "extracted_case_name": "Hurtado v. Superior Ct",
     "extracted_date": "1974",
-    "start_index": 23502,
-    "end_index": 23520
+    "start_index": 22707,
+    "end_index": 22719
   },
   {
-    "citation": "875 P.2d 1213",
-    "extracted_case_name": "See, e.g. , Rice v. Dow Chem. Co .",
-    "extracted_date": "1994",
-    "start_index": 24853,
-    "end_index": 24866
-  },
-  {
-    "citation": "128 Wn. App. 256",
-    "extracted_case_name": "Zenaida -Garcia v. Recovery Sys . Technology, Inc.",
-    "extracted_date": "2005",
-    "start_index": 24998,
-    "end_index": 25014
-  },
-  {
-    "citation": "115 P.3d 1017",
-    "extracted_case_name": "Zenaida -Garcia v. Recovery Sys . Technology, Inc.",
-    "extracted_date": "2005",
-    "start_index": 25021,
-    "end_index": 25034
-  },
-  {
-    "citation": "114 Wn. App. 823",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2003",
-    "start_index": 25085,
-    "end_index": 25101
-  },
-  {
-    "citation": "61 P.3d 1196",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2003",
-    "start_index": 25108,
-    "end_index": 25120
-  },
-  {
-    "citation": "124 F. Supp. 2d 46",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 25175,
-    "end_index": 25193
+    "citation": "Hurtado v. Superior Ct., 114 Cal. Rptr. 106 (1974)",
+    "extracted_case_name": "Hurtado v. Superior Ct",
+    "extracted_date": "1974",
+    "start_index": 22721,
+    "end_index": 22739
   },
   {
     "citation": "124 Wn.2d 205",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 25833,
-    "end_index": 25846
+    "extracted_case_name": "Rice v. Dow Chem. Co",
+    "extracted_date": "1994",
+    "start_index": 23999,
+    "end_index": 24012
   },
   {
-    "citation": "145 N.J. 478",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 30604,
-    "end_index": 30616
+    "citation": "Rice v. Dow Chem. Co., 124 Wash. 2d 205, 212875 P.2d 1213 (1994) (applying a choice of law analysis to Washington's statute of repose)",
+    "extracted_case_name": "Rice v. Dow Chem. Co",
+    "extracted_date": "1994",
+    "start_index": 23999,
+    "end_index": 24012
   },
   {
-    "citation": "679 A.2d 106",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 30618,
-    "end_index": 30630
+    "citation": "875 P.2d 1213",
+    "extracted_case_name": "Rice v. Dow Chem. Co., 124 Wn. 2d 205",
+    "extracted_date": "1994",
+    "start_index": 24019,
+    "end_index": 24032
   },
   {
-    "citation": "201 F.3d 110",
-    "extracted_case_name": "Marakova v. United States",
+    "citation": "Rice v. Dow Chem. Co., 875 P.2d 1213 (1994) (applying a choice of law analysis to Washington's statute of repose)",
+    "extracted_case_name": "Rice v. Dow Chem. Co",
+    "extracted_date": "1994",
+    "start_index": 24019,
+    "end_index": 24032
+  },
+  {
+    "citation": "128 Wn. App. 256",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys",
+    "extracted_date": "2005",
+    "start_index": 24161,
+    "end_index": 24177
+  },
+  {
+    "citation": "Zenaida-Garcia v. Recovery Sys. Technology, Inc., 128 Wash. App. 256, 266115 P.3d 1017 (2000) (\"Choice of law rules apply equally to claims brought under common law and statutory law.\")",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys. Technology, Inc",
+    "extracted_date": "2005",
+    "start_index": 24161,
+    "end_index": 24177
+  },
+  {
+    "citation": "115 P.3d 1017",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys",
+    "extracted_date": "2005",
+    "start_index": 24184,
+    "end_index": 24197
+  },
+  {
+    "citation": "Zenaida-Garcia v. Recovery Sys. Technology, Inc., 115 P.3d 1017 (2000) (\"Choice of law rules apply equally to claims brought under common law and statutory law.\")",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys. Technology, Inc",
+    "extracted_date": "2005",
+    "start_index": 24184,
+    "end_index": 24197
+  },
+  {
+    "citation": "114 Wn. App. 823",
+    "extracted_case_name": "Martin v. Humbert Constr",
+    "extracted_date": "2003",
+    "start_index": 24246,
+    "end_index": 24262
+  },
+  {
+    "citation": "Martin v. Humbert Constr., Inc., 114 Wash. App. 823, 82961 P.3d 1196 (2000) (\"Choice of law rules apply equally to claims brought under common law and statutory law.\")",
+    "extracted_case_name": "Martin v. Humbert Constr., Inc",
+    "extracted_date": "2003",
+    "start_index": 24246,
+    "end_index": 24262
+  },
+  {
+    "citation": "61 P.3d 1196",
+    "extracted_case_name": "Martin v. Humbert Constr",
+    "extracted_date": "2003",
+    "start_index": 24269,
+    "end_index": 24281
+  },
+  {
+    "citation": "Martin v. Humbert Constr., Inc., 61 P.3d 1196 (2000) (\"Choice of law rules apply equally to claims brought under common law and statutory law.\")",
+    "extracted_case_name": "Martin v. Humbert Constr., Inc",
+    "extracted_date": "2003",
+    "start_index": 24269,
+    "end_index": 24281
+  },
+  {
+    "citation": "Simon v. Philip Morris Inc., 124 F. Supp. 2d 46, 53-54 (nyed 2000) (\"Choice of law rules apply equally to claims brought under common law and statutory law.\")",
+    "extracted_case_name": "Simon v. Philip Morris Inc",
     "extracted_date": "2000",
-    "start_index": 31913,
-    "end_index": 31925
+    "start_index": 24335,
+    "end_index": 24353
   },
   {
-    "citation": "389 Ill. App. 3d 691",
-    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
+    "citation": "Rice, 124 Wash. 2d 205",
+    "extracted_case_name": "Rice v. Dow Chemical Co",
+    "extracted_date": "1994",
+    "start_index": 24987,
+    "end_index": 25000
+  },
+  {
+    "citation": "Gantes v. Kason Corp., 679 A.2d 106, 109 (1996) (finding that characterization of Georgia's statute of repose as substantive did not preclude issue- by-issue analysis and concluding the law of the place of the tortious conduct governed repose)",
+    "extracted_case_name": "Gantes v. Kason Corporation",
+    "extracted_date": "1996",
+    "start_index": 29637,
+    "end_index": 29649
+  },
+  {
+    "citation": "Marakova v. United States, 201 F.3d 110, 114 (ca2 2000)",
+    "extracted_case_name": "Natalia Makarova v. United States",
+    "extracted_date": "2000",
+    "start_index": 30865,
+    "end_index": 30877
+  },
+  {
+    "citation": "Santa Fe Ry. Co. v. ABC-NACO, 389 Ill. App. 3d 691906 N.E.2d 83, 93 (2001)",
+    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC-NACO",
+    "extracted_date": "2001",
+    "start_index": 30945,
+    "end_index": 30965
+  },
+  {
+    "citation": "Santa Fe Ry. Co. v. ABC-NACO, 906 N.E.2d 83, 93 (2001)",
+    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC-NACO",
     "extracted_date": "2009",
-    "start_index": 31995,
-    "end_index": 32015
+    "start_index": 30967,
+    "end_index": 30980
   },
   {
-    "citation": "906 N.E.2d 83",
-    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
-    "extracted_date": "2009",
-    "start_index": 32017,
-    "end_index": 32030
-  },
-  {
-    "citation": "2002 WY 183",
-    "extracted_case_name": "Act I, LLC v. Davis",
-    "extracted_date": "1993",
-    "start_index": 32065,
-    "end_index": 32076
+    "citation": "Act I, LLC v. Davis, 2002 WY 183",
+    "extracted_case_name": "Davis Act I, LLC v. Davis",
+    "extracted_date": "N/A",
+    "start_index": 31014,
+    "end_index": 31025
   },
   {
     "citation": "60 P.3d 145",
+    "extracted_case_name": "Davis 2002 WY 183 Act I, LLC v. Davis",
+    "extracted_date": "N/A",
+    "start_index": 31027,
+    "end_index": 31038
+  },
+  {
+    "citation": "Act I, LLC v. Davis, 60 P.3d 145, 149",
     "extracted_case_name": "Act I, LLC v. Davis",
-    "extracted_date": "1993",
-    "start_index": 32078,
-    "end_index": 32089
+    "extracted_date": "N/A",
+    "start_index": 31027,
+    "end_index": 31038
   },
   {
-    "citation": "246 Va. 67",
+    "citation": "Buchanan v. John Doe, 246 Va. 67 S.E.2d 289, 291 (2001)",
     "extracted_case_name": "Buchanan v. John Doe",
-    "extracted_date": "1993",
-    "start_index": 32118,
-    "end_index": 32128
+    "extracted_date": "2001",
+    "start_index": 31067,
+    "end_index": 31077
   },
   {
-    "citation": "431 S.E.2d 289",
+    "citation": "Buchanan v. John Doe, 431 S.E.2d 289, 291 (2001)",
     "extracted_case_name": "Buchanan v. John Doe",
     "extracted_date": "1993",
-    "start_index": 32130,
-    "end_index": 32144
+    "start_index": 31079,
+    "end_index": 31093
   },
   {
     "citation": "18 P.3d 49",
-    "extracted_case_name": "Savage Arms, Inc. v. W. Auto Supply Co.",
+    "extracted_case_name": "Auto Supply Co. Savage Arms, Inc. v. W. Auto Supply Co",
     "extracted_date": "2001",
-    "start_index": 32199,
-    "end_index": 32209
+    "start_index": 31148,
+    "end_index": 31158
   },
   {
-    "citation": "821 F.2d 1147",
-    "extracted_case_name": "Trivelloni -Lorenzi v. Pan Am. World Airways, Inc.",
+    "citation": "Savage Arms, Inc. v. W. Auto Supply Co., 18 P.3d 49, 53 (alaska 2001)",
+    "extracted_case_name": "Savage Arms, Inc. v. W. Auto Supply Co",
+    "extracted_date": "2001",
+    "start_index": 31148,
+    "end_index": 31158
+  },
+  {
+    "citation": "Trivelloni-Lorenzi v. Pan Am. World Airways, Inc., 821 F.2d 1147, 1174 (ca5 1987) (Gee, J., concurring in part and dissenting in part)",
+    "extracted_case_name": "Trivelloni-Lorenzi v. Pan Am. World Airways, Inc",
     "extracted_date": "1987",
-    "start_index": 32281,
-    "end_index": 32294
+    "start_index": 31229,
+    "end_index": 31242
   },
   {
-    "citation": "227 Ill. 2d 147",
-    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "citation": "Townsend v. Sears, Roebuck & Co., 227 Ill. 2d 147879 N.E.2d 893, 901, 316 Ill. Dec. 505 (2007)",
+    "extracted_case_name": "Sears, Roebuck & Co",
     "extracted_date": "2007",
-    "start_index": 32406,
-    "end_index": 32421
+    "start_index": 31353,
+    "end_index": 31368
   },
   {
-    "citation": "879 N.E.2d 893",
-    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "citation": "Townsend v. Sears, Roebuck & Co., 879 N.E.2d 893, 901316 Ill. Dec. 505 (2007)",
+    "extracted_case_name": "Sears, Roebuck & Co",
     "extracted_date": "2007",
-    "start_index": 32423,
-    "end_index": 32437
+    "start_index": 31370,
+    "end_index": 31384
   },
   {
-    "citation": "316 Ill. Dec. 505",
-    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
+    "citation": "Townsend v. Sears, Roebuck & Co., 316 Ill. Dec. 505 (2007)",
+    "extracted_case_name": "Sears, Roebuck & Co",
     "extracted_date": "2007",
-    "start_index": 32444,
-    "end_index": 32461
+    "start_index": 31391,
+    "end_index": 31408
   },
   {
-    "citation": "964 F.2d 1059",
-    "extracted_case_name": "N/A",
+    "citation": "Johnson v. Cont'l Airlines Corp., 964 F.2d 1059, 1064 (ca10 1992) (holding depecage is inappropriate \"when used to fragment issues related to a common purpose or to legitimatize a smorgasbord approach which inures only to the benefit of the party picking and choosing\")",
+    "extracted_case_name": "Karen Svea Johnson and Robert Cooke, Jr., Wife and Husband v. Continental Airlines Corporation, a Delaware Corporation",
     "extracted_date": "1992",
-    "start_index": 33809,
-    "end_index": 33822
+    "start_index": 32703,
+    "end_index": 32716
   },
   {
     "citation": "175 Wn. App. 840",
-    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc.",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp",
     "extracted_date": "2013",
-    "start_index": 34574,
-    "end_index": 34590
+    "start_index": 33428,
+    "end_index": 33444
+  },
+  {
+    "citation": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc., 175 Wash. App. 840 n.15, 309 P.3d 555 (2013) (\"Under the principle of depecage, different issues in a single case arising out of a common nucleus of facts may be decided according to the substantive law of different states.\")",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc",
+    "extracted_date": "2013",
+    "start_index": 33428,
+    "end_index": 33444
   },
   {
     "citation": "309 P.3d 555",
-    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp. Holdings, Inc.",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp",
     "extracted_date": "2013",
-    "start_index": 34603,
-    "end_index": 34615
+    "start_index": 33456,
+    "end_index": 33468
+  },
+  {
+    "citation": "309 P.3d 555 (2013) (\"Under the principle of depecage, different issues in a single case arising out of a common nucleus of facts may be decided according to the substantive law of different states.\")",
+    "extracted_case_name": "FutureSelect Portfolio Mgmt., Inc. v. Tremont Grp",
+    "extracted_date": "2013",
+    "start_index": 33456,
+    "end_index": 33468
+  },
+  {
+    "citation": "19 Wn. App. 2d 113, 123",
+    "extracted_case_name": "Lloyd's of London Pope Res., LP v. Certain Underwriters at Lloyd's of London",
+    "extracted_date": "2021",
+    "start_index": 33718,
+    "end_index": 33742
   },
   {
     "citation": "494 P.3d 1076",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "POPE RES. v. CERT. UNDERWRITERS AT LLOYD'S",
     "extracted_date": "2021",
-    "start_index": 34898,
-    "end_index": 34911
+    "start_index": 33748,
+    "end_index": 33761
   },
   {
-    "citation": "766 F. Supp. 2d 1122",
-    "extracted_case_name": "Experience Hendrix, LLC v. HendrixLicensing.com, LTD",
+    "citation": "Compare Experience Hendrix, LLC v. HendrixLicensing.com, LTD, 766 F. Supp. 2d 1122, 1136 (wawd 2011) (\"Although some states do not follow the rule of depecage, Washington does.\")",
+    "extracted_case_name": "Experience Hendrix, L. L. C v. HendrixLicensing. com, Ltd",
     "extracted_date": "2011",
-    "start_index": 35716,
-    "end_index": 35736
+    "start_index": 34556,
+    "end_index": 34576
   },
   {
-    "citation": "999 F. Supp. 2d 1235",
-    "extracted_case_name": "Karpenski v. Am. Gen. Life Cos.",
+    "citation": "Karpenski v. Am. Gen. Life Cos., 999 F. Supp. 2d 1235, 1239 (wawd 2014) (\"Washington follows the rule of d[e]pe[c]age.\")",
+    "extracted_case_name": "Karpenski v. Am. Gen. Life Cos",
     "extracted_date": "2014",
-    "start_index": 35874,
-    "end_index": 35894
+    "start_index": 34713,
+    "end_index": 34733
   },
   {
     "citation": "2019 WL 2066127",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 36043,
-    "end_index": 36058
+    "extracted_case_name": "Nazar v. Harbor Freight Tools USA Inc",
+    "extracted_date": "2019",
+    "start_index": 34877,
+    "end_index": 34892
   },
   {
     "citation": "2011 WL 3298912",
-    "extracted_case_name": "Milgard Mfg., Inc. v. Il l. Union Ins. Co ., No. C",
-    "extracted_date": null,
-    "start_index": 36368,
-    "end_index": 36383
+    "extracted_case_name": "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill",
+    "extracted_date": "2011",
+    "start_index": 35198,
+    "end_index": 35213
   },
   {
-    "citation": "151 Wn. App. 137",
-    "extracted_case_name": "N/A",
+    "citation": "151 Wn. App. 137, 210 P.3d 337",
+    "extracted_case_name": "Singh v. Edwards Lifesciences Corporation",
     "extracted_date": "2009",
-    "start_index": 36700,
-    "end_index": 36716
+    "start_index": 35488,
+    "end_index": 35518
   },
   {
-    "citation": "210 P.3d 337",
-    "extracted_case_name": "N/A",
+    "citation": "Edwards Lifesciences Corp., 151 Wash. App. 137 P.3d 337 (2009)",
+    "extracted_case_name": "Singh v. Edwards Lifesciences Corporation",
     "extracted_date": "2009",
-    "start_index": 36718,
-    "end_index": 36730
+    "start_index": 35488,
+    "end_index": 35504
   },
   {
-    "citation": "96 Wn.2d 692",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 38901,
-    "end_index": 38913
+    "citation": "Edwards Lifesciences Corp., 210 P.3d 337 (2009)",
+    "extracted_case_name": "Singh v. Edwards Lifesciences Corporation",
+    "extracted_date": "2009",
+    "start_index": 35506,
+    "end_index": 35518
   },
   {
-    "citation": "635 P.2d 441",
-    "extracted_case_name": "N/A",
+    "citation": "96 Wn.2d 692, 635 P.2d 441",
+    "extracted_case_name": "Barr v. Interbay Citizens Bank",
     "extracted_date": "1981",
-    "start_index": 38915,
-    "end_index": 38927
+    "start_index": 37634,
+    "end_index": 37660
+  },
+  {
+    "citation": "Barr v. Interbay Citizens Bank, 96 Wash. 2d 692635 P.2d 441 (1981) (applying a choice-of-law analysis specific to the issue of punitive damages)",
+    "extracted_case_name": "Barr v. Interbay Citizens Bank",
+    "extracted_date": "1981",
+    "start_index": 37634,
+    "end_index": 37646
+  },
+  {
+    "citation": "Barr v. Interbay Citizens Bank, 635 P.2d 441 (1981) (applying a choice-of-law analysis specific to the issue of punitive damages)",
+    "extracted_case_name": "Barr v. Interbay Citizens Bank",
+    "extracted_date": "1981",
+    "start_index": 37648,
+    "end_index": 37660
   },
   {
     "citation": "129 Wn.2d 572",
-    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co.",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins",
     "extracted_date": "1996",
-    "start_index": 40531,
-    "end_index": 40544
+    "start_index": 39214,
+    "end_index": 39227
+  },
+  {
+    "citation": "Dailey v. N. Coast Life Ins. Co., 129 Wash. 2d 572, 574919 P.2d 589 (1996)",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co",
+    "extracted_date": "1996",
+    "start_index": 39214,
+    "end_index": 39227
   },
   {
     "citation": "919 P.2d 589",
-    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co.",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co., 129 Wn. 2d 572",
     "extracted_date": "1996",
-    "start_index": 40551,
-    "end_index": 40563
+    "start_index": 39234,
+    "end_index": 39246
   },
   {
-    "citation": "2 Wash. 45",
-    "extracted_case_name": "Spokane Truck & Dray Co. v. Hoefer",
-    "extracted_date": "1891",
-    "start_index": 40613,
-    "end_index": 40623
+    "citation": "Dailey v. N. Coast Life Ins. Co., 919 P.2d 589 (1996)",
+    "extracted_case_name": "Dailey v. N. Coast Life Ins. Co",
+    "extracted_date": "1996",
+    "start_index": 39234,
+    "end_index": 39246
   },
   {
-    "citation": "25 P. 1072",
+    "citation": "Dray Co. v. Hoefer, 2 Wash. 45, 5325 P. 1072 (1891) (disapproving of punitive damages on the ground that compensatory damages make the plaintiffs \"entirely whole\" and \"[s]urely the public can have no interest in exacting the pound of flesh\")",
     "extracted_case_name": "Spokane Truck & Dray Co. v. Hoefer",
     "extracted_date": "1891",
-    "start_index": 40629,
-    "end_index": 40639
+    "start_index": 39295,
+    "end_index": 39305
+  },
+  {
+    "citation": "Dray Co. v. Hoefer, 25 P. 1072 (1891) (disapproving of punitive damages on the ground that compensatory damages make the plaintiffs \"entirely whole\" and \"[s]urely the public can have no interest in exacting the pound of flesh\")",
+    "extracted_case_name": "Spokane Truck & Dray Co. v. Hoefer",
+    "extracted_date": "1891",
+    "start_index": 39311,
+    "end_index": 39321
   },
   {
     "citation": "96 Wn.2d 416",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 41313,
-    "end_index": 41325
+    "extracted_case_name": "Kammerer v. W. Guar",
+    "extracted_date": "1981",
+    "start_index": 39991,
+    "end_index": 40003
+  },
+  {
+    "citation": "Kammerer v. W. Guar. Corp., 96 Wash. 2d 416, 422635 P.2d 708 (1981)",
+    "extracted_case_name": "Kammerer v. W. Guar. Corporation",
+    "extracted_date": "1981",
+    "start_index": 39991,
+    "end_index": 40003
   },
   {
     "citation": "635 P.2d 708",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Kammerer v. W. Guar. Corporation., 96 Wn. 2d 416",
     "extracted_date": "1981",
-    "start_index": 41332,
-    "end_index": 41344
+    "start_index": 40010,
+    "end_index": 40022
+  },
+  {
+    "citation": "Kammerer v. W. Guar. Corp., 635 P.2d 708 (1981)",
+    "extracted_case_name": "Kammerer v. W. Guar. Corporation",
+    "extracted_date": "1981",
+    "start_index": 40010,
+    "end_index": 40022
   },
   {
     "citation": "184 Wn.2d 911",
-    "extracted_case_name": "Erickson v. Pharmacia, No.",
+    "extracted_case_name": "Woodward v. Taylor",
     "extracted_date": "2016",
-    "start_index": 43213,
-    "end_index": 43226
+    "start_index": 41799,
+    "end_index": 41812
+  },
+  {
+    "citation": "Woodward v. Taylor, 184 Wash. 2d 911, 918366 P.3d 432 (2016)",
+    "extracted_case_name": "Woodward v. Taylor",
+    "extracted_date": "2016",
+    "start_index": 41799,
+    "end_index": 41812
   },
   {
     "citation": "366 P.3d 432",
     "extracted_case_name": "Woodward v. Taylor",
     "extracted_date": "2016",
-    "start_index": 43233,
-    "end_index": 43245
+    "start_index": 41819,
+    "end_index": 41831
   },
   {
-    "citation": "37 S.W.3d 310",
-    "extracted_case_name": "N/A",
+    "citation": "Woodward v. Taylor, 366 P.3d 432 (2016)",
+    "extracted_case_name": "Woodward v. Taylor",
+    "extracted_date": "2016",
+    "start_index": 41819,
+    "end_index": 41831
+  },
+  {
+    "citation": "Lay v. P&G Health Care, Inc., 37 S.W.3d 310, 321-22 (moctapp 2000) (rejecting application of statute of repose in a case involving improvements to real property with respect to activities associated with selling a defective product)",
+    "extracted_case_name": "Lay v. P&G Health Care, Inc",
     "extracted_date": "2000",
-    "start_index": 44775,
-    "end_index": 44788
+    "start_index": 43350,
+    "end_index": 43363
   },
   {
-    "citation": "523 S.W.3d 496",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 45509,
-    "end_index": 45523
+    "citation": "Poage v. Crane Co., 523 S.W.3d 496, 515 (moctapp 2017) (discussing standards for allowing punitive damages in a products liability case (quoting Jone v. Coleman Corp., 183 S.W.3d 600, 610 (Mo. Ct. App. 2005)); MISSOURI APPROVED JURY INSTRUCTIONS: CIVIL 10.02 (8th ed. 2022))",
+    "extracted_case_name": "Poage v. Crane Co",
+    "extracted_date": "2017",
+    "start_index": 44039,
+    "end_index": 44053
   },
   {
-    "citation": "183 S.W.3d 600",
-    "extracted_case_name": "Jone v. Coleman Corp.",
-    "extracted_date": null,
-    "start_index": 45663,
-    "end_index": 45677
+    "citation": "Jone v. Coleman Corp., 183 S.W.3d 600, 610 (moctapp 2005)",
+    "extracted_case_name": "Jone v. Coleman Corporation",
+    "extracted_date": "2005",
+    "start_index": 44192,
+    "end_index": 44206
   },
   {
     "citation": "199 Wn.2d 569",
-    "extracted_case_name": "Dearinger v. Eli Lilly & Co.",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co",
     "extracted_date": "2022",
-    "start_index": 48779,
-    "end_index": 48792
+    "start_index": 47203,
+    "end_index": 47216
+  },
+  {
+    "citation": "Dearinger v. Eli Lilly & Co., 199 Wash. 2d 569, 575510 P.3d 326 (2022) (quoting Potter v. Wash. State Patrol, 165 Wn.2d 67, 77, 196 P.3d 691 (2008))",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co",
+    "extracted_date": "2022",
+    "start_index": 47203,
+    "end_index": 47216
   },
   {
     "citation": "510 P.3d 326",
-    "extracted_case_name": "Dearinger v. Eli Lilly & Co.",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co., 199 Wn. 2d 569",
     "extracted_date": "2022",
-    "start_index": 48799,
-    "end_index": 48811
+    "start_index": 47223,
+    "end_index": 47235
+  },
+  {
+    "citation": "Dearinger v. Eli Lilly & Co., 510 P.3d 326 (2022) (quoting Potter v. Wash. State Patrol, 165 Wn.2d 67, 77, 196 P.3d 691 (2008))",
+    "extracted_case_name": "Dearinger v. Eli Lilly & Co",
+    "extracted_date": "2022",
+    "start_index": 47223,
+    "end_index": 47235
   },
   {
     "citation": "165 Wn.2d 67",
+    "extracted_case_name": "Potter v. Wash",
+    "extracted_date": "2008",
+    "start_index": 47282,
+    "end_index": 47294
+  },
+  {
+    "citation": "Potter v. Wash. State Patrol, 165 Wash. 2d 67, 77196 P.3d 691 (2008)",
     "extracted_case_name": "Potter v. Wash. State Patrol",
     "extracted_date": "2008",
-    "start_index": 48858,
-    "end_index": 48870
+    "start_index": 47282,
+    "end_index": 47294
   },
   {
     "citation": "196 P.3d 691",
+    "extracted_case_name": "Potter v. Wash. State Patrol, 165 Wn. 2d 67",
+    "extracted_date": "2008",
+    "start_index": 47300,
+    "end_index": 47312
+  },
+  {
+    "citation": "Potter v. Wash. State Patrol, 196 P.3d 691 (2008)",
     "extracted_case_name": "Potter v. Wash. State Patrol",
     "extracted_date": "2008",
-    "start_index": 48876,
-    "end_index": 48888
+    "start_index": 47300,
+    "end_index": 47312
   },
   {
     "citation": "115 Wn.2d 202",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Marriage of Williams",
     "extracted_date": "1990",
-    "start_index": 49961,
-    "end_index": 49974
+    "start_index": 48337,
+    "end_index": 48350
+  },
+  {
+    "citation": "Marriage of Williams, 115 Wash. 2d 202, 208796 P.2d 421 (1990)",
+    "extracted_case_name": "Marriage of Williams",
+    "extracted_date": "1990",
+    "start_index": 48337,
+    "end_index": 48350
   },
   {
     "citation": "796 P.2d 421",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Marriage of Williams",
     "extracted_date": "1990",
-    "start_index": 49981,
-    "end_index": 49993
+    "start_index": 48357,
+    "end_index": 48369
   },
   {
-    "citation": "96 Wn.2d 416",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 53476,
-    "end_index": 53488
+    "citation": "Marriage of Williams, 796 P.2d 421 (1990)",
+    "extracted_case_name": "Marriage of Williams",
+    "extracted_date": "1990",
+    "start_index": 48357,
+    "end_index": 48369
   },
   {
-    "citation": "151 Wn. App. 137",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 53547,
-    "end_index": 53563
+    "citation": "Kammerer, 96 Wash. 2d 416 (2012)",
+    "extracted_case_name": "Kammerer v. Western Gear Corporation",
+    "extracted_date": "2012",
+    "start_index": 51749,
+    "end_index": 51761
+  },
+  {
+    "citation": "Singh, 151 Wash. App. 137 (2012)",
+    "extracted_case_name": "Singh v. Edwards Lifesciences Corporation",
+    "extracted_date": "2012",
+    "start_index": 51819,
+    "end_index": 51835
   },
   {
     "citation": "119 Wn.2d 167",
     "extracted_case_name": "State v. Johnson",
     "extracted_date": "1992",
-    "start_index": 66000,
-    "end_index": 66013
+    "start_index": 63921,
+    "end_index": 63934
+  },
+  {
+    "citation": "State v. Johnson, 119 Wash. 2d 167, 171829 P.2d 1082 (1992) (internal quotation marks omitted)",
+    "extracted_case_name": "State v. Johnson",
+    "extracted_date": "1992",
+    "start_index": 63921,
+    "end_index": 63934
   },
   {
     "citation": "829 P.2d 1082",
+    "extracted_case_name": "State v. Johnson, 119 Wn. 2d 167",
+    "extracted_date": "1992",
+    "start_index": 63941,
+    "end_index": 63954
+  },
+  {
+    "citation": "State v. Johnson, 829 P.2d 1082 (1992) (internal quotation marks omitted)",
     "extracted_case_name": "State v. Johnson",
     "extracted_date": "1992",
-    "start_index": 66020,
-    "end_index": 66033
+    "start_index": 63941,
+    "end_index": 63954
   },
   {
     "citation": "105 Wn.2d 606",
-    "extracted_case_name": "In re Rosier",
+    "extracted_case_name": "Snohomish County v. Public Utility District No. 1",
     "extracted_date": "1986",
-    "start_index": 66100,
-    "end_index": 66113
+    "start_index": 64020,
+    "end_index": 64033
+  },
+  {
+    "citation": "Rosier, 105 Wash. 2d 606, 616717 P.3d 1353 (1986)",
+    "extracted_case_name": "Snohomish County v. Public Utility District No. 1",
+    "extracted_date": "1986",
+    "start_index": 64020,
+    "end_index": 64033
   },
   {
     "citation": "717 P.3d 1353",
-    "extracted_case_name": "In re Rosier",
+    "extracted_case_name": "Rosier",
     "extracted_date": "1986",
-    "start_index": 66120,
-    "end_index": 66133
+    "start_index": 64040,
+    "end_index": 64053
   },
   {
-    "citation": "517 U.S. 559",
-    "extracted_case_name": "N/A",
-    "extracted_date": "1996",
-    "start_index": 66412,
-    "end_index": 66424
+    "citation": "Rosier, 717 P.3d 1353 (1986)",
+    "extracted_case_name": "Rosier",
+    "extracted_date": "1986",
+    "start_index": 64040,
+    "end_index": 64053
   },
   {
-    "citation": "116 S. Ct. 1589",
-    "extracted_case_name": "N/A",
+    "citation": "BMW N. Am., Inc. v. Gore, 517 U.S. 559, 572116 S. Ct. 15, 134 L. Ed. 2d 809 (scotus 1996)",
+    "extracted_case_name": "BMW of N. Am., Inc. v. Gore",
     "extracted_date": "1996",
-    "start_index": 66431,
-    "end_index": 66446
+    "start_index": 64330,
+    "end_index": 64342
   },
   {
-    "citation": "134 L. Ed. 2d 809",
-    "extracted_case_name": "N/A",
+    "citation": "BMW N. Am., Inc. v. Gore, 116 S. Ct. 1589134 L. Ed. 2d 809 (scotus 1996)",
+    "extracted_case_name": "BMW of N. Am., Inc. v. Gore",
     "extracted_date": "1996",
-    "start_index": 66448,
-    "end_index": 66465
+    "start_index": 64349,
+    "end_index": 64364
+  },
+  {
+    "citation": "BMW N. Am., Inc. v. Gore, 134 L. Ed. 2d 809 (1996)",
+    "extracted_case_name": "BMW of N. Am., Inc. v. Gore",
+    "extracted_date": "1996",
+    "start_index": 64366,
+    "end_index": 64383
   },
   {
     "citation": "132 Wn.2d 642",
     "extracted_case_name": "Seizer v. Sessions",
     "extracted_date": "1997",
-    "start_index": 66757,
-    "end_index": 66770
+    "start_index": 64671,
+    "end_index": 64684
+  },
+  {
+    "citation": "Seizer v. Sessions, 132 Wash. 2d 642, 652940 P.2d 261 (1997)",
+    "extracted_case_name": "Seizer v. Sessions",
+    "extracted_date": "1997",
+    "start_index": 64671,
+    "end_index": 64684
   },
   {
     "citation": "940 P.2d 261",
     "extracted_case_name": "Seizer v. Sessions",
     "extracted_date": "1997",
-    "start_index": 66777,
-    "end_index": 66789
+    "start_index": 64691,
+    "end_index": 64703
   },
   {
-    "citation": "986 F.2d 170",
-    "extracted_case_name": "Jaurequi v. John Deere Co.",
+    "citation": "Seizer v. Sessions, 940 P.2d 261 (1997)",
+    "extracted_case_name": "Seizer v. Sessions",
+    "extracted_date": "1997",
+    "start_index": 64691,
+    "end_index": 64703
+  },
+  {
+    "citation": "Jaurequi v. John Deere Co., 986 F.2d 170, 175 (ca7 1993)",
+    "extracted_case_name": "Jaurequi v. John Deere Co",
     "extracted_date": "1993",
-    "start_index": 68830,
-    "end_index": 68842
+    "start_index": 66655,
+    "end_index": 66667
   },
   {
-    "citation": "623 S.W.3d 160",
-    "extracted_case_name": "Grosshart v. Kan . City Power & Light Co .",
+    "citation": "Grosshart v. Kan. City Power & Light Co., 623 S.W.3d 160, 168-69 (moctapp 2021) (emphasis added)",
+    "extracted_case_name": "Grosshart v. Kan. City Power & Light Co",
     "extracted_date": "2021",
-    "start_index": 69205,
-    "end_index": 69219
+    "start_index": 67024,
+    "end_index": 67038
   },
   {
-    "citation": "459 S.W.3d 901",
-    "extracted_case_name": "Ambers -Phillips v. SSM DePaul Health C tr.",
+    "citation": "Ambers-Phillips v. SSM DePaul Health Ctr., 459 S.W.3d 901908 n.7 (mo 2015)",
+    "extracted_case_name": "Shonda Ambers-Phillips and Richard Phillips II v. SSM DePaul Health Center",
     "extracted_date": "2015",
-    "start_index": 69354,
-    "end_index": 69368
+    "start_index": 67171,
+    "end_index": 67185
   },
   {
-    "citation": "913 F.2d 242",
-    "extracted_case_name": "See, e.g., Mitchell v. Lone Star Ammunition, Inc.",
+    "citation": "Mitchell v. Lone Star Ammunition, Inc., 913 F.2d 242, 250 (ca5 1990) (finding that there is no \"compelling reason\" to apply the statute of repose from the place of injury in order to bar claims against out-of-state manufacturers)",
+    "extracted_case_name": "Robert F. Mitchell, Individually v. Lone Star Ammunition, Inc., Etc., Day & Zimmerman, Inc., Etc. And Norris Industries, Etc",
     "extracted_date": "1990",
-    "start_index": 70618,
-    "end_index": 70630
+    "start_index": 68389,
+    "end_index": 68401
   },
   {
-    "citation": "900 F.2d 83",
-    "extracted_case_name": "Mahne v. Ford Motor Co .",
+    "citation": "Mahne v. Ford Motor Co., 900 F.2d 83, 88 (ca6 1990) (finding \"no reason\" to extend the benefits of one state's statute of repose to an out-of-state defendant)",
+    "extracted_case_name": "Mahne v. Ford Motor Co",
     "extracted_date": "1990",
-    "start_index": 70842,
-    "end_index": 70853
+    "start_index": 68610,
+    "end_index": 68621
   },
   {
-    "citation": "498 U.S. 941",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 71000,
-    "end_index": 71012
+    "citation": "498 U.S. 941 (scotus 2001) (applying the repose period of the manufacturer's home state, Louisiana, to claims brought under Tennessee's products-liability statute)",
+    "extracted_case_name": "Mahne v. Ford Motor Co",
+    "extracted_date": "1990",
+    "start_index": 68765,
+    "end_index": 68777
   },
   {
-    "citation": "269 F.3d 481",
-    "extracted_case_name": "Marchesani v. Pellerin -Milnor Corp.",
+    "citation": "Marchesani v. Pellerin-Milnor Corp., 269 F.3d 481, 489 (ca5 2001) (applying the repose period of the manufacturer's home state, Louisiana, to claims brought under Tennessee's products-liability statute)",
+    "extracted_case_name": "Marchesani v. Pellerin-Milnor Corporation",
     "extracted_date": "2001",
-    "start_index": 71061,
-    "end_index": 71073
+    "start_index": 68823,
+    "end_index": 68835
   },
   {
-    "citation": "567 S.W.2d 655",
-    "extracted_case_name": "Rinker v. Ford Motor Co.",
+    "citation": "Rinker v. Ford Motor Co., 567 S.W.2d 655, 668 (moctapp 1978)",
+    "extracted_case_name": "Rinker v. Ford Motor Co",
     "extracted_date": "1978",
-    "start_index": 74643,
-    "end_index": 74657
+    "start_index": 72301,
+    "end_index": 72315
   },
   {
-    "citation": "837 S.W.2d 592",
+    "citation": "Bradshaw v. Deming, 837 S.W.2d 592, 594 (moctapp 1992) (declaring that punitive damages are not intended to compensate a plaintiff; rather, they are meant to punish and deter)",
     "extracted_case_name": "Bradshaw v. Deming",
     "extracted_date": "1992",
-    "start_index": 74984,
-    "end_index": 74998
+    "start_index": 72599,
+    "end_index": 72613
   },
   {
     "citation": "27 Wn. App. 512",
-    "extracted_case_name": "Kammere r v. W. Gear Corp.",
+    "extracted_case_name": "Kammerer v. W. Gear Corporation",
     "extracted_date": "1980",
-    "start_index": 76467,
-    "end_index": 76482
+    "start_index": 74034,
+    "end_index": 74049
+  },
+  {
+    "citation": "Kammerer v. W. Gear Corp., 27 Wash. App. 512, 520-21618 P.2d 1330 (1980)",
+    "extracted_case_name": "Kammerer v. W. Gear Corporation",
+    "extracted_date": "1980",
+    "start_index": 74034,
+    "end_index": 74049
   },
   {
     "citation": "618 P.2d 1330",
-    "extracted_case_name": "Kammere r v. W. Gear Corp.",
+    "extracted_case_name": "Kammerer v. W. Gear Corporation",
     "extracted_date": "1980",
-    "start_index": 76492,
-    "end_index": 76505
+    "start_index": 74059,
+    "end_index": 74072
   },
   {
-    "citation": "96 Wn.2d 692",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 76867,
-    "end_index": 76879
+    "citation": "Kammerer v. W. Gear Corp., 618 P.2d 1330 (1980)",
+    "extracted_case_name": "Kammerer v. W. Gear Corporation",
+    "extracted_date": "1980",
+    "start_index": 74059,
+    "end_index": 74072
   },
   {
-    "citation": "879 F. Supp. 2d 1214",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 77418,
-    "end_index": 77438
+    "citation": "Washington., 96 Wash. 2d 692",
+    "extracted_case_name": "Barr v. Interbay Citizens Bank of Tampa",
+    "extracted_date": "1981",
+    "start_index": 74431,
+    "end_index": 74443
   },
   {
-    "citation": "582 Pa. 114",
+    "citation": "Bryant v. Wyeth, 879 F. Supp. 2d 1214 (wawd 2012)",
+    "extracted_case_name": "Bryant v. Wyeth",
+    "extracted_date": "2012",
+    "start_index": 74977,
+    "end_index": 74997
+  },
+  {
+    "citation": "Hutchison v. Luddy, 582 Pa. 114, 121-22870 A.2d 766 (2005)",
     "extracted_case_name": "Hutchison v. Luddy",
     "extracted_date": "2005",
-    "start_index": 79006,
-    "end_index": 79017
+    "start_index": 76515,
+    "end_index": 76526
   },
   {
-    "citation": "870 A.2d 766",
+    "citation": "Hutchison v. Luddy, 870 A.2d 766 (2005)",
     "extracted_case_name": "Hutchison v. Luddy",
     "extracted_date": "2005",
-    "start_index": 79028,
-    "end_index": 79040
+    "start_index": 76536,
+    "end_index": 76548
   },
   {
-    "citation": "538 U.S. 408",
-    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "citation": "State Farm Mutual Automobile Insurance v. Campbell, 538 U.S. 408, 421123 S. Ct. 1513, 155 L. Ed. 2d 585 (scotus 2003)",
+    "extracted_case_name": "State Farm Mutual Automobile Insurance v. Campbell",
     "extracted_date": "2003",
-    "start_index": 84303,
-    "end_index": 84315
+    "start_index": 81649,
+    "end_index": 81661
   },
   {
-    "citation": "123 S. Ct. 1513",
-    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "citation": "Ins. Co. v. Campbell, 123 S. Ct. 1513155 L. Ed. 2d 585 (scotus 2003)",
+    "extracted_case_name": "State Farm Mut. Auto. Ins. Co. v. Campbell",
     "extracted_date": "2003",
-    "start_index": 84322,
-    "end_index": 84337
+    "start_index": 81668,
+    "end_index": 81683
   },
   {
-    "citation": "155 L. Ed. 2d 585",
-    "extracted_case_name": "Auto. Ins. Co. v. Campbell",
+    "citation": "Ins. Co. v. Campbell, 155 L. Ed. 2d 585 (2003)",
+    "extracted_case_name": "State Farm Mutual Automobile Insurance v. Campbell",
     "extracted_date": "2003",
-    "start_index": 84339,
-    "end_index": 84356
+    "start_index": 81685,
+    "end_index": 81702
   },
   {
-    "citation": "925 S.W.2d 840",
+    "citation": "Call v. Heard, 925 S.W.2d 840, 849 (mo 1996) (quoting Stojkovic v. Weller, 802 S.W.2d 152, 155 (Mo. 1991))",
     "extracted_case_name": "Call v. Heard",
     "extracted_date": "1996",
-    "start_index": 85571,
-    "end_index": 85585
+    "start_index": 82872,
+    "end_index": 82886
   },
   {
-    "citation": "802 S.W.2d 152",
+    "citation": "Stojkovic v. Weller, 802 S.W.2d 152, 155 (mo 1991)",
     "extracted_case_name": "Stojkovic v. Weller",
     "extracted_date": "1991",
-    "start_index": 85632,
-    "end_index": 85646
+    "start_index": 82933,
+    "end_index": 82947
   },
   {
-    "citation": "450 S.W.3d 308",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 87676,
-    "end_index": 87690
+    "citation": "Blanks v. Fluor Corp., 450 S.W.3d 308, 364 (moctapp 2014) (reversing a punitive damages award against one partner because the jury instructions required consideration of undifferentiated conduct, making it unclear whether the jury would have imposed liability based solely on that partner's conduct)",
+    "extracted_case_name": "Blanks v. Fluor Corporation",
+    "extracted_date": "2014",
+    "start_index": 84928,
+    "end_index": 84942
   },
   {
-    "citation": "628 S.W.3d 162",
-    "extracted_case_name": "N/A",
+    "citation": "Largent v. Pelikan, 628 S.W.3d 162, 165 (moctapp 2021) (alteration in original)",
+    "extracted_case_name": "Elaine Largent, Relator v. The Honorable Daniel Pelikan",
     "extracted_date": "2021",
-    "start_index": 89581,
-    "end_index": 89595
+    "start_index": 86781,
+    "end_index": 86795
   },
   {
-    "citation": "56 S.W.3d 386",
-    "extracted_case_name": "Erickson v. Pharmacia",
+    "citation": "Goede v. Aerojet Gen. Corp., 143 S.W.3d 14, 25 (moctapp 2004) (applying California law to a manufacturer on liability, but applying Missouri law on damages because \"Missouri had the predominant interest in the issue of damages for a wrongful death occurring within its boundaries\")",
+    "extracted_case_name": "Goede v. Aerojet Gen. Corporation",
+    "extracted_date": "2004",
+    "start_index": 87183,
+    "end_index": 87196
+  },
+  {
+    "citation": "Sanders v. Ahmed, 364 S.W.3d 195, 207 (mo 2012)",
+    "extracted_case_name": "Sanders v. Ahmed",
+    "extracted_date": "2012",
+    "start_index": 87490,
+    "end_index": 87504
+  },
+  {
+    "citation": "Frye, 293 F. 1013and ER 702. Lakey v. Puget Sound Energy, Inc., 176 Wn.2d 909, 918, 296 P.3d 860 (2013)",
+    "extracted_case_name": "Frye, and ER 702. Lakey v. Puget Sound Energy, Inc",
     "extracted_date": "2013",
-    "start_index": 89833,
-    "end_index": 89846
-  },
-  {
-    "citation": "143 S.W.3d 14",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 90027,
-    "end_index": 90040
-  },
-  {
-    "citation": "364 S.W.3d 195",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 90335,
-    "end_index": 90349
-  },
-  {
-    "citation": "293 F. 1013",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 90966,
-    "end_index": 90977
+    "start_index": 88120,
+    "end_index": 88131
   },
   {
     "citation": "176 Wn.2d 909",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Lakey v. Puget Sound Energy",
     "extracted_date": "2013",
-    "start_index": 91027,
-    "end_index": 91040
+    "start_index": 88180,
+    "end_index": 88193
+  },
+  {
+    "citation": "Lakey v. Puget Sound Energy, Inc., 176 Wash. 2d 909, 918296 P.3d 860 (2013)",
+    "extracted_case_name": "Lakey v. Puget Sound Energy, Inc",
+    "extracted_date": "2013",
+    "start_index": 88180,
+    "end_index": 88193
   },
   {
     "citation": "296 P.3d 860",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Lakey v. Puget Sound Energy, Inc",
     "extracted_date": "2013",
-    "start_index": 91047,
-    "end_index": 91059
+    "start_index": 88200,
+    "end_index": 88212
+  },
+  {
+    "citation": "Lakey v. Puget Sound Energy, Inc., 296 P.3d 860 (2013)",
+    "extracted_case_name": "Lakey v. Puget Sound Energy, Inc",
+    "extracted_date": "2013",
+    "start_index": 88200,
+    "end_index": 88212
   },
   {
     "citation": "172 Wn.2d 593",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "AKZO NOBEL COATINGS, INC",
     "extracted_date": "2011",
-    "start_index": 91473,
-    "end_index": 91486
+    "start_index": 88583,
+    "end_index": 88596
+  },
+  {
+    "citation": "Anderson v. Akzo Nobel Coatings, Inc., 172 Wash. 2d 593, 611260 P.3d 857 (2011)",
+    "extracted_case_name": "Akzo Nobel Coatings, Inc",
+    "extracted_date": "2011",
+    "start_index": 88583,
+    "end_index": 88596
   },
   {
     "citation": "260 P.3d 857",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "AKZO NOBEL COATINGS, INC",
     "extracted_date": "2011",
-    "start_index": 91493,
-    "end_index": 91505
+    "start_index": 88603,
+    "end_index": 88615
+  },
+  {
+    "citation": "Anderson v. Akzo Nobel Coatings, Inc., 260 P.3d 857 (2011)",
+    "extracted_case_name": "Akzo Nobel Coatings, Inc",
+    "extracted_date": "2011",
+    "start_index": 88603,
+    "end_index": 88615
   },
   {
     "citation": "193 Wn.2d 113",
-    "extracted_case_name": "L.M. v. Hamilton",
+    "extracted_case_name": "L. M. by and Through Dussault v. Hamilton",
     "extracted_date": "2019",
-    "start_index": 92134,
-    "end_index": 92147
+    "start_index": 89239,
+    "end_index": 89252
+  },
+  {
+    "citation": "L.M. v. Hamilton, 193 Wash. 2d 113, 118436 P.3d 803 (2019)",
+    "extracted_case_name": "L. M. by and Through Dussault v. Hamilton",
+    "extracted_date": "2019",
+    "start_index": 89239,
+    "end_index": 89252
   },
   {
     "citation": "436 P.3d 803",
-    "extracted_case_name": "L.M. v. Hamilton",
+    "extracted_case_name": "L. M. by and Through Dussault v. Hamilton",
     "extracted_date": "2019",
-    "start_index": 92154,
-    "end_index": 92166
+    "start_index": 89259,
+    "end_index": 89271
+  },
+  {
+    "citation": "L.M. v. Hamilton, 436 P.3d 803 (2019)",
+    "extracted_case_name": "L. M. by and Through Dussault v. Hamilton",
+    "extracted_date": "2019",
+    "start_index": 89259,
+    "end_index": 89271
   },
   {
     "citation": "130 Wn.2d 244",
+    "extracted_case_name": "Fryehearing. State v. Copeland",
+    "extracted_date": "1996",
+    "start_index": 89549,
+    "end_index": 89562
+  },
+  {
+    "citation": "State v. Copeland, 130 Wash. 2d 244, 255-56922 P.2d 1304 (1996) (citing State v. Cauthron, 120 Wn.2d 879, 887-88, 846 P.2d 502 (1993))",
     "extracted_case_name": "State v. Copeland",
     "extracted_date": "1996",
-    "start_index": 92445,
-    "end_index": 92458
+    "start_index": 89549,
+    "end_index": 89562
   },
   {
     "citation": "922 P.2d 1304",
+    "extracted_case_name": "Fryehearing. State v. Copeland, 130 Wn. 2d 244, 255-56",
+    "extracted_date": "1996",
+    "start_index": 89572,
+    "end_index": 89585
+  },
+  {
+    "citation": "State v. Copeland, 922 P.2d 1304 (1996) (citing State v. Cauthron, 120 Wn.2d 879, 887-88, 846 P.2d 502 (1993))",
     "extracted_case_name": "State v. Copeland",
     "extracted_date": "1996",
-    "start_index": 92469,
-    "end_index": 92482
+    "start_index": 89572,
+    "end_index": 89585
   },
   {
     "citation": "120 Wn.2d 879",
     "extracted_case_name": "State v. Cauthron",
     "extracted_date": "1993",
-    "start_index": 92517,
-    "end_index": 92530
+    "start_index": 89620,
+    "end_index": 89633
+  },
+  {
+    "citation": "State v. Cauthron, 120 Wash. 2d 879, 887-88846 P.2d 502 (1993)",
+    "extracted_case_name": "State v. Cauthron",
+    "extracted_date": "1993",
+    "start_index": 89620,
+    "end_index": 89633
   },
   {
     "citation": "846 P.2d 502",
+    "extracted_case_name": "State v. Cauthron, 120 Wn. 2d 879, 887-88",
+    "extracted_date": "1993",
+    "start_index": 89643,
+    "end_index": 89655
+  },
+  {
+    "citation": "State v. Cauthron, 846 P.2d 502 (1993)",
     "extracted_case_name": "State v. Cauthron",
     "extracted_date": "1993",
-    "start_index": 92540,
-    "end_index": 92552
+    "start_index": 89643,
+    "end_index": 89655
   },
   {
-    "citation": "176 Wn. App. 168",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 102904,
-    "end_index": 102920
+    "citation": "176 Wn. App. 168, 313 P.3d 408",
+    "extracted_case_name": "Pharmaciaanalogizes this case to Lake Chelan Shores Homeowners Ass'n v. St",
+    "extracted_date": "2013",
+    "start_index": 99680,
+    "end_index": 99710
   },
   {
-    "citation": "313 P.3d 408",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 102922,
-    "end_index": 102934
+    "citation": "Ass' v. St. Paul Fire & Marine Insurance Co., 176 Wash. App. 168 P.3d 408 (2013)",
+    "extracted_case_name": "Lake Chelan Shores Homeowners Ass'n v. St. Paul Fire & Marine Insurance",
+    "extracted_date": "2013",
+    "start_index": 99680,
+    "end_index": 99696
   },
   {
-    "citation": "548 P.3d 226",
-    "extracted_case_name": "Erickson v. Pharmacia , LLC",
+    "citation": "Ass' v. St. Paul Fire & Marine Insurance Co., 313 P.3d 408 (2013)",
+    "extracted_case_name": "Lake Chelan Shores Homeowners Ass'n v. St. Paul Fire & Marine Insurance",
+    "extracted_date": "2013",
+    "start_index": 99698,
+    "end_index": 99710
+  },
+  {
+    "citation": "31 Wn. App. 2d 100, 119, 548 P.3d 226",
+    "extracted_case_name": "Erickson v. Pharmacia",
     "extracted_date": "2024",
-    "start_index": 117057,
-    "end_index": 117069
+    "start_index": 113325,
+    "end_index": 113362
   },
   {
-    "citation": "124 Wn.2d 205",
-    "extracted_case_name": "Rice v. Dow Chem. Co.",
+    "citation": "Erickson v. Pharmacia, LLC, 31 Wn. App. 2d 100, 119, 548 P.3d 226 (1987)",
+    "extracted_case_name": "Erickson v. Pharmacia, LLC",
+    "extracted_date": "2024",
+    "start_index": 113350,
+    "end_index": 113362
+  },
+  {
+    "citation": "Rice v. Dow Chem. Co., 124 Wash. 2d 205, 212875 P.2d 1213 (1987) (\"Statutes of repose make the filing of suit within a specified time a substantive part of plaintiff's cause of action.\" (citing Bolick v. Am. Barmag Corp., 306 N.C. 364, 293 S.E. 2d 415 (1982)))",
+    "extracted_case_name": "Rice v. Dow Chem. Co",
     "extracted_date": "1994",
-    "start_index": 117108,
-    "end_index": 117121
+    "start_index": 113401,
+    "end_index": 113414
   },
   {
-    "citation": "875 P.2d 1213",
-    "extracted_case_name": "Rice v. Dow Chem. Co.",
+    "citation": "Rice v. Dow Chem. Co., 875 P.2d 1213 (1987) (\"Statutes of repose make the filing of suit within a specified time a substantive part of plaintiff's cause of action.\" (citing Bolick v. Am. Barmag Corp., 306 N.C. 364, 293 S.E. 2d 415 (1982)))",
+    "extracted_case_name": "Rice v. Dow Chem. Co",
     "extracted_date": "1994",
-    "start_index": 117128,
-    "end_index": 117141
+    "start_index": 113421,
+    "end_index": 113434
   },
   {
-    "citation": "831 F.2d 508",
-    "extracted_case_name": "Goad v. Celotex Corp.",
+    "citation": "Goad v. Celotex Corp., 831 F.2d 508, 511 (ca4 1987) (\"Statutes of repose make the filing of suit within a specified time a substantive part of plaintiff's cause of action.\" (citing Bolick v. Am. Barmag Corp., 306 N.C. 364, 293 S.E. 2d 415 (1982)))",
+    "extracted_case_name": "Goad v. Celotex Corporation",
     "extracted_date": "1987",
-    "start_index": 117182,
-    "end_index": 117194
+    "start_index": 113474,
+    "end_index": 113486
   },
   {
-    "citation": "306 N.C. 364",
-    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
+    "citation": "Bolick v. Am. Barmag Corp., 306 N.C. 364293 S.E. 2d 415 (1982)",
+    "extracted_case_name": "Bolick v. Am. Barmag Corporation",
     "extracted_date": "1982",
-    "start_index": 117374,
-    "end_index": 117386
+    "start_index": 113665,
+    "end_index": 113677
   },
   {
-    "citation": "293 S.E. 2d 415",
-    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
+    "citation": "Bolick v. Am. Barmag Corp., 293 S.E.2d 415 (1982)",
+    "extracted_case_name": "Bolick v. Am. Barmag Corporation",
     "extracted_date": "1982",
-    "start_index": 117388,
-    "end_index": 117403
+    "start_index": 113679,
+    "end_index": 113694
   },
   {
     "citation": "146 Wn.2d 1",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "Department of Ecology v. Campbell & Gwinn, L. L. C",
     "extracted_date": "2002",
-    "start_index": 117972,
-    "end_index": 117983
+    "start_index": 114194,
+    "end_index": 114205
+  },
+  {
+    "citation": "Dep' Ecology v. Campbell & Gwinn, LLC, 146 Wash. 2d 1, 9-1043 P.3d 4 (2002) (courts must give effect to a statute's plain meaning as an expression of legislative intent if the statute's meaning is plain on its face)",
+    "extracted_case_name": "Dep' Ecology v. Campbell & Gwinn, LLC",
+    "extracted_date": "2002",
+    "start_index": 114194,
+    "end_index": 114205
   },
   {
     "citation": "43 P.3d 4",
-    "extracted_case_name": "N/A",
+    "extracted_case_name": "State, Department. of Ecology v. Campbell & Gwinn",
     "extracted_date": "2002",
-    "start_index": 117991,
-    "end_index": 118000
+    "start_index": 114213,
+    "end_index": 114222
   },
   {
-    "citation": "539 P.3d 361",
-    "extracted_case_name": "Bennett v. United States",
-    "extracted_date": "2023",
-    "start_index": 119704,
-    "end_index": 119716
-  },
-  {
-    "citation": "128 Wn. App. 256",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2005",
-    "start_index": 120032,
-    "end_index": 120048
-  },
-  {
-    "citation": "115 P.3d 1017",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2005",
-    "start_index": 120055,
-    "end_index": 120068
-  },
-  {
-    "citation": "3 Wn.2d 577",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2025",
-    "start_index": 122532,
-    "end_index": 122543
-  },
-  {
-    "citation": "555 P.2d 997",
-    "extracted_case_name": "N/A",
-    "extracted_date": "1976",
-    "start_index": 122550,
-    "end_index": 122562
-  },
-  {
-    "citation": "964 F.2d 1059",
-    "extracted_case_name": "N/A",
-    "extracted_date": "1992",
-    "start_index": 128788,
-    "end_index": 128801
-  },
-  {
-    "citation": "3 Wn.3d 1018",
-    "extracted_case_name": "Erickson v. Pharmacia , LLC",
-    "extracted_date": "2024",
-    "start_index": 11875,
-    "end_index": 11887
+    "citation": "Dep' Ecology v. Campbell & Gwinn, LLC, 43 P.3d 4 (2002) (courts must give effect to a statute's plain meaning as an expression of legislative intent if the statute's meaning is plain on its face)",
+    "extracted_case_name": "Dep' Ecology v. Campbell & Gwinn, LLC",
+    "extracted_date": "2002",
+    "start_index": 114213,
+    "end_index": 114222
   },
   {
     "citation": "2 Wn.3d 430",
     "extracted_case_name": "Bennett v. United States",
     "extracted_date": "2023",
-    "start_index": 119686,
-    "end_index": 119697
+    "start_index": 115833,
+    "end_index": 115844
   },
   {
-    "citation": "31 Wn. App. 2d 100",
-    "extracted_case_name": "Erickson v. Pharmacia, No.",
-    "extracted_date": "2024",
-    "start_index": 11816,
-    "end_index": 11834
+    "citation": "539 P.3d 361",
+    "extracted_case_name": "Bennett v. United States",
+    "extracted_date": "2023",
+    "start_index": 115851,
+    "end_index": 115863
   },
   {
-    "citation": "19 Wn. App. 2d 113",
-    "extracted_case_name": "N/A",
-    "extracted_date": "2021",
-    "start_index": 34868,
-    "end_index": 34886
+    "citation": "Bennett v. United States, 2 Wn.3d 430, 454, 539 P.3d 361 (2023)",
+    "extracted_case_name": "Bennett v. United States",
+    "extracted_date": "2023",
+    "start_index": 115851,
+    "end_index": 115863
   },
   {
-    "citation": "31 Wn. App. 2d 100",
-    "extracted_case_name": "Erickson v. Pharmacia , LLC",
-    "extracted_date": "2024",
-    "start_index": 117032,
-    "end_index": 117050
+    "citation": "Zenaida-Garcia v. Recovery Sys. Tech., Inc., 128 Wash. App. 256, 264115 P.3d 1017 (2005)",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys. Tech., Inc",
+    "extracted_date": "2005",
+    "start_index": 116179,
+    "end_index": 116195
   },
   {
-    "citation": "Cal. 3d 574",
-    "extracted_case_name": "Hurtado v. Superior C t.",
-    "extracted_date": "1974",
-    "start_index": 23467,
-    "end_index": 23478
+    "citation": "Zenaida-Garcia v. Recovery Sys. Tech., Inc., 115 P.3d 1017 (2005)",
+    "extracted_case_name": "Zenaida-Garcia v. Recovery Sys. Tech., Inc",
+    "extracted_date": "2005",
+    "start_index": 116202,
+    "end_index": 116215
   },
   {
-    "citation": "Ill. 2d 147",
-    "extracted_case_name": "Townsend v. Sears, Roebuck & Co.",
-    "extracted_date": "2007",
-    "start_index": 32410,
-    "end_index": 32421
+    "citation": "3 Wn.2d 577",
+    "extracted_case_name": "Neah Bay Fish Co. v. Krummel",
+    "extracted_date": "1976",
+    "start_index": 118605,
+    "end_index": 118616
   },
   {
-    "citation": "Ill. App. 3d 691",
-    "extracted_case_name": "Burlington N. & Santa Fe Ry. Co. v. ABC -NACO",
-    "extracted_date": "2009",
-    "start_index": 31999,
-    "end_index": 32015
+    "citation": "3 Wash. 2d 577, 580555 P.2d 997 (1976)",
+    "extracted_case_name": "Neah Bay Fish Co. v. Krummel",
+    "extracted_date": "1976",
+    "start_index": 118605,
+    "end_index": 118616
   },
   {
-    "citation": "N.J. 478",
-    "extracted_case_name": "N/A",
-    "extracted_date": "1996",
-    "start_index": 30608,
-    "end_index": 30616
+    "citation": "555 P.2d 997 (1976)",
+    "extracted_case_name": "Johnson v. Spider Staging Corporation",
+    "extracted_date": "1976",
+    "start_index": 118623,
+    "end_index": 118635
   },
   {
-    "citation": "N.C. 364",
-    "extracted_case_name": "Bolick v. Am. Barmag Corp.",
-    "extracted_date": "1982",
-    "start_index": 117378,
-    "end_index": 117386
-  },
-  {
-    "citation": "Va. 67",
-    "extracted_case_name": "Buchanan v. John Doe",
-    "extracted_date": "1993",
-    "start_index": 32122,
-    "end_index": 32128
+    "citation": "Johnson v. Cont'l Airlines Corp., 964 F.2d 1059, 1064 (ca10 1992)",
+    "extracted_case_name": "Karen Svea Johnson and Robert Cooke, Jr., Wife and Husband v. Continental Airlines Corporation, a Delaware Corporation",
+    "extracted_date": "1992",
+    "start_index": 124497,
+    "end_index": 124510
   }
 ]

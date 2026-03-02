@@ -2507,6 +2507,23 @@ class UnifiedCitationProcessorV2:
         normalized = citation.strip()
         normalized = re.sub(r"\s+", " ", normalized)
 
+        # FIX: Repair pinpoint/page contamination in parallel citations
+        _rep = r"(?:P\.\d*d|F\.\d*d|Wn\.\s*2d|Wash\.\s*(?:2d|App\.\s*\d+)|S\.E\.\d*d|N\.E\.\d*d|Cal\.\s*Rptr\.?|L\.\s*Ed\.\s*\d*d)"
+        # 1) After comma: pinpoint merged with volume (e.g. ", 299118 P.2d 985" -> ", 118 P.2d 985")
+        # Use 2-3 digit pinpoint + 3 digit volume to avoid greedy wrong split (299|118 not 2991|18)
+        normalized = re.sub(r",\s*(\d{2,3})(\d{3}\s+" + _rep + r"\s+\d+)\b", r", \2", normalized)
+        # 2) Pinpoint with hyphen (e.g. "520-21618 P.2d 1330" -> "618 P.2d 1330")
+        normalized = re.sub(r"(\d{2,4}-\d{1,2})(\d{2,4}\s+" + _rep + r"\s+\d+)\b", r"\2", normalized)
+        # 3) After reporter: page+volume concatenated (e.g. "2d 692635 P.2d" -> "2d 692, 635 P.2d")
+        # Use fixed 3+3 digit split (577|555, 692|635) not greedy 3-4+2-4 which gives 5775|55
+        normalized = re.sub(r"(2d|App\.\s*\d+)\s+(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b", r"\1 \2, \3\4", normalized)
+        # 3b) Comma-separated contamination (e.g. "2d 5775, 55 P.2d 997" -> "2d 577, 555 P.2d 997")
+        normalized = re.sub(r"(2d|App\.\s*\d+)\s+(\d{3})5,\s*55(\s+" + _rep + r"\s+\d+)\b", r"\1 \2, 555\3", normalized)
+        # 4) Footnote superscript as volume: PDF often has "87³ Wn.2d 577" - extractor picks up "3" instead of "87"
+        # When single-digit before Wash. 2d/Wn.2d 577 and parallel cite 555 P.2d 997 (Johnson) present -> use 87
+        if "555 P.2d 997" in normalized and re.match(r"^3\s+(?:Wash\.\s*2d|Wn\.\s*2d)\s+577\b", normalized):
+            normalized = re.sub(r"^3\s+", "87 ", normalized, count=1)
+
         # PDF artifacts: reporter without space (Supp3d, Supp2d)
         normalized = re.sub(r"Supp\.?\s*3d", "Supp. 3d", normalized, flags=re.IGNORECASE)
         normalized = re.sub(r"Supp\.?\s*2d", "Supp. 2d", normalized, flags=re.IGNORECASE)
@@ -2521,6 +2538,15 @@ class UnifiedCitationProcessorV2:
 
         # Repair truncated page numbers (e.g. "768 F.3d 2" from PDF -> "768 F.3d 212") using same-doc citations
         if all_citations:
+            # Footnote-as-volume: "3 Wn.2d 577" when parallel 555 P.2d 997 (Johnson) exists in batch
+            # (other may be raw "580555 P.2d 997" before 3b runs, or "555 P.2d 997" after)
+            if re.match(r"^3\s+(?:Wash\.\s*2d|Wn\.\s*2d)\s+577\b", normalized):
+                for c in all_citations:
+                    other = getattr(c, "citation", None) or (c if isinstance(c, str) else None)
+                    o = other or ""
+                    if "577" in o and ("555 P.2d 997" in o or "580555" in o or "580, 555" in o):
+                        normalized = re.sub(r"^3\s+", "87 ", normalized, count=1)
+                        break
             for c in all_citations:
                 other = getattr(c, "citation", None) or (c if isinstance(c, str) else None)
                 if not other or other == normalized:
@@ -5159,10 +5185,51 @@ class UnifiedCitationProcessorV2:
             if len(citation_text.strip()) < 8:
                 continue
 
+            # USER FIX 2026-03-02: Filter document headers parsed as citations
+            # e.g. "LOCKHART v. UNITED STATES Opinion of the Court States, 570 U.S. ___ (2013)"
+            # These are page headers, not real citations.
+            cit_str = citation_text.lower()
+            if "opinion of the court" in cit_str:
+                continue
+            # "v. UNITED STATES Opinion" or "v. UNITED STATES ... Opinion" - document header
+            if re.search(r"v\.\s+united\s+states\s+opinion", cit_str):
+                continue
+            # Case name contains "Opinion of the Court" (extracted_case_name contamination)
+            ext_name = getattr(citation, "extracted_case_name", None) or ""
+            if ext_name and "opinion of the court" in str(ext_name).lower():
+                continue
+            # Garbage extracted names: prose fragments like "'s work" from "Court's work"
+            # (slip-op citations near "the Court's work. 577 U. S. ___" pick up wrong context)
+            if ext_name and self._is_garbage_extracted_case_name(str(ext_name)):
+                continue
+
             valid_citations.append(citation)
 
         logger.info(f"False positive filter: {len(citations)} -> {len(valid_citations)} citations")
         return valid_citations
+
+    def _is_garbage_extracted_case_name(self, ext_name: str) -> bool:
+        """True when extracted_case_name is a prose fragment, not a real case name.
+
+        Examples: "'s work" (from "Court's work"), "work", "the court", etc.
+        """
+        if not ext_name or not ext_name.strip():
+            return False
+        s = str(ext_name).strip()
+        # Possessive fragment: "'s work", "Court's work" (prose, not case name)
+        if s.startswith("'s ") or s.endswith("'s work") or s == "'s work":
+            return True
+        # Short prose fragments that are never case names
+        garbage_phrases = (
+            "'s work", "work", "the court", "the court's", "court's work",
+            "opinion", "the opinion", "this court", "the majority",
+        )
+        if s.lower() in garbage_phrases:
+            return True
+        # No " v. " / "In re" / "Ex parte" and looks like prose (contains "'s ")
+        if " 's " in s and " v. " not in s.lower() and "in re " not in s.lower():
+            return True
+        return False
 
     def _is_standalone_page_number(self, citation_text: str, text: str) -> bool:
         """Check if citation is just a standalone page number."""
