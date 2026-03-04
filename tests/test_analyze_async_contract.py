@@ -1,10 +1,20 @@
 from io import BytesIO
+from unittest.mock import MagicMock
 
 import pytest
 
 from src.app_final_vue import create_app
 from src.api.services.citation_service import CitationService
 from src.unified_input_processor import UnifiedInputProcessor
+
+
+def _make_fake_queue():
+    """Fake RQ Queue so file upload async path does not require Redis."""
+    mock_job = MagicMock()
+    mock_job.id = "test-job-id"
+    mock_queue = MagicMock()
+    mock_queue.enqueue.return_value = mock_job
+    return mock_queue
 
 
 @pytest.fixture
@@ -33,8 +43,17 @@ def client(monkeypatch):
             },
         }
 
+    def _fake_queue(_name, connection=None):
+        return _make_fake_queue()
+
+    def _fake_redis_from_url(_url):
+        return MagicMock()
+
     monkeypatch.setattr(CitationService, "extract_text_from_input", _fake_extract_text, raising=True)
     monkeypatch.setattr(UnifiedInputProcessor, "process_any_input", _fake_process_any_input, raising=True)
+    # File upload path does "from rq import Queue" and "from redis import Redis"; avoid real Redis in tests.
+    monkeypatch.setattr("rq.Queue", _fake_queue)
+    monkeypatch.setattr("redis.Redis.from_url", _fake_redis_from_url)
 
     app = create_app()
     app.testing = True

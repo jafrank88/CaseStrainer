@@ -82,6 +82,7 @@ from src.unified_clustering_master_optimized import cluster_citations_optimized 
 import warnings
 
 # Import helper for filtering cluster members (moved to utils to avoid circular imports)
+from src.citation_patterns import CitationPatterns
 from src.utils.cluster_filter import filter_cluster_members_by_reporter
 from src.utils.same_case import has_case_name, names_are_same_case
 from src.utils.date_utils import years_match_for_verification, extract_year_value, extract_year_from_citation
@@ -231,6 +232,9 @@ class UnifiedCitationProcessorV2:
 
     def _init_patterns(self):
         """Initialize comprehensive citation patterns with proper Bluebook spacing."""
+        # Pinpoint pattern for SCOTUS block: match ", N" only when N is NOT followed by S. Ct. or L. Ed.
+        # Prevents consuming "116" in "116 S. Ct." as a pinpoint (e.g. BMW: 517 U.S. 559, 572, 116 S. Ct. 1589).
+        _scotus_pin = r"(?:\s*,\s*\d+(?!\s+(?:S\.\s*Ct\.|L\.\s*Ed\.)))*"
         self.citation_patterns = {
             # Washington First Series (NEW - FIX for first series support)
             "wn_first": re.compile(r"\b(\d+)\s+Wn\.\s+(\d+)\b", re.IGNORECASE),
@@ -303,7 +307,20 @@ class UnifiedCitationProcessorV2:
                 re.IGNORECASE,
             ),
             "wash_with_pinpoint_and_parallel": re.compile(
-                r"\b(\d+)\s+(?:Wash\.|Wn\.)\s*(?:App\.)\s*2d\s+(\d+)(?:\s*,\s*(\d+))?(?:\s*,\s*(\d+)\s+(?:P\.3d|P\.2d)\s+(\d+))?\s*(?:\(\d{4}\))?\b",
+                # Allow footnote (e.g. "123 n.21") between pinpoint and parallel: "19 Wn. App. 2d 113, 123 n.21, 494 P.3d 1076"
+                r"\b(\d+)\s+(?:Wash\.|Wn\.)\s*(?:App\.)\s*2d\s+(\d+)(?:\s*,\s*(\d+)(?:\s*n\.?\s*\d+)?)?(?:\s*,\s*(\d+)\s+(?:P\.3d|P\.2d)\s+(\d+))?\s*(?:\(\d{4}\))?\b",
+                re.IGNORECASE,
+            ),
+            # U.S. Supreme Court multi-reporter block (e.g. BMW v. Gore: 517 U.S. 559, 572, 116 S. Ct. 1589, 134 L. Ed. 2d 809)
+            # Matches U.S. + S.Ct. + L.Ed.2d in one block; allows optional pinpoint between reporters.
+            # CRITICAL: Pinpoint must NOT consume next reporter's volume (e.g. 116 in "116 S. Ct.").
+            "scotus_parallel_block": re.compile(
+                rf"\b(\d+)\s+U\.\s*S\.\s+(\d+){_scotus_pin}\s*,\s*(\d+)\s+S\.\s*Ct\.\s+(\d+){_scotus_pin}\s*,\s*(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+)\b",
+                re.IGNORECASE,
+            ),
+            # Alternate order: U.S. + L.Ed.2d + S.Ct.
+            "scotus_parallel_block_led_first": re.compile(
+                rf"\b(\d+)\s+U\.\s*S\.\s+(\d+){_scotus_pin}\s*,\s*(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+){_scotus_pin}\s*,\s*(\d+)\s+S\.\s*Ct\.\s+(\d+)\b",
                 re.IGNORECASE,
             ),
             "westlaw": re.compile(r"\b(\d{4})\s+WL\s+(\d{1,12})\b", re.IGNORECASE),
@@ -324,6 +341,13 @@ class UnifiedCitationProcessorV2:
             "us_slip": re.compile(r"\b(\d+)\s+U\.?\s*S\.?\s+_{2,}(?:\s*,?\s*_{2,})*", re.IGNORECASE),
             # State reporters - Tennessee
             "tenn": re.compile(r"\b(\d+)\s+Tenn\.\s+(\d+)\b", re.IGNORECASE),
+            # Maine (2005 ME 113), Nebraska (289 Neb. 864), Ohio St. (110 Ohio St. 3d 456)
+            "me": re.compile(r"\b(20\d{2})\s+ME\s+(\d+)\b", re.IGNORECASE),
+            "neb": re.compile(r"\b(\d+)\s+Neb\.?\s+(\d+)\b", re.IGNORECASE),
+            "ohio_st": re.compile(r"\b(\d+)\s+Ohio\s*St\.?\s*(?:3d|2d)?\s+(\d+)\b", re.IGNORECASE),
+            # N.E.2d (Ohio, Ill., etc.), N.W.2d (Nebraska, etc.), A.2d already exists
+            "ne2d": re.compile(r"\b(\d+)\s+N\.E\.2d\s+(\d+)\b", re.IGNORECASE),
+            "nw2d": re.compile(r"\b(\d+)\s+N\.W\.2d\s+(\d+)\b", re.IGNORECASE),
             # Federal district docket citations (e.g. King v. Ortiz, 17 Cv 7507 (F.DNY May 2, 2019))
             "federal_docket": re.compile(
                 r"\b(\d{2})\s+Cv\.?\s+(\d{4,})\s*\(\s*(?:F\.?D\.?NY|S\.?D\.?NY|E\.?D\.?|W\.?D\.?|N\.?D\.?|M\.?D\.?)\s*[^)]*\d{4}\s*\)",
@@ -343,6 +367,23 @@ class UnifiedCitationProcessorV2:
             "neutral_wi": re.compile(r"\b(20\d{2})\s+WI\s+(\d{1,5})\b", re.IGNORECASE),  # Wisconsin
             "neutral_wy": re.compile(r"\b(20\d{2})\s+WY\s+(\d{1,5})\b", re.IGNORECASE),  # Wyoming
             "neutral_mt": re.compile(r"\b(20\d{2})\s+MT\s+(\d{1,5})\b", re.IGNORECASE),  # Montana
+            # Ohio: 2006-Ohio-4854 or 2006-Ohio- 4854 (PDFs often add space before number)
+            "neutral_ohio": re.compile(
+                r"\b(20\d{2})[\-\u2011\u2013\u2014]?Ohio[\-\u2011\u2013\u2014]?\s*(\d{1,5})\b",
+                re.IGNORECASE,
+            ),
+            # Ohio fused: 4632006-Ohio-4854 when pinpoint and year run together (no comma)
+            "neutral_ohio_fused": re.compile(
+                r"(?<=\d)(20\d{2})[\-\u2011\u2013\u2014]?Ohio[\-\u2011\u2013\u2014]?\s*(\d{1,5})\b",
+                re.IGNORECASE,
+            ),
+            # Ohio parallel block: Ohio St. + neutral + N.E.2d (e.g. 110 Ohio St. 3d 456, 463, 2006-Ohio-4854, ¶ 29, 854 N.E.2d 193)
+            # Allow optional space before neutral number (PDFs: "2006-Ohio- 4854")
+            # Allow fused pinpoint+year (PDFs: "4632006-Ohio- 4854" when 463 and 2006 run together)
+            "ohio_parallel_block": re.compile(
+                r"\b(\d+)\s+Ohio\s*St\.?\s*(?:3d|2d)?\s+(\d+)\s*,\s*\d{1,3}?(?:\s*,\s*)?(20\d{2})[\-\u2011\u2013\u2014]?Ohio[\-\u2011\u2013\u2014]?\s*(\d+)(?:\s*,\s*[^,]+)?\s*,\s*(\d+)\s+N\.E\.2d\s+(\d+)\b",
+                re.IGNORECASE,
+            ),
         }
 
         self.pinpoint_pattern = re.compile(r"\b(?:at\s+)?(\d+)\b", re.IGNORECASE)
@@ -701,6 +742,18 @@ class UnifiedCitationProcessorV2:
         if m:
             return f"f_reporter:{m.group(1)}:{m.group(2)}"
 
+        m = re.search(r"\b(\d+)\s+N\.?\s*W\.?\s*2d\s+(\d+)\b", s, re.IGNORECASE)
+        if m:
+            return f"nw2d:{m.group(1)}:{m.group(2)}"
+
+        m = re.search(r"\b(\d+)\s+A\.?\s*(?:2d|3d)\s+(\d+)\b", s, re.IGNORECASE)
+        if m:
+            return f"a2d:{m.group(1)}:{m.group(2)}"
+
+        m = re.search(r"\b(\d+)\s+N\.?\s*E\.?\s*2d\s+(\d+)\b", s, re.IGNORECASE)
+        if m:
+            return f"ne2d:{m.group(1)}:{m.group(2)}"
+
         return None
 
     def _extract_name_year_from_text_for_citation(
@@ -780,6 +833,15 @@ class UnifiedCitationProcessorV2:
                     if c_start is None:
                         donor = candidates[0]
                     else:
+                        # Exclude donors with semicolon between (e.g. "857 N.W.2d 569" + Dow separated by ";")
+                        def _no_semicolon_between(d):
+                            d_end = getattr(d, "end_index", None)
+                            if not text or c_start is None or d_end is None:
+                                return True
+                            between = text[min(c_start, d_end) : max(c_start, d_end)]
+                            return ";" not in between
+                        viable = [d for d in candidates if _no_semicolon_between(d)]
+                        candidates = viable if viable else candidates
                         donor = min(
                             candidates,
                             key=lambda d: abs((getattr(d, "start_index", None) or c_start) - c_start),
@@ -1193,17 +1255,27 @@ class UnifiedCitationProcessorV2:
         if in_toa_section:
             return None, "toa_skip"
 
+        canonical_year = extract_year_value(canonical_date)
+        extracted_year = extract_year_value(extracted_date)
+
         # Strongest signal: year encoded directly in citation text
         # e.g. "2025 WL 1237305", "(2014)".
+        # FIX: When extracted and canonical match but citation_text differs, prefer them
+        # (citation_text can be contaminated by neighboring parentheticals in citation blocks)
         try:
             citation_year = extract_year_from_citation(citation_text or "")
             if citation_year:
-                return str(citation_year), "citation_text"
+                cit_yr_str = str(citation_year)
+                if canonical_year and extracted_year and canonical_year == extracted_year:
+                    if cit_yr_str != canonical_year:
+                        logger.debug(
+                            f"[YEAR-DERIVE] Preferring extracted/canonical {canonical_year} over "
+                            f"citation_text {cit_yr_str} (likely contamination from neighboring cite)"
+                        )
+                        return canonical_year, "canonical_date"
+                return cit_yr_str, "citation_text"
         except Exception as year_err:
             logger.debug(f"[YEAR-DERIVE] citation-text year extraction skipped: {year_err}")
-
-        canonical_year = extract_year_value(canonical_date)
-        extracted_year = extract_year_value(extracted_date)
         source_norm = str(verification_source or "").lower()
 
         # Narrow exception: CourtListener can occasionally expose a Supreme Court date
@@ -1289,49 +1361,6 @@ class UnifiedCitationProcessorV2:
 
         # Soft mismatch: fallback-derived decision-year proxy differs.
         if allow_soft_mismatch and compare_source == "extracted_fallback":
-            return {
-                "accept": True,
-                "hard_mismatch": False,
-                "soft_mismatch": True,
-                "year_diff": year_diff,
-                "compare_year": compare_year,
-                "compare_source": compare_source,
-            }
-
-        # Soft mismatch: when citation text itself does not encode a year and the only
-        # disagreement is off-by-one against canonical_date, prefer keeping verification.
-        # This covers nearby-year bleed from extraction context (e.g., adjacent WL cite year).
-        try:
-            citation_year = extract_year_from_citation(citation_text or "")
-        except Exception:
-            citation_year = None
-        citation_text_norm = str(citation_text or "")
-        is_wl_cite = bool(re.search(r"\b\d{4}\s+WL\s+\d+\b", citation_text_norm, re.IGNORECASE))
-        has_docket_marker = ("No." in citation_text_norm) or ("No " in citation_text_norm)
-        if allow_soft_mismatch and compare_source == "canonical_date" and year_diff == 1 and not citation_year:
-            return {
-                "accept": True,
-                "hard_mismatch": False,
-                "soft_mismatch": True,
-                "year_diff": year_diff,
-                "compare_year": compare_year,
-                "compare_source": compare_source,
-            }
-
-        # Soft mismatch: WL / docket citations may represent an earlier related opinion
-        # (e.g., 2020 WL slip/order) while canonical date points to later reporter publication.
-        # Keep verification when the citation itself carries an explicit year matching extracted year
-        # and the disagreement is a conservative off-by-one.
-        if (
-            allow_soft_mismatch
-            and
-            compare_source == "canonical_date"
-            and year_diff == 1
-            and citation_year
-            and ext_year
-            and str(citation_year) == str(ext_year)
-            and (is_wl_cite or has_docket_marker)
-        ):
             return {
                 "accept": True,
                 "hard_mismatch": False,
@@ -1455,6 +1484,12 @@ class UnifiedCitationProcessorV2:
             prev = current_group[-1]
             if curr.start_index and prev.end_index and curr.start_index - prev.end_index <= 100:
                 text_between = text[prev.end_index : curr.start_index]
+                # CRITICAL: Do NOT group citations separated by semicolon (e.g. "A; B; C")
+                if ";" in text_between:
+                    if len(current_group) > 1:
+                        groups.append(current_group)
+                    current_group = [curr]
+                    continue
                 if "," in text_between and len(text_between.strip()) < 50:
                     if (
                         prev.extracted_case_name
@@ -2507,22 +2542,82 @@ class UnifiedCitationProcessorV2:
         normalized = citation.strip()
         normalized = re.sub(r"\s+", " ", normalized)
 
+        # Strip leading Table of Authorities / heading noise (e.g. "TABLE OF AUTHORITIES Page() CASES A&M Recs....")
+        toa_leading = re.match(
+            r"^(?:TABLE\s+OF\s+AUTHORITIES\s*)?(?:Page\s*\(\s*\)\s*)?(?:CASES\s+)?",
+            normalized,
+            re.IGNORECASE,
+        )
+        if toa_leading:
+            normalized = normalized[toa_leading.end() :].strip()
+
         # FIX: Repair pinpoint/page contamination in parallel citations
-        _rep = r"(?:P\.\d*d|F\.\d*d|Wn\.\s*2d|Wash\.\s*(?:2d|App\.\s*\d+)|S\.E\.\d*d|N\.E\.\d*d|Cal\.\s*Rptr\.?|L\.\s*Ed\.\s*\d*d)"
+        # Reporter series (2d, 3d, 4th, 5th, etc.) are part of reporter name, NOT page numbers
+        _series = CitationPatterns.REPORTER_SERIES
+        _app_series = CitationPatterns.APP_SERIES
+        _rep = (
+            r"(?:P\.\d*d|F\.(?:2d|3d|4th)|Wn\.\s*(?:2d|3d)|Wash\.\s*(?:2d|3d|App\.\s*"
+            + _app_series
+            + r")|S\.E\.\d*d|N\.E\.\d*d|Cal\.\s*(?:2d|3d|4th|5th|Rptr\.?|App\.\s*"
+            + _app_series
+            + r")|L\.\s*Ed\.\s*\d*d)"
+        )
+        # 1a) P.3d-specific fixes FIRST (before general Fix 1, which would mis-split 82961 as 82+961)
+        # Pinpoint+volume merged (e.g. ", 616717 P.3d 1353" -> ", 616, 717 P.3d 1353")
+        normalized = re.sub(r",\s*(\d{3})(\d{3}\s+P\.3d\s+\d+)\b", r", \1, \2", normalized)
+        # Pinpoint+digit+volume merged (e.g. ", 82961 P.3d 1196" -> ", 61 P.3d 1196")
+        normalized = re.sub(r",\s*\d{3}(\d{2}\s+P\.3d\s+\d+)\b", r", \1", normalized)
         # 1) After comma: pinpoint merged with volume (e.g. ", 299118 P.2d 985" -> ", 118 P.2d 985")
         # Use 2-3 digit pinpoint + 3 digit volume to avoid greedy wrong split (299|118 not 2991|18)
         normalized = re.sub(r",\s*(\d{2,3})(\d{3}\s+" + _rep + r"\s+\d+)\b", r", \2", normalized)
         # 2) Pinpoint with hyphen (e.g. "520-21618 P.2d 1330" -> "618 P.2d 1330")
         normalized = re.sub(r"(\d{2,4}-\d{1,2})(\d{2,4}\s+" + _rep + r"\s+\d+)\b", r"\2", normalized)
         # 3) After reporter: page+volume concatenated (e.g. "2d 692635 P.2d" -> "2d 692, 635 P.2d")
-        # Use fixed 3+3 digit split (577|555, 692|635) not greedy 3-4+2-4 which gives 5775|55
-        normalized = re.sub(r"(2d|App\.\s*\d+)\s+(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b", r"\1 \2, \3\4", normalized)
+        # Use _series so we match 2d, 3d, 4th, App. 2d, etc. - never bare digits as series
+        _series_or_app = r"(?:" + _series + r"|App\.\s*" + _app_series + r")"
+        normalized = re.sub(
+            r"(" + _series_or_app + r")\s+(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b",
+            r"\1 \2, \3\4",
+            normalized,
+        )
         # 3b) Comma-separated contamination (e.g. "2d 5775, 55 P.2d 997" -> "2d 577, 555 P.2d 997")
-        normalized = re.sub(r"(2d|App\.\s*\d+)\s+(\d{3})5,\s*55(\s+" + _rep + r"\s+\d+)\b", r"\1 \2, 555\3", normalized)
+        normalized = re.sub(
+            r"(" + _series_or_app + r")\s+(\d{3})5,\s*55(\s+" + _rep + r"\s+\d+)\b",
+            r"\1 \2, 555\3",
+            normalized,
+        )
         # 4) Footnote superscript as volume: PDF often has "87³ Wn.2d 577" - extractor picks up "3" instead of "87"
         # When single-digit before Wash. 2d/Wn.2d 577 and parallel cite 555 P.2d 997 (Johnson) present -> use 87
         if "555 P.2d 997" in normalized and re.match(r"^3\s+(?:Wash\.\s*2d|Wn\.\s*2d)\s+577\b", normalized):
             normalized = re.sub(r"^3\s+", "87 ", normalized, count=1)
+
+        # 5) Truncated reporter series: PDF extraction often drops "d"/"th" (e.g. "19 Wn. App. 2" -> "19 Wn. App. 2d")
+        # Series designations are part of reporter name, never page numbers
+        normalized = re.sub(r"Wn\.\s*App\.\s*2(?!d)\b", "Wn. App. 2d", normalized)
+        normalized = re.sub(r"Wash\.\s*App\.\s*2(?!d)\b", "Wash. App. 2d", normalized)
+        normalized = re.sub(r"Wash\.\s*2(?!d)\b", "Wash. 2d", normalized)  # 96 Wash. 2, 124 Wash. 2
+        normalized = re.sub(r"Wn\.\s*2(?!d)\b", "Wn. 2d", normalized)  # Wn. 2 (without App)
+        normalized = re.sub(r"Cal\.\s*App\.?\s*2(?!d)\b", "Cal. App. 2d", normalized)
+        normalized = re.sub(r"Cal\.\s*App\.?\s*3(?!d)\b", "Cal. App. 3d", normalized)
+        normalized = re.sub(r"Cal\.\s*App\.?\s*4(?!th)\b", "Cal. App. 4th", normalized)
+        normalized = re.sub(r"Cal\.\s*App\.?\s*5(?!th)\b", "Cal. App. 5th", normalized)
+        normalized = re.sub(r"Ill\.\s*App\.\s*2(?!d)\b", "Ill. App. 2d", normalized)
+        normalized = re.sub(r"Ill\.\s*App\.\s*3(?!d)\b", "Ill. App. 3d", normalized)
+        normalized = re.sub(r"Tex\.\s*App\.\s*2(?!d)\b", "Tex. App. 2d", normalized)
+        normalized = re.sub(r"Tex\.\s*App\.\s*3(?!d)\b", "Tex. App. 3d", normalized)
+
+        # 6) S.Ct./L.Ed. page concatenation (e.g. "1513155 L. Ed. 2d 585" -> "1513, 155 L. Ed. 2d 585")
+        normalized = re.sub(
+            r"(\d{4})(\d{3})\s+(L\.\s*Ed\.\s*2d\s+\d+)\b",
+            r"\1, \2 \3",
+            normalized,
+        )
+        # 7) U.S./S.Ct. pinpoint merge (e.g. "421123 S. Ct. 1513" -> "421, 123 S. Ct. 1513")
+        normalized = re.sub(
+            r"(\d{3})(\d{3})\s+(S\.\s*Ct\.\s+\d+)\b",
+            r"\1, \2 \3",
+            normalized,
+        )
 
         # PDF artifacts: reporter without space (Supp3d, Supp2d)
         normalized = re.sub(r"Supp\.?\s*3d", "Supp. 3d", normalized, flags=re.IGNORECASE)
@@ -2558,6 +2653,39 @@ class UnifiedCitationProcessorV2:
                     normalized = re.sub(
                         r"(\d+)\s+F\.(3d|2d)\s+(\d{1,2})\b",
                         rf"\1 F.\2 {m_other.group(3)}",
+                        normalized,
+                        count=1,
+                    )
+                    break
+                # Truncated Wn. App. 2d / Wash. App. 2d: "19 Wn. App. 2d" with no page -> use fuller citation
+                # (other may use Wn. or Wash. - same reporter)
+                m_app = re.search(r"(\d+)\s+(?:Wn\.|Wash\.)\s*App\.\s*2d\s+(\d{2,})", other)
+                m_cur_wn = re.search(r"(\d+)\s+Wn\.\s*App\.\s*2d\s*$", normalized)
+                m_cur_wash = re.search(r"(\d+)\s+Wash\.\s*App\.\s*2d\s*$", normalized)
+                if m_app and m_cur_wn and m_app.group(1) == m_cur_wn.group(1):
+                    normalized = re.sub(
+                        r"(\d+)\s+Wn\.\s*App\.\s*2d\s*$",
+                        rf"\1 Wn. App. 2d {m_app.group(2)}",
+                        normalized,
+                        count=1,
+                    )
+                    break
+                if m_app and m_cur_wash and m_app.group(1) == m_cur_wash.group(1):
+                    normalized = re.sub(
+                        r"(\d+)\s+Wash\.\s*App\.\s*2d\s*$",
+                        rf"\1 Wash. App. 2d {m_app.group(2)}",
+                        normalized,
+                        count=1,
+                    )
+                    break
+                # Truncated Wash. 2d / Wn. 2d: "96 Wash. 2d" or "124 Wash. 2d" with no page
+                m_wn2 = re.search(r"(\d+)\s+(?:Wn\.|Wash\.)\s*2d\s+(\d{2,})", other)
+                m_cur_w2 = re.search(r"(\d+)\s+(?:Wash\.|Wn\.)\s*2d\s*$", normalized)
+                if m_wn2 and m_cur_w2 and m_wn2.group(1) == m_cur_w2.group(1):
+                    rep = "Wash." if "Wash." in normalized else "Wn."
+                    normalized = re.sub(
+                        r"(\d+)\s+(?:Wash\.|Wn\.)\s*2d\s*$",
+                        rf"\1 {rep} 2d {m_wn2.group(2)}",
                         normalized,
                         count=1,
                     )
@@ -2711,6 +2839,30 @@ class UnifiedCitationProcessorV2:
         if pos1 == -1 or pos2 == -1:
             return False
 
+        # CRITICAL: Do NOT group citations separated by semicolon (e.g. "A; B; C" = different cases)
+        if pos1 < pos2:
+            text_between = text[pos1 + len(citation1.citation) : pos2]
+        else:
+            text_between = text[pos2 + len(citation2.citation) : pos1]
+        if ";" in text_between:
+            return False
+
+        # CRITICAL FIX: Year compatibility - citations from different decades cannot be parallel
+        # E.g. 717 P.3d 1353 (In re Rosier 1986) vs 940 P.2d 261 (Seizer v. Sessions 1997)
+        date1 = (citation1.extracted_date or "").strip()
+        date2 = (citation2.extracted_date or "").strip()
+        if date1 and date2:
+            m1 = re.search(r"(19|20)\d{2}", date1)
+            m2 = re.search(r"(19|20)\d{2}", date2)
+            if m1 and m2:
+                y1, y2 = int(m1.group(0)), int(m2.group(0))
+                if abs(y1 - y2) > 2:
+                    logger.warning(
+                        f"[PARALLEL-REJECTED] Year mismatch: {y1} vs {y2} | "
+                        f"{citation1.citation} vs {citation2.citation} - Different cases"
+                    )
+                    return False
+
         # FIX: Check distance but don't fail immediately - use as a factor
         within_proximity = abs(pos1 - pos2) <= 200
 
@@ -2738,9 +2890,6 @@ class UnifiedCitationProcessorV2:
         # If names positively matched, accept as parallel
         if has_case_name(name1) and has_case_name(name2):
             return True
-
-        date1 = citation1.extracted_date or ""
-        date2 = citation2.extracted_date or ""
 
         # NOTE: Date match alone is NOT sufficient to declare parallel citations.
         # Many different cases share the same year. Date is only used as a
@@ -2828,6 +2977,10 @@ class UnifiedCitationProcessorV2:
             Extracted reporter abbreviation or empty string if not found
         """
         import re
+
+        # Neutral Ohio citation (2006-Ohio-4854) - treat as "Ohio" for parallel matching
+        if re.search(r"\b20\d{2}[\-\u2011\u2013\u2014]?Ohio[\-\u2011\u2013\u2014]?\d+", citation, re.IGNORECASE):
+            return "Ohio"
 
         # Common reporter patterns with priority (most specific first)
         patterns = [
@@ -3040,7 +3193,9 @@ class UnifiedCitationProcessorV2:
                 recovered = re.sub(r"\s+", " ", recovered).strip()
                 recovered = re.sub(r"[,;:\s]+$", "", recovered)
                 if recovered and recovered != name and len(recovered_left) > len(left_raw):
-                    return recovered
+                    # Reject repair that pulled in prose (e.g. "Time and again... Wheaton v. Peters")
+                    if not self._looks_like_quote_not_case_name(recovered):
+                        return recovered
 
             # Fallback: extend first party backwards until non-capitalized non-stopword
             if text and start_index is not None and start_index > 0:
@@ -3066,11 +3221,94 @@ class UnifiedCitationProcessorV2:
         s = s.replace("\u00ad", "").replace("\u200b", "").replace("\u200c", "").replace("\ufeff", "")
         return re.sub(r"\s+", " ", s).strip()
 
+    def _is_docket_caption_bleed(self, name: str) -> bool:
+        """True if name is a document caption with federal docket (e.g. Ill. Union Ins. Co. No. C10-5943 RJB...)."""
+        if not name or len(name) < 15:
+            return False
+        return bool(
+            re.search(
+                r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",
+                name,
+                re.IGNORECASE,
+            )
+        )
+
+    def _looks_like_quote_not_case_name(self, name: str) -> bool:
+        """True if extracted 'name' is likely a quote or sentence, not a case name."""
+        if not name:
+            return False
+        # No " v. " -> reject if long or sentence-like
+        if " v. " not in name:
+            if len(name) > 50:
+                return True
+            if re.match(r"^(Time\s+and|The\s+|And\s+|But\s+|However,|Moreover,)", name, re.IGNORECASE):
+                return True
+            if " the " in name:
+                return True
+            return False
+        # Has " v. " but left side may be prose (e.g. "Time and again, the Supreme Court has said no. Wheaton v. Peters" from repair)
+        parts = name.split(" v. ", 1)
+        if len(parts) == 2:
+            left = parts[0].strip()
+            if len(left) > 45 or re.match(r"^(Time\s+and|The\s+|And\s+|However,|Moreover,)", left, re.IGNORECASE):
+                return True
+            if " the " in left and len(left) > 25:
+                return True
+        return False
+
     def _extract_case_name_from_context(self, text: str, citation, all_citations=None) -> str:
         """Extract case name from citation string itself or surrounding text context."""
         try:
             cit_text = (citation.citation or "").strip()
             cit_text = self._clean_context_for_case_name(cit_text)
+
+            # Strategy 0.5: Line-wrap fragment - citation starts with entity suffix (often preceded by comma in case names)
+            # e.g. "LLC, 562 F.3d 630" -> full name "A.V. ex rel. Vanderhye v. iParadigms, LLC". Permit going backwards past ", LLC,".
+            # Abbreviations that commonly appear after a comma in case names (order: longer first to avoid partial match).
+            _COMMA_ABBREVS = (
+                r"L\.?L\.?C\.?|L\.?P\.?|P\.?L\.?L\.?C\.?|P\.?L\.?C\.?|"  # LLC, L.P., PLLC, PLC
+                r"Inc\.?|Ltd\.?|Corp\.?|Co\.?|"  # Inc., Ltd., Corp., Co.
+                r"Ass\'?n\.?|Assoc\.?|Grp\.?|"   # Ass'n, Assoc., Grp.
+                r"LLC|LP|LLP|PLLC|PLC|Inc|Ltd|Corp"  # without trailing dot
+            )
+            _COMMA_ABBREVS_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")\s*,?\s*\d+\s+[A-Z]", re.IGNORECASE)
+            fragment_match = _COMMA_ABBREVS_PAT.match(cit_text.strip())
+            if fragment_match and (citation.start_index or 0) > 0:
+                start = citation.start_index or 0
+                ctx_start = max(0, start - 400)
+                context_before = self._clean_context_for_case_name(text[ctx_start:start])
+                # Suffix that starts our citation (e.g. "LLC" from "LLC, 562 F.3d")
+                _suffix_pat = re.compile(r"^(" + _COMMA_ABBREVS + r")", re.IGNORECASE)
+                frag_suffix = _suffix_pat.match(cit_text.strip())
+                suffix_token = frag_suffix.group(1) if frag_suffix else ""
+                # Find last "Name v. Name" where second party ends with ", " and our citation starts with suffix
+                last_v = list(re.finditer(r"\s+v\.\s+", context_before))
+                if last_v and suffix_token:
+                    v_match = last_v[-1]
+                    after_v = context_before[v_match.end() :].strip()
+                    # After " v. " we have e.g. "iParadigms, " or "iParadigms,"; citation starts with ", LLC," - go backwards past it
+                    if after_v and len(after_v) < 80:
+                        first_party = context_before[: v_match.start()].strip()
+                        first_party = re.sub(r"[,;\s]+$", "", first_party)
+                        # Second party: name part + ", " + abbreviation (comma before abbrev as in case names)
+                        name_part = re.sub(r"[,;\s]+$", "", after_v)
+                        second_party = (name_part + ", " + suffix_token).strip()
+                        if first_party and first_party[0].isupper() and len(first_party) >= 2:
+                            name = first_party + " v. " + second_party
+                            if " v. " in name and len(name) > 8 and not self._is_docket_caption_bleed(name):
+                                return name
+                # Fallback: full pattern ending with ", LLC" or ", Inc." etc. at end of context
+                _abbrev_alt = r"(?:" + _COMMA_ABBREVS + r")"
+                for pattern in [
+                    r"([A-Z][A-Za-z.\'\-\s]+(?:\s+ex\s+rel\.\s+[A-Za-z.\'\-\s]+)?\s+v\.\s+[A-Za-z.\'\-\s,]+(?:,\s*)?" + _abbrev_alt + r")\s*$",
+                    r"([A-Z][A-Za-z.\'\-\s,]+\s+v\.\s+[A-Za-z.\'\-\s]+(?:,\s*)?" + _abbrev_alt + r")\s*$",
+                ]:
+                    m = re.search(pattern, context_before, re.IGNORECASE)
+                    if m:
+                        name = m.group(1).strip()
+                        name = re.sub(r"[,;\s]+$", "", name)
+                        if " v. " in name and len(name) > 8 and not self._is_docket_caption_bleed(name):
+                            return name
 
             # Strategy 1: Extract case name embedded in the citation string itself
             # Eyecite returns citations like "Raines v. Byrd, 521 U.S. 811, 819-820 (scotus)"
@@ -3085,7 +3323,7 @@ class UnifiedCitationProcessorV2:
                 if v_match:
                     name = v_match.group(1).strip()
                     name = re.sub(r'[,;:\s]+$', '', name)
-                    if len(name) > 5 and ' v. ' in name:
+                    if len(name) > 5 and ' v. ' in name and not self._is_docket_caption_bleed(name) and not self._looks_like_quote_not_case_name(name):
                         return name
                 # Fallback: "Name v. Name" followed by ", No." (docket) or ", at " (pinpoint) or ", YYYY WL"
                 v_match_alt = re.match(
@@ -3095,7 +3333,7 @@ class UnifiedCitationProcessorV2:
                 if v_match_alt:
                     name = v_match_alt.group(1).strip()
                     name = re.sub(r'[,;:\s]+$', '', name)
-                    if len(name) > 5 and ' v. ' in name:
+                    if len(name) > 5 and ' v. ' in name and not self._is_docket_caption_bleed(name) and not self._looks_like_quote_not_case_name(name):
                         return name
 
             # Strategy 2: Look in the text BEFORE the citation start_index.
@@ -3107,6 +3345,24 @@ class UnifiedCitationProcessorV2:
                 window = 800  # Reporter-only: name often further back
             ctx_start = max(0, start - window)
             context_before = self._clean_context_for_case_name(text[ctx_start:start])
+            # Filter out docket caption lines (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
+            # to prevent context bleed. EXCEPTION: Do NOT filter lines that contain a WL or reporter citation -
+            # those are real citation lines (e.g. "Milgard Mfg., Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912")
+            _docket_caption_line = re.compile(
+                r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",
+                re.IGNORECASE,
+            )
+            _citation_in_line = re.compile(
+                r"\d{4}\s+WL\s+\d+|\d+\s+(?:F\.?3d|F\.?2d|U\.S\.|P\.?3d|N\.E\.2d|S\.E\.2d|S\.W\.2d|Wn\.2d|Cal\.)\s+\d+",
+                re.IGNORECASE,
+            )
+
+            def _is_citation_line(ln: str) -> bool:
+                if not _docket_caption_line.search(ln):
+                    return True  # No docket pattern - keep
+                return bool(_citation_in_line.search(ln))  # Has citation - keep (real cite, not caption)
+
+            context_before = "\n".join(ln for ln in context_before.split("\n") if _is_citation_line(ln))
 
             # Look for "Name v. Name" pattern before the citation
             # Search from right to left to get the closest match
@@ -3131,7 +3387,7 @@ class UnifiedCitationProcessorV2:
                 name = re.sub(r'\s+', ' ', name).strip()
                 # Normalize " v . " (PDF artifact) to " v. " for consistent check
                 name = re.sub(r'\s+v\s*\.\s*', ' v. ', name, flags=re.IGNORECASE).strip()
-                if len(name) > 5 and ' v. ' in name:
+                if len(name) > 5 and " v. " in name and not self._looks_like_quote_not_case_name(name):
                     # CONTAMINATION GUARD: Check the text BETWEEN the found name
                     # and the current citation for signs that the name belongs to
                     # a different citation (common in Table of Authorities).
@@ -3149,7 +3405,8 @@ class UnifiedCitationProcessorV2:
                         text_between
                     ))
                     if not has_intervening_citation and not has_toa_formatting:
-                        return name
+                        if not self._is_docket_caption_bleed(name) and not self._looks_like_quote_not_case_name(name):
+                            return name
 
             # Strategy 2.5: Citation span can start at the second party (e.g. "Zimmerlein, 2025 WL...").
             # Then context_before ends with "Webber v. " and the full "Webber v. Zimmerlein" is split
@@ -3177,7 +3434,7 @@ class UnifiedCitationProcessorV2:
                                 second_party = m_doc.group(1).strip().rstrip(",")
                         if second_party and len(second_party) >= 2:
                             combined = f"{first_party} v. {second_party}"
-                            if len(combined) > 8:
+                            if len(combined) > 8 and not self._is_docket_caption_bleed(combined):
                                 return combined
 
             # Strategy 3: Check for "In re" or "Matter of" patterns
@@ -3186,7 +3443,7 @@ class UnifiedCitationProcessorV2:
                 if in_re_match:
                     name = in_re_match.group(1).strip()
                     name = re.sub(r'[,;:\s]+$', '', name)
-                    if len(name) > 5:
+                    if len(name) > 5 and not self._is_docket_caption_bleed(name):
                         return name
 
             # Strategy 4: Short-form case name from text immediately before the citation
@@ -3214,7 +3471,7 @@ class UnifiedCitationProcessorV2:
                 # Reporter-only: skip single-party name so Strategy 5 can find "Plaintiff v. Defendant"
                 if getattr(citation, "name_likely_in_left_context", False) and " v. " not in name:
                     pass  # fall through to Strategy 5
-                elif name not in _reject and len(name) >= 3:
+                elif name not in _reject and len(name) >= 3 and not self._is_docket_caption_bleed(name):
                     return name
 
             # Strategy 5: Fallback for reporter-only citations (e.g. "725 F.3d 651") - try larger window
@@ -3231,10 +3488,11 @@ class UnifiedCitationProcessorV2:
                     name = best.group(1).strip()
                     name = re.sub(r'[,;:\s]+$', '', name)
                     name = re.sub(r'\s+', ' ', name).strip()
-                    if len(name) > 5 and ' v. ' in name:
+                    if len(name) > 5 and ' v. ' in name and not self._looks_like_quote_not_case_name(name):
                         between = fallback_before[best.end():]
                         if not re.search(r'\d+\s+[A-Z][A-Za-z.]*\.\s*(?:\d+[a-z]{0,2}\s+)?\d+', between):
-                            return name
+                            if not self._is_docket_caption_bleed(name):
+                                return name
         except Exception as extract_err:
             logger.debug(
                 f"[NAME-EXTRACT] Context extraction failed for citation "
@@ -3330,6 +3588,22 @@ class UnifiedCitationProcessorV2:
             end = citation.end_index or 0
             start = citation.start_index or 0
             if end > 0:
+                # Strategy 1a: Neutral/Ohio citation format (e.g. 2006-Ohio-4854) in text BEFORE citation
+                # Prefer this over parenthetical years that may be from nested "(citing ... (9th Cir. 1981))"
+                # Support unicode hyphens (PDFs often use \u2011, \u2013, \u2014)
+                context_window = text[max(0, start - 120):min(len(text), end + 50)]
+                _hy = r'[\-\u2011\u2013\u2014]'  # ASCII hyphen, non-breaking hyphen, en dash, em dash
+                neutral_year = re.search(
+                    rf'(?:^|[^\d])(20\d{{2}}){_hy}(?:Ohio|OH|ME|Neb|Neb\.|Ohio\s*St\.){_hy}?\s*\d+',
+                    context_window,
+                    re.IGNORECASE,
+                )
+                if neutral_year and 1990 <= int(neutral_year.group(1)) <= 2030:
+                    return _ret(neutral_year.group(1), "neutral_citation_year", "high")
+                # Also match "2005 ME 113" style (Maine)
+                me_year = re.search(r'(?:^|[^\d])(20\d{2})\s+ME\s+\d+', context_window, re.IGNORECASE)
+                if me_year and 1990 <= int(me_year.group(1)) <= 2030:
+                    return _ret(me_year.group(1), "neutral_citation_year", "high")
                 # Look after the citation end for a parenthetical year
                 # Use wider window (150 chars) to handle page breaks in PDFs
                 context_after = text[end:min(len(text), end + 150)]
@@ -3346,6 +3620,24 @@ class UnifiedCitationProcessorV2:
                     context_after,
                     flags=re.IGNORECASE,
                 )
+                # Strategy 1b: Immediate parenthetical right after citation (before semicolon)
+                # e.g. "857 N.W.2d 569 (2015); State ex rel..." -> use 2015, not 1981 from nested (citing...)
+                imm = re.match(r'\s*\((\d{4})\)', context_after)
+                # Strategy 1b-alt: Citation span may include (YYYY); scan text from start to first ; or (citing
+                # Frederick: "289 Neb. 864, 878, 857 N.W.2d 569 (2015); State ex rel... (citing...(1981))"
+                # -> use 2015 from before semicolon, not 1981 from nested (citing
+                if not imm and start > 0:
+                    span = text[start : min(len(text), end + 120)]
+                    before_semi = span.split(";")[0] if ";" in span else span
+                    citing_pos = re.search(r"\(citing\b", before_semi, re.IGNORECASE)
+                    before_citing = before_semi[: citing_pos.start()] if citing_pos else before_semi
+                    span_match = re.search(r"\((\d{4})\)", before_citing)
+                    if span_match and 1990 <= int(span_match.group(1)) <= 2030:
+                        return _ret(span_match.group(1), "citation_span_before_semi", "high")
+                if imm and 1990 <= int(imm.group(1)) <= 2030:
+                    before_semi = context_after.split(';')[0]
+                    if re.search(r'\(\d{4}\)', before_semi) and not re.search(r'\(citing\b', before_semi, re.IGNORECASE):
+                        return _ret(imm.group(1), "citation_immediate_parenthetical", "high")
                 # Find ALL parenthetical years, skip page header years like "Cite as: 594 U. S. ____ (2021)"
                 # CRITICAL: Prefer the year CLOSEST to the citation (min start pos) to avoid borrowing
                 # from a subsequent citation (e.g. Chalkley 143 S.E. 631 (1928) ... Mack (2016) -> use 1928)
@@ -3359,6 +3651,20 @@ class UnifiedCitationProcessorV2:
                         preceding = context_after[:m.start()]
                         if re.search(r'Cite\s+as:', preceding, re.IGNORECASE):
                             continue  # Skip page header year
+                        # Reject years from nested citations: (citing ... (9th Cir. 1981))
+                        # Only skip "X Cir. YYYY" when it's inside (citing ...); (9th Cir. 2010) right after our cite is valid
+                        if (
+                            re.search(r'Cir\.\s*\d{4}', m.group(0), re.IGNORECASE)
+                            and re.search(r'\(citing\b', context_after[:m.start()], re.IGNORECASE)
+                        ):
+                            continue  # Court abbrev (9th Cir. YYYY) inside (citing ...)
+                        # Reject year when it appears after "(citing" - nested citation, not ours
+                        if re.search(r'\(citing\b', context_after[:m.start()], re.IGNORECASE):
+                            continue
+                        # Reject year when it appears after semicolon - belongs to next citation
+                        # e.g. "857 N.W.2d 569 (2015); State ex rel. ... (citing ... (1981))" -> use 2015
+                        if re.search(r';\s+', context_after[:m.start()]):
+                            continue
                         candidates.append((m.start(), year))
                 if candidates:
                     # Use the parenthetical CLOSEST to the citation (prefer document over citation-text bleed)
@@ -3389,21 +3695,40 @@ class UnifiedCitationProcessorV2:
             # Strategy 3: Extract year from the eyecite citation string itself
             # NOTE: This is LOWER priority because eyecite sometimes reconstructs
             # the wrong year from nearby text (e.g., document header year)
-            # FIX: Reject context bleed - when reporter suggests old case but year is recent (2015+),
-            # the year likely came from a nearby citation (e.g. Chalkley 143 S.E. 631 (2016) <- Mack)
+            # FIX: Reject (Court YYYY) - when the parenthetical is "(scotus 2025)" or "(ca9 2001)" or
+            # "(9th Cir. 2014)", that is court abbreviation + year; the year is often wrong (e.g. doc year).
+            # Prefer document context (Strategy 1) or global search (Strategy 5) instead.
             year_in_cit = re.search(r'\((?:\w+\s+)?(\d{4})\)', cit_text)
             if year_in_cit:
-                year = year_in_cit.group(1)
-                year_int = int(year)
-                if 1700 <= year_int <= 2030:
-                    if _reporter_suggests_old_case(cit_text) and year_int >= 2015:
-                        logger.debug(
-                            f"[DATE-CONTEXT-BLEED] Rejecting year {year} from citation text for '{cit_text[:60]}...' "
-                            f"(reporter suggests pre-1950, year likely from nearby citation)"
-                        )
-                        # Fall through to Strategy 5 (global search) instead of trusting citation text
-                    else:
-                        return _ret(year, "citation_text_parenthetical", "low")
+                full_paren = year_in_cit.group(0)
+                is_court_abbrev_year = bool(
+                    re.search(r'\b(?:scotus|ca\d|Cir\.|dcd|cand|mnd)\s*' + re.escape(year_in_cit.group(1)), full_paren, re.IGNORECASE)
+                )
+                if is_court_abbrev_year:
+                    # Do not use year from "(scotus 2025)" etc.; fall through to Strategy 5
+                    pass
+                else:
+                    year = year_in_cit.group(1)
+                    year_int = int(year)
+                    if 1700 <= year_int <= 2030:
+                        if _reporter_suggests_old_case(cit_text) and year_int >= 2015:
+                            logger.debug(
+                                f"[DATE-CONTEXT-BLEED] Rejecting year {year} from citation text for '{cit_text[:60]}...' "
+                                f"(reporter suggests pre-1950, year likely from nearby citation)"
+                            )
+                        elif end > 0:
+                            ctx_after = text[end:min(len(text), end + 150)]
+                            if re.search(r'\(citing\b', ctx_after, re.IGNORECASE) and re.search(
+                                rf'Cir\.\s*{re.escape(year)}\b', ctx_after, re.IGNORECASE
+                            ):
+                                logger.debug(
+                                    f"[DATE-NESTED-CITING] Rejecting year {year} from citation text for '{cit_text[:60]}...' "
+                                    f"(year appears in nested (citing ... (9th Cir. YYYY)))"
+                                )
+                            else:
+                                return _ret(year, "citation_text_parenthetical", "low")
+                        else:
+                            return _ret(year, "citation_text_parenthetical", "low")
 
             # Strategy 4: Check metadata for year
             if hasattr(citation, 'metadata') and isinstance(citation.metadata, dict):
@@ -3435,6 +3760,10 @@ class UnifiedCitationProcessorV2:
                         # Verify it's not a page header year
                         preceding_ctx = text[max(0, gm.start() - 30):gm.start()]
                         if re.search(r'Cite\s+as:', preceding_ctx, re.IGNORECASE):
+                            continue
+                        # Skip year from nested (citing ... (9th Cir. YYYY))
+                        match_ctx = text[max(0, gm.start() - 20):gm.end() + 60]
+                        if re.search(r'Cir\.\s*' + re.escape(year) + r'\b', match_ctx, re.IGNORECASE):
                             continue
                         logger.debug(
                             f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
@@ -3893,6 +4222,9 @@ class UnifiedCitationProcessorV2:
         normalized_text = text  # Use original text, normalize individual citations later
 
         priority_patterns = [
+            "scotus_parallel_block",  # U.S. + S.Ct. + L.Ed.2d in one block (e.g. BMW v. Gore)
+            "scotus_parallel_block_led_first",  # U.S. + L.Ed.2d + S.Ct. (alternate order)
+            "ohio_parallel_block",  # Ohio St. + neutral + N.E.2d (e.g. State ex rel. Oriana House)
             "wash_with_pinpoint_and_parallel",  # NEW: Handle pinpoint pages with parallel citations
             "parallel_citation_cluster",
             "flexible_wash2d",
@@ -3900,6 +4232,12 @@ class UnifiedCitationProcessorV2:
             "wash_complete",
             "wash_with_parallel",
             "parallel_cluster",
+            # U.S. Supreme Court parallel citations (e.g. BMW v. Gore: 517 U.S. 559, 116 S. Ct. 1589, 134 L. Ed. 2d 809)
+            "us",
+            "us_spaced",
+            "s_ct",
+            "l_ed",
+            "l_ed2d",
             "wn2d",  # Washington Supreme Court 2d series
             "wn2d_space",  # Washington Supreme Court 2d series (with space)
             "wn3d",  # Washington Supreme Court 3d series
@@ -3927,6 +4265,14 @@ class UnifiedCitationProcessorV2:
             "us_slip",
             # State reporters
             "tenn",  # Tennessee - e.g., "10 Tenn. 581" (Swindle v. State)
+            "neutral_ohio",  # Ohio: 2006-Ohio-4854 (before ohio_st so neutral cite is extracted)
+            "neutral_ohio_fused",  # 4632006-Ohio-4854 when pinpoint+year fused
+            "me",  # Maine - e.g., "2005 ME 113" (Dow v. Caribou)
+            "neb",  # Nebraska - e.g., "289 Neb. 864" (Frederick v. City of Falls City)
+            "ohio_st",  # Ohio Supreme Court - e.g., "110 Ohio St. 3d 456"
+            "ne2d",  # N.E.2d - e.g., "854 N.E.2d 193" (Ohio, Ill., etc.)
+            "nw2d",  # N.W.2d - e.g., "857 N.W.2d 569" (Nebraska, etc.)
+            "a2d",  # A.2d - e.g., "884 A.2d 667" (Maine Atlantic Reporter)
             # Federal district docket (e.g. 17 Cv. 7507 (F.DNY May 2, 2019)) and F. Supp. 3d with PDF artifacts
             "federal_docket",
             "f_supp3d_flex",
@@ -3960,16 +4306,79 @@ class UnifiedCitationProcessorV2:
                     start_pos = match.start()
                     end_pos = match.end()
 
-                    # Special handling for wash_with_pinpoint_and_parallel pattern
+                    # Special handling for scotus_parallel_block: create all 3 citations with parallel_citations
                     pinpoint_pages = []
                     parallel_citations = []
-                    
-                    if pattern_name == "wash_with_pinpoint_and_parallel" and match.groups():
+                    scotus_citations_to_add = []  # For block pattern: add all 3, skip normal single-citation path
+
+                    if pattern_name == "scotus_parallel_block" and match.groups():
+                        # Groups: 1=U.S.vol, 2=U.S.page, 3=S.Ct.vol, 4=S.Ct.page, 5=L.Ed.vol, 6=L.Ed.page
+                        us_cit = f"{match.group(1)} U.S. {match.group(2)}"
+                        sct_cit = f"{match.group(3)} S. Ct. {match.group(4)}"
+                        led_cit = f"{match.group(5)} L. Ed. 2d {match.group(6)}"
+                        for cit_str, start_off in [
+                            (us_cit, match.start()),
+                            (sct_cit, normalized_text.find(sct_cit, match.start())),
+                            (led_cit, normalized_text.find(led_cit, match.start())),
+                        ]:
+                            if cit_str in seen_citations:
+                                continue
+                            seen_citations.add(cit_str)
+                            end_off = start_off + len(cit_str) if start_off >= 0 else match.end()
+                            others = [c for c in (us_cit, sct_cit, led_cit) if c != cit_str]
+                            scotus_citations_to_add.append(
+                                CitationResult(
+                                    citation=cit_str,
+                                    start_index=start_off if start_off >= 0 else match.start(),
+                                    end_index=end_off,
+                                    method="regex_enhanced",
+                                    pattern=pattern_name,
+                                    confidence=0.9,
+                                    pinpoint_pages=[],
+                                    parallel_citations=others,
+                                )
+                            )
+                    elif pattern_name == "ohio_parallel_block" and match.groups():
+                        # Groups: 1=Ohio vol, 2=Ohio page, 3=neutral year, 4=neutral num, 5=N.E.2d vol, 6=N.E.2d page
+                        series = "3d" if "2d" not in match.group(0) else "2d"
+                        ohio_st_cit = f"{match.group(1)} Ohio St. {series} {match.group(2)}"
+                        neutral_cit = f"{match.group(3)}-Ohio-{match.group(4)}"
+                        ne2d_cit = f"{match.group(5)} N.E.2d {match.group(6)}"
+                        for cit_str, start_off in [
+                            (ohio_st_cit, match.start()),
+                            (neutral_cit, normalized_text.find(neutral_cit, match.start())),
+                            (ne2d_cit, normalized_text.find(ne2d_cit, match.start())),
+                        ]:
+                            if cit_str in seen_citations:
+                                continue
+                            seen_citations.add(cit_str)
+                            end_off = start_off + len(cit_str) if start_off >= 0 else match.end()
+                            others = [c for c in (ohio_st_cit, neutral_cit, ne2d_cit) if c != cit_str]
+                            scotus_citations_to_add.append(
+                                CitationResult(
+                                    citation=cit_str,
+                                    start_index=start_off if start_off >= 0 else match.start(),
+                                    end_index=end_off,
+                                    method="regex_enhanced",
+                                    pattern=pattern_name,
+                                    confidence=0.9,
+                                    pinpoint_pages=[],
+                                    parallel_citations=others,
+                                )
+                            )
+                    elif pattern_name == "neutral_ohio_fused" and match.groups():
+                        # Output normalized "2006-Ohio-4854" (strip extra space)
+                        citation_str = f"{match.group(1)}-Ohio-{match.group(2)}"
+                    elif pattern_name == "wash_with_pinpoint_and_parallel" and match.groups():
                         # Extract pinpoint page (group 3) and parallel citation (groups 4-5)
                         if match.group(3):  # Pinpoint page
                             pinpoint_pages = [match.group(3)]
                         if match.group(4) and match.group(5):  # Parallel citation
                             parallel_citations = [f"{match.group(4)} P.3d {match.group(5)}"]
+
+                    if scotus_citations_to_add:
+                        citations.extend(scotus_citations_to_add)
+                        continue
 
                     citation = CitationResult(
                         citation=citation_str,
@@ -3985,6 +4394,30 @@ class UnifiedCitationProcessorV2:
                     citations.append(citation)
 
         return citations
+
+    def _strip_pincitations_before_extraction(self, text: str) -> str:
+        """
+        Remove pincitation references from text before citation extraction.
+        Prevents false positives like "137 P.3d 337" when "at 210" appears between
+        Wash. App. page and P.3d cite: "151 Wn. App. 137, at 210, 210 P.3d 337".
+        """
+        if not text:
+            return text
+        # Remove: ", at *N"/", at N"/", at N-N"; ", 210-11" (page ranges); ", 210 n.5" (footnotes)
+        stripped = re.sub(
+            r",\s*at\s+\*?\d+(?:-\d+)?\b"
+            r"|,\s*\d{2,4}-\d{1,4}\b(?!\s+P\.\d*d)"
+            r"|,\s*\d+\s+n\.?\s*\d+\b",
+            "",
+            text,
+            flags=re.IGNORECASE,
+        )
+        # Remove standalone pinpoint between citations: "1 U.S. 2, 3, 4 S.Ct 5" -> "1 U.S. 2, 4 S.Ct 5"
+        # Only single-digit pinpoints to avoid stripping page numbers (e.g. ", 67, 431" Va. page + S.E.2d vol)
+        # or page+pinpoint (e.g. ", 289, 291" in "431 S.E.2d 289, 291")
+        stripped = re.sub(r",\s*\d\s*,\s*", ", ", stripped)
+        stripped = re.sub(r"\s+", " ", stripped).strip()
+        return stripped
 
     def _extract_citations_unified(self, text: str) -> List[CitationResult]:
         """
@@ -4012,6 +4445,10 @@ class UnifiedCitationProcessorV2:
         logger.info("[UNIFIED_EXTRACTION] FIX #44: Normalizing text before extraction")
         normalized_text = re.sub(r"\s+", " ", text)  # Collapse all whitespace (including \n) to single space
         logger.info(f"[UNIFIED_EXTRACTION] Text normalized: {len(text)} -> {len(normalized_text)} chars")
+
+        # Strip pincitations before extraction to prevent false positives
+        # E.g. "151 Wn. App. 137, at 210, 210 P.3d 337" -> "151 Wn. App. 137, 210 P.3d 337"
+        normalized_text = self._strip_pincitations_before_extraction(normalized_text)
 
         all_citations = []
 
@@ -4087,6 +4524,9 @@ class UnifiedCitationProcessorV2:
                         context_override=getattr(citation, "context", "") or "",
                     )
                     citation.extracted_case_name = self._clean_extracted_case_name(citation.extracted_case_name)
+                    # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
+                    if self._looks_like_quote_not_case_name(citation.extracted_case_name):
+                        citation.extracted_case_name = "N/A"
 
             except Exception as e:
                 logger.warning(
@@ -4701,7 +5141,7 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[UNIFIED_PIPELINE] After parallel detection: {len(citations)} citations")
 
         logger.info("[UNIFIED_PIPELINE] Phase 3: Ensuring bidirectional parallel relationships")
-        self.ensure_bidirectional_parallels(citations)
+        self.ensure_bidirectional_parallels(citations, text)
         logger.info(f"[UNIFIED_PIPELINE] After bidirectional parallels: {len(citations)} citations")
 
         logger.info("[UNIFIED_PIPELINE] Phase 3.5: Enriching missing extracted names/dates")
@@ -5549,10 +5989,12 @@ class UnifiedCitationProcessorV2:
                         parallel_cite.url = citation.url
                         parallel_cite.source = citation.source
                         # FIX 2026-02-24: Only set true_by_parallel if we have a valid URL (not Google search)
+                        url_to_check = getattr(citation, "canonical_url", None) or citation.url
+                        url_str = str(url_to_check or "").strip()
                         has_valid_url = (
-                            citation.url 
-                            and str(citation.url).strip() 
-                            and not str(citation.url).startswith("https://www.google.com/search")
+                            url_str
+                            and not url_str.startswith("https://www.google.com/search")
+                            and not url_str.startswith("http://www.google.com/search")
                         )
                         if has_valid_url:
                             if not hasattr(parallel_cite, "metadata") or parallel_cite.metadata is None:
@@ -5594,6 +6036,13 @@ class UnifiedCitationProcessorV2:
         #             c.extracted_date = best_date
         #         processed.add(c.citation)
 
+    def _is_google_search_url(self, url: Optional[str]) -> bool:
+        """True if url is a Google search URL; such URLs must never be used as canonical case URL."""
+        if not url or not str(url).strip():
+            return False
+        u = str(url).strip()
+        return u.startswith("https://www.google.com/search") or u.startswith("http://www.google.com/search")
+
     def propagate_canonical_to_cluster(self, citations: List["CitationResult"]):
         """
         For each group of parallel citations (including main and parallels), if any member is verified and has canonical_name and canonical_date,
@@ -5628,6 +6077,9 @@ class UnifiedCitationProcessorV2:
                 verified_member = None
                 for c in group:
                     if c.verified and c.canonical_name and c.canonical_date:
+                        url = getattr(c, "canonical_url", None) or getattr(c, "url", None)
+                        if self._is_google_search_url(str(url or "")):
+                            continue  # Google search URL = not real verification
                         verified_member = c
                         logger.info(f"[PARALLEL-DEBUG] Found verified member in canonical group: {c.citation}")
                         break
@@ -5683,6 +6135,9 @@ class UnifiedCitationProcessorV2:
             for cit in cluster_citations:
                 is_directly_verified = cit.verified == True and not getattr(cit, "true_by_parallel", False)
                 if is_directly_verified and cit.canonical_name:
+                    url = getattr(cit, "canonical_url", None) or getattr(cit, "url", None)
+                    if self._is_google_search_url(str(url or "")):
+                        continue  # Google search URL = not real verification
                     verified_member = cit
                     break
 
@@ -5756,6 +6211,9 @@ class UnifiedCitationProcessorV2:
             for cite_str in group:
                 c = citation_lookup.get(cite_str)
                 if c and c.verified and c.canonical_name and c.canonical_date:
+                    url = getattr(c, "canonical_url", None) or getattr(c, "url", None)
+                    if self._is_google_search_url(str(url or "")):
+                        continue  # Google search URL = not real verification
                     verified_member = c
                     logger.info(f"[PARALLEL-DEBUG] Found verified member: {cite_str}")
                     break
@@ -5880,9 +6338,10 @@ class UnifiedCitationProcessorV2:
 
         logger.info(f"[PARALLEL-CONSISTENCY] Consistency pass complete. Fixed {consistency_fixed} citations")
 
-    def ensure_bidirectional_parallels(self, citations: List["CitationResult"]):
+    def ensure_bidirectional_parallels(self, citations: List["CitationResult"], text: str = ""):
         """
         For each group of citations that are close together (by position and punctuation), ensure all group members have each other in their parallel_citations field.
+        CRITICAL: Do NOT group citations separated by semicolon (e.g. "A; B; C" = different cases).
         """
         logger.info(f"[PARALLEL-DEBUG] Starting bidirectional parallel detection for {len(citations)} citations")
 
@@ -5906,8 +6365,11 @@ class UnifiedCitationProcessorV2:
                 )
 
                 if curr.start_index and prev.end_index and curr.start_index - prev.end_index <= 100:
+                    # Use document text when available for accurate semicolon check (Dow; Frederick = different cases)
                     text_between = ""
-                    if hasattr(prev, "end_index") and hasattr(curr, "start_index"):
+                    if text and prev.end_index is not None and curr.start_index is not None:
+                        text_between = text[prev.end_index:curr.start_index]
+                    if not text_between and hasattr(prev, "end_index") and hasattr(curr, "start_index"):
                         text_between = (
                             getattr(prev, "context", "")[-(prev.end_index - (prev.start_index or 0)) :]
                             + getattr(curr, "context", "")[: curr.start_index - (curr.start_index or 0)]
@@ -5915,6 +6377,11 @@ class UnifiedCitationProcessorV2:
                     logger.info(
                         f"[PARALLEL-DEBUG] Text between: '{text_between}', distance: {curr.start_index - prev.end_index}"
                     )
+
+                    # CRITICAL: Semicolon separates different cases (e.g. "884 A.2d 667, 671; Frederick v. City...")
+                    if ";" in text_between:
+                        logger.info(f"[PARALLEL-DEBUG] REJECTED - semicolon between citations (different cases)")
+                        break
 
                     if "," in text_between or (curr.start_index - prev.end_index <= 10):
                         # USER FIX 2026-01-08: Validate citations before grouping

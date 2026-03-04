@@ -40,6 +40,7 @@ from src.utils.response_enrichment import (
     compute_citation_score_and_similarity,
     build_fallback_clusters,
     deduplicate_cluster_citations,
+    enrich_citations_with_cluster_members,
     deduplicate_clusters_for_response,
     apply_proprietary_display_fallback,
     compute_cluster_sections,
@@ -589,9 +590,21 @@ def _analyze_impl(request):
             except Exception as e:
                 logger.warning(f"[Request {request_id}] Failed to process raw data as URL: {str(e)}")
 
+        # Unified handling for all three input types:
+        # - File: async → _handle_file_upload (save to UPLOADS_SAVE_DIR, enqueue file path for worker); sync → process_any_input with file object.
+        # - URL: fetch and normalize to text, then process as text (same pipeline as text box).
+        # - Text: process_any_input(text, "text") for sync or enqueue text job.
         if input_data is not None and input_type is not None:
             logger.info(f"[Request {request_id}] Processing {input_type} input")
             force_mode = _enforce_async_only_mode(force_mode, request_id, "final_routing")
+
+            # Async file: save to uploads (config), enqueue file job (worker path from config).
+            # URL and text continue below; URL is normalized to text first.
+            if input_type == "file" and precomputed_result is None:
+                file_result = _handle_file_upload(service, request_id)
+                if isinstance(file_result, dict) and file_result.get("error"):
+                    return jsonify(file_result), 400
+                return jsonify(file_result), 200
 
             # Normalize URL input to text before processing to avoid URL-stage stalls
             if input_type == "url":
@@ -1455,7 +1468,8 @@ def _format_response(result, request_id, metadata, start_time):
                 if c.get("canonical_case_name"):
                     c["canonical_case_name"] = html.unescape(c["canonical_case_name"])
                 c["verifying_display_name"] = html.unescape(can)
-            c["verifying_display_date"] = c.get("canonical_date") or _year_from(c.get("canonical_date")) or ""
+            # Normalize to year for display consistency with submitted_display_date (avoids false "Different date" when years match)
+            c["verifying_display_date"] = _year_from(c.get("canonical_date")) or c.get("canonical_date") or ""
     except Exception as _e:
         logger.warning(f"[RESPONSE] Failed to add name normalization fields: {_e}")
 
@@ -1685,8 +1699,13 @@ def _format_response(result, request_id, metadata, start_time):
             cl["name_similarity"] = j
 
             # Backend-provided deduplicated list for display (by display_base_citation, prefer verified)
+            # Enrich truncated citations (e.g. "31 Wn. App. 2") with fuller text from cluster_members
             try:
-                cl["display_citations"] = deduplicate_cluster_citations(cl.get("citations") or [])
+                cits = enrich_citations_with_cluster_members(
+                    cl.get("citations") or [],
+                    cl.get("cluster_members") or [],
+                )
+                cl["display_citations"] = deduplicate_cluster_citations(cits)
             except Exception:
                 cl["display_citations"] = cl.get("citations") or []
     except Exception as _e:
@@ -1915,22 +1934,27 @@ def _handle_file_upload(service, request_id):
         unique_filename = f"{uuid.uuid4()}_{filename}"
         logger.info(f"[File Upload {request_id}] Generated secure filename: {unique_filename}")
 
-        uploads_dir = os.path.join("/app", "uploads")
+        from src.config import UPLOADS_SAVE_DIR, UPLOADS_WORKER_PATH
+
+        uploads_dir = os.path.normpath(os.path.abspath(UPLOADS_SAVE_DIR))
         os.makedirs(uploads_dir, exist_ok=True)
         logger.info(f"[File Upload {request_id}] Upload directory: {uploads_dir}")
 
-        file_path = os.path.join(uploads_dir, unique_filename)
-        logger.info(f"[File Upload {request_id}] Saving file to: {file_path}")
+        file_path_local = os.path.join(uploads_dir, unique_filename)
+        logger.info(f"[File Upload {request_id}] Saving file to: {file_path_local}")
+
+        # Path for job payload: worker opens this path (e.g. /app/uploads/... in Docker).
+        file_path_for_worker = os.path.join(UPLOADS_WORKER_PATH, unique_filename)
 
         try:
-            file.save(file_path)
+            file.save(file_path_local)
 
-            if not os.path.exists(file_path):
+            if not os.path.exists(file_path_local):
                 raise IOError("File was not saved successfully")
 
             logger.info(f"[File Upload {request_id}] File saved successfully")
 
-            file_size = os.path.getsize(file_path)
+            file_size = os.path.getsize(file_path_local)
 
             options = {}
             if "options" in request.form:
@@ -1949,7 +1973,7 @@ def _handle_file_upload(service, request_id):
             citation_service = CitationService()
 
             # Create input data for the service
-            input_data = {"type": "file", "file_path": file_path, "filename": filename, "file_size": file_size}
+            input_data = {"type": "file", "file_path": file_path_local, "filename": filename, "file_size": file_size}
             force_mode = request.form.get("force_mode")
             if force_mode == "sync" and SYNC_REQUESTS_AS_ASYNC:
                 force_mode = "async"
@@ -1964,15 +1988,15 @@ def _handle_file_upload(service, request_id):
             text = citation_service.extract_text_from_input(input_data)
             if text is None:
                 logger.error(f"[File Upload {request_id}] Failed to extract text from file")
-                return (
-                    jsonify(
-                        {
-                            "error": "Failed to extract text from file",
-                            "details": "The file could not be processed. Please ensure it contains readable text.",
-                        }
-                    ),
-                    400,
-                )
+                return {
+                    "error": "Failed to extract text from file",
+                    "details": "The file could not be processed. Please ensure it contains readable text.",
+                    "citations": [],
+                    "clusters": [],
+                    "request_id": request_id,
+                    "success": False,
+                    "metadata": {},
+                }
 
             # Use the service to determine processing mode based on extracted text size
             should_process_immediately = False  # Force async for all files to test progress updates
@@ -1991,7 +2015,7 @@ def _handle_file_upload(service, request_id):
 
                 job = queue.enqueue(
                     process_citation_task_direct,
-                    args=(request_id, "file", {"file_path": file_path, "filename": filename, "options": options}),
+                    args=(request_id, "file", {"file_path": file_path_for_worker, "filename": filename, "options": options}),
                     job_id=request_id,  # FIX: Use request_id as job_id to prevent caching duplicate requests
                     job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 6 minutes timeout (optimized)
                     result_ttl=86400,  # Keep results for 24 hours
@@ -2076,28 +2100,34 @@ def _handle_file_upload(service, request_id):
                     "success": True,
                     "citations": [],
                     "clusters": [],
+                    "cluster_sections": {"verified_strict": [], "verified_by_parallel": [], "unverified": [], "case_mismatch": [], "date_mismatch": [], "other": []},
+                    "progress_endpoint": f"/casestrainer/api/analyze/progress/{request_id}",
+                    "progress_stream": f"/casestrainer/api/analyze/progress-stream/{request_id}",
                     "metadata": {
                         "filename": filename,
-                        "file_size": os.path.getsize(file_path),
+                        "file_size": os.path.getsize(file_path_local),
                         "content_type": file.content_type,
                         "processing_mode": "queued",
+                        "input_type": "file",
                     },
                 }
             else:
                 logger.info(f"[File Upload {request_id}] Processing file synchronously")
 
                 if file_ext == "pdf":
-                    import PyPDF2
-
+                    # UNIFIED: Use same extractor as RQ worker and async paths (PyMuPDF via UnifiedTextExtractor)
+                    # Ensures file upload and URL/async produce identical citation results
                     text = ""
-                    logger.info(f"[File Upload {request_id}] Starting PDF text extraction from: {file_path}")
+                    logger.info(f"[File Upload {request_id}] Starting PDF text extraction from: {file_path_local}")
                     try:
-                        with open(file_path, "rb") as f:
-                            pdf_reader = PyPDF2.PdfReader(f)
-                            logger.info(f"[File Upload {request_id}] PDF has {len(pdf_reader.pages)} pages")
-                            text = "\n".join(page.extract_text() for page in pdf_reader.pages)
-                            logger.info(f"[File Upload {request_id}] Extracted text length: {len(text)} characters")
+                        from src.unified_text_extractor import extract_text_from_file_unified
+
+                        text, method = extract_text_from_file_unified(file_path_local, verbose=True)
+                        logger.info(f"[File Upload {request_id}] Extracted {len(text)} characters using {method}")
+                        if text:
                             logger.info(f"[File Upload {request_id}] First 200 chars: {text[:200]}")
+                        if not text or len(text.strip()) < 10:
+                            text = f"[Error extracting PDF content: insufficient text from {method}]"
                     except Exception as e:
                         logger.error(f"[File Upload {request_id}] PDF extraction failed: {e}")
                         text = f"[Error extracting PDF content: {str(e)}]"
@@ -2105,7 +2135,7 @@ def _handle_file_upload(service, request_id):
                     try:
                         from docx import Document
 
-                        doc = Document(file_path)
+                        doc = Document(file_path_local)
                         text = "\n".join(paragraph.text for paragraph in doc.paragraphs)
                     except ImportError:
                         text = f"[DOCX file content could not be extracted - {filename}]"
@@ -2120,7 +2150,7 @@ def _handle_file_upload(service, request_id):
                     try:
                         from bs4 import BeautifulSoup
 
-                        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                        with open(file_path_local, "r", encoding="utf-8", errors="ignore") as f:
                             html_content = f.read()
                         soup = BeautifulSoup(html_content, "html.parser")
                         for script in soup(["script", "style"]):
@@ -2139,7 +2169,7 @@ def _handle_file_upload(service, request_id):
                     try:
                         from bs4 import BeautifulSoup
 
-                        with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                        with open(file_path_local, "r", encoding="utf-8", errors="ignore") as f:
                             xml_content = f.read()
                         soup = BeautifulSoup(xml_content, "xml")
                         for script in soup(["script", "style"]):
@@ -2155,7 +2185,7 @@ def _handle_file_upload(service, request_id):
                         text = f"[Error extracting XML content: {str(e)}]"
                         logger.error(f"[File Upload {request_id}] XML processing error: {e}")
                 else:
-                    with open(file_path, "r", encoding="utf-8", errors="replace") as f:
+                    with open(file_path_local, "r", encoding="utf-8", errors="replace") as f:
                         text = f.read()
 
                 logger.info(f"[File Upload {request_id}] Processing extracted text synchronously")
@@ -2191,6 +2221,7 @@ def _handle_file_upload(service, request_id):
                 formatted_result = {
                     "citations": result.get("citations", []),
                     "clusters": result.get("clusters", []),
+                    "cluster_sections": compute_cluster_sections(result.get("clusters", [])),
                     "statistics": result.get("statistics", {}),
                     "request_id": request_id,
                     "success": True,
@@ -2205,7 +2236,7 @@ def _handle_file_upload(service, request_id):
                 formatted_result["metadata"].update(
                     {
                         "filename": filename,
-                        "file_size": os.path.getsize(file_path),
+                        "file_size": os.path.getsize(file_path_local),
                         "content_type": file.content_type,
                         "processing_mode": "sync",
                     }
@@ -2238,17 +2269,31 @@ def _handle_file_upload(service, request_id):
             logger.error(f"[File Upload {request_id}] {error_msg}", exc_info=True)
 
             try:
-                if os.path.exists(file_path):
-                    os.remove(file_path)
+                if os.path.exists(file_path_local):
+                    os.remove(file_path_local)
                     logger.info(f"[File Upload {request_id}] Cleaned up file after task enqueue failure")
             except Exception as cleanup_error:
                 logger.error(f"[File Upload {request_id}] Failed to clean up file: {str(cleanup_error)}")
 
-            return jsonify({"error": error_msg, "citations": [], "clusters": [], "request_id": request_id}), 500
+            return {
+                "error": error_msg,
+                "citations": [],
+                "clusters": [],
+                "request_id": request_id,
+                "success": False,
+                "metadata": {},
+            }
 
     except Exception as e:
         logger.error(f"File upload error: {e}", exc_info=True)
-        return jsonify({"error": f"Failed to process file: {str(e)}", "citations": [], "clusters": []}), 500
+        return {
+            "error": f"Failed to process file: {str(e)}",
+            "citations": [],
+            "clusters": [],
+            "request_id": request_id,
+            "success": False,
+            "metadata": {},
+        }
 
 
 def _handle_json_input(service, request_id, data=None):
